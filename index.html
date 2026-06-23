@@ -914,12 +914,146 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .teste-op:hover{border-color:var(--gold);background:rgba(212,175,94,.08);transform:translateX(2px);}
 
 
-/* ═══ FOCO NO PORTAL: esconde a barra lateral principal em portais ═══ */
-body.portal-focus .side{display:none;}
+/* ═══ FOCO NO PORTAL ═══
+   Antes a barra lateral era escondida nos portais. Agora TODOS os acessos
+   compartilham a mesma moldura (menu lateral + topo), então mantemos a
+   barra sempre visível — cada perfil enxerga só os itens que pode acessar. */
+body.portal-focus .side{display:flex;}
+
+/* ═══════════════════════════════════════════════════════════
+   TEMA GAMER GLOBAL — v30 · MESMO VISUAL PARA TODOS OS ACESSOS
+   Vira o ecossistema inteiro no visual escuro/neon do portal do
+   colaborador. Aplicado via body.theme-gamer (sempre ligado).
+   Quase tudo usa var(--panel)/var(--ink)/var(--line); ao reescrever
+   esses tokens, o app inteiro escurece de forma consistente.
+   ═══════════════════════════════════════════════════════════ */
+body.theme-gamer{
+  --panel:#121a28; --panel-soft:#0d1420;
+  --ink:#e7eef7; --ink-soft:#93a4bd; --ink-faint:#647489;
+  --line:rgba(120,165,210,.16); --line-soft:rgba(120,165,210,.09);
+  --ok:#3ee89e; --ok-bg:rgba(46,230,160,.14);
+  --warn:#ffc24d; --warn-bg:rgba(255,194,77,.13);
+  --bad:#ff5d6c; --bad-bg:rgba(255,93,108,.13);
+  --info:#35e6ff; --info-bg:rgba(53,230,255,.12);
+  --gold-deep:#e7c87a;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 16px 40px -22px rgba(0,0,0,.85);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.45),0 30px 70px -30px rgba(0,0,0,.9);
+  --neon:#35e6ff; --xp:#d4af5e;
+  background:#070b12; color:var(--ink);
+}
+/* fundo imersivo global: aurora neon + grid sutil */
+body.theme-gamer::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(1100px 720px at 85% -10%, rgba(53,230,255,.10), transparent 60%),
+    radial-gradient(900px 600px at 4% 112%, rgba(212,175,94,.09), transparent 58%),
+    linear-gradient(160deg,#060910,#0a0f1a 50%,#0b121e);
+}
+body.theme-gamer::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+  background-image:linear-gradient(rgba(120,170,210,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,210,.045) 1px,transparent 1px);
+  background-size:46px 46px;mask-image:radial-gradient(circle at 62% 18%,#000,transparent 82%);
+}
+body.theme-gamer .main,body.theme-gamer .scroll{background:transparent;}
+body.theme-gamer .topbar{background:rgba(12,18,30,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+body.theme-gamer .topbar h1 b{color:var(--gold-bright);}
+/* superfícies em vidro escuro */
+body.theme-gamer .card,
+body.theme-gamer .kpi,
+body.theme-gamer .notif-panel,
+body.theme-gamer .pt-journey,
+body.theme-gamer .pt-trust-item,
+body.theme-gamer .in-pillar{
+  background:linear-gradient(180deg,rgba(20,28,44,.82),rgba(13,20,32,.84));
+  border:1px solid var(--line);
+  box-shadow:0 0 0 1px rgba(53,230,255,.04),0 24px 60px -34px #000;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+body.theme-gamer .kpi.hot{border-color:var(--gold);border-left:3px solid var(--gold);}
+body.theme-gamer .notif-head{background:rgba(16,24,38,.96);border-bottom:1px solid var(--line);}
+/* componentes com cor clara fixa → escuro */
+body.theme-gamer .esteira{background:linear-gradient(180deg,rgba(18,26,40,.92),rgba(12,18,30,.94));border:1px solid var(--line);}
+body.theme-gamer .est-hint{background:rgba(255,255,255,.03);border:1px dashed var(--line);}
+body.theme-gamer .est-card{background:rgba(20,28,44,.92);border-color:var(--gold);border-left-color:var(--gold);}
+body.theme-gamer .est-done{background:var(--ok-bg);border:1px solid rgba(46,230,160,.4);color:var(--ok);}
+body.theme-gamer .carga-wrap,
+body.theme-gamer .resumo{background:rgba(255,255,255,.03);}
+body.theme-gamer .resumo{border-color:var(--gold);border-left-color:var(--gold);}
+body.theme-gamer .cm-dia{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink-soft);}
+body.theme-gamer .cm-dia.on{background:var(--gold);color:#1a1408;border-color:var(--gold);}
+body.theme-gamer .tdot{background:#0e1626;border:2px solid var(--line);color:var(--ink-faint);}
+body.theme-gamer .tline{background:var(--line);}
+body.theme-gamer .tline.done{background:var(--gold);}
+body.theme-gamer .tstep.cur .tdot{background:#0a0f1a;border-color:var(--neon);color:var(--neon);box-shadow:0 0 0 5px rgba(53,230,255,.16);}
+body.theme-gamer .ent-empty{background:rgba(255,255,255,.02);border:1px dashed var(--line);}
+body.theme-gamer .tbl th{border-bottom:1px solid var(--line);}
+body.theme-gamer .tbl td{border-bottom:1px solid var(--line-soft);}
+body.theme-gamer .tbl tbody tr:hover{background:rgba(53,230,255,.05);}
+/* formulários */
+body.theme-gamer .inp,body.theme-gamer .inp-sm,body.theme-gamer textarea.inp,body.theme-gamer select.inp{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink);}
+body.theme-gamer .inp::placeholder{color:var(--ink-faint);}
+body.theme-gamer select.inp option,body.theme-gamer select option{color:#10151f;}
+body.theme-gamer .btn-ghost{background:rgba(53,230,255,.06);border:1px solid var(--line);color:var(--ink);}
+body.theme-gamer .btn-ghost:hover{border-color:var(--neon);color:#fff;}
+body.theme-gamer .seg-btn{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink-soft);}
+body.theme-gamer .seg-btn.on{background:var(--gold-grad);color:#1a1408;border-color:var(--gold);}
+body.theme-gamer .cat{border:1px solid var(--line);}
+body.theme-gamer .cat-item:hover{background:rgba(53,230,255,.06);}
+body.theme-gamer .teste-op{background:rgba(255,255,255,.04);color:var(--ink);}
+body.theme-gamer .teste-op:hover{border-color:var(--neon);background:rgba(53,230,255,.08);}
+/* modais em vidro escuro */
+body.theme-gamer .modal-card{background:linear-gradient(180deg,rgba(20,28,44,.98),rgba(12,18,30,.99));border:1px solid var(--line);color:var(--ink);box-shadow:0 40px 90px -30px #000;}
+/* inline-styles claros comuns dentro do app (não afeta o overlay de proposta) */
+body.theme-gamer .scroll [style*="background:var(--panel-soft)"],
+body.theme-gamer .modal [style*="background:var(--panel-soft)"]{background:rgba(255,255,255,.04)!important;}
+body.theme-gamer .scroll [style*="background:#fbfaf7"],
+body.theme-gamer .modal [style*="background:#fbfaf7"]{background:rgba(255,255,255,.03)!important;}
+body.theme-gamer .scroll [style*="background:#fff"],
+body.theme-gamer .modal [style*="background:#fff"]{background:rgba(20,28,44,.85)!important;}
+/* realce neon no menu lateral ativo (mantém identidade dourada) */
+body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,.16),rgba(200,162,74,.10));color:var(--gold-soft);box-shadow:inset 0 0 0 1px var(--line);}
+
+/* ═══ GAMIFICAÇÃO DO CLIENTE — painel de nível, XP e conquistas ═══ */
+.ptg{position:relative;overflow:hidden;border-radius:var(--r-lg);margin-bottom:22px;padding:24px 26px;
+  background:linear-gradient(135deg,rgba(20,30,48,.92),rgba(12,18,30,.94));border:1px solid rgba(53,230,255,.18);
+  box-shadow:0 0 0 1px rgba(53,230,255,.05),0 26px 60px -34px #000;}
+.ptg::before{content:"";position:absolute;top:-50%;right:-6%;width:420px;height:420px;background:radial-gradient(circle,rgba(53,230,255,.14),transparent 62%);pointer-events:none;}
+.ptg-top{position:relative;z-index:2;display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+.ptg-ring{position:relative;width:92px;height:92px;flex-shrink:0;}
+.ptg-ring .face{position:absolute;inset:9px;border-radius:50%;background:linear-gradient(135deg,#1a2740,#0e1626);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(53,230,255,.25);box-shadow:0 0 22px -6px rgba(53,230,255,.5) inset;}
+.ptg-ring .face .lv{font-family:var(--font-display);font-weight:800;font-size:26px;color:var(--gold-bright);line-height:1;}
+.ptg-ring .face .ll{font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:#8da3bd;margin-top:2px;}
+.ptg-id{flex:1;min-width:230px;}
+.ptg-eye{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#35e6ff;font-weight:700;}
+.ptg-title{font-family:var(--font-display);font-weight:800;font-size:22px;color:#fff;margin:4px 0 3px;letter-spacing:-.01em;}
+.ptg-sub{font-size:12.5px;color:#9aa6bb;}
+.ptg-xpbar{margin-top:12px;}
+.ptg-xpbar .top{display:flex;justify-content:space-between;font-size:11px;color:#9aa6bb;margin-bottom:6px;}
+.ptg-xpbar .top b{color:var(--gold-bright);}
+.ptg-xptrack{height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;}
+.ptg-xpfill{height:100%;border-radius:6px;background:linear-gradient(90deg,#f0d68a,#d4af5e);box-shadow:0 0 12px -2px var(--gold);transition:width .8s cubic-bezier(.22,1,.36,1);}
+.ptg-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.ptg-stat{text-align:center;padding:10px 16px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(120,165,210,.14);min-width:78px;}
+.ptg-stat .v{font-family:var(--font-display);font-weight:800;font-size:20px;color:#fff;line-height:1;}
+.ptg-stat .l{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#8da3bd;margin-top:5px;}
+.ptg-badges{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:20px;}
+.ptg-badge{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(120,165,210,.12);transition:.2s;}
+.ptg-badge.got{border-color:rgba(212,175,94,.5);background:radial-gradient(circle at 30% 20%,rgba(212,175,94,.16),rgba(255,255,255,.03));box-shadow:0 0 22px -8px var(--gold);}
+.ptg-badge .bic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;background:rgba(255,255,255,.05);border:1px solid rgba(120,165,210,.14);flex-shrink:0;}
+.ptg-badge.got .bic{background:radial-gradient(circle at 50% 35%,rgba(212,175,94,.35),rgba(212,175,94,.05));border-color:var(--gold);}
+.ptg-badge .bt{font-size:11.5px;font-weight:700;color:#e7eef7;line-height:1.2;}
+.ptg-badge.got .bt{color:#fff;}
+.ptg-badge .bd{font-size:9.5px;color:#7a89a0;margin-top:1px;}
+.ptg-badge:not(.got){opacity:.55;filter:grayscale(.4);}
+.ptg-next{position:relative;z-index:2;margin-top:16px;font-size:12.5px;color:#aeb8c8;background:rgba(53,230,255,.06);border:1px dashed rgba(53,230,255,.25);border-radius:12px;padding:12px 15px;}
+.ptg-next b{color:var(--gold-bright);}
+/* colaborador: chip da próxima conquista no cartão do jogador */
+.gmr-nextbadge{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#aeb8c8;background:rgba(53,230,255,.08);border:1px solid rgba(53,230,255,.22);border-radius:30px;padding:5px 12px;}
+.gmr-nextbadge b{color:var(--gold-bright);}
 
 </style>
 </head>
-<body>
+<body class="theme-gamer">
 
 <!-- ===== TELA DE LOGIN (simulação — pronta para backend) ===== -->
 <div id="login-screen">
@@ -1349,6 +1483,9 @@ body.portal-focus .side{display:none;}
           <div class="pt-trust-item"><div class="ic">📡</div><div><div class="t">Acompanhamento ao vivo</div><div class="d">Veja em tempo real onde seu projeto está e o que vem a seguir.</div></div></div>
         </div>
 
+        <!-- gamificação do cliente: nível, XP e conquistas -->
+        <div id="pt-game"></div>
+
         <!-- jornada visual -->
         <div class="pt-journey">
           <div class="pt-journey-h">
@@ -1552,6 +1689,22 @@ body.portal-focus .side{display:none;}
             <tr><td><b>Deusemar Araujo</b></td><td>Mentor</td><td>DNA da liderança</td></tr>
           </tbody></table>
       </div>
+
+      <!-- ============ CONFIGURADOR DE PERMISSÕES ============ -->
+      <div class="card" id="equipe-perm">
+        <div class="card-h">Permissões de acesso por perfil
+          <span class="pill pill-info" style="text-transform:none;letter-spacing:0;">⚙ Você controla quem vê o quê</span></div>
+        <p class="hint" style="margin:-8px 0 16px;">Marque quais telas cada perfil enxerga ao entrar. As mudanças valem na hora e ficam salvas neste navegador. O acesso de Admin a esta tela fica protegido para você não se trancar para fora.</p>
+        <div id="perm-body"></div>
+        <div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px;">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);margin-bottom:8px;">Esteira comercial e Propostas — o que o colaborador vê</div>
+          <p class="hint" style="margin:0 0 10px;">Define se cada colaborador acompanha todo o comercial da empresa ou apenas os negócios em que ele participa.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;" id="perm-escopo"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-ghost btn-sm" onclick="permResetar()">↺ Restaurar padrão</button>
+        </div>
+      </div>
     </section>
 
   </div><!-- /scroll -->
@@ -1750,11 +1903,29 @@ body.portal-focus .side{display:none;}
              (colaborador recebe só o próprio registro; cliente, só o seu).
            Procure os marcadores "=== BACKEND ===" abaixo.
         ============================================================ */
-        const PERMISSOES={
+        // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
+        // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
+        const PERMISSOES_DEFAULT={
           admin:      ['dash','funil','propostas','financeiro','portal','colaborador','rh','catalogo','equipe'],
-          colaborador:['colaborador'],
+          colaborador:['colaborador','funil','propostas'],
           cliente:    ['portal']
         };
+        // Configuração de acesso editável em "Equipe e acessos" e persistida no navegador.
+        let PERMISSOES=JSON.parse(JSON.stringify(PERMISSOES_DEFAULT));
+        // Escopo de dados do colaborador no comercial: 'todos' (vê tudo) | 'proprios' (só os dele).
+        let COL_ESCOPO_COMERCIAL='todos';
+        // === BACKEND === no app real isto vem do servidor, não do navegador.
+        try{
+          let _sp=JSON.parse(localStorage.getItem('af_permissoes')||'null');
+          if(_sp&&_sp.perm) PERMISSOES=_sp.perm;
+          if(_sp&&_sp.escopo) COL_ESCOPO_COMERCIAL=_sp.escopo;
+        }catch(e){}
+        // admin nunca pode perder o acesso a "Equipe e acessos" (senão tranca o configurador)
+        if(!PERMISSOES.admin) PERMISSOES.admin=PERMISSOES_DEFAULT.admin.slice();
+        if(!PERMISSOES.admin.includes('equipe')) PERMISSOES.admin.push('equipe');
+        function salvarPermissoes(){
+          try{ localStorage.setItem('af_permissoes', JSON.stringify({perm:PERMISSOES, escopo:COL_ESCOPO_COMERCIAL})); }catch(e){}
+        }
         const AUTH={
           user:null,            // { papel, id, nome, rl, av }
           // === BACKEND === substituir por POST /api/login (retorna usuário + token)
@@ -1810,13 +1981,9 @@ body.portal-focus .side{display:none;}
           document.getElementById('login-screen').classList.add('hidden');
         }
         // aplica visibilidade de nav + identidade + redireciona para a primeira view permitida
-        function aplicarPerfil(){
-          let u=AUTH.currentUser(); if(!u)return;
-          // identidade na topbar
-          document.getElementById('top-user-nome').innerText=u.nome;
-          document.getElementById('top-user-rl').innerText=u.rl;
-          document.getElementById('top-user-av').innerText=u.av;
-          // mostra/esconde itens de nav conforme permissão
+        // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
+        // do usuário logado, SEM navegar (usado ao editar permissões ao vivo).
+        function atualizarNavVisibilidade(){
           const navMap={dash:'n-dash',funil:'n-funil',propostas:'n-propostas',financeiro:'n-financeiro',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
           Object.keys(navMap).forEach(v=>{ let el=document.getElementById(navMap[v]); if(el) el.style.display=AUTH.can(v)?'':'none'; });
           // esconde grupos de nav vazios
@@ -1826,6 +1993,15 @@ body.portal-focus .side{display:none;}
             let algumVisivel=proximos.some(b=>b.style.display!=='none');
             g.style.display=algumVisivel?'':'none';
           });
+        }
+        function aplicarPerfil(){
+          let u=AUTH.currentUser(); if(!u)return;
+          // identidade na topbar
+          document.getElementById('top-user-nome').innerText=u.nome;
+          document.getElementById('top-user-rl').innerText=u.rl;
+          document.getElementById('top-user-av').innerText=u.av;
+          // mostra/esconde itens de nav conforme permissão
+          atualizarNavVisibilidade();
           // para colaborador/cliente, pré-seleciona a própria identidade nos seletores internos
           if(u.papel==='colaborador'){ colAtual=u.id; colAba='dash'; }
           // primeira view permitida
@@ -2081,8 +2257,8 @@ body.portal-focus .side{display:none;}
           // foco no portal: esconde a barra lateral principal em portais imersivos
           let ehPortal=(v==='colaborador'||v==='portal');
           document.body.classList.toggle('portal-focus', ehPortal);
-          // botão "voltar ao painel" só para quem tem acesso a outras áreas (admin)
-          let podeVoltar=ehPortal && (!AUTH.user || (PERMISSOES[AUTH.user.papel]||[]).length>1);
+          // botão "voltar ao painel" só para quem realmente tem a Gestão à vista (admin)
+          let podeVoltar=ehPortal && (!AUTH.user || (PERMISSOES[AUTH.user.papel]||[]).includes('dash'));
           let btnVoltar=document.getElementById('btn-voltar-painel');
           if(btnVoltar) btnVoltar.style.display=podeVoltar?'flex':'none';
           document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
@@ -2102,6 +2278,7 @@ body.portal-focus .side{display:none;}
           if(v==='rh') renderRH();
           if(v==='catalogo') renderCatTabela();
           if(v==='dash') renderDash();
+          if(v==='equipe') renderPermissoes();
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
 
@@ -2918,20 +3095,102 @@ body.portal-focus .side{display:none;}
         function agendaClose(){ document.getElementById('m-agenda').classList.remove('on'); calcCapacidade(); }
 
         /* ===== PROPOSTAS ===== */
+        // Filtra a lista comercial conforme o escopo configurado em "Equipe e acessos".
+        // 'todos' (padrão) → todos veem tudo. 'proprios' → o colaborador vê só os
+        // negócios em que ele aparece no time/como responsável.
+        function comercialVisivel(lista){
+          let u=(typeof AUTH!=='undefined')?AUTH.user:null;
+          if(!u || u.papel!=='colaborador' || COL_ESCOPO_COMERCIAL!=='proprios') return lista;
+          let c=DB.colaboradores.find(x=>x.id===u.id); if(!c) return lista;
+          let prim=(c.nome||'').toLowerCase().split(' ')[0];
+          return lista.filter(p=>{
+            let eq=(p.equipe||[]).map(x=>(x||'').toLowerCase());
+            let gestor=(p.gestor||'').toLowerCase();
+            return eq.some(n=>n.includes(prim)) || gestor.includes(prim);
+          });
+        }
         function renderPropostas(){
           let tb=document.getElementById('p-tbody'); if(!tb)return;
+          let lista=comercialVisivel(DB.propostas);
           let ab=0,ap=0,vneg=0;
-          if(DB.propostas.length===0){ tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:30px;">Nenhuma proposta ainda. Cadastre um cliente no Funil.</td></tr>'; }
-          else tb.innerHTML=DB.propostas.map(p=>{
+          if(lista.length===0){
+            let msg=DB.propostas.length===0?'Nenhuma proposta ainda. Cadastre um cliente no Funil.':'Nenhuma proposta atribuída a você. (Escopo: só os seus — ajustável em Equipe e acessos.)';
+            tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:30px;">'+msg+'</td></tr>';
+          }
+          else tb.innerHTML=lista.map(p=>{
             if(p.views>0)ab++; if(p.status==='aprovada')ap++; else vneg+=p.valor;
             let badge=p.status==='aprovada'?'<span class="pill pill-ok">Aprovada</span>':p.views>0?'<span class="pill pill-warn">Aberta</span>':'<span class="pill pill-info">Enviada</span>';
             let comp=`<span style="font-size:11px;color:var(--ink-soft);">${p.views} abertura(s)${p.viuValor?' · viu valor':''}${p.aprovou?' · aprovou':''}</span>`;
             return `<tr ${hcAttr('cli',p.dealId)}><td><b>${p.empresa}</b><br><span style="font-size:11px;color:var(--ink-faint);">${p.decisor||''}</span></td><td><b>${brl(p.valor)}</b></td><td>${badge}</td><td>${comp}</td><td><span style="font-family:monospace;font-size:11px;color:var(--gold-deep);">/${p.slug}</span></td><td><button class="btn btn-ghost btn-sm" onclick="cliAbrir('${p.id}')">👁 Ver</button></td></tr>`;
           }).join('');
-          document.getElementById('p-total').innerText=DB.propostas.length;
+          document.getElementById('p-total').innerText=lista.length;
           document.getElementById('p-abertas').innerText=ab;
           document.getElementById('p-aprovadas').innerText=ap;
           document.getElementById('p-valor').innerText=brl(vneg);
+        }
+
+        /* ===== CONFIGURADOR DE PERMISSÕES (Equipe e acessos) ===== */
+        const PERM_TELAS=[
+          {k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},
+          {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
+          {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
+        ];
+        const PERM_PAPEIS=[
+          {k:'admin',l:'Admin / Gestão',ic:'♛'},{k:'colaborador',l:'Colaborador',ic:'⚔️'},{k:'cliente',l:'Cliente',ic:'◐'}
+        ];
+        function renderPermissoes(){
+          let body=document.getElementById('perm-body'); if(!body)return;
+          body.innerHTML=PERM_PAPEIS.map(pa=>{
+            let lista=PERMISSOES[pa.k]||[];
+            let chips=PERM_TELAS.map(t=>{
+              let on=lista.includes(t.k);
+              // trava: admin não pode desligar "Equipe e acessos"
+              let travado=(pa.k==='admin'&&t.k==='equipe');
+              let style=`display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:10px;border:1px solid ${on?'var(--gold)':'var(--line)'};background:${on?'rgba(212,175,94,.12)':'rgba(255,255,255,.03)'};color:${on?'var(--gold-soft)':'var(--ink-soft)'};font-size:12px;font-weight:600;cursor:${travado?'not-allowed':'pointer'};opacity:${travado?'.7':'1'};transition:.15s;`;
+              let oc=travado?'':`onclick="permToggle('${pa.k}','${t.k}')"`;
+              return `<button ${oc} style="${style}" title="${travado?'Acesso protegido':''}">${on?'✓':'○'} ${t.l}${travado?' 🔒':''}</button>`;
+            }).join('');
+            return `<div style="margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">
+                <span style="font-size:16px;">${pa.ic}</span>
+                <b style="font-size:14px;">${pa.l}</b>
+                <span class="pill pill-mute" style="margin-left:auto;">${lista.length} tela(s)</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">${chips}</div>
+            </div>`;
+          }).join('');
+          // escopo comercial do colaborador
+          let esc=document.getElementById('perm-escopo');
+          if(esc){
+            let opts=[['todos','🌐 Todos os negócios da empresa'],['proprios','👤 Apenas os negócios do colaborador']];
+            esc.innerHTML=opts.map(o=>{
+              let on=COL_ESCOPO_COMERCIAL===o[0];
+              return `<button onclick="permEscopo('${o[0]}')" style="padding:10px 14px;border-radius:10px;border:1px solid ${on?'var(--gold)':'var(--line)'};background:${on?'rgba(212,175,94,.12)':'rgba(255,255,255,.03)'};color:${on?'var(--gold-soft)':'var(--ink-soft)'};font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s;">${on?'●':'○'} ${o[1]}</button>`;
+            }).join('');
+          }
+        }
+        function permToggle(papel,tela){
+          PERMISSOES[papel]=PERMISSOES[papel]||[];
+          let i=PERMISSOES[papel].indexOf(tela);
+          if(i>=0) PERMISSOES[papel].splice(i,1); else PERMISSOES[papel].push(tela);
+          // garante que o admin nunca perca "Equipe e acessos"
+          if(papel==='admin'&&!PERMISSOES.admin.includes('equipe')) PERMISSOES.admin.push('equipe');
+          salvarPermissoes();
+          renderPermissoes();
+          // se o usuário logado for desse papel, atualiza o menu na hora (sem sair da tela)
+          if(typeof AUTH!=='undefined'&&AUTH.user&&AUTH.user.papel===papel&&typeof atualizarNavVisibilidade==='function') atualizarNavVisibilidade();
+          if(typeof notify==='function') notify('equipe','Permissões atualizadas','Acesso de '+papel+' a "'+tela+'" '+(i>=0?'removido':'liberado')+'.','equipe');
+        }
+        function permEscopo(v){
+          COL_ESCOPO_COMERCIAL=v; salvarPermissoes(); renderPermissoes();
+          if(typeof renderPropostas==='function') renderPropostas();
+        }
+        function permResetar(){
+          if(!confirm('Restaurar as permissões padrão de todos os perfis?')) return;
+          PERMISSOES=JSON.parse(JSON.stringify(PERMISSOES_DEFAULT));
+          COL_ESCOPO_COMERCIAL='todos';
+          salvarPermissoes(); renderPermissoes();
+          if(typeof AUTH!=='undefined'&&AUTH.user&&typeof atualizarNavVisibilidade==='function') atualizarNavVisibilidade();
         }
 
         /* ===== CLIENT OVERLAY ===== */
@@ -3366,6 +3625,7 @@ body.portal-focus .side{display:none;}
                     <div class="top"><span>NÍVEL ${nivel}</span><span><b>${c.gam.xp} XP</b> · faltam ${100-pct} p/ nível ${nivel+1}</span></div>
                     <div class="gmr-xptrack"><div class="gmr-xpfill" style="width:${pct}%;"></div></div>
                   </div>
+                  ${(function(){ let nb=COL_BADGES.find(b=>!c.gam.badges.includes(b.k)); return `<div class="gmr-nextbadge">${nb?`🎯 Próxima conquista: <b>${nb.ic} ${nb.l}</b>`:'🏆 <b>Todas as conquistas desbloqueadas!</b>'}</div>`; })()}
                 </div>
                 <div class="gmr-vitals">
                   ${score!=null?`<div class="gmr-vital neon"><div class="vv">${score}</div><div class="vl">Power</div></div>`:''}
@@ -5658,6 +5918,72 @@ body.portal-focus .side{display:none;}
           el.innerHTML=DP_OCORRENCIAS.map(o=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12px;"><span><b>${o.col.split(' ')[0]}</b> · ${o.tipo}${o.obs?' — '+o.obs:''}</span><span style="color:var(--ink-faint);white-space:nowrap;">${o.data}</span></div>`).join('');
         }
 
+        // ===== GAMIFICAÇÃO DO CLIENTE =====
+        // Nível, XP e conquistas derivados do progresso real do projeto do cliente.
+        const PT_BADGES_DEF=[
+          {k:'proposta', ic:'🎯', t:'Proposta recebida',  d:'Sua jornada começou'},
+          {k:'assinado', ic:'✍️', t:'Contrato assinado',  d:'Parceria oficializada'},
+          {k:'onboarding',ic:'🚀', t:'Kickoff confirmado', d:'Próximos passos confirmados'},
+          {k:'entrega',  ic:'✅', t:'Entrega aprovada',   d:'1ª entrega aprovada por você'},
+          {k:'pagamento',ic:'💳', t:'Pagamento em dia',   d:'Investimento em movimento'},
+          {k:'avaliacao',ic:'⭐', t:'Avaliação enviada',  d:'Você deu seu feedback'},
+          {k:'concluido',ic:'🏆', t:'Projeto concluído',  d:'Resultado entregue'}
+        ];
+        const PT_NIVEL_TIT=['Embarcou na jornada','Projeto em andamento','Ganhando tração','Avançando forte','Quase lá','Reta final','Missão cumprida'];
+        function renderPortalGame(p, idx, pendencias){
+          let cont=document.getElementById('pt-game'); if(!cont)return;
+          let dealAtivo=(typeof deal!=='undefined'&&deal&&deal.id===p.dealId)?deal:null;
+          let sIdx=dealAtivo?(dealAtivo.etapa==='concluido'?ETAPAS.length:ETAPAS.findIndex(x=>x.k===dealAtivo.etapa)):-1;
+          let past=k=>{ let i=ETAPAS.findIndex(x=>x.k===k); return i>=0 && sIdx>i; };
+          let docs=p.docs||[];
+          let receb=(DB.recebiveis||[]).find(x=>x.dealId===p.dealId);
+          let got={
+            proposta:true,
+            assinado: docs.some(d=>d.tipo==='contrato'&&(d.status==='assinado'||d.status==='aprovado')) || past('contrato'),
+            onboarding: !!(p.onboarding&&p.onboarding.confirmadoCliente) || past('onboarding'),
+            entrega: docs.some(d=>d.origem==='equipe'&&d.status==='aprovado') || past('aprovacao_entrega'),
+            pagamento: !!(receb&&receb.parcelas&&receb.parcelas.some(x=>x.pago)) || past('pagamento'),
+            avaliacao: docs.some(d=>d.aval) || past('satisfacao'),
+            concluido: !!(dealAtivo&&dealAtivo.etapa==='concluido')
+          };
+          let total=PT_BADGES_DEF.length;
+          let gotN=PT_BADGES_DEF.filter(b=>got[b.k]).length;
+          let nivel=Math.max(1,gotN);
+          let titulo=PT_NIVEL_TIT[Math.min(nivel-1,PT_NIVEL_TIT.length-1)];
+          let conqPct=Math.round(gotN/total*100);
+          let jornadaPct=idx<=0?(dealAtivo?6:0):Math.min(100,Math.round(idx/ETAPAS.length*100));
+          let xp=gotN*120+jornadaPct;
+          let primeiro=(p.deal.decisor||p.cliente||'').split(' ')[0]||'você';
+          // próxima conquista a desbloquear
+          let prox=PT_BADGES_DEF.find(b=>!got[b.k]);
+          let proxTxt=prox?`Próxima conquista: <b>${prox.ic} ${prox.t}</b> — ${prox.d}.`:'🎉 Você desbloqueou todas as conquistas desta jornada. Parabéns!';
+          let R=42, C=2*Math.PI*R;
+          let ring=`<svg viewBox="0 0 92 92" style="position:absolute;inset:0;"><circle cx="46" cy="46" r="${R}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="3"/><circle cx="46" cy="46" r="${R}" fill="none" stroke="#d4af5e" stroke-width="3" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-conqPct/100)}" transform="rotate(-90 46 46)" style="filter:drop-shadow(0 0 6px #d4af5e);transition:stroke-dashoffset .8s"/></svg>`;
+          cont.innerHTML=`
+            <div class="ptg">
+              <div class="ptg-top">
+                <div class="ptg-ring">${ring}<div class="face"><div class="lv">${nivel}</div><div class="ll">nível</div></div></div>
+                <div class="ptg-id">
+                  <div class="ptg-eye">✦ Sua jornada gamificada</div>
+                  <div class="ptg-title">${titulo}</div>
+                  <div class="ptg-sub">${primeiro}, cada etapa concluída desbloqueia uma conquista e te aproxima do resultado final.</div>
+                  <div class="ptg-xpbar">
+                    <div class="top"><span>${gotN} de ${total} conquistas</span><span><b>${xp} XP</b> · ${conqPct}%</span></div>
+                    <div class="ptg-xptrack"><div class="ptg-xpfill" style="width:${conqPct}%;"></div></div>
+                  </div>
+                </div>
+                <div class="ptg-stats">
+                  <div class="ptg-stat"><div class="v">${jornadaPct}%</div><div class="l">Jornada</div></div>
+                  <div class="ptg-stat"><div class="v">${gotN}</div><div class="l">Troféus</div></div>
+                  <div class="ptg-stat"><div class="v">${pendencias||0}</div><div class="l">Pendências</div></div>
+                </div>
+              </div>
+              <div class="ptg-badges">
+                ${PT_BADGES_DEF.map(b=>`<div class="ptg-badge ${got[b.k]?'got':''}"><div class="bic">${got[b.k]?b.ic:'🔒'}</div><div><div class="bt">${b.t}</div><div class="bd">${got[b.k]?'Desbloqueada':b.d}</div></div></div>`).join('')}
+              </div>
+              <div class="ptg-next">${proxTxt}</div>
+            </div>`;
+        }
         function renderPortal(){
           portalSyncSelect();
           let p=portalAtual();
@@ -5677,6 +6003,8 @@ body.portal-focus .side{display:none;}
           let acoes=portalAcoesPendentes(p);
           document.getElementById('pt-pendencias').innerText=acoes.length;
           document.getElementById('pt-docs').innerText=p.docs.length;
+          // GAMIFICAÇÃO DO CLIENTE
+          renderPortalGame(p, idx, acoes.length);
           // ONBOARDING
           let ob=p.onboarding, obEl=document.getElementById('pt-onboarding');
           if(ob){
