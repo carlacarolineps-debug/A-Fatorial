@@ -87,6 +87,18 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     um tema claro; a preferência fica em `localStorage` (`af_tema`). O portal do
     colaborador mantém a identidade gamer nos dois temas. Funções: `alternarTema`,
     `aplicarTema`.
+13. **Centro Financeiro 360** (nav "Centro Financeiro 360", admin) — gestão
+    financeira pessoal + empresa num só lugar:
+    - **Visão geral**: KPIs (entradas, saídas, resultado, mistura PF↔Empresa),
+      gráfico de categorias, evolução mensal e o **Conselheiro** (analisa e diz o
+      que fazer). Card de **valuation** (faixa por múltiplo de faturamento).
+    - **Lançamentos**: manuais, filtro por contexto/mês, reclassificar PF/Empresa.
+    - **Importar extrato**: cole o texto do extrato (parser do Nubank validado
+      contra os totais oficiais) → prévia → importa categorizando.
+    - **Metas & objetivos**: alvo, aporte mensal e **tempo para alcançar**.
+    - Vem **semeado com extratos reais (jan–abr/2026)**. Persistência em
+      `localStorage` (`af_fin`). Funções: `FIN360`, `finParseExtrato`,
+      `finConselho`, `finVisaoGeral`, `finResumo`, `finCatFinal`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 

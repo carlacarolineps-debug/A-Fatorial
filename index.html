@@ -1191,6 +1191,7 @@ body.apresentacao #apr-banner{display:block;}
     <button class="nav-item" onclick="go('funil')" id="n-funil"><span class="ic">◎</span> Esteira comercial <span class="step-n">1-14</span></button>
     <button class="nav-item" onclick="go('propostas')" id="n-propostas"><span class="ic">✦</span> Propostas e rastreio</button>
     <button class="nav-item" onclick="go('financeiro')" id="n-financeiro"><span class="ic">❖</span> Fluxo de caixa e DRE</button>
+    <button class="nav-item" onclick="go('fin360')" id="n-fin360"><span class="ic">◇</span> Centro Financeiro 360</button>
 
     <div class="nav-group">Visão do cliente</div>
     <button class="nav-item" onclick="go('portal')" id="n-portal"><span class="ic">◐</span> Portal do cliente</button>
@@ -1693,6 +1694,35 @@ body.apresentacao #apr-banner{display:block;}
       <div id="rh-pane-dp" class="col-pane"></div>
     </section>
 
+    <!-- ============ CENTRO FINANCEIRO 360 ============ -->
+    <section class="view" id="v-fin360">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Inteligência financeira · pessoal + empresa</span>
+        <h2>Pare de <b>misturar</b>. Comece a <b>enxergar</b>.</h2>
+        <p>Lance ou importe extratos, separe o que é seu do que é da empresa e deixe o sistema analisar, projetar e te dizer o próximo passo — da saúde do seu bolso ao quanto vale o seu negócio.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+        <div class="col-subnav" style="margin:0;flex-wrap:wrap;">
+          <button class="on" id="finsub-geral" onclick="finSubTab('geral')">📊 Visão geral</button>
+          <button id="finsub-lanc" onclick="finSubTab('lanc')">📒 Lançamentos</button>
+          <button id="finsub-import" onclick="finSubTab('import')">📥 Importar extrato</button>
+          <button id="finsub-metas" onclick="finSubTab('metas')">🎯 Metas & objetivos</button>
+        </div>
+        <div style="flex-grow:1;"></div>
+        <span class="lbl" style="margin:0;">Contexto:</span>
+        <select class="inp" id="fin-ctx" style="max-width:200px;" onchange="finRender()">
+          <option value="todos">Tudo (PF + Empresa)</option>
+          <option value="pessoal">Pessoal (Carla)</option>
+          <option value="empresa">Empresa (A! Fatorial)</option>
+        </select>
+        <select class="inp" id="fin-mes" style="max-width:170px;" onchange="finRender()"><option value="todos">Todos os meses</option></select>
+      </div>
+      <div id="fin-geral"></div>
+      <div id="fin-lanc" style="display:none;"></div>
+      <div id="fin-import" style="display:none;"></div>
+      <div id="fin-metas" style="display:none;"></div>
+    </section>
+
     <!-- ============ ENTREGÁVEIS (monitor interno) ============ -->
     <section class="view" id="v-entregaveis">
       <div class="kpis">
@@ -2119,7 +2149,7 @@ body.apresentacao #apr-banner{display:block;}
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dash','funil','propostas','financeiro','portal','colaborador','rh','catalogo','equipe'],
+          admin:      ['dash','funil','propostas','financeiro','fin360','portal','colaborador','rh','catalogo','equipe'],
           colaborador:['colaborador','funil','propostas'],
           cliente:    ['portal']
         };
@@ -2212,7 +2242,7 @@ body.apresentacao #apr-banner{display:block;}
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
         // do usuário logado, SEM navegar (usado ao editar permissões ao vivo).
         function atualizarNavVisibilidade(){
-          const navMap={dash:'n-dash',funil:'n-funil',propostas:'n-propostas',financeiro:'n-financeiro',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
+          const navMap={dash:'n-dash',funil:'n-funil',propostas:'n-propostas',financeiro:'n-financeiro',fin360:'n-fin360',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
           Object.keys(navMap).forEach(v=>{ let el=document.getElementById(navMap[v]); if(el) el.style.display=AUTH.can(v)?'':'none'; });
           // esconde grupos de nav vazios
           document.querySelectorAll('.side-nav .nav-group').forEach(g=>{
@@ -2505,6 +2535,7 @@ body.apresentacao #apr-banner{display:block;}
           if(v==='rh') renderRH();
           if(v==='catalogo'){ renderCatTabela(); if(typeof renderOportunidades==='function') renderOportunidades(); }
           if(v==='dash') renderDash();
+          if(v==='fin360' && typeof finRender==='function') finRender();
           if(v==='equipe'){ renderUsuarios(); renderPermissoes(); }
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
@@ -3697,7 +3728,7 @@ body.apresentacao #apr-banner{display:block;}
         /* ===== CONFIGURADOR DE PERMISSÕES (Equipe e acessos) ===== */
         const PERM_TELAS=[
           {k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},
-          {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
+          {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
           {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
         ];
         const PERM_PAPEIS=[
@@ -7015,8 +7046,355 @@ body.apresentacao #apr-banner{display:block;}
         /* ===== DEMO ===== */
         function entDemo(){ criarEntregaveis({id:'DEAL-DEMO'+Date.now().toString().slice(-4),cliente:'Ótica UltraVisão (exemplo)',equipe:['Carla Caroline'],fim:'2026-08-15',servicos:['Diagnóstico Empresarial (RAIO-X)','Reestruturação Empresarial','DNA da Liderança']}); }
 
+        /* ===================================================================
+           CENTRO FINANCEIRO 360 — pessoal + empresa, importação de extratos,
+           análise e conselheiro. Dados iniciais = extratos reais (jan–abr/2026).
+           =================================================================== */
+        const FIN_SEED=[
+  {d:'2026-01-04',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:20.0,c:'Aporte empresa→PF'},
+  {d:'2026-01-04',desc:"Débito em conta",v:-20.0,c:'Cartão (débito em conta)'},
+  {d:'2026-01-05',desc:"A FATORIAL SOLUCOES INTELIGENTES - CORA SCFI",v:60.0,c:'Aporte empresa→PF'},
+  {d:'2026-01-05',desc:"Uber UBER *TRIP HELP.U",v:-8.29,c:'Transporte'},
+  {d:'2026-01-05',desc:"Débito em conta",v:-60.0,c:'Cartão (débito em conta)'},
+  {d:'2026-01-07',desc:"Kaylaine Rodrigues de Souza Batista",v:170.0,c:'Transferência própria'},
+  {d:'2026-01-07',desc:"Uber UBER *TRIP HELP.U",v:-8.72,c:'Transporte'},
+  {d:'2026-01-07',desc:"Uber UBER *TRIP HELP.U",v:-15.98,c:'Transporte'},
+  {d:'2026-01-08',desc:"Uber UBER *TRIP HELP.U",v:-16.7,c:'Transporte'},
+  {d:'2026-01-08',desc:"BARAO PET CENTER",v:-15.0,c:'Pet'},
+  {d:'2026-01-09',desc:"LARI SUPERMERCADO",v:-11.28,c:'Mercado / Alimentação'},
+  {d:'2026-01-09',desc:"PUNTU INOVA SIMPLES I.S.",v:-19.63,c:'Pix enviado'},
+  {d:'2026-01-09',desc:"PUNTU INOVA SIMPLES I.S.",v:-19.0,c:'Pix enviado'},
+  {d:'2026-01-11',desc:"Uber UBER *TRIP HELP.U",v:-11.73,c:'Transporte'},
+  {d:'2026-01-12',desc:"Uber UBER *TRIP HELP.U",v:-13.22,c:'Transporte'},
+  {d:'2026-01-12',desc:"Uber UBER *TRIP HELP.U",v:-15.94,c:'Transporte'},
+  {d:'2026-01-13',desc:"Transferência de saldo NuInvest",v:0.25,c:'Rendimentos / Invest.'},
+  {d:'2026-01-13',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:200.0,c:'Aporte empresa→PF'},
+  {d:'2026-01-13',desc:"Uber UBER *TRIP HELP.U",v:-12.95,c:'Transporte'},
+  {d:'2026-01-13',desc:"Carla Caroline Moreira de Pontes - PICPAY",v:-130.0,c:'Transferência própria'},
+  {d:'2026-01-13',desc:"Uber UBER *TRIP HELP.U",v:-14.95,c:'Transporte'},
+  {d:'2026-01-13',desc:"A FATORIAL SOLUCOES INTELIGENTES",v:-65.54,c:'Devolução PF→empresa'},
+  {d:'2026-01-14',desc:"Transferência de saldo NuInvest",v:0.12,c:'Rendimentos / Invest.'},
+  {d:'2026-01-14',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:17.0,c:'Aporte empresa→PF'},
+  {d:'2026-01-14',desc:"LARI SUPERMERCADO",v:-16.98,c:'Mercado / Alimentação'},
+  {d:'2026-01-31',desc:"SILVESTRE SERVICOS D - BANCO INTER",v:140.0,c:'Outras entradas'},
+  {d:'2026-01-31',desc:"A FATORIAL SOLUCOES INTELIGENTES",v:-50.0,c:'Devolução PF→empresa'},
+  {d:'2026-02-01',desc:"LARI SUPERMERCADO",v:-18.99,c:'Mercado / Alimentação'},
+  {d:'2026-02-01',desc:"LARI SUPERMERCADO",v:-37.9,c:'Mercado / Alimentação'},
+  {d:'2026-02-02',desc:"CARLA CAROLINE MOREIRA DE PONTES - PICPAY",v:34.0,c:'Transferência própria'},
+  {d:'2026-02-02',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:1.15,c:'Aporte empresa→PF'},
+  {d:'2026-02-02',desc:"Priscila",v:-9.99,c:'Outros gastos'},
+  {d:'2026-02-02',desc:"Medical Tec Servicos Ltda - PAGSEGURO",v:-20.0,c:'Medical (sócio)'},
+  {d:'2026-02-02',desc:"Karen Mitiko Iwai Rodrigues",v:-38.0,c:'Transferência própria'},
+  {d:'2026-02-24',desc:"Transferência de saldo NuInvest",v:0.27,c:'Rendimentos / Invest.'},
+  {d:'2026-02-26',desc:"A FATORIAL SOLUCOES INTELIGENTES",v:-0.68,c:'Devolução PF→empresa'},
+  {d:'2026-02-27',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:0.31,c:'Aporte empresa→PF'},
+  {d:'2026-02-27',desc:"Pagamento de fatura",v:-380.34,c:'Contas / Boletos'},
+  {d:'2026-02-28',desc:"AUTOPASS S.A*ATM TMOB",v:-10.8,c:'Outros gastos'},
+  {d:'2026-02-28',desc:"LARI SUPERMERCADO",v:-4.99,c:'Mercado / Alimentação'},
+  {d:'2026-02-28',desc:"A FATORIAL SOLUCOES INTELIGENTES",v:-84.18,c:'Devolução PF→empresa'},
+  {d:'2026-03-06',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:15.0,c:'Aporte empresa→PF'},
+  {d:'2026-03-06',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:20.0,c:'Aporte empresa→PF'},
+  {d:'2026-03-06',desc:"Pagamento de fatura",v:-15.0,c:'Contas / Boletos'},
+  {d:'2026-04-04',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:60.0,c:'Aporte empresa→PF'},
+  {d:'2026-04-04',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:20.0,c:'Aporte empresa→PF'},
+  {d:'2026-04-04',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:20.0,c:'Aporte empresa→PF'},
+  {d:'2026-04-04',desc:"Débito em conta",v:-60.0,c:'Cartão (débito em conta)'},
+  {d:'2026-04-04',desc:"Débito em conta",v:-20.0,c:'Cartão (débito em conta)'},
+  {d:'2026-04-04',desc:"Débito em conta",v:-20.0,c:'Cartão (débito em conta)'},
+  {d:'2026-04-22',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:20.0,c:'Aporte empresa→PF'}
+        ];
+        let FIN360={ lancamentos:[], metas:[], faturamentoAnual:526248 };
+        const round2=x=>Math.round((x||0)*100)/100;
+        function finCatFinal(desc,v){
+          let d=(desc||'').toLowerCase();
+          if(d.includes('fatorial')) return v>0?'Aporte empresa→PF':'Devolução PF→empresa';
+          if(d.includes('uber')) return 'Transporte';
+          if(/supermerc|lari|mercado|padaria/.test(d)) return 'Mercado / Alimentação';
+          if(d.includes('pet')) return 'Pet';
+          if(d.includes('nuinvest')) return 'Rendimentos / Invest.';
+          if(d.includes('débito em conta')||d.includes('debito em conta')) return 'Cartão (débito em conta)';
+          if(d.includes('medical')) return 'Medical (sócio)';
+          if(d.includes('picpay')||d.includes('caroline moreira')||d.includes('karen')) return 'Transferência própria';
+          if(d.includes('fatura')||d.includes('boleto')) return 'Contas / Boletos';
+          if(d.includes('pix')&&v<0) return 'Pix enviado';
+          return v>0?'Outras entradas':'Outros gastos';
+        }
+        function finSalvar(){ try{ localStorage.setItem('af_fin', JSON.stringify({lancamentos:FIN360.lancamentos, metas:FIN360.metas, faturamentoAnual:FIN360.faturamentoAnual})); }catch(e){} }
+        function finInit(){
+          let saved=null; try{ saved=JSON.parse(localStorage.getItem('af_fin')||'null'); }catch(e){}
+          if(saved && Array.isArray(saved.lancamentos)){ FIN360.lancamentos=saved.lancamentos; FIN360.metas=saved.metas||[]; if(saved.faturamentoAnual) FIN360.faturamentoAnual=saved.faturamentoAnual; }
+          else { FIN360.lancamentos=FIN_SEED.map((s,i)=>({id:'f'+i, data:s.d, desc:s.desc, valor:s.v, cat:s.c, ctx:'pessoal'})); finSalvar(); }
+          finPopulaMeses();
+        }
+        function finPopulaMeses(){
+          let sel=document.getElementById('fin-mes'); if(!sel)return;
+          let atual=sel.value;
+          let meses=[...new Set(FIN360.lancamentos.map(l=>(l.data||'').slice(0,7)).filter(Boolean))].sort().reverse();
+          const NOME={'01':'jan','02':'fev','03':'mar','04':'abr','05':'mai','06':'jun','07':'jul','08':'ago','09':'set','10':'out','11':'nov','12':'dez'};
+          sel.innerHTML='<option value="todos">Todos os meses</option>'+meses.map(m=>`<option value="${m}">${NOME[m.slice(5)]||m.slice(5)}/${m.slice(0,4)}</option>`).join('');
+          if([...sel.options].some(o=>o.value===atual)) sel.value=atual;
+        }
+        function finFiltrados(){
+          let ctx=document.getElementById('fin-ctx')?.value||'todos';
+          let mes=document.getElementById('fin-mes')?.value||'todos';
+          return FIN360.lancamentos.filter(l=>(ctx==='todos'||l.ctx===ctx)&&(mes==='todos'||(l.data||'').slice(0,7)===mes));
+        }
+        function finResumo(ls){
+          let ent=0,sai=0,porCat={},porMes={},porCtx={pessoal:0,empresa:0},mistura=0;
+          ls.forEach(l=>{ if(l.valor>=0)ent+=l.valor; else sai+=-l.valor; porCat[l.cat]=(porCat[l.cat]||0)+l.valor; let mk=(l.data||'').slice(0,7); porMes[mk]=(porMes[mk]||0)+l.valor; porCtx[l.ctx]=(porCtx[l.ctx]||0)+l.valor; if(/empresa→pf|pf→empresa|aporte empresa|devolução pf/i.test(l.cat)) mistura+=Math.abs(l.valor); });
+          return {ent:round2(ent), sai:round2(sai), saldo:round2(ent-sai), porCat, porMes, porCtx, mistura:round2(mistura)};
+        }
+        /* === ANÁLISE / CONSELHEIRO === */
+        function finConselho(ls,r){
+          let av=[]; if(!ls.length){ return [{n:'dica',t:'Importe um extrato ou lance movimentações para o sistema começar a te orientar.'}]; }
+          if(r.mistura>0) av.push({n:'alerta',t:`<b>PF e PJ misturados:</b> identifiquei ${brl(r.mistura)} circulando entre a sua conta pessoal e a da empresa. Isso esconde o lucro real e cria risco fiscal. <b>Defina um pró-labore fixo mensal</b> e pare de transferir solto — só esse ajuste já clareia 90% da sua gestão.`});
+          if(r.saldo<0) av.push({n:'alerta',t:`No período, você <b>gastou ${brl(-r.saldo)} a mais</b> do que entrou. Seu saldo encolheu — reveja os maiores gastos abaixo.`});
+          else av.push({n:'ok',t:`Resultado do período <b>positivo em ${brl(r.saldo)}</b>. Direcione o excedente para a sua reserva e suas metas.`});
+          // maior categoria de gasto
+          let gastos=Object.entries(r.porCat).filter(([k,v])=>v<0).sort((a,b)=>a[1]-b[1]);
+          if(gastos.length){ let [cat,val]=gastos[0]; let pct=r.sai>0?Math.round(-val/r.sai*100):0; av.push({n:'dica',t:`Seu maior gasto é <b>${cat}</b>: ${brl(-val)} (${pct}% das saídas). ${cat.includes('Transporte')?'Avalie um pacote/plano ou agrupar deslocamentos.':'Vale revisar se cabe cortar ou renegociar.'}`}); }
+          // recorrência de transporte
+          let uber=ls.filter(l=>l.cat==='Transporte').length;
+          if(uber>=5) av.push({n:'dica',t:`Você teve <b>${uber} corridas</b> no período. Transporte vira um ralo invisível — defina um teto mensal.`});
+          // poupança/reserva
+          let invest=r.porCat['Rendimentos / Invest.']||0;
+          if(invest<50) av.push({n:'dica',t:`Quase nada foi para investimento/reserva. Comece com uma meta pequena (ex.: 10% de cada entrada) — crie a meta na aba 🎯.`});
+          av.push({n:'ok',t:`<b>Próximo passo do sistema:</b> separe contas (uma só PF, uma só PJ), formalize pró-labore, registre suas metas e importe os próximos extratos — assim eu projeto quanto tempo falta para cada objetivo e quanto o negócio vale.`});
+          return av;
+        }
+        /* === PARSER DE EXTRATO (Nubank) === */
+        function finParseExtrato(txt){
+          let linhas=(txt||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+          const MES={JAN:'01',FEV:'02',MAR:'03',ABR:'04',MAI:'05',JUN:'06',JUL:'07',AGO:'08',SET:'09',OUT:'10',NOV:'11',DEZ:'12'};
+          const TIPOS=['Transferência Recebida','Transferência recebida pelo Pix','Transferência enviada pelo Pix','Compra no débito','Débito em conta','Transferência de saldo NuInvest','Pagamento de boleto','Pagamento de fatura','Compra no crédito','Estorno','Reembolso'];
+          let isAmt=l=>/^-?\+?\s?\d{1,3}(\.\d{3})*,\d{2}$/.test(l.replace('+ ','').replace('- ','').trim());
+          let toNum=l=>parseFloat(l.replace(/[+\-\s]/g,'').replace(/\./g,'').replace(',','.'));
+          let isDate=l=>/^\d{2} [A-Z]{3} \d{4}$/.test(l);
+          let out=[], date=null, section=null, i=0;
+          while(i<linhas.length){
+            let l=linhas[i]; let md=l.match(/^(\d{2}) ([A-Z]{3}) (\d{4})$/);
+            if(md){ date=md[3]+'-'+(MES[md[2]]||'00')+'-'+md[1]; i++; continue; }
+            if(l.indexOf('Total de entradas')===0){ section='in'; i++; continue; }
+            if(l.indexOf('Total de saídas')===0){ section='out'; i++; continue; }
+            if(TIPOS.indexOf(l)>=0 && date){
+              let tipo=l, desc=[], amt=null, j=i+1;
+              while(j<linhas.length){
+                let nx=linhas[j];
+                if(isDate(nx)||TIPOS.indexOf(nx)>=0||nx.indexOf('Total de entradas')===0||nx.indexOf('Total de saídas')===0) break;
+                if(isAmt(nx)) amt=nx; else desc.push(nx);
+                j++;
+              }
+              if(amt!=null){ let v=toNum(amt)*(section==='in'?1:-1); let d=desc.join(' ').replace(/Tem alguma dúvida.*$/,'').replace(/O saldo líquido.*$/,'').replace(/Extrato gerado.*$/,'').trim()||tipo; out.push({data:date, desc:d.slice(0,70), valor:round2(v)}); }
+              i=j; continue;
+            }
+            i++;
+          }
+          return out;
+        }
+        /* === NAVEGAÇÃO DAS SUB-ABAS === */
+        function finSubTab(tab){
+          ['geral','lanc','import','metas'].forEach(t=>{
+            let b=document.getElementById('finsub-'+t), p=document.getElementById('fin-'+t);
+            if(b) b.classList.toggle('on', t===tab);
+            if(p) p.style.display=(t===tab)?'':'none';
+          });
+          if(tab==='import' && !document.getElementById('fin-import').dataset.ready) finImportarUI();
+          else finRender();
+        }
+        function finRender(){
+          finPopulaMeses();
+          if(document.getElementById('fin-geral')) finVisaoGeral();
+          if(document.getElementById('fin-lanc')) finLancamentos();
+          if(document.getElementById('fin-metas')) finMetasUI();
+        }
+        /* === VISÃO GERAL === */
+        function finVisaoGeral(){
+          let box=document.getElementById('fin-geral'); if(!box)return;
+          let ls=finFiltrados(), r=finResumo(ls);
+          let barCat=(()=>{
+            let cats=Object.entries(r.porCat).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,8);
+            let max=Math.max(1,...cats.map(c=>Math.abs(c[1])));
+            return cats.map(([k,v])=>{
+              let pos=v>=0; let w=Math.round(Math.abs(v)/max*100);
+              return `<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${k}</span><b style="color:${pos?'var(--ok)':'var(--bad)'};">${pos?'+':'−'}${brl(Math.abs(v))}</b></div><div style="height:8px;border-radius:5px;background:rgba(255,255,255,.06);overflow:hidden;"><div style="width:${w}%;height:100%;background:${pos?'var(--ok)':'var(--bad)'};opacity:.8;"></div></div></div>`;
+            }).join('')||'<div style="color:var(--ink-faint);font-size:13px;">Sem dados no filtro atual.</div>';
+          })();
+          let evo=(()=>{
+            let ms=Object.entries(r.porMes).sort(); let max=Math.max(1,...ms.map(m=>Math.abs(m[1])));
+            const NOME={'01':'jan','02':'fev','03':'mar','04':'abr','05':'mai','06':'jun','07':'jul','08':'ago','09':'set','10':'out','11':'nov','12':'dez'};
+            return `<div style="display:flex;gap:10px;align-items:flex-end;height:120px;">${ms.map(([m,v])=>{let h=Math.round(Math.abs(v)/max*100);let pos=v>=0;return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;height:100%;"><div style="font-size:10px;color:${pos?'var(--ok)':'var(--bad)'};margin-bottom:3px;">${pos?'+':'−'}${brl(Math.abs(v)).replace('R$ ','')}</div><div style="height:${h}%;min-height:3px;border-radius:5px 5px 0 0;background:${pos?'var(--ok)':'var(--bad)'};opacity:.8;"></div><div style="font-size:10px;color:var(--ink-faint);margin-top:5px;">${NOME[m.slice(5)]||m.slice(5)}</div></div>`;}).join('')||'<div style="color:var(--ink-faint);font-size:13px;">Sem dados.</div>'}</div>`;
+          })();
+          let cons=finConselho(ls,r).map(a=>{
+            let cor=a.n==='alerta'?'var(--bad)':a.n==='ok'?'var(--ok)':'var(--gold-bright)';
+            let ic=a.n==='alerta'?'⚠':a.n==='ok'?'✓':'💡';
+            return `<div style="display:flex;gap:10px;padding:11px 13px;border-left:3px solid ${cor};background:rgba(255,255,255,.03);border-radius:0 10px 10px 0;margin-bottom:9px;"><span style="font-size:15px;">${ic}</span><div style="font-size:12.5px;line-height:1.55;color:var(--ink);">${a.t}</div></div>`;
+          }).join('');
+          box.innerHTML=`
+            <div class="kpis">
+              <div class="kpi"><div class="v" style="color:var(--ok);">${brl(r.ent)}</div><div class="l">Entradas no filtro</div></div>
+              <div class="kpi"><div class="v" style="color:var(--bad);">${brl(r.sai)}</div><div class="l">Saídas no filtro</div></div>
+              <div class="kpi ${r.saldo>=0?'':'hot'}"><div class="v" style="color:${r.saldo>=0?'var(--ok)':'var(--bad)'};">${brl(r.saldo)}</div><div class="l">Resultado</div></div>
+              <div class="kpi hot"><div class="v" style="color:var(--gold-bright);">${brl(r.mistura)}</div><div class="l">Mistura PF↔Empresa</div></div>
+            </div>
+            <div class="card">
+              <div class="card-h">🧭 O conselheiro financeiro — o que fazer agora</div>
+              ${cons}
+            </div>
+            <div class="grid">
+              <div class="c6" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h">Para onde vai o dinheiro (top categorias)</div>${barCat}</div></div>
+              <div class="c6" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h">Evolução por mês (resultado)</div>${evo}</div></div>
+            </div>
+            ${finValuationCard()}`;
+        }
+        function finValuationCard(){
+          let fat=FIN360.faturamentoAnual||0;
+          let lucro=round2(fat*0.15);
+          let vMin=round2(fat*0.8), vMax=round2(fat*1.5);
+          return `<div class="card">
+            <div class="card-h">💎 Quanto vale o seu negócio (estimativa)</div>
+            <p class="hint" style="margin:-8px 0 14px;">Estimativa simples por múltiplo de faturamento — ajuste o faturamento anual para refletir a sua realidade. O valuation final depende de recorrência, margem e contratos ativos.</p>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
+              <div><span class="lbl">Faturamento anual estimado (R$)</span>
+                <input type="text" inputmode="decimal" class="inp" id="fin-fat" value="${fmtMoney(fat)}" onblur="maskMoney(this);finSetFaturamento(this.value)" style="max-width:200px;"></div>
+              <div style="font-size:12px;color:var(--ink-soft);">Base do seu planejamento 2026:<br>mentorias R$ 412.200 + imersões R$ 114.048</div>
+            </div>
+            <div class="kpis">
+              <div class="kpi"><div class="v">${brl(fat)}</div><div class="l">Faturamento/ano</div></div>
+              <div class="kpi"><div class="v" style="color:var(--ok);">${brl(lucro)}</div><div class="l">Lucro alvo (15%)</div></div>
+              <div class="kpi hot"><div class="v" style="color:var(--gold-bright);font-size:20px;">${brl(vMin)}<span style="font-size:13px;color:var(--ink-faint);"> a </span>${brl(vMax)}</div><div class="l">Faixa de valuation</div></div>
+            </div>
+          </div>`;
+        }
+        function finSetFaturamento(v){ FIN360.faturamentoAnual=parseMoney(v)||0; finSalvar(); finVisaoGeral(); }
+        /* === LANÇAMENTOS === */
+        function finLancamentos(){
+          let box=document.getElementById('fin-lanc'); if(!box)return;
+          let ls=finFiltrados().slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+          let linhas=ls.map(l=>{
+            let pos=l.valor>=0;
+            return `<tr><td style="font-size:12px;white-space:nowrap;">${(l.data||'').split('-').reverse().join('/')}</td>
+              <td>${l.desc||'—'}</td>
+              <td><span class="pill ${pos?'pill-ok':'pill-mute'}" style="font-weight:600;">${l.cat}</span></td>
+              <td><button class="btn btn-ghost btn-sm" onclick="finReclass('${l.id}')" title="Alternar pessoal/empresa">${l.ctx==='empresa'?'🏢 Empresa':'👤 Pessoal'}</button></td>
+              <td style="text-align:right;font-weight:700;color:${pos?'var(--ok)':'var(--bad)'};white-space:nowrap;">${pos?'+':'−'}${brl(Math.abs(l.valor))}</td>
+              <td><button class="btn btn-ghost btn-sm" onclick="finDelLanc('${l.id}')" style="color:var(--bad);">✕</button></td></tr>`;
+          }).join('');
+          box.innerHTML=`
+            <div class="card">
+              <div class="card-h">Adicionar lançamento manual</div>
+              <div class="grid">
+                <div class="c2 f"><span class="lbl">Data</span><input type="date" class="inp" id="fl-data"></div>
+                <div class="c4 f"><span class="lbl">Descrição</span><input class="inp" id="fl-desc" placeholder="Ex: Recebimento mentoria"></div>
+                <div class="c2 f"><span class="lbl">Valor (R$)</span><input type="text" inputmode="decimal" class="inp" id="fl-valor" placeholder="0,00" onblur="maskMoney(this)"></div>
+                <div class="c2 f"><span class="lbl">Tipo</span><select class="inp" id="fl-tipo"><option value="entrada">Entrada (+)</option><option value="saida">Saída (−)</option></select></div>
+                <div class="c2 f"><span class="lbl">Contexto</span><select class="inp" id="fl-ctx"><option value="pessoal">Pessoal</option><option value="empresa">Empresa</option></select></div>
+              </div>
+              <div class="actions"><button class="btn btn-gold btn-sm" onclick="finAddLanc()">+ Lançar</button></div>
+            </div>
+            <div class="card">
+              <div class="card-h">Lançamentos <span class="pill pill-mute">${ls.length}</span></div>
+              <table class="tbl"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Conta</th><th style="text-align:right;">Valor</th><th></th></tr></thead>
+              <tbody>${linhas||'<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:24px;">Nenhum lançamento no filtro.</td></tr>'}</tbody></table>
+            </div>`;
+        }
+        function finAddLanc(){
+          let data=document.getElementById('fl-data').value||new Date().toISOString().slice(0,10);
+          let desc=document.getElementById('fl-desc').value.trim();
+          let valor=parseMoney(document.getElementById('fl-valor').value); if(!valor) return alert('Informe o valor.');
+          let tipo=document.getElementById('fl-tipo').value, ctx=document.getElementById('fl-ctx').value;
+          let v=tipo==='saida'?-Math.abs(valor):Math.abs(valor);
+          FIN360.lancamentos.push({id:'f'+Date.now(), data, desc:desc||'(sem descrição)', valor:round2(v), cat:finCatFinal(desc,v), ctx});
+          finSalvar(); finRender();
+        }
+        function finDelLanc(id){ FIN360.lancamentos=FIN360.lancamentos.filter(l=>l.id!==id); finSalvar(); finRender(); }
+        function finReclass(id){ let l=FIN360.lancamentos.find(x=>x.id===id); if(l){ l.ctx=l.ctx==='empresa'?'pessoal':'empresa'; finSalvar(); finRender(); } }
+        /* === IMPORTAR EXTRATO === */
+        let _finImport=[];
+        function finImportarUI(){
+          let box=document.getElementById('fin-import'); if(!box)return; box.dataset.ready='1';
+          box.innerHTML=`<div class="card">
+            <div class="card-h">📥 Importar extrato bancário</div>
+            <p class="hint" style="margin:-8px 0 12px;">Abra o PDF/extrato do banco, <b>selecione todo o texto e cole aqui</b>. O sistema reconhece o formato do Nubank (datas, entradas e saídas), categoriza tudo e mostra uma prévia antes de importar. Você revisa e confirma.</p>
+            <div class="grid">
+              <div class="c3 f"><span class="lbl">Importar como</span><select class="inp" id="fi-ctx-imp"><option value="pessoal">Pessoal (Carla)</option><option value="empresa">Empresa (A! Fatorial)</option></select></div>
+            </div>
+            <textarea class="inp" id="fi-texto" rows="8" placeholder="Cole aqui o texto do extrato..." style="margin-top:10px;font-family:var(--font-mono);font-size:12px;"></textarea>
+            <div class="actions"><button class="btn btn-ghost btn-sm" onclick="finAnalisarImport()">🔎 Analisar</button></div>
+            <div id="fi-preview"></div>
+          </div>`;
+        }
+        function finAnalisarImport(){
+          let txt=document.getElementById('fi-texto').value;
+          _finImport=finParseExtrato(txt);
+          let prev=document.getElementById('fi-preview');
+          if(!_finImport.length){ prev.innerHTML='<div style="color:var(--bad);font-size:13px;padding:12px 0;">Não reconheci movimentações nesse texto. Cole o extrato completo (com as datas tipo "04 JAN 2026" e os valores).</div>'; return; }
+          let ent=round2(_finImport.filter(t=>t.valor>0).reduce((a,t)=>a+t.valor,0));
+          let sai=round2(_finImport.filter(t=>t.valor<0).reduce((a,t)=>a-t.valor,0));
+          let rows=_finImport.slice(0,40).map(t=>`<tr><td style="font-size:11px;">${(t.data||'').split('-').reverse().join('/')}</td><td style="font-size:12px;">${t.desc}</td><td style="text-align:right;color:${t.valor>=0?'var(--ok)':'var(--bad)'};font-weight:600;white-space:nowrap;">${t.valor>=0?'+':'−'}${brl(Math.abs(t.valor))}</td></tr>`).join('');
+          prev.innerHTML=`<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px;">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;">
+              <span class="pill pill-ok">${_finImport.length} movimentações</span>
+              <span class="pill pill-ok">Entradas ${brl(ent)}</span>
+              <span class="pill pill-bad">Saídas ${brl(sai)}</span>
+            </div>
+            <div style="max-height:280px;overflow:auto;"><table class="tbl"><thead><tr><th>Data</th><th>Descrição</th><th style="text-align:right;">Valor</th></tr></thead><tbody>${rows}</tbody></table></div>
+            ${_finImport.length>40?`<div style="font-size:11px;color:var(--ink-faint);margin-top:6px;">…e mais ${_finImport.length-40}. Todas serão importadas.</div>`:''}
+            <div class="actions"><button class="btn btn-gold btn-sm" onclick="finConfirmarImport()">✓ Importar ${_finImport.length} lançamentos</button></div>
+          </div>`;
+        }
+        function finConfirmarImport(){
+          if(!_finImport.length)return;
+          let ctx=document.getElementById('fi-ctx-imp').value;
+          let existentes=new Set(FIN360.lancamentos.map(l=>l.data+'|'+l.desc+'|'+l.valor));
+          let add=0;
+          _finImport.forEach(t=>{ let k=t.data+'|'+t.desc.slice(0,70)+'|'+t.valor; if(existentes.has(k))return; FIN360.lancamentos.push({id:'f'+Date.now()+'_'+(add++), data:t.data, desc:t.desc, valor:t.valor, cat:finCatFinal(t.desc,t.valor), ctx}); });
+          finSalvar(); _finImport=[];
+          document.getElementById('fi-texto').value=''; document.getElementById('fi-preview').innerHTML='';
+          if(typeof notify==='function') notify('financeiro','Extrato importado', add+' lançamento(s) adicionados ao Centro Financeiro.','fin360');
+          if(typeof SOUND!=='undefined') SOUND.play('cash');
+          finSubTab('lanc');
+          alert(add+' lançamentos importados! Revise e ajuste as categorias se quiser.');
+        }
+        /* === METAS & OBJETIVOS === */
+        function finMetasUI(){
+          let box=document.getElementById('fin-metas'); if(!box)return;
+          let cards=(FIN360.metas||[]).map(m=>{
+            let falta=Math.max(0,(m.alvo||0)-(m.atual||0));
+            let pct=m.alvo>0?Math.min(100,Math.round((m.atual||0)/m.alvo*100)):0;
+            let meses=(m.aporte>0)?Math.ceil(falta/m.aporte):null;
+            let prev=meses!=null?new Date(Date.now()+meses*30.4*86400000).toLocaleDateString('pt-BR',{month:'short',year:'numeric'}):'—';
+            return `<div class="card" style="margin:0 0 14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                <b style="font-size:15px;">${m.nome}</b>
+                <button class="btn btn-ghost btn-sm" onclick="finDelMeta('${m.id}')" style="color:var(--bad);">✕</button></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin:8px 0 5px;"><span>${brl(m.atual||0)} de ${brl(m.alvo||0)}</span><b style="color:var(--gold-bright);">${pct}%</b></div>
+              <div style="height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div>
+              <div style="margin-top:10px;font-size:12.5px;color:var(--ink);">${meses!=null?`Aportando <b>${brl(m.aporte)}/mês</b>, você alcança em <b>${meses} ${meses===1?'mês':'meses'}</b> (≈ ${prev}). Faltam ${brl(falta)}.`:'Defina um aporte mensal para o sistema calcular o prazo.'}</div>
+            </div>`;
+          }).join('');
+          box.innerHTML=`
+            <div class="card">
+              <div class="card-h">🎯 Nova meta / objetivo financeiro</div>
+              <div class="grid">
+                <div class="c4 f"><span class="lbl">Objetivo</span><input class="inp" id="fm-nome" placeholder="Ex: Reserva de emergência"></div>
+                <div class="c3 f"><span class="lbl">Quanto preciso (R$)</span><input type="text" inputmode="decimal" class="inp" id="fm-alvo" placeholder="30.000,00" onblur="maskMoney(this)"></div>
+                <div class="c2 f"><span class="lbl">Já tenho (R$)</span><input type="text" inputmode="decimal" class="inp" id="fm-atual" placeholder="0,00" onblur="maskMoney(this)"></div>
+                <div class="c3 f"><span class="lbl">Aporte por mês (R$)</span><input type="text" inputmode="decimal" class="inp" id="fm-aporte" placeholder="2.000,00" onblur="maskMoney(this)"></div>
+              </div>
+              <div class="actions"><button class="btn btn-gold btn-sm" onclick="finAddMeta()">+ Criar meta</button></div>
+            </div>
+            ${cards||'<div class="ent-empty">Nenhuma meta ainda. Crie a primeira — ex.: reserva de emergência, pró-labore alvo, comprar um bem, faturamento do mês.</div>'}`;
+        }
+        function finAddMeta(){
+          let nome=document.getElementById('fm-nome').value.trim(); if(!nome) return alert('Dê um nome ao objetivo.');
+          FIN360.metas.push({ id:'m'+Date.now(), nome, alvo:parseMoney(document.getElementById('fm-alvo').value), atual:parseMoney(document.getElementById('fm-atual').value), aporte:parseMoney(document.getElementById('fm-aporte').value) });
+          finSalvar(); finMetasUI();
+        }
+        function finDelMeta(id){ FIN360.metas=(FIN360.metas||[]).filter(m=>m.id!==id); finSalvar(); finMetasUI(); }
+
         /* ===== INIT ===== */
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
+        if(typeof finInit==='function') finInit();
         // tema salvo (claro/escuro) + estado dos botões
         try{ if(localStorage.getItem('af_tema')==='claro') document.body.classList.remove('theme-gamer'); }catch(e){}
         atualizarTemaBtn();
