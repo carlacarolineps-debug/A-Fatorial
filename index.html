@@ -1202,6 +1202,7 @@ body.apresentacao #apr-banner{display:block;}
   </div>
   <nav class="side-nav">
     <div class="nav-group">Operação interna</div>
+    <button class="nav-item" onclick="go('dono')" id="n-dono"><span class="ic">★</span> Visão do dono</button>
     <button class="nav-item on" onclick="go('dash')" id="n-dash"><span class="ic">◳</span> Gestão à vista</button>
     <button class="nav-item" onclick="go('funil')" id="n-funil"><span class="ic">◎</span> Esteira comercial <span class="step-n">1-14</span></button>
     <button class="nav-item" onclick="go('propostas')" id="n-propostas"><span class="ic">✦</span> Propostas e rastreio</button>
@@ -1253,6 +1254,16 @@ body.apresentacao #apr-banner{display:block;}
   </header>
 
   <div class="scroll">
+
+    <!-- ============ VISÃO DO DONO ============ -->
+    <section class="view" id="v-dono">
+      <div class="in-hero">
+        <span class="in-hero-badge">★ Visão do dono · cockpit executivo</span>
+        <h2>Tudo o que importa, <b>numa tela só</b>.</h2>
+        <p>Saúde financeira, metas de venda e quanto vale o negócio — com o que fazer hoje. O resumo que conecta o Centro Financeiro, o Planejamento e o valuation.</p>
+      </div>
+      <div id="dono-body"></div>
+    </section>
 
     <!-- ============ DASHBOARD ============ -->
     <section class="view on" id="v-dash">
@@ -2228,7 +2239,7 @@ body.apresentacao #apr-banner{display:block;}
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dash','funil','propostas','financeiro','fin360','plano','portal','colaborador','rh','catalogo','equipe'],
+          admin:      ['dono','dash','funil','propostas','financeiro','fin360','plano','portal','colaborador','rh','catalogo','equipe'],
           colaborador:['colaborador','funil','propostas'],
           cliente:    ['portal']
         };
@@ -2321,7 +2332,7 @@ body.apresentacao #apr-banner{display:block;}
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
         // do usuário logado, SEM navegar (usado ao editar permissões ao vivo).
         function atualizarNavVisibilidade(){
-          const navMap={dash:'n-dash',funil:'n-funil',propostas:'n-propostas',financeiro:'n-financeiro',fin360:'n-fin360',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
+          const navMap={dono:'n-dono',dash:'n-dash',funil:'n-funil',propostas:'n-propostas',financeiro:'n-financeiro',fin360:'n-fin360',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
           Object.keys(navMap).forEach(v=>{ let el=document.getElementById(navMap[v]); if(el) el.style.display=AUTH.can(v)?'':'none'; });
           // esconde grupos de nav vazios
           document.querySelectorAll('.side-nav .nav-group').forEach(g=>{
@@ -2616,6 +2627,7 @@ body.apresentacao #apr-banner{display:block;}
           if(v==='dash') renderDash();
           if(v==='fin360' && typeof finRender==='function') finRender();
           if(v==='plano' && typeof planoRender==='function') planoRender();
+          if(v==='dono' && typeof renderDono==='function') renderDono();
           if(v==='equipe'){ renderUsuarios(); renderPermissoes(); if(typeof renderBrand==='function') renderBrand(); }
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
@@ -3807,7 +3819,7 @@ body.apresentacao #apr-banner{display:block;}
 
         /* ===== CONFIGURADOR DE PERMISSÕES (Equipe e acessos) ===== */
         const PERM_TELAS=[
-          {k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},
+          {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},
           {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'plano',l:'Planejamento estratégico'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
           {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
         ];
@@ -7551,24 +7563,55 @@ body.apresentacao #apr-banner{display:block;}
         function finReclass(id){ let l=FIN360.lancamentos.find(x=>x.id===id); if(l){ l.ctx=l.ctx==='empresa'?'pessoal':'empresa'; finSalvar(); finRender(); } }
         /* === IMPORTAR EXTRATO === */
         let _finImport=[];
+        /* === PARSER CSV / PLANILHA (genérico — Cora, Inter, etc.) === */
+        function finParseCSV(txt){
+          let linhas=(txt||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+          if(!linhas.length) return [];
+          let cand=[';','\t',','];
+          let delim=cand.map(d=>({d,n:linhas[0].split(d).length})).sort((a,b)=>b.n-a.n)[0].d;
+          let parseVal=s=>{ s=(s||'').replace(/r\$/i,'').trim(); let neg=/^-/.test(s)||/\(.*\)/.test(s)||/\bd\b/i.test(s); s=s.replace(/[^\d,.-]/g,''); if(!s)return null; if(s.indexOf(',')>=0) s=s.replace(/\./g,'').replace(',','.'); let v=parseFloat(s); if(isNaN(v))return null; v=Math.abs(v); return neg?-v:v; };
+          let parseData=s=>{ s=(s||'').trim(); let m=s.match(/(\d{2})\/(\d{2})\/(\d{4})/); if(m)return m[3]+'-'+m[2]+'-'+m[1]; m=s.match(/(\d{4})-(\d{2})-(\d{2})/); if(m)return m[1]+'-'+m[2]+'-'+m[3]; m=s.match(/(\d{2})\/(\d{2})\/(\d{2})\b/); if(m)return '20'+m[3]+'-'+m[2]+'-'+m[1]; return null; };
+          let out=[];
+          linhas.forEach(ln=>{
+            let cols=ln.split(delim).map(c=>c.trim().replace(/^"|"$/g,''));
+            if(cols.length<2) return;
+            let dt=null,dtIdx=-1;
+            for(let i=0;i<cols.length;i++){ let d=parseData(cols[i]); if(d){ dt=d; dtIdx=i; break; } }
+            if(!dt) return;
+            let valIdx=-1,val=null;
+            for(let i=cols.length-1;i>=0;i--){ if(i===dtIdx) continue; if(/[\d]/.test(cols[i])&&/[,.]/.test(cols[i])){ let v=parseVal(cols[i]); if(v!==null){ val=v; valIdx=i; break; } } }
+            if(val===null){ for(let i=cols.length-1;i>=0;i--){ if(i===dtIdx) continue; let v=parseVal(cols[i]); if(v!==null){ val=v; valIdx=i; break; } } }
+            if(val===null) return;
+            if(cols.some(c=>/d[ée]bito|sa[íi]da|debit/i.test(c)) && val>0) val=-val;
+            if(cols.some(c=>/cr[ée]dito|entrada|credit/i.test(c)) && val<0) val=Math.abs(val);
+            let desc=cols.filter((c,i)=>i!==dtIdx&&i!==valIdx&&c&&!/^[\d.,\-\sR$()]+$/i.test(c)&&!/^(d[ée]bito|cr[ée]dito|sa[íi]da|entrada|debit|credit)$/i.test(c)).join(' ').trim();
+            out.push({data:dt, desc:(desc||'Lançamento').slice(0,70), valor:round2(val)});
+          });
+          return out;
+        }
         function finImportarUI(){
           let box=document.getElementById('fin-import'); if(!box)return; box.dataset.ready='1';
           box.innerHTML=`<div class="card">
             <div class="card-h">📥 Importar extrato bancário</div>
-            <p class="hint" style="margin:-8px 0 12px;">Abra o PDF/extrato do banco, <b>selecione todo o texto e cole aqui</b>. O sistema reconhece o formato do Nubank (datas, entradas e saídas), categoriza tudo e mostra uma prévia antes de importar. Você revisa e confirma.</p>
+            <p class="hint" style="margin:-8px 0 12px;">Traga o histórico de qualquer conta: <b>Nubank</b> (cole o texto do extrato) ou <b>CSV/planilha</b> de qualquer banco — incluindo a <b>Cora (PJ)</b>. Escolha o contexto certo (Empresa separa o PJ do seu pessoal) e revise a prévia antes de importar.</p>
             <div class="grid">
-              <div class="c3 f"><span class="lbl">Importar como</span><select class="inp" id="fi-ctx-imp"><option value="pessoal">Pessoal (Carla)</option><option value="empresa">Empresa (A! Fatorial)</option></select></div>
+              <div class="c3 f"><span class="lbl">Importar como</span><select class="inp" id="fi-ctx-imp"><option value="empresa">Empresa (A! Fatorial / Cora)</option><option value="pessoal">Pessoal (Carla)</option></select></div>
+              <div class="c4 f"><span class="lbl">Formato</span><select class="inp" id="fi-formato"><option value="nubank">Nubank — colar texto do extrato</option><option value="csv">CSV / planilha (Cora, Inter, qualquer banco)</option></select></div>
+              <div class="c5 f"><span class="lbl">Ou enviar arquivo (.csv / .txt)</span><div style="display:flex;gap:8px;"><input type="file" accept=".csv,.txt,text/csv,text/plain" id="fi-arquivo" class="inp" style="padding:7px;"></div></div>
             </div>
-            <textarea class="inp" id="fi-texto" rows="8" placeholder="Cole aqui o texto do extrato..." style="margin-top:10px;font-family:var(--font-mono);font-size:12px;"></textarea>
+            <textarea class="inp" id="fi-texto" rows="8" placeholder="Cole aqui o texto do extrato (Nubank) OU as linhas do CSV (data;descrição;valor)..." style="margin-top:10px;font-family:var(--font-mono);font-size:12px;"></textarea>
             <div class="actions"><button class="btn btn-ghost btn-sm" onclick="finAnalisarImport()">🔎 Analisar</button></div>
             <div id="fi-preview"></div>
           </div>`;
+          let fa=document.getElementById('fi-arquivo');
+          if(fa) fa.onchange=function(){ let f=this.files[0]; if(!f)return; let fr=new FileReader(); fr.onload=e=>{ document.getElementById('fi-texto').value=e.target.result; if(/\.csv$/i.test(f.name)||/[;,]/.test((e.target.result||'').split(/\r?\n/)[0]||'')) document.getElementById('fi-formato').value='csv'; finAnalisarImport(); }; fr.readAsText(f); };
         }
         function finAnalisarImport(){
           let txt=document.getElementById('fi-texto').value;
-          _finImport=finParseExtrato(txt);
+          let fmt=document.getElementById('fi-formato')?document.getElementById('fi-formato').value:'nubank';
+          _finImport = fmt==='csv' ? finParseCSV(txt) : finParseExtrato(txt);
           let prev=document.getElementById('fi-preview');
-          if(!_finImport.length){ prev.innerHTML='<div style="color:var(--bad);font-size:13px;padding:12px 0;">Não reconheci movimentações nesse texto. Cole o extrato completo (com as datas tipo "04 JAN 2026" e os valores).</div>'; return; }
+          if(!_finImport.length){ prev.innerHTML='<div style="color:var(--bad);font-size:13px;padding:12px 0;">Não reconheci movimentações. <b>Nubank:</b> cole o texto com datas como "04 JAN 2026". <b>CSV:</b> use linhas com data, descrição e valor (ex.: <code>04/01/2026;Cliente X;1.500,00</code>) e escolha o formato CSV.</div>'; return; }
           let ent=round2(_finImport.filter(t=>t.valor>0).reduce((a,t)=>a+t.valor,0));
           let sai=round2(_finImport.filter(t=>t.valor<0).reduce((a,t)=>a-t.valor,0));
           let rows=_finImport.slice(0,40).map(t=>`<tr><td style="font-size:11px;">${(t.data||'').split('-').reverse().join('/')}</td><td style="font-size:12px;">${t.desc}</td><td style="text-align:right;color:${t.valor>=0?'var(--ok)':'var(--bad)'};font-weight:600;white-space:nowrap;">${t.valor>=0?'+':'−'}${brl(Math.abs(t.valor))}</td></tr>`).join('');
@@ -7632,6 +7675,59 @@ body.apresentacao #apr-banner{display:block;}
           finSalvar(); finMetasUI();
         }
         function finDelMeta(id){ FIN360.metas=(FIN360.metas||[]).filter(m=>m.id!==id); finSalvar(); finMetasUI(); }
+
+        /* ===== VISÃO DO DONO — cockpit executivo (financeiro + metas + valuation) ===== */
+        function renderDono(){
+          let box=document.getElementById('dono-body'); if(!box)return;
+          let r=(typeof finResumo==='function'&&typeof FIN360!=='undefined')?finResumo(FIN360.lancamentos):{ent:0,sai:0,saldo:0,mistura:0,porCtx:{pessoal:0,empresa:0}};
+          let saldoPF=round2(r.porCtx.pessoal||0), saldoEmp=round2(r.porCtx.empresa||0);
+          let fat=(typeof FIN360!=='undefined'?FIN360.faturamentoAnual:0)||0, vMin=round2(fat*0.8), vMax=round2(fat*1.5);
+          let proj=0,real=0,abertos=0,fech=0;
+          if(typeof PLANO!=='undefined'){ PLANO.metas.forEach(m=>{ proj+=planoMetaProj(m); real+=planoMetaReal(m); fech+=planoMetaFechados(m); (m.clientes||[]).forEach(c=>{ if(c.status==='ofereci'||c.status==='negociando')abertos++; }); }); }
+          let pctv=proj>0?Math.round(real/proj*100):0;
+          let cons=[];
+          if(typeof finConselho==='function'){ let f=finConselho(FIN360.lancamentos,r).find(a=>a.n==='alerta')||finConselho(FIN360.lancamentos,r).find(a=>a.n==='dica'); if(f)cons.push(f); }
+          if(typeof planoConselho==='function'){ let p=planoConselho().find(a=>a.n==='alerta')||planoConselho().find(a=>a.n==='dica'); if(p)cons.push(p); }
+          let consHTML=cons.map(a=>{ let cor=a.n==='alerta'?'var(--bad)':a.n==='ok'?'var(--ok)':'var(--gold-bright)'; let ic=a.n==='alerta'?'⚠':a.n==='ok'?'✓':'💡'; return `<div style="display:flex;gap:10px;padding:11px 13px;border-left:3px solid ${cor};background:rgba(255,255,255,.03);border-radius:0 10px 10px 0;margin-bottom:9px;"><span style="font-size:15px;">${ic}</span><div style="font-size:12.5px;line-height:1.55;">${a.t}</div></div>`; }).join('')||'<div style="color:var(--ink-faint);font-size:13px;">Sem alertas — siga registrando dados para receber direções.</div>';
+          // metas (financeiras + vendas) compactas
+          let metasFin=(typeof FIN360!=='undefined'?FIN360.metas:[]).slice(0,3).map(m=>{ let pct=m.alvo>0?Math.min(100,Math.round((m.atual||0)/m.alvo*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>🎯 ${m.nome}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div></div>`; }).join('');
+          let metasVen=(typeof PLANO!=='undefined'?PLANO.metas:[]).slice(0,4).map(m=>{ let p=planoMetaProj(m),rl=planoMetaReal(m),pct=p>0?Math.min(100,Math.round(rl/p*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>💼 ${m.servico}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#35e6ff,#0bb6d6);"></div></div></div>`; }).join('');
+          box.innerHTML=`
+            <div class="kpis">
+              <div class="kpi"><div class="v" style="color:var(--gold-bright);">${brl(proj)}</div><div class="l">Receita projetada (metas)</div></div>
+              <div class="kpi"><div class="v" style="color:var(--ok);">${brl(real)}</div><div class="l">Vendas realizadas</div></div>
+              <div class="kpi ${r.saldo>=0?'':'hot'}"><div class="v" style="color:${r.saldo>=0?'var(--ok)':'var(--bad)'};">${brl(r.saldo)}</div><div class="l">Resultado financeiro</div></div>
+              <div class="kpi hot"><div class="v" style="color:var(--gold-bright);font-size:18px;">${brl(vMin)}<span style="color:var(--ink-faint);font-size:12px;"> a </span>${brl(vMax)}</div><div class="l">Quanto vale o negócio</div></div>
+            </div>
+            <div class="card">
+              <div class="card-h">🧭 Conselho do dia</div>
+              ${consHTML}
+            </div>
+            <div class="grid">
+              <div class="c6" style="margin:0;"><div class="card" style="margin:0 0 18px;">
+                <div class="card-h" style="display:flex;align-items:center;gap:10px;">💰 Saúde financeira <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="go('fin360')">Abrir →</button></div>
+                <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:10px;">
+                  <div><div style="font-size:11px;color:var(--ink-faint);">Saldo pessoal</div><b style="font-size:18px;color:${saldoPF>=0?'var(--ok)':'var(--bad)'};">${brl(saldoPF)}</b></div>
+                  <div><div style="font-size:11px;color:var(--ink-faint);">Saldo empresa</div><b style="font-size:18px;color:${saldoEmp>=0?'var(--ok)':'var(--bad)'};">${brl(saldoEmp)}</b></div>
+                  <div><div style="font-size:11px;color:var(--ink-faint);">Mistura PF↔PJ</div><b style="font-size:18px;color:var(--gold-bright);">${brl(r.mistura)}</b></div>
+                </div>
+                <div style="font-size:12px;color:var(--ink-soft);">Entradas ${brl(r.ent)} · Saídas ${brl(r.sai)}</div>
+              </div></div>
+              <div class="c6" style="margin:0;"><div class="card" style="margin:0 0 18px;">
+                <div class="card-h" style="display:flex;align-items:center;gap:10px;">💼 Comercial <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="go('plano')">Abrir →</button></div>
+                <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:10px;">
+                  <div><div style="font-size:11px;color:var(--ink-faint);">Atingido</div><b style="font-size:18px;color:var(--gold-bright);">${pctv}%</b></div>
+                  <div><div style="font-size:11px;color:var(--ink-faint);">Fechamentos</div><b style="font-size:18px;">${fech}</b></div>
+                  <div><div style="font-size:11px;color:var(--ink-faint);">Propostas em aberto</div><b style="font-size:18px;color:var(--warn);">${abertos}</b></div>
+                </div>
+                <div style="font-size:12px;color:var(--ink-soft);">Projeção ${brl(proj)} · realizado ${brl(real)}</div>
+              </div></div>
+            </div>
+            <div class="grid">
+              <div class="c6" style="margin:0;"><div class="card" style="margin:0;"><div class="card-h">Metas financeiras</div>${metasFin||'<div style="color:var(--ink-faint);font-size:13px;">Crie metas no Centro Financeiro.</div>'}</div></div>
+              <div class="c6" style="margin:0;"><div class="card" style="margin:0;"><div class="card-h">Metas de venda</div>${metasVen||'<div style="color:var(--ink-faint);font-size:13px;">Crie metas no Planejamento.</div>'}</div></div>
+            </div>`;
+        }
 
         /* ===== INIT ===== */
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
