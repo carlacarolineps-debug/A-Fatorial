@@ -33,6 +33,27 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
    - **Colaborador**: indicador da "próxima conquista a desbloquear" no cartão do
      jogador, somado à gamificação já existente (XP, níveis, badges, missões, saga).
 
+5. **CNAE / base da Nota Fiscal no catálogo** — cada serviço recebe uma sugestão
+   automática de CNAE, escolhida apenas entre os 6 CNAEs registrados no CNPJ da
+   empresa (30.361.388/0001-17). O campo "Tipo de serviço (base da NF)" do funil
+   também passou a exibir o CNAE de cada opção.
+6. **Gestão de usuários (Equipe e acessos → Equipe e responsáveis)** — login,
+   senha, foto de perfil, apelido e status por usuário; ativar/desativar; alterar
+   senha; criar novo usuário. Usuários inativos não conseguem entrar. Cada
+   colaborador também personaliza foto e apelido no próprio portal ("Meu perfil").
+   Login agora valida senha e status (com senha padrão de demonstração).
+
+## CNAEs registrados (base para Nota Fiscal)
+
+| CNAE | Atividade |
+|------|-----------|
+| 74.90-1-04 | Intermediação e agenciamento de serviços e negócios (principal) |
+| 70.20-4-00 | Consultoria em gestão empresarial |
+| 82.11-3-00 | Serviços combinados de escritório e apoio administrativo |
+| 78.10-8-00 | Seleção e agenciamento de mão de obra |
+| 43.99-1-01 | Administração de obras |
+| 43.30-4-99 | Outras obras de acabamento da construção |
+
 ## Onde mexer no código
 
 - **Permissões / papéis**: `PERMISSOES_DEFAULT`, `PERMISSOES`, `salvarPermissoes`,
@@ -41,3 +62,7 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
 - **Tema escuro global**: bloco CSS `TEMA GAMER GLOBAL` + classe `body.theme-gamer`.
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
+- **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
+- **Usuários / acessos**: `ADMIN_USER`, `normalizaUsuarios`, `salvarUsuarios`,
+  `renderUsuarios`, `usuarioSalvar`, `colaboradorNovo` (persistência em
+  `localStorage` chave `af_usuarios`; em produção, isso vai para o backend).

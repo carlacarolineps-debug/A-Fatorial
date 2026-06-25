@@ -1077,7 +1077,12 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
     </div>
     <div class="login-field" id="login-identity" style="display:none;">
       <label id="login-identity-label">Identifique-se</label>
-      <select id="login-identity-sel"></select>
+      <select id="login-identity-sel" onchange="loginPrefSenha()"></select>
+    </div>
+    <div class="login-field" id="login-senha-box" style="display:none;">
+      <label>Senha</label>
+      <input type="password" id="login-senha" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')loginEnter()">
+      <div style="font-size:11px;color:#8a90a0;margin-top:6px;">Simulação: senha padrão <b>admin</b> = admin · colaboradores = <b>1234</b> (gerencie em Equipe e acessos). Deixe em branco para entrar no modo demonstração.</div>
     </div>
     <button class="login-btn" id="login-enter" onclick="loginEnter()" style="display:none;">Entrar →</button>
     <div class="login-note">
@@ -1291,11 +1296,13 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         <div class="grid">
           <div class="c5 f"><span class="lbl">Tipo de serviço (base da NF) *</span>
             <select class="inp" id="f-nf">
-              <option data-nome="Consultoria em gestão empresarial">Consultoria em gestão empresarial</option>
-              <option data-nome="Treinamento / capacitação">Treinamento / capacitação</option>
-              <option data-nome="Assessoria / consultoria (geral)">Assessoria / consultoria (geral)</option>
-              <option data-nome="Agenciamento / intermediação">Agenciamento / intermediação</option>
-              <option data-nome="Outro serviço (manual)">Outro serviço (manual)</option>
+              <option data-cnae="70.20-4-00" data-nome="Consultoria em gestão empresarial">Consultoria em gestão empresarial · CNAE 70.20-4-00</option>
+              <option data-cnae="74.90-1-04" data-nome="Agenciamento / intermediação de negócios">Agenciamento / intermediação de negócios · CNAE 74.90-1-04</option>
+              <option data-cnae="82.11-3-00" data-nome="Apoio administrativo / escritório (BPO)">Apoio administrativo / escritório (BPO) · CNAE 82.11-3-00</option>
+              <option data-cnae="78.10-8-00" data-nome="Seleção e agenciamento de mão de obra">Seleção e agenciamento de mão de obra · CNAE 78.10-8-00</option>
+              <option data-cnae="43.99-1-01" data-nome="Administração de obras">Administração de obras · CNAE 43.99-1-01</option>
+              <option data-cnae="43.30-4-99" data-nome="Obras de acabamento da construção">Obras de acabamento da construção · CNAE 43.30-4-99</option>
+              <option data-cnae="" data-nome="Outro serviço (manual)">Outro serviço (manual)</option>
             </select></div>
           <div class="c3 f"><span class="lbl">Regime tributário</span>
             <select class="inp" id="f-regime" onchange="onRegime()">
@@ -1662,7 +1669,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           <div style="flex-grow:1;"></div>
           <span class="hint" id="cat-resumo"></span>
         </div>
-        <table class="tbl"><thead><tr><th>Serviço</th><th>Grupo</th><th>Carga</th><th>Preço base</th><th>Status</th><th>Ações</th></tr></thead>
+        <table class="tbl"><thead><tr><th>Serviço</th><th>Grupo</th><th>CNAE (base da NF)</th><th>Carga</th><th>Preço base</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody id="cat-tbody"></tbody></table>
       </div>
     </section>
@@ -1680,14 +1687,10 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         <div class="in-pillar"><div class="ic">🏆</div><div><div class="t">Seu trabalho vira prova</div><div class="d">Cada entrega aprovada vira depoimento e caso de sucesso.</div></div></div>
       </div>
       <div class="card">
-        <div class="card-h">Equipe e responsáveis</div>
-        <table class="tbl"><thead><tr><th>Nome</th><th>Função</th><th>Foco</th></tr></thead>
-          <tbody>
-            <tr><td><b>Carla Caroline</b></td><td>Arquiteta de Lucro · CEO</td><td>Estratégia, mentoria, decisão</td></tr>
-            <tr ${hcAttr('col','c2')} style="cursor:default;"><td><b>Karen</b></td><td>Gestão de Operação</td><td>Execução e processos</td></tr>
-            <tr ${hcAttr('col','c3')} style="cursor:default;"><td><b>Beatriz</b></td><td>Analista</td><td>Suporte e entregas</td></tr>
-            <tr><td><b>Deusemar Araujo</b></td><td>Mentor</td><td>DNA da liderança</td></tr>
-          </tbody></table>
+        <div class="card-h" style="display:flex;align-items:center;gap:10px;">Equipe e responsáveis · acessos
+          <button class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="usuarioNovo()">+ Novo usuário</button></div>
+        <p class="hint" style="margin:-8px 0 14px;">Controle quem entra no sistema: login, senha, foto, apelido e status (ativo/inativo). Cada pessoa também personaliza a própria foto e apelido dentro do portal dela.</p>
+        <div id="equipe-users"></div>
       </div>
 
       <!-- ============ CONFIGURADOR DE PERMISSÕES ============ -->
@@ -1779,16 +1782,48 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
   <div class="modal-card">
     <h3 id="cat-modal-titulo">Novo serviço</h3>
     <span class="lbl">Nome do serviço</span>
-    <input class="inp" id="cat-f-nome" placeholder="Ex: Diagnóstico Empresarial (RAIO-X)">
+    <input class="inp" id="cat-f-nome" placeholder="Ex: Diagnóstico Empresarial (RAIO-X)" oninput="catSugereCnae()">
     <div class="grid" style="margin-top:10px;">
       <div class="c6 f"><span class="lbl">Preço base (R$)</span><input type="text" inputmode="decimal" class="inp" id="cat-f-valor" placeholder="ex: 2.500,00" onblur="maskMoney(this)"></div>
       <div class="c3 f"><span class="lbl">Horas</span><input type="number" class="inp" id="cat-f-horas" placeholder="10"></div>
       <div class="c3 f"><span class="lbl">Meses</span><input type="number" class="inp" id="cat-f-meses" value="1" min="1"></div>
     </div>
     <span class="lbl" style="margin-top:10px;">Grupo</span>
-    <select class="inp" id="cat-f-grupo" onchange="catGrupoChange()"></select>
-    <input class="inp" id="cat-f-grupo-novo" placeholder="Nome do novo grupo" style="display:none;margin-top:8px;">
+    <select class="inp" id="cat-f-grupo" onchange="catGrupoChange();catSugereCnae()"></select>
+    <input class="inp" id="cat-f-grupo-novo" placeholder="Nome do novo grupo" style="display:none;margin-top:8px;" oninput="catSugereCnae()">
+    <span class="lbl" style="margin-top:10px;">CNAE — tipo de serviço (base da NF)</span>
+    <select class="inp" id="cat-f-cnae" onchange="catCnaeManual=true"></select>
+    <div style="font-size:11px;color:var(--ink-faint);margin-top:6px;">Sugerido automaticamente pelo nome do serviço. Só os CNAEs do CNPJ da empresa aparecem aqui — escolha o que será a base da Nota Fiscal.</div>
     <div class="modal-acts"><button class="btn btn-ghost" onclick="catModalClose()">Cancelar</button><button class="btn btn-gold" onclick="catSalvar()">Salvar serviço</button></div>
+  </div>
+</div>
+
+<div class="modal" id="m-usuario">
+  <div class="modal-card" style="max-width:480px;">
+    <h3 id="u-modal-titulo">Editar usuário</h3>
+    <input type="hidden" id="u-id">
+    <div style="display:flex;gap:16px;align-items:center;margin:10px 0 16px;">
+      <div id="u-foto-preview"></div>
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('u-foto-file2').click()">📷 Trocar foto</button>
+        <button class="btn btn-ghost btn-sm" onclick="uFotoLimpar()">Remover</button>
+        <input type="file" accept="image/*" id="u-foto-file2" style="display:none">
+        <div style="font-size:10px;color:var(--ink-faint);margin-top:6px;">JPG/PNG — a imagem é reduzida automaticamente.</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="c6 f"><span class="lbl">Nome completo</span><input class="inp" id="u-nome" oninput="uPreview()"></div>
+      <div class="c6 f"><span class="lbl">Apelido (exibição)</span><input class="inp" id="u-apelido" placeholder="Como quer ser chamado"></div>
+    </div>
+    <div id="u-admin-fields">
+      <div class="grid" style="margin-top:10px;">
+        <div class="c6 f"><span class="lbl">Cargo</span><input class="inp" id="u-cargo"></div>
+        <div class="c6 f"><span class="lbl">Área</span><input class="inp" id="u-area"></div>
+        <div class="c6 f"><span class="lbl">Login</span><input class="inp" id="u-login"></div>
+        <div class="c6 f"><span class="lbl">Senha</span><input class="inp" id="u-senha"></div>
+      </div>
+    </div>
+    <div class="modal-acts"><button class="btn btn-ghost" onclick="document.getElementById('m-usuario').classList.remove('on')">Cancelar</button><button class="btn btn-gold" onclick="usuarioSalvar()">Salvar</button></div>
   </div>
 </div>
 
@@ -1931,9 +1966,9 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           // === BACKEND === substituir por POST /api/login (retorna usuário + token)
           login(papel, id){
             let u={papel};
-            if(papel==='admin'){ u.id='admin'; u.nome='Carla Caroline'; u.rl='Arquiteta de Lucro · CEO'; u.av='CC'; }
-            else if(papel==='colaborador'){ let c=DB.colaboradores.find(x=>x.id===id)||DB.colaboradores[0]; u.id=c.id; u.nome=c.nome; u.rl=c.cargo+' · '+c.area; u.av=c.nome.split(' ').map(x=>x[0]).slice(0,2).join(''); }
-            else if(papel==='cliente'){ let p=DB.propostas.find(x=>x.dealId===id)||DB.propostas[0]; if(p){u.id=p.dealId; u.nome=p.decisor||p.empresa; u.rl=p.empresa+' · Cliente'; u.av=(p.empresa||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();} else {u.id=null;u.nome='Cliente';u.rl='Cliente';u.av='CL';} }
+            if(papel==='admin'){ u.id='admin'; u.nome=ADMIN_USER.nome; u.rl=ADMIN_USER.cargo; u.apelido=ADMIN_USER.apelido; u.foto=ADMIN_USER.foto; u.av=(ADMIN_USER.nome||'CC').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase(); }
+            else if(papel==='colaborador'){ let c=DB.colaboradores.find(x=>x.id===id)||DB.colaboradores[0]; u.id=c.id; u.nome=c.nome; u.rl=c.cargo+' · '+c.area; u.apelido=c.apelido||c.nome.split(' ')[0]; u.foto=c.foto||''; u.av=c.nome.split(' ').map(x=>x[0]).slice(0,2).join(''); }
+            else if(papel==='cliente'){ let p=DB.propostas.find(x=>x.dealId===id)||DB.propostas[0]; if(p){u.id=p.dealId; u.nome=p.decisor||p.empresa; u.rl=p.empresa+' · Cliente'; u.av=(p.empresa||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();} else {u.id=null;u.nome='Cliente';u.rl='Cliente';u.av='CL';} u.apelido=u.nome; u.foto=''; }
             this.user=u;
             // === BACKEND === aqui você guardaria o token retornado (ex: sessionStorage no app real)
             return u;
@@ -1959,23 +1994,37 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           let idBox=document.getElementById('login-identity');
           let sel=document.getElementById('login-identity-sel');
           let lbl=document.getElementById('login-identity-label');
-          if(papel==='admin'){ idBox.style.display='none'; }
+          let senhaBox=document.getElementById('login-senha-box');
+          let senhaInp=document.getElementById('login-senha'); if(senhaInp) senhaInp.value='';
+          if(papel==='admin'){ idBox.style.display='none'; senhaBox.style.display='block'; }
           else if(papel==='colaborador'){
             lbl.innerText='Qual colaborador é você?';
-            sel.innerHTML=DB.colaboradores.map(c=>`<option value="${c.id}">${c.nome} — ${c.cargo}</option>`).join('');
-            idBox.style.display='block';
+            let ativos=DB.colaboradores.filter(c=>c.ativo!==false);
+            sel.innerHTML=ativos.length?ativos.map(c=>`<option value="${c.id}">${c.apelido||c.nome} — ${c.cargo}</option>`).join(''):'<option value="">(Nenhum usuário ativo — ative alguém em Equipe e acessos)</option>';
+            idBox.style.display='block'; senhaBox.style.display='block';
           } else if(papel==='cliente'){
             lbl.innerText='Qual cliente é você?';
             let ops=DB.propostas.map(p=>`<option value="${p.dealId}">${p.empresa}${p.decisor?' — '+p.decisor:''}</option>`).join('');
             sel.innerHTML=ops||'<option value="">(Nenhum cliente cadastrado ainda — entre como Gestão e crie um no Funil)</option>';
-            idBox.style.display='block';
+            idBox.style.display='block'; senhaBox.style.display='none';
           }
           document.getElementById('login-enter').style.display='block';
         }
+        function loginPrefSenha(){ let s=document.getElementById('login-senha'); if(s)s.value=''; }
         function loginEnter(){
           if(!_loginRole)return;
           let id=null;
           if(_loginRole!=='admin'){ id=document.getElementById('login-identity-sel').value; }
+          // valida status e senha (simulação — o backend é a fonte real de verdade)
+          let senha=(document.getElementById('login-senha')?.value||'').trim();
+          if(_loginRole==='admin'){
+            if(senha && senha!==ADMIN_USER.senha) return alert('Senha incorreta.');
+          } else if(_loginRole==='colaborador'){
+            let c=DB.colaboradores.find(x=>x.id===id);
+            if(!c) return alert('Selecione um colaborador.');
+            if(c.ativo===false) return alert('Este usuário está desativado. Procure a gestão.');
+            if(senha && senha!==c.senha) return alert('Senha incorreta.');
+          }
           AUTH.login(_loginRole, id);
           aplicarPerfil();
           document.getElementById('login-screen').classList.add('hidden');
@@ -1996,10 +2045,9 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         }
         function aplicarPerfil(){
           let u=AUTH.currentUser(); if(!u)return;
-          // identidade na topbar
-          document.getElementById('top-user-nome').innerText=u.nome;
+          // identidade na topbar (nome/apelido + foto)
           document.getElementById('top-user-rl').innerText=u.rl;
-          document.getElementById('top-user-av').innerText=u.av;
+          aplicarTopbarIdentidade();
           // mostra/esconde itens de nav conforme permissão
           atualizarNavVisibilidade();
           // para colaborador/cliente, pré-seleciona a própria identidade nos seletores internos
@@ -2278,7 +2326,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           if(v==='rh') renderRH();
           if(v==='catalogo') renderCatTabela();
           if(v==='dash') renderDash();
-          if(v==='equipe') renderPermissoes();
+          if(v==='equipe'){ renderUsuarios(); renderPermissoes(); }
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
 
@@ -2297,6 +2345,31 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           }).join('');
           renderCatTabela();
         }
+        /* ===== CNAE / BASE DA NOTA FISCAL =====
+           CNAEs registrados no CNPJ 30.361.388/0001-17 (A! FATORIAL SOLUÇÕES
+           PARA EMPRESAS E FRANQUIAS LTDA). São os únicos que podem servir de
+           base para a Nota Fiscal de cada serviço. */
+        const CNAES_EMPRESA=[
+          {c:'74.90-1-04', d:'Intermediação e agenciamento de serviços e negócios em geral', principal:true},
+          {c:'70.20-4-00', d:'Consultoria em gestão empresarial'},
+          {c:'82.11-3-00', d:'Serviços combinados de escritório e apoio administrativo'},
+          {c:'78.10-8-00', d:'Seleção e agenciamento de mão de obra'},
+          {c:'43.99-1-01', d:'Administração de obras'},
+          {c:'43.30-4-99', d:'Outras obras de acabamento da construção'}
+        ];
+        function cnaeDesc(c){ let x=CNAES_EMPRESA.find(e=>e.c===c); return x?x.d:''; }
+        // Sugere, dentre os CNAEs registrados, o mais adequado ao serviço.
+        function sugerirCnae(nome, grupo){
+          let s=((nome||'')+' '+(grupo||'')).toLowerCase();
+          if(/\bobra|reforma|acabament|constru|pintura|el[ée]tric|hidr[áa]ul|alvenar/.test(s)) return '43.99-1-01';
+          if(/recrut|sele[çc][ãa]o|selecion|m[ãa]o de obra|m[ãa]o-de-obra|\bvaga|contrata[çc]|\br&s\b|headhunt|talento/.test(s)) return '78.10-8-00';
+          if(/agenc|intermedi|capta[çc]|prospec|parceri|representa[çc]/.test(s)) return '74.90-1-04';
+          if(/escrit[óo]rio|apoio administrativ|\bbpo\b|secretari|back ?office|terceiriza[çc]/.test(s)) return '82.11-3-00';
+          return '70.20-4-00'; // padrão: consultoria em gestão empresarial (núcleo do negócio)
+        }
+        function cnaeOptions(sel){
+          return CNAES_EMPRESA.map(e=>`<option value="${e.c}" ${e.c===sel?'selected':''}>${e.c} · ${e.d}${e.principal?' (principal)':''}</option>`).join('');
+        }
         function renderCatTabela(){
           let tb=document.getElementById('cat-tbody'); if(!tb)return;
           // filtro de grupos
@@ -2313,8 +2386,10 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
               if(busca && !s.nome.toLowerCase().includes(busca)) return;
               if(!mostraBloq && s.bloq) return;
               let status=s.bloq?'<span class="pill pill-bad">Bloqueado</span>':'<span class="pill pill-ok">Ativo</span>';
+              let cnae=s.cnae||sugerirCnae(s.nome,g.grupo);
+              let cnaeCell=`<span style="font-family:var(--font-mono);font-size:12px;color:var(--gold-deep);font-weight:600;">${cnae}</span><br><span style="font-size:10px;color:var(--ink-faint);">${cnaeDesc(cnae)}</span>`;
               rows+=`<tr style="${s.bloq?'opacity:.55;':''}">
-                <td><b>${s.nome}</b></td><td>${g.grupo}</td><td>${s.meta}</td>
+                <td><b>${s.nome}</b></td><td>${g.grupo}</td><td>${cnaeCell}</td><td>${s.meta}</td>
                 <td style="color:var(--gold-deep);font-weight:600;">${brl(s.valor)}</td>
                 <td>${status}</td>
                 <td style="white-space:nowrap;">
@@ -2324,7 +2399,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
                 </td></tr>`;
             });
           });
-          tb.innerHTML=rows||'<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:24px;">Nenhum serviço encontrado.</td></tr>';
+          tb.innerHTML=rows||'<tr><td colspan="7" style="text-align:center;color:var(--ink-faint);padding:24px;">Nenhum serviço encontrado.</td></tr>';
           let resumo=document.getElementById('cat-resumo');
           if(resumo) resumo.innerText=total+' serviços · '+ativos+' ativos · '+bloqueados+' bloqueados';
         }
@@ -2340,8 +2415,22 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           renderCatalogo();
         }
         let catEdit={gi:null,si:null};
+        let catCnaeManual=false;
+        // nome do grupo escolhido no modal (considerando "novo grupo")
+        function catGrupoNome(){
+          let v=document.getElementById('cat-f-grupo').value;
+          if(v==='__novo') return document.getElementById('cat-f-grupo-novo').value.trim();
+          let g=CATALOGO[parseInt(v)]; return g?g.grupo:'';
+        }
+        // atualiza a sugestão de CNAE conforme o nome/grupo, salvo se o usuário já escolheu manualmente
+        function catSugereCnae(){
+          if(catCnaeManual) return;
+          let sel=document.getElementById('cat-f-cnae'); if(!sel)return;
+          let nome=document.getElementById('cat-f-nome').value;
+          sel.value=sugerirCnae(nome, catGrupoNome());
+        }
         function catNovo(){
-          catEdit={gi:null,si:null};
+          catEdit={gi:null,si:null}; catCnaeManual=false;
           document.getElementById('cat-modal-titulo').innerText='Novo serviço';
           document.getElementById('cat-f-nome').value='';
           document.getElementById('cat-f-valor').value='';
@@ -2350,10 +2439,12 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           let gsel=document.getElementById('cat-f-grupo');
           gsel.innerHTML=CATALOGO.map((g,i)=>`<option value="${i}">${g.grupo}</option>`).join('')+'<option value="__novo">+ Novo grupo...</option>';
           document.getElementById('cat-f-grupo-novo').style.display='none';
+          document.getElementById('cat-f-cnae').innerHTML=cnaeOptions('70.20-4-00');
+          catSugereCnae();
           document.getElementById('m-catalogo').classList.add('on');
         }
         function catEditar(gi,si){
-          catEdit={gi,si};
+          catEdit={gi,si}; catCnaeManual=true;
           let s=CATALOGO[gi].servicos[si];
           document.getElementById('cat-modal-titulo').innerText='Editar serviço';
           document.getElementById('cat-f-nome').value=s.nome;
@@ -2363,6 +2454,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           let gsel=document.getElementById('cat-f-grupo');
           gsel.innerHTML=CATALOGO.map((g,i)=>`<option value="${i}" ${i===gi?'selected':''}>${g.grupo}</option>`).join('')+'<option value="__novo">+ Novo grupo...</option>';
           document.getElementById('cat-f-grupo-novo').style.display='none';
+          document.getElementById('cat-f-cnae').innerHTML=cnaeOptions(s.cnae||sugerirCnae(s.nome,CATALOGO[gi].grupo));
           document.getElementById('m-catalogo').classList.add('on');
         }
         function catGrupoChange(){
@@ -2383,7 +2475,8 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
             if(!ng) return alert('Informe o nome do novo grupo.');
             CATALOGO.push({grupo:ng,servicos:[]}); gi=CATALOGO.length-1;
           } else gi=parseInt(gv);
-          let obj={nome,valor,horas,meses,meta,bloq:false};
+          let cnae=document.getElementById('cat-f-cnae').value||sugerirCnae(nome,CATALOGO[gi]?CATALOGO[gi].grupo:'');
+          let obj={nome,valor,horas,meses,meta,bloq:false,cnae};
           if(catEdit.si!==null && catEdit.gi!==null){
             // editar: se mudou de grupo, move
             let old=CATALOGO[catEdit.gi].servicos[catEdit.si];
@@ -3193,6 +3286,189 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           if(typeof AUTH!=='undefined'&&AUTH.user&&typeof atualizarNavVisibilidade==='function') atualizarNavVisibilidade();
         }
 
+        /* ===== USUÁRIOS / ACESSOS (Equipe e responsáveis) ===== */
+        // Conta de administração (dona da empresa). Não pode ser desativada nem excluída.
+        const ADMIN_USER={ id:'admin', nome:'Carla Caroline', cargo:'Arquiteta de Lucro · CEO', area:'Gestão', login:'carla', senha:'admin', apelido:'Carla', foto:'', ativo:true, fixo:true };
+        // Garante login, senha e apelido em todos e aplica overrides salvos no navegador.
+        function normalizaUsuarios(){
+          DB.colaboradores.forEach(c=>{
+            let prim=(c.nome||'').trim().split(/\s+/)[0].toLowerCase();
+            if(c.login==null) c.login=prim||('user'+c.id);
+            if(c.senha==null) c.senha='1234';
+            if(c.apelido==null) c.apelido=(c.nome||'').trim().split(/\s+/)[0]||c.nome;
+            if(c.foto==null) c.foto=(c.dossie&&c.dossie.foto)||'';
+            if(c.ativo==null) c.ativo=true;
+          });
+          try{
+            let ov=JSON.parse(localStorage.getItem('af_usuarios')||'null');
+            if(ov){
+              if(ov.admin) Object.assign(ADMIN_USER, ov.admin);
+              if(ov.cols) DB.colaboradores.forEach(c=>{ if(ov.cols[c.id]){ Object.assign(c, ov.cols[c.id]); if(c.dossie) c.dossie.foto=c.foto; } });
+            }
+          }catch(e){}
+        }
+        // === BACKEND === em produção, credenciais e status vêm do servidor, nunca do navegador.
+        function salvarUsuarios(){
+          try{
+            let cols={};
+            DB.colaboradores.forEach(c=>{ cols[c.id]={login:c.login,senha:c.senha,apelido:c.apelido,foto:c.foto,ativo:c.ativo}; });
+            localStorage.setItem('af_usuarios', JSON.stringify({admin:{login:ADMIN_USER.login,senha:ADMIN_USER.senha,apelido:ADMIN_USER.apelido,foto:ADMIN_USER.foto}, cols}));
+          }catch(e){}
+        }
+        function userById(id){ return id==='admin'?ADMIN_USER:DB.colaboradores.find(c=>c.id===id); }
+        function avatarHTML(u, size){
+          size=size||40;
+          let ini=(u.nome||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
+          if(u.foto) return `<span style="width:${size}px;height:${size}px;border-radius:50%;background-image:url('${u.foto}');background-size:cover;background-position:center;display:inline-block;border:1px solid var(--line);flex-shrink:0;"></span>`;
+          return `<span style="width:${size}px;height:${size}px;border-radius:50%;background:var(--gold-grad);color:#1a1408;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(size*0.36)}px;flex-shrink:0;">${ini}</span>`;
+        }
+        // Lê uma imagem e devolve um dataURL reduzido (≤200px) — mantém o localStorage leve.
+        function lerFotoArquivo(file, cb){
+          if(!file) return;
+          let fr=new FileReader();
+          fr.onload=e=>{
+            let img=new Image();
+            img.onload=()=>{
+              let max=200, scale=Math.min(1, max/Math.max(img.width,img.height));
+              let cw=Math.round(img.width*scale), ch=Math.round(img.height*scale);
+              let cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+              cv.getContext('2d').drawImage(img,0,0,cw,ch);
+              try{ cb(cv.toDataURL('image/jpeg',0.82)); }catch(err){ cb(e.target.result); }
+            };
+            img.onerror=()=>cb('');
+            img.src=e.target.result;
+          };
+          fr.readAsDataURL(file);
+        }
+        // Cria um colaborador completo (estrutura compatível com RH e portal).
+        function colaboradorNovo(d){
+          let id='c'+Date.now().toString().slice(-6);
+          return { id, nome:d.nome, cargo:d.cargo||'Colaborador', area:d.area||'Geral',
+            admissao:new Date().toISOString().slice(0,10), salario:0, comissao:0, ativo:true, desligamento:null,
+            login:d.login, senha:d.senha||'1234', apelido:d.apelido||d.nome.split(' ')[0], foto:d.foto||'',
+            pessoal:{ nascimento:'', estadoCivil:'', conjuge:'', filhos:[], cidade:'', telefone:'', dataPessoalNome:'', dataPessoalData:'' },
+            motivadores:{ dinheiro:3, reconhecimento:3, proposito:3, crescimento:3, seguranca:3, autonomia:3, conexao:3 },
+            valorizacao:{ estilo:'', publico:true, observacao:'' }, reconhecimentos:[],
+            dossie:{ bio:'', hobbies:'', filme:'', serie:'', comida:'', playlist:'', sonho:'', curiosidade:'', foto:d.foto||'', formacao:'', idiomas:'', certificacoes:'', conhecimentos:'' },
+            competencias:{}, regras:{aceito:false, data:null},
+            trilha:[], disc:null, tracos:null, pda:null, cultura:null,
+            pdi:[], crescimento:[], objetivos:[], gam:{xp:0, badges:[], log:[]}, missoes:[],
+            timeline:[{tipo:'marco',titulo:'Entrou no Grupo A!',detalhe:'Início da saga — bem-vindo!',data:new Date().toISOString(),ts:Date.now()}],
+            feedbacks:[], perf:{ entregas:0, pontualidade:0, qualidade:0, engajamento:0 }, risco:null, potencial:'medio' };
+        }
+        function renderUsuarios(){
+          let box=document.getElementById('equipe-users'); if(!box)return;
+          let rows=[ADMIN_USER].concat(DB.colaboradores).map(u=>{
+            let ativo=u.ativo!==false;
+            let st=u.fixo?'<span class="pill pill-ok">Dono</span>':(ativo?'<span class="pill pill-ok">Ativo</span>':'<span class="pill pill-bad">Inativo</span>');
+            let acoes=`<button class="btn btn-ghost btn-sm" onclick="usuarioFotoRow('${u.id}')" title="Trocar foto">📷</button>
+              <button class="btn btn-ghost btn-sm" onclick="usuarioEditar('${u.id}')" title="Editar">✎</button>
+              <button class="btn btn-ghost btn-sm" onclick="usuarioSenha('${u.id}')" title="Alterar senha">🔑</button>`;
+            if(!u.fixo) acoes+=`<button class="btn btn-ghost btn-sm" onclick="usuarioToggle('${u.id}')" title="${ativo?'Desativar':'Ativar'}" style="color:${ativo?'var(--bad)':'var(--ok)'};">⏻</button>`;
+            return `<tr style="${ativo?'':'opacity:.55;'}">
+              <td style="display:flex;align-items:center;gap:10px;">${avatarHTML(u,38)}<span><b>${u.apelido||u.nome}</b><br><span style="font-size:11px;color:var(--ink-faint);">${u.nome}</span></span></td>
+              <td>${u.cargo||''}<br><span style="font-size:11px;color:var(--ink-faint);">${u.area||''}</span></td>
+              <td><span style="font-family:var(--font-mono);font-size:12px;">${u.login||'—'}</span></td>
+              <td><span style="font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);">${'•'.repeat((u.senha||'').length||4)}</span></td>
+              <td>${st}</td>
+              <td style="white-space:nowrap;">${acoes}</td></tr>`;
+          }).join('');
+          box.innerHTML=`<table class="tbl"><thead><tr><th>Usuário</th><th>Função</th><th>Login</th><th>Senha</th><th>Status</th><th>Ações</th></tr></thead><tbody>${rows}</tbody></table>
+            <input type="file" accept="image/*" id="u-foto-row" style="display:none">`;
+          let inp=document.getElementById('u-foto-row');
+          if(inp) inp.onchange=function(){ let f=this.files[0]; if(!f)return; lerFotoArquivo(f, dataUrl=>{ let u=userById(_fotoRowAlvo); if(u){ u.foto=dataUrl; if(u.dossie)u.dossie.foto=dataUrl; salvarUsuarios(); renderUsuarios(); refrescarIdentidade(); } }); this.value=''; };
+        }
+        let _fotoRowAlvo=null;
+        function usuarioFotoRow(id){ _fotoRowAlvo=id; let i=document.getElementById('u-foto-row'); if(i)i.click(); }
+        function usuarioToggle(id){
+          let u=userById(id); if(!u||u.fixo)return;
+          u.ativo=(u.ativo===false); salvarUsuarios(); renderUsuarios();
+          if(typeof notify==='function') notify('equipe','Usuário '+(u.ativo?'ativado':'desativado'),u.nome+' agora está '+(u.ativo?'ativo':'inativo')+'.','equipe');
+        }
+        function usuarioSenha(id){
+          let u=userById(id); if(!u)return;
+          let nova=prompt('Nova senha para '+(u.apelido||u.nome)+':', u.senha||'');
+          if(nova==null) return;
+          nova=nova.trim(); if(!nova) return alert('A senha não pode ficar vazia.');
+          u.senha=nova; salvarUsuarios(); renderUsuarios();
+          if(typeof notify==='function') notify('equipe','Senha alterada','A senha de '+(u.apelido||u.nome)+' foi atualizada.','equipe');
+        }
+        let _uFoto='';
+        function uPreview(){
+          let p=document.getElementById('u-foto-preview'); if(!p)return;
+          p.innerHTML=avatarHTML({nome:document.getElementById('u-nome').value||'?', foto:_uFoto},64);
+        }
+        function uFotoLimpar(){ _uFoto=''; uPreview(); }
+        function usuarioNovo(){
+          document.getElementById('u-modal-titulo').innerText='Novo usuário';
+          document.getElementById('u-id').value='';
+          ['u-nome','u-apelido','u-cargo','u-area','u-login','u-senha'].forEach(k=>document.getElementById(k).value='');
+          document.getElementById('u-senha').value='1234';
+          document.getElementById('u-admin-fields').style.display='';
+          _uFoto=''; uPreview();
+          document.getElementById('m-usuario').classList.add('on');
+        }
+        function usuarioEditar(id, self){
+          let u=userById(id); if(!u)return;
+          document.getElementById('u-modal-titulo').innerText=self?'Meu perfil':'Editar usuário';
+          document.getElementById('u-id').value=id;
+          document.getElementById('u-nome').value=u.nome||'';
+          document.getElementById('u-apelido').value=u.apelido||'';
+          document.getElementById('u-cargo').value=u.cargo||'';
+          document.getElementById('u-area').value=u.area||'';
+          document.getElementById('u-login').value=u.login||'';
+          document.getElementById('u-senha').value=u.senha||'';
+          // colaborador editando o próprio perfil: só foto + apelido
+          document.getElementById('u-admin-fields').style.display=self?'none':'';
+          _uFoto=u.foto||''; uPreview();
+          document.getElementById('m-usuario').classList.add('on');
+        }
+        function meuPerfilAbrir(){ if(AUTH.user&&AUTH.user.papel==='colaborador') usuarioEditar(AUTH.user.id, true); }
+        function usuarioSalvar(){
+          let id=document.getElementById('u-id').value;
+          let nome=document.getElementById('u-nome').value.trim();
+          let apelido=document.getElementById('u-apelido').value.trim();
+          if(!nome) return alert('Informe o nome.');
+          if(id){
+            let u=userById(id); if(!u)return;
+            u.nome=nome; u.apelido=apelido||nome.split(' ')[0]; u.foto=_uFoto;
+            if(u.dossie) u.dossie.foto=_uFoto;
+            // campos só de admin (escondidos no modo self ficam inalterados se ocultos)
+            if(document.getElementById('u-admin-fields').style.display!=='none'){
+              u.cargo=document.getElementById('u-cargo').value.trim()||u.cargo;
+              u.area=document.getElementById('u-area').value.trim()||u.area;
+              u.login=document.getElementById('u-login').value.trim()||u.login;
+              let s=document.getElementById('u-senha').value.trim(); if(s) u.senha=s;
+            }
+          } else {
+            // novo usuário (colaborador)
+            let login=document.getElementById('u-login').value.trim()||nome.split(' ')[0].toLowerCase();
+            let novo=colaboradorNovo({ nome, apelido, cargo:document.getElementById('u-cargo').value.trim(), area:document.getElementById('u-area').value.trim(), login, senha:document.getElementById('u-senha').value.trim()||'1234', foto:_uFoto });
+            DB.colaboradores.push(novo);
+          }
+          salvarUsuarios();
+          document.getElementById('m-usuario').classList.remove('on');
+          renderUsuarios();
+          refrescarIdentidade();
+          if(typeof renderColaborador==='function' && document.getElementById('v-colaborador')?.classList.contains('on')) renderColaborador();
+          if(typeof renderRH==='function') {}
+        }
+        // Atualiza foto/apelido na topbar e no cartão do jogador se a pessoa estiver logada.
+        function refrescarIdentidade(){
+          if(!AUTH.user) return;
+          let u=AUTH.user.papel==='admin'?ADMIN_USER:(AUTH.user.papel==='colaborador'?userById(AUTH.user.id):null);
+          if(u){ AUTH.user.foto=u.foto; AUTH.user.apelido=u.apelido; if(typeof aplicarTopbarIdentidade==='function') aplicarTopbarIdentidade(); }
+        }
+        function aplicarTopbarIdentidade(){
+          let u=AUTH.user; if(!u)return;
+          let nomeEl=document.getElementById('top-user-nome'); if(nomeEl) nomeEl.innerText=u.apelido||u.nome;
+          let avEl=document.getElementById('top-user-av');
+          if(avEl){
+            if(u.foto){ avEl.style.backgroundImage="url('"+u.foto+"')"; avEl.style.backgroundSize='cover'; avEl.style.backgroundPosition='center'; avEl.innerText=''; }
+            else { avEl.style.backgroundImage=''; avEl.innerText=u.av||''; }
+          }
+        }
+
         /* ===== CLIENT OVERLAY ===== */
         function cliAbrir(id){
           let p=DB.propostas.find(x=>x.id===id); if(!p)return;
@@ -3615,12 +3891,13 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
             <div class="gmr-player">
               <span class="gmr-corner tl"></span><span class="gmr-corner tr"></span><span class="gmr-corner bl"></span><span class="gmr-corner br"></span>
               <div class="gmr-player-in">
-                <div class="gmr-avatar">${ringSvg}<div class="face">${ini}</div><div class="lvbadge">${nivel}</div></div>
+                <div class="gmr-avatar">${ringSvg}<div class="face" ${c.foto?`style="background-image:url('${c.foto}');background-size:cover;background-position:center;"`:''}>${c.foto?'':ini}</div><div class="lvbadge">${nivel}</div></div>
                 <div class="gmr-id">
                   <div class="sel-wrap"><span class="who">◢ Perfil do colaborador</span>
-                    <select id="col-sel" onchange="colTrocar(this.value)">${DB.colaboradores.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${x.nome}</option>`).join('')}</select></div>
-                  <div class="gmr-name">${c.nome}</div>
-                  <div class="gmr-class">${classe?`${classe.ic} Classe: <b>${classe.nome}</b>`:'🔍 Classe: <b>a descobrir</b> — faça o teste de Traços'}　·　${c.cargo}</div>
+                    <select id="col-sel" onchange="colTrocar(this.value)">${DB.colaboradores.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${x.apelido||x.nome}</option>`).join('')}</select>
+                    ${(AUTH.user&&AUTH.user.papel==='colaborador'&&AUTH.user.id===c.id)?`<button class="btn btn-ghost btn-sm" style="margin-left:8px;" onclick="meuPerfilAbrir()">✎ Meu perfil</button>`:''}</div>
+                  <div class="gmr-name">${c.apelido||c.nome}</div>
+                  <div class="gmr-class">${classe?`${classe.ic} Classe: <b>${classe.nome}</b>`:'🔍 Classe: <b>a descobrir</b> — faça o teste de Traços'}　·　${c.cargo}${(c.apelido&&c.apelido!==c.nome)?`　·　${c.nome}`:''}</div>
                   <div class="gmr-xpbar">
                     <div class="top"><span>NÍVEL ${nivel}</span><span><b>${c.gam.xp} XP</b> · faltam ${100-pct} p/ nível ${nivel+1}</span></div>
                     <div class="gmr-xptrack"><div class="gmr-xpfill" style="width:${pct}%;"></div></div>
@@ -6257,6 +6534,9 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         function entDemo(){ criarEntregaveis({id:'DEAL-DEMO'+Date.now().toString().slice(-4),cliente:'Ótica UltraVisão (exemplo)',equipe:['Carla Caroline'],fim:'2026-08-15',servicos:['Diagnóstico Empresarial (RAIO-X)','Reestruturação Empresarial','DNA da Liderança']}); }
 
         /* ===== INIT ===== */
+        if(typeof normalizaUsuarios==='function') normalizaUsuarios();
+        // upload de foto no modal de usuário
+        (function(){ let f=document.getElementById('u-foto-file2'); if(f) f.onchange=function(){ let file=this.files[0]; if(!file)return; lerFotoArquivo(file, d=>{ _uFoto=d; uPreview(); }); this.value=''; }; })();
         renderCatalogo();
         onModelo();
         gerarCarga();
