@@ -138,6 +138,17 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - **Relatório executivo (PDF)** (botão na Visão do dono): documento único com
       financeiro + comercial + valuation + projeção + recomendações, com a marca,
       pronto para imprimir/salvar. `relatorioDono`, `relatorioPDF`.
+19. **Categorias/regras, comparativo e mais gráficos**
+    - **Categorias editáveis + regras** no Centro Financeiro: crie categorias e
+      regras "se contém X → categoria Y"; aplicam-se às importações e
+      **reclassificam os lançamentos existentes na hora**. Seletor de categoria por
+      linha. `finCategorias`, `finAddRegra`, `finAplicarRegras`, `finSetCat`.
+    - **Comparativo mês a mês** (Visão geral): entradas, saídas e resultado do mês
+      atual vs. anterior, com variação %. `finComparativoCard`.
+    - **Metas do plano na projeção**: recorrência (alvo/12) + clientes fechados
+      entram como receita futura no fluxo de caixa (toggle). `finProjMeses`.
+    - **Mais gráficos na Gestão à vista**: resultado mensal, caixa projetado (6m)
+      e metas de venda — para decisão rápida. `renderDashCharts`, `miniBars`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
