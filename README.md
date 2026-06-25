@@ -99,6 +99,18 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - Vem **semeado com extratos reais (jan–abr/2026)**. Persistência em
       `localStorage` (`af_fin`). Funções: `FIN360`, `finParseExtrato`,
       `finConselho`, `finVisaoGeral`, `finResumo`, `finCatFinal`.
+14. **Planejamento estratégico** (nav "Planejamento estratégico", admin) — metas
+    de venda ligadas ao pipeline e ao financeiro:
+    - Cada meta: serviço, quantidade × valor (ou **recorrente** por unidade, ex.:
+      Medical R$ 25/agendamento), prazo e **projeção de receita**.
+    - **Pipeline** por cliente: status (em vista → ofereci → negociando → fechou),
+      valor, **anexo de arquivo** e **avaliação no Google** (gera mensagem de
+      pedido pronta). Botão **"Enviar projeção ao Centro Financeiro"** alimenta o
+      valuation/faturamento.
+    - **Conselheiro comercial** (propostas em aberto, avaliações pendentes, gap da
+      meta). Semeado com as metas do seu plano 2026. Persistência em `af_plano`.
+      Funções: `PLANO`, `planoConselho`, `planoRenderMetas`, `planoPedirReview`,
+      `planoUsarNoFinanceiro`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 

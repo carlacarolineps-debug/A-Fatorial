@@ -1192,6 +1192,7 @@ body.apresentacao #apr-banner{display:block;}
     <button class="nav-item" onclick="go('propostas')" id="n-propostas"><span class="ic">✦</span> Propostas e rastreio</button>
     <button class="nav-item" onclick="go('financeiro')" id="n-financeiro"><span class="ic">❖</span> Fluxo de caixa e DRE</button>
     <button class="nav-item" onclick="go('fin360')" id="n-fin360"><span class="ic">◇</span> Centro Financeiro 360</button>
+    <button class="nav-item" onclick="go('plano')" id="n-plano"><span class="ic">◈</span> Planejamento estratégico</button>
 
     <div class="nav-group">Visão do cliente</div>
     <button class="nav-item" onclick="go('portal')" id="n-portal"><span class="ic">◐</span> Portal do cliente</button>
@@ -1694,6 +1695,30 @@ body.apresentacao #apr-banner{display:block;}
       <div id="rh-pane-dp" class="col-pane"></div>
     </section>
 
+    <!-- ============ PLANEJAMENTO ESTRATÉGICO ============ -->
+    <section class="view" id="v-plano">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Planejamento estratégico · metas de venda</span>
+        <h2>Do <b>plano</b> ao <b>fechamento</b> — com nome, valor e prova.</h2>
+        <p>Defina o que quer vender (quantos, a quanto), acompanhe cada cliente do "em vista" ao "fechou", anexe o arquivo, peça a avaliação no Google e veja quanto isso projeta de receita — conectado ao seu Centro Financeiro.</p>
+      </div>
+      <div id="plano-resumo"></div>
+      <div class="card">
+        <div class="card-h">🎯 Nova meta de venda</div>
+        <div class="grid">
+          <div class="c4 f"><span class="lbl">Serviço / produto</span><input class="inp" id="pl-servico" list="pl-servicos" placeholder="Ex: Sistema Personalizado"></div>
+          <div class="c2 f"><span class="lbl">Tipo</span><select class="inp" id="pl-tipo" onchange="planoTipoChange()"><option value="venda">Venda (qtd × valor)</option><option value="recorrente">Recorrente (por unidade)</option></select></div>
+          <div class="c2 f"><span class="lbl" id="pl-qtd-lbl">Quantas vender</span><input type="number" class="inp" id="pl-qtd" placeholder="5"></div>
+          <div class="c2 f"><span class="lbl" id="pl-valor-lbl">Valor cada (R$)</span><input type="text" inputmode="decimal" class="inp" id="pl-valor" placeholder="15.000,00" onblur="maskMoney(this)"></div>
+          <div class="c2 f"><span class="lbl">Prazo</span><input type="date" class="inp" id="pl-prazo"></div>
+        </div>
+        <div class="actions"><button class="btn btn-gold btn-sm" onclick="planoAddMeta()">+ Criar meta</button></div>
+        <datalist id="pl-servicos"></datalist>
+      </div>
+      <div id="plano-metas"></div>
+      <input type="file" id="plano-file" style="display:none">
+    </section>
+
     <!-- ============ CENTRO FINANCEIRO 360 ============ -->
     <section class="view" id="v-fin360">
       <div class="in-hero">
@@ -2149,7 +2174,7 @@ body.apresentacao #apr-banner{display:block;}
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dash','funil','propostas','financeiro','fin360','portal','colaborador','rh','catalogo','equipe'],
+          admin:      ['dash','funil','propostas','financeiro','fin360','plano','portal','colaborador','rh','catalogo','equipe'],
           colaborador:['colaborador','funil','propostas'],
           cliente:    ['portal']
         };
@@ -2242,7 +2267,7 @@ body.apresentacao #apr-banner{display:block;}
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
         // do usuário logado, SEM navegar (usado ao editar permissões ao vivo).
         function atualizarNavVisibilidade(){
-          const navMap={dash:'n-dash',funil:'n-funil',propostas:'n-propostas',financeiro:'n-financeiro',fin360:'n-fin360',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
+          const navMap={dash:'n-dash',funil:'n-funil',propostas:'n-propostas',financeiro:'n-financeiro',fin360:'n-fin360',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
           Object.keys(navMap).forEach(v=>{ let el=document.getElementById(navMap[v]); if(el) el.style.display=AUTH.can(v)?'':'none'; });
           // esconde grupos de nav vazios
           document.querySelectorAll('.side-nav .nav-group').forEach(g=>{
@@ -2536,6 +2561,7 @@ body.apresentacao #apr-banner{display:block;}
           if(v==='catalogo'){ renderCatTabela(); if(typeof renderOportunidades==='function') renderOportunidades(); }
           if(v==='dash') renderDash();
           if(v==='fin360' && typeof finRender==='function') finRender();
+          if(v==='plano' && typeof planoRender==='function') planoRender();
           if(v==='equipe'){ renderUsuarios(); renderPermissoes(); }
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
@@ -3728,7 +3754,7 @@ body.apresentacao #apr-banner{display:block;}
         /* ===== CONFIGURADOR DE PERMISSÕES (Equipe e acessos) ===== */
         const PERM_TELAS=[
           {k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},
-          {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
+          {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'plano',l:'Planejamento estratégico'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
           {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
         ];
         const PERM_PAPEIS=[
@@ -7047,6 +7073,154 @@ body.apresentacao #apr-banner{display:block;}
         function entDemo(){ criarEntregaveis({id:'DEAL-DEMO'+Date.now().toString().slice(-4),cliente:'Ótica UltraVisão (exemplo)',equipe:['Carla Caroline'],fim:'2026-08-15',servicos:['Diagnóstico Empresarial (RAIO-X)','Reestruturação Empresarial','DNA da Liderança']}); }
 
         /* ===================================================================
+           PLANEJAMENTO ESTRATÉGICO — metas de venda, pipeline de clientes,
+           anexos, avaliação Google e recorrência (ex.: Medical/A! Saúde).
+           =================================================================== */
+        const PLANO_STATUS=[['vista','Em vista'],['ofereci','Ofereci'],['negociando','Negociando'],['fechou','Fechou ✓'],['perdeu','Não fechou']];
+        const PLANO_SEED=[
+          {servico:'Sistema Personalizado', tipo:'venda', qtd:5, valor:15000, prazo:'2026-12-31', obs:'Ajustar valor por porte do cliente.', clientes:[]},
+          {servico:'Reestruturação Organizacional', tipo:'venda', qtd:5, valor:5000, prazo:'2026-12-31', obs:'', clientes:[
+            {nome:'Jaqueline e Marcelo Peruzzetto', status:'ofereci', valor:1780, review:'pendente', obs:'Origem: plano 2026'}
+          ]},
+          {servico:'Mentoria Liderança Estratégica (12m)', tipo:'venda', qtd:15, valor:1780, prazo:'2026-12-31', obs:'Meta do plano 2026: 15 contratos ativos.', clientes:[
+            {nome:'CLV - Assessoria Contábil', status:'ofereci', valor:2600, review:'pendente', obs:''}
+          ]},
+          {servico:'Medical · A! Saúde (por agendamento)', tipo:'recorrente', qtd:200, valor:25, prazo:'2026-12-31', obs:'R$ 25 mínimo por agendamento feito pelo escritório.', agend:0, clientes:[]}
+        ];
+        let PLANO={ metas:[], googleLink:'' };
+        let _planoAnexos={}; let _planoAlvo=null;
+        function planoSalvar(){ try{ localStorage.setItem('af_plano', JSON.stringify({metas:PLANO.metas, googleLink:PLANO.googleLink})); }catch(e){} }
+        function planoInit(){
+          let saved=null; try{ saved=JSON.parse(localStorage.getItem('af_plano')||'null'); }catch(e){}
+          if(saved && Array.isArray(saved.metas)){ PLANO.metas=saved.metas; PLANO.googleLink=saved.googleLink||''; }
+          else { PLANO.metas=PLANO_SEED.map((m,i)=>Object.assign({id:'pm'+i}, JSON.parse(JSON.stringify(m)), {clientes:(m.clientes||[]).map((c,j)=>Object.assign({id:'pc'+i+'_'+j},c))})); planoSalvar(); }
+          let f=document.getElementById('plano-file');
+          if(f) f.onchange=function(){ let file=this.files[0]; if(!file||!_planoAlvo)return; let m=PLANO.metas[_planoAlvo.mi], c=m&&m.clientes[_planoAlvo.ci]; if(!c)return; c.anexo=file.name; let fr=new FileReader(); fr.onload=e=>{ _planoAnexos[m.id+'|'+c.id]=e.target.result; }; fr.readAsDataURL(file); planoSalvar(); planoRender(); };
+        }
+        function planoServicosList(){
+          let dl=document.getElementById('pl-servicos'); if(!dl)return;
+          let nomes=new Set();
+          (typeof CATALOGO!=='undefined'?CATALOGO:[]).forEach(g=>g.servicos.forEach(s=>nomes.add(s.nome)));
+          (typeof OPORTUNIDADES_CNAE!=='undefined'?OPORTUNIDADES_CNAE:[]).forEach(g=>g.itens.forEach(s=>nomes.add(s.nome)));
+          dl.innerHTML=[...nomes].map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+        }
+        function planoMetaProj(m){ return (m.qtd||0)*(m.valor||0); }
+        function planoMetaReal(m){ if(m.tipo==='recorrente') return (m.agend||0)*(m.valor||0); return (m.clientes||[]).filter(c=>c.status==='fechou').reduce((a,c)=>a+(c.valor||m.valor||0),0); }
+        function planoMetaFechados(m){ if(m.tipo==='recorrente') return m.agend||0; return (m.clientes||[]).filter(c=>c.status==='fechou').length; }
+        function planoConselho(){
+          let av=[]; let abertos=[], somaAb=0, fechouSemRev=0, fechouTot=0;
+          PLANO.metas.forEach(m=>(m.clientes||[]).forEach(c=>{ if(c.status==='ofereci'||c.status==='negociando'){ abertos.push(c); somaAb+=(c.valor||m.valor||0); } if(c.status==='fechou'){ fechouTot++; if(c.review!=='feita') fechouSemRev++; } }));
+          let proj=PLANO.metas.reduce((a,m)=>a+planoMetaProj(m),0), real=PLANO.metas.reduce((a,m)=>a+planoMetaReal(m),0);
+          if(abertos.length) av.push({n:'dica',t:`Você tem <b>${abertos.length} proposta(s) em aberto</b> somando ${brl(somaAb)}. Follow-up em 24h e em 7 dias transforma "ofereci" em "fechou".`});
+          if(fechouSemRev>0) av.push({n:'alerta',t:`<b>${fechouSemRev} cliente(s) fechado(s) sem avaliação no Google.</b> Cada avaliação é prova social que vende por você — peça hoje (botão "Pedir avaliação").`});
+          if(proj>0) av.push({n: real>=proj?'ok':'dica', t:`Projeção das metas: <b>${brl(proj)}</b> · realizado: <b>${brl(real)}</b> (${Math.round(real/proj*100)}%). ${real<proj?'Faltam '+brl(proj-real)+' para bater o plano.':'Meta batida! Suba a régua.'}`});
+          let med=PLANO.metas.find(m=>m.tipo==='recorrente');
+          if(med && (med.agend||0)===0) av.push({n:'dica',t:`Comece a registrar os agendamentos da <b>${med.servico}</b>: a ${brl(med.valor)} cada, isso é receita recorrente que hoje você não enxerga.`});
+          av.push({n:'ok',t:'<b>Conexão:</b> use "Enviar projeção ao Centro Financeiro" para o valuation e o faturamento refletirem suas metas de venda.'});
+          return av;
+        }
+        function planoRender(){ planoServicosList(); planoResumoRender(); planoRenderMetas(); }
+        function planoResumoRender(){
+          let box=document.getElementById('plano-resumo'); if(!box)return;
+          let proj=PLANO.metas.reduce((a,m)=>a+planoMetaProj(m),0), real=PLANO.metas.reduce((a,m)=>a+planoMetaReal(m),0);
+          let fech=PLANO.metas.reduce((a,m)=>a+planoMetaFechados(m),0);
+          let pct=proj>0?Math.round(real/proj*100):0;
+          let cons=planoConselho().map(a=>{ let cor=a.n==='alerta'?'var(--bad)':a.n==='ok'?'var(--ok)':'var(--gold-bright)'; let ic=a.n==='alerta'?'⚠':a.n==='ok'?'✓':'💡'; return `<div style="display:flex;gap:10px;padding:11px 13px;border-left:3px solid ${cor};background:rgba(255,255,255,.03);border-radius:0 10px 10px 0;margin-bottom:9px;"><span style="font-size:15px;">${ic}</span><div style="font-size:12.5px;line-height:1.55;">${a.t}</div></div>`; }).join('');
+          box.innerHTML=`
+            <div class="kpis">
+              <div class="kpi"><div class="v" style="color:var(--gold-bright);">${brl(proj)}</div><div class="l">Receita projetada</div></div>
+              <div class="kpi"><div class="v" style="color:var(--ok);">${brl(real)}</div><div class="l">Já realizado</div></div>
+              <div class="kpi ${pct>=100?'':'hot'}"><div class="v">${pct}%</div><div class="l">Atingido</div></div>
+              <div class="kpi"><div class="v">${fech}</div><div class="l">Fechamentos</div></div>
+            </div>
+            <div class="card">
+              <div class="card-h">🧭 Conselheiro comercial
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="planoUsarNoFinanceiro()">↗ Enviar projeção ao Centro Financeiro</button></div>
+              ${cons}
+              <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <span class="lbl" style="margin:0;">🔗 Link do seu Google (avaliações):</span>
+                <input class="inp" id="pl-google" value="${(PLANO.googleLink||'').replace(/"/g,'&quot;')}" placeholder="Cole o link de avaliação do Google" style="max-width:340px;" onchange="planoSetGoogle(this.value)">
+              </div>
+            </div>`;
+        }
+        function planoSetGoogle(v){ PLANO.googleLink=(v||'').trim(); planoSalvar(); }
+        function planoUsarNoFinanceiro(){
+          let proj=PLANO.metas.reduce((a,m)=>a+planoMetaProj(m),0);
+          if(typeof FIN360!=='undefined'){ FIN360.faturamentoAnual=Math.round(proj); if(typeof finSalvar==='function') finSalvar(); }
+          if(typeof notify==='function') notify('financeiro','Projeção enviada','Faturamento estimado do Centro Financeiro atualizado para '+brl(proj)+'.','fin360');
+          alert('Projeção de '+brl(proj)+' enviada ao Centro Financeiro 360 (faturamento estimado / valuation).');
+        }
+        function planoRenderMetas(){
+          let box=document.getElementById('plano-metas'); if(!box)return;
+          if(!PLANO.metas.length){ box.innerHTML='<div class="ent-empty">Nenhuma meta ainda. Crie a primeira acima — ex.: "vender 5 Sistemas Personalizados".</div>'; return; }
+          box.innerHTML=PLANO.metas.map((m,mi)=>{
+            let proj=planoMetaProj(m), real=planoMetaReal(m), pct=proj>0?Math.min(100,Math.round(real/proj*100)):0;
+            let corpo;
+            if(m.tipo==='recorrente'){
+              corpo=`<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;">
+                <div style="font-size:13px;color:var(--ink-soft);">Agendamentos registrados:</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <button class="btn btn-ghost btn-sm" onclick="planoSetAgend(${mi},-1)">−</button>
+                  <b style="font-size:22px;min-width:46px;text-align:center;">${m.agend||0}</b>
+                  <button class="btn btn-gold btn-sm" onclick="planoSetAgend(${mi},1)">+ agendamento</button>
+                </div>
+                <div style="font-size:13px;color:var(--ink-soft);">× ${brl(m.valor)} = <b style="color:var(--ok);">${brl(real)}</b> · meta ${m.qtd} (${brl(proj)})</div>
+              </div>`;
+            } else {
+              let rows=(m.clientes||[]).map((c,ci)=>{
+                let opts=PLANO_STATUS.map(s=>`<option value="${s[0]}" ${c.status===s[0]?'selected':''}>${s[1]}</option>`).join('');
+                let key=m.id+'|'+c.id; let temArq=!!_planoAnexos[key];
+                let anexo = c.anexo ? `<a ${temArq?`href="${_planoAnexos[key]}" download="${c.anexo}"`:''} style="font-size:11px;color:var(--gold-deep);cursor:pointer;" onclick="planoAnexar(${mi},${ci})" title="${temArq?'Baixar / trocar':'Reanexar (arquivo não fica salvo entre sessões)'}">📎 ${c.anexo}</a>` : `<button class="btn btn-ghost btn-sm" onclick="planoAnexar(${mi},${ci})">📎 Anexar</button>`;
+                let rev = c.status==='fechou' ? `<div style="display:flex;gap:5px;align-items:center;"><select class="inp-sm" onchange="planoSetCli(${mi},${ci},'review',this.value)"><option value="pendente" ${c.review==='pendente'?'selected':''}>Avaliação pendente</option><option value="pedida" ${c.review==='pedida'?'selected':''}>Avaliação pedida</option><option value="feita" ${c.review==='feita'?'selected':''}>✓ Avaliou</option></select><button class="btn btn-ghost btn-sm" onclick="planoPedirReview(${mi},${ci})" title="Gerar mensagem de pedido">✉</button></div>` : '<span style="font-size:11px;color:var(--ink-faint);">—</span>';
+                return `<tr>
+                  <td><input class="inp-sm" value="${(c.nome||'').replace(/"/g,'&quot;')}" onchange="planoSetCli(${mi},${ci},'nome',this.value)" style="min-width:140px;"></td>
+                  <td><select class="inp-sm" onchange="planoSetCli(${mi},${ci},'status',this.value)">${opts}</select></td>
+                  <td><input class="inp-sm" value="${fmtMoney(c.valor||m.valor||0)}" onblur="maskMoney(this);planoSetCli(${mi},${ci},'valor',this.value)" style="max-width:110px;text-align:right;"></td>
+                  <td>${anexo}</td>
+                  <td>${rev}</td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="planoDelCliente(${mi},${ci})" style="color:var(--bad);">✕</button></td></tr>`;
+              }).join('');
+              corpo=`<table class="tbl" style="margin-top:12px;"><thead><tr><th>Cliente</th><th>Status</th><th style="text-align:right;">Valor</th><th>Arquivo</th><th>Google</th><th></th></tr></thead>
+                <tbody>${rows||'<tr><td colspan="6" style="color:var(--ink-faint);text-align:center;padding:16px;">Nenhum cliente ainda.</td></tr>'}</tbody></table>
+                <div class="actions"><button class="btn btn-ghost btn-sm" onclick="planoAddCliente(${mi})">+ Cliente no pipeline</button></div>`;
+            }
+            let tipoBadge=m.tipo==='recorrente'?'<span class="pill pill-info">Recorrente</span>':'<span class="pill pill-mute">Venda</span>';
+            return `<div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+                <div><div style="font-size:16px;font-weight:700;">${m.servico} ${tipoBadge}</div>
+                  <div style="font-size:12px;color:var(--ink-soft);margin-top:3px;">Meta: ${m.qtd} ${m.tipo==='recorrente'?'agendamentos':'× '+brl(m.valor)} · projeção ${brl(proj)}${m.prazo?' · até '+(m.prazo.split('-').reverse().join('/')):''}</div>
+                  ${m.obs?`<div style="font-size:11.5px;color:var(--ink-faint);margin-top:3px;">${m.obs}</div>`:''}</div>
+                <button class="btn btn-ghost btn-sm" onclick="planoDelMeta(${mi})" style="color:var(--bad);">✕</button></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin:12px 0 5px;"><span>${brl(real)} de ${brl(proj)}</span><b style="color:var(--gold-bright);">${pct}%</b></div>
+              <div style="height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div>
+              ${corpo}
+            </div>`;
+          }).join('');
+        }
+        function planoAddMeta(){
+          let servico=document.getElementById('pl-servico').value.trim(); if(!servico) return alert('Informe o serviço/produto.');
+          let tipo=document.getElementById('pl-tipo').value;
+          PLANO.metas.push({ id:'pm'+Date.now(), servico, tipo, qtd:parseInt(document.getElementById('pl-qtd').value)||0, valor:parseMoney(document.getElementById('pl-valor').value), prazo:document.getElementById('pl-prazo').value, obs:'', clientes:[], agend:0 });
+          document.getElementById('pl-servico').value=''; document.getElementById('pl-qtd').value=''; document.getElementById('pl-valor').value='';
+          planoSalvar(); planoRender();
+        }
+        function planoTipoChange(){ let rec=document.getElementById('pl-tipo').value==='recorrente'; document.getElementById('pl-qtd-lbl').innerText=rec?'Meta de unidades':'Quantas vender'; document.getElementById('pl-valor-lbl').innerText=rec?'Valor por unidade (R$)':'Valor cada (R$)'; }
+        function planoDelMeta(mi){ if(!confirm('Excluir esta meta e seu pipeline?'))return; PLANO.metas.splice(mi,1); planoSalvar(); planoRender(); }
+        function planoAddCliente(mi){ PLANO.metas[mi].clientes.push({id:'pc'+Date.now(), nome:'Novo cliente', status:'vista', valor:PLANO.metas[mi].valor||0, review:'pendente', obs:''}); planoSalvar(); planoRender(); }
+        function planoDelCliente(mi,ci){ PLANO.metas[mi].clientes.splice(ci,1); planoSalvar(); planoRender(); }
+        function planoSetCli(mi,ci,campo,val){ let c=PLANO.metas[mi].clientes[ci]; if(!c)return; c[campo]=(campo==='valor')?parseMoney(val):val; planoSalvar(); if(campo==='status'||campo==='valor') planoRender(); }
+        function planoSetAgend(mi,d){ let m=PLANO.metas[mi]; m.agend=Math.max(0,(m.agend||0)+d); planoSalvar(); planoRender(); if(d>0&&typeof SOUND!=='undefined') SOUND.play('cash'); }
+        function planoAnexar(mi,ci){ _planoAlvo={mi,ci}; let f=document.getElementById('plano-file'); if(f){ f.value=''; f.click(); } }
+        function planoPedirReview(mi,ci){
+          let c=PLANO.metas[mi].clientes[ci];
+          let link=PLANO.googleLink||'(adicione o link do seu Google no topo)';
+          let msg=`Olá, ${(c.nome||'').split(' ')[0]}! Foi um prazer entregar este projeto pra você. Sua opinião ajuda demais a A! Fatorial a crescer — você poderia deixar uma avaliação rápida no Google? 🙏\n${link}`;
+          if(navigator.clipboard) navigator.clipboard.writeText(msg);
+          c.review='pedida'; planoSalvar(); planoRender();
+          alert('Mensagem de pedido de avaliação copiada! Cole no WhatsApp do cliente.\n\n'+msg);
+        }
+
+        /* ===================================================================
            CENTRO FINANCEIRO 360 — pessoal + empresa, importação de extratos,
            análise e conselheiro. Dados iniciais = extratos reais (jan–abr/2026).
            =================================================================== */
@@ -7395,6 +7569,7 @@ body.apresentacao #apr-banner{display:block;}
         /* ===== INIT ===== */
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
         if(typeof finInit==='function') finInit();
+        if(typeof planoInit==='function') planoInit();
         // tema salvo (claro/escuro) + estado dos botões
         try{ if(localStorage.getItem('af_tema')==='claro') document.body.classList.remove('theme-gamer'); }catch(e){}
         atualizarTemaBtn();
