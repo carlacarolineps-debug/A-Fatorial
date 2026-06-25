@@ -111,6 +111,13 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       meta). Semeado com as metas do seu plano 2026. Persistência em `af_plano`.
       Funções: `PLANO`, `planoConselho`, `planoRenderMetas`, `planoPedirReview`,
       `planoUsarNoFinanceiro`.
+15. **Identidade da empresa + PDF profissional + atalho**
+    - Em "Equipe e acessos", configure **logo, cor da marca e contato** (já
+      pré-preenchido com o CNPJ 30.361.388/0001-17). Persistido em `af_brand`.
+    - A proposta do cliente ganha **capa** (logo + nome do cliente + data) e
+      **rodapé** (razão social, CNPJ, contato), com a cor da marca; o PDF sai com
+      a capa em página própria. Funções: `BRAND`, `renderBrand`, `brandLogoHTML`.
+    - **Atalho de teclado Alt+P** alterna o modo apresentação.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
