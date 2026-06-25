@@ -76,6 +76,17 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
    `notify`, `colAddXP`, `colGanhaBadge`, `darBaixa`, `cliAprovar`/
    `ptAprovarProposta`, `confConfirmar`, `entAprovar`, `satSave`, `avalSalvar`,
    `depSave`, `perdaSave`, `portalSolicitarServico` e `loginEnter`.
+10. **Modo apresentação** — botão 🎤 na barra de topo borra os valores sensíveis
+    (KPIs do dashboard e do financeiro, tabela de recebíveis, custo/margem e nota
+    interna do funil); passe o mouse para revelar. Marque mais elementos com a
+    classe `sens`. Funções: `toggleApresentacao`.
+11. **Exportar proposta em PDF** — botão "⤓ Baixar PDF" no topo do portal/overlay
+    da proposta usa o diálogo de impressão (`@media print` isola só a proposta).
+    Função: `cliExportarPDF`.
+12. **Tema claro/escuro** — botão 🌙/☀️ alterna entre o escuro "gamer" (padrão) e
+    um tema claro; a preferência fica em `localStorage` (`af_tema`). O portal do
+    colaborador mantém a identidade gamer nos dois temas. Funções: `alternarTema`,
+    `aplicarTema`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
