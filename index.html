@@ -1138,7 +1138,22 @@ body.apresentacao #apr-banner{display:block;}
   #cli-ov .cli-wrap{overflow:visible !important;height:auto !important;max-height:none !important;}
   .cli-bar{position:static !important;}
   .cli-bar-acts{display:none !important;}
+  .cli-cover{min-height:auto !important;page-break-after:always;}
+  .cli-rodape{page-break-inside:avoid;}
 }
+
+/* ═══ CAPA E RODAPÉ DA PROPOSTA (marca da empresa) ═══ */
+.cli-cover{min-height:78vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:60px 24px;border-bottom:1px solid rgba(255,255,255,.08);}
+.cli-cover-logo{margin-bottom:6px;}
+.cli-cover-badge{display:inline-block;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--brand,#d4af5e);border:1px solid var(--brand,#d4af5e);border-radius:30px;padding:7px 16px;}
+.cli-cover-emp{font-family:var(--font-display,inherit);font-weight:800;font-size:clamp(32px,6vw,60px);color:#fff;line-height:1.05;letter-spacing:-.01em;}
+.cli-cover-sub{font-size:14px;color:#a1a1aa;}
+.cli-rodape{padding:34px 40px 56px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:9px;align-items:center;text-align:center;color:#a1a1aa;font-size:12.5px;}
+.cli-rodape-brand{display:flex;align-items:center;gap:11px;text-align:left;}
+.cli-rodape-brand b{color:#fff;font-size:13px;display:block;}
+.cli-rodape-brand span{font-size:11px;color:#8a8a93;}
+.cli-rodape-contato{color:var(--brand,#d4af5e);}
+.cli-rodape-data{font-size:11px;color:#71717a;}
 
 </style>
 </head>
@@ -1220,7 +1235,7 @@ body.apresentacao #apr-banner{display:block;}
     </div>
     <div class="who">
       <button class="notif-bell" id="tema-btn" onclick="alternarTema()" title="Tema claro/escuro" aria-label="Tema">🌙</button>
-      <button class="notif-bell" id="apr-btn" onclick="toggleApresentacao()" title="Modo apresentação (oculta valores sensíveis)" aria-label="Modo apresentação">🎤</button>
+      <button class="notif-bell" id="apr-btn" onclick="toggleApresentacao()" title="Modo apresentação (oculta valores sensíveis) — atalho Alt+P" aria-label="Modo apresentação">🎤</button>
       <button class="notif-bell" id="som-btn" onclick="SOUND.toggle()" title="Som" aria-label="Ligar/desligar som">🔊</button>
       <input type="range" id="som-vol" min="0" max="100" value="70" oninput="somSetVol(this.value)" onchange="SOUND.play('xp')" title="Volume" aria-label="Volume" class="som-vol">
       <button class="notif-bell" onclick="toggleNotif()" aria-label="Notificações">
@@ -1885,6 +1900,14 @@ body.apresentacao #apr-banner{display:block;}
           <button class="btn btn-ghost btn-sm" onclick="permResetar()">↺ Restaurar padrão</button>
         </div>
       </div>
+
+      <!-- ============ IDENTIDADE DA EMPRESA (marca na proposta/PDF) ============ -->
+      <div class="card" id="equipe-brand">
+        <div class="card-h">🎨 Identidade da empresa — marca na proposta e no PDF</div>
+        <p class="hint" style="margin:-8px 0 16px;">Defina logo, cor e dados de contato. Aparecem na capa e no rodapé da proposta do cliente e no PDF. Ficam salvos neste navegador.</p>
+        <div id="brand-body"></div>
+        <input type="file" accept="image/*" id="brand-logo-file" style="display:none">
+      </div>
     </section>
 
   </div><!-- /scroll -->
@@ -2095,7 +2118,7 @@ body.apresentacao #apr-banner{display:block;}
 <!-- CLIENT OVERLAY -->
 <div class="cli-ov" id="cli-ov">
   <div class="cli-bar">
-    <div class="br"><b>A!</b> FATORIAL &nbsp;·&nbsp; Proposta para <span style="color:var(--gold);margin-left:4px;" id="cli-emp"></span></div>
+    <div class="br" id="cli-bar-brand"><b>A!</b> FATORIAL &nbsp;·&nbsp; Proposta para <span style="color:var(--gold);margin-left:4px;" id="cli-emp"></span></div>
     <div class="cli-bar-acts">
       <button class="cli-exit" onclick="cliExportarPDF()" title="Salvar/imprimir a proposta em PDF">⤓ Baixar PDF</button>
       <button class="cli-exit" onclick="cliClose()">✕ Fechar</button>
@@ -2170,6 +2193,37 @@ body.apresentacao #apr-banner{display:block;}
 
         // ===== EXPORTAR PROPOSTA EM PDF ===== (usa o diálogo de impressão → Salvar como PDF)
         function cliExportarPDF(){ window.print(); }
+
+        // ===== IDENTIDADE DA EMPRESA (marca, cor, contato) na proposta/PDF =====
+        const BRAND_DEFAULT={ nome:'A! Fatorial', razao:'A! FATORIAL SOLUÇÕES PARA EMPRESAS E FRANQUIAS LTDA', cnpj:'30.361.388/0001-17', email:'contato@afatorialsolucoes.com.br', tel:'(11) 4144-3467', site:'afatorialsolucoes.com.br', cor:'#d4af5e', logo:'' };
+        let BRAND=Object.assign({}, BRAND_DEFAULT);
+        function brandCarregar(){ try{ let b=JSON.parse(localStorage.getItem('af_brand')||'null'); if(b) BRAND=Object.assign({}, BRAND_DEFAULT, b); }catch(e){} }
+        function brandSalvar(){ try{ localStorage.setItem('af_brand', JSON.stringify(BRAND)); }catch(e){} }
+        function brandLogoHTML(size){ size=size||44; return BRAND.logo?`<img src="${BRAND.logo}" alt="logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;">`:`<div class="mark" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.42)}px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;">A!</div>`; }
+        function brandSet(campo,val){ BRAND[campo]=val; brandSalvar(); renderBrand(); }
+        function renderBrand(){
+          let box=document.getElementById('brand-body'); if(!box)return;
+          box.innerHTML=`
+            <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;">
+              <div style="text-align:center;">
+                <div style="width:96px;height:96px;border-radius:14px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);overflow:hidden;">${brandLogoHTML(80)}</div>
+                <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="document.getElementById('brand-logo-file').click()">📷 Trocar logo</button>
+                ${BRAND.logo?`<button class="btn btn-ghost btn-sm" onclick="brandSet('logo','')">Remover</button>`:''}
+              </div>
+              <div style="flex:1;min-width:280px;">
+                <div class="grid">
+                  <div class="c8 f"><span class="lbl">Razão social</span><input class="inp" value="${(BRAND.razao||'').replace(/"/g,'&quot;')}" onchange="brandSet('razao',this.value)"></div>
+                  <div class="c4 f"><span class="lbl">Cor da marca</span>
+                    <div style="display:flex;gap:8px;align-items:center;"><input type="color" value="${BRAND.cor}" onchange="brandSet('cor',this.value)" style="width:46px;height:38px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;"><input class="inp" value="${BRAND.cor}" onchange="brandSet('cor',this.value)" style="max-width:110px;"></div></div>
+                  <div class="c4 f"><span class="lbl">Nome curto / fantasia</span><input class="inp" value="${(BRAND.nome||'').replace(/"/g,'&quot;')}" onchange="brandSet('nome',this.value)"></div>
+                  <div class="c4 f"><span class="lbl">CNPJ</span><input class="inp" value="${(BRAND.cnpj||'').replace(/"/g,'&quot;')}" onchange="brandSet('cnpj',this.value)"></div>
+                  <div class="c4 f"><span class="lbl">Telefone</span><input class="inp" value="${(BRAND.tel||'').replace(/"/g,'&quot;')}" onchange="brandSet('tel',this.value)"></div>
+                  <div class="c6 f"><span class="lbl">E-mail</span><input class="inp" value="${(BRAND.email||'').replace(/"/g,'&quot;')}" onchange="brandSet('email',this.value)"></div>
+                  <div class="c6 f"><span class="lbl">Site</span><input class="inp" value="${(BRAND.site||'').replace(/"/g,'&quot;')}" onchange="brandSet('site',this.value)"></div>
+                </div>
+              </div>
+            </div>`;
+        }
 
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
@@ -2562,7 +2616,7 @@ body.apresentacao #apr-banner{display:block;}
           if(v==='dash') renderDash();
           if(v==='fin360' && typeof finRender==='function') finRender();
           if(v==='plano' && typeof planoRender==='function') planoRender();
-          if(v==='equipe'){ renderUsuarios(); renderPermissoes(); }
+          if(v==='equipe'){ renderUsuarios(); renderPermissoes(); if(typeof renderBrand==='function') renderBrand(); }
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
 
@@ -4015,9 +4069,17 @@ body.apresentacao #apr-banner{display:block;}
           let d=p.dealId?(deal&&deal.id===p.dealId?deal:null):null;
           let meses=d?d.meses:'—', validade=d?d.validade:'15';
           let vmes=(d&&parseInt(d.meses)>0)?brl(p.valor/parseInt(d.meses)):brl(p.valor);
+          let _ov=document.getElementById('cli-ov'); if(_ov) _ov.style.setProperty('--brand', BRAND.cor||'#d4af5e');
+          let _bb=document.getElementById('cli-bar-brand'); if(_bb) _bb.innerHTML=`${brandLogoHTML(26)} <span style="font-weight:700;margin:0 6px;">${BRAND.nome}</span> · Proposta para <span style="color:var(--brand,#d4af5e);margin-left:4px;" id="cli-emp">${p.empresa}</span>`;
           document.getElementById('cli-body').innerHTML=`
+            <section class="cli-cover">
+              <div class="cli-cover-logo">${brandLogoHTML(76)}</div>
+              <div class="cli-cover-badge">Proposta comercial exclusiva</div>
+              <div class="cli-cover-emp">${p.empresa}</div>
+              <div class="cli-cover-sub">Preparada por ${BRAND.nome} · ${new Date().toLocaleDateString('pt-BR')}</div>
+            </section>
             <section class="cli-sec cli-hero">
-              <span class="cli-badge">✦ Proposta exclusiva · A! Fatorial</span>
+              <span class="cli-badge">✦ Proposta exclusiva · ${BRAND.nome}</span>
               <h1 class="cli-h1">Olá, equipe <b>${p.empresa}</b>.<br>Vamos transformar sua operação.</h1>
               <p class="cli-lead" style="max-width:620px;">Esta não é uma proposta comum. É uma jornada de arquitetura de lucro desenhada sob medida para a ${p.empresa}, com método, acompanhamento cirúrgico e resultado auditado.</p>
               <div class="cli-metrics">
@@ -4074,7 +4136,12 @@ body.apresentacao #apr-banner{display:block;}
               <div class="cli-valid">⏱ Proposta válida por ${validade} dias</div>
               <h2 style="border:none;">Pronto para <b>começar</b>?</h2>
               <p class="cli-lead" style="margin:0 auto 30px;max-width:520px;">Ao aprovar, seu portal exclusivo é liberado na hora. Lá você acompanha tudo — entregas, pagamentos e próximos passos.</p>
-              <button class="cli-approve" onclick="cliAprovar()">APROVAR PROPOSTA ✓</button></section>`;
+              <button class="cli-approve" onclick="cliAprovar()">APROVAR PROPOSTA ✓</button></section>
+            <footer class="cli-rodape">
+              <div class="cli-rodape-brand">${brandLogoHTML(36)}<div><b>${BRAND.razao}</b><span>CNPJ ${BRAND.cnpj}</span></div></div>
+              <div class="cli-rodape-contato">${[BRAND.tel,BRAND.email,BRAND.site].filter(Boolean).join(' · ')}</div>
+              <div class="cli-rodape-data">Documento gerado em ${new Date().toLocaleDateString('pt-BR')}</div>
+            </footer>`;
         }
         function cliClose(){ document.getElementById('cli-ov').classList.remove('on'); renderPropostas(); }
         function cliAprovar(){
@@ -7570,6 +7637,17 @@ body.apresentacao #apr-banner{display:block;}
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
         if(typeof finInit==='function') finInit();
         if(typeof planoInit==='function') planoInit();
+        if(typeof brandCarregar==='function') brandCarregar();
+        // upload de logo da empresa
+        (function(){ let f=document.getElementById('brand-logo-file'); if(f) f.onchange=function(){ let file=this.files[0]; if(!file)return; lerFotoArquivo(file, d=>{ BRAND.logo=d; brandSalvar(); renderBrand(); }); this.value=''; }; })();
+        // atalho de teclado: Alt+P alterna o modo apresentação
+        document.addEventListener('keydown', function(e){
+          if(e.altKey && !e.ctrlKey && !e.metaKey && (e.key==='p'||e.key==='P')){
+            let tag=(document.activeElement&&document.activeElement.tagName)||'';
+            if(/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+            e.preventDefault(); if(typeof toggleApresentacao==='function') toggleApresentacao();
+          }
+        });
         // tema salvo (claro/escuro) + estado dos botões
         try{ if(localStorage.getItem('af_tema')==='claro') document.body.classList.remove('theme-gamer'); }catch(e){}
         atualizarTemaBtn();
