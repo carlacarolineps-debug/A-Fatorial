@@ -1304,6 +1304,8 @@ body.apresentacao #apr-banner{display:block;}
         <div class="in-pillar"><div class="ic">🔔</div><div><div class="t">Nada passa despercebido</div><div class="d">Alertas e aprovações guiam cada handoff entre time e cliente.</div></div></div>
       </div>
 
+      <div id="dash-charts"></div>
+
       <div class="card">
         <div class="card-h"><span>Pipeline da esteira — onde cada cliente está</span><button class="btn btn-ghost btn-sm" onclick="go('funil')">Abrir funil →</button></div>
         <div id="dash-pipeline"></div>
@@ -7149,8 +7151,38 @@ body.apresentacao #apr-banner{display:block;}
         function abrirNotif(id){ let n=DB.notifs.find(x=>x.id===id); if(n){ n.lida=true; renderNotif(); if(n.irPara) go(n.irPara); document.getElementById('notif-panel').classList.remove('on'); } }
         function marcarLidas(){ DB.notifs.forEach(n=>n.lida=true); renderNotif(); }
 
+        // mini-gráfico de barras reutilizável (rótulo + valor + barra proporcional)
+        function miniBars(itens, corPos, corNeg){
+          let max=Math.max(1,...itens.map(i=>Math.abs(i.v)));
+          return `<div style="display:flex;gap:8px;align-items:flex-end;height:110px;">${itens.map(i=>{let h=Math.round(Math.abs(i.v)/max*100);let pos=i.v>=0;let cor=i.cor||(pos?(corPos||'var(--ok)'):(corNeg||'var(--bad)'));return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;height:100%;"><div style="font-size:9.5px;color:${cor};margin-bottom:3px;white-space:nowrap;">${i.t2||''}</div><div style="height:${h}%;min-height:3px;border-radius:5px 5px 0 0;background:${cor};opacity:.85;"></div><div style="font-size:9.5px;color:var(--ink-faint);margin-top:5px;">${i.t}</div></div>`;}).join('')}</div>`;
+        }
+        function renderDashCharts(){
+          let box=document.getElementById('dash-charts'); if(!box)return;
+          const NOME={'01':'jan','02':'fev','03':'mar','04':'abr','05':'mai','06':'jun','07':'jul','08':'ago','09':'set','10':'out','11':'nov','12':'dez'};
+          // 1) Resultado mensal (FIN360)
+          let chart1='<div style="color:var(--ink-faint);font-size:12px;">Sem dados financeiros ainda.</div>';
+          if(typeof FIN360!=='undefined' && FIN360.lancamentos.length){
+            let pm={}; FIN360.lancamentos.forEach(l=>{ let mk=(l.data||'').slice(0,7); if(mk) pm[mk]=(pm[mk]||0)+l.valor; });
+            let ms=Object.keys(pm).sort().slice(-6);
+            chart1=miniBars(ms.map(m=>({t:NOME[m.slice(5)]||m.slice(5), v:round2(pm[m]), t2:brl(Math.abs(pm[m])).replace('R$ ','')})));
+          }
+          // 2) Caixa projetado (próx. 6 meses)
+          let chart2='<div style="color:var(--ink-faint);font-size:12px;">—</div>';
+          if(typeof finProjMeses==='function'){ let L=finProjMeses(6).linhas; chart2=miniBars(L.map(x=>({t:x.label.split(' ')[0], v:x.saldo, t2:brl(Math.abs(x.saldo)).replace('R$ ','')}))); }
+          // 3) Metas de venda (atingido %)
+          let chart3='<div style="color:var(--ink-faint);font-size:12px;">Crie metas no Planejamento.</div>';
+          if(typeof PLANO!=='undefined' && PLANO.metas.length){
+            chart3=PLANO.metas.slice(0,4).map(m=>{let p=planoMetaProj(m),rl=planoMetaReal(m),pct=p>0?Math.min(100,Math.round(rl/p*100)):0;return `<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;">${m.servico}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#35e6ff,#0bb6d6);"></div></div></div>`;}).join('');
+          }
+          box.innerHTML=`<div class="grid">
+            <div class="c4" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h" style="display:flex;align-items:center;gap:8px;">📊 Resultado mensal<button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="go('fin360')">→</button></div>${chart1}</div></div>
+            <div class="c4" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h">📈 Caixa projetado (6m)</div>${chart2}</div></div>
+            <div class="c4" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h" style="display:flex;align-items:center;gap:8px;">💼 Metas de venda<button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="go('plano')">→</button></div>${chart3}</div></div>
+          </div>`;
+        }
         function renderDash(){
           if(typeof renderMomentosWidget==='function') renderMomentosWidget();
+          if(typeof renderDashCharts==='function') renderDashCharts();
           let st=entStats();
           document.getElementById('k-ativos').innerText=DB.kpis.ativos;
           document.getElementById('k-fat').innerText=brl(DB.fin.bruto);
@@ -7378,10 +7410,13 @@ body.apresentacao #apr-banner{display:block;}
   {d:'2026-04-04',desc:"Débito em conta",v:-20.0,c:'Cartão (débito em conta)'},
   {d:'2026-04-22',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:20.0,c:'Aporte empresa→PF'}
         ];
-        let FIN360={ lancamentos:[], metas:[], faturamentoAnual:526248, proLabore:0, proLaborePct:30, custosFixos:0, receitaMensalEst:0 };
+        let FIN360={ lancamentos:[], metas:[], faturamentoAnual:526248, proLabore:0, proLaborePct:30, custosFixos:0, receitaMensalEst:0, regras:[], categoriasCustom:[], projIncluiPlano:true };
         const round2=x=>Math.round((x||0)*100)/100;
         function finCatFinal(desc,v){
           let d=(desc||'').toLowerCase();
+          // regras personalizadas do usuário têm prioridade (o sistema "aprende")
+          let rg=(FIN360.regras||[]).find(r=>r.kw && d.includes(r.kw.toLowerCase()));
+          if(rg) return rg.cat;
           if(d.includes('fatorial')) return v>0?'Aporte empresa→PF':'Devolução PF→empresa';
           if(d.includes('uber')) return 'Transporte';
           if(/supermerc|lari|mercado|padaria/.test(d)) return 'Mercado / Alimentação';
@@ -7394,10 +7429,10 @@ body.apresentacao #apr-banner{display:block;}
           if(d.includes('pix')&&v<0) return 'Pix enviado';
           return v>0?'Outras entradas':'Outros gastos';
         }
-        function finSalvar(){ try{ localStorage.setItem('af_fin', JSON.stringify({lancamentos:FIN360.lancamentos, metas:FIN360.metas, faturamentoAnual:FIN360.faturamentoAnual, proLabore:FIN360.proLabore, proLaborePct:FIN360.proLaborePct, custosFixos:FIN360.custosFixos, receitaMensalEst:FIN360.receitaMensalEst})); }catch(e){} }
+        function finSalvar(){ try{ localStorage.setItem('af_fin', JSON.stringify({lancamentos:FIN360.lancamentos, metas:FIN360.metas, faturamentoAnual:FIN360.faturamentoAnual, proLabore:FIN360.proLabore, proLaborePct:FIN360.proLaborePct, custosFixos:FIN360.custosFixos, receitaMensalEst:FIN360.receitaMensalEst, regras:FIN360.regras, categoriasCustom:FIN360.categoriasCustom, projIncluiPlano:FIN360.projIncluiPlano})); }catch(e){} }
         function finInit(){
           let saved=null; try{ saved=JSON.parse(localStorage.getItem('af_fin')||'null'); }catch(e){}
-          if(saved && Array.isArray(saved.lancamentos)){ FIN360.lancamentos=saved.lancamentos; FIN360.metas=saved.metas||[]; if(saved.faturamentoAnual) FIN360.faturamentoAnual=saved.faturamentoAnual; ['proLabore','proLaborePct','custosFixos','receitaMensalEst'].forEach(k=>{ if(saved[k]!=null) FIN360[k]=saved[k]; }); }
+          if(saved && Array.isArray(saved.lancamentos)){ FIN360.lancamentos=saved.lancamentos; FIN360.metas=saved.metas||[]; if(saved.faturamentoAnual) FIN360.faturamentoAnual=saved.faturamentoAnual; ['proLabore','proLaborePct','custosFixos','receitaMensalEst','regras','categoriasCustom','projIncluiPlano'].forEach(k=>{ if(saved[k]!=null) FIN360[k]=saved[k]; }); }
           else { FIN360.lancamentos=FIN_SEED.map((s,i)=>({id:'f'+i, data:s.d, desc:s.desc, valor:s.v, cat:s.c, ctx:'pessoal'})); finSalvar(); }
           finPopulaMeses();
         }
@@ -7512,6 +7547,7 @@ body.apresentacao #apr-banner{display:block;}
               <div class="kpi ${r.saldo>=0?'':'hot'}"><div class="v" style="color:${r.saldo>=0?'var(--ok)':'var(--bad)'};">${brl(r.saldo)}</div><div class="l">Resultado</div></div>
               <div class="kpi hot"><div class="v" style="color:var(--gold-bright);">${brl(r.mistura)}</div><div class="l">Mistura PF↔Empresa</div></div>
             </div>
+            ${finComparativoCard()}
             <div class="card">
               <div class="card-h">🧭 O conselheiro financeiro — o que fazer agora</div>
               ${cons}
@@ -7585,7 +7621,30 @@ body.apresentacao #apr-banner{display:block;}
           </div>`;
         }
         function finSetFaturamento(v){ FIN360.faturamentoAnual=parseMoney(v)||0; finSalvar(); finVisaoGeral(); }
-        /* === LANÇAMENTOS === */
+        // comparativo mês atual vs mês anterior (no contexto filtrado)
+        function finComparativoCard(){
+          let ctx=document.getElementById('fin-ctx')?document.getElementById('fin-ctx').value:'todos';
+          let ls=FIN360.lancamentos.filter(l=>ctx==='todos'||l.ctx===ctx);
+          let pm={}; ls.forEach(l=>{ let mk=(l.data||'').slice(0,7); if(!mk)return; if(!pm[mk])pm[mk]={ent:0,sai:0}; if(l.valor>=0)pm[mk].ent+=l.valor; else pm[mk].sai+=-l.valor; });
+          let meses=Object.keys(pm).sort(); if(meses.length<2) return '';
+          let cur=meses[meses.length-1], prev=meses[meses.length-2], A=pm[cur], B=pm[prev];
+          const NOME={'01':'jan','02':'fev','03':'mar','04':'abr','05':'mai','06':'jun','07':'jul','08':'ago','09':'set','10':'out','11':'nov','12':'dez'};
+          let lbl=m=>NOME[m.slice(5)]+'/'+m.slice(2,4);
+          let resA=A.ent-A.sai, resB=B.ent-B.sai;
+          let cell=(a,b,bom)=>{ let d=b!==0?Math.round((a-b)/Math.abs(b)*100):(a!==0?100:0); let subiu=a>=b; let positivo=bom==='inv'?!subiu:subiu; let cor=positivo?'var(--ok)':'var(--bad)'; let seta=subiu?'▲':'▼'; return `<td style="text-align:right;"><b>${brl(a)}</b><br><span style="font-size:11px;color:${cor};">${seta} ${d>=0?'+':''}${d}%</span></td>`; };
+          return `<div class="card">
+            <div class="card-h">📊 Este mês vs. anterior — ${lbl(cur)} comparado a ${lbl(prev)}</div>
+            <table class="tbl"><thead><tr><th>Indicador</th><th style="text-align:right;">${lbl(prev)}</th><th style="text-align:right;">${lbl(cur)}</th></tr></thead><tbody>
+              <tr><td>Entradas</td><td style="text-align:right;color:var(--ink-soft);">${brl(B.ent)}</td>${cell(A.ent,B.ent,'pos')}</tr>
+              <tr><td>Saídas</td><td style="text-align:right;color:var(--ink-soft);">${brl(B.sai)}</td>${cell(A.sai,B.sai,'inv')}</tr>
+              <tr><td><b>Resultado</b></td><td style="text-align:right;color:var(--ink-soft);">${brl(resB)}</td>${cell(resA,resB,'pos')}</tr>
+            </tbody></table>
+          </div>`;
+        }
+        /* === LANÇAMENTOS + CATEGORIAS/REGRAS === */
+        const FIN_CATS_BASE=['Aporte empresa→PF','Devolução PF→empresa','Transporte','Mercado / Alimentação','Pet','Rendimentos / Invest.','Cartão (débito em conta)','Medical (sócio)','Transferência própria','Contas / Boletos','Pix enviado','Receita de serviço','Pró-labore','Impostos','Folha / Salários','Marketing','Software / Ferramentas','Outras entradas','Outros gastos'];
+        function finCategorias(){ let s=new Set(FIN_CATS_BASE); FIN360.lancamentos.forEach(l=>{ if(l.cat)s.add(l.cat); }); (FIN360.categoriasCustom||[]).forEach(c=>s.add(c)); return [...s].sort((a,b)=>a.localeCompare(b)); }
+        function finCatOptions(sel){ return finCategorias().map(c=>`<option ${c===sel?'selected':''}>${c}</option>`).join(''); }
         function finLancamentos(){
           let box=document.getElementById('fin-lanc'); if(!box)return;
           let ls=finFiltrados().slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
@@ -7593,22 +7652,33 @@ body.apresentacao #apr-banner{display:block;}
             let pos=l.valor>=0;
             return `<tr><td style="font-size:12px;white-space:nowrap;">${(l.data||'').split('-').reverse().join('/')}</td>
               <td>${l.desc||'—'}</td>
-              <td><span class="pill ${pos?'pill-ok':'pill-mute'}" style="font-weight:600;">${l.cat}</span></td>
+              <td><select class="inp-sm" onchange="finSetCat('${l.id}',this.value)" style="max-width:180px;">${finCatOptions(l.cat)}</select></td>
               <td><button class="btn btn-ghost btn-sm" onclick="finReclass('${l.id}')" title="Alternar pessoal/empresa">${l.ctx==='empresa'?'🏢 Empresa':'👤 Pessoal'}</button></td>
               <td style="text-align:right;font-weight:700;color:${pos?'var(--ok)':'var(--bad)'};white-space:nowrap;">${pos?'+':'−'}${brl(Math.abs(l.valor))}</td>
               <td><button class="btn btn-ghost btn-sm" onclick="finDelLanc('${l.id}')" style="color:var(--bad);">✕</button></td></tr>`;
           }).join('');
+          let regras=(FIN360.regras||[]).map((r,i)=>`<span class="pill pill-mute" style="margin:3px 4px 3px 0;display:inline-flex;gap:6px;align-items:center;">"${r.kw}" → ${r.cat} <span onclick="finDelRegra(${i})" style="cursor:pointer;color:var(--bad);">✕</span></span>`).join('')||'<span class="hint">Nenhuma regra ainda — crie a primeira acima.</span>';
           box.innerHTML=`
             <div class="card">
               <div class="card-h">Adicionar lançamento manual</div>
               <div class="grid">
                 <div class="c2 f"><span class="lbl">Data</span><input type="date" class="inp" id="fl-data"></div>
-                <div class="c4 f"><span class="lbl">Descrição</span><input class="inp" id="fl-desc" placeholder="Ex: Recebimento mentoria"></div>
+                <div class="c3 f"><span class="lbl">Descrição</span><input class="inp" id="fl-desc" placeholder="Ex: Recebimento mentoria"></div>
                 <div class="c2 f"><span class="lbl">Valor (R$)</span><input type="text" inputmode="decimal" class="inp" id="fl-valor" placeholder="0,00" onblur="maskMoney(this)"></div>
                 <div class="c2 f"><span class="lbl">Tipo</span><select class="inp" id="fl-tipo"><option value="entrada">Entrada (+)</option><option value="saida">Saída (−)</option></select></div>
-                <div class="c2 f"><span class="lbl">Contexto</span><select class="inp" id="fl-ctx"><option value="pessoal">Pessoal</option><option value="empresa">Empresa</option></select></div>
+                <div class="c3 f"><span class="lbl">Contexto</span><select class="inp" id="fl-ctx"><option value="pessoal">Pessoal</option><option value="empresa">Empresa</option></select></div>
               </div>
               <div class="actions"><button class="btn btn-gold btn-sm" onclick="finAddLanc()">+ Lançar</button></div>
+            </div>
+            <div class="card">
+              <div class="card-h">🏷️ Categorias e regras automáticas</div>
+              <p class="hint" style="margin:-8px 0 12px;">Crie suas categorias e regras "se a descrição contém X → categoria Y". As regras valem para as próximas importações <b>e reclassificam os lançamentos existentes na hora</b>.</p>
+              <div class="grid">
+                <div class="c5 f"><span class="lbl">Nova categoria</span><div style="display:flex;gap:8px;"><input class="inp" id="fc-novacat" placeholder="Ex: Software / Ferramentas"><button class="btn btn-ghost btn-sm" onclick="finAddCategoria()">+ Add</button></div></div>
+                <div class="c3 f"><span class="lbl">Se a descrição contém…</span><input class="inp" id="fr-kw" placeholder="ex: google"></div>
+                <div class="c4 f"><span class="lbl">→ categoria</span><div style="display:flex;gap:8px;"><select class="inp" id="fr-cat">${finCatOptions('')}</select><button class="btn btn-gold btn-sm" onclick="finAddRegra()">+ Regra</button></div></div>
+              </div>
+              <div style="margin-top:10px;">${regras}</div>
             </div>
             <div class="card">
               <div class="card-h">Lançamentos <span class="pill pill-mute">${ls.length}</span></div>
@@ -7616,6 +7686,11 @@ body.apresentacao #apr-banner{display:block;}
               <tbody>${linhas||'<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:24px;">Nenhum lançamento no filtro.</td></tr>'}</tbody></table>
             </div>`;
         }
+        function finSetCat(id,cat){ let l=FIN360.lancamentos.find(x=>x.id===id); if(l){ l.cat=cat; finSalvar(); finVisaoGeral(); } }
+        function finAddCategoria(){ let v=(document.getElementById('fc-novacat').value||'').trim(); if(!v)return; FIN360.categoriasCustom=FIN360.categoriasCustom||[]; if(!FIN360.categoriasCustom.includes(v)) FIN360.categoriasCustom.push(v); finSalvar(); finLancamentos(); }
+        function finAplicarRegras(){ FIN360.lancamentos.forEach(l=>{ let rg=(FIN360.regras||[]).find(r=>r.kw&&(l.desc||'').toLowerCase().includes(r.kw.toLowerCase())); if(rg) l.cat=rg.cat; }); }
+        function finAddRegra(){ let kw=(document.getElementById('fr-kw').value||'').trim(); let cat=document.getElementById('fr-cat').value; if(!kw) return alert('Informe a palavra-chave.'); FIN360.regras=FIN360.regras||[]; FIN360.regras.push({kw,cat}); finAplicarRegras(); finSalvar(); finRender(); finSubTab('lanc'); }
+        function finDelRegra(i){ FIN360.regras.splice(i,1); finSalvar(); finLancamentos(); }
         function finAddLanc(){
           let data=document.getElementById('fl-data').value||new Date().toISOString().slice(0,10);
           let desc=document.getElementById('fl-desc').value.trim();
@@ -7715,12 +7790,17 @@ body.apresentacao #apr-banner{display:block;}
           let pro=FIN360.proLabore||0;
           let recebPorMes={};
           (typeof DB!=='undefined'&&DB.recebiveis?DB.recebiveis:[]).forEach(r=>(r.parcelas||[]).forEach(p=>{ if(!p.pago){ let mk=finMesDeData(p.venc); if(mk) recebPorMes[mk]=(recebPorMes[mk]||0)+(p.valor||0); } }));
+          // metas do plano viram receita prevista: recorrência (alvo anual/12) + clientes já fechados (próximo mês)
+          let incluiPlano=FIN360.projIncluiPlano!==false, planoRec=0, planoFech=0;
+          if(incluiPlano && typeof PLANO!=='undefined'){
+            PLANO.metas.forEach(m=>{ if(m.tipo==='recorrente') planoRec+=round2((m.valor||0)*(m.qtd||0)/12); else (m.clientes||[]).forEach(c=>{ if(c.status==='fechou') planoFech+=(c.valor||m.valor||0); }); });
+          }
           let saldo=finResumo(FIN360.lancamentos).saldo;
           let hoje=new Date(), out=[];
           for(let i=0;i<n;i++){ let d=new Date(hoje.getFullYear(),hoje.getMonth()+i,1); let mk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-            let ent=round2(recBase+(recebPorMes[mk]||0)); let sai=round2(custos+pro); let res=round2(ent-sai); saldo=round2(saldo+res);
+            let ent=round2(recBase+(recebPorMes[mk]||0)+planoRec+(i===0?planoFech:0)); let sai=round2(custos+pro); let res=round2(ent-sai); saldo=round2(saldo+res);
             out.push({mk, label:d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}), ent, sai, res, saldo}); }
-          return {linhas:out, recBase, custos, pro};
+          return {linhas:out, recBase, custos, pro, planoRec:round2(planoRec), planoFech:round2(planoFech), incluiPlano};
         }
         function finProjecaoUI(){
           let box=document.getElementById('fin-proj'); if(!box)return;
@@ -7741,6 +7821,9 @@ body.apresentacao #apr-banner{display:block;}
                 <div class="c4 f"><span class="lbl">Custos fixos mensais (R$)</span><input type="text" inputmode="decimal" class="inp" value="${fmtMoney(pj.custos)}" onblur="maskMoney(this);finSetProj('custosFixos',this.value)"></div>
                 <div class="c4 f"><span class="lbl">Pró-labore (R$/mês)</span><input type="text" inputmode="decimal" class="inp" value="${fmtMoney(pj.pro)}" onblur="maskMoney(this);finSetProj('proLabore',this.value)"></div>
               </div>
+              <label style="display:flex;gap:9px;align-items:center;font-size:12.5px;cursor:pointer;margin-top:8px;color:var(--ink-soft);">
+                <input type="checkbox" ${pj.incluiPlano?'checked':''} onchange="finToggleProjPlano(this.checked)" style="accent-color:var(--gold);width:16px;height:16px;">
+                Somar as metas do Planejamento (recorrência ${brl(pj.planoRec)}/mês + ${brl(pj.planoFech)} de clientes já fechados)</label>
             </div>
             <div class="card">
               <div class="card-h">Saldo de caixa projetado — próximos 6 meses</div>
@@ -7750,6 +7833,7 @@ body.apresentacao #apr-banner{display:block;}
             </div>`;
         }
         function finSetProj(campo,v){ FIN360[campo]=parseMoney(v)||0; finSalvar(); finProjecaoUI(); }
+        function finToggleProjPlano(on){ FIN360.projIncluiPlano=!!on; finSalvar(); finProjecaoUI(); }
 
         /* === METAS & OBJETIVOS === */
         function finMetasUI(){
