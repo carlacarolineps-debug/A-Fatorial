@@ -47,6 +47,17 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
    fiscal). Cada serviço traz descrição e preço sugerido; um clique ativa na
    carteira (entra no catálogo com o CNAE certo). Inclui um insight estratégico
    apontando o CNAE mais subutilizado. Dados em `OPORTUNIDADES_CNAE`.
+8. **Sugestões inteligentes (cross-sell) + pacotes prontos**
+   - **Esteira de vendas (Funil)**: conforme você seleciona serviços, o sistema
+     sugere complementos ("você selecionou X, Y; que tal acrescentar W, Q?") e
+     oferece **pacotes prontos** (Abertura de Filial, Virada de Chave, Máquina de
+     Vendas, Operação Terceirizada, Franquia Pronta) que montam vários serviços
+     de uma vez. Funções: `COMBOS`, `REGRAS_CROSSSELL`, `sugerirComplementares`,
+     `renderSugestoesFunil`, `funilAplicarCombo`.
+   - **Portal do cliente**: seção "Leve seu resultado além" com serviços
+     complementares ao que ele já tem; o cliente **solicita** com um clique e a
+     gestão recebe a notificação. Funções: `renderPortalCrossSell`,
+     `portalSolicitarServico`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 

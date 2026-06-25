@@ -1065,6 +1065,32 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
 .op-preco{font-size:11px;color:var(--ink-faint);}
 .op-preco b{color:var(--gold-bright);font-size:12.5px;}
 
+/* ═══ SUGESTÕES NO FUNIL (cross-sell + combos) ═══ */
+.sug-wrap{border:1px solid rgba(53,230,255,.22);background:rgba(53,230,255,.05);border-radius:14px;padding:15px 16px;}
+.sug-h{font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--neon,#35e6ff);margin-bottom:4px;}
+.sug-sub{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:12px 0 8px;}
+.sug-combos{display:flex;gap:8px;flex-wrap:wrap;}
+.sug-combo{display:inline-flex;align-items:center;gap:7px;background:rgba(212,175,94,.1);border:1px solid rgba(212,175,94,.4);color:var(--gold-soft);border-radius:30px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;}
+.sug-combo:hover{background:var(--gold-grad);color:#1a1408;transform:translateY(-1px);}
+.sug-combo span{opacity:.75;font-size:11px;}
+.sug-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.sug-chip{display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;font-family:inherit;transition:.15s;max-width:100%;}
+.sug-chip:hover{border-color:var(--neon,#35e6ff);background:rgba(53,230,255,.08);}
+.sug-chip .sc-add{width:18px;height:18px;border-radius:50%;background:var(--gold-grad);color:#1a1408;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
+.sug-chip .sc-nm{font-size:12.5px;color:var(--ink);font-weight:600;}
+.sug-chip .sc-pr{font-size:11.5px;color:var(--gold-bright);font-weight:700;}
+.sug-empty{font-size:12px;color:var(--ink-faint);font-style:italic;}
+
+/* ═══ CROSS-SELL NO PORTAL DO CLIENTE ═══ */
+.xs-wrap{border:1px solid rgba(212,175,94,.3)!important;}
+.xs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.xs-card{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:12px;padding:14px;background:rgba(255,255,255,.03);transition:.18s;}
+.xs-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+.xs-nm{font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.25;}
+.xs-meta{font-size:11.5px;color:var(--ink-soft);line-height:1.5;flex-grow:1;}
+.xs-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:9px;}
+.xs-pr{font-size:11px;color:var(--gold-bright);font-weight:600;}
+
 </style>
 </head>
 <body class="theme-gamer">
@@ -1244,6 +1270,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         <div class="divider"><span class="n">2</span> Escopo do projeto</div>
         <p class="hint" style="margin:-6px 0 12px;">Selecione os serviços. O sistema calcula horas, meses e preço base automaticamente.</p>
         <div class="cat" id="f-catalogo"></div>
+        <div id="f-sugestoes" style="margin-top:14px;"></div>
 
         <div class="divider"><span class="n">3</span> Operação e carga horária</div>
         <div class="grid">
@@ -1516,6 +1543,9 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           <div class="pt-journey-bar"><div id="pt-journey-fill" style="width:0%;"></div></div>
           <div class="pt-steps" id="pt-steps"></div>
         </div>
+
+        <!-- cross-sell: cliente pode solicitar serviços complementares -->
+        <div id="pt-crosssell"></div>
 
         <div class="grid">
           <div class="c7" style="margin:0;">
@@ -2541,6 +2571,108 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           renderOportunidades();      // atualiza o status nesta aba
           if(typeof notify==='function') notify('catalogo','Serviço ativado','"'+it.nome+'" entrou na sua carteira (grupo '+grupoNome+').','catalogo');
         }
+
+        /* ===== MOTOR DE RECOMENDAÇÃO (cross-sell) + PACOTES PRONTOS ===== */
+        // Pacotes (combos) — montam vários serviços de uma vez (ativando das oportunidades se preciso).
+        const COMBOS=[
+          {nome:'Abertura de Filial', ic:'🏗️', desc:'Tudo para inaugurar uma nova unidade com segurança.', servicos:['Plano de Expansão / Novas Unidades','Recrutamento & Seleção Completo','Gerenciamento de Obra (prazo, custo, qualidade)','Acabamento Padrão de Loja / Franquia']},
+          {nome:'Virada de Chave (PME 360°)', ic:'🚀', desc:'Diagnóstico + estratégia + finanças + indicadores.', servicos:['Diagnóstico Empresarial 360° (Raio-X)','Planejamento Estratégico (OKRs / BSC)','Consultoria Financeira (fluxo, precificação, DRE)','Painel de Indicadores (KPIs)']},
+          {nome:'Máquina de Vendas', ic:'📈', desc:'Estruture o comercial e abasteça com time e marca.', servicos:['Estruturação Comercial (funil e metas)','Posicionamento e Marketing Estratégico','Recrutamento & Seleção Completo','Mentoria de Líderes']},
+          {nome:'Operação Terceirizada', ic:'⚙️', desc:'Tire o administrativo das costas do dono.', servicos:['BPO Financeiro','BPO Administrativo','Faturamento e Cobrança Terceirizada']},
+          {nome:'Franquia Pronta', ic:'🔖', desc:'Formate o negócio para franquear com padrão.', servicos:['Formatação de Franquia','Mapeamento e Padronização de Processos (POPs)','Acabamento Padrão de Loja / Franquia']}
+        ];
+        // Regras de afinidade: se o cliente tem serviço com palavra de "quando", sugira serviços com palavra de "sugira".
+        const REGRAS_CROSSSELL=[
+          {quando:['diagnóstico','diagnostico','raio-x','raio x'], sugira:['planejamento','reestrutura','processo','indicador'], motivo:'Depois do diagnóstico, o passo natural é estruturar e medir.'},
+          {quando:['consultoria','gestão','gestao','reestrutura','planejamento'], sugira:['bpo','apoio administrativo','indicador','rotina','pdca'], motivo:'Sustente a consultoria com execução e acompanhamento.'},
+          {quando:['expansão','expansao','filial','nova unidade','franquia'], sugira:['recrutamento','seleção','selecao','obra','acabamento','loja'], motivo:'Abrir/expandir exige time e obra prontos.'},
+          {quando:['comercial','vendas','funil'], sugira:['recrutamento','marketing','posicionamento','mentoria'], motivo:'Vender mais pede time, posicionamento e liderança.'},
+          {quando:['financeir','precifica','fluxo','dre'], sugira:['bpo','indicador','captação','captacao','valuation'], motivo:'Com o financeiro no controle, prepare o crescimento.'},
+          {quando:['obra','reforma'], sugira:['acabamento','layout','ambienta','pintura'], motivo:'Obra completa: gestão + acabamento.'},
+          {quando:['recrutamento','seleção','selecao','headhunt','rpo'], sugira:['onboarding','mentoria','cultura'], motivo:'Contratar bem pede integração e liderança.'}
+        ];
+        function catalogoAtivos(){ let r=[]; CATALOGO.forEach(g=>g.servicos.forEach(s=>{ if(!s.bloq) r.push(s); })); return r; }
+        // Devolve até `max` serviços do catálogo (não selecionados) que complementam os selecionados.
+        function sugerirComplementares(selecionados, max){
+          max=max||5;
+          let selLower=(selecionados||[]).map(n=>(n||'').toLowerCase());
+          let disp=catalogoAtivos().filter(s=>!selLower.includes(s.nome.toLowerCase()));
+          let match=(txt,kws)=>kws.some(k=>txt.includes(k));
+          let escolhidos=[], motivos={};
+          (selecionados||[]).forEach(sn=>{
+            let low=(sn||'').toLowerCase();
+            REGRAS_CROSSSELL.forEach(r=>{ if(match(low,r.quando)){
+              disp.forEach(s=>{ if(match(s.nome.toLowerCase(),r.sugira) && escolhidos.indexOf(s.nome)<0){ escolhidos.push(s.nome); motivos[s.nome]=r.motivo; } });
+            }});
+          });
+          if(escolhidos.length<max){
+            disp.slice().sort((a,b)=>b.valor-a.valor).forEach(s=>{ if(escolhidos.length<max && escolhidos.indexOf(s.nome)<0){ escolhidos.push(s.nome); if(!motivos[s.nome]) motivos[s.nome]='Combina bem com o seu escopo.'; } });
+          }
+          return escolhidos.slice(0,max).map(n=>{ let s=disp.find(x=>x.nome===n)||{}; return {nome:n, valor:s.valor||0, meta:s.meta||'', motivo:motivos[n]||''}; });
+        }
+        // garante o serviço no catálogo (ativando das oportunidades se preciso) e marca no funil
+        function funilAddServico(nome){
+          if(!servicoNoCatalogo(nome)){
+            for(let grp of OPORTUNIDADES_CNAE){ let ii=grp.itens.findIndex(it=>it.nome===nome); if(ii>=0){ oportAtivar(grp.cnae, ii); break; } }
+          }
+          let alvo=[...document.querySelectorAll('.cserv')].find(el=>el.dataset.nome===nome);
+          if(alvo && !alvo.checked) alvo.checked=true;
+        }
+        function funilAddECalc(nome){ funilAddServico(nome); if(typeof calcOrcamento==='function') calcOrcamento(); }
+        function funilAplicarCombo(idx){
+          let c=COMBOS[idx]; if(!c)return;
+          c.servicos.forEach(n=>funilAddServico(n));
+          if(typeof calcOrcamento==='function') calcOrcamento();
+          if(typeof notify==='function') notify('funil','Pacote aplicado','Combo "'+c.nome+'" adicionado ao escopo.','funil');
+        }
+        let _sugFunil=[];
+        function funilAddIdx(i){ if(_sugFunil[i]) funilAddECalc(_sugFunil[i].nome); }
+        function renderSugestoesFunil(){
+          let box=document.getElementById('f-sugestoes'); if(!box)return;
+          let sel=[...document.querySelectorAll('.cserv:checked')].map(c=>c.dataset.nome);
+          _sugFunil=sugerirComplementares(sel,5);
+          let combos=COMBOS.map((c,i)=>`<button class="sug-combo" onclick="funilAplicarCombo(${i})" title="${c.desc}">${c.ic} ${c.nome} <span>+${c.servicos.length}</span></button>`).join('');
+          let titulo = sel.length? `Você selecionou ${sel.length} serviço(s). Que tal acrescentar:` : 'Comece por um pacote pronto ou selecione serviços acima:';
+          let chips = sel.length===0
+            ? '<div class="sug-empty">Selecione serviços acima para ver complementos inteligentes.</div>'
+            : (_sugFunil.length? _sugFunil.map((s,i)=>`<button class="sug-chip" onclick="funilAddIdx(${i})" title="${s.motivo}"><span class="sc-add">＋</span><span class="sc-nm">${s.nome}</span><span class="sc-pr">${brl(s.valor)}</span></button>`).join('') : '<div class="sug-empty">Escopo completo — sem mais complementos a sugerir.</div>');
+          box.innerHTML=`<div class="sug-wrap">
+              <div class="sug-h">💡 Sugestões inteligentes</div>
+              <div class="sug-sub">Pacotes prontos (montam vários serviços de uma vez)</div>
+              <div class="sug-combos">${combos}</div>
+              <div class="sug-sub">${titulo}</div>
+              <div class="sug-chips">${chips}</div>
+            </div>`;
+        }
+        // ===== Cross-sell no portal do cliente =====
+        let _sugPortal=[];
+        function renderPortalCrossSell(p){
+          let box=document.getElementById('pt-crosssell'); if(!box)return;
+          let contratados=(p&&p.deal&&p.deal.servicos)?p.deal.servicos:[];
+          _sugPortal=sugerirComplementares(contratados,4);
+          p.solicitacoes=p.solicitacoes||[];
+          if(!_sugPortal.length){ box.innerHTML=''; return; }
+          let cards=_sugPortal.map((s,i)=>{
+            let pedido=p.solicitacoes.some(x=>x.nome===s.nome);
+            let btn=pedido?'<span class="pill pill-ok">✓ Solicitado</span>':`<button class="btn btn-gold btn-sm" onclick="portalSolicitarServico(${i})">✋ Solicitar</button>`;
+            return `<div class="xs-card"><div class="xs-nm">${s.nome}</div><div class="xs-meta">${s.motivo||''}</div><div class="xs-foot"><span class="xs-pr">a partir de ${brl(s.valor)}</span>${btn}</div></div>`;
+          }).join('');
+          let base=contratados.length?('<b>'+contratados.slice(0,3).join(', ')+(contratados.length>3?'…':'')+'</b>'):'seu projeto';
+          box.innerHTML=`<div class="card xs-wrap">
+              <div class="card-h">✨ Leve seu resultado além</div>
+              <p class="hint" style="margin:-8px 0 14px;">Com base em ${base}, estes serviços costumam turbinar o resultado. Solicite com um clique — a equipe entra em contato.</p>
+              <div class="xs-grid">${cards}</div>
+            </div>`;
+        }
+        function portalSolicitarServico(i){
+          let p=portalAtual(); if(!p)return; let s=_sugPortal[i]; if(!s)return;
+          p.solicitacoes=p.solicitacoes||[];
+          if(p.solicitacoes.some(x=>x.nome===s.nome)) return;
+          p.solicitacoes.push({nome:s.nome, data:new Date().toISOString()});
+          if(typeof notify==='function') notify('funil','Novo pedido de serviço',(p.cliente||'Cliente')+' solicitou: '+s.nome,'propostas');
+          renderPortalCrossSell(p);
+          alert('Pedido enviado! Nossa equipe vai falar com você sobre: '+s.nome);
+        }
         function renderCatTabela(){
           let tb=document.getElementById('cat-tbody'); if(!tb)return;
           // filtro de grupos
@@ -2886,6 +3018,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           if(typeof calcPagamento==='function') calcPagamento();
           if(typeof calcCapacidade==='function') calcCapacidade();
           if(typeof gerarNotaInterna==='function') gerarNotaInterna(final,custoTotal,lucro,margem,horas,meses,desloc);
+          if(typeof renderSugestoesFunil==='function') renderSugestoesFunil();
         }
         function gerarNotaInterna(final,custoTotal,lucro,margem,horas,meses,desloc){
           let el=document.getElementById('f-nota-interna'); if(!el)return;
@@ -6453,6 +6586,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           document.getElementById('pt-docs').innerText=p.docs.length;
           // GAMIFICAÇÃO DO CLIENTE
           renderPortalGame(p, idx, acoes.length);
+          if(typeof renderPortalCrossSell==='function') renderPortalCrossSell(p);
           // ONBOARDING
           let ob=p.onboarding, obEl=document.getElementById('pt-onboarding');
           if(ob){
