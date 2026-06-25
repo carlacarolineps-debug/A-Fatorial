@@ -1051,6 +1051,20 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
 .gmr-nextbadge{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#aeb8c8;background:rgba(53,230,255,.08);border:1px solid rgba(53,230,255,.22);border-radius:30px;padding:5px 12px;}
 .gmr-nextbadge b{color:var(--gold-bright);}
 
+/* ═══ OPORTUNIDADES POR CNAE (catálogo) ═══ */
+.op-cnae-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-soft);}
+.op-cnae-code{font-family:var(--font-mono);font-size:12px;font-weight:700;color:#1a1408;background:var(--gold-grad);padding:3px 9px;border-radius:7px;}
+.op-cnae-count{margin-left:auto;font-size:11px;color:var(--gold-bright);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.op-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.op-card{display:flex;flex-direction:column;gap:9px;border:1px solid var(--line);border-radius:14px;padding:15px 16px;background:linear-gradient(180deg,rgba(20,28,44,.55),rgba(13,20,32,.55));transition:.18s;}
+.op-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 16px 40px -28px #000;}
+.op-card.tem{opacity:.6;}
+.op-top{font-size:14px;color:var(--ink);font-weight:700;line-height:1.25;}
+.op-desc{font-size:12px;color:var(--ink-soft);line-height:1.55;flex-grow:1;}
+.op-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:9px;}
+.op-preco{font-size:11px;color:var(--ink-faint);}
+.op-preco b{color:var(--gold-bright);font-size:12.5px;}
+
 </style>
 </head>
 <body class="theme-gamer">
@@ -1658,6 +1672,12 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         <h2>Nosso portfólio é um <b>arsenal organizado</b>.</h2>
         <p>Dezenas de serviços catalogados, precificados e prontos para montar qualquer proposta em minutos. Esta é a fonte que alimenta cada orçamento — viva, editável e sob controle.</p>
       </div>
+      <div class="col-subnav" style="margin-bottom:18px;">
+        <button class="on" id="catsub-meus" onclick="catSubTab('meus')">📋 Meus serviços</button>
+        <button id="catsub-oport" onclick="catSubTab('oport')">💡 Oportunidades por CNAE</button>
+      </div>
+
+      <div id="cat-tab-meus">
       <div class="card">
         <div class="card-h"><span>Catálogo de serviços — base de cálculo do orçamento</span>
           <button class="btn btn-gold btn-sm" onclick="catNovo()">+ Novo serviço</button></div>
@@ -1671,6 +1691,16 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         </div>
         <table class="tbl"><thead><tr><th>Serviço</th><th>Grupo</th><th>CNAE (base da NF)</th><th>Carga</th><th>Preço base</th><th>Status</th><th>Ações</th></tr></thead>
           <tbody id="cat-tbody"></tbody></table>
+      </div>
+      </div>
+
+      <div id="cat-tab-oport" style="display:none;">
+      <div class="card">
+        <div class="card-h"><span>Oportunidades por CNAE — o que você ainda pode ativar</span></div>
+        <p class="hint" style="margin:-8px 0 14px;">Todos estes serviços cabem <b>dentro dos CNAEs que a sua empresa já tem registrados</b> — ou seja, você pode emitir Nota Fiscal deles sem mexer no contrato social. Ative com um clique o que fizer sentido para a sua carteira; o serviço entra no seu catálogo já com o CNAE certo e um preço sugerido (que você ajusta depois).</p>
+        <div id="cat-oport-insight"></div>
+        <div id="cat-oportunidades"></div>
+      </div>
       </div>
     </section>
 
@@ -2324,7 +2354,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           if(v==='portal') renderPortal();
           if(v==='colaborador') renderColaborador();
           if(v==='rh') renderRH();
-          if(v==='catalogo') renderCatTabela();
+          if(v==='catalogo'){ renderCatTabela(); if(typeof renderOportunidades==='function') renderOportunidades(); }
           if(v==='dash') renderDash();
           if(v==='equipe'){ renderUsuarios(); renderPermissoes(); }
         }
@@ -2369,6 +2399,147 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         }
         function cnaeOptions(sel){
           return CNAES_EMPRESA.map(e=>`<option value="${e.c}" ${e.c===sel?'selected':''}>${e.c} · ${e.d}${e.principal?' (principal)':''}</option>`).join('');
+        }
+
+        /* ===== BIBLIOTECA DE OPORTUNIDADES POR CNAE =====
+           Serviços que a empresa PODE ativar dentro de cada CNAE registrado.
+           Cada item já vem com preço/carga sugeridos (ajustáveis depois). */
+        const GRUPO_POR_CNAE={
+          '70.20-4-00':'Consultoria e Gestão',
+          '74.90-1-04':'Agenciamento e Parcerias',
+          '82.11-3-00':'BPO e Apoio Administrativo',
+          '78.10-8-00':'Recrutamento e RH',
+          '43.99-1-01':'Gestão de Obras',
+          '43.30-4-99':'Acabamento e Reformas'
+        };
+        const OPORTUNIDADES_CNAE=[
+          { cnae:'70.20-4-00', itens:[
+            {nome:'Diagnóstico Empresarial 360° (Raio-X)', desc:'Mapa completo de gargalos em finanças, processos, pessoas e vendas, com plano de ação priorizado.', valor:2500, horas:10, meses:1},
+            {nome:'Planejamento Estratégico (OKRs / BSC)', desc:'Define visão, metas trimestrais e indicadores — sai do operacional e passa a crescer com direção.', valor:6000, horas:24, meses:2},
+            {nome:'Reestruturação Organizacional', desc:'Organograma, papéis, responsabilidades e cadeia de decisão para a empresa parar de depender do dono.', valor:5000, horas:20, meses:2},
+            {nome:'Consultoria Financeira (fluxo, precificação, DRE)', desc:'Coloca o caixa sob controle, define preço com margem real e cria o DRE gerencial.', valor:4500, horas:18, meses:2},
+            {nome:'Painel de Indicadores (KPIs)', desc:'Dashboard de gestão à vista com os números que realmente importam, atualizados por rotina.', valor:3500, horas:14, meses:1},
+            {nome:'Mapeamento e Padronização de Processos (POPs)', desc:'Documenta os processos-chave em POPs para qualidade constante e treinamento rápido.', valor:4000, horas:16, meses:2},
+            {nome:'Estruturação Comercial (funil e metas)', desc:'Monta o funil de vendas, scripts, metas e rotina comercial para previsibilidade de receita.', valor:4800, horas:20, meses:2},
+            {nome:'Mentoria de Líderes', desc:'Acompanhamento mensal de gestores para desenvolver liderança, delegação e cobrança saudável.', valor:3000, horas:8, meses:3, un:'/mês'},
+            {nome:'Plano de Expansão / Novas Unidades', desc:'Estudo de viabilidade, modelo replicável e roteiro para abrir filiais com segurança.', valor:7000, horas:28, meses:3},
+            {nome:'Formatação de Franquia', desc:'Transforma o negócio em modelo franqueável: manuais, COF, padrões e economia da unidade.', valor:15000, horas:60, meses:4},
+            {nome:'Cultura e Gestão de Mudança', desc:'Define valores, rituais e comunicação para engajar o time e sustentar as mudanças.', valor:4000, horas:16, meses:2},
+            {nome:'Rotina de Gestão / PDCA assistido', desc:'Implanta reuniões de resultado e ciclos de melhoria contínua acompanhados mês a mês.', valor:2800, horas:8, meses:3, un:'/mês'},
+            {nome:'Plano de Sucessão (empresa familiar)', desc:'Organiza a transição entre gerações com governança, regras e preparação dos sucessores.', valor:6500, horas:24, meses:3},
+            {nome:'Posicionamento e Marketing Estratégico', desc:'Define proposta de valor, público e mensagem — base para todo o marketing e vendas.', valor:4200, horas:18, meses:2},
+            {nome:'Preparação para Captação / Valuation gerencial', desc:'Organiza números e narrativa para buscar crédito, sócios ou investidores.', valor:8000, horas:30, meses:3}
+          ]},
+          { cnae:'74.90-1-04', itens:[
+            {nome:'Conexão com Fornecedores Homologados', desc:'Indica e intermedeia fornecedores confiáveis já validados pela A! Fatorial.', valor:1500, horas:6, meses:1},
+            {nome:'Assessoria em Compra e Venda de Empresas', desc:'Intermediação de M&A para pequenos negócios: avaliação, aproximação e negociação.', valor:12000, horas:40, meses:4},
+            {nome:'Captação de Investidores e Parceiros', desc:'Conecta a empresa a investidores e parceiros estratégicos para crescer.', valor:6000, horas:24, meses:3},
+            {nome:'Central de Compras / Negociação', desc:'Negocia em escala com fornecedores e reduz custo de insumos da carteira de clientes.', valor:3000, horas:12, meses:1},
+            {nome:'Clube de Benefícios e Parcerias', desc:'Cria uma rede de parceiros com vantagens para os clientes — receita por indicação.', valor:2500, horas:10, meses:1},
+            {nome:'Intermediação de Crédito', desc:'Aproxima o cliente de soluções financeiras via parcerias bancárias e fintechs.', valor:2000, horas:8, meses:1},
+            {nome:'Curadoria e Indicação de Prestadores', desc:'Marketplace curado de prestadores (contábil, jurídico, TI) com comissionamento.', valor:1800, horas:8, meses:1},
+            {nome:'Agenciamento de Eventos Corporativos', desc:'Organiza e intermedia fornecedores para eventos, treinamentos e convenções.', valor:3500, horas:14, meses:1}
+          ]},
+          { cnae:'82.11-3-00', itens:[
+            {nome:'BPO Financeiro', desc:'Terceiriza contas a pagar/receber, conciliação e relatórios — o cliente foca no negócio.', valor:2500, horas:20, meses:3, un:'/mês'},
+            {nome:'BPO Administrativo', desc:'Assume as rotinas de escritório (documentos, agenda, fornecedores) como serviço contínuo.', valor:2200, horas:20, meses:3, un:'/mês'},
+            {nome:'Faturamento e Cobrança Terceirizada', desc:'Emissão de NF, régua de cobrança e redução da inadimplência.', valor:1800, horas:14, meses:3, un:'/mês'},
+            {nome:'Organização e Digitalização de Documentos', desc:'Coloca ordem no arquivo físico e digital, com indexação e backup.', valor:2000, horas:12, meses:1},
+            {nome:'Secretaria Remota / Assistente Administrativo', desc:'Apoio administrativo à distância para pequenas empresas e autônomos.', valor:1500, horas:16, meses:3, un:'/mês'},
+            {nome:'Implantação de ERP + Operação Assistida', desc:'Escolhe, configura e opera o ERP junto ao cliente nos primeiros meses.', valor:5000, horas:24, meses:2},
+            {nome:'Apoio a Licitações', desc:'Prepara documentação e acompanha processos de licitação pública.', valor:2500, horas:10, meses:1}
+          ]},
+          { cnae:'78.10-8-00', itens:[
+            {nome:'Recrutamento & Seleção Completo', desc:'Da divulgação à entrega de finalistas, com triagem e entrevistas estruturadas.', valor:1800, horas:12, meses:1, un:'/vaga'},
+            {nome:'Headhunting (vagas estratégicas)', desc:'Caça ativa de profissionais de alto nível para posições de liderança.', valor:4000, horas:20, meses:1, un:'/vaga'},
+            {nome:'Triagem com Testes Comportamentais (DISC)', desc:'Aplica e interpreta testes de perfil para decisões de contratação mais seguras.', valor:900, horas:6, meses:1},
+            {nome:'Banco de Talentos / Pipeline', desc:'Mantém um funil de candidatos pré-qualificados para contratações rápidas.', valor:1200, horas:8, meses:3, un:'/mês'},
+            {nome:'Onboarding Estruturado', desc:'Programa de integração que acelera a produtividade e reduz a rotatividade inicial.', valor:1500, horas:8, meses:1},
+            {nome:'RPO — Terceirização do Processo Seletivo', desc:'A A! Fatorial cuida de toda a operação de R&S como um departamento externo.', valor:3000, horas:24, meses:3, un:'/mês'},
+            {nome:'Avaliação para Promoção Interna', desc:'Mapeia prontidão de colaboradores para novas funções antes de promover.', valor:1000, horas:6, meses:1}
+          ]},
+          { cnae:'43.99-1-01', itens:[
+            {nome:'Gerenciamento de Obra (prazo, custo, qualidade)', desc:'Gestão completa da obra do cliente, controlando cronograma, orçamento e padrão.', valor:6000, horas:40, meses:3},
+            {nome:'Planejamento e Orçamento de Obra', desc:'Cronograma físico-financeiro e orçamento detalhado antes de iniciar a obra.', valor:3000, horas:16, meses:1},
+            {nome:'Coordenação de Fornecedores e Empreiteiros', desc:'Seleciona, contrata e coordena as equipes para a obra fluir sem retrabalho.', valor:4000, horas:24, meses:2},
+            {nome:'Fiscalização e Medição de Obra', desc:'Acompanha execução, valida medições e evita pagamentos indevidos.', valor:3500, horas:20, meses:2},
+            {nome:'Implantação de Nova Unidade (turn-key, gestão)', desc:'Gerencia toda a abertura de um novo ponto, da reforma à inauguração.', valor:8000, horas:48, meses:3},
+            {nome:'Gestão de Reforma Comercial', desc:'Coordena a reforma de lojas e escritórios com mínima interrupção da operação.', valor:5000, horas:30, meses:2}
+          ]},
+          { cnae:'43.30-4-99', itens:[
+            {nome:'Acabamento Padrão de Loja / Franquia', desc:'Executa o acabamento dentro do manual visual da marca para padronização.', valor:7000, horas:40, meses:2},
+            {nome:'Reforma de Ambiente Corporativo', desc:'Moderniza escritórios e salas com foco em produtividade e imagem.', valor:6000, horas:36, meses:2},
+            {nome:'Adequação de Layout / Ambientação', desc:'Reorganiza o espaço para melhor fluxo, experiência e aproveitamento.', valor:3500, horas:20, meses:1},
+            {nome:'Gestão de Pintura e Revestimento', desc:'Coordena serviços de pintura e revestimento com acabamento profissional.', valor:2500, horas:16, meses:1},
+            {nome:'Montagem de Stand / Ponto Comercial', desc:'Cria e monta stands e pontos de venda para feiras e ações comerciais.', valor:4000, horas:24, meses:1},
+            {nome:'Acabamento para Inauguração (entrega da chave)', desc:'Finaliza os detalhes para o cliente inaugurar pronto para operar.', valor:3000, horas:18, meses:1}
+          ]}
+        ];
+        // serviço já está no catálogo? (compara por nome, ignorando caixa)
+        function servicoNoCatalogo(nome){
+          let n=(nome||'').trim().toLowerCase();
+          return CATALOGO.some(g=>g.servicos.some(s=>(s.nome||'').trim().toLowerCase()===n));
+        }
+        function catSubTab(tab){
+          document.getElementById('catsub-meus').classList.toggle('on', tab==='meus');
+          document.getElementById('catsub-oport').classList.toggle('on', tab==='oport');
+          document.getElementById('cat-tab-meus').style.display=(tab==='meus')?'':'none';
+          document.getElementById('cat-tab-oport').style.display=(tab==='oport')?'':'none';
+          if(tab==='oport') renderOportunidades();
+        }
+        function renderOportunidades(){
+          let cont=document.getElementById('cat-oportunidades'); if(!cont)return;
+          let totalPoss=0, totalAtivos=0;
+          // por CNAE: contagem de ativáveis para o insight estratégico
+          let porCnae=OPORTUNIDADES_CNAE.map(grp=>{
+            let ativavel=grp.itens.filter(it=>!servicoNoCatalogo(it.nome)).length;
+            let jaTem=grp.itens.length-ativavel;
+            totalPoss+=grp.itens.length; totalAtivos+=jaTem;
+            return {cnae:grp.cnae, ativavel, jaTem, total:grp.itens.length};
+          });
+          // insight: o CNAE mais subutilizado (menos serviços já ativos)
+          let alvo=porCnae.slice().sort((a,b)=>a.jaTem-b.jaTem || b.ativavel-a.ativavel)[0];
+          let insight=document.getElementById('cat-oport-insight');
+          if(insight){
+            let alvoDesc=cnaeDesc(alvo.cnae);
+            insight.innerHTML=`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
+                <div class="kpi" style="flex:1;min-width:150px;"><div class="v">${totalPoss}</div><div class="l">Serviços possíveis</div></div>
+                <div class="kpi" style="flex:1;min-width:150px;"><div class="v">${totalAtivos}</div><div class="l">Já na sua carteira</div></div>
+                <div class="kpi hot" style="flex:1;min-width:150px;"><div class="v" style="color:var(--gold-bright);">${totalPoss-totalAtivos}</div><div class="l">Prontos para ativar</div></div>
+              </div>
+              <div class="ptg-next" style="margin:0 0 18px;">💡 <b>Onde você mais pode crescer:</b> o CNAE <b>${alvo.cnae}</b> (${alvoDesc}) é o que você menos explora — há <b>${alvo.ativavel} serviço(s)</b> ali prontos para entrar na sua carteira. Pense em pacotes combinando consultoria + execução: o mesmo cliente pode comprar mais de uma frente.</div>`;
+          }
+          cont.innerHTML=OPORTUNIDADES_CNAE.map((grp,gi)=>{
+            let info=CNAES_EMPRESA.find(e=>e.c===grp.cnae)||{d:''};
+            let cards=grp.itens.map((it,ii)=>{
+              let tem=servicoNoCatalogo(it.nome);
+              let preco=brl(it.valor)+(it.un||'');
+              let btn=tem
+                ? `<span class="pill pill-ok">✓ Já na carteira</span>`
+                : `<button class="btn btn-gold btn-sm" onclick="oportAtivar('${grp.cnae}',${ii})">➕ Ativar</button>`;
+              return `<div class="op-card ${tem?'tem':''}">
+                  <div class="op-top"><b>${it.nome}</b>${tem?' <span style="color:var(--ok);">●</span>':''}</div>
+                  <div class="op-desc">${it.desc}</div>
+                  <div class="op-foot"><span class="op-preco">Sugestão: <b>${preco}</b> · ${it.horas}h • ${it.meses}m</span>${btn}</div>
+                </div>`;
+            }).join('');
+            return `<div style="margin-bottom:26px;">
+                <div class="op-cnae-h"><span class="op-cnae-code">${grp.cnae}</span><span>${info.d}${info.principal?' · principal':''}</span><span class="op-cnae-count">${grp.itens.filter(it=>!servicoNoCatalogo(it.nome)).length} ativável(is)</span></div>
+                <div class="op-grid">${cards}</div>
+              </div>`;
+          }).join('');
+        }
+        function oportAtivar(cnae, ii){
+          let grp=OPORTUNIDADES_CNAE.find(g=>g.cnae===cnae); if(!grp)return;
+          let it=grp.itens[ii]; if(!it)return;
+          if(servicoNoCatalogo(it.nome)) return;
+          let grupoNome=GRUPO_POR_CNAE[cnae]||'Novos serviços';
+          let g=CATALOGO.find(x=>x.grupo===grupoNome);
+          if(!g){ g={grupo:grupoNome, servicos:[]}; CATALOGO.push(g); }
+          g.servicos.push({ nome:it.nome, valor:it.valor, horas:it.horas, meses:it.meses, meta:it.horas+'h • '+it.meses+(it.meses===1?' Mês':' Meses'), bloq:false, cnae });
+          renderCatalogo();          // atualiza tabela "Meus serviços" + catálogo do funil
+          renderOportunidades();      // atualiza o status nesta aba
+          if(typeof notify==='function') notify('catalogo','Serviço ativado','"'+it.nome+'" entrou na sua carteira (grupo '+grupoNome+').','catalogo');
         }
         function renderCatTabela(){
           let tb=document.getElementById('cat-tbody'); if(!tb)return;

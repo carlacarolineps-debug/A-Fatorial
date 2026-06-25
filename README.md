@@ -42,6 +42,11 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
    senha; criar novo usuário. Usuários inativos não conseguem entrar. Cada
    colaborador também personaliza foto e apelido no próprio portal ("Meu perfil").
    Login agora valida senha e status (com senha padrão de demonstração).
+7. **Catálogo → aba "Oportunidades por CNAE"** — biblioteca curada de 49 serviços
+   que a empresa PODE oferecer dentro dos CNAEs que já tem registrados (sem risco
+   fiscal). Cada serviço traz descrição e preço sugerido; um clique ativa na
+   carteira (entra no catálogo com o CNAE certo). Inclui um insight estratégico
+   apontando o CNAE mais subutilizado. Dados em `OPORTUNIDADES_CNAE`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
