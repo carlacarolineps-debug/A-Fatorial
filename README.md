@@ -58,6 +58,11 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
      complementares ao que ele já tem; o cliente **solicita** com um clique e a
      gestão recebe a notificação. Funções: `renderPortalCrossSell`,
      `portalSolicitarServico`.
+   - **Fila de pedidos (tela de Propostas)**: todo pedido feito pelo cliente
+     aparece numa fila "📥 Pedidos de clientes", com cliente, serviço, valor de
+     referência, data e status (novo/atendido). Botões para **atender**, reabrir
+     e **abrir o portal** do cliente. Funções: `renderSolicitacoes`,
+     `solicitacaoAtender`, `solicitacaoVerCliente`, `listaSolicitacoes`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 

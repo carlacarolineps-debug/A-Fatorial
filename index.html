@@ -1494,6 +1494,13 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         <div class="kpi"><div class="v" id="p-aprovadas">0</div><div class="l">Aprovadas</div></div>
         <div class="kpi"><div class="v" id="p-valor">R$ 0</div><div class="l">Em negociação</div></div>
       </div>
+      <div class="card" id="p-solicitacoes-card">
+        <div class="card-h" style="display:flex;align-items:center;gap:10px;">📥 Pedidos de clientes — solicitações de novos serviços
+          <span id="p-sol-badge"></span></div>
+        <p class="hint" style="margin:-8px 0 14px;">Quando um cliente pede um serviço pelo portal ("Leve seu resultado além"), o pedido cai aqui. Atenda e converta em proposta no Funil.</p>
+        <div id="p-solicitacoes"></div>
+      </div>
+
       <div class="card">
         <div class="card-h">Rastreamento — comportamento de cada cliente</div>
         <p class="hint" style="margin:-8px 0 14px;">As propostas são geradas pela esteira do Funil. Aqui você acompanha aberturas, tempo e aprovação.</p>
@@ -2380,7 +2387,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           if(v==='entregaveis') renderEnt();
           if(v==='satisfacao') renderSatisfacao();
           if(v==='financeiro') renderFinanceiro();
-          if(v==='propostas') renderPropostas();
+          if(v==='propostas'){ renderPropostas(); if(typeof renderSolicitacoes==='function') renderSolicitacoes(); }
           if(v==='portal') renderPortal();
           if(v==='colaborador') renderColaborador();
           if(v==='rh') renderRH();
@@ -2668,11 +2675,43 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           let p=portalAtual(); if(!p)return; let s=_sugPortal[i]; if(!s)return;
           p.solicitacoes=p.solicitacoes||[];
           if(p.solicitacoes.some(x=>x.nome===s.nome)) return;
-          p.solicitacoes.push({nome:s.nome, data:new Date().toISOString()});
+          p.solicitacoes.push({nome:s.nome, valor:s.valor||0, data:new Date().toISOString(), status:'novo'});
           if(typeof notify==='function') notify('funil','Novo pedido de serviço',(p.cliente||'Cliente')+' solicitou: '+s.nome,'propostas');
           renderPortalCrossSell(p);
+          if(typeof renderSolicitacoes==='function') renderSolicitacoes();
           alert('Pedido enviado! Nossa equipe vai falar com você sobre: '+s.nome);
         }
+        // ===== Fila de pedidos de clientes (tela de Propostas) =====
+        function listaSolicitacoes(){
+          let out=[];
+          Object.keys(DB.portais||{}).forEach(did=>{
+            let p=DB.portais[did];
+            (p.solicitacoes||[]).forEach((s,si)=>out.push({did, si, cliente:p.cliente||did, nome:s.nome, valor:s.valor||0, data:s.data, status:s.status||'novo'}));
+          });
+          return out;
+        }
+        function renderSolicitacoes(){
+          let box=document.getElementById('p-solicitacoes'); if(!box)return;
+          let linhas=listaSolicitacoes();
+          linhas.sort((a,b)=>((a.status==='novo'?0:1)-(b.status==='novo'?0:1)) || (new Date(b.data)-new Date(a.data)));
+          let novos=linhas.filter(l=>l.status==='novo').length;
+          let badge=document.getElementById('p-sol-badge');
+          if(badge) badge.innerHTML=novos?`<span class="pill pill-warn">${novos} novo(s)</span>`:(linhas.length?'<span class="pill pill-ok">em dia</span>':'');
+          if(!linhas.length){ box.innerHTML='<div style="color:var(--ink-faint);text-align:center;padding:24px;font-size:13px;">Nenhum pedido ainda. Quando um cliente solicitar um serviço no portal, ele aparece aqui.</div>'; return; }
+          box.innerHTML=`<table class="tbl"><thead><tr><th>Cliente</th><th>Serviço solicitado</th><th>Valor ref.</th><th>Quando</th><th>Status</th><th>Ações</th></tr></thead><tbody>${
+            linhas.map(l=>{
+              let data=l.data?new Date(l.data).toLocaleDateString('pt-BR'):'—';
+              let st=l.status==='atendido'?'<span class="pill pill-ok">Atendido</span>':'<span class="pill pill-warn">Novo</span>';
+              let acoes=`<button class="btn btn-ghost btn-sm" onclick="solicitacaoVerCliente('${l.did}')" title="Abrir portal do cliente">👁 Portal</button>`;
+              if(l.status!=='atendido') acoes+=` <button class="btn btn-gold btn-sm" onclick="solicitacaoAtender('${l.did}',${l.si})">✓ Atender</button>`;
+              else acoes+=` <button class="btn btn-ghost btn-sm" onclick="solicitacaoReabrir('${l.did}',${l.si})" title="Reabrir">↺</button>`;
+              return `<tr style="${l.status==='atendido'?'opacity:.6;':''}"><td><b>${l.cliente}</b></td><td>${l.nome}</td><td style="color:var(--gold-deep);">${l.valor?brl(l.valor):'—'}</td><td>${data}</td><td>${st}</td><td style="white-space:nowrap;">${acoes}</td></tr>`;
+            }).join('')
+          }</tbody></table>`;
+        }
+        function solicitacaoAtender(did, si){ let p=DB.portais[did]; if(p&&p.solicitacoes&&p.solicitacoes[si]){ p.solicitacoes[si].status='atendido'; renderSolicitacoes(); if(typeof notify==='function') notify('funil','Pedido atendido','Solicitação de '+(p.cliente||'cliente')+' marcada como atendida.','propostas'); } }
+        function solicitacaoReabrir(did, si){ let p=DB.portais[did]; if(p&&p.solicitacoes&&p.solicitacoes[si]){ p.solicitacoes[si].status='novo'; renderSolicitacoes(); } }
+        function solicitacaoVerCliente(did){ if(typeof go==='function'){ go('portal'); if(typeof portalSyncSelect==='function') portalSyncSelect(did); if(typeof renderPortal==='function') renderPortal(); } }
         function renderCatTabela(){
           let tb=document.getElementById('cat-tbody'); if(!tb)return;
           // filtro de grupos
