@@ -2019,6 +2019,10 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
             else if(kind==='notify'){ this.tone(880,0,0.13,'sine',0.15); this.tone(1175,0.10,0.17,'sine',0.12); }
             else if(kind==='badge'){ [523,659,784,1047].forEach((f,i)=>this.tone(f,i*0.08,0.24,'triangle',0.14)); }
             else if(kind==='levelup'){ [523,659,784,1047,1319].forEach((f,i)=>this.tone(f,i*0.09,0.32,'sawtooth',0.11)); }
+            else if(kind==='cash'){ /* caixa registradora */ this.tone(1318,0,0.09,'square',0.10); this.tone(1760,0.05,0.10,'square',0.10); this.tone(2093,0.13,0.22,'triangle',0.12); }
+            else if(kind==='success'){ /* aprovação / vitória */ [659,880,1047,1319].forEach((f,i)=>this.tone(f,i*0.07,0.26,'triangle',0.13)); }
+            else if(kind==='request'){ /* novo pedido de cliente */ this.tone(784,0,0.14,'sine',0.14); this.tone(1047,0.12,0.20,'sine',0.13); }
+            else if(kind==='lost'){ /* perda — leve e descendente */ this.tone(440,0,0.18,'sine',0.12); this.tone(330,0.14,0.26,'sine',0.11); }
             else if(kind==='error'){ this.tone(200,0,0.22,'square',0.12); }
             else { this.tone(880,0,0.12,'sine',0.13); }
           },
@@ -2697,7 +2701,8 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           p.solicitacoes=p.solicitacoes||[];
           if(p.solicitacoes.some(x=>x.nome===s.nome)) return;
           p.solicitacoes.push({nome:s.nome, valor:s.valor||0, data:new Date().toISOString(), status:'novo'});
-          if(typeof notify==='function') notify('funil','Novo pedido de serviço',(p.cliente||'Cliente')+' solicitou: '+s.nome,'propostas');
+          if(typeof SOUND!=='undefined') SOUND.play('request');
+          if(typeof notify==='function') notify('funil','Novo pedido de serviço',(p.cliente||'Cliente')+' solicitou: '+s.nome,'propostas', true);
           renderPortalCrossSell(p);
           if(typeof renderSolicitacoes==='function') renderSolicitacoes();
           alert('Pedido enviado! Nossa equipe vai falar com você sobre: '+s.nome);
@@ -3362,6 +3367,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
             equipe:[...document.querySelectorAll('.eqp:checked')].map(c=>c.dataset.nome),
             etapa:'proposta', proposta:null, criadoEm:Date.now() };
           trackRender();
+          if(typeof SOUND!=='undefined') SOUND.play('success');
           document.getElementById('est-acoes').scrollIntoView({behavior:'smooth',block:'center'});
         }
         function resumoPagamento(){
@@ -3485,6 +3491,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         function perdaClose(){ document.getElementById('m-perda').classList.remove('on'); }
         function perdaSave(){
           DB.perdas.push({ id:document.getElementById('perda-id').value, motivo:document.getElementById('perda-motivo').value, obs:document.getElementById('perda-obs').value, data:new Date().toLocaleDateString('pt-BR') });
+          if(typeof SOUND!=='undefined') SOUND.play('lost');
           perdaClose();
           document.getElementById('perda-obs').value='';
           alert('Motivo registrado. Você pode revisar os motivos de perda para ajustar sua abordagem comercial.');
@@ -3928,6 +3935,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         function cliClose(){ document.getElementById('cli-ov').classList.remove('on'); renderPropostas(); }
         function cliAprovar(){
           let p=cliActive; p.status='aprovada'; p.aprovou=true; p.viuValor=true;
+          if(typeof SOUND!=='undefined') SOUND.play('success');
           // aprovar JÁ libera o portal (acesso inicial)
           if(deal&&deal.proposta&&deal.proposta.id===p.id){
             let pr=DB.portais[deal.id]; if(pr){ pr.acessoLiberado=true; pr.docsCompletos=false; }
@@ -4020,7 +4028,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         }
         function entFind(id){return DB.entregaveis.find(x=>x.id===id);}
         function entAv(id,s){let e=entFind(id);if(e){e.status=s;renderEnt();renderDash();}}
-        function entAprovar(id){let e=entFind(id);if(!e)return;e.status='aprovado';renderEnt();renderDash();setTimeout(()=>{if(confirm('Entregável aprovado.\n\nEnviar a pesquisa de satisfação ao cliente agora?'))satAbrir(id);},150);}
+        function entAprovar(id){let e=entFind(id);if(!e)return;e.status='aprovado';if(typeof SOUND!=='undefined')SOUND.play('success');renderEnt();renderDash();setTimeout(()=>{if(confirm('Entregável aprovado.\n\nEnviar a pesquisa de satisfação ao cliente agora?'))satAbrir(id);},150);}
 
         /* ===== SATISFAÇÃO ===== */
         function satAbrir(id){let e=entFind(id);if(!e)return;document.getElementById('sat-id').value=id;document.getElementById('sat-nome').innerText=e.nome+' — '+e.cliente;document.querySelectorAll('#sat-stars .star').forEach(s=>s.classList.remove('on'));document.getElementById('sat-coment').value='';document.getElementById('sat-nota').value=0;document.getElementById('m-sat').classList.add('on');}
@@ -4030,6 +4038,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           let id=document.getElementById('sat-id').value,nota=parseInt(document.getElementById('sat-nota').value)||0;
           if(!nota)return alert('Selecione de 1 a 5 estrelas.');
           let e=entFind(id);e.sat={nota,coment:document.getElementById('sat-coment').value,data:new Date().toLocaleDateString('pt-BR')};
+          if(typeof SOUND!=='undefined') SOUND.play(nota>=4?'success':'notify');
           satClose();renderEnt();renderDash();renderSatisfacao();
           // avança a esteira: satisfação -> depoimento (ou conclui se nota baixa)
           if(deal && e.dealId===deal.id && deal.etapa==='satisfacao'){
@@ -4056,7 +4065,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         /* ===== DEPOIMENTO ===== */
         function depAbrir(id){let e=entFind(id);if(!e)return;document.getElementById('dep-id').value=id;document.getElementById('dep-nome').innerText=e.nome+' — '+e.cliente;document.getElementById('dep-texto').value=e.sat?.coment||'';document.getElementById('dep-ok').checked=false;document.getElementById('m-dep').classList.add('on');}
         function depClose(){document.getElementById('m-dep').classList.remove('on');}
-        function depSave(){let id=document.getElementById('dep-id').value,t=document.getElementById('dep-texto').value.trim();if(!t)return alert('Escreva o depoimento.');let e=entFind(id);e.depo={texto:t,ok:document.getElementById('dep-ok').checked,data:new Date().toLocaleDateString('pt-BR')};depClose();renderEnt();renderSatisfacao();if(deal&&e.dealId===deal.id&&deal.etapa==='depoimento')estAvancar('concluido');alert('Depoimento salvo como prova real.');}
+        function depSave(){let id=document.getElementById('dep-id').value,t=document.getElementById('dep-texto').value.trim();if(!t)return alert('Escreva o depoimento.');let e=entFind(id);e.depo={texto:t,ok:document.getElementById('dep-ok').checked,data:new Date().toLocaleDateString('pt-BR')};depClose();renderEnt();renderSatisfacao();if(deal&&e.dealId===deal.id&&deal.etapa==='depoimento')estAvancar('concluido');if(typeof SOUND!=='undefined')SOUND.play('success');alert('Depoimento salvo como prova real.');}
 
         /* ===== ONBOARDING ===== */
         function renderOnboarding(){
@@ -4072,8 +4081,9 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           if(!p.comprovante){ if(!confirm('Dar baixa SEM comprovante anexado?\n\nO ideal é anexar o comprovante antes. Continuar mesmo assim?'))return; }
           p.pago=true; p.dataPagto=new Date().toLocaleDateString('pt-BR');
           DB.fin.caixa+=p.valor; DB.fin.receber=Math.max(0,DB.fin.receber-p.valor);
-          // confirma recebimento ao cliente
-          notify('cliente','Pagamento confirmado','Recebemos o pagamento de "'+p.rotulo+'" ('+brl(p.valor)+'). Obrigado!','portal');
+          if(typeof SOUND!=='undefined') SOUND.play('cash');
+          // confirma recebimento ao cliente (som próprio de caixa, notificação silenciada)
+          notify('cliente','Pagamento confirmado','Recebemos o pagamento de "'+p.rotulo+'" ('+brl(p.valor)+'). Obrigado!','portal', true);
           // atualiza o portal do cliente
           if(typeof portalSyncRecebiveis==='function') portalSyncRecebiveis(r);
           renderFinanceiro(); renderDash(); if(typeof renderPortal==='function') renderPortal();
@@ -6783,7 +6793,8 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
               if(avalCtx.nota>=4) ent.depo={texto:doc.aval.texto||('Depoimento em '+avalCtx.tipo),ok:true,tipo:avalCtx.tipo,data:doc.aval.data}; }
             renderEnt(); renderSatisfacao();
           }
-          notify('cliente','Avaliação recebida: '+doc.nome,'Nota '+avalCtx.nota+'/5'+(avalCtx.tipo!=='texto'?' ('+avalCtx.tipo+')':'')+' para "'+doc.nome+'".','satisfacao');
+          if(typeof SOUND!=='undefined') SOUND.play(avalCtx.nota>=4?'success':'notify');
+          notify('cliente','Avaliação recebida: '+doc.nome,'Nota '+avalCtx.nota+'/5'+(avalCtx.tipo!=='texto'?' ('+avalCtx.tipo+')':'')+' para "'+doc.nome+'".','satisfacao', true);
           if(deal&&deal.etapa==='aprovacao_entrega'&&doc.entId) estAvancar('satisfacao');
           avalClose(); renderPortal();
         }
@@ -6792,7 +6803,8 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           if(deal.proposta){ deal.proposta.status='aprovada'; deal.proposta.aprovou=true; deal.proposta.viuValor=true; renderPropostas(); }
           let doc=p.docs.find(d=>d.tipo==='proposta'); if(doc)doc.status='aprovado';
           if(deal.etapa==='aprovacao') estAvancar('contrato');
-          notify('cliente','Cliente aprovou a proposta','O cliente aprovou a proposta. Gere o contrato para seguir.','funil');
+          if(typeof SOUND!=='undefined') SOUND.play('success');
+          notify('cliente','Cliente aprovou a proposta','O cliente aprovou a proposta. Gere o contrato para seguir.','funil', true);
           renderPortal();
           alert('✓ Proposta aprovada. A equipe foi notificada e vai gerar o contrato.');
         }

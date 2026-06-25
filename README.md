@@ -65,10 +65,15 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
      esteira já preenchida com o cliente e o serviço solicitado, convertendo o
      pedido em proposta. Funções: `renderSolicitacoes`, `solicitacaoConverter`,
      `solicitacaoAtender`, `solicitacaoVerCliente`, `listaSolicitacoes`.
-9. **Notificações sonoras** — sons curtos gerados via Web Audio (sem arquivos):
-   pontuação/XP, notificações, conquistas e subida de nível. Botão 🔊/🔇 na barra
-   de topo liga/desliga (preferência salva em `localStorage` `af_som`). Objeto
-   `SOUND`; ganchos em `notify`, `colAddXP` e `colGanhaBadge`.
+9. **Notificações sonoras** — sons curtos gerados via Web Audio (sem arquivos),
+   com timbres distintos por evento: XP/pontuação, notificação, conquista, subida
+   de nível, **pagamento recebido (caixa registradora)**, **proposta/entrega
+   aprovada e proposta gerada (sucesso)**, **novo pedido de cliente** e **perda**.
+   Botão 🔊/🔇 na barra de topo liga/desliga (preferência em `localStorage`
+   `af_som`). Objeto `SOUND` (tipos: xp, notify, badge, levelup, cash, success,
+   request, lost); ganchos em `notify`, `colAddXP`, `colGanhaBadge`, `darBaixa`,
+   `cliAprovar`/`ptAprovarProposta`, `confConfirmar`, `entAprovar`, `satSave`,
+   `avalSalvar`, `depSave`, `perdaSave` e `portalSolicitarServico`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
