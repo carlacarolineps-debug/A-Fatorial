@@ -128,6 +128,16 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     financeiro, **valuation**, saúde financeira (saldo PF/PJ e mistura), funil
     comercial, **conselho do dia** (financeiro + comercial) e o progresso das
     metas. Função: `renderDono`.
+18. **Pró-labore assistido + projeção de caixa + relatório PDF**
+    - **Pró-labore** (card no Centro Financeiro → Visão geral): sugere um salário
+      fixo do dono (% da receita média da empresa), compara com as transferências
+      soltas atuais e orienta a parar a mistura. `finProLaboreCard`.
+    - **Projeção de caixa** (sub-aba 📈): próximos 6 meses cruzando receita
+      estimada + recebíveis a receber − custos fixos − pró-labore, com gráfico e
+      alerta de quando o caixa fica negativo. `finProjMeses`, `finProjecaoUI`.
+    - **Relatório executivo (PDF)** (botão na Visão do dono): documento único com
+      financeiro + comercial + valuation + projeção + recomendações, com a marca,
+      pronto para imprimir/salvar. `relatorioDono`, `relatorioPDF`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
