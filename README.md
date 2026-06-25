@@ -70,10 +70,12 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
    de nível, **pagamento recebido (caixa registradora)**, **proposta/entrega
    aprovada e proposta gerada (sucesso)**, **novo pedido de cliente** e **perda**.
    Botão 🔊/🔇 na barra de topo liga/desliga (preferência em `localStorage`
-   `af_som`). Objeto `SOUND` (tipos: xp, notify, badge, levelup, cash, success,
-   request, lost); ganchos em `notify`, `colAddXP`, `colGanhaBadge`, `darBaixa`,
-   `cliAprovar`/`ptAprovarProposta`, `confConfirmar`, `entAprovar`, `satSave`,
-   `avalSalvar`, `depSave`, `perdaSave` e `portalSolicitarServico`.
+   `af_som`) e há um **controle de volume** (slider, `af_vol`). Toca também um
+   **som de boas-vindas no login**. Objeto `SOUND` (tipos: xp, notify, badge,
+   levelup, cash, success, request, lost, welcome; `volume` 0–1); ganchos em
+   `notify`, `colAddXP`, `colGanhaBadge`, `darBaixa`, `cliAprovar`/
+   `ptAprovarProposta`, `confConfirmar`, `entAprovar`, `satSave`, `avalSalvar`,
+   `depSave`, `perdaSave`, `portalSolicitarServico` e `loginEnter`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
