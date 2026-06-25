@@ -1047,6 +1047,12 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
 .ptg-badge:not(.got){opacity:.55;filter:grayscale(.4);}
 .ptg-next{position:relative;z-index:2;margin-top:16px;font-size:12.5px;color:#aeb8c8;background:rgba(53,230,255,.06);border:1px dashed rgba(53,230,255,.25);border-radius:12px;padding:12px 15px;}
 .ptg-next b{color:var(--gold-bright);}
+/* slider de volume na barra de topo */
+.som-vol{-webkit-appearance:none;appearance:none;width:74px;height:4px;border-radius:4px;background:var(--line);outline:none;cursor:pointer;vertical-align:middle;}
+.som-vol::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold-grad);border:1px solid rgba(0,0,0,.3);box-shadow:0 0 6px -1px var(--gold);cursor:pointer;}
+.som-vol::-moz-range-thumb{width:13px;height:13px;border:none;border-radius:50%;background:#d4af5e;cursor:pointer;}
+@media(max-width:720px){ .som-vol{display:none;} }
+
 /* colaborador: chip da próxima conquista no cartão do jogador */
 .gmr-nextbadge{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#aeb8c8;background:rgba(53,230,255,.08);border:1px solid rgba(53,230,255,.22);border-radius:30px;padding:5px 12px;}
 .gmr-nextbadge b{color:var(--gold-bright);}
@@ -1169,6 +1175,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
     </div>
     <div class="who">
       <button class="notif-bell" id="som-btn" onclick="SOUND.toggle()" title="Som" aria-label="Ligar/desligar som">🔊</button>
+      <input type="range" id="som-vol" min="0" max="100" value="70" oninput="somSetVol(this.value)" onchange="SOUND.play('xp')" title="Volume" aria-label="Volume" class="som-vol">
       <button class="notif-bell" onclick="toggleNotif()" aria-label="Notificações">
         <span class="bell-ic">🔔</span>
         <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
@@ -2010,9 +2017,11 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
         // Toca efeitos curtos para XP/pontuação, notificações, conquistas e nível.
         const SOUND={
           enabled:(function(){ try{ return localStorage.getItem('af_som')!=='off'; }catch(e){ return true; } })(),
+          volume:(function(){ try{ let v=parseFloat(localStorage.getItem('af_vol')); return isNaN(v)?0.7:Math.max(0,Math.min(1,v)); }catch(e){ return 0.7; } })(),
           ctx:null,
           ensure(){ try{ if(!this.ctx){ let AC=window.AudioContext||window.webkitAudioContext; if(AC) this.ctx=new AC(); } if(this.ctx&&this.ctx.state==='suspended') this.ctx.resume(); }catch(e){ this.ctx=null; } return this.ctx; },
-          tone(freq,start,dur,type,gain){ let c=this.ctx; if(!c)return; let o=c.createOscillator(),g=c.createGain(); o.type=type||'sine'; o.frequency.value=freq; o.connect(g); g.connect(c.destination); let t=c.currentTime+start; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(gain||0.16,t+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.03); },
+          tone(freq,start,dur,type,gain){ let c=this.ctx; if(!c)return; let vol=(gain||0.16)*this.volume; if(vol<=0)return; let o=c.createOscillator(),g=c.createGain(); o.type=type||'sine'; o.frequency.value=freq; o.connect(g); g.connect(c.destination); let t=c.currentTime+start; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.start(t); o.stop(t+dur+0.03); },
+          setVolume(v){ this.volume=Math.max(0,Math.min(1,v)); try{ localStorage.setItem('af_vol', String(this.volume)); }catch(e){} },
           play(kind){
             if(!this.enabled) return; let c=this.ensure(); if(!c) return;
             if(kind==='xp'){ this.tone(660,0,0.12,'triangle',0.13); this.tone(990,0.06,0.13,'triangle',0.11); }
@@ -2023,12 +2032,18 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
             else if(kind==='success'){ /* aprovação / vitória */ [659,880,1047,1319].forEach((f,i)=>this.tone(f,i*0.07,0.26,'triangle',0.13)); }
             else if(kind==='request'){ /* novo pedido de cliente */ this.tone(784,0,0.14,'sine',0.14); this.tone(1047,0.12,0.20,'sine',0.13); }
             else if(kind==='lost'){ /* perda — leve e descendente */ this.tone(440,0,0.18,'sine',0.12); this.tone(330,0.14,0.26,'sine',0.11); }
+            else if(kind==='welcome'){ /* boas-vindas no login */ [523,659,784,1047].forEach((f,i)=>this.tone(f,i*0.10,0.34,'sine',0.12)); this.tone(1319,0.42,0.4,'triangle',0.10); }
             else if(kind==='error'){ this.tone(200,0,0.22,'square',0.12); }
             else { this.tone(880,0,0.12,'sine',0.13); }
           },
           toggle(){ this.enabled=!this.enabled; try{ localStorage.setItem('af_som', this.enabled?'on':'off'); }catch(e){} this.ensure(); if(this.enabled) this.play('notify'); atualizarSomBtn(); }
         };
-        function atualizarSomBtn(){ let b=document.getElementById('som-btn'); if(b){ b.textContent=SOUND.enabled?'🔊':'🔇'; b.title=SOUND.enabled?'Som ligado (clique para silenciar)':'Som desligado (clique para ativar)'; } }
+        function atualizarSomBtn(){
+          let b=document.getElementById('som-btn');
+          if(b){ b.textContent=SOUND.enabled?(SOUND.volume>0?'🔊':'🔈'):'🔇'; b.title=SOUND.enabled?'Som ligado (clique para silenciar)':'Som desligado (clique para ativar)'; }
+          let s=document.getElementById('som-vol'); if(s){ s.value=Math.round(SOUND.volume*100); s.disabled=!SOUND.enabled; s.style.opacity=SOUND.enabled?'1':'.4'; }
+        }
+        function somSetVol(v){ SOUND.setVolume((parseFloat(v)||0)/100); if(!SOUND.enabled){ SOUND.enabled=true; try{ localStorage.setItem('af_som','on'); }catch(e){} } atualizarSomBtn(); }
 
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
@@ -2120,6 +2135,7 @@ body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,
           AUTH.login(_loginRole, id);
           aplicarPerfil();
           document.getElementById('login-screen').classList.add('hidden');
+          if(typeof SOUND!=='undefined'){ SOUND.ensure(); setTimeout(()=>SOUND.play('welcome'),120); }
         }
         // aplica visibilidade de nav + identidade + redireciona para a primeira view permitida
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
