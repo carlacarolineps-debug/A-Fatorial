@@ -118,6 +118,16 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       **rodapé** (razão social, CNPJ, contato), com a cor da marca; o PDF sai com
       a capa em página própria. Funções: `BRAND`, `renderBrand`, `brandLogoHTML`.
     - **Atalho de teclado Alt+P** alterna o modo apresentação.
+16. **Importação CSV / qualquer banco (Cora PJ)** — além do parser Nubank, o
+    Centro Financeiro importa **CSV/planilha** de qualquer banco (Cora, Inter…),
+    por colagem ou **upload de arquivo**. Detecta delimitador, datas e sinais
+    (crédito/débito). Escolha o contexto **Empresa** para separar o PJ do pessoal.
+    Função: `finParseCSV`.
+17. **Visão do dono** (nav "Visão do dono", admin — tela inicial do admin) —
+    cockpit executivo que une, numa tela: receita projetada × realizada, resultado
+    financeiro, **valuation**, saúde financeira (saldo PF/PJ e mistura), funil
+    comercial, **conselho do dia** (financeiro + comercial) e o progresso das
+    metas. Função: `renderDono`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
