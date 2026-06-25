@@ -61,8 +61,14 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
    - **Fila de pedidos (tela de Propostas)**: todo pedido feito pelo cliente
      aparece numa fila "📥 Pedidos de clientes", com cliente, serviço, valor de
      referência, data e status (novo/atendido). Botões para **atender**, reabrir
-     e **abrir o portal** do cliente. Funções: `renderSolicitacoes`,
+     e **abrir o portal** do cliente. O botão **"➡ Atender no Funil"** abre a
+     esteira já preenchida com o cliente e o serviço solicitado, convertendo o
+     pedido em proposta. Funções: `renderSolicitacoes`, `solicitacaoConverter`,
      `solicitacaoAtender`, `solicitacaoVerCliente`, `listaSolicitacoes`.
+9. **Notificações sonoras** — sons curtos gerados via Web Audio (sem arquivos):
+   pontuação/XP, notificações, conquistas e subida de nível. Botão 🔊/🔇 na barra
+   de topo liga/desliga (preferência salva em `localStorage` `af_som`). Objeto
+   `SOUND`; ganchos em `notify`, `colAddXP` e `colGanhaBadge`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
