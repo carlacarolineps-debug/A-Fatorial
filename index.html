@@ -1129,18 +1129,36 @@ body.apresentacao #fi-tbody tr:hover{ filter:none; }
 #apr-banner{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9000;background:rgba(212,175,94,.95);color:#1a1408;font-weight:700;font-size:12.5px;padding:9px 18px;border-radius:30px;box-shadow:0 10px 30px -8px rgba(0,0,0,.5);}
 body.apresentacao #apr-banner{display:block;}
 
-/* ═══ IMPRESSÃO / PDF — só a proposta do cliente ═══ */
+/* ═══ IMPRESSÃO / PDF — isola só o alvo (proposta ou relatório) ═══ */
 @media print{
   @page{ margin:12mm; }
-  body{background:#fff !important;}
-  body > *:not(#cli-ov){ display:none !important; }
-  #cli-ov{position:static !important;display:block !important;overflow:visible !important;background:#fff !important;height:auto !important;opacity:1 !important;transform:none !important;}
-  #cli-ov .cli-wrap{overflow:visible !important;height:auto !important;max-height:none !important;}
-  .cli-bar{position:static !important;}
-  .cli-bar-acts{display:none !important;}
-  .cli-cover{min-height:auto !important;page-break-after:always;}
-  .cli-rodape{page-break-inside:avoid;}
+  body.print-cli, body.print-rel{background:#fff !important;}
+  body.print-cli > *:not(#cli-ov){ display:none !important; }
+  body.print-cli #cli-ov{position:static !important;display:block !important;overflow:visible !important;background:#fff !important;height:auto !important;opacity:1 !important;transform:none !important;}
+  body.print-cli #cli-ov .cli-wrap{overflow:visible !important;height:auto !important;max-height:none !important;}
+  body.print-cli .cli-bar{position:static !important;}
+  body.print-cli .cli-bar-acts{display:none !important;}
+  body.print-cli .cli-cover{min-height:auto !important;page-break-after:always;}
+  body.print-cli .cli-rodape{page-break-inside:avoid;}
+  body.print-rel > *:not(#rel-ov){ display:none !important; }
+  body.print-rel #rel-ov{position:static !important;display:block !important;overflow:visible !important;background:#fff !important;height:auto !important;opacity:1 !important;transform:none !important;}
+  body.print-rel #rel-ov .rel-acts{display:none !important;}
 }
+/* ═══ OVERLAY DO RELATÓRIO DO DONO ═══ */
+.rel-ov{display:none;position:fixed;inset:0;z-index:9500;background:#0b0f17;overflow:auto;}
+.rel-ov.on{display:block;}
+.rel-doc{max-width:880px;margin:0 auto;padding:40px 36px 80px;color:#e7eef7;}
+.rel-acts{position:sticky;top:0;display:flex;gap:8px;justify-content:flex-end;padding:12px 0;background:#0b0f17;}
+.rel-head{display:flex;align-items:center;gap:14px;border-bottom:2px solid var(--brand,#d4af5e);padding-bottom:18px;margin-bottom:6px;}
+.rel-head .rh-t{font-family:var(--font-display,inherit);font-weight:800;font-size:24px;color:#fff;}
+.rel-head .rh-s{font-size:12px;color:#9aa6bb;}
+.rel-sec-t{font-family:var(--font-display,inherit);font-weight:700;font-size:14px;color:var(--brand,#d4af5e);text-transform:uppercase;letter-spacing:.08em;margin:26px 0 12px;}
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.rel-kpi{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px 16px;}
+.rel-kpi .v{font-family:var(--font-display,inherit);font-weight:800;font-size:20px;color:#fff;}
+.rel-kpi .l{font-size:10.5px;color:#9aa6bb;text-transform:uppercase;letter-spacing:.05em;margin-top:5px;}
+.rel-foot{margin-top:34px;border-top:1px solid rgba(255,255,255,.12);padding-top:16px;font-size:11.5px;color:#9aa6bb;text-align:center;}
+@media print{ .rel-doc{color:#111;max-width:none;} .rel-head .rh-t,.rel-kpi .v{color:#111;} .rel-kpi{border-color:#ccc;} .rel-foot{color:#555;} }
 
 /* ═══ CAPA E RODAPÉ DA PROPOSTA (marca da empresa) ═══ */
 .cli-cover{min-height:78vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:60px 24px;border-bottom:1px solid rgba(255,255,255,.08);}
@@ -1757,6 +1775,7 @@ body.apresentacao #apr-banner{display:block;}
           <button class="on" id="finsub-geral" onclick="finSubTab('geral')">📊 Visão geral</button>
           <button id="finsub-lanc" onclick="finSubTab('lanc')">📒 Lançamentos</button>
           <button id="finsub-import" onclick="finSubTab('import')">📥 Importar extrato</button>
+          <button id="finsub-proj" onclick="finSubTab('proj')">📈 Projeção de caixa</button>
           <button id="finsub-metas" onclick="finSubTab('metas')">🎯 Metas & objetivos</button>
         </div>
         <div style="flex-grow:1;"></div>
@@ -1771,6 +1790,7 @@ body.apresentacao #apr-banner{display:block;}
       <div id="fin-geral"></div>
       <div id="fin-lanc" style="display:none;"></div>
       <div id="fin-import" style="display:none;"></div>
+      <div id="fin-proj" style="display:none;"></div>
       <div id="fin-metas" style="display:none;"></div>
     </section>
 
@@ -2138,6 +2158,8 @@ body.apresentacao #apr-banner{display:block;}
   <div class="cli-wrap" id="cli-body"></div>
 </div>
 <div id="apr-banner">🎤 Modo apresentação ativo — valores sensíveis ocultos (passe o mouse para revelar)</div>
+<!-- RELATÓRIO DO DONO (PDF) -->
+<div class="rel-ov" id="rel-ov"><div class="rel-doc" id="rel-doc"></div></div>
 <script>
         /* ============================================================
            CAMADA DE AUTENTICAÇÃO E PERFIS (simulação → backend)
@@ -2203,7 +2225,7 @@ body.apresentacao #apr-banner{display:block;}
         }
 
         // ===== EXPORTAR PROPOSTA EM PDF ===== (usa o diálogo de impressão → Salvar como PDF)
-        function cliExportarPDF(){ window.print(); }
+        function cliExportarPDF(){ document.body.classList.add('print-cli'); window.print(); setTimeout(()=>document.body.classList.remove('print-cli'),600); }
 
         // ===== IDENTIDADE DA EMPRESA (marca, cor, contato) na proposta/PDF =====
         const BRAND_DEFAULT={ nome:'A! Fatorial', razao:'A! FATORIAL SOLUÇÕES PARA EMPRESAS E FRANQUIAS LTDA', cnpj:'30.361.388/0001-17', email:'contato@afatorialsolucoes.com.br', tel:'(11) 4144-3467', site:'afatorialsolucoes.com.br', cor:'#d4af5e', logo:'' };
@@ -7356,7 +7378,7 @@ body.apresentacao #apr-banner{display:block;}
   {d:'2026-04-04',desc:"Débito em conta",v:-20.0,c:'Cartão (débito em conta)'},
   {d:'2026-04-22',desc:"A! FATORIAL SOLUCOES PARA EMPRESAS E FRANQUIAS LTDA",v:20.0,c:'Aporte empresa→PF'}
         ];
-        let FIN360={ lancamentos:[], metas:[], faturamentoAnual:526248 };
+        let FIN360={ lancamentos:[], metas:[], faturamentoAnual:526248, proLabore:0, proLaborePct:30, custosFixos:0, receitaMensalEst:0 };
         const round2=x=>Math.round((x||0)*100)/100;
         function finCatFinal(desc,v){
           let d=(desc||'').toLowerCase();
@@ -7372,10 +7394,10 @@ body.apresentacao #apr-banner{display:block;}
           if(d.includes('pix')&&v<0) return 'Pix enviado';
           return v>0?'Outras entradas':'Outros gastos';
         }
-        function finSalvar(){ try{ localStorage.setItem('af_fin', JSON.stringify({lancamentos:FIN360.lancamentos, metas:FIN360.metas, faturamentoAnual:FIN360.faturamentoAnual})); }catch(e){} }
+        function finSalvar(){ try{ localStorage.setItem('af_fin', JSON.stringify({lancamentos:FIN360.lancamentos, metas:FIN360.metas, faturamentoAnual:FIN360.faturamentoAnual, proLabore:FIN360.proLabore, proLaborePct:FIN360.proLaborePct, custosFixos:FIN360.custosFixos, receitaMensalEst:FIN360.receitaMensalEst})); }catch(e){} }
         function finInit(){
           let saved=null; try{ saved=JSON.parse(localStorage.getItem('af_fin')||'null'); }catch(e){}
-          if(saved && Array.isArray(saved.lancamentos)){ FIN360.lancamentos=saved.lancamentos; FIN360.metas=saved.metas||[]; if(saved.faturamentoAnual) FIN360.faturamentoAnual=saved.faturamentoAnual; }
+          if(saved && Array.isArray(saved.lancamentos)){ FIN360.lancamentos=saved.lancamentos; FIN360.metas=saved.metas||[]; if(saved.faturamentoAnual) FIN360.faturamentoAnual=saved.faturamentoAnual; ['proLabore','proLaborePct','custosFixos','receitaMensalEst'].forEach(k=>{ if(saved[k]!=null) FIN360[k]=saved[k]; }); }
           else { FIN360.lancamentos=FIN_SEED.map((s,i)=>({id:'f'+i, data:s.d, desc:s.desc, valor:s.v, cat:s.c, ctx:'pessoal'})); finSalvar(); }
           finPopulaMeses();
         }
@@ -7446,7 +7468,7 @@ body.apresentacao #apr-banner{display:block;}
         }
         /* === NAVEGAÇÃO DAS SUB-ABAS === */
         function finSubTab(tab){
-          ['geral','lanc','import','metas'].forEach(t=>{
+          ['geral','lanc','import','proj','metas'].forEach(t=>{
             let b=document.getElementById('finsub-'+t), p=document.getElementById('fin-'+t);
             if(b) b.classList.toggle('on', t===tab);
             if(p) p.style.display=(t===tab)?'':'none';
@@ -7458,6 +7480,7 @@ body.apresentacao #apr-banner{display:block;}
           finPopulaMeses();
           if(document.getElementById('fin-geral')) finVisaoGeral();
           if(document.getElementById('fin-lanc')) finLancamentos();
+          if(document.getElementById('fin-proj')) finProjecaoUI();
           if(document.getElementById('fin-metas')) finMetasUI();
         }
         /* === VISÃO GERAL === */
@@ -7497,8 +7520,51 @@ body.apresentacao #apr-banner{display:block;}
               <div class="c6" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h">Para onde vai o dinheiro (top categorias)</div>${barCat}</div></div>
               <div class="c6" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h">Evolução por mês (resultado)</div>${evo}</div></div>
             </div>
+            ${finProLaboreCard()}
             ${finValuationCard()}`;
         }
+        // receita média mensal da empresa (entradas no contexto empresa); fallback p/ faturamento estimado
+        function finReceitaMensalEmpresa(){
+          let porMes={};
+          FIN360.lancamentos.forEach(l=>{ if(l.ctx==='empresa' && l.valor>0){ let mk=(l.data||'').slice(0,7); porMes[mk]=(porMes[mk]||0)+l.valor; } });
+          let meses=Object.keys(porMes); if(!meses.length) return round2((FIN360.faturamentoAnual||0)/12);
+          return round2(meses.reduce((a,m)=>a+porMes[m],0)/meses.length);
+        }
+        // quanto a empresa já manda para a conta pessoal por mês (pró-labore informal)
+        function finAporteMensalPF(){
+          let porMes={};
+          FIN360.lancamentos.forEach(l=>{ if(l.cat==='Aporte empresa→PF'){ let mk=(l.data||'').slice(0,7); porMes[mk]=(porMes[mk]||0)+l.valor; } });
+          let meses=Object.keys(porMes); if(!meses.length) return 0;
+          return round2(meses.reduce((a,m)=>a+porMes[m],0)/meses.length);
+        }
+        function finProLaboreCard(){
+          let receita=finReceitaMensalEmpresa();
+          let pct=FIN360.proLaborePct||30;
+          let sugerido=round2(receita*pct/100);
+          let adotado=FIN360.proLabore||0;
+          let informal=finAporteMensalPF();
+          let dica;
+          if(adotado>0){ dica=`Você definiu um pró-labore fixo de <b>${brl(adotado)}/mês</b>. Pague sempre esse valor da conta PJ para a PF — e <b>pare</b> as transferências soltas. Isso elimina a mistura e revela o lucro real.`; }
+          else if(informal>0){ dica=`Hoje a empresa te manda em média <b>${brl(informal)}/mês</b> em transferências soltas (sem formalizar). Troque isso por um <b>pró-labore fixo</b> — sugestão: ${brl(sugerido)}.`; }
+          else { dica=`Defina um pró-labore fixo (sugestão ${brl(sugerido)}/mês = ${pct}% da receita média da empresa). Pagar um valor fixo todo mês é o que separa, de vez, empresa e pessoal.`; }
+          return `<div class="card">
+            <div class="card-h">👤 Pró-labore assistido — pare de misturar</div>
+            <p class="hint" style="margin:-8px 0 14px;">O salário fixo do dono. Em vez de transferir solto da empresa para você, defina um valor mensal — o sistema sugere com base na receita da empresa.</p>
+            <div class="kpis">
+              <div class="kpi"><div class="v">${brl(receita)}</div><div class="l">Receita média/mês (empresa)</div></div>
+              <div class="kpi"><div class="v" style="color:var(--gold-bright);">${brl(sugerido)}</div><div class="l">Pró-labore sugerido (${pct}%)</div></div>
+              <div class="kpi ${informal>0?'hot':''}"><div class="v" style="color:${informal>0?'var(--bad)':'var(--ink)'};">${brl(informal)}</div><div class="l">Transf. soltas/mês hoje</div></div>
+            </div>
+            <div class="grid" style="margin-top:6px;">
+              <div class="c4 f"><span class="lbl">% da receita p/ pró-labore</span><input type="number" class="inp" value="${pct}" onchange="finSetProLaborePct(this.value)"></div>
+              <div class="c4 f"><span class="lbl">Meu pró-labore fixo (R$/mês)</span><input type="text" inputmode="decimal" class="inp" value="${adotado?fmtMoney(adotado):''}" placeholder="${fmtMoney(sugerido)}" onblur="maskMoney(this);finSetProLabore(this.value)"></div>
+              <div class="c4 f" style="display:flex;align-items:flex-end;"><button class="btn btn-ghost btn-sm" onclick="finSetProLabore('${sugerido}')">Usar a sugestão (${brl(sugerido)})</button></div>
+            </div>
+            <div class="ptg-next" style="margin-top:6px;">💡 ${dica}</div>
+          </div>`;
+        }
+        function finSetProLaborePct(v){ FIN360.proLaborePct=Math.max(0,Math.min(100,parseFloat(v)||0)); finSalvar(); finVisaoGeral(); }
+        function finSetProLabore(v){ FIN360.proLabore=parseMoney(v)||0; finSalvar(); finVisaoGeral(); }
         function finValuationCard(){
           let fat=FIN360.faturamentoAnual||0;
           let lucro=round2(fat*0.15);
@@ -7639,6 +7705,52 @@ body.apresentacao #apr-banner{display:block;}
           finSubTab('lanc');
           alert(add+' lançamentos importados! Revise e ajuste as categorias se quiser.');
         }
+        /* === PROJEÇÃO DE FLUXO DE CAIXA === */
+        function finCustoMensalMedio(){ let pm={}; FIN360.lancamentos.forEach(l=>{ if(l.valor<0){ let mk=(l.data||'').slice(0,7); pm[mk]=(pm[mk]||0)+(-l.valor); } }); let ms=Object.keys(pm); return ms.length?round2(ms.reduce((a,m)=>a+pm[m],0)/ms.length):0; }
+        function finMesDeData(s){ if(!s)return null; let m=String(s).match(/(\d{2})\/(\d{2})\/(\d{4})/); if(m)return m[3]+'-'+m[2]; m=String(s).match(/(\d{4})-(\d{2})/); if(m)return m[1]+'-'+m[2]; return null; }
+        function finProjMeses(n){
+          n=n||6;
+          let recBase=FIN360.receitaMensalEst>0?FIN360.receitaMensalEst:finReceitaMensalEmpresa();
+          let custos=FIN360.custosFixos>0?FIN360.custosFixos:finCustoMensalMedio();
+          let pro=FIN360.proLabore||0;
+          let recebPorMes={};
+          (typeof DB!=='undefined'&&DB.recebiveis?DB.recebiveis:[]).forEach(r=>(r.parcelas||[]).forEach(p=>{ if(!p.pago){ let mk=finMesDeData(p.venc); if(mk) recebPorMes[mk]=(recebPorMes[mk]||0)+(p.valor||0); } }));
+          let saldo=finResumo(FIN360.lancamentos).saldo;
+          let hoje=new Date(), out=[];
+          for(let i=0;i<n;i++){ let d=new Date(hoje.getFullYear(),hoje.getMonth()+i,1); let mk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+            let ent=round2(recBase+(recebPorMes[mk]||0)); let sai=round2(custos+pro); let res=round2(ent-sai); saldo=round2(saldo+res);
+            out.push({mk, label:d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}), ent, sai, res, saldo}); }
+          return {linhas:out, recBase, custos, pro};
+        }
+        function finProjecaoUI(){
+          let box=document.getElementById('fin-proj'); if(!box)return;
+          let pj=finProjMeses(6), L=pj.linhas;
+          let negativo=L.find(x=>x.saldo<0);
+          let maxAbs=Math.max(1,...L.map(x=>Math.abs(x.saldo)));
+          let chart=`<div style="display:flex;gap:10px;align-items:flex-end;height:130px;margin-top:6px;">${L.map(x=>{let h=Math.round(Math.abs(x.saldo)/maxAbs*100);let pos=x.saldo>=0;return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;height:100%;"><div style="font-size:10px;color:${pos?'var(--ok)':'var(--bad)'};margin-bottom:3px;">${brl(x.saldo).replace('R$ ','')}</div><div style="height:${h}%;min-height:3px;border-radius:5px 5px 0 0;background:${pos?'var(--ok)':'var(--bad)'};opacity:.85;"></div><div style="font-size:10px;color:var(--ink-faint);margin-top:5px;">${x.label}</div></div>`;}).join('')}</div>`;
+          let rows=L.map(x=>`<tr><td>${x.label}</td><td style="text-align:right;color:var(--ok);">${brl(x.ent)}</td><td style="text-align:right;color:var(--bad);">${brl(x.sai)}</td><td style="text-align:right;font-weight:600;color:${x.res>=0?'var(--ok)':'var(--bad)'};">${brl(x.res)}</td><td style="text-align:right;font-weight:700;color:${x.saldo>=0?'var(--ink)':'var(--bad)'};">${brl(x.saldo)}</td></tr>`).join('');
+          let insight = negativo
+            ? `<div class="ptg-next" style="border-color:rgba(255,93,108,.4);background:rgba(255,93,108,.06);">⚠ <b>Atenção:</b> mantido este ritmo, seu caixa fica <b>negativo em ${negativo.label}</b> (${brl(negativo.saldo)}). Aumente entradas (feche propostas em aberto), reduza custos fixos ou ajuste o pró-labore.</div>`
+            : `<div class="ptg-next">✓ Projeção saudável: o caixa se mantém positivo nos próximos 6 meses. Sobra média de <b>${brl(round2(L.reduce((a,x)=>a+x.res,0)/L.length))}/mês</b> — direcione para reserva e metas.</div>`;
+          box.innerHTML=`
+            <div class="card">
+              <div class="card-h">📈 Premissas da projeção</div>
+              <p class="hint" style="margin:-8px 0 12px;">Ajuste os números-base. A projeção cruza estas premissas com os <b>recebíveis a receber</b> já lançados (do Fluxo de caixa).</p>
+              <div class="grid">
+                <div class="c4 f"><span class="lbl">Receita mensal estimada (R$)</span><input type="text" inputmode="decimal" class="inp" value="${fmtMoney(pj.recBase)}" onblur="maskMoney(this);finSetProj('receitaMensalEst',this.value)"></div>
+                <div class="c4 f"><span class="lbl">Custos fixos mensais (R$)</span><input type="text" inputmode="decimal" class="inp" value="${fmtMoney(pj.custos)}" onblur="maskMoney(this);finSetProj('custosFixos',this.value)"></div>
+                <div class="c4 f"><span class="lbl">Pró-labore (R$/mês)</span><input type="text" inputmode="decimal" class="inp" value="${fmtMoney(pj.pro)}" onblur="maskMoney(this);finSetProj('proLabore',this.value)"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-h">Saldo de caixa projetado — próximos 6 meses</div>
+              ${chart}
+              <table class="tbl" style="margin-top:14px;"><thead><tr><th>Mês</th><th style="text-align:right;">Entradas</th><th style="text-align:right;">Saídas</th><th style="text-align:right;">Resultado</th><th style="text-align:right;">Saldo acum.</th></tr></thead><tbody>${rows}</tbody></table>
+              ${insight}
+            </div>`;
+        }
+        function finSetProj(campo,v){ FIN360[campo]=parseMoney(v)||0; finSalvar(); finProjecaoUI(); }
+
         /* === METAS & OBJETIVOS === */
         function finMetasUI(){
           let box=document.getElementById('fin-metas'); if(!box)return;
@@ -7693,6 +7805,7 @@ body.apresentacao #apr-banner{display:block;}
           let metasFin=(typeof FIN360!=='undefined'?FIN360.metas:[]).slice(0,3).map(m=>{ let pct=m.alvo>0?Math.min(100,Math.round((m.atual||0)/m.alvo*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>🎯 ${m.nome}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div></div>`; }).join('');
           let metasVen=(typeof PLANO!=='undefined'?PLANO.metas:[]).slice(0,4).map(m=>{ let p=planoMetaProj(m),rl=planoMetaReal(m),pct=p>0?Math.min(100,Math.round(rl/p*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>💼 ${m.servico}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#35e6ff,#0bb6d6);"></div></div></div>`; }).join('');
           box.innerHTML=`
+            <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn btn-gold btn-sm" onclick="relatorioDono()">📄 Relatório executivo (PDF)</button></div>
             <div class="kpis">
               <div class="kpi"><div class="v" style="color:var(--gold-bright);">${brl(proj)}</div><div class="l">Receita projetada (metas)</div></div>
               <div class="kpi"><div class="v" style="color:var(--ok);">${brl(real)}</div><div class="l">Vendas realizadas</div></div>
@@ -7728,6 +7841,55 @@ body.apresentacao #apr-banner{display:block;}
               <div class="c6" style="margin:0;"><div class="card" style="margin:0;"><div class="card-h">Metas de venda</div>${metasVen||'<div style="color:var(--ink-faint);font-size:13px;">Crie metas no Planejamento.</div>'}</div></div>
             </div>`;
         }
+
+        /* ===== RELATÓRIO EXECUTIVO DO DONO (PDF) ===== */
+        function relatorioDono(){
+          let doc=document.getElementById('rel-doc'); if(!doc)return;
+          let r=finResumo(FIN360.lancamentos);
+          let saldoPF=round2(r.porCtx.pessoal||0), saldoEmp=round2(r.porCtx.empresa||0);
+          let fat=FIN360.faturamentoAnual||0, vMin=round2(fat*0.8), vMax=round2(fat*1.5);
+          let proj=0,real=0,abertos=0,fech=0; PLANO.metas.forEach(m=>{proj+=planoMetaProj(m);real+=planoMetaReal(m);fech+=planoMetaFechados(m);(m.clientes||[]).forEach(c=>{if(c.status==='ofereci'||c.status==='negociando')abertos++;});});
+          let pctv=proj>0?Math.round(real/proj*100):0;
+          let gastos=Object.entries(r.porCat).filter(e=>e[1]<0).sort((a,b)=>a[1]-b[1]).slice(0,5);
+          let catRows=gastos.map(e=>`<tr><td>${e[0]}</td><td style="text-align:right;">${brl(-e[1])}</td></tr>`).join('')||'<tr><td>—</td><td></td></tr>';
+          let cons=finConselho(FIN360.lancamentos,r).slice(0,2).concat(planoConselho().slice(0,2)).map(a=>`<li style="margin-bottom:6px;">${a.t}</li>`).join('');
+          let projRows=finProjMeses(6).linhas.map(x=>`<tr><td>${x.label}</td><td style="text-align:right;">${brl(x.ent)}</td><td style="text-align:right;">${brl(x.sai)}</td><td style="text-align:right;font-weight:600;">${brl(x.saldo)}</td></tr>`).join('');
+          doc.innerHTML=`
+            <div class="rel-acts">
+              <button class="btn btn-gold btn-sm" onclick="relatorioPDF()">⤓ Baixar PDF</button>
+              <button class="btn btn-ghost btn-sm" onclick="relatorioFechar()">✕ Fechar</button>
+            </div>
+            <div class="rel-head">${brandLogoHTML(46)}<div><div class="rh-t">Relatório executivo — ${BRAND.nome}</div><div class="rh-s">Gerado em ${new Date().toLocaleDateString('pt-BR')}</div></div></div>
+            <div class="rel-sec-t">Resumo financeiro</div>
+            <div class="rel-grid">
+              <div class="rel-kpi"><div class="v">${brl(r.ent)}</div><div class="l">Entradas</div></div>
+              <div class="rel-kpi"><div class="v">${brl(r.sai)}</div><div class="l">Saídas</div></div>
+              <div class="rel-kpi"><div class="v">${brl(r.saldo)}</div><div class="l">Resultado</div></div>
+              <div class="rel-kpi"><div class="v">${brl(saldoPF)}</div><div class="l">Saldo pessoal</div></div>
+              <div class="rel-kpi"><div class="v">${brl(saldoEmp)}</div><div class="l">Saldo empresa</div></div>
+              <div class="rel-kpi"><div class="v">${brl(r.mistura)}</div><div class="l">Mistura PF↔PJ</div></div>
+            </div>
+            <div class="rel-sec-t">Maiores gastos</div>
+            <table class="tbl"><tbody>${catRows}</tbody></table>
+            <div class="rel-sec-t">Comercial</div>
+            <div class="rel-grid">
+              <div class="rel-kpi"><div class="v">${brl(proj)}</div><div class="l">Projeção</div></div>
+              <div class="rel-kpi"><div class="v">${brl(real)}</div><div class="l">Realizado</div></div>
+              <div class="rel-kpi"><div class="v">${pctv}%</div><div class="l">Atingido</div></div>
+              <div class="rel-kpi"><div class="v">${fech}</div><div class="l">Fechamentos</div></div>
+              <div class="rel-kpi"><div class="v">${abertos}</div><div class="l">Em aberto</div></div>
+            </div>
+            <div class="rel-sec-t">Valuation</div>
+            <div class="rel-grid"><div class="rel-kpi"><div class="v">${brl(fat)}</div><div class="l">Faturamento/ano</div></div><div class="rel-kpi"><div class="v" style="font-size:16px;">${brl(vMin)} a ${brl(vMax)}</div><div class="l">Quanto vale</div></div></div>
+            <div class="rel-sec-t">Projeção de caixa (6 meses)</div>
+            <table class="tbl"><thead><tr><th>Mês</th><th style="text-align:right;">Entradas</th><th style="text-align:right;">Saídas</th><th style="text-align:right;">Saldo</th></tr></thead><tbody>${projRows}</tbody></table>
+            <div class="rel-sec-t">Recomendações do sistema</div>
+            <ul style="font-size:13px;line-height:1.6;padding-left:18px;">${cons}</ul>
+            <div class="rel-foot">${BRAND.razao} · CNPJ ${BRAND.cnpj} · ${[BRAND.tel,BRAND.email,BRAND.site].filter(Boolean).join(' · ')}</div>`;
+          let ov=document.getElementById('rel-ov'); ov.style.setProperty('--brand',BRAND.cor||'#d4af5e'); ov.classList.add('on');
+        }
+        function relatorioPDF(){ document.body.classList.add('print-rel'); window.print(); setTimeout(()=>document.body.classList.remove('print-rel'),600); }
+        function relatorioFechar(){ document.getElementById('rel-ov').classList.remove('on'); }
 
         /* ===== INIT ===== */
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
