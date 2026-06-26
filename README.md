@@ -160,6 +160,19 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       **realizado calculado automaticamente** dos lançamentos (entradas de receita,
       excluindo transferências/aportes). `planoTrimestreCard`,
       `finReceitaRealTrimestre`.
+21. **Simulador de futuro + backup + conciliação + meta do colaborador**
+    - **Simulador de futuro** (nav própria): calculadora de premissas (receita,
+      crescimento %/ano, custos fixos, custo variável %, pró-labore, rendimento
+      %/mês) projetando **6m, 1, 2, 5 e 10 anos** — quanto sobra/falta, caixa
+      acumulado, patrimônio investindo a sobra (juros compostos), **contas a
+      reduzir** e **movimentos estratégicos**. `renderFuturo`, `futuroSerie`.
+    - **Backup/Restauração** (Equipe e acessos): exporta/importa todo o sistema
+      (financeiro, plano, permissões, usuários, marca) num `.json`.
+      `backupExportar`, `backupImportar`.
+    - **Conciliação**: vincula um lançamento a um cliente (proposta/plano).
+      `finConciliar`.
+    - **Meta de vendas do colaborador**: cada colaborador define e acompanha a
+      própria meta na tela de Propostas. `renderColMeta`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
