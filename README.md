@@ -181,6 +181,18 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - **Assistente de decisão** (Simulador): descreva uma decisão (custo/receita
       recorrente ou única) e veja o impacto no caixa de 6 meses a 5 anos, com
       veredito. `assistenteDecidir`.
+23. **Budget, histórico de decisões, cenários personalizáveis e resumo em texto**
+    - **Plano de budget** (Centro Financeiro → sub-aba 💰 Budget): orçamento anual
+      por frente (investimentos, eventos, treinamentos, projetos, inovações,
+      custos); o **realizado é puxado automaticamente** dos lançamentos pelas
+      categorias, com %, projeção do ano e status (dentro/estourou). Diz se você
+      está seguindo o plano. `finBudgetUI`, `finBudgetRealizado`.
+    - **Histórico de decisões** salvas no assistente, com impacto em 5 anos lado a
+      lado. `decisaoSalvar`.
+    - **Cenários personalizáveis**: você define os % de receita/crescimento/custo
+      de cada cenário. `finSetCenario`.
+    - **Resumo em linguagem natural** (Visão do dono): um parágrafo que lê seus
+      números e explica a situação e a prioridade. `resumoNatural`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
