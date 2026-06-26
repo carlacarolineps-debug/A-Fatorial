@@ -201,6 +201,27 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       mensal realizada (anualizada). `finBudgetSugerir`/`finBudgetMediaMensal`.
     - **Comparar decisões**: o histórico recalcula o impacto em 1/5/10 anos e
       mostra um gráfico de qual decisão rende mais. `decImpacto`.
+25. **Fluxos que funcionam de verdade e direcionam (esteira, colaborador, cliente)**
+    Resposta ao feedback "não quero ficar perdida": cada ação agora leva a pessoa
+    para o lugar certo, com aviso visual (toast) do que aconteceu e do próximo passo.
+    - **Missão leva à ação**: ao aceitar (ou clicar "▶ Fazer agora" numa missão
+      ativa), o sistema navega direto para a tela onde a missão é feita — DISC,
+      traços, dossiê, objetivos, PDI, competências, trilha. `MISSOES_LIB.ir`,
+      `colAceitarMissao`, `colMissaoIr`, `COL_IR_LABEL`.
+    - **Próximos passos clicáveis**: no painel do colaborador, cada etapa da jornada
+      e cada "próximo passo sugerido" é um botão que abre a tela certa. Inclui
+      atalho **"Editar meu perfil"** (foto/apelido) → `meuPerfilAbrir`.
+    - **Documentos do cliente que abrem de verdade + campo de link/anexo**: novo
+      visualizador de documento (`m-doc`) com **campo para incluir o link** do
+      arquivo (Drive/PDF) e **anexar arquivo**. Os documentos padrão (Contrato
+      social, Cartão CNPJ, RG/CPF, Comprovante, proposta, contrato, entregáveis)
+      abrem para visualizar/aprovar; as pendências do portal abrem o documento
+      antes de aprovar/assinar. `docAbrir`, `docAbrirPadrao`, `docConfirmarPadrao`,
+      `docViewerHTML`, `ptVerDoc`, `DOC_PADRAO`.
+    - **Feedback guiado**: `toast()` mostra "o que aconteceu / para onde você foi".
+    - **Layout que respeita o card**: `.grid>*{min-width:0}` + quebra de palavra
+      evitam sobreposição; breakpoints (1024px/680px) empilham os cards no tablet e
+      no celular em vez de espremer.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
@@ -225,3 +246,10 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
 - **Usuários / acessos**: `ADMIN_USER`, `normalizaUsuarios`, `salvarUsuarios`,
   `renderUsuarios`, `usuarioSalvar`, `colaboradorNovo` (persistência em
   `localStorage` chave `af_usuarios`; em produção, isso vai para o backend).
+- **Documentos do cliente (visualizar + link/anexo)**: modal `m-doc`, `docAbrir`,
+  `docAbrirPadrao`, `docRender`, `docViewerHTML`, `docSalvarLink`, `docAnexar`,
+  `docConfirmarPadrao`, `ptVerDoc`, `DOC_PADRAO`. Em produção, o upload de arquivo
+  (`docAnexar` lê como dataURL) deve ir para storage do backend.
+- **Missões que direcionam**: `MISSOES_LIB` (campo `ir`), `COL_IR_LABEL`,
+  `colAceitarMissao`, `colMissaoIr`.
+- **Feedback guiado / toasts**: `toast()` + bloco CSS `TOAST / FEEDBACK GUIADO`.

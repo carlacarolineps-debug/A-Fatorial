@@ -75,6 +75,22 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Hel
 .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-bottom:18px;}
 .c2{grid-column:span 2;}.c3{grid-column:span 3;}.c4{grid-column:span 4;}.c5{grid-column:span 5;}
 .c6{grid-column:span 6;}.c7{grid-column:span 7;}.c8{grid-column:span 8;}.c12{grid-column:span 12;}
+/* respeito ao espaço dos cards: impede que conteúdo "vaze" e sobreponha o card vizinho */
+.grid>*{min-width:0;}
+.card,.col-card,.kpi{overflow-wrap:break-word;word-break:break-word;}
+/* tablet: colunas estreitas (1/3 e 2/3) ganham mais espaço para não amontoar */
+@media(max-width:1024px){
+  .c3{grid-column:span 6;}
+  .c4{grid-column:span 6;}
+  .c8{grid-column:span 12;}
+}
+/* celular: cada card ocupa a linha inteira, nada fica espremido */
+@media(max-width:680px){
+  .grid{gap:12px;}
+  .c2,.c3,.c4,.c5,.c6,.c7,.c8{grid-column:span 12;}
+  .card{padding:18px;}
+  .col-card{padding:18px 16px;}
+}
 .f{display:flex;flex-direction:column;gap:6px;}
 .lbl{font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.2px;}
 .hint{font-size:10px;color:var(--ink-faint);}
@@ -193,6 +209,23 @@ select.inp{cursor:pointer;}
 .star{font-size:38px;color:var(--line);cursor:pointer;transition:.15s;line-height:1;}
 .star:hover,.star.on{color:var(--gold);transform:scale(1.12);}
 .modal-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+
+/* ============ TOAST / FEEDBACK GUIADO ============ */
+#toast-wrap{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;max-width:92vw;}
+.toast{pointer-events:auto;background:#15171f;color:#fff;border:1px solid rgba(255,255,255,.12);border-left:4px solid var(--gold,#d4af5e);border-radius:12px;padding:12px 16px;font-size:13.5px;line-height:1.4;box-shadow:0 18px 40px -16px rgba(0,0,0,.7);display:flex;align-items:center;gap:10px;max-width:440px;animation:toastIn .28s cubic-bezier(.2,.8,.3,1);}
+.toast.ok{border-left-color:#2ee6a0;} .toast.warn{border-left-color:#ffb454;} .toast.info{border-left-color:#35bdf3;}
+.toast .tic{font-size:18px;flex-shrink:0;}
+.toast b{color:#fff;}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.toast.out{animation:toastOut .3s ease forwards;}
+@keyframes toastOut{to{opacity:0;transform:translateY(10px);}}
+
+/* ============ VISUALIZADOR DE DOCUMENTO ============ */
+#m-doc{z-index:10000;} /* acima do overlay do cliente (cli-ov: 9999) */
+.doc-view-box{margin-top:14px;border:1px dashed var(--line,#2a2e3a);border-radius:12px;min-height:160px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;background:rgba(255,255,255,.02);}
+.doc-frame{width:100%;height:380px;border:1px solid var(--line,#2a2e3a);border-radius:12px;background:#fff;}
+.doc-attach-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+.doc-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:rgba(53,189,243,.12);color:#35bdf3;border-radius:20px;padding:4px 10px;}
 
 /* ============ CLIENT OVERLAY (proposta) ============ */
 .cli-ov{display:none;position:fixed;inset:0;z-index:9999;background:#0b0b0e;overflow-y:auto;}
@@ -2085,6 +2118,18 @@ body.apresentacao #apr-banner{display:block;}
   </div>
 </div>
 
+<div id="toast-wrap"></div>
+
+<div class="modal" id="m-doc">
+  <div class="modal-card" style="max-width:620px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+      <div style="min-width:0;"><h3 id="doc-title" style="word-break:break-word;">Documento</h3><div id="doc-sub" class="ms" style="margin:2px 0 0;"></div></div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('m-doc').classList.remove('on')">✕</button>
+    </div>
+    <div id="doc-body"></div>
+  </div>
+</div>
+
 <div class="modal" id="m-aval">
   <div class="modal-card">
     <h3>Avaliar e deixar depoimento</h3>
@@ -2260,6 +2305,15 @@ body.apresentacao #apr-banner{display:block;}
         function brandCarregar(){ try{ let b=JSON.parse(localStorage.getItem('af_brand')||'null'); if(b) BRAND=Object.assign({}, BRAND_DEFAULT, b); }catch(e){} }
         function brandSalvar(){ try{ localStorage.setItem('af_brand', JSON.stringify(BRAND)); }catch(e){} }
         function brandLogoHTML(size){ size=size||44; return BRAND.logo?`<img src="${BRAND.logo}" alt="logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;">`:`<div class="mark" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.42)}px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;">A!</div>`; }
+        // feedback guiado: avisa o que aconteceu e para onde a pessoa foi levada
+        function toast(msg, tipo, ms){
+          let w=document.getElementById('toast-wrap'); if(!w)return;
+          let ic={ok:'✓',warn:'⚠',info:'➜'}[tipo]||'✓';
+          let el=document.createElement('div'); el.className='toast '+(tipo||'ok');
+          el.innerHTML=`<span class="tic">${ic}</span><div>${msg}</div>`;
+          w.appendChild(el);
+          setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),320); }, ms||3200);
+        }
         function brandSet(campo,val){ BRAND[campo]=val; brandSalvar(); renderBrand(); }
         function renderBrand(){
           let box=document.getElementById('brand-body'); if(!box)return;
@@ -4253,7 +4307,7 @@ body.apresentacao #apr-banner{display:block;}
               <p class="cli-lead" style="max-width:600px;">Seu portal exclusivo já está liberado. Falta um último passo para liberar o acesso completo: enviar os documentos abaixo. Assim preparamos seu contrato e iniciamos com tudo certo.</p>
               <div class="cli-docs">
                 <div style="font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;">Documentos para liberar o acesso completo</div>
-                ${DOCS_NECESSARIOS.map(dn=>`<div class="cli-doc-item"><span class="dn">${dn}</span>${enviados[dn]?`<span class="cli-doc-ok">✓ Enviado (${enviados[dn]})</span>`:`<button class="cli-doc-up" onclick="cliEnviarDoc('${dn.replace(/'/g,"")}')">Anexar</button>`}</div>`).join('')}
+                ${DOCS_NECESSARIOS.map(dn=>`<div class="cli-doc-item"><span class="dn">${dn}</span>${enviados[dn]?`<span style="display:flex;gap:8px;align-items:center;"><span class="cli-doc-ok">✓ Enviado (${enviados[dn]})</span><button class="cli-doc-up" style="opacity:.8;" onclick="docAbrirPadrao('${dn.replace(/'/g,"")}')">ver / editar</button></span>`:`<button class="cli-doc-up" onclick="docAbrirPadrao('${dn.replace(/'/g,"")}')">📎 Incluir link/anexo</button>`}</div>`).join('')}
                 <div style="margin-top:26px;text-align:center;">
                   ${todosOk
                     ? `<button class="cli-approve" onclick="cliFinalizarDocs()">Liberar meu acesso completo ✓</button>`
@@ -4698,11 +4752,11 @@ body.apresentacao #apr-banner{display:block;}
           let nivel=colNivel(c.gam.xp), pct=colXPpct(c.gam.xp);
           // progresso de preenchimento
           let etapas=[
-            ['Dossiê "Quem sou eu"', colDossieCompleto(c)],
-            ['Regras aceitas', c.regras.aceito],
-            ['Trilha do 1º dia', c.trilha.length>0 && c.trilha.every(t=>t.ok)],
-            ['DISC', !!c.disc],['Traços de caráter', !!c.tracos],['PDA', !!c.pda],['Cultura', !!c.cultura],
-            ['Tem objetivo definido', c.objetivos.length>0]
+            ['Dossiê "Quem sou eu"', colDossieCompleto(c), 'quemsoeu'],
+            ['Regras aceitas', c.regras.aceito, 'regras'],
+            ['Trilha do 1º dia', c.trilha.length>0 && c.trilha.every(t=>t.ok), 'trilha'],
+            ['DISC', !!c.disc, 'disc'],['Traços de caráter', !!c.tracos, 'tracos'],['PDA', !!c.pda, 'pda'],['Cultura', !!c.cultura, 'cultura'],
+            ['Tem objetivo definido', c.objetivos.length>0, 'objetivos']
           ];
           let feitas=etapas.filter(e=>e[1]).length, totalE=etapas.length;
           let admDias=Math.max(0,Math.floor((Date.now()-new Date(c.admissao+'T00:00').getTime())/86400000));
@@ -4722,7 +4776,7 @@ body.apresentacao #apr-banner{display:block;}
                   <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span>${feitas} de ${totalE} etapas</span><span style="color:var(--gold-deep);font-weight:700;">${Math.round(feitas/totalE*100)}%</span></div>
                   <div class="obj-prog" style="margin:0 0 16px;"><div style="width:${Math.round(feitas/totalE*100)}%;"></div></div>
                   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;">
-                    ${etapas.map(e=>`<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:${e[1]?'var(--ink)':'var(--ink-soft)'};"><span style="width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;background:${e[1]?'var(--ok)':'var(--line)'};color:${e[1]?'#fff':'var(--ink-faint)'};">${e[1]?'✓':''}</span>${e[0]}</div>`).join('')}
+                    ${etapas.map(e=>`<div onclick="colIr('${e[2]}')" title="${e[1]?'Concluído — clique para revisar':'Clique para fazer agora'}" style="display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer;padding:6px 8px;border-radius:8px;border:1px solid var(--line-soft,rgba(255,255,255,.06));color:${e[1]?'var(--ink)':'var(--ink-soft)'};min-width:0;"><span style="width:18px;height:18px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:11px;background:${e[1]?'var(--ok)':'var(--line)'};color:${e[1]?'#fff':'var(--ink-faint)'};">${e[1]?'✓':''}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e[0]}</span>${e[1]?'':'<span style="margin-left:auto;color:var(--gold-deep);flex-shrink:0;">→</span>'}</div>`).join('')}
                   </div>
                 </div>
               </div>
@@ -4734,7 +4788,12 @@ body.apresentacao #apr-banner{display:block;}
             </div>
             <div class="col-card">
               <div class="col-card-h">Próximos passos sugeridos</div>
-              ${(function(){let next=etapas.filter(e=>!e[1]).slice(0,3); if(next.length===0)return '<div style="color:var(--ok);font-size:13px;">✓ Tudo em dia! Continue crescendo.</div>'; return next.map(e=>`<div style="padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;">→ ${e[0]}</div>`).join('');})()}
+              <p style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Clique em um passo e o sistema te leva direto para a tela certa.</p>
+              ${(function(){let next=etapas.filter(e=>!e[1]).slice(0,3); if(next.length===0)return '<div style="color:var(--ok);font-size:13px;">✓ Tudo em dia! Continue crescendo.</div>'; return next.map((e,i)=>`<div onclick="colIr('${e[2]}')" style="display:flex;align-items:center;gap:10px;padding:11px 12px;margin-bottom:8px;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;font-size:13px;cursor:pointer;min-width:0;"><span style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:var(--gold);color:#1a1a1a;font-weight:700;font-size:12px;">${i+1}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e[0]}</span><button class="btn btn-gold btn-sm" style="flex-shrink:0;" onclick="event.stopPropagation();colIr('${e[2]}')">Fazer →</button></div>`).join('');})()}
+              <div style="margin-top:6px;border-top:1px solid var(--line-soft);padding-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <span style="font-size:12px;color:var(--ink-soft);">Quer ajustar sua foto e apelido?</span>
+                ${(AUTH.user&&AUTH.user.papel==='colaborador'&&AUTH.user.id===c.id)?`<button class="btn btn-ghost btn-sm" onclick="meuPerfilAbrir()">✎ Editar meu perfil</button>`:`<button class="btn btn-ghost btn-sm" onclick="colIr('quemsoeu')">✎ Editar dossiê</button>`}
+              </div>
             </div>
             ${colSinteseHTML(c)}`;
         }
@@ -5650,16 +5709,18 @@ body.apresentacao #apr-banner{display:block;}
         /* ===================== MISSÕES & QUESTS ===================== */
         // biblioteca de missões sugeridas automaticamente (por lacuna/perfil/etapa)
         const MISSOES_LIB=[
-          {cond:c=>!colDossieCompleto(c), titulo:'Complete seu perfil de personagem', desc:'Preencha todo o dossiê "Quem sou eu" para o time te conhecer.', xp:40, dias:7},
-          {cond:c=>!c.disc, titulo:'Faça o scan DISC', desc:'Descubra seu perfil comportamental no teste DISC.', xp:30, dias:7},
-          {cond:c=>!c.tracos, titulo:'Revele sua classe (Traços)', desc:'Complete o mapa de Traços de caráter e descubra sua classe.', xp:50, dias:10},
-          {cond:c=>!c.pda, titulo:'Mapeie sua energia (PDA)', desc:'Faça o teste PDA de energia comportamental.', xp:30, dias:10},
-          {cond:c=>!c.cultura, titulo:'Meça seu fit cultural', desc:'Responda o questionário de cultura.', xp:30, dias:10},
-          {cond:c=>(c.objetivos||[]).length===0, titulo:'Defina seu primeiro sonho', desc:'Crie um objetivo em Objetivos & metas e comece o plano.', xp:40, dias:14},
-          {cond:c=>(c.pdi||[]).length===0, titulo:'Monte seu plano de desenvolvimento', desc:'Gere seu PDI inteligente e escolha uma competência para evoluir.', xp:40, dias:14},
-          {cond:c=>{let comps=c.competencias?Object.values(c.competencias):[];return comps.some(v=>v<3);}, titulo:'Suba uma competência de nível', desc:'Evolua qualquer competência para nível 3+ na skill tree.', xp:50, dias:21},
-          {cond:c=>!c.trilha||!c.trilha.every(t=>t.ok), titulo:'Conclua a trilha do 1º dia', desc:'Finalize todas as tarefas da trilha de integração.', xp:60, dias:7}
+          {cond:c=>!colDossieCompleto(c), titulo:'Complete seu perfil de personagem', desc:'Preencha todo o dossiê "Quem sou eu" para o time te conhecer.', xp:40, dias:7, ir:'quemsoeu'},
+          {cond:c=>!c.disc, titulo:'Faça o scan DISC', desc:'Descubra seu perfil comportamental no teste DISC.', xp:30, dias:7, ir:'disc'},
+          {cond:c=>!c.tracos, titulo:'Revele sua classe (Traços)', desc:'Complete o mapa de Traços de caráter e descubra sua classe.', xp:50, dias:10, ir:'tracos'},
+          {cond:c=>!c.pda, titulo:'Mapeie sua energia (PDA)', desc:'Faça o teste PDA de energia comportamental.', xp:30, dias:10, ir:'pda'},
+          {cond:c=>!c.cultura, titulo:'Meça seu fit cultural', desc:'Responda o questionário de cultura.', xp:30, dias:10, ir:'cultura'},
+          {cond:c=>(c.objetivos||[]).length===0, titulo:'Defina seu primeiro sonho', desc:'Crie um objetivo em Objetivos & metas e comece o plano.', xp:40, dias:14, ir:'objetivos'},
+          {cond:c=>(c.pdi||[]).length===0, titulo:'Monte seu plano de desenvolvimento', desc:'Gere seu PDI inteligente e escolha uma competência para evoluir.', xp:40, dias:14, ir:'pdi'},
+          {cond:c=>{let comps=c.competencias?Object.values(c.competencias):[];return comps.some(v=>v<3);}, titulo:'Suba uma competência de nível', desc:'Evolua qualquer competência para nível 3+ na skill tree.', xp:50, dias:21, ir:'competencias'},
+          {cond:c=>!c.trilha||!c.trilha.every(t=>t.ok), titulo:'Conclua a trilha do 1º dia', desc:'Finalize todas as tarefas da trilha de integração.', xp:60, dias:7, ir:'trilha'}
         ];
+        // rótulos das telas de ação (para botões "Fazer agora")
+        const COL_IR_LABEL={quemsoeu:'preencher o perfil',disc:'fazer o DISC',tracos:'mapear os traços',pda:'fazer o PDA',cultura:'medir o fit',objetivos:'criar o objetivo',pdi:'montar o PDI',competencias:'evoluir a competência',trilha:'fazer a trilha'};
         function colMissoesSugeridas(c){
           let jaTem=new Set((c.missoes||[]).map(m=>m.titulo));
           return MISSOES_LIB.filter(m=>m.cond(c)&&!jaTem.has(m.titulo)).slice(0,4);
@@ -5692,8 +5753,9 @@ body.apresentacao #apr-banner{display:block;}
               ${m.status==='ativa'?`<div class="obj-prog" style="margin:12px 0 6px;"><div style="width:${m.progresso||0}%;"></div></div>
                 <div class="obj-meta"><span>${vencTxt}</span><span>${m.progresso||0}%</span></div>
                 <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                  ${m.ir?`<button class="btn btn-gold btn-sm" onclick="colMissaoIr('${m.id}')">▶ Fazer agora</button>`:''}
                   <button class="btn btn-ghost btn-sm" onclick="colMissaoProgresso('${m.id}')">Atualizar progresso</button>
-                  <button class="btn btn-gold btn-sm" onclick="colMissaoConcluir('${m.id}')">Concluir missão</button>
+                  <button class="btn ${m.ir?'btn-ghost':'btn-gold'} btn-sm" onclick="colMissaoConcluir('${m.id}')">Concluir</button>
                 </div>`:`<div style="margin-top:8px;font-size:11px;color:var(--gmr-ink-soft);">${vencTxt}</div>`}
             </div>`;
           };
@@ -5722,10 +5784,24 @@ body.apresentacao #apr-banner{display:block;}
           let lib=MISSOES_LIB.find(m=>m.titulo===titulo); if(!lib)return;
           let prazo=new Date(Date.now()+lib.dias*86400000).toISOString().slice(0,10);
           c.missoes=c.missoes||[];
-          c.missoes.unshift({id:'m_'+Date.now(),titulo:lib.titulo,desc:lib.desc,xp:lib.xp,prazo,status:'ativa',origem:'sistema',progresso:0});
+          let mid='m_'+Date.now();
+          c.missoes.unshift({id:mid,titulo:lib.titulo,desc:lib.desc,xp:lib.xp,prazo,status:'ativa',origem:'sistema',progresso:0,ir:lib.ir||null});
           if(!c.gam.badges.includes('missao')) colGanhaBadge(c,'missao');
           colTimelineAdd(c,'missao','Missão aceita',lib.titulo);
-          colIr('missoes');
+          // leva o colaborador direto para onde a missão é feita
+          if(lib.ir && colAbaLiberada(c,lib.ir)){
+            toast('Missão aceita! Vamos <b>'+(COL_IR_LABEL[lib.ir]||'fazer agora')+'</b> →');
+            colIr(lib.ir);
+          } else {
+            toast('Missão aceita e adicionada às suas missões ativas.');
+            colIr('missoes');
+          }
+        }
+        // botão "Fazer agora" de uma missão ativa: navega para a tela da ação
+        function colMissaoIr(id){
+          let c=colAtualObj(); let m=(c.missoes||[]).find(x=>x.id===id); if(!m)return;
+          if(m.ir && colAbaLiberada(c,m.ir)){ toast('Vamos <b>'+(COL_IR_LABEL[m.ir]||'fazer agora')+'</b> →'); colIr(m.ir); }
+          else { toast('Esta missão é acompanhada manualmente. Atualize o progresso quando avançar.','info'); }
         }
         let _novaMissaoCtx=null;
         function colNovaMissao(){
@@ -6981,7 +7057,8 @@ body.apresentacao #apr-banner{display:block;}
             let badge=doc.status==='aprovado'?'<span class="pill pill-ok">Aprovado</span>':doc.status==='assinado'?'<span class="pill pill-ok">Assinado</span>':doc.origem==='equipe'?'<span class="pill pill-info">'+icon+'</span>':'<span class="pill pill-mute">'+icon+'</span>';
             // tipos que o cliente avalia/aprova individualmente: entregavel, link, arquivo
             let avaliavel=(doc.origem==='equipe' && ['entregavel','link','arquivo','documento'].includes(doc.tipo));
-            let linkBtn=doc.url?`<a href="#" onclick="return false" style="font-size:11px;color:var(--info);">🔗 abrir</a>`:'';
+            let temArq=!!(doc.url||doc.arquivo);
+            let abrirBtn=`<button class="btn btn-ghost btn-sm" style="flex-shrink:0;" onclick="docAbrir(${di})">${temArq?'📄 Abrir':'📎 Anexar/ver'}</button>`;
             let acoesDoc='';
             if(avaliavel && doc.status!=='aprovado'){
               acoesDoc=`<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-gold btn-sm" onclick="ptAprovarDoc(${di})">✓ Aprovar</button><button class="btn btn-ghost btn-sm" onclick="ptAvaliarDoc(${di})">★ Avaliar + depoimento</button></div>`;
@@ -6989,9 +7066,9 @@ body.apresentacao #apr-banner{display:block;}
             let aval='';
             if(doc.aval){ aval=`<div style="margin-top:6px;font-size:11px;color:var(--ink-soft);">★ ${doc.aval.nota}/5${doc.aval.tipo!=='texto'?' · '+(doc.aval.tipo==='audio'?'🎙 áudio':'🎥 vídeo'):''}${doc.aval.texto?' · "'+doc.aval.texto.slice(0,40)+'"':''}</div>`; }
             return `<div style="padding:12px 0;border-bottom:1px solid var(--line);">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div><div style="font-weight:600;font-size:13px;">${doc.nome} ${linkBtn}</div><div style="font-size:11px;color:var(--ink-faint);">${doc.desc} · ${doc.data}</div></div>
-                ${badge}</div>${acoesDoc}${aval}</div>`;
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div onclick="docAbrir(${di})" style="cursor:pointer;flex:1;min-width:0;"><div style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${doc.nome}${temArq?'<span class="doc-pill" style="padding:1px 8px;">anexo</span>':''}</div><div style="font-size:11px;color:var(--ink-faint);overflow:hidden;text-overflow:ellipsis;">${doc.desc} · ${doc.data}</div></div>
+                <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">${badge}${abrirBtn}</div></div>${acoesDoc}${aval}</div>`;
           }).join(''):'<div style="color:var(--ink-faint);text-align:center;padding:20px;font-size:13px;">Nenhum documento ainda.</div>';
           // AÇÕES PENDENTES DO CLIENTE
           let ae=document.getElementById('pt-acoes');
@@ -7026,13 +7103,13 @@ body.apresentacao #apr-banner{display:block;}
         function portalAcoesPendentes(p){
           let acoes=[];
           if(!deal || deal.id!==p.dealId) return acoes;
-          if(deal.etapa==='aprovacao') acoes.push({titulo:'Avaliar proposta comercial',desc:'Leia a proposta e aprove para seguir.',label:'Ver e aprovar',fn:'ptAprovarProposta()'});
+          if(deal.etapa==='aprovacao') acoes.push({titulo:'Avaliar proposta comercial',desc:'Abra a proposta, leia e aprove para seguir.',label:'Abrir e aprovar',fn:"ptVerDoc('proposta')"});
           if(deal.etapa==='onboarding') acoes.push({titulo:'Confirmar próximos passos',desc:'Revise o onboarding e confirme para a equipe iniciar.',label:'Confirmar',fn:'ptConfirmarOnboarding()'});
-          if(deal.etapa==='aprovacao_entrega') acoes.push({titulo:'Avaliar entregável recebido',desc:'Veja o que a equipe entregou e aprove ou peça ajuste.',label:'Avaliar',fn:'ptAvaliarEntrega()'});
+          if(deal.etapa==='aprovacao_entrega') acoes.push({titulo:'Avaliar entregável recebido',desc:'Abra o que a equipe entregou e aprove ou peça ajuste.',label:'Abrir e avaliar',fn:"ptVerDoc('entregavel')"});
           if(deal.etapa==='satisfacao') acoes.push({titulo:'Responder pesquisa de satisfação',desc:'Dê sua nota sobre a entrega.',label:'Avaliar',fn:'ptResponderSatisfacao()'});
           // contrato para assinar
           let contrato=p.docs.find(d=>d.tipo==='contrato'&&d.status==='novo');
-          if(contrato && deal.etapa==='pagamento') acoes.push({titulo:'Assinar contrato',desc:'Revise e assine o contrato (D4Sign).',label:'Assinar',fn:'ptAssinarContrato()'});
+          if(contrato && deal.etapa==='pagamento') acoes.push({titulo:'Assinar contrato',desc:'Abra o contrato, revise e assine (D4Sign).',label:'Abrir e assinar',fn:"ptVerDoc('contrato')"});
           return acoes;
         }
         /* ----- AÇÕES DO CLIENTE (devolvem para a esteira) ----- */
@@ -7159,9 +7236,146 @@ body.apresentacao #apr-banner{display:block;}
           let p=portalAtual(); if(!p)return;
           let nome=prompt('Nome do documento que você quer enviar à equipe:','Contrato social.pdf');
           if(!nome)return;
-          p.docs.push({id:'DOC-'+(portalDocSeq++),nome,tipo:'upload',origem:'cliente',desc:'Documento enviado por você à equipe.',data:new Date().toLocaleDateString('pt-BR'),status:'enviado'});
+          p.docs.push({id:'DOC-'+(portalDocSeq++),nome,tipo:'upload',origem:'cliente',desc:'Documento enviado por você à equipe.',data:new Date().toLocaleDateString('pt-BR'),status:'enviado',url:null,arquivo:null});
           renderPortal();
-          alert('Documento enviado à equipe.');
+          // abre o visualizador para incluir o link/anexo do arquivo
+          docAbrir(p.docs.length-1);
+          toast('Agora inclua o link ou anexe o arquivo do documento.','info');
+        }
+
+        /* ===== VISUALIZADOR + ANEXO DE DOCUMENTOS (documentos padrão) ===== */
+        // o que cada documento padrão é — dá um preview com sentido mesmo sem arquivo
+        const DOC_PADRAO={
+          'proposta':{txt:'Documento padrão da proposta comercial. Use "Ver proposta completa" ou anexe o link/PDF.'},
+          'contrato':{txt:'Contrato padrão de prestação de serviços (D4Sign). Inclua o link do contrato para assinatura.'},
+          'Contrato social':{txt:'Documento padrão da empresa. Inclua o link ou anexe o arquivo do contrato social.'},
+          'Cartão CNPJ':{txt:'Comprovante de inscrição (Receita Federal). Inclua o link ou o PDF do cartão CNPJ.'},
+          'RG/CPF do responsável':{txt:'Documento de identidade do responsável. Inclua o link ou a foto/PDF.'},
+          'Comprovante de endereço':{txt:'Comprovante recente. Inclua o link ou o PDF do comprovante.'}
+        };
+        function docPadraoInfo(doc){ return DOC_PADRAO[doc.nome]||DOC_PADRAO[doc.tipo]||null; }
+        let docCtx={modo:null, di:null, dn:null, _url:null, _arquivo:null};
+        // abre o visualizador de um documento já existente no portal (índice em p.docs)
+        function docAbrir(di){
+          let p=portalAtual(); if(!p)return; let doc=p.docs[di]; if(!doc)return;
+          docCtx={modo:'portal', di, dn:null, _url:null, _arquivo:null};
+          document.getElementById('doc-title').innerText=doc.nome;
+          document.getElementById('doc-sub').innerHTML=(doc.origem==='equipe'?'⬇ Enviado pela equipe':'⬆ Enviado por você')+' · '+(doc.desc||'')+(doc.data?(' · '+doc.data):'');
+          docRender();
+          document.getElementById('m-doc').classList.add('on');
+        }
+        // abre o fluxo de anexar um documento PADRÃO obrigatório
+        function docAbrirPadrao(dn){
+          let pr=(typeof deal!=='undefined'&&deal&&DB.portais[deal.id])?DB.portais[deal.id]:portalAtual(); if(!pr)return;
+          let ex=pr.docs.find(d=>d.nome===dn && d.origem==='cliente');
+          docCtx={modo:'padrao', di:null, dn, _url:ex?ex.url:null, _arquivo:ex?ex.arquivo:null};
+          document.getElementById('doc-title').innerText=dn;
+          document.getElementById('doc-sub').innerHTML='Documento padrão · inclua o link ou anexe o arquivo';
+          docRender();
+          document.getElementById('m-doc').classList.add('on');
+        }
+        function docAtual(){
+          if(docCtx.modo==='portal'){ let p=portalAtual(); return p?p.docs[docCtx.di]:null; }
+          if(docCtx.modo==='padrao'){ return {nome:docCtx.dn,tipo:'doc-cliente',origem:'cliente',desc:'Documento padrão',url:docCtx._url,arquivo:docCtx._arquivo,_padrao:true}; }
+          return null;
+        }
+        function docViewerHTML(doc){
+          let arq=doc.arquivo;
+          if(arq && arq.tipo && arq.tipo.indexOf('image')===0) return `<div class="doc-view-box" style="padding:0;border-style:solid;"><img src="${arq.dataUrl}" style="max-width:100%;max-height:380px;border-radius:12px;"></div>`;
+          let src=doc.url||(arq?arq.dataUrl:'');
+          if(src) return `<iframe class="doc-frame" src="${src}"></iframe>`;
+          let info=docPadraoInfo(doc);
+          return `<div class="doc-view-box"><div><div style="font-size:30px;margin-bottom:8px;">📄</div><div style="font-weight:600;color:var(--ink);margin-bottom:6px;">Documento padrão</div><div style="font-size:13px;color:var(--ink-soft);max-width:380px;">${info?info.txt:'Nenhum arquivo anexado ainda. Inclua o link do arquivo ou anexe abaixo.'}</div></div></div>`;
+        }
+        function docRender(){
+          let doc=docAtual(); if(!doc)return;
+          let temArq=!!(doc.url||doc.arquivo);
+          let acoes='';
+          if(docCtx.modo==='portal'){
+            let di=docCtx.di;
+            if(doc.tipo==='proposta'){
+              if(doc.propId) acoes+=`<button class="btn btn-ghost btn-sm" onclick="docFechar();cliAbrir('${doc.propId}')">Ver proposta completa →</button>`;
+              if(doc.status!=='aprovado') acoes+=`<button class="btn btn-gold btn-sm" onclick="ptAprovarProposta();docFechar()">✓ Aprovar proposta</button>`;
+            } else if(doc.tipo==='contrato' && doc.status==='novo'){
+              acoes+=`<button class="btn btn-gold btn-sm" onclick="ptAssinarContrato();docFechar()">✍ Assinar contrato</button>`;
+            } else if(doc.origem==='equipe' && ['entregavel','link','arquivo','documento'].includes(doc.tipo) && doc.status!=='aprovado'){
+              acoes+=`<button class="btn btn-gold btn-sm" onclick="ptAprovarDoc(${di});docRefresh()">✓ Aprovar</button><button class="btn btn-ghost btn-sm" onclick="docFechar();ptAvaliarDoc(${di})">★ Avaliar + depoimento</button>`;
+            }
+          }
+          document.getElementById('doc-body').innerHTML=`
+            ${docViewerHTML(doc)}
+            ${temArq?`<div style="margin-top:10px;text-align:right;"><button class="btn btn-ghost btn-sm" onclick="docAbrirExterno()">↗ Abrir em nova aba</button></div>`:''}
+            <div style="margin-top:14px;">
+              <span class="lbl">🔗 Link do arquivo (Drive, OneDrive, PDF, etc.)</span>
+              <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+                <input class="inp" id="doc-link" style="flex:1;min-width:180px;" placeholder="Cole aqui o link do documento" value="${doc.url||''}">
+                <button class="btn btn-gold btn-sm" onclick="docSalvarLink()">Salvar link</button>
+              </div>
+              <div class="doc-attach-row">
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('doc-file').click()">📎 Anexar arquivo</button>
+                <input type="file" id="doc-file" style="display:none" onchange="docAnexar(this)">
+                ${doc.arquivo?`<span class="doc-pill">📎 ${doc.arquivo.nome} <a href="#" onclick="docRemoverAnexo();return false;" style="color:#ff7a8a;margin-left:2px;">remover</a></span>`:'<span style="font-size:11px;color:var(--ink-faint);">PDF, imagem ou outro arquivo.</span>'}
+              </div>
+            </div>
+            <div class="modal-acts" style="flex-wrap:wrap;">
+              ${docCtx.modo==='padrao'?`<button class="btn btn-gold" onclick="docConfirmarPadrao()">Confirmar envio ✓</button>`:acoes}
+              <button class="btn btn-ghost" onclick="docFechar()">Fechar</button>
+            </div>`;
+        }
+        function docRefresh(){ if(document.getElementById('m-doc').classList.contains('on')) docRender(); }
+        function docFechar(){ document.getElementById('m-doc').classList.remove('on'); }
+        function docSalvarLink(){
+          let v=document.getElementById('doc-link').value.trim();
+          if(docCtx.modo==='portal'){ let p=portalAtual(); if(p&&p.docs[docCtx.di]) p.docs[docCtx.di].url=v||null; }
+          else { docCtx._url=v||null; }
+          toast(v?'Link salvo no documento.':'Link removido.');
+          docRender();
+        }
+        function docAnexar(input){
+          let f=input.files&&input.files[0]; if(!f)return;
+          let r=new FileReader();
+          r.onload=()=>{
+            let arq={nome:f.name, tipo:f.type||'', dataUrl:r.result};
+            if(docCtx.modo==='portal'){ let p=portalAtual(); if(p&&p.docs[docCtx.di]) p.docs[docCtx.di].arquivo=arq; }
+            else { docCtx._arquivo=arq; }
+            toast('Arquivo anexado: '+f.name);
+            docRender();
+          };
+          r.readAsDataURL(f);
+        }
+        function docRemoverAnexo(){
+          if(docCtx.modo==='portal'){ let p=portalAtual(); if(p&&p.docs[docCtx.di]) p.docs[docCtx.di].arquivo=null; }
+          else { docCtx._arquivo=null; }
+          docRender();
+        }
+        function docAbrirExterno(){
+          let doc=docAtual(); if(!doc)return;
+          let src=doc.url||(doc.arquivo?doc.arquivo.dataUrl:'');
+          if(src) window.open(src,'_blank'); else toast('Nenhum arquivo para abrir. Inclua o link ou anexe.','warn');
+        }
+        function docConfirmarPadrao(){
+          let v=document.getElementById('doc-link').value.trim(); if(v) docCtx._url=v;
+          let dn=docCtx.dn;
+          if(!docCtx._url && !docCtx._arquivo){ toast('Inclua o link do arquivo ou anexe o documento.','warn'); return; }
+          let pr=(typeof deal!=='undefined'&&deal&&DB.portais[deal.id])?DB.portais[deal.id]:portalAtual(); if(!pr){ docFechar(); return; }
+          let ex=pr.docs.find(d=>d.nome===dn && d.origem==='cliente');
+          if(ex){ ex.url=docCtx._url||ex.url; ex.arquivo=docCtx._arquivo||ex.arquivo; ex.status='enviado'; }
+          else { pr.docs.push({id:'DOC-'+(portalDocSeq++),nome:dn,tipo:'doc-cliente',origem:'cliente',desc:'Documento padrão enviado para liberar acesso.',data:new Date().toLocaleDateString('pt-BR'),status:'enviado',url:docCtx._url||null,arquivo:docCtx._arquivo||null}); }
+          pr.docsEnviados=pr.docsEnviados||{}; pr.docsEnviados[dn]=new Date().toLocaleDateString('pt-BR');
+          if(typeof notify==='function') notify('financeiro','Documento recebido do cliente','O cliente enviou: '+dn+'.','portal');
+          docFechar();
+          toast('Documento "'+dn+'" enviado à equipe.');
+          if(typeof renderEtapaDocumentos==='function' && cliActive) renderEtapaDocumentos(cliActive);
+          if(typeof renderPortal==='function') renderPortal();
+        }
+        // abre o documento ligado a uma pendência (proposta/contrato/entregável)
+        function ptVerDoc(tipo){
+          let p=portalAtual(); if(!p)return;
+          let di=-1;
+          if(tipo==='proposta') di=p.docs.findIndex(d=>d.tipo==='proposta');
+          else if(tipo==='contrato') di=p.docs.findIndex(d=>d.tipo==='contrato'&&d.status==='novo');
+          else if(tipo==='entregavel') di=p.docs.findIndex(d=>d.tipo==='entregavel'&&d.status==='novo');
+          if(di>=0) docAbrir(di); else toast('Documento ainda não disponível no portal.','warn');
         }
 
 
