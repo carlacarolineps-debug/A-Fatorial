@@ -149,6 +149,17 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       entram como receita futura no fluxo de caixa (toggle). `finProjMeses`.
     - **Mais gráficos na Gestão à vista**: resultado mensal, caixa projetado (6m)
       e metas de venda — para decisão rápida. `renderDashCharts`, `miniBars`.
+20. **Alertas inteligentes, exportar CSV e metas trimestrais**
+    - **Alertas no sino**: caixa projetado negativo, meta de venda sem fechamentos
+      perto do prazo, propostas não abertas, pedidos de cliente novos e avaliações
+      pendentes. Geração no INIT + botão "Recalcular alertas" na Visão do dono.
+      `gerarAlertasInteligentes`.
+    - **Exportar lançamentos em CSV** (Excel/contador): respeita o filtro atual,
+      com BOM e formato pt-BR. `finExportarCSV`.
+    - **Metas por trimestre** (Planejamento): meta de faturamento por Q1–Q4 com
+      **realizado calculado automaticamente** dos lançamentos (entradas de receita,
+      excluindo transferências/aportes). `planoTrimestreCard`,
+      `finReceitaRealTrimestre`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 

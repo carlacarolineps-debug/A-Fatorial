@@ -7220,12 +7220,12 @@ body.apresentacao #apr-banner{display:block;}
           ]},
           {servico:'Medical · A! Saúde (por agendamento)', tipo:'recorrente', qtd:200, valor:25, prazo:'2026-12-31', obs:'R$ 25 mínimo por agendamento feito pelo escritório.', agend:0, clientes:[]}
         ];
-        let PLANO={ metas:[], googleLink:'' };
+        let PLANO={ metas:[], googleLink:'', trimAno:2026, trim:{1:0,2:0,3:0,4:0} };
         let _planoAnexos={}; let _planoAlvo=null;
-        function planoSalvar(){ try{ localStorage.setItem('af_plano', JSON.stringify({metas:PLANO.metas, googleLink:PLANO.googleLink})); }catch(e){} }
+        function planoSalvar(){ try{ localStorage.setItem('af_plano', JSON.stringify({metas:PLANO.metas, googleLink:PLANO.googleLink, trimAno:PLANO.trimAno, trim:PLANO.trim})); }catch(e){} }
         function planoInit(){
           let saved=null; try{ saved=JSON.parse(localStorage.getItem('af_plano')||'null'); }catch(e){}
-          if(saved && Array.isArray(saved.metas)){ PLANO.metas=saved.metas; PLANO.googleLink=saved.googleLink||''; }
+          if(saved && Array.isArray(saved.metas)){ PLANO.metas=saved.metas; PLANO.googleLink=saved.googleLink||''; if(saved.trimAno)PLANO.trimAno=saved.trimAno; if(saved.trim)PLANO.trim=saved.trim; }
           else { PLANO.metas=PLANO_SEED.map((m,i)=>Object.assign({id:'pm'+i}, JSON.parse(JSON.stringify(m)), {clientes:(m.clientes||[]).map((c,j)=>Object.assign({id:'pc'+i+'_'+j},c))})); planoSalvar(); }
           let f=document.getElementById('plano-file');
           if(f) f.onchange=function(){ let file=this.files[0]; if(!file||!_planoAlvo)return; let m=PLANO.metas[_planoAlvo.mi], c=m&&m.clientes[_planoAlvo.ci]; if(!c)return; c.anexo=file.name; let fr=new FileReader(); fr.onload=e=>{ _planoAnexos[m.id+'|'+c.id]=e.target.result; }; fr.readAsDataURL(file); planoSalvar(); planoRender(); };
@@ -7274,9 +7274,38 @@ body.apresentacao #apr-banner{display:block;}
                 <span class="lbl" style="margin:0;">🔗 Link do seu Google (avaliações):</span>
                 <input class="inp" id="pl-google" value="${(PLANO.googleLink||'').replace(/"/g,'&quot;')}" placeholder="Cole o link de avaliação do Google" style="max-width:340px;" onchange="planoSetGoogle(this.value)">
               </div>
-            </div>`;
+            </div>
+            ${planoTrimestreCard()}`;
         }
         function planoSetGoogle(v){ PLANO.googleLink=(v||'').trim(); planoSalvar(); }
+        // realizado de receita por trimestre, lido automaticamente dos lançamentos do Centro Financeiro
+        function finReceitaRealTrimestre(ano,q){
+          if(typeof FIN360==='undefined') return 0;
+          let excl=['Aporte empresa→PF','Transferência própria','Rendimentos / Invest.','Devolução PF→empresa','Cartão (débito em conta)'];
+          let m0=(q-1)*3+1, m1=m0+2, tot=0;
+          FIN360.lancamentos.forEach(l=>{ if(l.valor>0){ let y=parseInt((l.data||'').slice(0,4)), mo=parseInt((l.data||'').slice(5,7)); if(y===ano && mo>=m0 && mo<=m1 && excl.indexOf(l.cat)<0) tot+=l.valor; } });
+          return round2(tot);
+        }
+        function planoTrimestreCard(){
+          let ano=PLANO.trimAno||2026;
+          let cells=[1,2,3,4].map(q=>{
+            let alvo=(PLANO.trim&&PLANO.trim[q])||0, real=finReceitaRealTrimestre(ano,q), pct=alvo>0?Math.min(100,Math.round(real/alvo*100)):0;
+            return `<div style="flex:1;min-width:150px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><b>Q${q}</b><span style="color:var(--gold-bright);">${pct}%</span></div>
+              <div style="height:8px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:6px;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div>
+              <div style="font-size:11px;color:var(--ink-soft);">Realizado <b style="color:var(--ok);">${brl(real)}</b></div>
+              <input type="text" inputmode="decimal" class="inp-sm" value="${alvo?fmtMoney(alvo):''}" placeholder="meta Q${q}" onblur="maskMoney(this);planoSetTrim(${q},this.value)" style="width:100%;margin-top:6px;">
+            </div>`;
+          }).join('');
+          return `<div class="card">
+            <div class="card-h" style="display:flex;align-items:center;gap:10px;">📆 Metas por trimestre — faturamento ${ano}
+              <input type="number" class="inp-sm" value="${ano}" onchange="planoSetTrimAno(this.value)" style="width:90px;margin-left:auto;"></div>
+            <p class="hint" style="margin:-8px 0 14px;">Defina a meta de faturamento de cada trimestre. O <b>realizado é calculado automaticamente</b> dos seus lançamentos (entradas de receita, excluindo transferências/aportes).</p>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;">${cells}</div>
+          </div>`;
+        }
+        function planoSetTrim(q,v){ PLANO.trim=PLANO.trim||{}; PLANO.trim[q]=parseMoney(v)||0; planoSalvar(); planoRender(); }
+        function planoSetTrimAno(v){ PLANO.trimAno=parseInt(v)||2026; planoSalvar(); planoRender(); }
         function planoUsarNoFinanceiro(){
           let proj=PLANO.metas.reduce((a,m)=>a+planoMetaProj(m),0);
           if(typeof FIN360!=='undefined'){ FIN360.faturamentoAnual=Math.round(proj); if(typeof finSalvar==='function') finSalvar(); }
@@ -7681,7 +7710,8 @@ body.apresentacao #apr-banner{display:block;}
               <div style="margin-top:10px;">${regras}</div>
             </div>
             <div class="card">
-              <div class="card-h">Lançamentos <span class="pill pill-mute">${ls.length}</span></div>
+              <div class="card-h" style="display:flex;align-items:center;gap:10px;">Lançamentos <span class="pill pill-mute">${ls.length}</span>
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="finExportarCSV()" title="Baixar CSV para o contador / Excel">⤓ Exportar CSV</button></div>
               <table class="tbl"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Conta</th><th style="text-align:right;">Valor</th><th></th></tr></thead>
               <tbody>${linhas||'<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:24px;">Nenhum lançamento no filtro.</td></tr>'}</tbody></table>
             </div>`;
@@ -7691,6 +7721,19 @@ body.apresentacao #apr-banner{display:block;}
         function finAplicarRegras(){ FIN360.lancamentos.forEach(l=>{ let rg=(FIN360.regras||[]).find(r=>r.kw&&(l.desc||'').toLowerCase().includes(r.kw.toLowerCase())); if(rg) l.cat=rg.cat; }); }
         function finAddRegra(){ let kw=(document.getElementById('fr-kw').value||'').trim(); let cat=document.getElementById('fr-cat').value; if(!kw) return alert('Informe a palavra-chave.'); FIN360.regras=FIN360.regras||[]; FIN360.regras.push({kw,cat}); finAplicarRegras(); finSalvar(); finRender(); finSubTab('lanc'); }
         function finDelRegra(i){ FIN360.regras.splice(i,1); finSalvar(); finLancamentos(); }
+        // exporta os lançamentos do filtro atual em CSV (formato pt-BR / Excel)
+        function finExportarCSV(){
+          let ls=finFiltrados().slice().sort((a,b)=>(a.data||'').localeCompare(b.data||''));
+          if(!ls.length) return alert('Nenhum lançamento no filtro atual para exportar.');
+          let esc=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+          let linhas=[['Data','Descrição','Categoria','Conta','Valor'].join(';')];
+          ls.forEach(l=>{ linhas.push([ (l.data||'').split('-').reverse().join('/'), esc(l.desc||''), esc(l.cat||''), (l.ctx==='empresa'?'Empresa':'Pessoal'), fmtMoney(l.valor) ].join(';')); });
+          let csv='﻿'+linhas.join('\r\n'); // BOM p/ acentos no Excel
+          let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+          let a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+          a.download='lancamentos_afatorial_'+new Date().toISOString().slice(0,10)+'.csv';
+          document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+        }
         function finAddLanc(){
           let data=document.getElementById('fl-data').value||new Date().toISOString().slice(0,10);
           let desc=document.getElementById('fl-desc').value.trim();
@@ -7889,7 +7932,7 @@ body.apresentacao #apr-banner{display:block;}
           let metasFin=(typeof FIN360!=='undefined'?FIN360.metas:[]).slice(0,3).map(m=>{ let pct=m.alvo>0?Math.min(100,Math.round((m.atual||0)/m.alvo*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>🎯 ${m.nome}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div></div>`; }).join('');
           let metasVen=(typeof PLANO!=='undefined'?PLANO.metas:[]).slice(0,4).map(m=>{ let p=planoMetaProj(m),rl=planoMetaReal(m),pct=p>0?Math.min(100,Math.round(rl/p*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>💼 ${m.servico}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#35e6ff,#0bb6d6);"></div></div></div>`; }).join('');
           box.innerHTML=`
-            <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn btn-gold btn-sm" onclick="relatorioDono()">📄 Relatório executivo (PDF)</button></div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;"><button class="btn btn-ghost btn-sm" onclick="gerarAlertasInteligentes();renderNotif();toggleNotif();">🔔 Recalcular alertas</button><button class="btn btn-gold btn-sm" onclick="relatorioDono()">📄 Relatório executivo (PDF)</button></div>
             <div class="kpis">
               <div class="kpi"><div class="v" style="color:var(--gold-bright);">${brl(proj)}</div><div class="l">Receita projetada (metas)</div></div>
               <div class="kpi"><div class="v" style="color:var(--ok);">${brl(real)}</div><div class="l">Vendas realizadas</div></div>
@@ -7975,6 +8018,19 @@ body.apresentacao #apr-banner{display:block;}
         function relatorioPDF(){ document.body.classList.add('print-rel'); window.print(); setTimeout(()=>document.body.classList.remove('print-rel'),600); }
         function relatorioFechar(){ document.getElementById('rel-ov').classList.remove('on'); }
 
+        /* ===== ALERTAS INTELIGENTES (sino) ===== */
+        function gerarAlertasInteligentes(){
+          try{
+            let vistos=new Set();
+            let push=(lado,tit,desc,ir,key)=>{ if(vistos.has(key))return; vistos.add(key); if(typeof notify==='function') notify(lado,tit,desc,ir,true); };
+            if(typeof finProjMeses==='function'){ let L=finProjMeses(6).linhas; let neg=L.find(x=>x.saldo<0); if(neg) push('financeiro','⚠ Caixa projetado negativo','No ritmo atual, seu caixa fica negativo em '+neg.label+' ('+brl(neg.saldo)+'). Feche propostas, reduza custos ou ajuste o pró-labore.','fin360','caixaneg'); }
+            if(typeof PLANO!=='undefined'){ PLANO.metas.forEach(m=>{ if(m.tipo==='venda'){ let fech=planoMetaFechados(m); if(fech===0 && m.prazo){ let dias=Math.round((new Date(m.prazo)-Date.now())/86400000); if(dias>0 && dias<120) push('funil','🎯 Meta sem fechamentos','"'+m.servico+'": prazo em '+dias+' dias e nenhum fechamento ainda. Acelere o pipeline.','plano','meta_'+m.id); } } }); }
+            if(typeof DB!=='undefined' && DB.propostas){ let na=DB.propostas.filter(p=>p.status!=='aprovada' && (p.views||0)===0); if(na.length) push('propostas','✉ Proposta não aberta',na.length+' proposta(s) enviada(s) ainda não foram abertas pelo cliente. Faça follow-up.','propostas','prop_naoabertas'); }
+            if(typeof listaSolicitacoes==='function'){ let novos=listaSolicitacoes().filter(s=>s.status==='novo'); if(novos.length) push('funil','📥 Pedidos de clientes',novos.length+' pedido(s) de serviço aguardando na tela de Propostas.','propostas','pedidos_novos'); }
+            if(typeof PLANO!=='undefined'){ let semRev=0; PLANO.metas.forEach(m=>(m.clientes||[]).forEach(c=>{ if(c.status==='fechou'&&c.review!=='feita')semRev++; })); if(semRev) push('funil','⭐ Avaliações pendentes',semRev+' cliente(s) fechado(s) sem avaliação no Google. Cada uma vende por você — peça hoje.','plano','reviews'); }
+          }catch(e){}
+        }
+
         /* ===== INIT ===== */
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
         if(typeof finInit==='function') finInit();
@@ -8006,6 +8062,7 @@ body.apresentacao #apr-banner{display:block;}
         trackRender();
         renderDash();
         if(typeof renderPortal==='function') renderPortal();
+        if(typeof gerarAlertasInteligentes==='function') gerarAlertasInteligentes();
         if(typeof renderNotif==='function') renderNotif();
         document.getElementById('top-sub').innerHTML='Ecossistema estratégico — '+nowStr();
     </script>
