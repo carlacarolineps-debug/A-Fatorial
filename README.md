@@ -193,6 +193,14 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       de cada cenário. `finSetCenario`.
     - **Resumo em linguagem natural** (Visão do dono): um parágrafo que lê seus
       números e explica a situação e a prioridade. `resumoNatural`.
+24. **Budget mensal, sugestão automática e comparar decisões**
+    - **Budget mensal/anual** (toggle): no modo mensal acompanha o mês atual e
+      **alerta no sino** quando uma frente estoura o orçamento do mês.
+      `finSetBudgetPeriodo`, alerta em `gerarAlertasInteligentes`.
+    - **Sugerir orçamentos pelo histórico**: preenche cada frente pela média
+      mensal realizada (anualizada). `finBudgetSugerir`/`finBudgetMediaMensal`.
+    - **Comparar decisões**: o histórico recalcula o impacto em 1/5/10 anos e
+      mostra um gráfico de qual decisão rende mais. `decImpacto`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 

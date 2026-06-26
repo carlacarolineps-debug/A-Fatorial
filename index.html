@@ -7947,45 +7947,65 @@ body.apresentacao #apr-banner{display:block;}
         function finSetProj(campo,v){ FIN360[campo]=parseMoney(v)||0; finSalvar(); finProjecaoUI(); }
         function finToggleProjPlano(on){ FIN360.projIncluiPlano=!!on; finSalvar(); finProjecaoUI(); }
         /* === BUDGET (plano de alocação por frente) === */
-        function finBudgetRealizado(b,ano){
+        function finBudgetRealizado(b,ano,mes){
           let cats=(b.cats||[]).map(c=>c.toLowerCase()), tot=0;
-          FIN360.lancamentos.forEach(l=>{ if(l.valor<0){ let y=parseInt((l.data||'').slice(0,4)); if(y===ano && cats.indexOf((l.cat||'').toLowerCase())>=0) tot+=-l.valor; } });
+          FIN360.lancamentos.forEach(l=>{ if(l.valor<0){ let y=parseInt((l.data||'').slice(0,4)), mo=parseInt((l.data||'').slice(5,7)); if(y===ano && (!mes||mo===mes) && cats.indexOf((l.cat||'').toLowerCase())>=0) tot+=-l.valor; } });
           return round2(tot);
+        }
+        // média mensal histórica de gasto de um bucket (para sugerir orçamento)
+        function finBudgetMediaMensal(b){
+          let cats=(b.cats||[]).map(c=>c.toLowerCase()), pm={};
+          FIN360.lancamentos.forEach(l=>{ if(l.valor<0 && cats.indexOf((l.cat||'').toLowerCase())>=0){ let mk=(l.data||'').slice(0,7); if(mk) pm[mk]=(pm[mk]||0)+(-l.valor); } });
+          let ms=Object.keys(pm); return ms.length?round2(ms.reduce((a,m)=>a+pm[m],0)/ms.length):0;
         }
         function finBudgetUI(){
           let box=document.getElementById('fin-budget'); if(!box)return;
-          let ano=FIN360.budget.ano||2026, now=new Date();
-          let mesesDec=(ano===now.getFullYear())?(now.getMonth()+1):(ano<now.getFullYear()?12:0);
+          let ano=FIN360.budget.ano||2026, per=FIN360.budget.periodo||'anual', mensal=(per==='mensal'), now=new Date();
+          let mesAtual=now.getMonth()+1;
+          let mesesDec=(ano===now.getFullYear())?mesAtual:(ano<now.getFullYear()?12:0);
+          const NOME={1:'jan',2:'fev',3:'mar',4:'abr',5:'mai',6:'jun',7:'jul',8:'ago',9:'set',10:'out',11:'nov',12:'dez'};
           let totOrc=0, totReal=0;
           let rows=FIN360.budget.buckets.map((b,i)=>{
-            let orc=b.valor||0, real=finBudgetRealizado(b,ano); totOrc+=orc; totReal+=real;
-            let pct=orc>0?Math.round(real/orc*100):0, proj=mesesDec>0?round2(real/mesesDec*12):0;
+            let orcAno=b.valor||0, orc=mensal?round2(orcAno/12):orcAno;
+            let real=mensal?finBudgetRealizado(b,ano,mesAtual):finBudgetRealizado(b,ano);
+            totOrc+=orc; totReal+=real;
+            let pct=orc>0?Math.round(real/orc*100):0, proj=(!mensal&&mesesDec>0)?round2(real/mesesDec*12):0;
             let cor=orc===0?'var(--ink-faint)':(real>orc?'var(--bad)':(pct>85?'var(--warn)':'var(--ok)'));
             let status=orc===0?'sem orçamento':(real>orc?'⚠ estourou '+brl(real-orc):'sobra '+brl(orc-real));
             return `<tr>
               <td style="min-width:200px;"><b>${b.nome}</b><br><input class="inp-sm" value="${(b.cats||[]).join(', ')}" onchange="finSetBudgetCats(${i},this.value)" style="width:100%;margin-top:4px;font-size:10px;" title="Categorias que contam para este budget"></td>
-              <td style="text-align:right;"><input type="text" inputmode="decimal" class="inp-sm" value="${orc?fmtMoney(orc):''}" placeholder="0,00" onblur="maskMoney(this);finSetBudget(${i},this.value)" style="max-width:120px;text-align:right;"></td>
+              <td style="text-align:right;"><input type="text" inputmode="decimal" class="inp-sm" value="${orc?fmtMoney(orc):''}" placeholder="0,00" onblur="maskMoney(this);finSetBudget(${i},this.value,${mensal})" style="max-width:120px;text-align:right;"></td>
               <td style="text-align:right;color:${cor};font-weight:600;">${brl(real)}<div style="height:6px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:4px;"><div style="width:${Math.min(100,pct)}%;height:100%;background:${cor};"></div></div></td>
               <td style="text-align:right;">${pct}%</td>
-              <td style="text-align:right;font-size:11px;color:var(--ink-soft);">${brl(proj)}</td>
+              ${mensal?'':`<td style="text-align:right;font-size:11px;color:var(--ink-soft);">${brl(proj)}</td>`}
               <td style="font-size:11px;color:${cor};">${status}</td></tr>`;
           }).join('');
           let pctTot=totOrc>0?Math.round(totReal/totOrc*100):0;
           let verd=totOrc===0?'Defina os orçamentos para o sistema acompanhar se você está seguindo o plano.'
-            :(totReal>totOrc?`⚠ Você já <b>estourou</b> o orçamento total em ${brl(totReal-totOrc)}.`
-              :`✓ Você usou <b>${pctTot}%</b> do orçamento total (${brl(totReal)} de ${brl(totOrc)}).${(mesesDec>0&&mesesDec<12)?` No ritmo atual, fecha o ano em <b>${Math.round(totReal/mesesDec*12/totOrc*100)}%</b>.`:''}`);
+            :(totReal>totOrc?`⚠ Você já <b>estourou</b> o orçamento ${mensal?'do mês':'total'} em ${brl(totReal-totOrc)}.`
+              :`✓ Você usou <b>${pctTot}%</b> do orçamento ${mensal?'de '+(NOME[mesAtual])+'/'+ano:'total'} (${brl(totReal)} de ${brl(totOrc)}).${(!mensal&&mesesDec>0&&mesesDec<12)?` No ritmo atual, fecha o ano em <b>${Math.round(totReal/mesesDec*12/totOrc*100)}%</b>.`:''}`);
           box.innerHTML=`
             <div class="card">
-              <div class="card-h" style="display:flex;align-items:center;gap:10px;">💰 Plano de budget — quanto liberar e se estamos seguindo
-                <input type="number" class="inp-sm" value="${ano}" onchange="finSetBudgetAno(this.value)" style="width:90px;margin-left:auto;"></div>
-              <p class="hint" style="margin:-8px 0 14px;">Defina o orçamento anual de cada frente (investimentos, eventos, treinamentos, projetos, inovações, custos). O <b>realizado é puxado automaticamente</b> dos lançamentos pelas categorias de cada budget — ajuste as categorias se quiser.</p>
-              <table class="tbl"><thead><tr><th>Frente / categorias</th><th style="text-align:right;">Orçado/ano</th><th style="text-align:right;">Realizado</th><th style="text-align:right;">%</th><th style="text-align:right;">Projeção ano</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
-              <div class="ptg-next" style="margin-top:12px;">${verd}</div>
+              <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">💰 Plano de budget — quanto liberar e se estamos seguindo
+                <span style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+                  <button class="btn ${mensal?'btn-ghost':'btn-gold'} btn-sm" onclick="finSetBudgetPeriodo('anual')">Anual</button>
+                  <button class="btn ${mensal?'btn-gold':'btn-ghost'} btn-sm" onclick="finSetBudgetPeriodo('mensal')">Mensal</button>
+                  <input type="number" class="inp-sm" value="${ano}" onchange="finSetBudgetAno(this.value)" style="width:80px;"></span></div>
+              <p class="hint" style="margin:-8px 0 14px;">Orçamento ${mensal?'<b>mensal</b> (valor de '+(NOME[mesAtual])+')':'<b>anual</b>'} por frente (investimentos, eventos, treinamentos, projetos, inovações, custos). O <b>realizado é puxado automaticamente</b> dos lançamentos pelas categorias de cada budget.</p>
+              <table class="tbl"><thead><tr><th>Frente / categorias</th><th style="text-align:right;">Orçado/${mensal?'mês':'ano'}</th><th style="text-align:right;">Realizado</th><th style="text-align:right;">%</th>${mensal?'':'<th style="text-align:right;">Projeção ano</th>'}<th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+              <div class="actions" style="justify-content:flex-start;"><button class="btn btn-ghost btn-sm" onclick="finBudgetSugerir()">✨ Sugerir orçamentos pelo histórico</button></div>
+              <div class="ptg-next" style="margin-top:6px;">${verd}</div>
             </div>`;
         }
-        function finSetBudget(i,v){ FIN360.budget.buckets[i].valor=parseMoney(v)||0; finSalvar(); finBudgetUI(); }
+        function finSetBudget(i,v,mensal){ let val=parseMoney(v)||0; FIN360.budget.buckets[i].valor= mensal? round2(val*12) : val; finSalvar(); finBudgetUI(); }
         function finSetBudgetCats(i,v){ FIN360.budget.buckets[i].cats=v.split(',').map(s=>s.trim()).filter(Boolean); finSalvar(); finBudgetUI(); }
         function finSetBudgetAno(v){ FIN360.budget.ano=parseInt(v)||2026; finSalvar(); finBudgetUI(); }
+        function finSetBudgetPeriodo(p){ FIN360.budget.periodo=p; finSalvar(); finBudgetUI(); }
+        function finBudgetSugerir(){
+          if(!confirm('Preencher os orçamentos com base na média histórica de cada frente (anualizada)? Isso substitui os valores atuais.')) return;
+          FIN360.budget.buckets.forEach(b=>{ let media=finBudgetMediaMensal(b); if(media>0) b.valor=round2(media*12); });
+          finSalvar(); finBudgetUI();
+        }
 
         /* === METAS & OBJETIVOS === */
         function finMetasUI(){
@@ -8166,14 +8186,28 @@ body.apresentacao #apr-banner{display:block;}
             <div id="dec-saved">${decisoesSalvasHTML()}</div>
           </div>`;
         }
+        function decImpacto(d,meses){
+          let base=futuroPremissas(), mod=Object.assign({},base);
+          if(d.tipo==='custo_rec') mod.custoFixo=base.custoFixo+d.valor;
+          else if(d.tipo==='rec_rec') mod.receita=base.receita+d.valor;
+          else if(d.tipo==='gasto_uni') mod.saldoIni=base.saldoIni-d.valor;
+          else if(d.tipo==='rec_uni') mod.saldoIni=base.saldoIni+d.valor;
+          return round2(futuroSerie(mod,meses).caixaFim - futuroSerie(base,meses).caixaFim);
+        }
         function decisoesSalvasHTML(){
           let ds=(FIN360.decisoes||[]);
           if(!ds.length) return '';
+          let rows=ds.map((d,i)=>{ let i1=decImpacto(d,12), i5=decImpacto(d,60), i10=decImpacto(d,120);
+            let c=v=>`<td style="text-align:right;font-weight:600;color:${v>=0?'var(--ok)':'var(--bad)'};">${v>=0?'+':''}${brl(v)}</td>`;
+            return `<tr><td>${d.desc||'(sem nome)'} <span style="font-size:10px;color:var(--ink-faint);">${d.tipoLbl||''}</span></td>${c(i1)}${c(i5)}${c(i10)}<td><button class="btn btn-ghost btn-sm" onclick="decisaoExcluir(${i})" style="color:var(--bad);">✕</button></td></tr>`;
+          }).join('');
+          // gráfico comparativo do impacto em 10 anos (qual decisão rende mais)
+          let imp=ds.map(d=>({t:(d.desc||'?').slice(0,10), v:decImpacto(d,120)}));
+          let chart = (typeof miniBars==='function' && imp.length) ? `<div style="margin-top:12px;"><div style="font-size:11px;color:var(--ink-soft);margin-bottom:6px;">Impacto no caixa em 10 anos — qual decisão rende mais:</div>${miniBars(imp.map(x=>({t:x.t, v:x.v, t2:brl(x.v).replace('R$ ','').replace(',00','')})))}</div>` : '';
           return `<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:12px;">
             <div style="font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:8px;">📁 Decisões salvas — compare antes de decidir</div>
-            <table class="tbl"><thead><tr><th>Decisão</th><th style="text-align:right;">Impacto em 5 anos</th><th></th></tr></thead><tbody>${
-              ds.map((d,i)=>`<tr><td>${d.desc||'(sem nome)'} <span style="font-size:10px;color:var(--ink-faint);">${d.tipoLbl||''}</span></td><td style="text-align:right;font-weight:700;color:${d.d5>=0?'var(--ok)':'var(--bad)'};">${d.d5>=0?'+':''}${brl(d.d5)}</td><td><button class="btn btn-ghost btn-sm" onclick="decisaoExcluir(${i})" style="color:var(--bad);">✕</button></td></tr>`).join('')
-            }</tbody></table></div>`;
+            <table class="tbl"><thead><tr><th>Decisão</th><th style="text-align:right;">1 ano</th><th style="text-align:right;">5 anos</th><th style="text-align:right;">10 anos</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+            ${chart}</div>`;
         }
         const DEC_TIPO_LBL={custo_rec:'custo mensal',rec_rec:'receita mensal',gasto_uni:'gasto único',rec_uni:'receita única'};
         function decisaoSalvar(){
@@ -8360,6 +8394,7 @@ body.apresentacao #apr-banner{display:block;}
             if(typeof DB!=='undefined' && DB.propostas){ let na=DB.propostas.filter(p=>p.status!=='aprovada' && (p.views||0)===0); if(na.length) push('propostas','✉ Proposta não aberta',na.length+' proposta(s) enviada(s) ainda não foram abertas pelo cliente. Faça follow-up.','propostas','prop_naoabertas'); }
             if(typeof listaSolicitacoes==='function'){ let novos=listaSolicitacoes().filter(s=>s.status==='novo'); if(novos.length) push('funil','📥 Pedidos de clientes',novos.length+' pedido(s) de serviço aguardando na tela de Propostas.','propostas','pedidos_novos'); }
             if(typeof PLANO!=='undefined'){ let semRev=0; PLANO.metas.forEach(m=>(m.clientes||[]).forEach(c=>{ if(c.status==='fechou'&&c.review!=='feita')semRev++; })); if(semRev) push('funil','⭐ Avaliações pendentes',semRev+' cliente(s) fechado(s) sem avaliação no Google. Cada uma vende por você — peça hoje.','plano','reviews'); }
+            if(typeof FIN360!=='undefined' && FIN360.budget){ let now=new Date(), ano=now.getFullYear(), mes=now.getMonth()+1; FIN360.budget.buckets.forEach(b=>{ let orcMes=(b.valor||0)/12; if(orcMes>0){ let realMes=finBudgetRealizado(b,ano,mes); if(realMes>orcMes) push('financeiro','💰 Budget estourado','"'+b.nome+'" passou do orçamento do mês: '+brl(realMes)+' de '+brl(round2(orcMes))+'.','fin360','budget_'+b.nome); } }); }
           }catch(e){}
         }
 
