@@ -7943,6 +7943,12 @@ body.apresentacao #apr-banner{display:block;}
             let pct=m.alvo>0?Math.min(100,Math.round((m.atual||0)/m.alvo*100)):0;
             let meses=(m.aporte>0)?Math.ceil(falta/m.aporte):null;
             let prev=meses!=null?new Date(Date.now()+meses*30.4*86400000).toLocaleDateString('pt-BR',{month:'short',year:'numeric'}):'—';
+            let marcosHTML='';
+            if(m.aporte>0 && m.alvo>0){
+              let totalSteps=Math.ceil(m.alvo/m.aporte), mostrar=Math.min(totalSteps,6), steps=[];
+              for(let i=1;i<=mostrar;i++){ let alvoCum=Math.min(m.alvo,m.aporte*i), done=(m.atual||0)>=alvoCum; steps.push(`<div style="flex:1;min-width:80px;text-align:center;"><div style="font-size:15px;">${done?'✅':'⬜'}</div><div style="font-size:10px;color:var(--ink-faint);">mês ${i}</div><div style="font-size:11px;font-weight:600;color:${done?'var(--ok)':'var(--ink-soft)'};">${brl(alvoCum)}</div></div>`); }
+              marcosHTML=`<div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px;"><div style="font-size:11px;color:var(--ink-soft);margin-bottom:8px;">🗺 Marcos mensais (SMART) — marcam sozinhos conforme você guarda${totalSteps>6?` · 6 de ${totalSteps}`:''}</div><div style="display:flex;gap:6px;flex-wrap:wrap;">${steps.join('')}</div></div>`;
+            }
             return `<div class="card" style="margin:0 0 14px;">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
                 <b style="font-size:15px;">${m.nome}</b>
@@ -7950,6 +7956,7 @@ body.apresentacao #apr-banner{display:block;}
               <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin:8px 0 5px;"><span>${brl(m.atual||0)} de ${brl(m.alvo||0)}</span><b style="color:var(--gold-bright);">${pct}%</b></div>
               <div style="height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div>
               <div style="margin-top:10px;font-size:12.5px;color:var(--ink);">${meses!=null?`Aportando <b>${brl(m.aporte)}/mês</b>, você alcança em <b>${meses} ${meses===1?'mês':'meses'}</b> (≈ ${prev}). Faltam ${brl(falta)}.`:'Defina um aporte mensal para o sistema calcular o prazo.'}</div>
+              ${marcosHTML}
             </div>`;
           }).join('');
           box.innerHTML=`
@@ -8059,7 +8066,67 @@ body.apresentacao #apr-banner{display:block;}
               <div class="c6" style="margin:0;"><div class="card" style="margin:0 0 18px;">
                 <div class="card-h">🧭 Movimentos estratégicos</div>${movHTML}
               </div></div>
-            </div>`;
+            </div>
+            ${futuroCenariosCard(p)}
+            ${assistenteDecisaoCard()}`;
+        }
+        // 3 cenários lado a lado (pessimista / realista / otimista)
+        function futuroCenariosCard(base){
+          let cen=[
+            {nome:'Pessimista', cor:'var(--bad)', p:Object.assign({},base,{receita:round2(base.receita*0.85), cresc:Math.max(0,base.cresc*0.5-5), varPct:base.varPct+10})},
+            {nome:'Realista', cor:'var(--gold-bright)', p:base},
+            {nome:'Otimista', cor:'var(--ok)', p:Object.assign({},base,{receita:round2(base.receita*1.15), cresc:base.cresc+10, varPct:Math.max(0,base.varPct-5)})}
+          ];
+          let dados=cen.map(c=>({c, s:futuroSerie(c.p,120)}));
+          let linha=(lbl,mm)=>`<tr><td>${lbl}</td>${dados.map(d=>{let v=d.s.serie[mm-1]?d.s.serie[mm-1].caixa:0;return `<td style="text-align:right;color:${d.c.cor};font-weight:600;">${brl(v)}</td>`;}).join('')}</tr>`;
+          return `<div class="card">
+            <div class="card-h">🎭 Cenários comparados — e se o futuro for diferente?</div>
+            <p class="hint" style="margin:-8px 0 12px;">Pessimista (receita −15%, mais custo), realista (suas premissas) e otimista (receita +15%, mais crescimento). Caixa acumulado por horizonte:</p>
+            <table class="tbl"><thead><tr><th>Horizonte</th>${cen.map(c=>`<th style="text-align:right;color:${c.cor};">${c.nome}</th>`).join('')}</tr></thead>
+            <tbody>${linha('1 ano',12)}${linha('2 anos',24)}${linha('5 anos',60)}${linha('10 anos',120)}</tbody></table>
+          </div>`;
+        }
+        // assistente de decisão: simula o impacto de uma decisão no caixa futuro
+        function assistenteDecisaoCard(){
+          return `<div class="card">
+            <div class="card-h">🤔 Assistente de decisão — "e se eu...?"</div>
+            <p class="hint" style="margin:-8px 0 12px;">Descreva uma decisão e veja o impacto no seu caixa de 6 meses a 5 anos, comparado a não fazer nada.</p>
+            <div class="grid">
+              <div class="c4 f"><span class="lbl">O que você quer fazer</span><input class="inp" id="dec-desc" placeholder="Ex: Contratar um analista" value="${_dec.desc||''}"></div>
+              <div class="c4 f"><span class="lbl">Tipo</span><select class="inp" id="dec-tipo">
+                <option value="custo_rec" ${_dec.tipo==='custo_rec'?'selected':''}>Novo custo mensal (ex.: salário)</option>
+                <option value="rec_rec" ${_dec.tipo==='rec_rec'?'selected':''}>Nova receita mensal (recorrente)</option>
+                <option value="gasto_uni" ${_dec.tipo==='gasto_uni'?'selected':''}>Gasto único (ex.: equipamento)</option>
+                <option value="rec_uni" ${_dec.tipo==='rec_uni'?'selected':''}>Receita única (ex.: venda pontual)</option>
+              </select></div>
+              <div class="c3 f"><span class="lbl">Valor (R$)</span><input type="text" inputmode="decimal" class="inp" id="dec-valor" placeholder="3.000,00" value="${_dec.valor?fmtMoney(_dec.valor):''}" onblur="maskMoney(this)"></div>
+              <div class="c1 f" style="display:flex;align-items:flex-end;"><button class="btn btn-gold btn-sm" onclick="assistenteDecidir()">Simular</button></div>
+            </div>
+            <div id="dec-result">${_dec.resultadoHTML||''}</div>
+          </div>`;
+        }
+        let _dec={tipo:'custo_rec', valor:0, desc:'', resultadoHTML:''};
+        function assistenteDecidir(){
+          _dec.desc=(document.getElementById('dec-desc').value||'').trim();
+          _dec.tipo=document.getElementById('dec-tipo').value;
+          _dec.valor=parseMoney(document.getElementById('dec-valor').value)||0;
+          if(!_dec.valor){ document.getElementById('dec-result').innerHTML='<div style="color:var(--bad);font-size:13px;padding:10px 0;">Informe o valor da decisão.</div>'; return; }
+          let base=futuroPremissas();
+          let mod=Object.assign({},base);
+          if(_dec.tipo==='custo_rec') mod.custoFixo=base.custoFixo+_dec.valor;
+          else if(_dec.tipo==='rec_rec') mod.receita=base.receita+_dec.valor;
+          else if(_dec.tipo==='gasto_uni') mod.saldoIni=base.saldoIni-_dec.valor;
+          else if(_dec.tipo==='rec_uni') mod.saldoIni=base.saldoIni+_dec.valor;
+          const HOR=[['6 meses',6],['1 ano',12],['2 anos',24],['5 anos',60]];
+          let rows=HOR.map(h=>{ let a=futuroSerie(base,h[1]).caixaFim, b=futuroSerie(mod,h[1]).caixaFim, d=round2(b-a); let cor=d>=0?'var(--ok)':'var(--bad)'; return `<tr><td>${h[0]}</td><td style="text-align:right;">${brl(a)}</td><td style="text-align:right;">${brl(b)}</td><td style="text-align:right;color:${cor};font-weight:700;">${d>=0?'+':''}${brl(d)}</td></tr>`; }).join('');
+          let d5=round2(futuroSerie(mod,60).caixaFim-futuroSerie(base,60).caixaFim);
+          let verdito = d5>=0
+            ? `✓ <b>${_dec.desc||'Esta decisão'}</b> deixa seu caixa <b style="color:var(--ok);">${brl(d5)} maior</b> em 5 anos. Faz sentido financeiramente.`
+            : `⚠ <b>${_dec.desc||'Esta decisão'}</b> custa <b style="color:var(--bad);">${brl(-d5)}</b> do seu caixa em 5 anos${_dec.tipo==='custo_rec'?' (somando o efeito de não investir esse dinheiro)':''}. Só avance se o retorno esperado superar isso.`;
+          _dec.resultadoHTML=`<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
+            <table class="tbl"><thead><tr><th>Horizonte</th><th style="text-align:right;">Sem a decisão</th><th style="text-align:right;">Com a decisão</th><th style="text-align:right;">Diferença</th></tr></thead><tbody>${rows}</tbody></table>
+            <div class="ptg-next" style="margin-top:10px;">${verdito}</div></div>`;
+          document.getElementById('dec-result').innerHTML=_dec.resultadoHTML;
         }
 
         /* ===== VISÃO DO DONO — cockpit executivo (financeiro + metas + valuation) ===== */

@@ -173,6 +173,14 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       `finConciliar`.
     - **Meta de vendas do colaborador**: cada colaborador define e acompanha a
       própria meta na tela de Propostas. `renderColMeta`.
+22. **Cenários, marcos SMART e assistente de decisão**
+    - **Cenários comparados** (Simulador): pessimista / realista / otimista lado a
+      lado, com caixa acumulado por horizonte. `futuroCenariosCard`.
+    - **Marcos SMART** (metas financeiras): cada meta vira um roteiro de marcos
+      mensais que se marcam sozinhos conforme o valor guardado. `finMetasUI`.
+    - **Assistente de decisão** (Simulador): descreva uma decisão (custo/receita
+      recorrente ou única) e veja o impacto no caixa de 6 meses a 5 anos, com
+      veredito. `assistenteDecidir`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
