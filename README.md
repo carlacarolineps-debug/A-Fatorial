@@ -258,6 +258,16 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       os clientes já enviaram. `DOCS_NECESSARIOS` (agora editável), `renderDocsReq`,
       `docReqAdd/Editar/Excluir/Mover/Resetar`, `carregarDocsReq`/`salvarDocsReq`.
 
+28. **Menu lateral recolhível + área do colaborador reequilibrada**
+    - **Menu lateral expande/recolhe**: botão ☰ no topo recolhe a barra para mostrar
+      **só os ícones** de cada área (com tooltip no hover) e devolve o espaço ao
+      conteúdo; estado salvo (`af_sidebar`). `toggleSidebar`, `sidebarTitles`,
+      classe `body.side-collapsed`.
+    - **Portal do colaborador mais proporcional**: player card centralizado e com
+      largura/tamanho ajustados, subnav um pouco mais estreita e o conteúdo
+      reequilibrado (`.gamer .gmr-layout`, `.gmr-player`), aproveitando o espaço
+      liberado pelo menu recolhido.
+
 ## CNAEs registrados (base para Nota Fiscal)
 
 | CNAE | Atividade |
