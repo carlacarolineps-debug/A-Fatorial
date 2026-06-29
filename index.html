@@ -227,6 +227,21 @@ select.inp{cursor:pointer;}
 .doc-attach-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
 .doc-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:rgba(53,189,243,.12);color:#35bdf3;border-radius:20px;padding:4px 10px;}
 
+/* ============ CAMINHO GUIADO DO CLIENTE (roteiro ordenado) ============ */
+.roteiro{background:var(--panel);border:1px solid var(--gold);border-radius:var(--r);padding:20px 22px;margin-bottom:18px;box-shadow:0 6px 24px -14px rgba(200,162,74,.4);}
+.roteiro-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold-deep);margin-bottom:4px;}
+.roteiro-sub{font-size:13px;color:var(--ink-soft);margin-bottom:14px;}
+.rt-step{display:flex;gap:14px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line-soft);flex-wrap:wrap;}
+.rt-step:last-child{border-bottom:none;}
+.rt-badge{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid var(--line);color:var(--ink-faint);background:var(--panel-soft);}
+.rt-step.done .rt-badge{background:var(--ok);border-color:var(--ok);color:#fff;}
+.rt-step.cur .rt-badge{background:var(--gold);border-color:var(--gold);color:#1a1408;box-shadow:0 0 0 4px rgba(200,162,74,.18);}
+.rt-step.lock{opacity:.5;}
+.rt-main{flex:1;min-width:160px;}
+.rt-t{font-weight:600;font-size:14px;}
+.rt-d{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.rt-act{flex-shrink:0;margin-left:auto;}
+
 /* ============ CLIENT OVERLAY (proposta) ============ */
 .cli-ov{display:none;position:fixed;inset:0;z-index:9999;background:#0b0b0e;overflow-y:auto;}
 .cli-ov.on{display:block;}
@@ -1043,6 +1058,12 @@ body.theme-gamer .scroll [style*="background:#fbfaf7"],
 body.theme-gamer .modal [style*="background:#fbfaf7"]{background:rgba(255,255,255,.03)!important;}
 body.theme-gamer .scroll [style*="background:#fff"],
 body.theme-gamer .modal [style*="background:#fff"]{background:rgba(20,28,44,.85)!important;}
+/* boxes com fundo claro embutido que o JS liga/desliga: o seletor de atributo acima
+   deixa de casar quando o navegador re-serializa o style inline (#fbfaf7 -> rgb(...)).
+   Fixamos por id/classe para garantir contraste no tema escuro. */
+body.theme-gamer #f-plano-preview,
+body.theme-gamer #f-online-box>div,
+body.theme-gamer .sens{background:rgba(255,255,255,.03)!important;color:var(--ink)!important;border-color:var(--line)!important;}
 /* realce neon no menu lateral ativo (mantém identidade dourada) */
 body.theme-gamer .nav-item.on{background:linear-gradient(100deg,rgba(53,230,255,.16),rgba(200,162,74,.10));color:var(--gold-soft);box-shadow:inset 0 0 0 1px var(--line);}
 
@@ -1407,6 +1428,16 @@ body.apresentacao #apr-banner{display:block;}
         <div class="cat" id="f-catalogo"></div>
         <div id="f-sugestoes" style="margin-top:14px;"></div>
 
+        <div class="divider"><span class="n">📦</span> Entregáveis deste cliente</div>
+        <p class="hint" style="margin:-6px 0 12px;">Marque os <b>entregáveis padrão</b> que <b>este cliente específico</b> vai receber. Eles viram tarefas auditáveis (aba Entregáveis) e aparecem no portal do cliente, um a um.</p>
+        <div class="cat" id="f-entregaveis"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center;">
+          <input class="inp" id="f-entregavel-novo" placeholder="Adicionar entregável personalizado..." style="flex:1;min-width:200px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addEntregavelCustom();}">
+          <button class="btn btn-ghost btn-sm" onclick="addEntregavelCustom()">+ Adicionar</button>
+          <button class="btn btn-ghost btn-sm" onclick="entregaveisSugerir()" title="Pré-seleciona entregáveis ligados aos serviços marcados">✨ Sugerir pelos serviços</button>
+          <span class="hint" id="f-entregaveis-cont" style="margin-left:auto;"></span>
+        </div>
+
         <div class="divider"><span class="n">3</span> Operação e carga horária</div>
         <div class="grid">
           <div class="c4 f"><span class="lbl">Gestor responsável *</span>
@@ -1678,6 +1709,9 @@ body.apresentacao #apr-banner{display:block;}
 
         <!-- gamificação do cliente: nível, XP e conquistas -->
         <div id="pt-game"></div>
+
+        <!-- caminho guiado do cliente, na ordem certa -->
+        <div id="pt-roteiro"></div>
 
         <!-- jornada visual -->
         <div class="pt-journey">
@@ -2120,6 +2154,15 @@ body.apresentacao #apr-banner{display:block;}
 
 <div id="toast-wrap"></div>
 
+<div class="modal" id="m-prox">
+  <div class="modal-card" style="max-width:460px;text-align:center;">
+    <div id="prox-ic" style="font-size:40px;margin-bottom:4px;">🎉</div>
+    <h3 id="prox-tit" style="text-align:center;">Tarefa concluída!</h3>
+    <div id="prox-body" class="ms" style="text-align:center;margin-bottom:6px;"></div>
+    <div class="modal-acts" id="prox-acts" style="justify-content:center;flex-wrap:wrap;"></div>
+  </div>
+</div>
+
 <div class="modal" id="m-doc">
   <div class="modal-card" style="max-width:620px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
@@ -2314,6 +2357,25 @@ body.apresentacao #apr-banner{display:block;}
           w.appendChild(el);
           setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),320); }, ms||3200);
         }
+        // caixa "tarefa concluída → próxima tarefa/missão" com botão de ação
+        let _proxCb=null, _proxCb2=null;
+        function caixaProxima(opts){
+          opts=opts||{};
+          document.getElementById('prox-ic').innerText=opts.ic||'🎉';
+          document.getElementById('prox-tit').innerText=opts.titulo||'Concluído!';
+          document.getElementById('prox-body').innerHTML=opts.msg||'';
+          _proxCb=opts.acao||null; _proxCb2=opts.acao2||null;
+          let acts='';
+          if(opts.btnLabel) acts+=`<button class="btn btn-gold" onclick="proxAcao()">${opts.btnLabel}</button>`;
+          if(opts.btn2Label) acts+=`<button class="btn btn-ghost" onclick="proxAcao2()">${opts.btn2Label}</button>`;
+          acts+=`<button class="btn btn-ghost" onclick="proxFechar()">Agora não</button>`;
+          document.getElementById('prox-acts').innerHTML=acts;
+          document.getElementById('m-prox').classList.add('on');
+          if(opts.som!==false && typeof SOUND!=='undefined') SOUND.play(opts.som||'success');
+        }
+        function proxFechar(){ document.getElementById('m-prox').classList.remove('on'); }
+        function proxAcao(){ proxFechar(); if(typeof _proxCb==='function') _proxCb(); }
+        function proxAcao2(){ proxFechar(); if(typeof _proxCb2==='function') _proxCb2(); }
         function brandSet(campo,val){ BRAND[campo]=val; brandSalvar(); renderBrand(); }
         function renderBrand(){
           let box=document.getElementById('brand-body'); if(!box)return;
@@ -2751,6 +2813,56 @@ body.apresentacao #apr-banner{display:block;}
           }).join('');
           renderCatTabela();
         }
+        /* ===== ENTREGÁVEIS PADRÃO (o consultor escolhe os deste cliente) ===== */
+        const ENTREGAVEIS_PADRAO=[
+          {grupo:'Diagnóstico & Estratégia', itens:['Relatório de Diagnóstico 360° (Raio-X)','Plano de Ação priorizado (90 dias)','Mapa Estratégico (visão, metas e OKRs)']},
+          {grupo:'Processos & Pessoas', itens:['Manual de Processos (POPs)','Organograma e descrição de cargos','Política de Cultura e valores']},
+          {grupo:'Financeiro', itens:['DRE gerencial estruturado','Fluxo de caixa projetado','Tabela de precificação com margem']},
+          {grupo:'Comercial & Marketing', itens:['Funil de vendas e metas comerciais','Scripts e rotina de vendas','Posicionamento e proposta de valor']},
+          {grupo:'Gestão & Resultados', itens:['Painel de Indicadores (KPIs)','Atas de reunião de resultado (PDCA)','Relatório final de resultados / auditoria']}
+        ];
+        let entregaveisCustom=[]; // entregáveis personalizados desta proposta
+        function renderEntregaveisCatalogo(){
+          let cont=document.getElementById('f-entregaveis'); if(!cont)return;
+          let html=ENTREGAVEIS_PADRAO.map(g=>'<div class="cat-grp">'+g.grupo+'</div>'+
+            g.itens.map(n=>`<label class="cat-item"><input type="checkbox" class="cent" data-nome="${n.replace(/"/g,'&quot;')}" onchange="entregaveisCont()"> <span class="nm">${n}</span></label>`).join('')
+          ).join('');
+          if(entregaveisCustom.length){
+            html+='<div class="cat-grp">Personalizados</div>'+entregaveisCustom.map((n,i)=>`<label class="cat-item"><input type="checkbox" class="cent" data-nome="${n.replace(/"/g,'&quot;')}" checked onchange="entregaveisCont()"> <span class="nm">${n}</span><span onclick="event.preventDefault();entregaveisCustom.splice(${i},1);renderEntregaveisCatalogo();" style="cursor:pointer;color:var(--ink-faint);" title="Remover">✕</span></label>`).join('');
+          }
+          cont.innerHTML=html;
+          entregaveisCont();
+        }
+        function entregaveisCont(){
+          let n=document.querySelectorAll('.cent:checked').length;
+          let el=document.getElementById('f-entregaveis-cont'); if(el) el.innerHTML=n?('✓ '+n+' entregável(is) selecionado(s)'):'Nenhum entregável selecionado ainda';
+        }
+        function addEntregavelCustom(){
+          let inp=document.getElementById('f-entregavel-novo'); let v=(inp.value||'').trim(); if(!v)return;
+          if(!entregaveisCustom.includes(v) && !ENTREGAVEIS_PADRAO.some(g=>g.itens.includes(v))) entregaveisCustom.push(v);
+          inp.value=''; renderEntregaveisCatalogo();
+        }
+        function entregaveisSugerir(){
+          let servs=[...document.querySelectorAll('.cserv:checked')].map(c=>(c.dataset.nome||'').toLowerCase());
+          if(servs.length===0){ alert('Selecione ao menos um serviço no escopo (passo 2) primeiro.'); return; }
+          let s=servs.join(' | ');
+          const mapa=[
+            {kw:['diagn','raio','estrat','okr','planejamento'], ent:['Relatório de Diagnóstico 360° (Raio-X)','Plano de Ação priorizado (90 dias)','Mapa Estratégico (visão, metas e OKRs)']},
+            {kw:['process','pop','padroniz'], ent:['Manual de Processos (POPs)']},
+            {kw:['reestrutur','organiz','cargo','sucess'], ent:['Organograma e descrição de cargos']},
+            {kw:['cultura','mudança','mudanca'], ent:['Política de Cultura e valores']},
+            {kw:['financ','fluxo','precif','dre','valuation','captação','captacao'], ent:['DRE gerencial estruturado','Fluxo de caixa projetado','Tabela de precificação com margem']},
+            {kw:['comercial','vend','funil','marketing','posicion'], ent:['Funil de vendas e metas comerciais','Scripts e rotina de vendas','Posicionamento e proposta de valor']},
+            {kw:['indicador','kpi','painel','pdca','rotina','mentoria','líder','lider'], ent:['Painel de Indicadores (KPIs)','Atas de reunião de resultado (PDCA)']}
+          ];
+          let alvo=new Set(['Relatório final de resultados / auditoria']);
+          mapa.forEach(m=>{ if(m.kw.some(k=>s.includes(k))) m.ent.forEach(e=>alvo.add(e)); });
+          let marcou=0;
+          document.querySelectorAll('.cent').forEach(c=>{ if(alvo.has(c.dataset.nome)){ if(!c.checked)marcou++; c.checked=true; } });
+          entregaveisCont();
+          if(typeof toast==='function') toast(marcou?('✨ '+marcou+' entregável(is) sugerido(s) pelos serviços marcados.'):'Os entregáveis sugeridos já estavam marcados.','info');
+        }
+        function entregaveisSelecionados(){ return [...document.querySelectorAll('.cent:checked')].map(c=>c.dataset.nome); }
         /* ===== CNAE / BASE DA NOTA FISCAL =====
            CNAEs registrados no CNPJ 30.361.388/0001-17 (A! FATORIAL SOLUÇÕES
            PARA EMPRESAS E FRANQUIAS LTDA). São os únicos que podem servir de
@@ -3600,6 +3712,31 @@ body.apresentacao #apr-banner{display:block;}
           deal.historico.push({etapa:e, label:lbl, hora:new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})});
           trackRender();
           if(typeof renderPortal==='function' && document.getElementById('v-portal').classList.contains('on')) renderPortal();
+          // caixa "tarefa concluída → próxima tarefa" (só no lado do consultor/esteira)
+          if(document.getElementById('v-funil') && document.getElementById('v-funil').classList.contains('on')) estProxCaixa();
+        }
+        // mostra qual é o próximo passo da esteira, com botão de ação direto
+        function estProxCaixa(){
+          if(!deal)return;
+          const map={
+            proposta:{t:'Gerar a proposta premium',btn:'Gerar proposta',fn:()=>estProposta()},
+            envio:{t:'Enviar a proposta ao cliente',btn:'Enviar proposta',fn:()=>estEnviar()},
+            aprovacao:{t:'Aguardando o cliente acessar e aprovar a proposta',btn:'Abrir portal do cliente',fn:()=>go('portal'),wait:true},
+            contrato:{t:'Gerar e enviar o contrato (D4Sign)',btn:'Gerar contrato',fn:()=>estContrato()},
+            pagamento:{t:'Confirmar assinatura e lançar o financeiro',btn:'Confirmar e lançar',fn:()=>estPagamento()},
+            kickoff:{t:'Agendar o kickoff e preparar o onboarding',btn:'Preparar kickoff',fn:()=>estKickoff()},
+            onboarding:{t:'Aguardando o cliente confirmar o onboarding',btn:'Abrir portal do cliente',fn:()=>go('portal'),wait:true},
+            producao:{t:'Produzir os entregáveis deste cliente',btn:'Criar entregáveis',fn:()=>estProducao()},
+            envio_entrega:{t:'Enviar um entregável para o cliente avaliar',btn:'Enviar entregável',fn:()=>estEnviarEntrega()},
+            aprovacao_entrega:{t:'Aguardando o cliente avaliar o entregável',btn:'Abrir portal do cliente',fn:()=>go('portal'),wait:true},
+            satisfacao:{t:'Aguardando a pesquisa de satisfação do cliente',btn:'Abrir portal do cliente',fn:()=>go('portal'),wait:true},
+            depoimento:{t:'Captar o depoimento / prova real',btn:'Captar depoimento',fn:()=>estDepoimento()},
+            concluido:{t:'Jornada concluída! 🎉 Tudo conectado e registrado.',btn:'Iniciar novo cliente',fn:()=>estReset()}
+          };
+          let nx=map[deal.etapa]; if(!nx)return;
+          caixaProxima({ ic:nx.wait?'⏳':(deal.etapa==='concluido'?'🏆':'✅'),
+            titulo:deal.etapa==='concluido'?'Jornada concluída!':'Tarefa concluída!',
+            msg:'Próximo passo:<br><b>'+nx.t+'</b>', btnLabel:nx.btn, acao:nx.fn });
         }
         function validarCadastro(){
           let st=document.getElementById('f-valid-status'); if(!st)return;
@@ -3641,6 +3778,7 @@ body.apresentacao #apr-banner{display:block;}
         function abrirConferencia(){
           let g=id=>document.getElementById(id);
           let servs=[...document.querySelectorAll('.cserv:checked')].map(c=>c.dataset.nome);
+          let ents=entregaveisSelecionados();
           let eqp=[...document.querySelectorAll('.eqp:checked')].map(c=>c.dataset.nome);
           let rf=g('r-final');
           let html=`
@@ -3650,6 +3788,7 @@ body.apresentacao #apr-banner{display:block;}
               <div><b>Origem:</b> ${g('f-origem').value}</div>
               <div><b>Temperatura:</b> ${g('f-temp').options[g('f-temp').selectedIndex].text}</div>
               <div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:8px;"><b>Serviços (${servs.length}):</b> ${servs.join(', ')}</div>
+              <div style="grid-column:1/-1;"><b>Entregáveis (${ents.length}):</b> ${ents.length?ents.join(', '):'<span style="color:var(--warn);">nenhum selecionado — usaremos os serviços como entregáveis</span>'}</div>
               <div><b>Equipe:</b> ${eqp.join(', ')}</div>
               <div><b>Duração:</b> ${g('f-meses').value||'?'} meses</div>
               <div><b>Pagamento:</b> ${resumoPagamento()}</div>
@@ -3677,7 +3816,11 @@ body.apresentacao #apr-banner{display:block;}
             lucro:parseFloat(g('r-final').dataset.lucro)||0, margem:parseFloat(g('r-final').dataset.margem)||0,
             meses:g('f-meses').value, fim:g('f-fim').value, pagamento:resumoPagamento(),
             forma:g('f-forma')?.value||'PIX', modelo:g('f-modelo')?.value||'avista',
+            // snapshot dos parâmetros de pagamento (para gerar parcelas sem depender do formulário)
+            entrada:parseMoney(g('f-entrada')?.value), planoParc:parsePlano().parc,
+            entradaDt:g('f-entrada-dt')?.value||'', pgStatus:g('f-pgstatus')?.value||'pendente',
             servicos:[...document.querySelectorAll('.cserv:checked')].map(c=>c.dataset.nome),
+            entregaveisSel:entregaveisSelecionados(),
             equipe:[...document.querySelectorAll('.eqp:checked')].map(c=>c.dataset.nome),
             etapa:'proposta', proposta:null, criadoEm:Date.now() };
           trackRender();
@@ -3701,26 +3844,27 @@ body.apresentacao #apr-banner{display:block;}
           portalSetCliente(deal);
           portalAddDoc(deal,'Proposta comercial','proposta','equipe','Proposta premium para sua avaliação e aprovação.',{propId:p.id});
           renderPortal();
-          alert('Proposta enviada ao portal do cliente. A esteira aguarda a aprovação dele.\n\nAbra "Portal do cliente" no menu para ver/agir como o cliente.');
+          if(typeof toast==='function') toast('Proposta enviada ao portal do cliente.');
           notify('cliente','Proposta recebida','Você recebeu uma proposta comercial para avaliar e aprovar no portal.','portal');
           estAvancar('aprovacao');
         }
         function estContrato(){
           if(!deal.email && !confirm('E-mail do cliente vazio. Continuar mesmo assim?')) return;
-          portalAddDoc(deal,'Contrato de prestação de serviços','contrato','equipe','Contrato gerado via D4Sign — assine no portal.',{});
-          alert('Contrato gerado e enviado ao portal do cliente (D4Sign).');
+          garantirContratoDoc(deal);
+          if(typeof toast==='function') toast('Contrato gerado e enviado ao portal do cliente.');
           notify('cliente','Contrato disponível','Há um contrato aguardando sua assinatura no portal.','portal');
           renderPortal();
           estAvancar('pagamento');
         }
         function estPagamento(){
-          DB.fin.bruto+=deal.valor; DB.fin.receber+=deal.valor; DB.fin.impostos+=deal.imp;
-          DB.recebiveis=DB.recebiveis||[];
-          // gera o cronograma de parcelas do cliente
-          let parcelas=gerarParcelas(deal);
-          DB.recebiveis.push({ dealId:deal.id, cliente:deal.cliente, valorTotal:deal.valor, venc:deal.venc,
-            forma:deal.forma||document.getElementById('f-forma')?.value||'PIX', modelo:deal.modelo||document.getElementById('f-modelo')?.value||'avista',
-            parcelas });
+          // o financeiro entra na DRE uma única vez
+          if(!deal.financeiroLancado){
+            DB.fin.bruto+=deal.valor; DB.fin.receber+=deal.valor; DB.fin.impostos+=deal.imp;
+            deal.financeiroLancado=true;
+          }
+          // cronograma de parcelas (pode já ter sido criado na aprovação da proposta)
+          let r=garantirRecebiveis(deal);
+          let parcelas=r.parcelas;
           renderFinanceiro(); renderDash();
           notify('financeiro','Receita lançada','Receita de '+deal.valorFmt+' lançada em '+parcelas.length+' lançamento(s).','financeiro');
           // se boleto/PIX, programa lembretes mensais ao cliente
@@ -3732,27 +3876,42 @@ body.apresentacao #apr-banner{display:block;}
         }
         function gerarParcelas(d){
           let g=id=>document.getElementById(id);
-          let modelo=g('f-modelo')?.value||'avista';
-          let venc=g('f-venc')?.value||'10';
+          // prefere o snapshot salvo no deal; cai no formulário se o deal não tiver
+          let modelo=d.modelo||g('f-modelo')?.value||'avista';
+          let venc=d.venc||g('f-venc')?.value||'10';
           let total=d.valor;
           let out=[];
           if(modelo==='parcelado'){
-            let ent=parseMoney(g('f-entrada')?.value);
-            let pl=parsePlano(); let n=pl.parc;
-            let dtEnt=g('f-entrada-dt')?.value||'';
+            let ent=(d.entrada!=null?d.entrada:parseMoney(g('f-entrada')?.value))||0;
+            let n=(d.planoParc!=null?d.planoParc:parsePlano().parc)||0;
+            let dtEnt=d.entradaDt||g('f-entrada-dt')?.value||'';
             let restante=Math.max(total-ent,0); let parcela=n>0?restante/n:0;
-            let entPago=g('f-pgstatus')?.value==='realizado';
+            let entPago=(d.pgStatus||g('f-pgstatus')?.value)==='realizado';
             let base=new Date();
             if(ent>0) out.push({rotulo:'Entrada',valor:ent,venc:dtEnt?dtEnt.split('-').reverse().join('/'):('dia '+venc),pago:entPago,dataPagto:entPago?new Date().toLocaleDateString('pt-BR'):null,comprovante:(entPago&&compEntrada)?compEntrada:null});
             for(let i=1;i<=n;i++){ let dt=new Date(base.getFullYear(),base.getMonth()+i,parseInt(venc)); out.push({rotulo:'Parcela '+i+'/'+n,valor:parcela,venc:dtBR(dt),pago:false,comprovante:null}); }
           } else if(modelo==='recorrente'){
-            let mes=parseInt(g('f-meses')?.value)||1; let mensal=total/mes; let base=new Date();
+            let mes=parseInt(d.meses||g('f-meses')?.value)||1; let mensal=total/mes; let base=new Date();
             for(let i=1;i<=mes;i++){ let dt=new Date(base.getFullYear(),base.getMonth()+i,parseInt(venc)); out.push({rotulo:'Mês '+i+'/'+mes,valor:mensal,venc:dtBR(dt),pago:false,comprovante:null}); }
           } else {
-            let entPago=g('f-pgstatus')?.value==='realizado';
+            let entPago=(d.pgStatus||g('f-pgstatus')?.value)==='realizado';
             out.push({rotulo:'À vista',valor:total,venc:'dia '+venc,pago:entPago,dataPagto:entPago?new Date().toLocaleDateString('pt-BR'):null,comprovante:(entPago&&compEntrada)?compEntrada:null});
           }
           return out;
+        }
+        // garante o cronograma de parcelas do cliente (sem duplicar)
+        function garantirRecebiveis(d){
+          DB.recebiveis=DB.recebiveis||[];
+          if(DB.recebiveis.some(r=>r.dealId===d.id)) return DB.recebiveis.find(r=>r.dealId===d.id);
+          let parcelas=gerarParcelas(d);
+          let r={ dealId:d.id, cliente:d.cliente, valorTotal:d.valor, venc:d.venc, forma:d.forma||'PIX', modelo:d.modelo||'avista', parcelas };
+          DB.recebiveis.push(r);
+          return r;
+        }
+        // garante o documento de contrato no portal (sem duplicar)
+        function garantirContratoDoc(d){
+          let pr=DB.portais[d.id]; if(!pr)return;
+          if(!pr.docs.some(x=>x.tipo==='contrato')) portalAddDoc(d,'Contrato de prestação de serviços','contrato','equipe','Contrato gerado via D4Sign — assine no portal.',{});
         }
         function estKickoff(){
           let ob={ dealId:deal.id, cliente:deal.cliente, decisor:deal.decisor, servicos:deal.servicos,
@@ -3762,29 +3921,30 @@ body.apresentacao #apr-banner{display:block;}
           DB.onboardings.push(ob); deal.onboarding=ob;
           portalSetOnboarding(deal, ob);
           renderPortal();
-          alert('Kickoff preparado e onboarding publicado no portal do cliente. A esteira aguarda o cliente confirmar os próximos passos.');
+          if(typeof toast==='function') toast('Kickoff preparado e onboarding publicado no portal.');
           notify('cliente','Onboarding disponível','Seu onboarding está no portal. Confirme os próximos passos.','portal');
           estAvancar('onboarding');
         }
         function estProducao(){
           DB.kpis.ativos++; criarEntregaveis(deal); renderDash();
-          alert('Entregáveis criados. Quando prontos, envie cada um para aprovação do cliente.');
+          let qtd=DB.entregaveis.filter(e=>e.dealId===deal.id).length;
+          if(typeof toast==='function') toast(qtd+' entregável(is) criado(s) para a equipe trabalhar.');
           estAvancar('envio_entrega');
         }
         function estEnviarEntrega(){
           let ent=DB.entregaveis.find(e=>e.dealId===deal.id && e.status==='na_fila');
-          if(!ent){ alert('Nenhum entregável pendente para enviar. Avançando.'); estAvancar('aprovacao_entrega'); return; }
+          if(!ent){ if(typeof toast==='function')toast('Nenhum entregável pendente. Avançando.','warn'); estAvancar('aprovacao_entrega'); return; }
           ent.status='aguardando_cliente';
           portalAddDoc(deal, ent.nome, 'entregavel', 'equipe', 'Entregável para sua avaliação e aprovação.', {entId:ent.id});
           renderPortal(); renderEnt();
           notify('cliente','Entregável recebido','Há um entregável no portal aguardando sua avaliação.','portal');
-          alert('Entregável "'+ent.nome+'" publicado no portal do cliente para avaliação.');
+          if(typeof toast==='function') toast('Entregável "'+ent.nome+'" publicado no portal.');
           estAvancar('aprovacao_entrega');
         }
         function estDepoimento(){
           let ent=DB.entregaveis.find(e=>e.dealId===deal.id && e.sat && e.sat.nota>=4);
           if(ent){ depAbrir(ent.id); }
-          else { alert('Jornada concluída.'); estAvancar('concluido'); }
+          else { estAvancar('concluido'); }
         }
         function estReset(){
           if(deal&&deal.etapa!=='concluido'){
@@ -3799,6 +3959,7 @@ body.apresentacao #apr-banner{display:block;}
             }
           }
           deal=null; document.getElementById('f-razao').value=''; document.querySelectorAll('.cserv:checked').forEach(c=>c.checked=false);
+          entregaveisCustom=[]; renderEntregaveisCatalogo();
           calcOrcamento(); validarCadastro(); trackRender(); document.getElementById('v-funil').scrollIntoView({behavior:'smooth',block:'start'});
         }
         DB.perdas=[];
@@ -4287,8 +4448,10 @@ body.apresentacao #apr-banner{display:block;}
           if(deal&&deal.proposta&&deal.proposta.id===p.id){
             let pr=DB.portais[deal.id]; if(pr){ pr.acessoLiberado=true; pr.docsCompletos=false; }
             let docProp=pr&&pr.docs?pr.docs.find(x=>x.tipo==='proposta'):null; if(docProp)docProp.status='aprovado';
+            // libera pagamento e contrato para o cliente seguir na ordem certa
+            garantirRecebiveis(deal); garantirContratoDoc(deal);
             if(deal.etapa==='aprovacao') estAvancar('contrato');
-            notify('cliente','Cliente aprovou a proposta','O cliente aprovou. Portal liberado; aguardando envio de documentos.','funil');
+            notify('cliente','Cliente aprovou a proposta','O cliente aprovou. Pagamento e contrato liberados no portal.','funil');
           }
           // tela de boas-vindas + passo de documentos
           renderEtapaDocumentos(p);
@@ -4341,7 +4504,9 @@ body.apresentacao #apr-banner{display:block;}
         /* ===== ENTREGÁVEIS ===== */
         const EST={ na_fila:{l:'Na fila',c:'#71717a',b:'#f1efe8',i:'⏳'},em_andamento:{l:'Em andamento',c:'#185fa5',b:'#e6f1fb',i:'⚙'},em_revisao:{l:'Em revisão',c:'#854f0b',b:'#faeeda',i:'🔍'},aguardando_cliente:{l:'No portal do cliente',c:'#854f0b',b:'#faeeda',i:'◐'},aprovado:{l:'Aprovado pelo cliente',c:'#0f6e56',b:'#e1f5ee',i:'✓'},entregue:{l:'Entregue',c:'#0f6e56',b:'#e1f5ee',i:'📦'},gargalo:{l:'Gargalo',c:'#a32d2d',b:'#fcebeb',i:'⚠'} };
         function criarEntregaveis(d){
-          (d.servicos||[]).forEach(s=>DB.entregaveis.push({id:'ENT-'+(entSeq++),dealId:d.id,cliente:d.cliente,nome:s,resp:(d.equipe&&d.equipe[0])||'Carla Caroline',prazo:d.fim||'',status:'na_fila',sat:null,depo:null}));
+          // usa os entregáveis escolhidos para ESTE cliente; se nenhum, cai nos serviços
+          let lista=(d.entregaveisSel&&d.entregaveisSel.length)?d.entregaveisSel:(d.servicos||[]);
+          lista.forEach(s=>DB.entregaveis.push({id:'ENT-'+(entSeq++),dealId:d.id,cliente:d.cliente,nome:s,resp:(d.equipe&&d.equipe[0])||'Carla Caroline',prazo:d.fim||'',status:'na_fila',sat:null,depo:null}));
           renderEnt();
         }
         function entStats(){let e=DB.entregaveis;let s=e.filter(x=>x.sat);return{total:e.length,prod:e.filter(x=>['na_fila','em_andamento','em_revisao'].includes(x.status)).length,aguard:e.filter(x=>x.status==='em_revisao').length,media:s.length?(s.reduce((a,x)=>a+x.sat.nota,0)/s.length).toFixed(1):'—'};}
@@ -5835,6 +6000,23 @@ body.apresentacao #apr-banner{display:block;}
           colAddXP(c,m.xp,'Missão concluída: '+m.titulo,'missao');
           colTimelineAdd(c,'missao','Missão concluída ✓',m.titulo+' (+'+m.xp+' XP)');
           colIr('missoes');
+          // caixa: qual é a próxima missão + botão de ação
+          let prox=(c.missoes||[]).filter(x=>x.status==='ativa')[0];
+          let sug=!prox?colMissoesSugeridas(c)[0]:null;
+          if(prox){
+            caixaProxima({ic:'✅',titulo:'Missão concluída! +'+m.xp+' XP',
+              msg:'Sua próxima missão ativa é:<br><b>'+prox.titulo+'</b><br><span style="font-size:12px;color:var(--ink-soft);">'+(prox.desc||'')+'</span>',
+              btnLabel: prox.ir?'▶ Fazer agora':'Ver missão',
+              acao:()=>{ if(prox.ir&&colAbaLiberada(c,prox.ir)){toast('Vamos lá →');colIr(prox.ir);} else colIr('missoes'); }});
+          } else if(sug){
+            caixaProxima({ic:'✅',titulo:'Missão concluída! +'+m.xp+' XP',
+              msg:'Que tal já aceitar a próxima?<br><b>'+sug.titulo+'</b> · +'+sug.xp+' XP<br><span style="font-size:12px;color:var(--ink-soft);">'+sug.desc+'</span>',
+              btnLabel:'⚔️ Aceitar e fazer', acao:()=>colAceitarMissao(encodeURIComponent(sug.titulo))});
+          } else {
+            caixaProxima({ic:'🏆',titulo:'Missão concluída! +'+m.xp+' XP',
+              msg:'Você está com todas as missões em dia. Continue evoluindo no seu painel!',
+              btnLabel:'Ir para o painel', acao:()=>colIr('dash')});
+          }
         }
         /* ===================== EVOLUÇÃO NO TEMPO ===================== */
         function colEvolucao(){
@@ -7042,6 +7224,8 @@ body.apresentacao #apr-banner{display:block;}
           document.getElementById('pt-docs').innerText=p.docs.length;
           // GAMIFICAÇÃO DO CLIENTE
           renderPortalGame(p, idx, acoes.length);
+          // CAMINHO GUIADO (passos na ordem certa)
+          renderPortalRoteiro(p);
           if(typeof renderPortalCrossSell==='function') renderPortalCrossSell(p);
           // ONBOARDING
           let ob=p.onboarding, obEl=document.getElementById('pt-onboarding');
@@ -7099,6 +7283,66 @@ body.apresentacao #apr-banner{display:block;}
             <div><b>Duração:</b> ${p.deal.meses||'?'} meses</div>
             <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:10px;"><b>Linha do tempo</b></div>
             ${(p.deal.historico||[]).slice().reverse().map(h=>`<div style="font-size:12px;color:var(--ink-soft);padding:3px 0;">• ${h.label} <span style="color:var(--ink-faint);">— ${h.hora}</span></div>`).join('')||'<div style="font-size:12px;color:var(--ink-faint);">Sem eventos ainda.</div>'}`;
+        }
+        /* ===== CAMINHO GUIADO DO CLIENTE — passos na ordem certa ===== */
+        function renderPortalRoteiro(p){
+          let cont=document.getElementById('pt-roteiro'); if(!cont)return;
+          let docs=p.docs||[];
+          let r=(DB.recebiveis||[]).find(x=>x.dealId===p.dealId);
+          let propDoc=docs.find(d=>d.tipo==='proposta');
+          let contratoDoc=docs.find(d=>d.tipo==='contrato');
+          let propAprovada=(propDoc&&propDoc.status==='aprovado')||(p.deal&&p.deal.proposta&&p.deal.proposta.aprovou);
+          let pagamentoDisp=!!r;
+          let pagou=r&&r.parcelas.some(x=>x.pago||x.comprovante);
+          let docsTodos=DOCS_NECESSARIOS.every(dn=>p.docsEnviados&&p.docsEnviados[dn]);
+          let algumDoc=DOCS_NECESSARIOS.some(dn=>p.docsEnviados&&p.docsEnviados[dn]);
+          let contratoDisp=!!contratoDoc;
+          let contratoAssinado=contratoDoc&&(contratoDoc.status==='assinado'||contratoDoc.status==='aprovado');
+          let onbDisp=!!p.onboarding;
+          let onbOk=p.onboarding&&p.onboarding.confirmadoCliente;
+          let entDisp=docs.some(d=>d.tipo==='entregavel');
+          let entOk=docs.some(d=>d.tipo==='entregavel'&&d.status==='aprovado');
+          let satDisp=(DB.entregaveis||[]).some(e=>e.dealId===p.dealId);
+          let satOk=docs.some(d=>d.aval)||(DB.entregaveis||[]).some(e=>e.dealId===p.dealId&&e.sat);
+          let steps=[
+            {t:'Acessar e aprovar a proposta', d:'Leia a proposta comercial e aprove para liberar o restante.', done:propAprovada, disp:!!propDoc, btn:'Abrir proposta', fn:"ptVerDoc('proposta')"},
+            {t:'Realizar o pagamento', d:'Pague a entrada (ou à vista) e envie o comprovante.', done:pagou, disp:pagamentoDisp, btn:'Pagar / enviar comprovante', fn:'ptPagar()'},
+            {t:'Anexar os documentos', d:'Envie os documentos padrão: contrato social, CNPJ, RG/CPF e comprovante.', done:docsTodos, disp:true, btn:algumDoc?'Continuar documentos':'Anexar documentos', fn:'ptAnexarDocumentos()'},
+            {t:'Assinar o contrato', d:'Revise e assine o contrato de prestação de serviços.', done:contratoAssinado, disp:contratoDisp, btn:'Abrir e assinar', fn:"ptVerDoc('contrato')"},
+            {t:'Confirmar o onboarding', d:'Revise os próximos passos e confirme para a equipe iniciar.', done:onbOk, disp:onbDisp, btn:'Confirmar onboarding', fn:'ptConfirmarOnboarding()'},
+            {t:'Avaliar os entregáveis', d:'Veja o que a equipe entregou e aprove (ou peça ajuste).', done:entOk, disp:entDisp, btn:'Abrir entregável', fn:"ptVerDoc('entregavel')"},
+            {t:'Avaliar sua satisfação', d:'Dê sua nota e, se quiser, deixe um depoimento.', done:satOk, disp:satDisp, btn:'Avaliar', fn:'ptResponderSatisfacao()'}
+          ];
+          let curIdx=steps.findIndex(s=>!s.done);
+          let feitos=steps.filter(s=>s.done).length;
+          let html=`<div class="roteiro"><div class="roteiro-h">✦ Seu caminho — siga na ordem</div>
+            <div class="roteiro-sub">${feitos} de ${steps.length} passos concluídos. Faça um de cada vez — o próximo libera quando o anterior estiver pronto.</div>`;
+          steps.forEach((s,i)=>{
+            let cls=s.done?'done':(i===curIdx?'cur':'lock');
+            let badge=s.done?'✓':(i+1);
+            let act;
+            if(s.done) act=`<span style="font-size:12px;color:var(--ok);font-weight:600;">Concluído</span>`;
+            else if(i===curIdx) act=s.disp?`<button class="btn btn-gold btn-sm" onclick="${s.fn}">${s.btn} →</button>`:`<span style="font-size:11px;color:var(--ink-soft);">⏳ Aguardando a equipe liberar</span>`;
+            else act=`<span style="font-size:16px;color:var(--ink-faint);" title="Conclua os passos anteriores">🔒</span>`;
+            html+=`<div class="rt-step ${cls}"><div class="rt-badge">${badge}</div><div class="rt-main"><div class="rt-t">${s.t}</div><div class="rt-d">${s.d}</div></div><div class="rt-act">${act}</div></div>`;
+          });
+          html+=`</div>`;
+          cont.innerHTML=html;
+        }
+        function ptPagar(){
+          let p=portalAtual(); if(!p)return;
+          let r=(DB.recebiveis||[]).find(x=>x.dealId===p.dealId);
+          if(!r){ toast('O pagamento ainda não foi liberado pela equipe.','warn'); return; }
+          let idx=r.parcelas.findIndex(x=>!x.pago && !x.comprovante);
+          if(idx<0) idx=r.parcelas.findIndex(x=>!x.pago);
+          if(idx<0){ toast('Todas as parcelas já estão pagas. 🎉'); return; }
+          ptEnviarComprovante(r.dealId, idx);
+        }
+        function ptAnexarDocumentos(){
+          let p=portalAtual(); if(!p)return;
+          let falta=DOCS_NECESSARIOS.find(dn=>!(p.docsEnviados&&p.docsEnviados[dn]));
+          if(!falta){ toast('Todos os documentos já foram enviados. ✓'); return; }
+          docAbrirPadrao(falta);
         }
         function portalAcoesPendentes(p){
           let acoes=[];
@@ -7170,13 +7414,14 @@ body.apresentacao #apr-banner{display:block;}
         }
         function ptAprovarProposta(){
           let p=portalAtual(); if(!p)return;
-          if(deal.proposta){ deal.proposta.status='aprovada'; deal.proposta.aprovou=true; deal.proposta.viuValor=true; renderPropostas(); }
+          if(deal&&deal.proposta){ deal.proposta.status='aprovada'; deal.proposta.aprovou=true; deal.proposta.viuValor=true; renderPropostas(); }
           let doc=p.docs.find(d=>d.tipo==='proposta'); if(doc)doc.status='aprovado';
-          if(deal.etapa==='aprovacao') estAvancar('contrato');
+          // ao aprovar, já preparamos pagamento e contrato para o cliente seguir na ordem
+          if(deal){ garantirRecebiveis(deal); garantirContratoDoc(deal); if(deal.etapa==='aprovacao') estAvancar('contrato'); }
           if(typeof SOUND!=='undefined') SOUND.play('success');
-          notify('cliente','Cliente aprovou a proposta','O cliente aprovou a proposta. Gere o contrato para seguir.','funil', true);
+          notify('cliente','Cliente aprovou a proposta','O cliente aprovou a proposta. Pagamento e contrato liberados no portal.','funil', true);
           renderPortal();
-          alert('✓ Proposta aprovada. A equipe foi notificada e vai gerar o contrato.');
+          toast('Proposta aprovada! Siga para o pagamento no seu caminho guiado.','ok',4200);
         }
         function ptAssinarContrato(){
           let p=portalAtual(); if(!p)return;
@@ -7188,7 +7433,7 @@ body.apresentacao #apr-banner{display:block;}
         function ptConfirmarOnboarding(){
           let p=portalAtual(); if(!p)return;
           if(p.onboarding){ p.onboarding.confirmadoCliente=true; p.onboarding.checklist.forEach(c=>c.ok=true); }
-          if(deal.etapa==='onboarding') estAvancar('producao');
+          if(deal&&deal.id===p.dealId&&deal.etapa==='onboarding') estAvancar('producao');
           notify('cliente','Cliente confirmou o onboarding','O cliente confirmou os próximos passos. Inicie a produção.','funil');
           renderPortal();
           alert('✓ Próximos passos confirmados. A equipe vai iniciar a produção dos entregáveis.');
@@ -7202,7 +7447,7 @@ body.apresentacao #apr-banner{display:block;}
             let ent=doc&&doc.entId?DB.entregaveis.find(e=>e.id===doc.entId):null;
             if(ent){ ent.status='aprovado'; }
             renderEnt();
-            if(deal.etapa==='aprovacao_entrega') estAvancar('satisfacao');
+            if(deal&&deal.id===p.dealId&&deal.etapa==='aprovacao_entrega') estAvancar('satisfacao');
             notify('cliente','Cliente aprovou o entregável','Entregável aprovado pelo cliente. Avance para a satisfação.','funil');
             renderPortal();
             alert('✓ Entregável aprovado. Agora avalie sua satisfação com a entrega.');
@@ -7219,7 +7464,7 @@ body.apresentacao #apr-banner{display:block;}
           let p=portalAtual(); if(!p)return;
           let ent=DB.entregaveis.find(e=>e.dealId===p.dealId && !e.sat);
           if(ent){ satAbrir(ent.id); }
-          else { if(deal.etapa==='satisfacao') estAvancar('depoimento'); renderPortal(); }
+          else { if(deal&&deal.id===p.dealId&&deal.etapa==='satisfacao') estAvancar('depoimento'); renderPortal(); }
         }
         function ptEnviarComprovante(dealId,pi){
           let r=(DB.recebiveis||[]).find(x=>x.dealId===dealId); if(!r)return;
@@ -8637,6 +8882,7 @@ body.apresentacao #apr-banner{display:block;}
         (function(){ let f=document.getElementById('u-foto-file2'); if(f) f.onchange=function(){ let file=this.files[0]; if(!file)return; lerFotoArquivo(file, d=>{ _uFoto=d; uPreview(); }); this.value=''; }; })();
         (function(){ let bf=document.getElementById('backup-file'); if(bf) bf.onchange=function(){ if(this.files[0]) backupImportar(this.files[0]); this.value=''; }; })();
         renderCatalogo();
+        renderEntregaveisCatalogo();
         onModelo();
         gerarCarga();
         calcOrcamento();

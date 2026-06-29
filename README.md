@@ -222,6 +222,28 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - **Layout que respeita o card**: `.grid>*{min-width:0}` + quebra de palavra
       evitam sobreposição; breakpoints (1024px/680px) empilham os cards no tablet e
       no celular em vez de espremer.
+26. **Esteira completa, entregáveis selecionáveis e caminho guiado do cliente**
+    - **Campo "Plano de pagamento" legível**: o preview ficava branco-no-branco no
+      tema escuro porque o seletor de atributo deixava de casar quando o JS mexia no
+      `display`; agora há override por id (`#f-plano-preview`, `.sens`, `#f-online-box`).
+    - **Caixa "tarefa concluída → próxima"**: ao concluir uma missão ou avançar uma
+      etapa da esteira, abre um modal dizendo qual é o próximo passo, com **botão de
+      ação** que leva direto até ele. `caixaProxima`, `estProxCaixa`, modal `m-prox`.
+    - **Entregáveis padrão selecionáveis na esteira**: catálogo `ENTREGAVEIS_PADRAO`
+      com checklist no cadastro; o consultor marca o que **aquele cliente** recebe
+      (com "✨ Sugerir pelos serviços" e entregáveis personalizados). A escolha vira
+      as tarefas em `criarEntregaveis` e aparece na conferência. `renderEntregaveisCatalogo`,
+      `entregaveisSelecionados`, `entregaveisSugerir`, `deal.entregaveisSel`.
+    - **Caminho guiado do cliente, na ordem certa**: card "Seu caminho — siga na
+      ordem" no portal: 1) acessar e aprovar a proposta → 2) pagar → 3) anexar
+      documentos → 4) assinar contrato → 5) confirmar onboarding → 6) avaliar
+      entregáveis → 7) avaliar satisfação. Cada passo mostra concluído/atual/🔒 e só
+      o atual é acionável. `renderPortalRoteiro`, `ptPagar`, `ptAnexarDocumentos`.
+    - **Aprovar a proposta já libera pagamento e contrato** (sem duplicar receita):
+      `garantirRecebiveis` / `garantirContratoDoc`; `estPagamento` lança a DRE uma
+      única vez (`deal.financeiroLancado`). `gerarParcelas` agora usa o snapshot do
+      deal (`entrada`, `planoParc`, `entradaDt`, `pgStatus`) e não depende do formulário.
+    - **Robustez**: ações do cliente guardadas contra `deal` ausente/divergente.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
