@@ -235,10 +235,15 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       as tarefas em `criarEntregaveis` e aparece na conferência. `renderEntregaveisCatalogo`,
       `entregaveisSelecionados`, `entregaveisSugerir`, `deal.entregaveisSel`.
     - **Caminho guiado do cliente, na ordem certa**: card "Seu caminho — siga na
-      ordem" no portal: 1) acessar e aprovar a proposta → 2) pagar → 3) anexar
-      documentos → 4) assinar contrato → 5) confirmar onboarding → 6) avaliar
+      ordem" no portal: 1) acessar e aprovar a proposta → 2) anexar documentos →
+      3) assinar contrato → 4) pagar → 5) confirmar onboarding → 6) avaliar
       entregáveis → 7) avaliar satisfação. Cada passo mostra concluído/atual/🔒 e só
       o atual é acionável. `renderPortalRoteiro`, `ptPagar`, `ptAnexarDocumentos`.
+    - **Ordem realmente respeitada (não só visual)**: não dá para assinar o contrato
+      sem anexar os documentos, nem pagar sem o contrato assinado — se tentar fora de
+      ordem, o sistema avisa e leva ao passo certo. Quando todos os documentos chegam,
+      a equipe é avisada de que o contrato pode ser validado. `portalDocsCompletos`,
+      `portalContratoAssinado`, guards em `ptAssinarContrato`/`ptEnviarComprovante`.
     - **Aprovar a proposta já libera pagamento e contrato** (sem duplicar receita):
       `garantirRecebiveis` / `garantirContratoDoc`; `estPagamento` lança a DRE uma
       única vez (`deal.financeiroLancado`). `gerarParcelas` agora usa o snapshot do

@@ -3692,8 +3692,8 @@ body.apresentacao #apr-banner{display:block;}
             case 'proposta': h+=card('Gerar proposta premium','Dados do cadastro já preenchidos. O sistema monta a proposta.','estProposta()','✦'); break;
             case 'envio': h+=`<div class="est-hint">Link exclusivo: <b style="color:var(--gold-deep);">/proposta/${deal.slug}</b></div>`+card('Enviar proposta ao cliente','Envia ao portal do cliente e ativa o rastreio.','estEnviar()','✆'); break;
             case 'aprovacao': h+=aguardaCliente('a proposta foi enviada e ele precisa aprovar.'); break;
-            case 'contrato': h+=`<div class="est-hint">✓ Cliente aprovou a proposta no portal.</div>`+card('Gerar e enviar contrato (D4Sign)','Preenchido com os dados do negócio. Sem redigitar.','estContrato()','✎'); break;
-            case 'pagamento': h+=card('Confirmar assinatura e lançar financeiro','Receita entra na DRE, no caixa e no contas a receber.','estPagamento()','❖'); break;
+            case 'contrato': h+=`<div class="est-hint">✓ Cliente aprovou a proposta. No portal ele segue a ordem: <b>anexar documentos → assinar contrato → pagar</b>.</div>`+card('Gerar / validar contrato (D4Sign)','Já fica disponível no portal. Valide com base nos documentos do cliente.','estContrato()','✎'); break;
+            case 'pagamento': h+=card('Confirmar assinatura/pagamento e lançar financeiro','Receita entra na DRE, no caixa e no contas a receber.','estPagamento()','❖'); break;
             case 'kickoff': h+=card('Agendar kickoff e preparar onboarding','Define a reunião de partida e monta o checklist de início.','estKickoff()','⚑'); break;
             case 'onboarding': h+=aguardaCliente('o onboarding foi enviado e ele confirma os próximos passos.'); break;
             case 'producao': h+=card('Produzir entregáveis','Cria os entregáveis do contrato para a equipe trabalhar.','estProducao()','☑'); break;
@@ -3722,8 +3722,8 @@ body.apresentacao #apr-banner{display:block;}
             proposta:{t:'Gerar a proposta premium',btn:'Gerar proposta',fn:()=>estProposta()},
             envio:{t:'Enviar a proposta ao cliente',btn:'Enviar proposta',fn:()=>estEnviar()},
             aprovacao:{t:'Aguardando o cliente acessar e aprovar a proposta',btn:'Abrir portal do cliente',fn:()=>go('portal'),wait:true},
-            contrato:{t:'Gerar e enviar o contrato (D4Sign)',btn:'Gerar contrato',fn:()=>estContrato()},
-            pagamento:{t:'Confirmar assinatura e lançar o financeiro',btn:'Confirmar e lançar',fn:()=>estPagamento()},
+            contrato:{t:'Gerar/validar o contrato (o cliente anexa documentos, assina e paga no portal)',btn:'Gerar contrato',fn:()=>estContrato()},
+            pagamento:{t:'Confirmar assinatura/pagamento e lançar o financeiro',btn:'Confirmar e lançar',fn:()=>estPagamento()},
             kickoff:{t:'Agendar o kickoff e preparar o onboarding',btn:'Preparar kickoff',fn:()=>estKickoff()},
             onboarding:{t:'Aguardando o cliente confirmar o onboarding',btn:'Abrir portal do cliente',fn:()=>go('portal'),wait:true},
             producao:{t:'Produzir os entregáveis deste cliente',btn:'Criar entregáveis',fn:()=>estProducao()},
@@ -7304,11 +7304,12 @@ body.apresentacao #apr-banner{display:block;}
           let entOk=docs.some(d=>d.tipo==='entregavel'&&d.status==='aprovado');
           let satDisp=(DB.entregaveis||[]).some(e=>e.dealId===p.dealId);
           let satOk=docs.some(d=>d.aval)||(DB.entregaveis||[]).some(e=>e.dealId===p.dealId&&e.sat);
+          // ORDEM: proposta → documentos → contrato → pagamento → onboarding → entregas → satisfação
           let steps=[
-            {t:'Acessar e aprovar a proposta', d:'Leia a proposta comercial e aprove para liberar o restante.', done:propAprovada, disp:!!propDoc, btn:'Abrir proposta', fn:"ptVerDoc('proposta')"},
-            {t:'Realizar o pagamento', d:'Pague a entrada (ou à vista) e envie o comprovante.', done:pagou, disp:pagamentoDisp, btn:'Pagar / enviar comprovante', fn:'ptPagar()'},
-            {t:'Anexar os documentos', d:'Envie os documentos padrão: contrato social, CNPJ, RG/CPF e comprovante.', done:docsTodos, disp:true, btn:algumDoc?'Continuar documentos':'Anexar documentos', fn:'ptAnexarDocumentos()'},
-            {t:'Assinar o contrato', d:'Revise e assine o contrato de prestação de serviços.', done:contratoAssinado, disp:contratoDisp, btn:'Abrir e assinar', fn:"ptVerDoc('contrato')"},
+            {t:'Acessar e aprovar a proposta', d:'Leia a proposta comercial e aprove para liberar os próximos passos.', done:propAprovada, disp:!!propDoc, btn:'Abrir proposta', fn:"ptVerDoc('proposta')"},
+            {t:'Anexar os documentos', d:'Envie os documentos padrão (contrato social, CNPJ, RG/CPF, comprovante). Eles embasam o contrato.', done:docsTodos, disp:true, btn:algumDoc?'Continuar documentos':'Anexar documentos', fn:'ptAnexarDocumentos()'},
+            {t:'Assinar o contrato', d:'Revise e assine o contrato — preparado a partir dos seus documentos.', done:contratoAssinado, disp:contratoDisp, btn:'Abrir e assinar', fn:"ptVerDoc('contrato')"},
+            {t:'Realizar o pagamento', d:'Com o contrato assinado, faça o pagamento (entrada ou à vista) e envie o comprovante.', done:pagou, disp:pagamentoDisp, btn:'Pagar / enviar comprovante', fn:'ptPagar()'},
             {t:'Confirmar o onboarding', d:'Revise os próximos passos e confirme para a equipe iniciar.', done:onbOk, disp:onbDisp, btn:'Confirmar onboarding', fn:'ptConfirmarOnboarding()'},
             {t:'Avaliar os entregáveis', d:'Veja o que a equipe entregou e aprove (ou peça ajuste).', done:entOk, disp:entDisp, btn:'Abrir entregável', fn:"ptVerDoc('entregavel')"},
             {t:'Avaliar sua satisfação', d:'Dê sua nota e, se quiser, deixe um depoimento.', done:satOk, disp:satDisp, btn:'Avaliar', fn:'ptResponderSatisfacao()'}
@@ -7421,14 +7422,22 @@ body.apresentacao #apr-banner{display:block;}
           if(typeof SOUND!=='undefined') SOUND.play('success');
           notify('cliente','Cliente aprovou a proposta','O cliente aprovou a proposta. Pagamento e contrato liberados no portal.','funil', true);
           renderPortal();
-          toast('Proposta aprovada! Siga para o pagamento no seu caminho guiado.','ok',4200);
+          toast('Proposta aprovada! Próximo passo: anexar os documentos.','ok',4200);
         }
+        // helpers de ordem do caminho do cliente
+        function portalDocsCompletos(p){ return DOCS_NECESSARIOS.every(dn=>p&&p.docsEnviados&&p.docsEnviados[dn]); }
+        function portalContratoAssinado(p){ let d=(p.docs||[]).find(x=>x.tipo==='contrato'); return !!(d&&(d.status==='assinado'||d.status==='aprovado')); }
         function ptAssinarContrato(){
           let p=portalAtual(); if(!p)return;
+          // ordem certa: os documentos vêm antes do contrato
+          if(!portalDocsCompletos(p)){
+            toast('Antes de assinar, anexe todos os documentos.','warn');
+            ptAnexarDocumentos(); return;
+          }
           let doc=p.docs.find(d=>d.tipo==='contrato'&&d.status==='novo'); if(doc)doc.status='assinado';
-          notify('cliente','Cliente assinou o contrato','Contrato assinado. Confirme o pagamento na esteira.','funil');
+          notify('cliente','Cliente assinou o contrato','Contrato assinado. O cliente seguirá para o pagamento.','funil');
           renderPortal();
-          alert('✓ Contrato assinado. A equipe seguirá com o pagamento e o kickoff.');
+          toast('Contrato assinado! Próximo passo: realizar o pagamento.','ok',4200);
         }
         function ptConfirmarOnboarding(){
           let p=portalAtual(); if(!p)return;
@@ -7468,6 +7477,12 @@ body.apresentacao #apr-banner{display:block;}
         }
         function ptEnviarComprovante(dealId,pi){
           let r=(DB.recebiveis||[]).find(x=>x.dealId===dealId); if(!r)return;
+          // ordem certa: pagamento só depois de assinar o contrato
+          let pr=DB.portais[dealId];
+          if(pr && (pr.docs||[]).some(d=>d.tipo==='contrato') && !portalContratoAssinado(pr)){
+            toast('Assine o contrato antes de realizar o pagamento.','warn');
+            ptVerDoc('contrato'); return;
+          }
           let p=r.parcelas[pi]; if(!p)return;
           let nome=prompt('Anexe seu comprovante de pagamento (nome do arquivo):','comprovante-pix.pdf');
           if(!nome)return;
@@ -7610,6 +7625,11 @@ body.apresentacao #apr-banner{display:block;}
           if(typeof notify==='function') notify('financeiro','Documento recebido do cliente','O cliente enviou: '+dn+'.','portal');
           docFechar();
           toast('Documento "'+dn+'" enviado à equipe.');
+          // quando TODOS os documentos chegam, avisa a equipe que o contrato pode ser validado
+          if(portalDocsCompletos(pr)){
+            if(typeof notify==='function') notify('cliente','Documentos completos','Todos os documentos chegaram. Valide e libere o contrato para assinatura.','funil');
+            toast('Todos os documentos enviados! Próximo passo: assinar o contrato.','ok',4200);
+          }
           if(typeof renderEtapaDocumentos==='function' && cliActive) renderEtapaDocumentos(cliActive);
           if(typeof renderPortal==='function') renderPortal();
         }
