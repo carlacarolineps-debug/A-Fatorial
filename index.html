@@ -66,7 +66,8 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Hel
 /* ============ COMPONENTS ============ */
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px;margin-bottom:22px;box-shadow:var(--shadow);}
 .card-h{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);
-  margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;padding-left:13px;}
+.card-h::before{content:"";position:absolute;left:0;top:0;width:3px;height:15px;border-radius:2px;background:linear-gradient(180deg,var(--gold-bright),var(--neon,#35e6ff));}
 .divider{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;color:var(--ink);margin:26px 0 14px;
   padding-bottom:9px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;}
 .divider .n{background:var(--gold);color:#000;width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
@@ -363,7 +364,7 @@ select.inp{cursor:pointer;}
 .pt-step .cli-tag{position:absolute;top:10px;right:10px;font-size:9px;color:var(--gold-deep);font-weight:700;}
 /* section title */
 .pt-sec-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin:0 0 12px;display:flex;align-items:center;gap:8px;}
-.pt-sec-title::before{content:"";width:3px;height:14px;background:var(--gold);border-radius:2px;}
+.pt-sec-title::before{content:"";width:3px;height:14px;background:linear-gradient(180deg,var(--gold-bright),var(--neon,#35e6ff));border-radius:2px;}
 
 /* ===== HERO INTERNO — mesma percepção premium para o time ===== */
 .in-hero{position:relative;overflow:hidden;border-radius:var(--r-lg);background:linear-gradient(135deg,#0d0f16 0%,#161a26 58%,#1f2433 100%);padding:30px 34px;margin-bottom:20px;}
@@ -392,7 +393,7 @@ select.inp{cursor:pointer;}
 .col-pane.on{display:block;}
 .col-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;margin-bottom:16px;}
 .col-card-h{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);margin:0 0 16px;display:flex;align-items:center;gap:8px;}
-.col-card-h::before{content:"";width:3px;height:15px;background:var(--gold);border-radius:2px;}
+.col-card-h::before{content:"";width:3px;height:15px;background:linear-gradient(180deg,var(--gold-bright),var(--neon,#35e6ff));border-radius:2px;}
 /* dossiê */
 .dossie-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
 .dossie-f{display:flex;flex-direction:column;gap:5px;}
@@ -898,6 +899,46 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .gamer .col-tag.pessoal{background:rgba(212,175,94,.16);color:var(--gold-bright);}
 .gamer .col-tag.cliente{background:rgba(53,230,255,.14);color:var(--neon);}
 .gamer .col-tag.indicacao{background:rgba(29,180,120,.16);color:#3ee89e;}
+
+/* ═══════════════════════════════════════════════════════════
+   HARMONIZAÇÃO — Portal do colaborador no MESMO padrão do app.
+   Mantém o azul-ciano como cor de destaque do colaborador, mas usa
+   exatamente os mesmos cards/superfícies/cabeçalhos do resto (sem HUD).
+   ═══════════════════════════════════════════════════════════ */
+.gamer{ margin:0; padding:0; min-height:auto; }                  /* sem full-bleed: usa o container .view como as outras telas */
+.gamer .gmr-bg{ display:none; }                                  /* usa o fundo global do tema (igual ao resto do app) */
+.gmr-corner{ display:none; }                                     /* remove os cantos de HUD */
+/* player card = card de vidro padrão, com uma assinatura ciano discreta no topo */
+.gmr-player{
+  background:linear-gradient(180deg,rgba(20,28,44,.82),rgba(13,20,32,.84));
+  border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:0 0 0 1px rgba(53,230,255,.04),0 24px 60px -34px #000;
+}
+.gmr-player::before{ display:none; }                             /* tira o glow ciano forte */
+.gmr-player::after{ content:""; position:absolute; top:0; left:0; right:0; bottom:auto;
+  width:auto; height:3px; background:linear-gradient(90deg,var(--gold),var(--neon)); opacity:.85; }
+/* cards do colaborador = .card padrão */
+.gamer .col-card{
+  background:linear-gradient(180deg,rgba(20,28,44,.82),rgba(13,20,32,.84));
+  border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:0 0 0 1px rgba(53,230,255,.04),0 24px 60px -34px #000;
+}
+.gamer .col-card::before{ display:none; }                        /* remove a hairline neon do topo */
+/* cabeçalho dos cards = mesmo padrão do app (rótulo + barra de destaque gold→ciano) */
+.gamer .col-card-h{
+  color:var(--ink-soft); text-transform:uppercase; letter-spacing:.6px; font-size:13px; font-weight:700;
+  font-family:var(--font-display); display:flex; align-items:center; gap:8px; border:none;
+}
+.gamer .col-card-h::before{
+  content:""; display:inline-block; width:3px; height:15px; border-radius:2px;
+  background:linear-gradient(180deg,var(--gold-bright),var(--neon)); box-shadow:none;
+}
+/* subnav do colaborador = painel padrão (item ativo permanece em ciano = identidade) */
+.gamer .col-subnav{
+  background:linear-gradient(180deg,rgba(20,28,44,.82),rgba(13,20,32,.84));
+  border:1px solid var(--line); box-shadow:0 0 0 1px rgba(53,230,255,.04),0 24px 60px -34px #000;
+}
+.gamer .col-subnav button{font-family:var(--font-body);font-size:12.5px;}
 
 /* divisores e bordas coloridas dos cards de análise */
 .gamer [style*="border-left:3px solid var(--ok)"]{border-left-color:#2ee6a0!important;}

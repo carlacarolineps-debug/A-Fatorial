@@ -268,6 +268,17 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       reequilibrado (`.gamer .gmr-layout`, `.gmr-player`), aproveitando o espaço
       liberado pelo menu recolhido.
 
+29. **Identidade visual unificada (colaborador no padrão + ciano coeso)**
+    - **Portal do colaborador no mesmo padrão do app**: trocado o "HUD sci-fi"
+      (cantos, fundo duplicado, full-bleed, glows fortes) pelos **mesmos cards de
+      vidro, cabeçalhos e espaçamentos** do resto do sistema — mantendo o
+      **azul-ciano como cor de destaque** do colaborador (player card, nível, XP,
+      item ativo). `.gamer` (bloco de harmonização), `.gmr-player`, `.gamer .col-card`.
+    - **Ciano espalhado como detalhe coeso**: as barrinhas de destaque dos
+      cabeçalhos (`.card-h`, `.col-card-h`, `.pt-sec-title`) passaram a usar um
+      gradiente **gold→ciano** em todo o app, costurando a cor do colaborador no
+      restante sem poluir.
+
 ## CNAEs registrados (base para Nota Fiscal)
 
 | CNAE | Atividade |
