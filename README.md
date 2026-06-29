@@ -249,6 +249,14 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       única vez (`deal.financeiroLancado`). `gerarParcelas` agora usa o snapshot do
       deal (`entrada`, `planoParc`, `entradaDt`, `pgStatus`) e não depende do formulário.
     - **Robustez**: ações do cliente guardadas contra `deal` ausente/divergente.
+27. **Documentos exigidos do cliente são configuráveis (Equipe e acessos)**
+    - Nova seção **"📂 Documentos para liberar o acesso completo do cliente"** em
+      *Equipe e acessos*: **incluir, editar, reordenar e excluir** os documentos
+      padrão que todo cliente precisa enviar. A lista é persistida (`af_docs`,
+      incluída no backup) e usada em todo o sistema (portal, caminho guiado,
+      etapa de documentos, travas de ordem). Renomear um documento **migra** o que
+      os clientes já enviaram. `DOCS_NECESSARIOS` (agora editável), `renderDocsReq`,
+      `docReqAdd/Editar/Excluir/Mover/Resetar`, `carregarDocsReq`/`salvarDocsReq`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 

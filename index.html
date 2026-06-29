@@ -2015,6 +2015,15 @@ body.apresentacao #apr-banner{display:block;}
         </div>
       </div>
 
+      <!-- ============ DOCUMENTOS PARA LIBERAR O ACESSO DO CLIENTE ============ -->
+      <div class="card" id="equipe-docs">
+        <div class="card-h">📂 Documentos para liberar o acesso completo do cliente
+          <button class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="docReqAdd()">+ Incluir documento</button></div>
+        <p class="hint" style="margin:-8px 0 14px;">Esta é a lista padrão de documentos que <b>todo cliente precisa enviar</b> para liberar o acesso completo — é a etapa "Anexar os documentos" do portal e do caminho guiado. Selecione, edite, inclua ou exclua. Fica salvo neste navegador e entra no backup.</p>
+        <div id="docreq-body"></div>
+        <div class="actions" style="justify-content:flex-start;"><button class="btn btn-ghost btn-sm" onclick="docReqResetar()">↺ Restaurar padrão</button></div>
+      </div>
+
       <!-- ============ IDENTIDADE DA EMPRESA (marca na proposta/PDF) ============ -->
       <div class="card" id="equipe-brand">
         <div class="card-h">🎨 Identidade da empresa — marca na proposta e no PDF</div>
@@ -2794,7 +2803,7 @@ body.apresentacao #apr-banner{display:block;}
           if(v==='plano' && typeof planoRender==='function') planoRender();
           if(v==='dono' && typeof renderDono==='function') renderDono();
           if(v==='futuro' && typeof renderFuturo==='function') renderFuturo();
-          if(v==='equipe'){ renderUsuarios(); renderPermissoes(); if(typeof renderBrand==='function') renderBrand(); }
+          if(v==='equipe'){ renderUsuarios(); renderPermissoes(); if(typeof renderBrand==='function') renderBrand(); if(typeof renderDocsReq==='function') renderDocsReq(); }
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
 
@@ -4457,7 +4466,70 @@ body.apresentacao #apr-banner{display:block;}
           renderEtapaDocumentos(p);
           renderPropostas(); if(typeof renderPortal==='function') renderPortal();
         }
-        const DOCS_NECESSARIOS=['Contrato social','Cartão CNPJ','RG/CPF do responsável','Comprovante de endereço'];
+        // lista configurável (em Equipe e acessos) — documentos exigidos para liberar o cliente
+        const DOCS_NECESSARIOS_DEFAULT=['Contrato social','Cartão CNPJ','RG/CPF do responsável','Comprovante de endereço'];
+        function carregarDocsReq(){
+          try{ let s=localStorage.getItem('af_docs'); if(s){ let a=JSON.parse(s); if(Array.isArray(a)) return a.filter(x=>typeof x==='string'); } }catch(e){}
+          return DOCS_NECESSARIOS_DEFAULT.slice();
+        }
+        // mantido como mesma referência de array em todo o sistema (mutado in-place)
+        let DOCS_NECESSARIOS=carregarDocsReq();
+        function salvarDocsReq(){ try{ localStorage.setItem('af_docs', JSON.stringify(DOCS_NECESSARIOS)); }catch(e){} }
+        function renderDocsReq(){
+          let cont=document.getElementById('docreq-body'); if(!cont)return;
+          if(!DOCS_NECESSARIOS.length){ cont.innerHTML='<div class="hint" style="padding:10px 0;">Nenhum documento exigido — o cliente terá o acesso liberado sem precisar anexar nada. Inclua documentos acima se quiser exigir.</div>'; return; }
+          cont.innerHTML=DOCS_NECESSARIOS.map((d,i)=>`
+            <div style="display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft);">
+              <span style="width:24px;height:24px;border-radius:6px;background:var(--panel-soft);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink-soft);flex-shrink:0;">${i+1}</span>
+              <input class="inp inp-sm" style="flex:1;min-width:0;" value="${(d||'').replace(/"/g,'&quot;')}" onchange="docReqEditar(${i}, this.value)">
+              <button class="btn btn-ghost btn-sm" title="Subir" onclick="docReqMover(${i},-1)" ${i===0?'disabled':''}>↑</button>
+              <button class="btn btn-ghost btn-sm" title="Descer" onclick="docReqMover(${i},1)" ${i===DOCS_NECESSARIOS.length-1?'disabled':''}>↓</button>
+              <button class="btn btn-ghost btn-sm" title="Excluir" onclick="docReqExcluir(${i})" style="color:var(--bad);">✕</button>
+            </div>`).join('');
+        }
+        function docReqAdd(){
+          let nome=prompt('Nome do documento que o cliente precisa enviar:','');
+          if(nome===null) return; nome=nome.trim(); if(!nome) return;
+          if(DOCS_NECESSARIOS.some(d=>d.toLowerCase()===nome.toLowerCase())){ toast('Esse documento já está na lista.','warn'); return; }
+          DOCS_NECESSARIOS.push(nome); salvarDocsReq(); renderDocsReq(); refreshDocsDependentes();
+          toast('Documento incluído: '+nome);
+        }
+        function docReqEditar(i,v){
+          v=(v||'').trim(); let antigo=DOCS_NECESSARIOS[i];
+          if(!v){ renderDocsReq(); return; }
+          if(antigo===v) return;
+          if(DOCS_NECESSARIOS.some((d,j)=>j!==i && d.toLowerCase()===v.toLowerCase())){ toast('Já existe um documento com esse nome.','warn'); renderDocsReq(); return; }
+          DOCS_NECESSARIOS[i]=v;
+          // migra o que os clientes já enviaram com o nome antigo
+          Object.values(DB.portais||{}).forEach(pr=>{
+            if(pr.docsEnviados && pr.docsEnviados[antigo]!=null){ pr.docsEnviados[v]=pr.docsEnviados[antigo]; delete pr.docsEnviados[antigo]; }
+            (pr.docs||[]).forEach(doc=>{ if(doc.nome===antigo && doc.origem==='cliente') doc.nome=v; });
+          });
+          salvarDocsReq(); renderDocsReq(); refreshDocsDependentes();
+          toast('Documento renomeado.');
+        }
+        function docReqExcluir(i){
+          let nome=DOCS_NECESSARIOS[i]; if(nome==null) return;
+          if(!confirm('Excluir "'+nome+'" da lista de documentos exigidos do cliente?')) return;
+          DOCS_NECESSARIOS.splice(i,1); salvarDocsReq(); renderDocsReq(); refreshDocsDependentes();
+          toast('Documento excluído.');
+        }
+        function docReqMover(i,dir){
+          let j=i+dir; if(j<0||j>=DOCS_NECESSARIOS.length) return;
+          let t=DOCS_NECESSARIOS[i]; DOCS_NECESSARIOS[i]=DOCS_NECESSARIOS[j]; DOCS_NECESSARIOS[j]=t;
+          salvarDocsReq(); renderDocsReq();
+        }
+        function docReqResetar(){
+          if(!confirm('Restaurar a lista padrão de documentos do cliente?')) return;
+          DOCS_NECESSARIOS.splice(0, DOCS_NECESSARIOS.length, ...DOCS_NECESSARIOS_DEFAULT);
+          salvarDocsReq(); renderDocsReq(); refreshDocsDependentes();
+          toast('Lista restaurada ao padrão.');
+        }
+        // re-renderiza telas que dependem da lista de documentos
+        function refreshDocsDependentes(){
+          if(typeof renderPortal==='function' && document.getElementById('v-portal') && document.getElementById('v-portal').classList.contains('on')) renderPortal();
+          if(typeof renderEtapaDocumentos==='function' && cliActive && document.getElementById('cli-ov') && document.getElementById('cli-ov').classList.contains('on')) renderEtapaDocumentos(cliActive);
+        }
         function renderEtapaDocumentos(p){
           let pr=(deal&&DB.portais[deal.id])?DB.portais[deal.id]:null;
           if(!pr.docsEnviados) pr.docsEnviados={};
@@ -8850,7 +8922,7 @@ body.apresentacao #apr-banner{display:block;}
         function relatorioFechar(){ document.getElementById('rel-ov').classList.remove('on'); }
 
         /* ===== BACKUP / RESTAURAÇÃO ===== */
-        const BACKUP_KEYS=['af_permissoes','af_usuarios','af_fin','af_plano','af_brand','af_som','af_vol','af_tema'];
+        const BACKUP_KEYS=['af_permissoes','af_usuarios','af_fin','af_plano','af_brand','af_som','af_vol','af_tema','af_docs'];
         function backupExportar(){
           let dados={}; BACKUP_KEYS.forEach(k=>{ let v=localStorage.getItem(k); if(v!=null) dados[k]=v; });
           let pacote={app:'A! Fatorial', versao:1, data:new Date().toISOString(), dados};
