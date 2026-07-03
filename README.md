@@ -279,6 +279,24 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       gradiente **gold→ciano** em todo o app, costurando a cor do colaborador no
       restante sem poluir.
 
+30. **Central de comando — "tudo o que importa, numa tela só" (o sistema pensa por você)**
+    Conceito da esteira estendido às telas de gestão: um motor único varre o
+    negócio inteiro e mostra, em ordem de prioridade, **o que fazer agora** — cada
+    item com o **porquê** e um **botão que já leva à ação certa**. Fim do "onde
+    clico agora?".
+    - **Motor `afAcoes()`**: verifica caixa projetado negativo, PF/PJ misturado,
+      budget estourado, esteira parada no seu passo, propostas não abertas, pedidos
+      de clientes, metas sem fechamento, avaliações a pedir, pipeline em aberto,
+      perfis de equipe incompletos e mais — classifica em **crítico / atenção /
+      oportunidade** e ordena por impacto (robusto, com guardas por verificação).
+    - **Painel `renderCentral()`**: diagnóstico em 1 linha + ação nº1 destacada +
+      próximas ações, tudo clicável; no padrão visual do app (barra gold→ciano).
+    - **Aplicado no topo de**: Gestão à vista, Visão do dono, Simulador de futuro,
+      Planejamento estratégico e Fluxo de caixa/DRE — cada uma com foco no seu
+      domínio (mas sempre mostrando o que for crítico).
+    - **Botão 🧭 no topo (de qualquer tela)**: badge com quantos itens exigem ação
+      e atalho direto para a central. `atualizarFocoBadge`, `centralRecalc`.
+
 ## CNAEs registrados (base para Nota Fiscal)
 
 | CNAE | Atividade |

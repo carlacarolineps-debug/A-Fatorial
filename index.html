@@ -243,6 +243,32 @@ select.inp{cursor:pointer;}
 .rt-d{font-size:12px;color:var(--ink-soft);margin-top:2px;}
 .rt-act{flex-shrink:0;margin-left:auto;}
 
+/* ============ CENTRAL DE COMANDO — "o que fazer agora" ============ */
+.central{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(20,28,44,.92),rgba(13,20,32,.94));
+  border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:20px;
+  box-shadow:0 0 0 1px rgba(53,230,255,.05),0 24px 60px -34px #000;}
+.central::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--neon,#35e6ff));}
+.central-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.central-h .t{font-family:var(--font-display);font-size:16px;font-weight:700;color:#fff;letter-spacing:.01em;}
+.central-h .rec{margin-left:auto;}
+.central-diag{font-size:13px;color:var(--ink-soft);margin:2px 0 15px;line-height:1.55;}
+.central-diag b{color:#fff;}
+.cmd-list{display:flex;flex-direction:column;gap:10px;}
+.cmd-item{display:flex;gap:13px;align-items:center;padding:13px 15px;border:1px solid var(--line);border-left:3px solid var(--line);
+  border-radius:12px;background:rgba(255,255,255,.02);transition:.16s;}
+.cmd-item:hover{background:rgba(255,255,255,.04);}
+.cmd-item .cic{font-size:20px;flex-shrink:0;line-height:1;}
+.cmd-item .cmain{flex:1;min-width:0;}
+.cmd-item .ct{font-weight:600;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cmd-item .cw{font-size:12px;color:var(--ink-soft);margin-top:3px;line-height:1.45;}
+.cmd-item .cbtn{flex-shrink:0;}
+.cmd-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.cmd-item.top{background:linear-gradient(100deg,rgba(53,230,255,.06),rgba(212,175,94,.04));border-left-width:4px;padding:16px 16px;}
+.cmd-item.top .ct{font-size:15px;}
+.cmd-item.top .cbtn .btn{box-shadow:0 6px 18px -8px var(--gold);}
+.central-ok{display:flex;gap:12px;align-items:center;padding:14px 16px;border:1px dashed var(--line);border-radius:12px;background:rgba(46,230,160,.06);}
+@media(max-width:680px){ .cmd-item{flex-wrap:wrap;} .cmd-item .cbtn{margin-left:auto;} }
+
 /* ============ CLIENT OVERLAY (proposta) ============ */
 .cli-ov{display:none;position:fixed;inset:0;z-index:9999;background:#0b0b0e;overflow-y:auto;}
 .cli-ov.on{display:block;}
@@ -1367,6 +1393,9 @@ body.apresentacao #apr-banner{display:block;}
       </div>
     </div>
     <div class="who">
+      <button class="notif-bell" id="foco-btn" onclick="go('dash')" title="Foco de agora — o que fazer" aria-label="Foco de agora">
+        <span>🧭</span><span class="notif-badge" id="foco-badge" style="display:none;background:var(--warn);color:#1a1408;">0</span>
+      </button>
       <button class="notif-bell" id="tema-btn" onclick="alternarTema()" title="Tema claro/escuro" aria-label="Tema">🌙</button>
       <button class="notif-bell" id="apr-btn" onclick="toggleApresentacao()" title="Modo apresentação (oculta valores sensíveis) — atalho Alt+P" aria-label="Modo apresentação">🎤</button>
       <button class="notif-bell" id="som-btn" onclick="SOUND.toggle()" title="Som" aria-label="Ligar/desligar som">🔊</button>
@@ -1394,6 +1423,7 @@ body.apresentacao #apr-banner{display:block;}
         <h2>Tudo o que importa, <b>numa tela só</b>.</h2>
         <p>Saúde financeira, metas de venda e quanto vale o negócio — com o que fazer hoje. O resumo que conecta o Centro Financeiro, o Planejamento e o valuation.</p>
       </div>
+      <div id="central-dono"></div>
       <div id="dono-body"></div>
     </section>
 
@@ -1410,6 +1440,8 @@ body.apresentacao #apr-banner{display:block;}
           <div class="in-hero-stat"><div class="v"><b id="k-sat">—</b></div><div class="l">Satisfação média</div></div>
         </div>
       </div>
+
+      <div id="central-dash"></div>
 
       <div class="in-pillars">
         <div class="in-pillar"><div class="ic">🗺️</div><div><div class="t">Esteira de 14 etapas</div><div class="d">Do primeiro contato à prova real, nada se perde no caminho.</div></div></div>
@@ -1876,6 +1908,7 @@ body.apresentacao #apr-banner{display:block;}
         <h2>Do <b>plano</b> ao <b>fechamento</b> — com nome, valor e prova.</h2>
         <p>Defina o que quer vender (quantos, a quanto), acompanhe cada cliente do "em vista" ao "fechou", anexe o arquivo, peça a avaliação no Google e veja quanto isso projeta de receita — conectado ao seu Centro Financeiro.</p>
       </div>
+      <div id="central-plano"></div>
       <div id="plano-resumo"></div>
       <div class="card">
         <div class="card-h">🎯 Nova meta de venda</div>
@@ -1900,6 +1933,7 @@ body.apresentacao #apr-banner{display:block;}
         <h2>Onde você estará em <b>6 meses, 1, 2, 5 e 10 anos</b>.</h2>
         <p>Ajuste as premissas e veja quanto vai sobrar ou faltar, quanto o negócio acumula, quais contas cortar e os movimentos mais estratégicos — o sistema projeta o futuro para você decidir hoje.</p>
       </div>
+      <div id="central-futuro"></div>
       <div id="futuro-body"></div>
     </section>
 
@@ -1987,6 +2021,7 @@ body.apresentacao #apr-banner{display:block;}
         <h2>O dinheiro entra <b>rastreado e no prazo</b>.</h2>
         <p>Cada parcela tem vencimento, comprovante e baixa individual. Você enxerga o que entrou, o que falta e quando — sem planilha solta, sem surpresa.</p>
       </div>
+      <div id="central-fin"></div>
       <div class="kpis">
         <div class="kpi"><div class="v" id="fi-caixa">R$ 0</div><div class="l">Saldo em caixa</div></div>
         <div class="kpi"><div class="v" id="fi-receber">R$ 0</div><div class="l">A receber</div></div>
@@ -4753,6 +4788,7 @@ body.apresentacao #apr-banner{display:block;}
           renderFinanceiro();
         }
         function renderFinanceiro(){
+          if(typeof renderCentral==='function') renderCentral('central-fin', ['financeiro','clientes'], 'Foco financeiro — o que proteger e cobrar');
           document.getElementById('fi-caixa').innerText=brl(DB.fin.caixa);
           document.getElementById('fi-receber').innerText=brl(DB.fin.receber);
           document.getElementById('fi-bruto').innerText=brl(DB.fin.bruto);
@@ -7850,6 +7886,7 @@ body.apresentacao #apr-banner{display:block;}
           </div>`;
         }
         function renderDash(){
+          if(typeof renderCentral==='function') renderCentral('central-dash', null, 'Central de comando — o que fazer agora');
           if(typeof renderMomentosWidget==='function') renderMomentosWidget();
           if(typeof renderDashCharts==='function') renderDashCharts();
           let st=entStats();
@@ -7921,7 +7958,7 @@ body.apresentacao #apr-banner{display:block;}
           av.push({n:'ok',t:'<b>Conexão:</b> use "Enviar projeção ao Centro Financeiro" para o valuation e o faturamento refletirem suas metas de venda.'});
           return av;
         }
-        function planoRender(){ planoServicosList(); planoResumoRender(); planoRenderMetas(); }
+        function planoRender(){ planoServicosList(); planoResumoRender(); planoRenderMetas(); if(typeof renderCentral==='function') renderCentral('central-plano', ['planejamento','comercial'], 'Foco comercial — o que destrava mais vendas'); }
         function planoResumoRender(){
           let box=document.getElementById('plano-resumo'); if(!box)return;
           let proj=PLANO.metas.reduce((a,m)=>a+planoMetaProj(m),0), real=PLANO.metas.reduce((a,m)=>a+planoMetaReal(m),0);
@@ -8698,6 +8735,7 @@ body.apresentacao #apr-banner{display:block;}
         }
         function futSet(campo,v,pct){ FIN360[campo]= pct? (parseFloat(String(v).replace(',','.'))||0) : (parseMoney(v)||0); finSalvar(); renderFuturo(); }
         function renderFuturo(){
+          if(typeof renderCentral==='function') renderCentral('central-futuro', 'financeiro', 'O que decidir hoje para o futuro fechar no azul');
           let box=document.getElementById('futuro-body'); if(!box)return;
           let p=futuroPremissas();
           let full=futuroSerie(p,120);
@@ -8890,8 +8928,105 @@ body.apresentacao #apr-banner{display:block;}
         }
 
         /* ===== VISÃO DO DONO — cockpit executivo (financeiro + metas + valuation) ===== */
+        /* ═══════════════════════════════════════════════════════════
+           CENTRAL DE COMANDO — o sistema pensa por você.
+           Um único motor varre o negócio inteiro e devolve, em ordem de
+           prioridade, O QUE FAZER AGORA — cada item com um botão que já
+           te leva ao lugar/ação certa. Aparece no topo das telas-chave.
+           ═══════════════════════════════════════════════════════════ */
+        const AF_URG={
+          critico:{w:1000,c:'var(--bad)',bg:'var(--bad-bg)',t:'Crítico'},
+          atencao:{w:100,c:'var(--warn)',bg:'var(--warn-bg)',t:'Atenção'},
+          oportunidade:{w:10,c:'var(--neon,#35e6ff)',bg:'rgba(53,230,255,.12)',t:'Oportunidade'},
+          ok:{w:1,c:'var(--ok)',bg:'var(--ok-bg)',t:'Tudo certo'}
+        };
+        function afAcoes(){
+          let A=[]; let add=o=>{ o.prio=((AF_URG[o.urg]||AF_URG.ok).w)+(o.boost||0); A.push(o); };
+          let T=fn=>{ try{fn();}catch(e){} };
+          // ── FINANCEIRO ──
+          T(()=>{ if(typeof finProjMeses==='function'){ let L=(finProjMeses(6)||{}).linhas||[]; let neg=L.find(x=>x.saldo<0);
+            if(neg) add({dom:'financeiro',urg:'critico',ic:'🩸',titulo:'Seu caixa vai ficar negativo',porque:'No ritmo atual, em '+neg.label+' o caixa fecha em '+brl(neg.saldo)+'. Aja antes de acontecer: feche propostas, corte custos ou ajuste o pró-labore.',label:'Ver e decidir',fn:"go('futuro')"}); } });
+          T(()=>{ if(typeof FIN360!=='undefined' && FIN360.lancamentos && FIN360.lancamentos.length && typeof finResumo==='function'){ let r=finResumo(FIN360.lancamentos);
+            if(r.mistura>0) add({dom:'financeiro',urg:'atencao',ic:'🔀',titulo:'PF e PJ ainda misturados',porque:brl(r.mistura)+' circulando entre a sua conta e a da empresa escondem o lucro real. Defina um pró-labore fixo e pare de transferir solto.',label:'Organizar',fn:"go('fin360')"});
+            if(r.saldo<0) add({dom:'financeiro',urg:'atencao',ic:'📉',titulo:'Gastou mais do que entrou',porque:'No período saíram '+brl(-r.saldo)+' a mais do que entrou. Reveja os maiores gastos.',label:'Ver gastos',fn:"go('fin360')"}); } });
+          T(()=>{ if(typeof FIN360!=='undefined' && FIN360.budget && typeof finBudgetRealizado==='function'){ let now=new Date(),ano=now.getFullYear(),mes=now.getMonth()+1;
+            FIN360.budget.buckets.forEach(b=>{ let orcMes=(b.valor||0)/12; if(orcMes>0){ let realMes=finBudgetRealizado(b,ano,mes); if(realMes>orcMes) add({dom:'financeiro',urg:'atencao',ic:'💰',titulo:'Budget estourado: '+b.nome,porque:'Já gastou '+brl(realMes)+' de '+brl(round2(orcMes))+' previstos para o mês.',label:'Ajustar budget',fn:"go('fin360')"}); } }); } });
+          // ── ESTEIRA / COMERCIAL ──
+          T(()=>{ if(typeof deal!=='undefined' && deal){
+            let eq={proposta:'gerar a proposta',envio:'enviar a proposta ao cliente',contrato:'gerar o contrato',pagamento:'confirmar o pagamento e lançar o financeiro',kickoff:'agendar o kickoff',producao:'produzir os entregáveis',envio_entrega:'enviar um entregável',depoimento:'captar o depoimento'};
+            let cl={aprovacao:'aprovar a proposta',onboarding:'confirmar o onboarding',aprovacao_entrega:'avaliar o entregável',satisfacao:'responder a satisfação'};
+            if(eq[deal.etapa]) add({dom:'comercial',urg:'atencao',boost:20,ic:'⚙️',titulo:'Sua esteira espera por você',porque:deal.cliente+': o próximo passo é '+eq[deal.etapa]+'.',label:'Abrir esteira',fn:"go('funil')"});
+            else if(cl[deal.etapa]) add({dom:'clientes',urg:'oportunidade',boost:6,ic:'📡',titulo:'O cliente precisa agir',porque:deal.cliente+' precisa '+cl[deal.etapa]+'. Dê um empurrãozinho pelo portal.',label:'Abrir portal',fn:"go('portal')"}); } });
+          T(()=>{ if(typeof DB!=='undefined' && DB.propostas){ let na=DB.propostas.filter(p=>p.status!=='aprovada' && (p.views||0)===0);
+            if(na.length) add({dom:'comercial',urg:'atencao',ic:'✉️',titulo:na.length+' proposta(s) não aberta(s)',porque:'O cliente ainda não abriu. Um follow-up hoje aumenta muito a chance de fechar.',label:'Ver propostas',fn:"go('propostas')"}); } });
+          T(()=>{ if(typeof listaSolicitacoes==='function'){ let nv=listaSolicitacoes().filter(s=>s.status==='novo');
+            if(nv.length) add({dom:'comercial',urg:'oportunidade',boost:8,ic:'📥',titulo:nv.length+' pedido(s) de cliente esperando',porque:'Clientes pediram serviços — vire proposta antes de esfriar.',label:'Ver pedidos',fn:"go('propostas')"}); } });
+          T(()=>{ let temDeal=(typeof deal!=='undefined'&&deal), temProp=(typeof DB!=='undefined'&&DB.propostas&&DB.propostas.length);
+            if(!temDeal && !temProp) add({dom:'comercial',urg:'oportunidade',boost:2,ic:'🚀',titulo:'Comece um novo negócio',porque:'Nenhuma venda em andamento. Cadastre um cliente e o sistema monta a proposta, o portal e guia até o fim.',label:'Abrir esteira',fn:"go('funil')"}); });
+          // ── PLANEJAMENTO ──
+          T(()=>{ if(typeof PLANO!=='undefined'){
+            if(!PLANO.metas || !PLANO.metas.length){ add({dom:'planejamento',urg:'oportunidade',boost:5,ic:'🎯',titulo:'Defina suas metas de venda',porque:'Sem meta não há direção. Diga o que quer vender (quantos, a quanto) e o sistema projeta a receita.',label:'Criar meta',fn:"go('plano')"}); }
+            else {
+              PLANO.metas.forEach(m=>{ if(m.tipo==='venda' && m.prazo){ let fech=planoMetaFechados(m); let dias=Math.round((new Date(m.prazo)-Date.now())/86400000); if(fech===0 && dias>0 && dias<120) add({dom:'planejamento',urg:'atencao',ic:'⏳',titulo:'Meta sem fechamento: '+m.servico,porque:'Faltam '+dias+' dias e nenhuma venda ainda. Acelere o pipeline.',label:'Ver planejamento',fn:"go('plano')"}); } });
+              let semRev=0; PLANO.metas.forEach(m=>(m.clientes||[]).forEach(c=>{ if(c.status==='fechou'&&c.review!=='feita')semRev++; }));
+              if(semRev) add({dom:'planejamento',urg:'oportunidade',boost:6,ic:'⭐',titulo:semRev+' avaliação(ões) do Google a pedir',porque:'Cada avaliação é prova social que vende por você. Peça hoje aos clientes que já fecharam.',label:'Pedir avaliações',fn:"go('plano')"});
+              let ab=0,soma=0; PLANO.metas.forEach(m=>(m.clientes||[]).forEach(c=>{ if(c.status==='ofereci'||c.status==='negociando'){ab++;soma+=(c.valor||m.valor||0);} }));
+              if(ab) add({dom:'planejamento',urg:'oportunidade',boost:4,ic:'🤝',titulo:ab+' proposta(s) em aberto ('+brl(soma)+')',porque:'Follow-up em 24h e em 7 dias transforma "ofereci" em "fechou".',label:'Ver pipeline',fn:"go('plano')"});
+            } } });
+          // ── EQUIPE ──
+          T(()=>{ if(typeof DB!=='undefined' && DB.colaboradores && typeof colDossieCompleto==='function'){ let inc=DB.colaboradores.filter(c=>c.ativo!==false && !colDossieCompleto(c));
+            if(inc.length) add({dom:'equipe',urg:'oportunidade',boost:1,ic:'👥',titulo:inc.length+' colaborador(es) com perfil incompleto',porque:'Perfis completos = gestão de pessoas com dados, não no escuro.',label:'Abrir colaborador',fn:"go('colaborador')"}); } });
+          A.sort((a,b)=>b.prio-a.prio);
+          return A;
+        }
+        function afDiagnostico(list){
+          let crit=list.filter(a=>a.urg==='critico').length, at=list.filter(a=>a.urg==='atencao').length, op=list.filter(a=>a.urg==='oportunidade').length;
+          if(crit) return '<b>'+crit+' ponto(s) crítico(s)</b> exigem ação agora. Comece pelo primeiro — o sistema já ordenou por impacto.';
+          if(at) return '<b>'+at+' ponto(s) de atenção</b>'+(op?' e '+op+' oportunidade(s)':'')+'. Resolva os de atenção primeiro; eu já coloquei em ordem.';
+          if(op) return 'Nada urgente. Hora de <b>crescer</b>: '+op+' oportunidade(s) esperando por você abaixo.';
+          return 'Tudo sob controle. Continue registrando dados que eu sigo te apontando o próximo passo.';
+        }
+        let _centrais={};
+        function renderCentral(id, dom, titulo){
+          let cont=document.getElementById(id); if(!cont) return;
+          _centrais[id]={dom,titulo};
+          let doms = dom ? (Array.isArray(dom)?dom:[dom]) : null;
+          let all=afAcoes();
+          let list = doms ? all.filter(a=>doms.includes(a.dom) || a.urg==='critico') : all;
+          let top = list.slice(0, doms?4:5);
+          let itemHTML=(a,isTop)=>{ let u=AF_URG[a.urg]||AF_URG.ok;
+            return `<div class="cmd-item ${isTop?'top':''}" style="border-left-color:${u.c};">
+              <div class="cic">${a.ic}</div>
+              <div class="cmain"><div class="ct">${a.titulo} <span class="cmd-tag" style="color:${u.c};background:${u.bg};">${u.t}</span></div><div class="cw">${a.porque}</div></div>
+              <div class="cbtn"><button class="btn ${isTop?'btn-gold':'btn-ghost'} btn-sm" onclick="${a.fn}">${a.label} →</button></div>
+            </div>`; };
+          let corpo = top.length
+            ? `<div class="cmd-list">${top.map((a,i)=>itemHTML(a,i===0)).join('')}</div>`
+            : `<div class="central-ok"><div style="font-size:22px;">✓</div><div style="font-size:13px;color:var(--ink);">Nada pendente por aqui. Você está em dia — aproveite para pensar no próximo salto do negócio.</div></div>`;
+          cont.innerHTML=`<div class="central">
+            <div class="central-h"><span style="font-size:18px;">🧭</span><span class="t">${titulo||'Central de comando — o que fazer agora'}</span>
+              <button class="btn btn-ghost btn-sm rec" onclick="centralRecalc()">↻ Recalcular</button></div>
+            <div class="central-diag">${afDiagnostico(doms?list:all)}</div>
+            ${corpo}</div>`;
+          if(typeof atualizarFocoBadge==='function') atualizarFocoBadge();
+        }
+        function centralRecalc(){
+          if(typeof gerarAlertasInteligentes==='function') gerarAlertasInteligentes();
+          Object.keys(_centrais).forEach(id=>{ if(document.getElementById(id)){ let c=_centrais[id]; renderCentral(id,c.dom,c.titulo); } });
+          atualizarFocoBadge();
+          if(typeof toast==='function') toast('Prioridades recalculadas.','info');
+        }
+        // badge do botão 🧭 no topo: quantos itens de ação existem agora (crítico+atenção)
+        function atualizarFocoBadge(){
+          let b=document.getElementById('foco-badge'), btn=document.getElementById('foco-btn'); if(!b)return;
+          let n=0; try{ let A=afAcoes(); let crit=A.filter(a=>a.urg==='critico').length, at=A.filter(a=>a.urg==='atencao').length; n=crit+at;
+            b.style.background=crit?'var(--bad)':'var(--warn)'; b.style.color=crit?'#fff':'#1a1408';
+            if(btn) btn.title=n?('Foco de agora — '+n+' item(ns) exigem ação'):'Tudo em dia — clique para ver oportunidades'; }catch(e){}
+          b.style.display=n>0?'flex':'none'; b.innerText=n;
+        }
         function renderDono(){
           let box=document.getElementById('dono-body'); if(!box)return;
+          if(typeof renderCentral==='function') renderCentral('central-dono', null, 'Central de comando — sua próxima jogada');
           let r=(typeof finResumo==='function'&&typeof FIN360!=='undefined')?finResumo(FIN360.lancamentos):{ent:0,sai:0,saldo:0,mistura:0,porCtx:{pessoal:0,empresa:0}};
           let saldoPF=round2(r.porCtx.pessoal||0), saldoEmp=round2(r.porCtx.empresa||0);
           let fat=(typeof FIN360!=='undefined'?FIN360.faturamentoAnual:0)||0, vMin=round2(fat*0.8), vMax=round2(fat*1.5);
@@ -9060,6 +9195,7 @@ body.apresentacao #apr-banner{display:block;}
         if(typeof renderPortal==='function') renderPortal();
         if(typeof gerarAlertasInteligentes==='function') gerarAlertasInteligentes();
         if(typeof renderNotif==='function') renderNotif();
+        if(typeof atualizarFocoBadge==='function') atualizarFocoBadge();
         document.getElementById('top-sub').innerHTML='Ecossistema estratégico — '+nowStr();
     </script>
 <div id="hovercard"></div>
