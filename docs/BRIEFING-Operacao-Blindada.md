@@ -122,7 +122,7 @@ Back office **separado**, mesma identidade (denso/operacional). Login por **pape
   - **Marketing:** **avaliações & depoimentos** (aprovar/reprovar, copiar, **exportar CSV** dos aprovados).
   - **Equipe & Acessos** (admin): CRUD de usuários + papel + **matriz de permissões**.
 - **Camada de dados `DB`** (overlay em `localStorage`) com **seed determinístico** (`mulberry32`): ~48 membros, ~34 chamados, ~22 depoimentos. Todos os reads/writes marcam `// === BACKEND ===`.
-- **Fase 2:** trocar seed por Supabase; auth por e-mail/senha; permissões por **RLS**; financeiro/inadimplência via **webhooks Cakto/TMB**; chamados e depoimentos vindos do app.
+- **Fase 2:** trocar seed por Supabase; auth por e-mail/senha; permissões por **RLS**; financeiro/inadimplência via **webhooks TMB**; chamados e depoimentos vindos do app.
 
 ---
 
@@ -158,13 +158,13 @@ const OFFER = { anual:{price:970,full:1164,...}, mensal:{price:97,...}, bump:{pr
 
 ## 6. Integrações & decisões em aberto
 
-- **Pagamento:** a **página de vendas usa TMB** (boleto/PIX parcelado). Histórico do projeto citava **Cakto** para assinatura recorrente/NFe. **Definir** o provedor final (ou usar ambos) e reconciliar `INVITE_URL`/checkout.
+- **Pagamento:** **DECIDIDO — TMB** (boleto/PIX parcelado em até 12x). A opção Cakto foi descartada. O guia da Fase 2 foi convertido para TMB em `docs/GUIA-Fase2-TMB.md` e o webhook está em `fase2/02-tmb-webhook.ts` (+ patch `fase2/01b-tmb-schema-patch.sql`). Falta só colar `PAY.checkoutUrl` (URL do checkout hospedado da TMB) e reconciliar `INVITE_URL`.
 - **Supabase (Fase 2):** auth, tabelas `members, tickets, testimonials, referrals, orders, leads, suggestions`; RLS por papel; sincronizar estado do app (`S`) do mentoreado.
 - **Loop de prova social:** falta o **captador de depoimento/avaliação no app do mentoreado** → grava no Supabase → aparece no **Console › Marketing** → alimenta a **página de vendas**. (Próximo elo natural.)
 
 ## 7. Pendências (backlog)
 1. [PENDING] Trocar `INVITE_URL` (app) pela landing/checkout real.
-2. [PENDING] Definir provedor de pagamento e colar `PAY.checkoutUrl` (TMB).
+2. [PARCIAL] Provedor definido (**TMB**); guia+webhook prontos em `fase2/`. Falta colar `PAY.checkoutUrl` com a URL do checkout da TMB.
 3. [PENDING] Backend Fase 2: Supabase + webhooks (provisionamento automático de acesso).
 4. [PENDING] Captador de depoimento no app (fecha o ciclo de marketing).
 5. [PENDING] Autenticação real + RLS no Console (hoje é login demo por papel).
