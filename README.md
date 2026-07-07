@@ -28,6 +28,30 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
 | **Rebracil Requalificadora** | Requalificação de recipientes de GLP (P13/P20/P45) | dados originais do NEXUS |
 | **Rebracil Embalagens** | Impressão e conversão de embalagens flexíveis | `Resultado_Embalagem_2026.xlsx` |
 
+### Visual premium + estrutura de 3 painéis
+- **Tema premium** (azul-marinho, dourado e branco + brilho roxo, conforme a marca):
+  sidebar escura com item ativo em destaque, cards em vidro, tipografia/sombras/raios
+  modernos e réguas douradas. Aplicado via camada CSS (`#nx-modern`) que cascateia
+  para todas as telas — o **raciocínio da Requalificadora não muda**, só o visual.
+- **Hub = 3 painéis**: **Grupo (Visão Geral)**, **Requalificadora** e **Embalagem**,
+  com um seletor **Visão Geral (Grupo) | Individual (Empresa)** para escolher como
+  enxergar os números. O hub é a tela-antes-de-entrar: veja o resumo e decida abrir o
+  painel completo ou o detalhe (drawer).
+- **Menu dividido** em **Visão Geral — Grupo** (Hub, Central, Comparador, Tendência,
+  Simulador) e **Empresa — Individual** (Dashboard, Faturamento & Fator, DRE, C.C.,
+  Despesa Mensal, Provisões, Histórico, Carteiras).
+- As **sub-empresas da Embalagem** — Linear, Teste, Teste X e Inter Company — são
+  estratégia tributária (uma vende para a outra conforme o regime: Simples/Lucro
+  Presumido) e aparecem **dentro da Embalagem** (não são painéis próprios). Teste
+  Sucata = aparas (Hanami); ITP = itens de terceiros (decisão de produzir vs. comprar).
+
+### Simulador = DRE interativo com régua por centro de custo
+O Simulador virou um **DRE ao vivo** com uma **régua (slider) por bloco de despesa**:
+escolha a entidade (**Grupo**, **Requalificadora** ou **Embalagem**), ajuste a régua da
+receita e o corte de cada centro de custo e veja o **resultado do período** e a
+**projeção do ano (run-rate)** recalcularem na hora, com veredito. Getters `dadosEntidade`,
+`simGruposDRE`, `simDRE`; ações `setCorte`, `resetSim`.
+
 ### Foco: análise financeira para decisão estratégica
 O sistema é uma **visão financeira consolidada do grupo para decisões estratégicas**
 (não operação — sem PDV/CRM/estoque). O grupo é tratado como um conjunto de empresas
