@@ -357,8 +357,92 @@ select.fsel:focus{border-color:var(--red)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast svg{width:17px;height:17px;color:var(--ok)}
 
+/* ===== sem quebra de texto ===== */
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:100%;vertical-align:bottom}
+.oname,.ord .oaddr,.bar-row .bl,.route-h .rmeta b,.kpi .kl,.uc-t b,.uc-t span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ord .oc{overflow:hidden}
+.otop{min-width:0}
+
+/* ===== sidebar toggle + collapse ===== */
+.brand{position:relative}
+.side-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);display:grid;place-items:center;color:var(--ink-3);transition:.15s}
+.side-toggle:hover{color:var(--ink);border-color:var(--ink-4)}
+.side-toggle svg{width:15px;height:15px;transition:.2s}
+body.side-collapsed .side{width:74px}
+body.side-collapsed .brand .bt,body.side-collapsed .nav .lbl,body.side-collapsed .ntxt,body.side-collapsed .nav a .cnt,body.side-collapsed .uc-t,body.side-collapsed .user-chip .btn{display:none}
+body.side-collapsed .brand{justify-content:center;padding:22px 0 18px}
+body.side-collapsed .side-toggle{position:static;transform:none;margin-left:4px}
+body.side-collapsed .side-toggle svg{transform:rotate(180deg)}
+body.side-collapsed .nav a{justify-content:center;padding:12px 0}
+body.side-collapsed .nav a.on::before{left:0}
+body.side-collapsed .user-chip{justify-content:center;padding:12px 0}
+body.side-collapsed .user-chip .uc-av{margin:0}
+.nav a .ntxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+
+/* ===== user chip ===== */
+.user-chip{display:flex;align-items:center;gap:11px;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06)}
+.uc-av{width:34px;height:34px;border-radius:10px;background:var(--red-dim);border:1px solid rgba(225,29,42,.4);color:var(--red-bright);display:grid;place-items:center;font-weight:800;font-size:12px;flex-shrink:0;font-family:var(--fdisp)}
+.uc-t{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.3}
+.uc-t b{font-size:12.5px;color:var(--ink)}
+.uc-t span{font-size:10.5px;color:var(--ink-3)}
+
+/* ===== timeline ===== */
+.tline{display:flex;flex-direction:column;position:relative;padding-left:4px}
+.tl-item{display:flex;gap:12px;padding-bottom:14px;position:relative}
+.tl-item:not(:last-child)::before{content:"";position:absolute;left:5px;top:14px;bottom:0;width:2px;background:var(--line)}
+.tl-dot{width:12px;height:12px;border-radius:50%;background:var(--red);border:2px solid var(--panel);flex-shrink:0;margin-top:2px;z-index:1}
+.tl-c{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.tl-c b{color:var(--ink);font-weight:600}
+.tl-c span{display:block;font-size:11px;color:var(--ink-4);margin-top:2px;font-family:var(--fmono)}
+
+/* ===== tabela ===== */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{text-align:left;padding:12px 16px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);font-weight:700;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--panel)}
+.tbl thead th.r{text-align:right}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--line-soft);color:var(--ink-2);vertical-align:middle}
+.tbl td.r{text-align:right;white-space:nowrap}
+.tbl td b{color:var(--ink);font-weight:600}
+.tbl tbody tr{transition:.12s}
+.tbl tbody tr:hover{background:var(--panel-2)}
+.tbl tbody tr:last-child td{border-bottom:0}
+
+/* ===== formulário / modal ===== */
+.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:2px}
+.fld>span{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.finput{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 13px;font-size:14px;outline:none;transition:.15s;width:100%;font-family:inherit}
+.finput:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-glow)}
+select.finput{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237c7c88' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid .fld:first-child:nth-last-child(odd){grid-column:1/-1}
+.modal-scrim{position:fixed;inset:0;background:rgba(0,0,0,.66);backdrop-filter:blur(4px);z-index:70;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.2s}
+.modal-scrim.on{opacity:1;pointer-events:auto}
+.modal-box{width:min(560px,96vw);max-height:90vh;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-2);display:flex;flex-direction:column;transform:scale(.97);transition:.2s}
+.modal-scrim.on .modal-box{transform:scale(1)}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.modal-h h3{font-size:16px}
+.modal-b{padding:22px;overflow-y:auto}
+.modal-f{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+
+/* ===== login ===== */
+.login-scrim{position:fixed;inset:0;z-index:90;background:radial-gradient(120% 120% at 50% 0%,#141016,#0a0a0c 70%);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:.3s}
+.login-scrim.on{opacity:1;pointer-events:auto}
+.login-card{width:min(400px,94vw);background:linear-gradient(165deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--r-lg);padding:34px 30px;box-shadow:var(--sh-2),0 0 80px -30px var(--red-glow)}
+.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.login-brand .mark{width:44px;height:44px;border-radius:12px;background:radial-gradient(120% 120% at 30% 20%,#1a1a1e,#050506);border:1px solid #2a2a30;display:grid;place-items:center}
+.login-brand .mark svg{width:24px;height:24px}
+.login-brand b{font-family:var(--fdisp);font-weight:800;letter-spacing:.16em;font-size:18px;color:#fff;display:block}
+.login-brand span{font-size:10px;letter-spacing:.2em;color:var(--ink-3);text-transform:uppercase}
+.login-card h2{font-size:20px;margin-bottom:6px}
+.login-sub{font-size:12.5px;color:var(--ink-3);margin:0 0 22px;line-height:1.5}
+.login-card .fld{margin-bottom:14px}
+.login-err{display:none;background:var(--red-dim);border:1px solid rgba(225,29,42,.35);color:var(--red-bright);font-size:12.5px;padding:9px 13px;border-radius:9px;margin-bottom:14px}
+.login-demo{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.login-demo span{font-size:11px;color:var(--ink-4);width:100%;margin-bottom:2px}
+.login-demo button{font-size:11.5px;font-weight:600;color:var(--ink-2);background:var(--panel-3);border:1px solid var(--line);border-radius:20px;padding:6px 12px;transition:.15s}
+.login-demo button:hover{border-color:var(--red);color:#fff}
+
 @media (max-width:1140px){.kpis{grid-template-columns:repeat(3,1fr)}.grid2,.grid3{grid-template-columns:1fr}}
-@media (max-width:820px){.side{position:fixed;transform:translateX(-100%);transition:.25s}.side.open{transform:none}.search{width:auto;flex:1}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:820px){.side{position:fixed;transform:translateX(-100%);transition:.25s;z-index:60}.side.open{transform:none}.search{width:auto;flex:1}.kpis{grid-template-columns:repeat(2,1fr)}.fgrid{grid-template-columns:1fr}.tbl thead{display:none}.tbl td{display:block;text-align:left!important;border:0;padding:4px 16px}.tbl tr{display:block;border-bottom:1px solid var(--line);padding:10px 0}}
 
 /* print romaneio */
 @media print{
@@ -374,50 +458,65 @@ select.fsel:focus{border-color:var(--red)}
 </head>
 <body>
 
-<!-- ===================== SIDEBAR ===================== -->
+<!-- ===================== LOGIN ===================== -->
+<div class="login-scrim" id="loginScrim">
+  <div class="login-card">
+    <div class="login-brand"><div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 3 8v8l9 5 9-5V8l-9-5Z" stroke="#e11d2a" stroke-width="1.5"/><path d="m9 10 3-2 3 2v4l-3 2-3-2v-4Z" fill="#e11d2a"/></svg></div><div><b>HORUS</b><span>Central de Logística</span></div></div>
+    <h2>Entrar no sistema</h2>
+    <p class="login-sub">Acesse com seu usuário. Cada perfil vê apenas as telas que pode usar.</p>
+    <label class="fld"><span>Usuário</span><input id="li_u" class="finput" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('li_s').focus()"></label>
+    <label class="fld"><span>Senha</span><input id="li_s" class="finput" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')tryLogin()"></label>
+    <div id="loginErr" class="login-err">Usuário ou senha inválidos.</div>
+    <button class="btn red" style="width:100%;justify-content:center;height:44px;margin-top:6px" onclick="tryLogin()">Entrar</button>
+    <div class="login-demo"><span>Acessos de demonstração:</span>
+      <button onclick="fillLogin('admin','admin')">Gestor (tudo)</button>
+      <button onclick="fillLogin('operador','123')">Operador</button>
+      <button onclick="fillLogin('motorista','123')">Motorista</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="appShell" style="display:none;flex:1;min-width:0">
+<!-- SIDEBAR -->
 <aside class="side" id="side">
   <div class="brand">
     <div class="mark">
       <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 3 8v8l9 5 9-5V8l-9-5Z" stroke="#e11d2a" stroke-width="1.5"/><path d="m9 10 3-2 3 2v4l-3 2-3-2v-4Z" fill="#e11d2a"/></svg>
     </div>
     <div class="bt"><b>HORUS</b><span>Logística</span></div>
+    <button class="side-toggle no-print" title="Recolher menu" onclick="toggleSide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 18l-6-6 6-6"/></svg></button>
   </div>
-  <nav class="nav" id="nav">
-    <div class="lbl">Operação</div>
-    <a data-v="painel" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Painel de comando</a>
-    <a data-v="alertas" class="alert"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>Alertas inteligentes<span class="cnt" id="c-alertas">0</span></a>
-    <a data-v="separacao"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7 12 3 4 7m16 0-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Fila de separação<span class="cnt" id="c-sep">0</span></a>
-    <a data-v="rotas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/></svg>Roteirização<span class="cnt" id="c-rotas">0</span></a>
-    <a data-v="retiradas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9h18M3 9l2-5h14l2 5M3 9v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9M9 13h6"/></svg>Retiradas / balcão<span class="cnt" id="c-ret">0</span></a>
-    <a data-v="carga"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 4H2v11h12V4ZM14 8h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Planejador de carga<span class="cnt" id="c-carga">0</span></a>
-    <div class="lbl">Análise</div>
-    <a data-v="pedidos"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Todos os pedidos<span class="cnt" id="c-ped">0</span></a>
-    <a data-v="gestao"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="m7 14 3-4 3 3 5-7"/></svg>Gestão &amp; risco</a>
-  </nav>
-  <div class="side-foot"><span class="pulse"></span> Dados sincronizados · <span id="foot-date"></span></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="user-chip" id="userChip"></div>
+  <div class="side-foot"><span class="pulse"></span> <span class="ntxt">Salvo neste navegador · <span id="foot-date"></span></span></div>
 </aside>
 
-<!-- ===================== MAIN ===================== -->
+<!-- MAIN -->
 <div class="main">
   <header class="top">
     <button class="tbtn no-print" id="menuBtn" style="display:none" onclick="document.getElementById('side').classList.toggle('open')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="tt">
       <h1 id="view-title">Painel de comando</h1>
-      <div class="sub" id="view-sub">Data-base operacional: <b>01/07/2026</b> · Horus Acabamentos</div>
+      <div class="sub" id="view-sub">Horus Acabamentos</div>
     </div>
     <div class="search no-print">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="globalSearch" placeholder="Buscar cliente, pedido, endereço, telefone…" autocomplete="off">
     </div>
+    <button class="tbtn no-print" id="importBtn" title="Importar planilha" onclick="openImport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></button>
     <button class="tbtn no-print" id="printBtn" title="Imprimir romaneio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg></button>
     <button class="tbtn no-print" id="themeBtn" title="Alternar tema"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
   </header>
   <main class="content" id="content"></main>
 </div>
+</div>
 
 <!-- drawer -->
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer"></aside>
+<!-- modal -->
+<div class="modal-scrim" id="modalScrim"><div class="modal-box" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -427,7 +526,7 @@ select.fsel:focus{border-color:var(--red)}
    pré-interpretados a partir do texto livre da OBS de cada pedido.
    ===================================================================== */
 const BASE_DATE = new Date(2026,6,1); // data-base operacional (01/07/2026)
-const O = [
+const DEFAULT_O = [
  {d:'000000044475',emp:'001',cli:'Claudia Teresa Garufi Kist',vend:'Hosaias Jose da Hora',canal:'Loja',tipo:'ENTREGA',cid:'São Paulo',bairro:'Jardim Paulista',end:'Alameda Sarutaiá, 333 — Apto 91',peso:3279.4,val:27054.26,prev:'2026-07-01',ent:'2026-07-02',st:'separar',tel:'(11) 98555-9075',fl:{lead:'40 min antes',janela:'Atender até 17:00',contato:'Arq. Natan — (11) 99006-2005'}},
  {d:'000000044476',emp:'001',cli:'New Com Comércio e Comunicação Visual',vend:'Rodrigo Gonçalves',canal:'Loja',tipo:'ENTREGA',cid:'São Paulo',bairro:'Vila Monte Alegre',end:'Rua Massaranduba, 71',peso:3384,val:17450,prev:'2026-07-01',ent:'2026-07-02',st:'separar',tel:'(11) 96649-2072',fl:{contato:'Airton — (11) 98510-5693'}},
  {d:'000000044477',emp:'001',cli:'Adenauer Andreone',vend:'Rafael Santos de Oliveira',canal:'Loja',tipo:'ENTREGA',cid:'Santo André',bairro:'Vila Gilda',end:'Rua General Osório, 50 — Ap 104',peso:193.56,val:866.27,prev:'2026-07-01',ent:'2026-07-02',st:'separar',tel:'(11) 99182-9070',fl:{contato:'Andrea — (11) 99182-9070'}},
@@ -475,6 +574,13 @@ const O = [
  {d:'700000000012',emp:'007',cli:'Maria José Cristovan',vend:'Marcio Rodrigues Leite',canal:'Loja',tipo:'RETIRA',cid:'São Paulo',bairro:'Vila Guilhermina',end:'Rua Astorga, 370 — Apto 1504 (Home Resort Astorga)',peso:61.01,val:706.15,prev:'2026-07-01',ent:null,st:'pronto',tel:'(11) 94035-1482',fl:{retiraCD:true,semData:true}},
 ];
 
+/* ---------- dataset ativo (permite importar planilha) ---------- */
+const LSD='horus_data_v1', LSMETA='horus_datameta_v1';
+let O = JSON.parse(localStorage.getItem(LSD)||'null') || DEFAULT_O;
+let DATAMETA = JSON.parse(localStorage.getItem(LSMETA)||'null') || {fonte:'Relatório 01/07/2026 (embutido)', data:'01/07/2026', importadoEm:null};
+function saveData(){localStorage.setItem(LSD,JSON.stringify(O));localStorage.setItem(LSMETA,JSON.stringify(DATAMETA));}
+function resetData(){localStorage.removeItem(LSD);localStorage.removeItem(LSMETA);O=DEFAULT_O;DATAMETA={fonte:'Relatório 01/07/2026 (embutido)',data:'01/07/2026',importadoEm:null};}
+
 /* ---------- estado operacional persistido (localStorage) ---------- */
 const LS='horus_log_v1';
 let STATE=JSON.parse(localStorage.getItem(LS)||'{}');
@@ -483,24 +589,215 @@ function os(id){return STATE[id]||(STATE[id]={stage:defStage(id),chk:{},nota:'',
 function defStage(id){const o=O.find(x=>x.d===id);if(!o)return 0;if(o.st==='bloqueado')return 0;if(o.st==='separar')return 1;if(o.st==='pronto')return 3;return 0;}
 const STAGES=['Recebido','Em separação','Conferido','Pronto','Finalizado'];
 
-/* ---------- planejamento de carga (veículos) ---------- */
+/* ---------- FROTA e MOTORISTAS (cadastros) ---------- */
+const VCOLORS=['var(--red)','var(--blue)','var(--violet)','var(--ok)','var(--amber)','var(--slate)'];
+const DEFAULT_FLEET=[
+  {id:'V1',nome:'Caminhão',placa:'FLA-1A23',tipo:'Caminhão 3/4',cap:9000,motorista:'M1',ativo:true},
+  {id:'V2',nome:'VUC / Van',placa:'GHB-2C45',tipo:'VUC',cap:7000,motorista:'M2',ativo:true},
+  {id:'V3',nome:'Utilitário',placa:'JKL-3E67',tipo:'Fiorino/Utilitário',cap:5000,motorista:'M3',ativo:true},
+];
+const DEFAULT_DRIVERS=[
+  {id:'M1',nome:'José da Silva',cnh:'E',tel:'(11) 90000-0001',ativo:true},
+  {id:'M2',nome:'Antônio Pereira',cnh:'D',tel:'(11) 90000-0002',ativo:true},
+  {id:'M3',nome:'Marcos Souza',cnh:'D',tel:'(11) 90000-0003',ativo:true},
+];
+let FLEET=JSON.parse(localStorage.getItem('horus_fleet_v1')||'null')||DEFAULT_FLEET;
+let DRIVERS=JSON.parse(localStorage.getItem('horus_drivers_v1')||'null')||DEFAULT_DRIVERS;
+function saveFleet(){localStorage.setItem('horus_fleet_v1',JSON.stringify(FLEET));}
+function saveDrivers(){localStorage.setItem('horus_drivers_v1',JSON.stringify(DRIVERS));}
+function driverName(id){const d=DRIVERS.find(x=>x.id===id);return d?d.nome:'—';}
+function vehColor(id){const i=FLEET.findIndex(v=>v.id===id);return VCOLORS[i%VCOLORS.length];}
+function vehById(id){return FLEET.find(v=>v.id===id);}
+function activeFleet(){return FLEET.filter(v=>v.ativo);}
+
+/* ---------- planejamento de carga ---------- */
 const LSP='horus_plan_v1';
-let PLAN=JSON.parse(localStorage.getItem(LSP)||'null')||{caps:{V1:9000,V2:7000,V3:5000},assign:{}};
+let PLAN=JSON.parse(localStorage.getItem(LSP)||'null')||{assign:{}};
+if(!PLAN.assign)PLAN.assign={};
 function savePlan(){localStorage.setItem(LSP,JSON.stringify(PLAN));}
-const VEHS=[['V1','Caminhão · V1','var(--red)'],['V2','VUC / Van · V2','var(--blue)'],['V3','Utilitário · V3','var(--violet)']];
 function vehLoad(v){return O.filter(o=>o.tipo==='ENTREGA'&&PLAN.assign[o.d]===v);}
 function vehWeight(v){return vehLoad(v).reduce((s,o)=>s+o.peso,0);}
+function vehCap(v){const veh=vehById(v);return veh?veh.cap:0;}
 function autoLoad(){
   PLAN.assign={};
+  const vs=activeFleet();if(!vs.length){toast('Cadastre ao menos 1 veículo ativo');return;}
   const ent=O.filter(o=>o.tipo==='ENTREGA').sort((a,b)=>{if(a.cid!==b.cid)return a.cid<b.cid?-1:1;return b.peso-a.peso;});
   ent.forEach(o=>{
-    // veículo com mais folga que ainda comporta o peso
     let best=null,bestFree=-1;
-    VEHS.forEach(([v])=>{const free=PLAN.caps[v]-vehWeight(v);if(free>=o.peso&&free>bestFree){best=v;bestFree=free;}});
-    if(!best){let bestFree2=-Infinity;VEHS.forEach(([v])=>{const free=PLAN.caps[v]-vehWeight(v);if(free>bestFree2){best=v;bestFree2=free;}});}
+    vs.forEach(veh=>{const free=veh.cap-vehWeight(veh.id);if(free>=o.peso&&free>bestFree){best=veh.id;bestFree=free;}});
+    if(!best){let bf=-Infinity;vs.forEach(veh=>{const free=veh.cap-vehWeight(veh.id);if(free>bf){best=veh.id;bf=free;}});}
     PLAN.assign[o.d]=best;
+    logAudit(o.d,'Alocado no veículo',vehById(best)?vehById(best).nome+' '+best:best);
   });
   savePlan();
+}
+
+/* =====================================================================
+   ACESSOS / PERFIS (controle local — não é segurança de servidor)
+   ===================================================================== */
+const ROLES={
+  admin:{nome:'Administrador',views:['painel','alertas','separacao','rotas','retiradas','carga','pedidos','gestao','frota','motoristas','rastreio','regras','acessos']},
+  operador:{nome:'Operador logístico',views:['painel','alertas','separacao','rotas','retiradas','carga','pedidos','rastreio']},
+  motorista:{nome:'Motorista',views:['carga','rotas','retiradas']},
+  consulta:{nome:'Consulta (gestão)',views:['painel','alertas','gestao','pedidos','rastreio']},
+};
+const DEFAULT_USERS=[
+  {u:'admin',s:'admin',nome:'Gestor Horus',role:'admin',ativo:true},
+  {u:'operador',s:'123',nome:'Operação CD',role:'operador',ativo:true},
+  {u:'motorista',s:'123',nome:'Motorista',role:'motorista',ativo:true},
+];
+let USERS=JSON.parse(localStorage.getItem('horus_users_v1')||'null')||DEFAULT_USERS;
+function saveUsers(){localStorage.setItem('horus_users_v1',JSON.stringify(USERS));}
+let SESSION=JSON.parse(sessionStorage.getItem('horus_session')||'null');
+function currentUser(){return SESSION?SESSION.nome:'—';}
+function can(view){return SESSION&&ROLES[SESSION.role]&&ROLES[SESSION.role].views.includes(view);}
+function doLogin(u,s){const usr=USERS.find(x=>x.u===u.trim().toLowerCase()&&x.s===s&&x.ativo);if(!usr)return false;SESSION={u:usr.u,nome:usr.nome,role:usr.role};sessionStorage.setItem('horus_session',JSON.stringify(SESSION));logAudit('_sistema','Login',usr.nome+' ('+ROLES[usr.role].nome+')');return true;}
+function doLogout(){logAudit('_sistema','Logout',currentUser());SESSION=null;sessionStorage.removeItem('horus_session');location.reload();}
+
+/* =====================================================================
+   RASTREABILIDADE — trilha de auditoria (quem, o quê, quando)
+   ===================================================================== */
+let AUDIT=JSON.parse(localStorage.getItem('horus_audit_v1')||'[]');
+function saveAudit(){if(AUDIT.length>2000)AUDIT=AUDIT.slice(-2000);localStorage.setItem('horus_audit_v1',JSON.stringify(AUDIT));}
+function logAudit(orderId,acao,detalhe){AUDIT.push({t:Date.now(),user:currentUser(),o:orderId,acao,det:detalhe||''});saveAudit();}
+function auditFor(id){return AUDIT.filter(a=>a.o===id).sort((a,b)=>b.t-a.t);}
+function fmtTs(t){const d=new Date(t);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+/* =====================================================================
+   REGRAS DO SISTEMA (configuráveis)
+   ===================================================================== */
+const DEFAULT_RULES={bloqueioTrava:true,slaDias:2,leadPadrao:30,avisarRetira:true,alertaPeso:0};
+let RULES=Object.assign({},DEFAULT_RULES,JSON.parse(localStorage.getItem('horus_rules_v1')||'{}'));
+function saveRules(){localStorage.setItem('horus_rules_v1',JSON.stringify(RULES));}
+
+/* =====================================================================
+   IMPORTAÇÃO DE PLANILHA — CSV do ERP Horus e CSV do próprio app
+   ===================================================================== */
+function parseCSV(text,delim){
+  // parser robusto: respeita aspas e quebras de linha dentro de aspas
+  const rows=[];let row=[],cur='',inQ=false;
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(inQ){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=c;}
+    else{if(c==='"')inQ=true;else if(c===delim){row.push(cur);cur='';}else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else cur+=c;}
+  }
+  if(cur.length||row.length){row.push(cur);rows.push(row);}
+  return rows;
+}
+const stripCode=s=>(s||'').replace(/^\s*[\d]+\s*-\s*/,'').replace(/\s+/g,' ').trim();
+function titleCase(s){
+  s=(s||'').toLowerCase().replace(/\s+/g,' ').trim();
+  s=s.replace(/(^|[\s\-–/(.,])([a-zà-ÿ])/g,(m,sep,c)=>sep+c.toUpperCase());
+  s=s.replace(/(\s)(De|Da|Do|Dos|Das|E|Do|A|Os|As)(\s)/g,(m,a,w,b)=>a+w.toLowerCase()+b);
+  return s;
+}
+function fmtTel(t){const d=digits(t);if(d.length===11)return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;if(d.length===10)return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;return (t||'').trim();}
+const numUS=s=>{s=(s||'').replace(/[^\d.,]/g,'').replace(/,/g,'');return parseFloat(s)||0;};
+const numBR=s=>{s=(s||'').replace(/[^\d.,]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(s)||0;};
+function d2iso(s){s=(s||'').trim();const m=s.match(/(\d{2})\/(\d{2})\/(\d{4})/);if(!m)return null;if(m[3]==='9999')return null;return `${m[3]}-${m[2]}-${m[1]}`;}
+function parseAddrBlock(txt){
+  txt=(txt||'').replace(/\n/g,' ');
+  let cad='',ent='';
+  const em=txt.match(/ENTREGA\s*:?\s*(.*)$/i);const cm=txt.match(/CADASTRO\s*:?\s*(.*?)(?:ENTREGA\s*:|$)/i);
+  if(cm)cad=cm[1].trim();if(em)ent=em[1].trim();
+  const src=ent&&ent.replace(/[,\s]/g,'').length>3?ent:cad;
+  const parts=src.split(',').map(x=>x.trim()).filter(Boolean);
+  let cid='',bairro='',end=src;
+  if(parts.length>=2){cid=titleCase(parts[parts.length-1]);bairro=titleCase(parts[parts.length-2]);end=parts.slice(0,parts.length-2).join(', ');}
+  return {end:titleCase(end),bairro,cid,entregaVazia:!(ent&&ent.replace(/[,\s]/g,'').length>3)};
+}
+function deriveFlags(obsAll,mensagem){
+  const T=(obsAll+' '+mensagem).toUpperCase();const fl={};const raw=obsAll;
+  const lead=T.match(/LIGAR\s*(\d+)\s*(MIN|MINUTO|HORA)/);if(lead)fl.lead=lead[1]+(/HORA/.test(lead[2])?' hora'+(lead[1]>'1'?'s':''):' min')+' antes';
+  else{const l2=T.match(/(\d+)\s*(MIN|MINUTO|HORA)S?\s*ANTES/);if(l2)fl.lead=l2[1]+(/HORA/.test(l2[2])?' hora'+(l2[1]>'1'?'s':''):' min')+' antes';}
+  const prazo=T.match(/AT[ÉE]\s*(?:DIA\s*)?(\d{2}\/\d{2})/);if(prazo)fl.prazo=d2iso(prazo[1]+'/'+(new Date().getFullYear()))||('2026-'+prazo[1].split('/').reverse().join('-'));
+  if(/URGENTE/.test(T))fl.urgente=true;
+  if(/IM[ÓO]VEL\s*VAGO/.test(T))fl.vago=true;
+  if(/PARCIAL/.test(T))fl.parcial=raw.replace(/\s+/g,' ').trim().slice(0,140);
+  if(/AGENDAR/.test(T))fl.agendar=true;
+  if(/CONFER(IR|E)/.test(T)&&/CAIXA/.test(T))fl.confere='Cliente confere as caixas na entrega';
+  if(/CR[ÉE]DITO/.test(T)){const cm=raw.match(/cr[ée]dito[s]?\s*[\w$.,\s]*/i);fl.credito=cm?cm[0].trim():'Utilização de créditos';}
+  const jan=T.match(/AT[ÉE]\s*[ÀA]?S?\s*(\d{1,2}[:H]\d{0,2})/);if(jan)fl.janela='Atender até '+jan[1].replace('H',':').replace(/:$/,'h');
+  const apos=T.match(/AP[ÓO]S\s*[ÀA]?S?\s*(\d{1,2}[:H]\d{0,2})/);if(apos)fl.janela='Receber somente após '+apos[1].replace('H',':');
+  if(/LALAMOVE/.test(T))fl.transp='Lalamove';else if(/TRAN?SP.*PR[ÓO]PRIA/.test(T))fl.transp='Transp. própria';
+  if(/RETIRA\s*(NO\s*)?CD|RETIRA CD/.test(T))fl.retiraCD=true;
+  // contato: nome + telefone — buscar só na mensagem do pedido (obsMsg), não no REF.DOCS
+  const src=(arguments[2]||'').replace(/\s+/g,' ');
+  const ctt=src.match(/([A-Za-zÀ-ÿ.]{2,}(?:\s+[A-Za-zÀ-ÿ.]{2,}){0,2})\s*[-–]?\s*(\(?\d{2}\)?\s*\d{4,5}[-\s.]?\d{4})/);
+  if(ctt&&!/RETIRA|CADASTRO|ENTREGA|VENDEDOR|REF|DOC|CR[ÉE]DITO|SAC/i.test(ctt[1]))fl.contato=titleCase(ctt[1].trim())+' — '+fmtTel(ctt[2]);
+  return fl;
+}
+function deriveTipo(obsAll,mensagem,entregaVazia){
+  const T=(obsAll+' '+mensagem).toUpperCase();
+  if(/RETIRA|CLIENTE\s*RETIRA|VAI\s*RETIRAR|RETIRAD[AO]/.test(T))return 'RETIRA';
+  if(entregaVazia)return 'RETIRA';
+  return 'ENTREGA';
+}
+function deriveStatus(trailing,sitFat){
+  const T=(trailing||'').toUpperCase();
+  if(/LIBERA[ÇC][ÃA]O\s*FINANCEIRA/.test(T))return 'bloqueado';
+  if(/EM\s*ABERTO/.test(T))return 'aberto';
+  if(/AGUARDANDO\s*SEPARA/.test(T))return 'separar';
+  if(/FATURADO/.test(T)||sitFat==='F')return 'pronto';
+  return 'separar';
+}
+function importHorusCSV(text){
+  const rows=parseCSV(text,';');
+  // acha a linha de cabeçalho de dados
+  let start=-1;
+  for(let i=0;i<rows.length;i++){if((rows[i][0]||'').toUpperCase().includes('DOCUMENTO')&&(rows[i].join(';')).toUpperCase().includes('CLIENTE')){start=i+1;break;}}
+  if(start<0)throw new Error('Cabeçalho "DOCUMENTO;...;CLIENTE" não encontrado — confira se é o relatório de Pedidos por Documento.');
+  const out=[];
+  for(let i=start;i<rows.length;i++){
+    const r=rows[i];if(!r||!r[0]||!/\d{6,}/.test(r[0]))continue;
+    // frente estável
+    const doc=(r[0]||'').replace(/[^\d]/g,'');const emp=(r[1]||'').replace(/[^\d]/g,'')||'001';
+    const dtEnt=r[2],dtPrev=r[3],dtEntrega=r[4],sit=(r[5]||'').replace(/[^A-Za-z/]/g,'');
+    const peso=numUS(r[6]);
+    // cauda estável (contando do fim)
+    const n=r.length;
+    const trailing=r[n-1], vrtotal=r[n-2], tel2=r[n-4], tel1=r[n-5], cliRaw=r[n-6], vendRaw=r[n-7], obs2=r[n-8], obs1=r[n-9], mensagem=r[n-10];
+    if(!cliRaw)continue;
+    const addr=parseAddrBlock(mensagem);
+    const obsMsg=(obs2||'').replace(/\s+/g,' ').trim();
+    const obsAll=[obs1,obs2].filter(Boolean).join('  ');
+    const fl=deriveFlags(obsAll,mensagem,obsMsg);
+    const tipo=deriveTipo(obsAll,mensagem,addr.entregaVazia);
+    const st=deriveStatus(trailing,sit);
+    if(st==='bloqueado')fl.hold=true;
+    const iso=d2iso(dtEntrega);if(!iso)fl.semData=true;
+    const vend=titleCase(stripCode(vendRaw));
+    const canal=/ECOMMERCE|E-COMMERCE|VTEX|TABLET\/SITE/i.test(vendRaw+obsAll)?'E-commerce':/MARKETPLACE|SHOPEE|SHP_/i.test(vendRaw+obsAll)?'Marketplace':'Loja';
+    const tel=fmtTel(tel1);if(!digits(tel1))fl.semTel=true;
+    out.push({d:doc,emp,cli:titleCase(stripCode(cliRaw)),vend,canal,tipo,cid:addr.cid||'—',bairro:addr.bairro||'',end:(addr.end||'').replace(/\s+/g,' ').trim(),peso,val:numBR(vrtotal),prev:d2iso(dtPrev),ent:iso,entrada:d2iso(dtEnt),st,tel,fl});
+  }
+  if(!out.length)throw new Error('Nenhum pedido lido. Verifique o arquivo.');
+  return out;
+}
+function importAppCSV(rows){
+  // formato exportado pelo próprio app (cabeçalho conhecido)
+  const head=rows[0].map(h=>h.trim());const idx=n=>head.indexOf(n);
+  const out=[];
+  for(let i=1;i<rows.length;i++){const r=rows[i];if(!r[idx('Pedido')])continue;
+    out.push({d:r[idx('Pedido')].replace(/\D/g,''),emp:r[idx('Empresa')]||'001',cli:r[idx('Cliente')]||'',vend:r[idx('Vendedor')]||'',canal:r[idx('Canal')]||'Loja',tipo:(r[idx('Tipo')]||'ENTREGA').toUpperCase(),cid:r[idx('Cidade')]||'—',bairro:r[idx('Bairro')]||'',end:r[idx('Endereco')]||'',peso:numUS(r[idx('Peso_kg')]),val:numBR(r[idx('Valor')]),prev:null,ent:(r[idx('Entrega')]||'').includes('sem')?null:r[idx('Entrega')],st:'separar',tel:r[idx('Telefone')]||'',fl:{}});
+  }
+  return out;
+}
+function handleImport(file){
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const text=rd.result;let orders;
+      if(/DOCUMENTO/i.test(text.slice(0,4000))&&/PESO\s*BRUTO/i.test(text.slice(0,4000)))orders=importHorusCSV(text);
+      else{const rows=parseCSV(text, text.includes(';')?';':',');orders=importAppCSV(rows);}
+      if(!orders.length){toast('Nenhum pedido encontrado no arquivo');return;}
+      const refIso=orders.map(o=>o.entrada).filter(Boolean).sort().pop();
+      O=orders;DATAMETA={fonte:file.name,data:refIso?dparse(refIso).toLocaleDateString('pt-BR'):new Date().toLocaleDateString('pt-BR'),importadoEm:Date.now(),qtd:orders.length};
+      PLAN.assign={};savePlan();saveData();logAudit('_sistema','Importou planilha',file.name+' · '+orders.length+' pedidos');
+      closeModal();refreshCounts();go('pedidos');toast(orders.length+' pedidos importados de '+file.name);
+    }catch(e){alert('Não consegui ler o arquivo:\n\n'+e.message+'\n\nDica: exporte do ERP como CSV (Pedidos por Documento) ou use "Salvar como CSV" no Excel.');}
+  };
+  rd.readAsText(file,'ISO-8859-1');
 }
 
 /* =====================================================================
@@ -568,6 +865,10 @@ const IC={
  wheel:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M4.2 7l4.6 3M4.2 17l4.6-3M19.8 7l-4.6 3M19.8 17l-4.6-3"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  wand:'<path d="M15 4V2M15 10V8M12.5 6.5h-2M17.5 6.5h2M20 20l-8-8M9 5 5 9l10 10 4-4L9 5Z"/>',
+ grid:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+ route:'<circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ chart:'<path d="M3 3v18h18"/><path d="m7 14 3-4 3 3 5-7"/>',
 };
 const svg=(p,w=18)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="${w}" height="${w}">${p}</svg>`;
 
@@ -639,11 +940,12 @@ let CUR='painel', FILTER={emp:'',tipo:'',st:'',cid:'',q:''};
 
 function render(){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===CUR));
-  const titles={painel:['Painel de comando','Visão executiva da operação de hoje'],alertas:['Alertas inteligentes','O que a memória do time não pode esquecer'],separacao:['Fila de separação','Prioridade de picking por status e valor'],rotas:['Roteirização','Entregas agrupadas por região para montar carga'],retiradas:['Retiradas & balcão','Clientes que buscam no CD/loja'],carga:['Planejador de carga','Monte os veículos e gere o briefing do motorista'],pedidos:['Todos os pedidos','Base completa pesquisável'],gestao:['Gestão & risco','Onde está o valor, o peso e o risco']};
+  const titles={painel:['Painel de comando','Visão executiva da operação'],alertas:['Alertas inteligentes','O que a memória do time não pode esquecer'],separacao:['Fila de separação','Prioridade de picking por status e valor'],rotas:['Roteirização','Entregas agrupadas por região para montar carga'],retiradas:['Retiradas & balcão','Clientes que buscam no CD/loja'],carga:['Planejador de carga','Monte os veículos e gere o briefing do motorista'],frota:['Frota','Cadastro de caminhões e utilitários'],motoristas:['Motoristas','Equipe de entrega'],acessos:['Acessos & perfis','Quem entra e o que cada um vê'],pedidos:['Todos os pedidos','Base completa pesquisável'],gestao:['Gestão & risco','Onde está o valor, o peso e o risco'],rastreio:['Rastreabilidade','Trilha de auditoria de tudo que acontece'],regras:['Regras','Como o sistema pensa e a base de dados ativa']};
   document.getElementById('view-title').textContent=titles[CUR][0];
-  document.getElementById('view-sub').innerHTML='Data-base operacional: <b>01/07/2026</b> · '+titles[CUR][1];
+  document.getElementById('view-sub').innerHTML='Base: <b>'+DATAMETA.data+'</b> · '+titles[CUR][1];
+  const views={painel:vPainel,alertas:vAlertas,separacao:vSep,rotas:vRotas,retiradas:vRet,carga:vCarga,frota:vFrota,motoristas:vMotoristas,acessos:vAcessos,pedidos:vPed,gestao:vGestao,rastreio:vRastreio,regras:vRegras};
   const c=document.getElementById('content');
-  c.innerHTML='<div class="view">'+({painel:vPainel,alertas:vAlertas,separacao:vSep,rotas:vRotas,retiradas:vRet,carga:vCarga,pedidos:vPed,gestao:vGestao}[CUR])()+'</div>';
+  c.innerHTML='<div class="view">'+(views[CUR]||vPainel)()+'</div>';
   wire();
 }
 
@@ -780,47 +1082,51 @@ function vRet(){
 /* ---------- PLANEJADOR DE CARGA ---------- */
 function vCarga(){
   const ent=O.filter(o=>o.tipo==='ENTREGA');
-  const unassigned=ent.filter(o=>!PLAN.assign[o.d]||!VEHS.find(v=>v[0]===PLAN.assign[o.d]));
-  let h=`<div class="callout">${svg(IC.wheel,22)}<div class="co-t"><b>Monte a carga dos veículos sem estourar a capacidade</b><span>Distribua as ${ent.length} entregas nos veículos respeitando o peso. O sistema pode montar sozinho e gerar a ficha de rua de cada motorista já com contatos, horários e avisos.</span></div><button class="btn red no-print" onclick="autoLoad();render();toast('Carga distribuída automaticamente')">${svg(IC.wand,15)} Montar automático</button></div>`;
+  const fleet=activeFleet();
+  const unassigned=ent.filter(o=>!PLAN.assign[o.d]||!fleet.find(v=>v.id===PLAN.assign[o.d]));
+  let h=`<div class="callout">${svg(IC.wheel,22)}<div class="co-t"><b>Monte a carga dos veículos sem estourar a capacidade</b><span>Distribua as ${ent.length} entregas na frota respeitando o peso. O sistema pode montar sozinho e gerar a ficha de rua de cada motorista já com contatos, horários e avisos.</span></div><button class="btn red no-print" onclick="autoLoad();render();toast('Carga distribuída automaticamente')">${svg(IC.wand,15)} Montar automático</button></div>`;
+  if(!fleet.length){h+='<div class="empty">'+svg(IC.truck,44)+'<p>Nenhum veículo ativo. Cadastre a frota em <b>Frota</b>.</p></div>';return h;}
 
-  // veículos
-  h+='<div class="grid3" style="align-items:start">';
-  VEHS.forEach(([v,label,col])=>{
+  const cols=Math.min(3,fleet.length);
+  h+=`<div class="grid3" style="align-items:start;grid-template-columns:repeat(${cols},1fr)">`;
+  fleet.forEach(veh=>{
+    const v=veh.id,col=vehColor(v);
     const load=vehLoad(v).sort((a,b)=>(daysFrom(a.ent)??99)-(daysFrom(b.ent)??99));
-    const w=vehWeight(v),cap=PLAN.caps[v],pct=Math.min(100,w/cap*100),over=w>cap;
-    h+=`<div class="card" style="padding:15px"><div class="card-head" style="margin-bottom:12px;align-items:center">
-      <h3><span class="dot" style="background:${col}"></span>${label}</h3>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:6px" class="no-print"><span style="font-size:11px;color:var(--ink-3)">cap.</span><input type="number" value="${cap}" onchange="PLAN.caps['${v}']=+this.value||0;savePlan();render()" style="width:66px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 8px;font-size:12px;font-variant-numeric:tabular-nums"><span style="font-size:11px;color:var(--ink-3)">kg</span></div></div>
+    const w=vehWeight(v),cap=veh.cap,pct=cap?Math.min(100,w/cap*100):0,over=w>cap;
+    h+=`<div class="card" style="padding:15px"><div class="card-head" style="margin-bottom:10px;align-items:center">
+      <h3 style="min-width:0"><span class="dot" style="background:${col}"></span><span class="ell" style="max-width:150px">${veh.nome}</span></h3>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px" class="no-print"><input type="number" value="${cap}" onchange="setCap('${v}',this.value)" style="width:70px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 8px;font-size:12px;font-variant-numeric:tabular-nums"><span style="font-size:11px;color:var(--ink-3)">kg</span></div></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:11.5px;color:var(--ink-3)"><span class="tag t-slate">${veh.placa}</span><span class="ell">${svg(IC.wheel,12)} ${driverName(veh.motorista)}</span></div>
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:${over?'var(--red-bright)':'var(--ink-2)'};font-weight:700">${KG(w)}${over?' — excedeu!':''}</span><span style="color:var(--ink-3)" class="tnum">${load.length} paradas · ${BRLc(load.reduce((s,o)=>s+o.val,0))}</span></div>
-      <div class="bar-track" style="height:11px;margin-bottom:14px"><div class="bar-fill" style="width:${pct}%;background:${over?'var(--red)':pct>85?'linear-gradient(90deg,var(--amber),var(--red))':`linear-gradient(90deg,${col},${col})`}"></div></div>
+      <div class="bar-track" style="height:11px;margin-bottom:14px"><div class="bar-fill" style="width:${pct}%;background:${over?'var(--red)':pct>85?'linear-gradient(90deg,var(--amber),var(--red))':col}"></div></div>
       <div style="display:flex;flex-direction:column;gap:6px;min-height:40px">`;
     h+=load.map(o=>`<div class="ord" style="grid-template-columns:1fr auto;padding:9px 11px;background:var(--panel-2);border-color:var(--line)">
-        <div class="oc"><div class="otop"><span class="oname" style="font-size:12.5px">${o.cli}</span></div><div class="oaddr" style="margin-top:2px">${svg(IC.pin,12)}${o.cid} · ${KG(o.peso)}</div>${flagTags(o)?`<div class="oflags">${flagTags(o)}</div>`:''}</div>
-        <button class="btn ic sm no-print" title="Tirar do veículo" onclick="unassign('${o.d}')">${svg('<path d="M18 6 6 18M6 6l12 12"/>',14)}</button></div>`).join('')||'<div class="empty" style="padding:16px"><p style="font-size:12px">Sem carga</p></div>';
-    h+=`</div><button class="btn no-print" style="width:100%;justify-content:center;margin-top:12px" onclick="printBrief('${v}')" ${load.length?'':'disabled style="opacity:.4;width:100%;justify-content:center;margin-top:12px"'}>${svg(IC.note,15)} Briefing do motorista</button></div>`;
+        <div class="oc"><div class="otop"><span class="oname ell" style="font-size:12.5px;max-width:150px">${o.cli}</span></div><div class="oaddr ell" style="margin-top:2px">${svg(IC.pin,12)}${o.cid} · ${KG(o.peso)}</div>${flagTags(o)?`<div class="oflags">${flagTags(o)}</div>`:''}</div>
+        <div style="display:flex;flex-direction:column;gap:4px" class="no-print"><select class="fsel" style="height:28px;font-size:11px;padding:0 22px 0 8px" onchange="assign('${o.d}',this.value)">${fleet.map(x=>`<option value="${x.id}" ${x.id===v?'selected':''}>${x.nome}</option>`).join('')}<option value="">— tirar —</option></select></div></div>`).join('')||'<div class="empty" style="padding:16px"><p style="font-size:12px">Sem carga</p></div>';
+    h+=`</div><button class="btn no-print" style="width:100%;justify-content:center;margin-top:12px${load.length?'':';opacity:.4'}" onclick="printBrief('${v}')">${svg(IC.note,15)} Briefing do motorista</button></div>`;
   });
   h+='</div>';
 
-  // não atribuídos
   h+=`<div class="sec-h mt"><div><div class="ey">Aguardando alocação</div><h2>Entregas sem veículo</h2></div><span class="rt">${unassigned.length} · ${KG(unassigned.reduce((s,o)=>s+o.peso,0))}</span></div>`;
   h+='<div class="card" style="padding:10px"><div style="display:flex;flex-direction:column;gap:6px">';
   h+=unassigned.length?unassigned.sort((a,b)=>b.peso-a.peso).map(o=>`<div class="ord" style="background:var(--panel-2);border-color:var(--line)">
       <div class="oleft"><span class="wpill">${KG(o.peso)}</span></div>
-      <div class="oc" onclick="openOrder('${o.d}')" style="cursor:pointer"><div class="otop"><span class="oname">${o.cli}</span><span class="odoc">#${o.d.slice(-5)}</span></div><div class="oaddr">${svg(IC.pin,13)}${o.end||o.cid} · ${o.cid}</div>${flagTags(o)?`<div class="oflags">${flagTags(o)}</div>`:''}</div>
-      <div class="oright no-print"><div style="display:flex;gap:5px">${VEHS.map(([v,,col])=>`<button class="btn sm" style="border-color:${col}66" onclick="assign('${o.d}','${v}')">→ ${v}</button>`).join('')}</div><span class="vpill" style="font-size:12px">${BRL(o.val)}</span></div></div>`).join(''):'<div class="empty">'+svg(IC.check,44)+'<p>Todas as entregas já estão em um veículo.</p></div>';
+      <div class="oc" onclick="openOrder('${o.d}')" style="cursor:pointer"><div class="otop"><span class="oname ell" style="max-width:260px">${o.cli}</span><span class="odoc">#${o.d.slice(-5)}</span></div><div class="oaddr ell">${svg(IC.pin,13)}${o.end||o.cid} · ${o.cid}</div>${flagTags(o)?`<div class="oflags">${flagTags(o)}</div>`:''}</div>
+      <div class="oright no-print"><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">${fleet.map(veh=>`<button class="btn sm" style="border-color:${vehColor(veh.id)}66" title="Alocar em ${veh.nome}" onclick="assign('${o.d}','${veh.id}')">→ ${veh.placa.split('-')[0]}</button>`).join('')}</div><span class="vpill" style="font-size:12px">${BRL(o.val)}</span></div></div>`).join(''):'<div class="empty">'+svg(IC.check,44)+'<p>Todas as entregas já estão em um veículo.</p></div>';
   h+='</div></div>';
   return h;
 }
-function assign(id,v){PLAN.assign[id]=v;savePlan();render();}
-function unassign(id){delete PLAN.assign[id];savePlan();render();}
+function setCap(v,val){const veh=vehById(v);if(veh){veh.cap=+val||0;saveFleet();render();}}
+function assign(id,v){if(v){PLAN.assign[id]=v;const veh=vehById(v);logAudit(id,'Alocado no veículo',veh?veh.nome+' ('+veh.placa+')':v);}else{delete PLAN.assign[id];logAudit(id,'Retirado do veículo','');}savePlan();render();}
+function unassign(id){delete PLAN.assign[id];logAudit(id,'Retirado do veículo','');savePlan();render();}
 
 /* ---------- BRIEFING DO MOTORISTA (impressão) ---------- */
 function printBrief(v){
   const load=vehLoad(v).sort((a,b)=>(daysFrom(a.ent)??99)-(daysFrom(b.ent)??99));
-  if(!load.length)return;
-  const label=VEHS.find(x=>x[0]===v)[1];
+  if(!load.length){toast('Veículo sem carga');return;}
+  const veh=vehById(v);const label=veh?`${veh.nome} · ${veh.placa}`:v;
   const w=vehWeight(v),val=load.reduce((s,o)=>s+o.val,0);
-  let h=`<div class="brief-head"><div><h1>Ficha de rua — ${label}</h1><div class="bh-sub">Horus Acabamentos · Data-base 01/07/2026 · ${load.length} paradas · ${KG(w)} · ${BRL(val)}</div></div><div class="bh-logo">HORUS</div></div>`;
+  let h=`<div class="brief-head"><div><h1>Ficha de rua — ${label}</h1><div class="bh-sub">Horus Acabamentos · Motorista: ${veh?driverName(veh.motorista):'—'} · ${DATAMETA.data} · ${load.length} paradas · ${KG(w)} · ${BRL(val)}</div></div><div class="bh-logo">HORUS</div></div>`;
   load.forEach((o,i)=>{
     const al=alertsFor(o).filter(a=>['crit','warn','time'].includes(a.sev));
     h+=`<div class="brief-stop"><div class="bs-n">${i+1}</div><div class="bs-body">
@@ -839,6 +1145,136 @@ function printBrief(v){
   window.print();
   setTimeout(()=>document.body.classList.remove('brief-mode'),300);
 }
+
+/* ---------- FROTA (cadastro de veículos) ---------- */
+function vFrota(){
+  let h=`<div class="callout" style="background:linear-gradient(90deg,var(--panel-2),var(--panel));border-color:var(--line)">${svg(IC.truck,22).replace('var(--red-bright)','')}<div class="co-t"><b>Frota da empresa</b><span>Cadastre caminhões e utilitários com placa, capacidade e motorista. O Planejador de carga usa exatamente esta frota.</span></div><button class="btn red no-print" onclick="editVeh()">${svg(IC.plus,15)} Novo veículo</button></div>`;
+  h+='<div class="card" style="padding:0;overflow:hidden"><table class="tbl"><thead><tr><th>Veículo</th><th>Placa</th><th>Tipo</th><th class="r">Capacidade</th><th>Motorista</th><th>Status</th><th></th></tr></thead><tbody>';
+  h+=FLEET.map(v=>`<tr>
+    <td><span class="dot" style="background:${vehColor(v.id)};display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:8px"></span><b>${v.nome}</b></td>
+    <td class="mono">${v.placa}</td><td>${v.tipo}</td><td class="r tnum">${v.cap.toLocaleString('pt-BR')} kg</td>
+    <td>${driverName(v.motorista)}</td>
+    <td><span class="sb ${v.ativo?'s-pronto':'s-bloqueado'}" style="cursor:pointer" onclick="toggleVeh('${v.id}')">${v.ativo?'Ativo':'Inativo'}</span></td>
+    <td class="r"><button class="btn ic sm" onclick="editVeh('${v.id}')">${svg(IC.note,14)}</button> <button class="btn ic sm" onclick="delVeh('${v.id}')">${svg('<path d="M3 6h18M8 6V4h8v2m-1 0v14H9V6"/>',14)}</button></td></tr>`).join('');
+  h+='</tbody></table></div>';
+  return h;
+}
+function editVeh(id){
+  const v=id?vehById(id):{id:'V'+Date.now().toString().slice(-5),nome:'',placa:'',tipo:'',cap:5000,motorista:DRIVERS[0]?.id||'',ativo:true};
+  modal(id?'Editar veículo':'Novo veículo',`
+    <div class="fgrid">
+      ${field('Nome / apelido','vf_nome',v.nome)}
+      ${field('Placa','vf_placa',v.placa)}
+      ${field('Tipo','vf_tipo',v.tipo,'Ex.: Caminhão 3/4, VUC, Fiorino')}
+      ${field('Capacidade (kg)','vf_cap',v.cap,'','number')}
+      <label class="fld"><span>Motorista</span><select id="vf_mot" class="finput">${DRIVERS.map(d=>`<option value="${d.id}" ${d.id===v.motorista?'selected':''}>${d.nome}</option>`).join('')}<option value="">—</option></select></label>
+      <label class="fld"><span>Status</span><select id="vf_ativo" class="finput"><option value="1" ${v.ativo?'selected':''}>Ativo</option><option value="0" ${!v.ativo?'selected':''}>Inativo</option></select></label>
+    </div>`,()=>{
+      const nv={id:v.id,nome:val('vf_nome')||'Veículo',placa:val('vf_placa').toUpperCase(),tipo:val('vf_tipo'),cap:+val('vf_cap')||0,motorista:val('vf_mot'),ativo:val('vf_ativo')==='1'};
+      const ix=FLEET.findIndex(x=>x.id===v.id);if(ix>=0)FLEET[ix]=nv;else FLEET.push(nv);
+      saveFleet();logAudit('_sistema',id?'Editou veículo':'Cadastrou veículo',nv.nome+' '+nv.placa);closeModal();render();toast('Veículo salvo');
+    });
+}
+function toggleVeh(id){const v=vehById(id);v.ativo=!v.ativo;saveFleet();render();}
+function delVeh(id){if(!confirm('Excluir este veículo?'))return;FLEET=FLEET.filter(x=>x.id!==id);saveFleet();render();toast('Veículo removido');}
+
+/* ---------- MOTORISTAS ---------- */
+function vMotoristas(){
+  let h=`<div class="callout" style="background:linear-gradient(90deg,var(--panel-2),var(--panel));border-color:var(--line)">${svg(IC.users,22).replace('var(--red-bright)','')}<div class="co-t"><b>Motoristas</b><span>Cadastro da equipe de entrega — categoria de CNH, telefone e status.</span></div><button class="btn red no-print" onclick="editDrv()">${svg(IC.plus,15)} Novo motorista</button></div>`;
+  h+='<div class="card" style="padding:0;overflow:hidden"><table class="tbl"><thead><tr><th>Motorista</th><th>CNH</th><th>Telefone</th><th>Veículo padrão</th><th>Status</th><th></th></tr></thead><tbody>';
+  h+=DRIVERS.map(d=>{const veh=FLEET.find(v=>v.motorista===d.id);return `<tr><td><b>${d.nome}</b></td><td><span class="tag t-slate">Cat. ${d.cnh}</span></td><td class="mono">${d.tel}</td><td>${veh?veh.nome+' · '+veh.placa:'—'}</td>
+    <td><span class="sb ${d.ativo?'s-pronto':'s-bloqueado'}" style="cursor:pointer" onclick="toggleDrv('${d.id}')">${d.ativo?'Ativo':'Inativo'}</span></td>
+    <td class="r"><a class="btn ic sm" href="tel:${digits(d.tel)}">${svg(IC.phone,14)}</a> <button class="btn ic sm" onclick="editDrv('${d.id}')">${svg(IC.note,14)}</button> <button class="btn ic sm" onclick="delDrv('${d.id}')">${svg('<path d="M3 6h18M8 6V4h8v2m-1 0v14H9V6"/>',14)}</button></td></tr>`;}).join('');
+  h+='</tbody></table></div>';return h;
+}
+function editDrv(id){
+  const d=id?DRIVERS.find(x=>x.id===id):{id:'M'+Date.now().toString().slice(-5),nome:'',cnh:'D',tel:'',ativo:true};
+  modal(id?'Editar motorista':'Novo motorista',`<div class="fgrid">
+    ${field('Nome','df_nome',d.nome)}
+    <label class="fld"><span>Categoria CNH</span><select id="df_cnh" class="finput">${['A','B','C','D','E'].map(c=>`<option ${c===d.cnh?'selected':''}>${c}</option>`).join('')}</select></label>
+    ${field('Telefone','df_tel',d.tel)}
+    <label class="fld"><span>Status</span><select id="df_ativo" class="finput"><option value="1" ${d.ativo?'selected':''}>Ativo</option><option value="0" ${!d.ativo?'selected':''}>Inativo</option></select></label>
+  </div>`,()=>{
+    const nd={id:d.id,nome:val('df_nome')||'Motorista',cnh:val('df_cnh'),tel:val('df_tel'),ativo:val('df_ativo')==='1'};
+    const ix=DRIVERS.findIndex(x=>x.id===d.id);if(ix>=0)DRIVERS[ix]=nd;else DRIVERS.push(nd);
+    saveDrivers();logAudit('_sistema',id?'Editou motorista':'Cadastrou motorista',nd.nome);closeModal();render();toast('Motorista salvo');
+  });
+}
+function toggleDrv(id){const d=DRIVERS.find(x=>x.id===id);d.ativo=!d.ativo;saveDrivers();render();}
+function delDrv(id){if(!confirm('Excluir este motorista?'))return;DRIVERS=DRIVERS.filter(x=>x.id!==id);saveDrivers();render();}
+
+/* ---------- RASTREABILIDADE ---------- */
+function vRastreio(){
+  const q=(FILTER.q||'').toLowerCase();
+  let list=AUDIT.slice().sort((a,b)=>b.t-a.t);
+  if(q)list=list.filter(a=>(a.user+a.acao+a.det+a.o).toLowerCase().includes(q));
+  let h=`<div class="callout" style="background:linear-gradient(90deg,var(--panel-2),var(--panel));border-color:var(--line)">${svg(IC.clock,22).replace('var(--red-bright)','')}<div class="co-t"><b>Trilha de auditoria — ${AUDIT.length} eventos</b><span>Cada movimentação (mudança de etapa, alocação, aviso, importação, acesso) fica registrada com usuário, data e hora. Nada depende da memória.</span></div><button class="btn no-print" onclick="exportAudit()">${svg(IC.note,15)} Exportar histórico</button></div>`;
+  if(!list.length){h+='<div class="empty">'+svg(IC.clock,44)+'<p>Sem eventos ainda. Assim que a operação mexer nos pedidos, aparece aqui.</p></div>';return h;}
+  h+='<div class="card" style="padding:0;overflow:hidden"><table class="tbl"><thead><tr><th>Quando</th><th>Usuário</th><th>Ação</th><th>Detalhe</th><th>Pedido</th></tr></thead><tbody>';
+  h+=list.slice(0,300).map(a=>`<tr><td class="mono" style="white-space:nowrap">${fmtTs(a.t)}</td><td>${a.user}</td><td><b>${a.acao}</b></td><td style="color:var(--ink-3)">${a.det||'—'}</td><td>${a.o==='_sistema'?'<span class="tag t-slate">sistema</span>':`<span class="mono" style="cursor:pointer;color:var(--red-bright)" onclick="openOrder('${a.o}')">#${(''+a.o).slice(-5)}</span>`}</td></tr>`).join('');
+  h+='</tbody></table></div>';
+  if(list.length>300)h+=`<p style="text-align:center;color:var(--ink-4);font-size:12px;margin-top:12px">Mostrando os 300 eventos mais recentes de ${list.length}.</p>`;
+  return h;
+}
+function exportAudit(){
+  const rows=[['Data','Usuario','Acao','Detalhe','Pedido']];
+  AUDIT.slice().sort((a,b)=>b.t-a.t).forEach(a=>rows.push([fmtTs(a.t),a.user,a.acao,a.det,a.o]));
+  dlCSV(rows,'horus_rastreabilidade.csv');
+}
+
+/* ---------- REGRAS ---------- */
+function vRegras(){
+  let h=`<div class="callout" style="background:linear-gradient(90deg,var(--panel-2),var(--panel));border-color:var(--line)">${svg(IC.zap,22).replace('var(--red-bright)','')}<div class="co-t"><b>Regras do sistema</b><span>Defina como o sistema pensa. Valem na hora e ficam salvas neste navegador.</span></div></div>`;
+  h+='<div class="grid2">';
+  h+=`<div class="card"><h3><span class="dot"></span>Operação</h3><div style="margin-top:14px;display:flex;flex-direction:column;gap:2px">
+    ${ruleToggle('bloqueioTrava','Travar pedido com bloqueio financeiro','Impede alocar/finalizar pedido preso no financeiro')}
+    ${ruleToggle('avisarRetira','Exigir aviso ao cliente nas retiradas','Marca retirada como pendente até avisar o cliente')}
+  </div></div>`;
+  h+=`<div class="card"><h3><span class="dot"></span>Prazos & alertas</h3><div style="margin-top:14px;display:flex;flex-direction:column;gap:14px">
+    ${ruleNum('slaDias','Prazo-alvo de entrega (SLA)','dias após a entrada')}
+    ${ruleNum('leadPadrao','Antecedência padrão p/ ligar','minutos, quando a obs não especifica')}
+    ${ruleNum('alertaPeso','Alertar pedido acima de','kg (0 = desligado)')}
+  </div></div>`;
+  h+='</div>';
+  h+=`<div class="sec-h mt"><div><div class="ey">Dados</div><h2>Base de pedidos ativa</h2></div></div>
+    <div class="card"><div class="kv-row"><span class="k">Fonte</span><span class="v">${DATAMETA.fonte}</span></div>
+    <div class="kv-row"><span class="k">Data de referência</span><span class="v">${DATAMETA.data}</span></div>
+    <div class="kv-row"><span class="k">Pedidos carregados</span><span class="v">${O.length}</span></div>
+    ${DATAMETA.importadoEm?`<div class="kv-row"><span class="k">Importado em</span><span class="v">${fmtTs(DATAMETA.importadoEm)}</span></div>`:''}
+    <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap"><button class="btn" onclick="openImport()">${svg(IC.merge,15)} Importar planilha</button><button class="btn" onclick="exportFull()">${svg(IC.note,15)} Exportar planilha</button><button class="btn" onclick="if(confirm('Voltar para os dados originais do relatório 01/07? Isto remove a planilha importada.')){resetData();refreshCounts();render();toast('Dados restaurados')}">Restaurar dados originais</button></div></div>`;
+  return h;
+}
+function ruleToggle(k,label,desc){return `<div class="cli ${RULES[k]?'on':''}" onclick="RULES.${k}=!RULES.${k};saveRules();render();toast('Regra atualizada')"><div class="cb">${svg(IC.check,13)}</div><div><div class="ct" style="text-decoration:none;color:var(--ink)">${label}</div><div style="font-size:11.5px;color:var(--ink-3)">${desc}</div></div></div>`;}
+function ruleNum(k,label,unit){return `<label class="fld" style="flex-direction:row;align-items:center;justify-content:space-between"><span style="flex:1">${label}<br><small style="color:var(--ink-4)">${unit}</small></span><input type="number" class="finput" style="width:90px" value="${RULES[k]}" onchange="RULES.${k}=+this.value||0;saveRules();toast('Regra atualizada')"></label>`;}
+
+/* ---------- ACESSOS ---------- */
+function vAcessos(){
+  let h=`<div class="callout" style="background:linear-gradient(90deg,var(--panel-2),var(--panel));border-color:var(--line)">${svg(IC.lock,22).replace('var(--red-bright)','')}<div class="co-t"><b>Acessos e perfis</b><span>Cada pessoa entra com o seu login e vê apenas as telas do seu perfil. As ações ficam registradas na Rastreabilidade.</span></div><button class="btn red no-print" onclick="editUser()">${svg(IC.plus,15)} Novo usuário</button></div>`;
+  h+='<div class="card" style="padding:0;overflow:hidden"><table class="tbl"><thead><tr><th>Usuário</th><th>Nome</th><th>Perfil</th><th>Telas</th><th>Status</th><th></th></tr></thead><tbody>';
+  h+=USERS.map(u=>`<tr><td class="mono">${u.u}</td><td><b>${u.nome}</b></td><td><span class="tag t-blue">${ROLES[u.role].nome}</span></td><td style="color:var(--ink-3)">${ROLES[u.role].views.length} telas</td>
+    <td><span class="sb ${u.ativo?'s-pronto':'s-bloqueado'}" style="cursor:pointer" onclick="toggleUser('${u.u}')">${u.ativo?'Ativo':'Inativo'}</span></td>
+    <td class="r"><button class="btn ic sm" onclick="editUser('${u.u}')">${svg(IC.note,14)}</button> <button class="btn ic sm" onclick="delUser('${u.u}')">${svg('<path d="M3 6h18M8 6V4h8v2m-1 0v14H9V6"/>',14)}</button></td></tr>`).join('');
+  h+='</tbody></table></div>';
+  h+='<div class="mini-legend" style="margin-top:14px">'+Object.entries(ROLES).map(([k,r])=>`<div class="mi"><b style="color:var(--ink)">${r.nome}:</b> <span>${r.views.length} telas</span></div>`).join('')+'</div>';
+  return h;
+}
+function editUser(id){
+  const u=id?USERS.find(x=>x.u===id):{u:'',s:'',nome:'',role:'operador',ativo:true};
+  modal(id?'Editar usuário':'Novo usuário',`<div class="fgrid">
+    ${field('Login','uf_u',u.u)}
+    ${field('Senha','uf_s',u.s)}
+    ${field('Nome','uf_nome',u.nome)}
+    <label class="fld"><span>Perfil</span><select id="uf_role" class="finput">${Object.entries(ROLES).map(([k,r])=>`<option value="${k}" ${k===u.role?'selected':''}>${r.nome}</option>`).join('')}</select></label>
+    <label class="fld"><span>Status</span><select id="uf_ativo" class="finput"><option value="1" ${u.ativo?'selected':''}>Ativo</option><option value="0" ${!u.ativo?'selected':''}>Inativo</option></select></label>
+  </div>`,()=>{
+    const nu={u:val('uf_u').trim().toLowerCase(),s:val('uf_s'),nome:val('uf_nome')||'Usuário',role:val('uf_role'),ativo:val('uf_ativo')==='1'};
+    if(!nu.u){toast('Informe o login');return;}
+    const ix=USERS.findIndex(x=>x.u===(id||nu.u));if(ix>=0)USERS[ix]=nu;else USERS.push(nu);
+    saveUsers();logAudit('_sistema',id?'Editou usuário':'Criou usuário',nu.u+' ('+ROLES[nu.role].nome+')');closeModal();render();toast('Usuário salvo');
+  });
+}
+function toggleUser(id){const u=USERS.find(x=>x.u===id);u.ativo=!u.ativo;saveUsers();render();}
+function delUser(id){if(id===SESSION.u){toast('Não dá para excluir o usuário logado');return;}if(!confirm('Excluir usuário?'))return;USERS=USERS.filter(x=>x.u!==id);saveUsers();render();}
 
 /* ---------- PEDIDOS (tabela filtrável) ---------- */
 function vPed(){
@@ -956,6 +1392,13 @@ function openOrder(id){
 
   // notas
   h+=`<div class="drawer-sec"><div class="dsh">${svg(IC.note,13)} Anotações da equipe</div><textarea class="notas" placeholder="Ex.: cliente pediu para deixar na portaria…" onchange="setNota('${id}',this.value)">${s.nota||''}</textarea></div>`;
+
+  // rastreabilidade do pedido
+  const hist=auditFor(id);
+  h+=`<div class="drawer-sec"><div class="dsh">${svg(IC.clock,13)} Histórico do pedido</div>`;
+  if(hist.length){h+='<div class="tline">'+hist.slice(0,12).map(a=>`<div class="tl-item"><div class="tl-dot"></div><div class="tl-c"><b>${a.acao}</b>${a.det?` · ${a.det}`:''}<span>${fmtTs(a.t)} · ${a.user}</span></div></div>`).join('')+'</div>';}
+  else h+='<p style="font-size:12.5px;color:var(--ink-4)">Sem movimentações registradas ainda.</p>';
+  h+='</div>';
   h+='</div>';
   dr.innerHTML=h;dr.classList.add('on');document.getElementById('scrim').classList.add('on');
 }
@@ -964,55 +1407,119 @@ function closeDrawer(){document.getElementById('drawer').classList.remove('on');
 /* =====================================================================
    AÇÕES
    ===================================================================== */
-function go(v){CUR=v;closeDrawer();render();document.getElementById('content').scrollTop=0;}
+function go(v){if(SESSION&&!can(v)){toast('Seu perfil não tem acesso a esta tela');return;}CUR=v;closeDrawer();render();document.getElementById('content').scrollTop=0;if(window.innerWidth<820)document.getElementById('side').classList.remove('open');}
 function setF(k,v){FILTER[k]=FILTER[k]===v&&k!=='emp'&&k!=='cid'?'':v;render();}
-function setStage(id,i){os(id).stage=i;if(i>=4){os(id).chk={0:1,1:1,2:1,3:1,4:1};}save();openOrder(id);toast('Andamento atualizado');refreshCounts();}
-function toggleChk(id,i){const s=os(id);s.chk[i]=!s.chk[i];save();openOrder(id);}
-function toggleDone(id){const s=os(id);s.stage=s.stage>=4?defStage(id):4;save();render();toast(s.stage>=4?'Pedido finalizado':'Reaberto');}
-function toggleAvisado(id){const s=os(id);s.avisado=!s.avisado;save();render();}
-function setNota(id,v){os(id).nota=v;save();}
+function stageBlocked(id){const o=O.find(x=>x.d===id);return o&&o.st==='bloqueado'&&RULES.bloqueioTrava;}
+function setStage(id,i){if(stageBlocked(id)&&i>0){toast('Pedido travado no financeiro (regra ativa)');return;}os(id).stage=i;if(i>=4){os(id).chk={0:1,1:1,2:1,3:1,4:1};}save();logAudit(id,'Mudou etapa','→ '+STAGES[i]);openOrder(id);toast('Andamento atualizado');refreshCounts();}
+function toggleChk(id,i){const s=os(id);s.chk[i]=!s.chk[i];save();logAudit(id,'Checklist',(s.chk[i]?'✓ ':'✗ ')+['Material separado','Conferido','Nota/romaneio','Carregado/avisado','Entregue/retirado'][i]);openOrder(id);}
+function toggleDone(id){if(stageBlocked(id)){toast('Pedido travado no financeiro (regra ativa)');return;}const s=os(id);s.stage=s.stage>=4?defStage(id):4;save();logAudit(id,s.stage>=4?'Finalizou pedido':'Reabriu pedido','');render();toast(s.stage>=4?'Pedido finalizado':'Reaberto');}
+function toggleAvisado(id){const s=os(id);s.avisado=!s.avisado;save();logAudit(id,'Cliente '+(s.avisado?'avisado':'aviso removido'),'');render();}
+function setNota(id,v){os(id).nota=v;save();logAudit(id,'Anotação','');}
 function refreshCounts(){
-  document.getElementById('c-alertas').textContent=allAlerts().filter(a=>a.sev==='crit').length||allAlerts().length;
-  document.getElementById('c-sep').textContent=O.filter(o=>o.st==='separar').length;
-  document.getElementById('c-rotas').textContent=O.filter(o=>o.tipo==='ENTREGA').length;
-  document.getElementById('c-ret').textContent=O.filter(o=>o.tipo==='RETIRA').length;
-  document.getElementById('c-carga').textContent=O.filter(o=>o.tipo==='ENTREGA').length;
-  document.getElementById('c-ped').textContent=O.length;
-  const crit=allAlerts().filter(a=>a.sev==='crit').length;
-  document.getElementById('c-alertas').textContent=allAlerts().length;
-}
-function exportCSV(){
-  const rows=[['Pedido','Empresa','Cliente','Tipo','Cidade','Endereco','Peso_kg','Valor','Status','Vendedor','Telefone','Entrega']];
-  applyFilter().forEach(o=>rows.push([o.d,o.emp,o.cli,o.tipo,o.cid,(o.end||'').replace(/;/g,','),o.peso,o.val,STLABEL[o.st],o.vend,o.tel,o.ent||'sem data']));
-  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(';')).join('\n');
-  const b=new Blob(['﻿'+csv],{type:'text/csv'});const u=URL.createObjectURL(b);
-  const a=document.createElement('a');a.href=u;a.download='horus_pedidos_filtrados.csv';a.click();URL.revokeObjectURL(u);toast('CSV exportado');
+  const set=(k,n)=>{const el=document.getElementById(k);if(el)el.textContent=n;};
+  set('c-alertas',allAlerts().length);
+  set('c-sep',O.filter(o=>o.st==='separar').length);
+  set('c-rotas',O.filter(o=>o.tipo==='ENTREGA').length);
+  set('c-ret',O.filter(o=>o.tipo==='RETIRA').length);
+  set('c-carga',O.filter(o=>o.tipo==='ENTREGA').length);
+  set('c-ped',O.length);
 }
 
-/* =====================================================================
-   WIRE
-   ===================================================================== */
-function wire(){
-  document.querySelectorAll('.route-h').forEach(()=>{});
+/* ---------- MODAL genérico ---------- */
+let MODAL_SAVE=null;
+function modal(title,body,onSave){
+  MODAL_SAVE=onSave;
+  document.getElementById('modalBox').innerHTML=`<div class="modal-h"><h3>${title}</h3><button class="btn ic" onclick="closeModal()">${svg('<path d="M18 6 6 18M6 6l12 12"/>',18)}</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn red" onclick="MODAL_SAVE&&MODAL_SAVE()">Salvar</button></div>`;
+  document.getElementById('modalScrim').classList.add('on');
 }
+function closeModal(){document.getElementById('modalScrim').classList.remove('on');MODAL_SAVE=null;}
+function field(label,id,v,hint,type){return `<label class="fld"><span>${label}</span><input id="${id}" class="finput" type="${type||'text'}" value="${(v==null?'':(''+v)).replace(/"/g,'&quot;')}" placeholder="${hint||''}"></label>`;}
+function val(id){const e=document.getElementById(id);return e?e.value:'';}
+
+/* ---------- CSV helpers ---------- */
+function dlCSV(rows,name){
+  const csv=rows.map(r=>r.map(c=>`"${(''+(c==null?'':c)).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const b=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);toast('Planilha exportada');
+}
+function exportCSV(){exportFull(applyFilter(),'horus_pedidos_filtrados.csv');}
+function exportFull(list,name){
+  list=list||O;
+  const rows=[['Pedido','Empresa','Cliente','Tipo','Cidade','Bairro','Endereco','Peso_kg','Valor','Status','Vendedor','Canal','Telefone','Entrega','Veiculo','Etapa']];
+  list.forEach(o=>{const veh=vehById(PLAN.assign[o.d]);rows.push([o.d,o.emp,o.cli,o.tipo,o.cid,o.bairro,o.end,o.peso,o.val,STLABEL[o.st],o.vend,o.canal,o.tel,o.ent||'sem data',veh?veh.nome+' '+veh.placa:'',STAGES[os(o.d).stage]]);});
+  dlCSV(rows,name||'horus_pedidos.csv');
+}
+function openImport(){
+  modal('Importar planilha',`<p style="font-size:13px;color:var(--ink-2);line-height:1.6">Selecione o arquivo <b>CSV</b> exportado do seu ERP (relatório <b>Pedidos por Documento</b>) ou uma planilha exportada por este sistema. Os dados atuais serão substituídos pelos do arquivo — <b>100% reais</b>, para você conferir com o cliente.</p>
+    <div style="margin:16px 0;padding:20px;border:1.5px dashed var(--line);border-radius:12px;text-align:center">
+      <input type="file" id="fileInput" accept=".csv,text/csv" style="display:none" onchange="if(this.files[0])handleImport(this.files[0])">
+      <button class="btn red" onclick="document.getElementById('fileInput').click()">${svg(IC.merge,15)} Escolher arquivo CSV</button>
+      <p style="font-size:11.5px;color:var(--ink-4);margin:12px 0 0">No Excel: Arquivo → Salvar como → CSV (separado por ponto e vírgula). O sistema lê acentuação e valores em R$ automaticamente.</p>
+    </div>`, null);
+  document.querySelector('#modalBox .modal-f').style.display='none';
+}
+
+/* ---------- LOGIN ---------- */
+function showLogin(){
+  document.getElementById('loginScrim').classList.add('on');
+  setTimeout(()=>{const el=document.getElementById('li_u');if(el)el.focus();},50);
+}
+function tryLogin(){
+  const u=val('li_u'),s=val('li_s');
+  if(doLogin(u,s)){document.getElementById('loginScrim').classList.remove('on');bootUI();}
+  else{const e=document.getElementById('loginErr');e.style.display='block';}
+}
+function fillLogin(u,s){const a=document.getElementById('li_u'),b=document.getElementById('li_s');a.value=u;b.value=s;tryLogin();}
+
+/* ---------- NAV (com permissões) ---------- */
+const NAVDEF=[
+  ['Operação',[['painel','Painel de comando',IC.grid],['alertas','Alertas inteligentes',IC.warn,'c-alertas','alert'],['separacao','Fila de separação',IC.box,'c-sep'],['rotas','Roteirização',IC.route,'c-rotas'],['retiradas','Retiradas / balcão',IC.store,'c-ret'],['carga','Planejador de carga',IC.truck,'c-carga']]],
+  ['Cadastros',[['frota','Frota',IC.truck],['motoristas','Motoristas',IC.users],['acessos','Acessos & perfis',IC.lock]]],
+  ['Análise & sistema',[['pedidos','Todos os pedidos',IC.list,'c-ped'],['gestao','Gestão & risco',IC.chart],['rastreio','Rastreabilidade',IC.clock],['regras','Regras',IC.zap]]],
+];
+function buildNav(){
+  let h='';
+  NAVDEF.forEach(([grp,items])=>{
+    const vis=items.filter(it=>can(it[0]));if(!vis.length)return;
+    h+=`<div class="lbl">${grp}</div>`;
+    vis.forEach(it=>{const[v,label,ic,cnt,cls]=it;
+      h+=`<a data-v="${v}" class="${v===CUR?'on':''} ${cls||''}" title="${label}">${svg(ic,18).replace('width="18" height="18"','class="ic"')}<span class="ntxt">${label}</span>${cnt?`<span class="cnt" id="${cnt}">0</span>`:''}</a>`;
+    });
+  });
+  document.getElementById('nav').innerHTML=h;
+  refreshCounts();
+}
+function toggleSide(){const collapsed=document.body.classList.toggle('side-collapsed');localStorage.setItem('horus_side',collapsed?'1':'0');}
+
+/* ---------- WIRE ---------- */
+function wire(){}
 document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('a');if(a){go(a.dataset.v);}});
 document.getElementById('scrim').addEventListener('click',closeDrawer);
+document.getElementById('modalScrim').addEventListener('click',e=>{if(e.target.id==='modalScrim')closeModal();});
 document.getElementById('printBtn').addEventListener('click',()=>{if(CUR!=='rotas')go('rotas');setTimeout(()=>window.print(),120);});
-document.getElementById('globalSearch').addEventListener('input',e=>{FILTER.q=e.target.value;if(e.target.value&&CUR!=='pedidos'){CUR='pedidos';render();document.getElementById('globalSearch').focus();}else render();});
+document.getElementById('globalSearch').addEventListener('input',e=>{FILTER.q=e.target.value;const target=CUR==='rastreio'?'rastreio':'pedidos';if(e.target.value&&CUR!=='pedidos'&&CUR!=='rastreio'){CUR=can('pedidos')?'pedidos':CUR;render();document.getElementById('globalSearch').focus();}else render();});
 document.getElementById('themeBtn').addEventListener('click',()=>{
   const cur=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',cur);localStorage.setItem('horus_theme',cur);
   document.getElementById('themeIcon').innerHTML=cur==='dark'?'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>':'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();document.getElementById('globalSearch').focus();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeModal();}if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();document.getElementById('globalSearch').focus();}});
 window.addEventListener('resize',()=>{document.getElementById('menuBtn').style.display=window.innerWidth<820?'grid':'none';});
 
-/* init */
+/* ---------- BOOT ---------- */
+function bootUI(){
+  document.getElementById('appShell').style.display='flex';
+  document.getElementById('userChip').innerHTML=`<div class="uc-av">${initials(currentUser())}</div><div class="uc-t"><b>${currentUser()}</b><span>${ROLES[SESSION.role].nome}</span></div><button class="btn ic sm" title="Sair" onclick="doLogout()">${svg('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',15)}</button>`;
+  if(!can(CUR))CUR=ROLES[SESSION.role].views[0];
+  buildNav();render();
+}
 (function(){
   const t=localStorage.getItem('horus_theme');if(t){document.documentElement.setAttribute('data-theme',t);if(t==='light')document.getElementById('themeIcon').innerHTML='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';}
+  if(localStorage.getItem('horus_side')==='1')document.body.classList.add('side-collapsed');
   document.getElementById('foot-date').textContent=new Date().toLocaleDateString('pt-BR');
   document.getElementById('menuBtn').style.display=window.innerWidth<820?'grid':'none';
-  refreshCounts();render();
+  if(SESSION&&USERS.find(x=>x.u===SESSION.u&&x.ativo))bootUI();
+  else{SESSION=null;showLogin();}
 })();
 </script>
 </body>
