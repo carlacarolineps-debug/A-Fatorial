@@ -28,6 +28,24 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
 | **Rebracil Requalificadora** | Requalificação de recipientes de GLP (P13/P20/P45) | dados originais do NEXUS |
 | **Rebracil Embalagens** | Impressão e conversão de embalagens flexíveis | `Resultado_Embalagem_2026.xlsx` |
 
+### Login + painéis por departamento (informações separadas)
+- **Tela de login** (como no acesso da Rebracil): usuário + senha. Usuários semente:
+  `Carla Caroline / admin` e `Andreia Pereira / admin123`. Ao entrar, a primeira tela é o **Hub**.
+  Funções `fazerLogin`, `logout`; estado `logado`, `usuarioLogadoId`.
+- **Hub = painel de entrada por departamento**: 3 cartões — **Requalificadora**,
+  **Embalagem** e **Grupo — Consolidado**. Cada um é um departamento independente que
+  **vê somente as suas informações**; o menu lateral muda conforme o painel ativo
+  (`depto`). Método `entrarDepto`, botão “Trocar painel (Hub)”.
+  - **Requalificadora** (individual): Dashboard, DRE, C.C., Despesa Mensal, Provisões,
+    Histórico, Carteiras — **sem** kg/fator/peso.
+  - **Embalagem** (individual): o mesmo + **Faturamento & Fator (R$/kg)**; só a
+    Embalagem tem peso, fator e kg faturado.
+  - **Grupo — Consolidado** (o único que junta tudo): Central do Grupo, Comparador
+    (mensal + anual), Tendência & Projeção (com seletor de empresa), Simulador (What-if,
+    DRE com régua por centro de custo).
+- Nenhuma informação se mistura entre Requalificadora e Embalagem; o consolidado é o
+  único ponto que combina as empresas.
+
 ### Visual premium + estrutura de 3 painéis
 - **Tema premium** (azul-marinho, dourado e branco + brilho roxo, conforme a marca):
   sidebar escura com item ativo em destaque, cards em vidro, tipografia/sombras/raios

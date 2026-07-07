@@ -403,6 +403,35 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 </head>
 <body class="flex h-screen overflow-hidden" x-data="sistemaUnificado()" x-init="inicializar()">
 
+  <!-- ===== TELA DE LOGIN ===== -->
+  <div x-show="!logado" x-cloak class="fixed inset-0 z-[200] flex items-center justify-center p-4" style="background: radial-gradient(1200px 720px at 50% -15%, #2a1d63, #191040 58%, #120c2e);">
+    <div class="w-full max-w-sm" style="background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); border: 1px solid rgba(197,168,128,0.25); overflow: hidden;">
+      <div style="padding: 34px 32px 22px; text-align:center; border-bottom: 1px solid var(--color-border);">
+        <img :src="logoCliente" alt="Logo" style="max-width: 160px; max-height: 58px; object-fit: contain; margin: 0 auto 14px; mix-blend-mode: multiply;">
+        <h1 class="display" style="font-size: 23px; font-weight: 700; color: var(--accent-blue); letter-spacing:-0.5px;">NEXUS GRB</h1>
+        <p style="font-size: 10px; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; margin-top: 3px;">Motor de Decisão</p>
+      </div>
+      <div style="padding: 28px 32px 32px;">
+        <div class="config-input-group">
+          <label>Usuário</label>
+          <div class="input-with-icon"><i class="fas fa-user"></i>
+            <input type="text" x-model="loginNome" @keydown.enter="fazerLogin()" @input="loginErro=''" class="emc-input" placeholder="Seu nome de usuário" autocomplete="off">
+          </div>
+        </div>
+        <div class="config-input-group">
+          <label>Senha</label>
+          <div class="input-with-icon"><i class="fas fa-lock"></i>
+            <input :type="mostrarSenhaLogin ? 'text' : 'password'" x-model="loginSenha" @keydown.enter="fazerLogin()" @input="loginErro=''" class="emc-input" placeholder="••••••••" style="padding-right:42px;">
+            <button type="button" @click="mostrarSenhaLogin = !mostrarSenhaLogin" style="position:absolute; right:12px; color:var(--color-dim); background:none; border:none; cursor:pointer; padding:4px;"><i class="fas" :class="mostrarSenhaLogin ? 'fa-eye-slash' : 'fa-eye'"></i></button>
+          </div>
+        </div>
+        <p x-show="loginErro" x-cloak class="text-center" style="color: var(--accent-red); font-size: 12.5px; font-weight: 700; margin: 2px 0 10px;"><i class="fas fa-circle-exclamation mr-1"></i> <span x-text="loginErro"></span></p>
+        <button @click="fazerLogin()" class="emc-btn w-full" style="margin-top: 10px; height: 46px; font-size: 14px;"><i class="fas fa-right-to-bracket mr-2"></i> Entrar no Sistema</button>
+        <p style="text-align:center; font-size: 11px; color: var(--color-dim); margin-top: 20px;">Acesso restrito &middot; <span style="color:var(--accent-blue); font-weight:800;">GRUPO A! FATORIAL</span></p>
+      </div>
+    </div>
+  </div>
+
 <aside :class="sidebarOpen ? 'sidebar-full' : 'sidebar-rail'" :style="sidebarOpen ? 'width:256px' : 'width:74px'" class="flex-shrink-0 flex flex-col overflow-y-auto overflow-x-hidden z-20 nx-sidebar" style="background: var(--color-surface); border-right: 1px solid var(--color-border); box-shadow: 2px 0 10px rgba(0,0,0,0.05); transition: width 0.22s var(--ease);">
   <div class="nx-brand" :style="sidebarOpen ? 'padding:28px 20px' : 'padding:20px 8px'" style="border-bottom: 1px solid var(--color-border); text-align: center; display: flex; flex-direction: column; align-items: center;">
     <img x-show="sidebarOpen" :src="logoCliente" alt="Logo Cliente" style="max-width: 90%; max-height: 60px; object-fit: contain; margin: 0 auto 12px auto; mix-blend-mode: multiply;">
@@ -411,40 +440,55 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
     <p x-show="sidebarOpen" class="display" style="font-size: 10px; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-top:2px;">Motor de Decisão</p>
   </div>
-  <!-- SELETOR DE EMPRESA (conta ativa no "banco") -->
+  <!-- PAINEL ATIVO (departamento) -->
   <div x-show="sidebarOpen" style="padding:12px 14px 4px;">
-    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--color-dim);font-weight:800;margin-bottom:6px;">Conta / Empresa ativa</div>
-    <div style="position:relative;">
-      <select @change="trocarEmpresa($event.target.value)" class="emc-input" style="width:100%;padding:9px 12px;font-weight:800;color:#fff;border:none;border-radius:10px;cursor:pointer;appearance:none;" :style="'background:'+empresaMeta.cor">
-        <template x-for="id in ordemEmpresas" :key="id">
-          <option :value="id" :selected="id===empresaAtiva" x-text="EMPRESAS[id].nome"></option>
-        </template>
-      </select>
-      <i class="fas fa-chevron-down" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#fff;pointer-events:none;font-size:11px;"></i>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--color-dim);font-weight:800;margin-bottom:6px;">Painel ativo</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12)" :style="depto==='grupo'?'background:linear-gradient(160deg,#1b1642,#12102e)':(depto?('background:'+empresaMeta.cor):'background:rgba(255,255,255,.05)')">
+      <i class="fas" :class="depto==='grupo'?'fa-layer-group':(depto?empresaMeta.icone:'fa-grip')" style="color:#fff;font-size:15px"></i>
+      <div style="min-width:0"><div style="font-weight:800;color:#fff;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Escolha no Hub')"></div></div>
     </div>
-    <div style="font-size:10px;color:var(--color-muted);margin-top:6px;line-height:1.3;" x-text="empresaMeta.setor"></div>
+    <button @click="irParaHub()" class="w-full" style="margin-top:8px;font-size:11px;font-weight:800;color:#c4c6db;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:7px;cursor:pointer"><i class="fas fa-grip mr-1"></i> Trocar painel (Hub)</button>
   </div>
   <div x-show="!sidebarOpen" class="nav-sep"></div>
 
   <nav style="flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 0">
-    <div class="nav-section" x-show="sidebarOpen">Visão Geral — Grupo</div>
-    <div class="nav-sep" x-show="!sidebarOpen"></div>
-    <button class="nav-item" @click="mudarAba('hub')" :class="aba==='hub'?'active':''" title="Hub de Empresas"><i class="fas fa-th-large w-4"></i> <span class="nav-label">Hub de Empresas</span></button>
-    <button class="nav-item" @click="mudarAba('consolidado')" :class="aba==='consolidado'?'active':''" title="Central do Grupo — consolidado e rentabilidade"><i class="fas fa-building-columns w-4"></i> <span class="nav-label">Central do Grupo</span></button>
-    <button class="nav-item" @click="mudarAba('comparador')" :class="aba==='comparador'?'active':''" title="Comparador de Empresas"><i class="fas fa-code-compare w-4"></i> <span class="nav-label">Comparador de Empresas</span></button>
-    <button class="nav-item" @click="mudarAba('projecao')" :class="aba==='projecao'?'active':''" title="Tendência & Projeção"><i class="fas fa-chart-line w-4"></i> <span class="nav-label">Tendência &amp; Projeção</span></button>
-    <button class="nav-item" @click="mudarAba('simulador')" :class="aba==='simulador'?'active':''" title="Simulador de Cenários (What-if)"><i class="fas fa-sliders w-4"></i> <span class="nav-label">Simulador (What-if)</span></button>
+    <button class="nav-item" @click="irParaHub()" :class="aba==='hub'?'active':''" title="Hub — escolher painel"><i class="fas fa-house w-4"></i> <span class="nav-label">Hub (painéis)</span></button>
 
-    <div class="nav-section" x-show="sidebarOpen">Empresa — Individual (<span x-text="empresaMeta.curto"></span>)</div>
-    <div class="nav-sep" x-show="!sidebarOpen"></div>
-    <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Dashboard de Resultados"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Dashboard de Resultados</span></button>
-    <button class="nav-item" x-show="empresaExtras.faturamento" @click="mudarAba('faturamento')" :class="aba==='faturamento'?'active':''" title="Faturamento & Fator (R$/kg)"><i class="fas fa-weight-hanging w-4"></i> <span class="nav-label">Faturamento &amp; Fator</span></button>
-    <button class="nav-item" @click="mudarAba('resultado_anual')" :class="aba==='resultado_anual'?'active':''" title="DRE Consolidado"><i class="fas fa-table w-4"></i> <span class="nav-label">DRE Consolidado</span></button>
-    <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C."><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
-    <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal (Abas)</span></button>
-    <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões &amp; Previsões</span></button>
-    <button class="nav-item" @click="mudarAba('historico_comparativo')" :class="aba==='historico_comparativo'?'active':''" title="Comparativo Histórico"><i class="fas fa-balance-scale w-4"></i> <span class="nav-label">Comparativo Histórico</span></button>
-    <button class="nav-item" @click="mudarAba('dr_config')" :class="aba==='dr_config'?'active':''" title="Gestão de Carteiras de Capital"><i class="fas fa-wallet w-4"></i> <span class="nav-label">Gestão de Carteiras de Capital</span></button>
+    <!-- ===== GRUPO — CONSOLIDADO ===== -->
+    <template x-if="depto==='grupo'">
+      <div>
+        <div class="nav-section" x-show="sidebarOpen">Grupo — Consolidado</div>
+        <div class="nav-sep" x-show="!sidebarOpen"></div>
+        <button class="nav-item" @click="mudarAba('consolidado')" :class="aba==='consolidado'?'active':''" title="Central do Grupo"><i class="fas fa-building-columns w-4"></i> <span class="nav-label">Central do Grupo</span></button>
+        <button class="nav-item" @click="mudarAba('comparador')" :class="aba==='comparador'?'active':''" title="Comparador de Empresas"><i class="fas fa-code-compare w-4"></i> <span class="nav-label">Comparador de Empresas</span></button>
+        <button class="nav-item" @click="mudarAba('projecao')" :class="aba==='projecao'?'active':''" title="Tendência & Projeção"><i class="fas fa-chart-line w-4"></i> <span class="nav-label">Tendência &amp; Projeção</span></button>
+        <button class="nav-item" @click="mudarAba('simulador')" :class="aba==='simulador'?'active':''" title="Simulador de Cenários (What-if)"><i class="fas fa-sliders w-4"></i> <span class="nav-label">Simulador (What-if)</span></button>
+      </div>
+    </template>
+
+    <!-- ===== EMPRESA INDIVIDUAL (Requalificadora ou Embalagem) ===== -->
+    <template x-if="depto && depto!=='grupo'">
+      <div>
+        <div class="nav-section" x-show="sidebarOpen"><span x-text="empresaMeta.curto"></span> — Individual</div>
+        <div class="nav-sep" x-show="!sidebarOpen"></div>
+        <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Dashboard"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Dashboard</span></button>
+        <button class="nav-item" x-show="empresaExtras.faturamento" @click="mudarAba('faturamento')" :class="aba==='faturamento'?'active':''" title="Faturamento & Fator (R$/kg)"><i class="fas fa-weight-hanging w-4"></i> <span class="nav-label">Faturamento &amp; Fator</span></button>
+        <button class="nav-item" @click="mudarAba('resultado_anual')" :class="aba==='resultado_anual'?'active':''" title="DRE Consolidado"><i class="fas fa-table w-4"></i> <span class="nav-label">DRE Consolidado</span></button>
+        <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C."><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
+        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal (Abas)</span></button>
+        <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões &amp; Previsões</span></button>
+        <button class="nav-item" @click="mudarAba('historico_comparativo')" :class="aba==='historico_comparativo'?'active':''" title="Comparativo Histórico"><i class="fas fa-balance-scale w-4"></i> <span class="nav-label">Comparativo Histórico</span></button>
+        <button class="nav-item" @click="mudarAba('dr_config')" :class="aba==='dr_config'?'active':''" title="Gestão de Carteiras de Capital"><i class="fas fa-wallet w-4"></i> <span class="nav-label">Carteiras de Capital</span></button>
+      </div>
+    </template>
+
+    <!-- ===== Sem painel escolhido ===== -->
+    <template x-if="!depto">
+      <div>
+        <div class="nav-section" x-show="sidebarOpen">Escolha um painel no Hub</div>
+        <div style="padding:8px 14px;font-size:11px;color:var(--color-muted)" x-show="sidebarOpen">Requalificadora · Embalagem · Grupo</div>
+      </div>
+    </template>
 
     <div class="nav-section" x-show="sidebarOpen">Administração</div>
     <div class="nav-sep" x-show="!sidebarOpen"></div>
@@ -467,13 +511,13 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       <div>
         <h2 style="font-size:20px;font-weight:900;color:var(--accent-blue)" x-text="tituloAba"></h2>
         <p style="font-size:12px;margin-top:2px; font-weight:800;display:flex;align-items:center;gap:6px;">
-          <span style="width:9px;height:9px;border-radius:50%;display:inline-block;" :style="'background:'+empresaMeta.cor"></span>
+          <span style="width:9px;height:9px;border-radius:50%;display:inline-block;" :style="'background:'+(depto==='grupo'?'var(--accent-gold)':(depto?empresaMeta.cor:'var(--color-dim)'))"></span>
           <span style="color:var(--accent-gold)">NEXUS GRB</span>
           <span style="color:var(--color-dim)">·</span>
-          <span :style="'color:'+empresaMeta.cor" x-text="empresaMeta.nome"></span>
+          <span :style="'color:'+(depto==='grupo'?'var(--accent-gold-deep)':(depto?empresaMeta.cor:'var(--color-dim)'))" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Hub')"></span>
         </p>
       </div>
-      <button @click="mudarAba('hub')" x-show="aba!=='hub'" class="ml-4" title="Voltar ao Hub de Empresas" style="padding:7px 14px;border-radius:10px;border:1px solid var(--color-border2);background:var(--color-surface2);color:var(--accent-blue);font-weight:800;font-size:12px;cursor:pointer;">
+      <button @click="irParaHub()" x-show="aba!=='hub'" class="ml-4" title="Trocar de painel (Hub)" style="padding:7px 14px;border-radius:10px;border:1px solid var(--color-border2);background:var(--color-surface2);color:var(--accent-blue);font-weight:800;font-size:12px;cursor:pointer;">
         <i class="fas fa-th-large mr-1"></i> Hub
       </button>
     </div>
@@ -512,7 +556,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <a href="#" @click.prevent="mudarAba('configuracoes'); abaConfig='sistema'; openMenu=false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-nexus-blue font-semibold"><i class="fas fa-id-card w-5 text-center mr-1 text-nexus-gold"></i> Meus Dados</a>
           <a href="#" @click.prevent="mudarAba('configuracoes'); abaConfig='sistema'; openMenu=false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-nexus-blue font-semibold"><i class="fas fa-user-edit w-5 text-center mr-1 text-nexus-gold"></i> Editar Perfil</a>
           <div class="border-t border-gray-100 my-1"></div>
-          <a href="#" @click.prevent="registrarLog('Logout do Sistema'); alert('Sessão encerrada (Simulação)'); openMenu=false;" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold"><i class="fas fa-sign-out-alt w-5 text-center mr-1"></i> Sair do Sistema</a>
+          <a href="#" @click.prevent="logout(); openMenu=false;" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold"><i class="fas fa-sign-out-alt w-5 text-center mr-1"></i> Sair do Sistema</a>
         </div>
       </div>
     </div>
@@ -549,70 +593,31 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </style>
     <!-- ===================== HUB DE EMPRESAS ===================== -->
     <div x-show="aba==='hub'" x-cloak style="display:grid;gap:24px">
-      <div class="card-dark" style="border-top:4px solid var(--accent-gold)">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:18px">
+      <div class="nx-hero" style="padding:26px 30px">
+        <div style="position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">
           <div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="display" style="font-size:24px;font-weight:900;color:var(--accent-blue)">Grupo Empresarial Rebracil</div>
-              <span style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent-gold-deep);background:rgba(197,168,128,.14);padding:4px 10px;border-radius:20px"><i class="fas fa-chart-line"></i> Análise para decisão</span>
-            </div>
-            <div style="font-size:13px;color:var(--color-muted);margin-top:6px;max-width:600px">Visão financeira consolidada do grupo para <b>decisões estratégicas</b>. Cada empresa é uma conta independente no mesmo banco de dados. Abra uma empresa ou veja a <b>Central do Grupo</b> (consolidado, rentabilidade real e rateio de custos da matriz).</div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent-gold);font-weight:800">Bem-vinda, <span x-text="usuarioLogado.nome.split(' ')[0]"></span></div>
+            <div class="display grad-gold" style="font-size:25px;font-weight:900;margin-top:4px">Escolha o painel que deseja analisar</div>
+            <div style="font-size:13px;color:#c9cdd8;margin-top:6px;max-width:620px">Cada painel é um <b>departamento</b> independente e mostra <b>somente as suas informações</b>. Requalificadora e Embalagem têm análises próprias; o Grupo reúne o consolidado.</div>
           </div>
           <div style="text-align:right">
-            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--color-dim);font-weight:800">Resultado consolidado (YTD)</div>
-            <div class="display" style="font-size:28px;font-weight:900" :class="consolidado.total.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(consolidado.total.res)"></div>
-            <div style="font-size:11px;color:var(--color-muted)">Faturamento <b x-text="formatarDinheiroExato(consolidado.total.fat)"></b> · Margem <b x-text="consolidado.total.margem.toFixed(1)+'%'"></b></div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#9aa0b0;font-weight:800">Resultado do grupo (YTD)</div>
+            <div class="display" style="font-size:26px;font-weight:900" :style="consolidado.total.res<0?'color:#ff6b6b':'color:#0fe3b3'" x-text="formatarDinheiroExato(consolidado.total.res)"></div>
           </div>
         </div>
       </div>
 
-      <!-- Seletor: como enxergar os números -->
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div class="seg">
-          <button :class="hubModo==='geral'?'on':''" @click="hubModo='geral'"><i class="fas fa-globe"></i> Visão Geral (Grupo)</button>
-          <button :class="hubModo==='individual'?'on':''" @click="hubModo='individual'"><i class="fas fa-building"></i> Individual (Empresa)</button>
-        </div>
-        <div style="font-size:12px;color:var(--color-muted)" x-show="hubModo==='geral'">Comece pela <b>visão consolidada</b> do grupo, depois entre no detalhe.</div>
-        <div style="font-size:12px;color:var(--color-muted)" x-show="hubModo==='individual'">Escolha uma <b>empresa</b> para ver o painel completo dela.</div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
-        <!-- PAINEL 1: GRUPO / VISÃO GERAL -->
-        <div class="kpi-card" style="cursor:pointer;transition:.2s;border-left:5px solid var(--accent-gold);background:linear-gradient(160deg,#ffffff,#faf7ef)" :style="hubModo==='geral'?'box-shadow:0 0 0 2px var(--accent-gold), var(--shadow-md);transform:translateY(-2px)':''" @click="mudarAba('consolidado')">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-            <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#1b1642,#12102e)"><i class="fas fa-layer-group" style="font-size:21px;color:var(--accent-gold)"></i></div>
-            <div>
-              <div class="display" style="font-size:17px;font-weight:900;color:var(--accent-blue)">Grupo — Visão Geral</div>
-              <div style="font-size:11px;color:var(--color-muted)">Consolidado · <span x-text="consolidado.empresas.length"></span> empresas · rentabilidade real</div>
-            </div>
-            <span class="nx-chip" style="margin-left:auto;background:rgba(197,168,128,.16);color:var(--accent-gold-deep)">Central</span>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 10px">
-            <div><div class="kpi-label" style="margin-bottom:2px">Faturamento</div><div style="font-weight:900;color:var(--accent-blue);font-size:15px" x-text="formatarDinheiroExato(consolidado.total.fat)"></div></div>
-            <div><div class="kpi-label" style="margin-bottom:2px">Despesas</div><div style="font-weight:900;color:var(--accent-red);font-size:15px" x-text="formatarDinheiroExato(consolidado.total.desp)"></div></div>
-            <div><div class="kpi-label" style="margin-bottom:2px">Resultado</div><div style="font-weight:900;font-size:15px" :class="consolidado.total.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(consolidado.total.res)"></div></div>
-            <div><div class="kpi-label" style="margin-bottom:2px">Margem</div><div style="font-weight:900;font-size:15px" :class="consolidado.total.margem<0?'text-red-strong':'text-green-strong'" x-text="consolidado.total.margem.toFixed(1)+'%'"></div></div>
-          </div>
-          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-            <button @click.stop="mudarAba('consolidado')" style="font-size:11px;font-weight:800;color:#fff;background:var(--accent-blue);border:none;border-radius:8px;padding:6px 11px;cursor:pointer">Consolidado</button>
-            <button @click.stop="mudarAba('comparador')" style="font-size:11px;font-weight:800;color:var(--accent-blue);background:var(--color-surface2);border:1px solid var(--color-border);border-radius:8px;padding:6px 11px;cursor:pointer">Comparar</button>
-            <button @click.stop="mudarAba('simulador')" style="font-size:11px;font-weight:800;color:var(--accent-blue);background:var(--color-surface2);border:1px solid var(--color-border);border-radius:8px;padding:6px 11px;cursor:pointer">Simular</button>
-          </div>
-        </div>
-
-        <!-- PAINÉIS 2 e 3: EMPRESAS INDIVIDUAIS -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:20px">
+        <!-- PAINÉIS 1 e 2: EMPRESAS INDIVIDUAIS -->
         <template x-for="e in consolidado.empresas" :key="e.id">
-          <div class="kpi-card" style="cursor:pointer;transition:.2s" @click="abrirDrawerEmpresa(e.id)" :style="'border-left:5px solid '+e.cor+(hubModo==='individual'?';box-shadow:0 0 0 2px '+e.cor+'55, var(--shadow-md)':'')" @mouseenter="$el.style.transform='translateY(-3px)'" @mouseleave="$el.style.transform='none'">
+          <div class="kpi-card" style="cursor:pointer;transition:.2s" @click="entrarDepto(e.id)" :style="'border-left:5px solid '+e.cor" @mouseenter="$el.style.transform='translateY(-4px)'" @mouseleave="$el.style.transform='none'">
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-              <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;position:relative" :style="'background:'+e.cor">
-                <i class="fas" :class="e.icone" style="font-size:21px"></i>
-                <span class="rank-medal" :class="'rank-'+(e.rank<=3?e.rank:'n')" style="position:absolute;top:-8px;left:-8px;box-shadow:0 2px 6px rgba(0,0,0,.15)" x-text="e.rank+'º'" title="Posição por faturamento no grupo"></span>
-              </div>
+              <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0" :style="'background:'+e.cor"><i class="fas" :class="e.icone" style="font-size:21px"></i></div>
               <div style="min-width:0">
                 <div class="display" style="font-size:17px;font-weight:900;color:var(--accent-blue)" x-text="e.nome"></div>
                 <div style="font-size:11px;color:var(--color-muted);overflow:hidden;text-overflow:ellipsis" x-text="e.setor"></div>
               </div>
-              <span x-show="e.ativa" style="margin-left:auto;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#fff;background:var(--accent-green);padding:3px 8px;border-radius:20px;flex-shrink:0">Ativa</span>
+              <span class="nx-chip" style="margin-left:auto;flex-shrink:0" :style="'background:'+e.cor+'1a;color:'+e.cor" x-text="e.id==='embalagem'?'kg · fator':'painel'"></span>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 10px">
               <div><div class="kpi-label" style="margin-bottom:2px">Faturamento YTD</div><div style="font-weight:900;color:var(--accent-blue);font-size:15px" x-text="formatarDinheiroExato(e.fat)"></div></div>
@@ -620,49 +625,32 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               <div><div class="kpi-label" style="margin-bottom:2px">Resultado</div><div style="font-weight:900;font-size:15px" :class="e.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(e.res)"></div></div>
               <div><div class="kpi-label" style="margin-bottom:2px">Margem</div><div style="font-weight:900;font-size:15px" :class="e.margem<0?'text-red-strong':'text-green-strong'" x-text="e.margem.toFixed(1)+'%'"></div></div>
             </div>
-            <div style="margin-top:14px">
-              <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:var(--color-dim);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px"><span>Participação no faturamento</span><span :style="'color:'+e.cor" x-text="e.pctFat.toFixed(1)+'%'"></span></div>
-              <div style="height:6px;border-radius:6px;background:var(--color-surface2);overflow:hidden"><div style="height:100%;border-radius:6px;transition:width .3s" :style="'width:'+Math.min(e.pctFat,100)+'%;background:'+e.cor"></div></div>
-            </div>
-            <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center">
-              <button @click.stop="trocarEmpresa(e.id)" style="font-size:11px;font-weight:800;color:var(--accent-blue);background:var(--color-surface2);border:1px solid var(--color-border);border-radius:8px;padding:6px 11px;cursor:pointer">Abrir painel</button>
-              <span style="font-size:12px;font-weight:800;color:var(--accent-gold)">Ver detalhe <i class="fas fa-arrow-right ml-1"></i></span>
+            <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center">
+              <button @click.stop="entrarDepto(e.id)" style="font-size:12px;font-weight:800;color:#fff;border:none;border-radius:9px;padding:8px 14px;cursor:pointer" :style="'background:'+e.cor">Entrar no painel <i class="fas fa-arrow-right ml-1"></i></button>
+              <button @click.stop="abrirDrawerEmpresa(e.id)" style="font-size:11px;font-weight:800;color:var(--accent-gold-deep);background:none;border:none;cursor:pointer">Resumo</button>
             </div>
           </div>
         </template>
 
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="grid-inv">
-        <!-- Insights automáticos da rede -->
-        <div class="card-dark">
-          <div class="card-title"><i class="fas fa-wand-magic-sparkles mr-2" style="color:var(--accent-gold)"></i> Inteligência da Rede</div>
-          <div class="card-sub" style="margin-top:-8px">Leitura automática do grupo — o que merece sua atenção agora.</div>
-          <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
-            <template x-for="(o,i) in insightsRede" :key="i">
-              <div style="display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:11px;background:var(--color-surface2);border:1px solid var(--color-border)">
-                <div style="width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff" :style="'background:'+o.cor"><i class="fas" :class="o.ic" style="font-size:13px"></i></div>
-                <div><div style="font-weight:800;color:var(--accent-blue);font-size:12.5px" x-text="o.t"></div><div style="font-size:12px;color:var(--color-muted);margin-top:1px" x-text="o.d"></div></div>
-              </div>
-            </template>
+        <!-- PAINEL 3: GRUPO / CONSOLIDADO -->
+        <div class="kpi-card" style="cursor:pointer;transition:.2s;border-left:5px solid var(--accent-gold);background:linear-gradient(160deg,#ffffff,#faf7ef)" @click="entrarDepto('grupo')" @mouseenter="$el.style.transform='translateY(-4px)'" @mouseleave="$el.style.transform='none'">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#1b1642,#12102e)"><i class="fas fa-layer-group" style="font-size:21px;color:var(--accent-gold)"></i></div>
+            <div>
+              <div class="display" style="font-size:17px;font-weight:900;color:var(--accent-blue)">Grupo — Consolidado</div>
+              <div style="font-size:11px;color:var(--color-muted)">Todas as empresas juntas · visão de holding</div>
+            </div>
+            <span class="nx-chip" style="margin-left:auto;background:rgba(197,168,128,.16);color:var(--accent-gold-deep)">consolidado</span>
           </div>
-        </div>
-
-        <!-- Top despesas consolidadas do grupo -->
-        <div class="card-dark">
-          <div class="card-title"><i class="fas fa-fire-flame-curved mr-2" style="color:var(--accent-red)"></i> Maiores Despesas do Grupo</div>
-          <div class="card-sub" style="margin-top:-8px">Ranking dos maiores blocos de custo entre todas as unidades. Clique para ver a unidade.</div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
-            <template x-for="(d,i) in topDespesasGrupo" :key="i">
-              <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;background:var(--color-surface2);border:1px solid var(--color-border);cursor:pointer" @click="abrirDrawerEmpresa(d.id)">
-                <span style="font-size:11px;font-weight:900;color:var(--color-dim);width:18px" x-text="(i+1)"></span>
-                <div style="flex:1;min-width:0">
-                  <div style="font-weight:700;color:var(--accent-blue);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="d.grupo"></div>
-                  <div style="font-size:10px;font-weight:700;margin-top:1px" :style="'color:'+d.cor" x-text="d.empresa"></div>
-                </div>
-                <div style="text-align:right;flex-shrink:0"><div style="font-weight:900;color:var(--accent-blue);font-size:13px" x-text="formatarDinheiroExato(d.valor)"></div><div style="font-size:10px;color:var(--color-muted);font-weight:700" x-text="d.pct.toFixed(1)+'% do grupo'"></div></div>
-              </div>
-            </template>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 10px">
+            <div><div class="kpi-label" style="margin-bottom:2px">Faturamento</div><div style="font-weight:900;color:var(--accent-blue);font-size:15px" x-text="formatarDinheiroExato(consolidado.total.fat)"></div></div>
+            <div><div class="kpi-label" style="margin-bottom:2px">Despesas</div><div style="font-weight:900;color:var(--accent-red);font-size:15px" x-text="formatarDinheiroExato(consolidado.total.desp)"></div></div>
+            <div><div class="kpi-label" style="margin-bottom:2px">Resultado</div><div style="font-weight:900;font-size:15px" :class="consolidado.total.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(consolidado.total.res)"></div></div>
+            <div><div class="kpi-label" style="margin-bottom:2px">Empresas</div><div style="font-weight:900;font-size:15px;color:var(--accent-blue)" x-text="consolidado.empresas.length"></div></div>
+          </div>
+          <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center">
+            <button @click.stop="entrarDepto('grupo')" style="font-size:12px;font-weight:800;color:#fff;background:var(--accent-blue);border:none;border-radius:9px;padding:8px 14px;cursor:pointer">Entrar no consolidado <i class="fas fa-arrow-right ml-1"></i></button>
+            <span style="font-size:11px;color:var(--color-muted)">Consolidado · Comparador · Projeção · Simulador</span>
           </div>
         </div>
       </div>
@@ -825,6 +813,37 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
         </div>
       </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="grid-inv">
+        <div class="card-dark" style="margin-bottom:0">
+          <div class="card-title"><i class="fas fa-wand-magic-sparkles mr-2" style="color:var(--accent-gold)"></i> Inteligência da Rede</div>
+          <div class="card-sub" style="margin-top:-8px">Leitura automática do grupo — o que merece sua atenção agora.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+            <template x-for="(o,i) in insightsRede" :key="i">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:11px;background:var(--color-surface2);border:1px solid var(--color-border)">
+                <div style="width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff" :style="'background:'+o.cor"><i class="fas" :class="o.ic" style="font-size:13px"></i></div>
+                <div><div style="font-weight:800;color:var(--accent-blue);font-size:12.5px" x-text="o.t"></div><div style="font-size:12px;color:var(--color-muted);margin-top:1px" x-text="o.d"></div></div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="card-dark" style="margin-bottom:0">
+          <div class="card-title"><i class="fas fa-fire-flame-curved mr-2" style="color:var(--accent-red)"></i> Maiores Despesas do Grupo</div>
+          <div class="card-sub" style="margin-top:-8px">Ranking dos maiores blocos de custo entre todas as empresas. Clique para o detalhe.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+            <template x-for="(d,i) in topDespesasGrupo" :key="i">
+              <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;background:var(--color-surface2);border:1px solid var(--color-border);cursor:pointer" @click="abrirDrawerEmpresa(d.id)">
+                <span style="font-size:11px;font-weight:900;color:var(--color-dim);width:18px" x-text="(i+1)"></span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:700;color:var(--accent-blue);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="d.grupo"></div>
+                  <div style="font-size:10px;font-weight:700;margin-top:1px" :style="'color:'+d.cor" x-text="d.empresa"></div>
+                </div>
+                <div style="text-align:right;flex-shrink:0"><div style="font-weight:900;color:var(--accent-blue);font-size:13px" x-text="formatarDinheiroExato(d.valor)"></div><div style="font-size:10px;color:var(--color-muted);font-weight:700" x-text="d.pct.toFixed(1)+'% do grupo'"></div></div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ===================== FATURAMENTO & FATOR (R$/kg) ===================== -->
@@ -977,10 +996,14 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       <div class="card-dark" style="border-top:3px solid var(--accent-gold)">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
           <div>
-            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-chart-line mr-2" style="color:var(--accent-gold)"></i> Projeção — <span x-text="empresaMeta.curto"></span></div>
-            <div class="card-sub" style="margin-top:0">Fecha o ano com base nos <b x-text="projecao.nReal"></b> meses já lançados. Escolha como projetar os meses restantes.</div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-chart-line mr-2" style="color:var(--accent-gold)"></i> Projeção — <span x-text="projEntidadeNome"></span></div>
+            <div class="card-sub" style="margin-top:0">Fecha o ano com base nos <b x-text="projecao.nReal"></b> meses já lançados. Escolha a empresa e como projetar os meses restantes.</div>
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <select x-model="projEntidade" @change="desenharGraficosNovos()" class="emc-input" style="width:auto;font-weight:800;color:var(--accent-blue)">
+              <option value="__grupo__">Grupo (consolidado)</option>
+              <template x-for="id in ordemEmpresas" :key="id"><option :value="id" x-text="EMPRESAS[id].nome"></option></template>
+            </select>
             <select x-model="projMetodo" @change="desenharGraficosNovos()" class="emc-input" style="width:auto;font-weight:700">
               <option value="media">Média dos meses lançados</option>
               <option value="ultimo">Repetir último mês</option>
@@ -2714,10 +2737,21 @@ function sistemaUnificado(){
 
     usuarios: [
       { id: 1, nome: 'Carla Caroline', cargo: 'Desenvolvedora', dataNascimento: '1991-11-12', papel: 'Admin', senha: 'admin', foto: '' },
-      { id: 2, nome: 'Operador Financeiro', cargo: 'Analista', dataNascimento: '', papel: 'Operador', senha: '123', foto: '' }
+      { id: 2, nome: 'Andreia Pereira', cargo: 'Analista', dataNascimento: '', papel: 'Operador', senha: 'admin123', foto: '' }
     ],
     novoUsuario: { nome: '', papel: 'Operador', senha: '' },
-    get usuarioLogado() { return this.usuarios[0] || {nome: 'Visitante'}; },
+    // ===== Login / sessão =====
+    logado: false,
+    usuarioLogadoId: 1,
+    loginNome: '',
+    loginSenha: '',
+    loginErro: '',
+    mostrarSenhaLogin: false,
+    mostrarSenhas: false,
+    get usuarioLogado() { return this.usuarios.find(u => u.id === this.usuarioLogadoId) || this.usuarios[0] || {nome: 'Visitante', cargo: ''}; },
+    // ===== Departamento ativo (painel de entrada) =====
+    depto: null,   // null=hub; 'requalificadora' | 'embalagem' | 'grupo'
+    projEntidade: '__grupo__',
 
     // === HUB / MULTIEMPRESA ===
     get empresaMeta() { return EMPRESAS[this.empresaAtiva] || EMPRESAS['requalificadora']; },
@@ -2793,7 +2827,29 @@ function sistemaUnificado(){
       this.mudarAba('dashboard');
       setTimeout(() => this.atualizarLeituraSistema(), 80);
     },
-    irParaHub() { this.mudarAba('hub'); },
+    irParaHub() { this.depto = null; this.mudarAba('hub'); },
+    fazerLogin() {
+      let nome = (this.loginNome || '').trim().toLowerCase();
+      if(!nome || !this.loginSenha) { this.loginErro = 'Informe usuário e senha.'; return; }
+      let user = this.usuarios.find(u => u.nome.trim().toLowerCase() === nome && String(u.senha) === String(this.loginSenha));
+      if(!user) { this.loginErro = 'Usuário ou senha inválidos.'; return; }
+      this.usuarioLogadoId = user.id;
+      this.logado = true; this.loginErro = ''; this.loginSenha = '';
+      this.depto = null; this.mudarAba('hub');
+      this.registrarLog('Acesso ao sistema: ' + user.nome);
+      this.$nextTick(() => { try { this.recalcularTudo(); this.atualizarLeituraSistema(); setupHScroll(); } catch(e){} });
+    },
+    logout() {
+      this.registrarLog('Encerrou a sessão: ' + this.usuarioLogado.nome);
+      this.logado = false; this.loginSenha = ''; this.loginNome = ''; this.loginErro = ''; this.depto = null;
+    },
+    // Entra em um painel/departamento — cada um vê SOMENTE os próprios números
+    entrarDepto(d) {
+      if(d === 'grupo') { this.depto = 'grupo'; this.mudarAba('consolidado'); setTimeout(()=>this.atualizarLeituraSistema(),80); return; }
+      // requalificadora | embalagem: define a empresa ativa e abre o painel individual
+      this.depto = d;
+      this.trocarEmpresa(d); // já recalcula, define mês ativo e vai p/ dashboard
+    },
     setTaxaRateio(v) {
       let n = parseFloat(String(v).replace(',','.'));
       if(isNaN(n) || n < 0) n = 0; if(n > 100) n = 100;
@@ -2845,21 +2901,30 @@ function sistemaUnificado(){
     },
 
     // === TENDÊNCIA & PROJEÇÃO (empresa ativa) ===
+    serieMensalEntidade(id, metrica){
+      if(id==='__grupo__'){
+        return this.listaMeses.map((m,idx)=>{ let sum=0, any=false;
+          this.ordemEmpresas.forEach(cid=>{ const s=this.serieMensal(cid,metrica); if(s[idx]!=null){ sum+=s[idx]; any=true; } });
+          return any?sum:null; });
+      }
+      return this.serieMensal(id, metrica);
+    },
+    get projEntidadeNome(){ return this.projEntidade==='__grupo__' ? 'Grupo (consolidado)' : (EMPRESAS[this.projEntidade]?EMPRESAS[this.projEntidade].curto:''); },
     get projecao() {
-      const lFat=this.dreAtual.find(l=>l.desc==='Faturamento');
-      const lDesp=this.dreAtual.find(l=>l.desc==='Total de Despesas');
       const meses=this.listaMeses;
-      const real = meses.filter(m => lFat && (lFat[m.chave.toLowerCase()]||0)>0);
-      const nReal = real.length;
+      const fatM=this.serieMensalEntidade(this.projEntidade,'fat');
+      const despM=this.serieMensalEntidade(this.projEntidade,'desp');
+      const realIdx = meses.map((m,i)=>i).filter(i=> fatM[i]!=null && fatM[i]>0);
+      const nReal = realIdx.length;
       let baseFat=0, baseDesp=0, lastFat=0, lastDesp=0;
-      real.forEach(m=>{ const k=m.chave.toLowerCase(); baseFat+=lFat[k]||0; baseDesp+=(lDesp&&lDesp[k])||0; lastFat=lFat[k]||0; lastDesp=(lDesp&&lDesp[k])||0; });
+      realIdx.forEach(i=>{ baseFat+=fatM[i]||0; baseDesp+=despM[i]||0; lastFat=fatM[i]||0; lastDesp=despM[i]||0; });
       const avgFat = nReal? baseFat/nReal:0, avgDesp=nReal? baseDesp/nReal:0;
       const g = this.projCrescimento/100;
       let projIdx=0;
-      const linhas = meses.map(m=>{
-        const k=m.chave.toLowerCase(); const isReal = real.includes(m);
+      const linhas = meses.map((m,i)=>{
+        const isReal = realIdx.includes(i);
         let fat,desp;
-        if(isReal){ fat=lFat[k]||0; desp=(lDesp&&lDesp[k])||0; }
+        if(isReal){ fat=fatM[i]||0; desp=despM[i]||0; }
         else { projIdx++;
           if(this.projMetodo==='ultimo'){ fat=lastFat; desp=lastDesp; }
           else if(this.projMetodo==='crescimento'){ fat=lastFat*Math.pow(1+g,projIdx); desp=lastDesp*Math.pow(1+g,projIdx); }
