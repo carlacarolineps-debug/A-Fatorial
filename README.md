@@ -28,18 +28,33 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
 | **Rebracil Requalificadora** | Requalificação de recipientes de GLP (P13/P20/P45) | dados originais do NEXUS |
 | **Rebracil Embalagens** | Impressão e conversão de embalagens flexíveis | `Resultado_Embalagem_2026.xlsx` |
 
-### Modelo de rede / franquias (grupo empresarial)
-Inspirado em sistemas de rede de franquias, o grupo é tratado como uma **rede de
-unidades** com uma **matriz/franqueador**:
-- **Hub** reposicionado como *Grupo Empresarial Rebracil*, com indicador **“Rede
-  Sincronizada”** ao vivo, **medalha de ranking** (1º, 2º…) em cada unidade e barra
-  de **participação no faturamento do grupo**.
-- **Central do Grupo (Franqueador)** (antigo Consolidado): banner de governança com
-  KPIs da rede (unidades, faturamento, resultado) + **Rateio Corporativo** — uma taxa
-  configurável (padrão 5%) sobre o faturamento de cada unidade (análogo a *royalties*
-  de franquia, custeando serviços compartilhados da matriz). Inclui **tabela de rateio
-  por unidade**, **ranking da rede** e a consolidação por empresa. A taxa é editável e
-  fica salva no navegador (`nexus_taxa_rateio`).
+### Foco: análise financeira para decisão estratégica
+O sistema é uma **visão financeira consolidada do grupo para decisões estratégicas**
+(não operação — sem PDV/CRM/estoque). O grupo é tratado como um conjunto de empresas
+no mesmo banco de dados, com uma **matriz** que concentra custos compartilhados.
+- **Hub** *Grupo Empresarial Rebracil*: **medalha de ranking** (1º, 2º…) por
+  faturamento, barra de **participação no grupo**, **Inteligência da Rede** (insights
+  automáticos) e **Maiores Despesas do Grupo**.
+- **Central do Grupo — Consolidado**: KPIs do grupo, **Rentabilidade Real por empresa**
+  (lucro depois de ratear os custos da matriz), **Rateio de Custos da Matriz** (taxa
+  configurável, padrão 5% s/ faturamento, salva em `nexus_taxa_rateio`), ranking e a
+  consolidação por empresa.
+
+### Análises de decisão estratégica
+Seção **Decisão Estratégica** no menu:
+- **Tendência & Projeção** (`projecao`): fecha o ano a partir dos meses já lançados,
+  com três métodos (média dos meses, repetir último mês, crescimento composto %/mês);
+  gráfico realizado × projetado (linha sólida vira tracejada) e tabela mês a mês.
+  Getter `projecao`.
+- **Comparador** (`comparador`): duas empresas lado a lado — faturamento, margem,
+  **resultado real**, **fator R$/kg** e maiores blocos de despesa — com gráfico
+  comparativo. Getters `ladoComparador`, `comparacao`.
+- **Simulador (What-if)** (`simulador`): testa decisões sem alterar os dados —
+  variação de faturamento (preço/fator/volume) e corte de um bloco de despesa — e
+  mostra o impacto no resultado/margem, com **veredito automático**. Alvo: grupo
+  consolidado ou uma empresa. Getters `simGrupos`, `simulacao`.
+- **Drawer de detalhe** (drill-down estilo Horus) ao clicar numa empresa: KPIs,
+  resultado real, insight, maiores despesas e **exportação CSV** do recorte.
 
 ### Drill-down (drawer) + inteligência da rede
 Inspirado no padrão de *cards detalhados* do Horus:

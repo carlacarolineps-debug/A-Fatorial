@@ -299,7 +299,13 @@
     <div class="nav-section" x-show="sidebarOpen">Grupo</div>
     <div class="nav-sep" x-show="!sidebarOpen"></div>
     <button class="nav-item" @click="mudarAba('hub')" :class="aba==='hub'?'active':''" title="Hub de Empresas"><i class="fas fa-th-large w-4"></i> <span class="nav-label">Hub de Empresas</span></button>
-    <button class="nav-item" @click="mudarAba('consolidado')" :class="aba==='consolidado'?'active':''" title="Central do Grupo (Franqueador)"><i class="fas fa-building-columns w-4"></i> <span class="nav-label">Central do Grupo</span></button>
+    <button class="nav-item" @click="mudarAba('consolidado')" :class="aba==='consolidado'?'active':''" title="Central do Grupo — consolidado e rentabilidade"><i class="fas fa-building-columns w-4"></i> <span class="nav-label">Central do Grupo</span></button>
+
+    <div class="nav-section" x-show="sidebarOpen">Decisão Estratégica</div>
+    <div class="nav-sep" x-show="!sidebarOpen"></div>
+    <button class="nav-item" @click="mudarAba('projecao')" :class="aba==='projecao'?'active':''" title="Tendência & Projeção"><i class="fas fa-chart-line w-4"></i> <span class="nav-label">Tendência &amp; Projeção</span></button>
+    <button class="nav-item" @click="mudarAba('comparador')" :class="aba==='comparador'?'active':''" title="Comparador de Empresas"><i class="fas fa-code-compare w-4"></i> <span class="nav-label">Comparador</span></button>
+    <button class="nav-item" @click="mudarAba('simulador')" :class="aba==='simulador'?'active':''" title="Simulador de Cenários (What-if)"><i class="fas fa-flask w-4"></i> <span class="nav-label">Simulador (What-if)</span></button>
 
     <div class="nav-section" x-show="sidebarOpen">Análise Executiva</div>
     <div class="nav-sep" x-show="!sidebarOpen"></div>
@@ -348,7 +354,7 @@
     </div>
     
     <div style="display:flex;align-items:center;gap:24px">
-      <div x-show="!['hub', 'consolidado', 'faturamento', 'historico_comparativo', 'configuracoes', 'despesa_mensal'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
+      <div x-show="!['hub', 'consolidado', 'faturamento', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
         <label style="font-size: 11px; color: var(--color-muted); text-transform: uppercase; font-weight: 800;">Recorte Atual:</label>
         <select @change="mesAtivo = $event.target.value; subAbaDespesa = mesAtivo.toLowerCase(); atualizarLeituraSistema()" class="emc-input" style="padding: 6px 12px; font-weight: 800; color: var(--accent-blue); width: auto; background: var(--color-surface2); border-color: var(--accent-gold);">
           <template x-for="m in listaMeses" :key="m.chave"><option :value="m.chave" :selected="m.chave === mesAtivo" x-text="m.labelData"></option></template>
@@ -423,11 +429,9 @@
           <div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="display" style="font-size:24px;font-weight:900;color:var(--accent-blue)">Grupo Empresarial Rebracil</div>
-              <span class="rede-live" style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent-green);background:rgba(13,148,136,.10);padding:4px 10px;border-radius:20px">
-                <span class="rede-dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent-green);display:inline-block"></span> Rede Sincronizada
-              </span>
+              <span style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent-gold-deep);background:rgba(197,168,128,.14);padding:4px 10px;border-radius:20px"><i class="fas fa-chart-line"></i> Análise para decisão</span>
             </div>
-            <div style="font-size:13px;color:var(--color-muted);margin-top:6px;max-width:600px">Cada empresa opera como uma <b>unidade da rede</b> — conta independente no mesmo banco de dados, com governança da <b>matriz/franqueador</b>. Abra uma unidade ou veja a <b>Central do Grupo</b> (consolidado + rateio corporativo).</div>
+            <div style="font-size:13px;color:var(--color-muted);margin-top:6px;max-width:600px">Visão financeira consolidada do grupo para <b>decisões estratégicas</b>. Cada empresa é uma conta independente no mesmo banco de dados. Abra uma empresa ou veja a <b>Central do Grupo</b> (consolidado, rentabilidade real e rateio de custos da matriz).</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--color-dim);font-weight:800">Resultado consolidado (YTD)</div>
@@ -443,7 +447,7 @@
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
               <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;position:relative" :style="'background:'+e.cor">
                 <i class="fas" :class="e.icone" style="font-size:21px"></i>
-                <span class="rank-medal" :class="'rank-'+(e.rank<=3?e.rank:'n')" style="position:absolute;top:-8px;left:-8px;box-shadow:0 2px 6px rgba(0,0,0,.15)" x-text="e.rank+'º'" title="Posição no ranking da rede (por faturamento)"></span>
+                <span class="rank-medal" :class="'rank-'+(e.rank<=3?e.rank:'n')" style="position:absolute;top:-8px;left:-8px;box-shadow:0 2px 6px rgba(0,0,0,.15)" x-text="e.rank+'º'" title="Posição por faturamento no grupo"></span>
               </div>
               <div style="min-width:0">
                 <div class="display" style="font-size:17px;font-weight:900;color:var(--accent-blue)" x-text="e.nome"></div>
@@ -473,7 +477,7 @@
             <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(180deg,var(--accent-blue-soft),var(--accent-blue))"><i class="fas fa-layer-group" style="font-size:21px;color:var(--accent-gold)"></i></div>
             <div>
               <div class="display" style="font-size:17px;font-weight:900;color:var(--accent-blue)">Central do Grupo</div>
-              <div style="font-size:11px;color:var(--color-muted)">Franqueador · consolidado + rateio</div>
+              <div style="font-size:11px;color:var(--color-muted)">Consolidado · rentabilidade real</div>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 10px">
@@ -527,10 +531,10 @@
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
           <div style="background:var(--accent-gold);color:#191040;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center"><i class="fas fa-building-columns" style="font-size:20px"></i></div>
           <div>
-            <div class="display" style="font-size:23px;font-weight:900;color:var(--accent-gold)">Central do Grupo — Franqueador</div>
-            <div style="font-size:12px;color:#c9cdd8">Governança da rede · consolidação · rateio corporativo · ranking das unidades</div>
+            <div class="display" style="font-size:23px;font-weight:900;color:var(--accent-gold)">Central do Grupo — Consolidado</div>
+            <div style="font-size:12px;color:#c9cdd8">Consolidação · rentabilidade real · rateio de custos da matriz · ranking</div>
           </div>
-          <span class="rede-live" style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#0fe3b3;background:rgba(13,148,136,.18);padding:5px 12px;border-radius:20px"><span class="rede-dot" style="width:8px;height:8px;border-radius:50%;background:#0fe3b3;display:inline-block"></span> Rede Sincronizada</span>
+          <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent-gold);background:rgba(197,168,128,.16);padding:5px 12px;border-radius:20px"><i class="fas fa-scale-balanced"></i> Base para decisão</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:18px">
           <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:16px">
@@ -542,7 +546,7 @@
             <div class="display" style="font-size:24px;font-weight:900;margin-top:4px" x-text="formatarDinheiroExato(consolidado.total.fat)"></div>
           </div>
           <div style="background:rgba(197,168,128,.12);border:1px solid rgba(197,168,128,.35);border-radius:14px;padding:16px">
-            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--accent-gold);font-weight:800">Rateio Corporativo (YTD)</div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--accent-gold);font-weight:800">Custos da Matriz (rateio YTD)</div>
             <div class="display" style="font-size:24px;font-weight:900;margin-top:4px;color:var(--accent-gold)" x-text="formatarDinheiroExato(consolidado.total.rateio)"></div>
             <div style="display:flex;align-items:center;gap:6px;margin-top:8px">
               <span style="font-size:10px;color:#c9cdd8;font-weight:700">Taxa</span>
@@ -600,14 +604,45 @@
         <div class="card-sub" style="margin-top:12px"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> Nota: a Embalagem possui faturamento <b>Inter Company</b> — em uma consolidação contábil formal essas operações entre as empresas do grupo devem ser eliminadas para evitar dupla contagem.</div>
       </div>
 
+      <!-- Rentabilidade real (após alocar custos da matriz) -->
+      <div class="card-dark" style="border-top:3px solid var(--accent-gold)">
+        <div class="card-title"><i class="fas fa-scale-balanced mr-2" style="color:var(--accent-gold)"></i> Rentabilidade Real por Empresa <span style="font-size:11px;font-weight:700;color:var(--color-muted)">(após ratear custos da matriz — <span x-text="taxaRateio+'%'"></span>)</span></div>
+        <div class="card-sub" style="margin-top:-8px">Mostra o lucro de cada empresa <b>depois</b> de absorver sua parte dos custos compartilhados da matriz. É a leitura mais honesta de quanto cada operação realmente entrega — base para decidir onde investir ou cortar.</div>
+        <div style="overflow-x:auto">
+          <table class="dark-table">
+            <thead><tr><th>Empresa</th><th class="td-r">Resultado bruto</th><th class="td-r">Margem</th><th class="td-r">− Custo matriz</th><th class="td-r">Resultado real</th><th class="td-r">Margem real</th></tr></thead>
+            <tbody>
+              <template x-for="e in consolidado.empresas" :key="e.id">
+                <tr>
+                  <td class="font-bold text-accent-blue"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px" :style="'background:'+e.cor"></span><span x-text="e.curto"></span></td>
+                  <td class="td-r" :class="e.res<0?'text-red-strong':''" x-text="formatarDinheiroExato(e.res)"></td>
+                  <td class="td-r" style="color:var(--color-muted)" x-text="e.margem.toFixed(1)+'%'"></td>
+                  <td class="td-r" style="color:var(--accent-gold)" x-text="'− '+formatarDinheiroExato(e.rateio)"></td>
+                  <td class="td-r font-bold" :class="e.resReal<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(e.resReal)"></td>
+                  <td class="td-r"><span class="badge-status" :class="e.margemReal<0?'badge-danger':(e.margemReal<8?'badge-warn':'badge-ok')" x-text="e.margemReal.toFixed(1)+'%'"></span></td>
+                </tr>
+              </template>
+              <tr class="highlight-row" style="font-weight:900">
+                <td class="text-accent-blue">GRUPO</td>
+                <td class="td-r" x-text="formatarDinheiroExato(consolidado.total.res)"></td>
+                <td class="td-r" style="color:var(--color-muted)" x-text="consolidado.total.margem.toFixed(1)+'%'"></td>
+                <td class="td-r" style="color:var(--accent-gold)" x-text="'− '+formatarDinheiroExato(consolidado.total.rateio)"></td>
+                <td class="td-r" :class="consolidado.total.resReal<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(consolidado.total.resReal)"></td>
+                <td class="td-r" x-text="consolidado.total.margemReal.toFixed(1)+'%'"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:20px" class="grid-inv">
         <!-- Rateio corporativo (analogo a royalties de franquia) -->
         <div class="card-dark">
-          <div class="card-title"><i class="fas fa-hand-holding-dollar mr-2" style="color:var(--accent-gold)"></i> Rateio Corporativo por Unidade</div>
-          <div class="card-sub" style="margin-top:-8px">Contribuição de cada empresa para a matriz/franqueador — <b x-text="taxaRateio+'%'"></b> sobre o faturamento (serviços compartilhados: contábil, jurídico, TI, marketing). Ajuste a taxa no topo.</div>
+          <div class="card-title"><i class="fas fa-sitemap mr-2" style="color:var(--accent-gold)"></i> Rateio de Custos da Matriz por Empresa</div>
+          <div class="card-sub" style="margin-top:-8px">Aloca os custos compartilhados da matriz (contábil, jurídico, TI, marketing) — <b x-text="taxaRateio+'%'"></b> do faturamento de cada empresa. É o que gera a <b>rentabilidade real</b> na tabela ao lado. Ajuste a taxa no topo.</div>
           <div style="overflow-x:auto">
             <table class="dark-table">
-              <thead><tr><th>Unidade</th><th class="td-r">Faturamento (base)</th><th class="td-r">Taxa</th><th class="td-r">Rateio</th></tr></thead>
+              <thead><tr><th>Empresa</th><th class="td-r">Faturamento (base)</th><th class="td-r">Taxa</th><th class="td-r">Custo alocado</th></tr></thead>
               <tbody>
                 <template x-for="e in consolidado.empresas" :key="e.id">
                   <tr>
@@ -618,7 +653,7 @@
                   </tr>
                 </template>
                 <tr class="highlight-row" style="font-weight:900">
-                  <td class="text-accent-blue">TOTAL ARRECADADO</td><td class="td-r" x-text="formatarDinheiroExato(consolidado.total.fat)"></td><td class="td-r" x-text="taxaRateio+'%'"></td>
+                  <td class="text-accent-blue">TOTAL RATEADO</td><td class="td-r" x-text="formatarDinheiroExato(consolidado.total.fat)"></td><td class="td-r" x-text="taxaRateio+'%'"></td>
                   <td class="td-r" style="color:var(--accent-gold)" x-text="formatarDinheiroExato(consolidado.total.rateio)"></td>
                 </tr>
               </tbody>
@@ -626,9 +661,9 @@
           </div>
         </div>
 
-        <!-- Ranking da rede -->
+        <!-- Ranking do grupo -->
         <div class="card-dark">
-          <div class="card-title"><i class="fas fa-trophy mr-2" style="color:var(--accent-gold)"></i> Ranking da Rede</div>
+          <div class="card-title"><i class="fas fa-ranking-star mr-2" style="color:var(--accent-gold)"></i> Ranking do Grupo</div>
           <div class="card-sub" style="margin-top:-8px">Por faturamento no ano.</div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
             <template x-for="(e,idx) in consolidado.ranking" :key="e.id">
@@ -640,7 +675,7 @@
                 </div>
                 <div style="text-align:right;flex-shrink:0">
                   <div style="font-weight:900;color:var(--accent-blue);font-size:13px" x-text="formatarDinheiroExato(e.fat)"></div>
-                  <div style="font-size:10px;color:var(--color-muted);font-weight:700" x-text="e.pctFat.toFixed(1)+'% da rede'"></div>
+                  <div style="font-size:10px;color:var(--color-muted);font-weight:700" x-text="e.pctFat.toFixed(1)+'% do grupo'"></div>
                 </div>
               </div>
             </template>
@@ -734,6 +769,147 @@
           </div>
         </div>
       </template>
+    </div>
+
+    <!-- ===================== TENDÊNCIA & PROJEÇÃO ===================== -->
+    <div x-show="aba==='projecao'" x-cloak style="display:grid;gap:24px">
+      <div class="card-dark" style="border-top:3px solid var(--accent-gold)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+          <div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-chart-line mr-2" style="color:var(--accent-gold)"></i> Projeção — <span x-text="empresaMeta.curto"></span></div>
+            <div class="card-sub" style="margin-top:0">Fecha o ano com base nos <b x-text="projecao.nReal"></b> meses já lançados. Escolha como projetar os meses restantes.</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <select x-model="projMetodo" @change="desenharGraficosNovos()" class="emc-input" style="width:auto;font-weight:700">
+              <option value="media">Média dos meses lançados</option>
+              <option value="ultimo">Repetir último mês</option>
+              <option value="crescimento">Crescimento composto %/mês</option>
+            </select>
+            <div x-show="projMetodo==='crescimento'" style="display:flex;align-items:center;gap:6px">
+              <input type="number" step="1" x-model.number="projCrescimento" @input="desenharGraficosNovos()" class="emc-input" style="width:80px;text-align:right;font-weight:800">
+              <span style="font-size:12px;font-weight:700;color:var(--color-muted)">%/mês</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
+        <div class="kpi-card blue"><div class="kpi-label">Realizado YTD (Faturamento)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(projecao.realizado.fat)"></div></div>
+        <div class="kpi-card gold"><div class="kpi-label">Projeção restante (Faturamento)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(projecao.projetado.fat)"></div></div>
+        <div class="kpi-card" style="border-left:4px solid var(--accent-blue)"><div class="kpi-label">Faturamento projetado (ano)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(projecao.ano.fat)"></div></div>
+        <div class="kpi-card green"><div class="kpi-label flex justify-between">Resultado projetado (ano) <span class="font-bold" :class="projecao.ano.res<0?'text-red-strong':'text-green-strong'" x-text="(projecao.ano.fat>0?(projecao.ano.res/projecao.ano.fat*100):0).toFixed(1)+'%'"></span></div><div class="kpi-val" :class="projecao.ano.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(projecao.ano.res)"></div></div>
+      </div>
+      <div class="card-dark"><div class="card-title">Realizado &amp; Projetado — Faturamento x Resultado</div><div class="chart-wrap" style="height:300px"><canvas id="chartProjecao"></canvas></div></div>
+      <div class="card-dark">
+        <div class="card-title">Mês a Mês (realizado + projeção)</div>
+        <div style="overflow-x:auto">
+          <table class="dark-table">
+            <thead><tr><th>Mês</th><th class="td-r">Faturamento</th><th class="td-r">Despesa</th><th class="td-r">Resultado</th><th class="td-r">Situação</th></tr></thead>
+            <tbody>
+              <template x-for="l in projecao.linhas" :key="l.curto">
+                <tr :style="l.proj?'opacity:.85':''">
+                  <td class="font-bold text-accent-blue" x-text="l.mes"></td>
+                  <td class="td-r" x-text="formatarDinheiroExato(l.fat)"></td>
+                  <td class="td-r" style="color:var(--accent-red)" x-text="formatarDinheiroExato(l.desp)"></td>
+                  <td class="td-r font-bold" :class="l.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(l.res)"></td>
+                  <td class="td-r"><span class="badge-status" :class="l.proj?'badge-warn':'badge-ok'" x-text="l.proj?'Projetado':'Realizado'"></span></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== COMPARADOR ===================== -->
+    <div x-show="aba==='comparador'" x-cloak style="display:grid;gap:24px">
+      <div class="card-dark">
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div style="font-weight:800;color:var(--accent-blue)"><i class="fas fa-code-compare mr-2" style="color:var(--accent-gold)"></i> Comparar</div>
+          <select x-model="compA" @change="desenharGraficosNovos()" class="emc-input" style="width:auto;font-weight:700"><template x-for="id in ordemEmpresas" :key="id"><option :value="id" x-text="EMPRESAS[id].nome"></option></template></select>
+          <span style="font-weight:800;color:var(--color-dim)">×</span>
+          <select x-model="compB" @change="desenharGraficosNovos()" class="emc-input" style="width:auto;font-weight:700"><template x-for="id in ordemEmpresas" :key="id"><option :value="id" x-text="EMPRESAS[id].nome"></option></template></select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="grid-inv">
+        <template x-for="lado in [comparacao.a, comparacao.b]" :key="lado.id">
+          <div class="card-dark" :style="'border-top:4px solid '+lado.cor">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div style="width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff" :style="'background:'+lado.cor"><i class="fas" :class="lado.icone"></i></div>
+              <div><div style="font-weight:900;color:var(--accent-blue)" x-text="lado.nome"></div><div style="font-size:11px;color:var(--color-muted)" x-text="lado.setor"></div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div><div class="kpi-label">Faturamento</div><div style="font-weight:900;color:var(--accent-blue)" x-text="formatarDinheiroExato(lado.fat)"></div></div>
+              <div><div class="kpi-label">Despesa</div><div style="font-weight:900;color:var(--accent-red)" x-text="formatarDinheiroExato(lado.desp)"></div></div>
+              <div><div class="kpi-label">Resultado</div><div style="font-weight:900" :class="lado.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(lado.res)"></div></div>
+              <div><div class="kpi-label">Margem</div><div style="font-weight:900" :class="lado.margem<0?'text-red-strong':'text-green-strong'" x-text="lado.margem.toFixed(1)+'%'"></div></div>
+              <div><div class="kpi-label">Result. real (após matriz)</div><div style="font-weight:900" :class="lado.resReal<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(lado.resReal)"></div></div>
+              <div><div class="kpi-label">Fator médio (R$/kg)</div><div style="font-weight:900;color:var(--accent-blue)" x-text="lado.fatorMedio!==null ? ('R$ '+lado.fatorMedio.toFixed(2).replace('.',',')) : '—'"></div></div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="kpi-label" style="margin-bottom:6px">Maiores blocos de despesa</div>
+              <template x-for="g in lado.grupos" :key="g.label">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--color-border)">
+                  <span style="font-size:12px;color:var(--accent-blue);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="g.label"></span>
+                  <span style="font-size:12px;font-weight:800;color:var(--accent-blue);flex-shrink:0" x-text="formatarDinheiroExato(g.valor)+' ('+g.pct.toFixed(0)+'%)'"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="card-dark"><div class="card-title">Comparativo — Faturamento x Despesa x Resultado</div><div class="chart-wrap" style="height:280px"><canvas id="chartComparador"></canvas></div></div>
+    </div>
+
+    <!-- ===================== SIMULADOR (WHAT-IF) ===================== -->
+    <div x-show="aba==='simulador'" x-cloak style="display:grid;gap:24px">
+      <div class="card-dark" style="border-top:3px solid var(--accent-gold)">
+        <div class="card-title"><i class="fas fa-flask mr-2" style="color:var(--accent-gold)"></i> Simulador de Cenários (What-if)</div>
+        <div class="card-sub" style="margin-top:-8px">Teste uma decisão e veja o impacto no resultado — sem alterar os dados reais. Ex.: subir preço/fator, cortar um bloco de despesa.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:8px">
+          <div>
+            <label class="kpi-label">Alvo da simulação</label>
+            <select x-model="sim.empresaId" @change="sim.grupoCorte=''" class="emc-input" style="font-weight:700">
+              <option value="__grupo__">Grupo consolidado</option>
+              <template x-for="id in ordemEmpresas" :key="id"><option :value="id" x-text="EMPRESAS[id].nome"></option></template>
+            </select>
+          </div>
+          <div>
+            <label class="kpi-label">Variação de faturamento (preço/fator/volume)</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="range" min="-30" max="30" step="1" x-model.number="sim.deltaFat" style="flex:1">
+              <input type="number" x-model.number="sim.deltaFat" class="emc-input" style="width:74px;text-align:right;font-weight:800"><span style="font-weight:800;color:var(--color-muted)">%</span>
+            </div>
+          </div>
+          <div>
+            <label class="kpi-label">Cortar um bloco de despesa</label>
+            <select x-model="sim.grupoCorte" class="emc-input" style="font-weight:700">
+              <option value="">— nenhum —</option>
+              <template x-for="g in simGrupos" :key="g.key"><option :value="g.key" x-text="g.label"></option></template>
+            </select>
+          </div>
+          <div>
+            <label class="kpi-label">Redução do bloco</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="range" min="0" max="100" step="5" x-model.number="sim.deltaCorte" style="flex:1">
+              <input type="number" x-model.number="sim.deltaCorte" class="emc-input" style="width:74px;text-align:right;font-weight:800"><span style="font-weight:800;color:var(--color-muted)">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+        <div class="kpi-card"><div class="kpi-label">Resultado atual</div><div class="kpi-val" :class="simulacao.base.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(simulacao.base.res)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Margem <b x-text="simulacao.base.margem.toFixed(1)+'%'"></b></div></div>
+        <div class="kpi-card gold"><div class="kpi-label">Resultado simulado</div><div class="kpi-val" :class="simulacao.novo.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(simulacao.novo.res)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Margem <b x-text="simulacao.novo.margem.toFixed(1)+'%'"></b></div></div>
+        <div class="kpi-card" :class="simulacao.deltaRes>=0?'green':'red'"><div class="kpi-label">Impacto no resultado</div><div class="kpi-val" :class="simulacao.deltaRes<0?'text-red-strong':'text-green-strong'" x-text="(simulacao.deltaRes>=0?'+':'')+formatarDinheiroExato(simulacao.deltaRes)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Margem <b x-text="(simulacao.deltaMargem>=0?'+':'')+simulacao.deltaMargem.toFixed(1)+' p.p.'"></b></div></div>
+        <div class="kpi-card blue"><div class="kpi-label">Economia no corte</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(simulacao.corte)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px" x-text="simulacao.grupoSel? simulacao.grupoSel.label : 'nenhum bloco selecionado'"></div></div>
+      </div>
+      <div class="ia-insight-box no-print">
+        <div class="font-bold mb-2 flex items-center text-accent-blue" style="font-size:15px"><i class="fas fa-lightbulb mr-2 text-accent-gold"></i> Veredito</div>
+        <div style="font-size:13.5px;color:var(--ink-soft)">
+          <template x-if="simulacao.deltaRes>0"><span>Este cenário <b>melhora</b> o resultado em <b x-text="formatarDinheiroExato(simulacao.deltaRes)"></b> (<span x-text="(simulacao.deltaMargem>=0?'+':'')+simulacao.deltaMargem.toFixed(1)"></span> p.p. de margem). Vale avaliar a viabilidade de executar.</span></template>
+          <template x-if="simulacao.deltaRes===0"><span>Ajuste os controles acima para simular uma decisão (variação de faturamento e/ou corte de despesa).</span></template>
+          <template x-if="simulacao.deltaRes<0"><span>Este cenário <b>piora</b> o resultado em <b x-text="formatarDinheiroExato(Math.abs(simulacao.deltaRes))"></b>. Reconsidere — a queda de faturamento não é compensada pelo corte.</span></template>
+        </div>
+      </div>
     </div>
 
     <div x-show="aba==='dashboard'" x-cloak style="display:grid;gap:24px">
@@ -2211,6 +2387,11 @@ function sistemaUnificado(){
     invMode: 'diff',
     taxaRateio: (function(){ try{ let v=parseFloat(localStorage.getItem('nexus_taxa_rateio')); return isNaN(v)?5:v; }catch(e){ return 5; } })(),
     drawer: { open:false, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-building', stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'', csv:[], csvName:'recorte', acaoLabel:'', acaoId:'' },
+    projMetodo: 'media',
+    projCrescimento: 0,
+    compA: 'requalificadora',
+    compB: 'embalagem',
+    sim: { empresaId: '__grupo__', deltaFat: 0, grupoCorte: '', deltaCorte: 0 },
     abaConfig: 'importador',
     subAbaDespesa: 'abr', 
     mesAtivo: 'Abr',
@@ -2268,9 +2449,13 @@ function sistemaUnificado(){
         e.rank = ordenadas.findIndex(x=>x.id===e.id) + 1;
         e.pctFat = total.fat > 0 ? (e.fat/total.fat)*100 : 0;
         e.pctRes = total.res !== 0 ? (e.res/total.res)*100 : 0;
-        e.rateio = e.fat * taxa/100; // rateio corporativo (analogo a royalty da franquia)
+        e.rateio = e.fat * taxa/100; // rateio de custos compartilhados da matriz
+        e.resReal = e.res - e.rateio; // rentabilidade real após alocar custos da matriz
+        e.margemReal = e.fat > 0 ? (e.resReal/e.fat)*100 : 0;
       });
       total.rateio = empresas.reduce((a,c)=>a+c.rateio,0);
+      total.resReal = total.res - total.rateio;
+      total.margemReal = total.fat > 0 ? (total.resReal/total.fat)*100 : 0;
       total.taxa = taxa;
       return { empresas, ranking: ordenadas, total };
     },
@@ -2329,15 +2514,15 @@ function sistemaUnificado(){
       const totalG = grupos.reduce((a,g)=>a+g.valor,0) || 1;
       const maior = grupos[0];
       this.drawer = {
-        open:true, tag:'Unidade da rede · '+rc.rank+'º no ranking',
+        open:true, tag:'Empresa do grupo · '+rc.rank+'º em faturamento',
         title:r.nome, subtitle:r.setor, color:r.cor, icone:EMPRESAS[id].icone,
         stats:[
           {l:'Faturamento YTD', v:this.formatarDinheiroExato(r.fat)},
           {l:'Despesa YTD', v:this.formatarDinheiroExato(r.desp)},
           {l:'Resultado', v:this.formatarDinheiroExato(r.res), cor: r.res<0?'#e11d48':'#0d9488'},
           {l:'Margem', v:r.margem.toFixed(1)+'%', cor: r.margem<0?'#e11d48':'#0d9488'},
-          {l:'Participação (rede)', v:rc.pctFat.toFixed(1)+'%'},
-          {l:'Rateio ('+this.taxaRateio+'%)', v:this.formatarDinheiroExato(rc.rateio), cor:'#c5a880'}
+          {l:'Resultado real (após matriz)', v:this.formatarDinheiroExato(rc.resReal), cor: rc.resReal<0?'#e11d48':'#0d9488'},
+          {l:'Custo da matriz ('+this.taxaRateio+'%)', v:this.formatarDinheiroExato(rc.rateio), cor:'#c5a880'}
         ],
         rowsHead:['Grupo de despesa','Acum. (Jan+Fev)','% desp.'],
         rows: grupos.map(g => ({ label:g.label, valor:this.formatarDinheiroExato(g.valor), pct:((g.valor/totalG)*100).toFixed(1)+'%' })),
@@ -2354,6 +2539,67 @@ function sistemaUnificado(){
       const url = URL.createObjectURL(blob); const a=document.createElement('a');
       a.href=url; a.download=(this.drawer.csvName||'recorte')+'.csv'; a.click(); URL.revokeObjectURL(url);
       this.registrarLog('Exportou recorte: '+this.drawer.csvName);
+    },
+
+    // === TENDÊNCIA & PROJEÇÃO (empresa ativa) ===
+    get projecao() {
+      const lFat=this.dreAtual.find(l=>l.desc==='Faturamento');
+      const lDesp=this.dreAtual.find(l=>l.desc==='Total de Despesas');
+      const meses=this.listaMeses;
+      const real = meses.filter(m => lFat && (lFat[m.chave.toLowerCase()]||0)>0);
+      const nReal = real.length;
+      let baseFat=0, baseDesp=0, lastFat=0, lastDesp=0;
+      real.forEach(m=>{ const k=m.chave.toLowerCase(); baseFat+=lFat[k]||0; baseDesp+=(lDesp&&lDesp[k])||0; lastFat=lFat[k]||0; lastDesp=(lDesp&&lDesp[k])||0; });
+      const avgFat = nReal? baseFat/nReal:0, avgDesp=nReal? baseDesp/nReal:0;
+      const g = this.projCrescimento/100;
+      let projIdx=0;
+      const linhas = meses.map(m=>{
+        const k=m.chave.toLowerCase(); const isReal = real.includes(m);
+        let fat,desp;
+        if(isReal){ fat=lFat[k]||0; desp=(lDesp&&lDesp[k])||0; }
+        else { projIdx++;
+          if(this.projMetodo==='ultimo'){ fat=lastFat; desp=lastDesp; }
+          else if(this.projMetodo==='crescimento'){ fat=lastFat*Math.pow(1+g,projIdx); desp=lastDesp*Math.pow(1+g,projIdx); }
+          else { fat=avgFat; desp=avgDesp; } }
+        return { mes:m.labelData, curto:m.chave, fat, desp, res:fat-desp, proj:!isReal };
+      });
+      const sum=(arr,key)=>arr.reduce((a,x)=>a+x[key],0);
+      const realL=linhas.filter(l=>!l.proj), projL=linhas.filter(l=>l.proj);
+      return { linhas, nReal, metodo:this.projMetodo,
+        realizado:{fat:sum(realL,'fat'),desp:sum(realL,'desp'),res:sum(realL,'res')},
+        projetado:{fat:sum(projL,'fat'),desp:sum(projL,'desp'),res:sum(projL,'res')},
+        ano:{fat:sum(linhas,'fat'),desp:sum(linhas,'desp'),res:sum(linhas,'res')} };
+    },
+
+    // === COMPARADOR (duas empresas lado a lado) ===
+    ladoComparador(id){
+      const r=this.resumoEmpresa(id); if(!r) return null;
+      const emp=EMPRESAS[id]; const grupos=this.gruposDespesaEmpresa(id);
+      const totalG=grupos.reduce((a,x)=>a+x.valor,0)||1;
+      const c=this.consolidado.empresas.find(e=>e.id===id)||r;
+      const fatTot = emp.extras && emp.extras.fatTotal ? emp.extras.fatTotal : null;
+      return { ...r, resReal:c.resReal, margemReal:c.margemReal, rateio:c.rateio,
+        fatorMedio: fatTot ? ((fatTot.fatorJan+fatTot.fatorFev)/2) : null,
+        grupos: grupos.slice(0,6).map(x=>({label:x.label.replace(/^\d+\s*-\s*/,''), valor:x.valor, pct:(x.valor/totalG)*100})) };
+    },
+    get comparacao(){ return { a:this.ladoComparador(this.compA), b:this.ladoComparador(this.compB) }; },
+
+    // === SIMULADOR DE CENÁRIOS (what-if) ===
+    get simGrupos(){
+      const s=this.sim;
+      if(s.empresaId==='__grupo__') return this.topDespesasGrupo.map(g=>({key:g.grupo+'|'+g.id, label:g.grupo+' · '+g.empresa, valor:g.valor}));
+      return this.gruposDespesaEmpresa(s.empresaId).map(g=>({key:g.label, label:g.label, valor:g.valor}));
+    },
+    get simulacao(){
+      const s=this.sim; let baseFat, baseDesp;
+      if(s.empresaId==='__grupo__'){ const c=this.consolidado; baseFat=c.total.fat; baseDesp=c.total.desp; }
+      else { const r=this.resumoEmpresa(s.empresaId); baseFat=r.fat; baseDesp=r.desp; }
+      const gsel=this.simGrupos.find(g=>g.key===s.grupoCorte);
+      const corte = gsel ? gsel.valor*(this.parseNumero(s.deltaCorte)/100) : 0;
+      const newFat = baseFat*(1+this.parseNumero(s.deltaFat)/100);
+      const base={fat:baseFat,desp:baseDesp,res:baseFat-baseDesp}; base.margem=base.fat>0?base.res/base.fat*100:0;
+      const novo={fat:newFat,desp:baseDesp-corte,res:newFat-(baseDesp-corte)}; novo.margem=novo.fat>0?novo.res/novo.fat*100:0;
+      return { base, novo, corte, grupoSel:gsel, deltaRes: novo.res-base.res, deltaMargem: novo.margem-base.margem };
     },
 
     // === "PENSE NO QUE NÃO PENSEI": inteligência da rede ===
@@ -2772,7 +3018,7 @@ function sistemaUnificado(){
       this.recalcularTudo();
     },
 
-    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Franqueador','faturamento':'Faturamento & Fator (R$/kg)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','faturamento':'Faturamento & Fator (R$/kg)','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
     
     get historicoOrdenado() {
       let d = [...this.tendenciaHistorica];
@@ -3633,6 +3879,30 @@ function sistemaUnificado(){
             datasets:[{ data:ex.inventario.map(i=>i.jan), backgroundColor:[cBlue,cGreen,cGold,'#7c3aed'], borderWidth:2, borderColor:'#fff' }]
           }, { responsive:!0, maintainAspectRatio:!1, cutout:'60%', plugins:{legend:{display:!0, position:'bottom'}, tooltip:{callbacks:{label:c=>'  '+c.label+':  R$ '+Number(c.parsed||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}}} });
         }
+      }
+
+      if(this.aba==='projecao') {
+        const pj = this.projecao; const labels = pj.linhas.map(l=>l.mes);
+        let lastReal = -1; pj.linhas.forEach((l,i)=>{ if(!l.proj) lastReal=i; });
+        const fatReal = pj.linhas.map(l=>l.proj?null:l.fat);
+        const resReal = pj.linhas.map(l=>l.proj?null:l.res);
+        const fatProj = pj.linhas.map((l,i)=> (l.proj || i===lastReal) ? l.fat : null);
+        const resProj = pj.linhas.map((l,i)=> (l.proj || i===lastReal) ? l.res : null);
+        renderChart('chartProjecao','line',{ labels, datasets:[
+          { label:'Faturamento (realizado)', data:fatReal, borderColor:cBlue, borderWidth:3, pointRadius:3, spanGaps:false },
+          { label:'Faturamento (projetado)', data:fatProj, borderColor:cBlue, borderWidth:2, borderDash:[6,5], pointRadius:0 },
+          { label:'Resultado (realizado)', data:resReal, borderColor:cGreen, borderWidth:3, pointRadius:3, spanGaps:false },
+          { label:'Resultado (projetado)', data:resProj, borderColor:cGreen, borderWidth:2, borderDash:[6,5], pointRadius:0 }
+        ]}, chartOptsBase({plugins:{legend:{display:!0}}}));
+      }
+
+      if(this.aba==='comparador') {
+        const A=this.comparacao.a, B=this.comparacao.b;
+        renderChart('chartComparador','bar',{ labels:['Faturamento','Despesa','Resultado'],
+          datasets:[
+            { label:A.curto, data:[A.fat,A.desp,A.res], backgroundColor:A.cor, categoryPercentage:0.6, barPercentage:0.9 },
+            { label:B.curto, data:[B.fat,B.desp,B.res], backgroundColor:B.cor, categoryPercentage:0.6, barPercentage:0.9 }
+          ]}, chartOptsBase({plugins:{legend:{display:!0}}}));
       }
 
       if(this.aba==='historico_comparativo') {
