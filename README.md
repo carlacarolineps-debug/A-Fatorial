@@ -28,6 +28,19 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
 | **Rebracil Requalificadora** | Requalificação de recipientes de GLP (P13/P20/P45) | dados originais do NEXUS |
 | **Rebracil Embalagens** | Impressão e conversão de embalagens flexíveis | `Resultado_Embalagem_2026.xlsx` |
 
+### Modelo de rede / franquias (grupo empresarial)
+Inspirado em sistemas de rede de franquias, o grupo é tratado como uma **rede de
+unidades** com uma **matriz/franqueador**:
+- **Hub** reposicionado como *Grupo Empresarial Rebracil*, com indicador **“Rede
+  Sincronizada”** ao vivo, **medalha de ranking** (1º, 2º…) em cada unidade e barra
+  de **participação no faturamento do grupo**.
+- **Central do Grupo (Franqueador)** (antigo Consolidado): banner de governança com
+  KPIs da rede (unidades, faturamento, resultado) + **Rateio Corporativo** — uma taxa
+  configurável (padrão 5%) sobre o faturamento de cada unidade (análogo a *royalties*
+  de franquia, custeando serviços compartilhados da matriz). Inclui **tabela de rateio
+  por unidade**, **ranking da rede** e a consolidação por empresa. A taxa é editável e
+  fica salva no navegador (`nexus_taxa_rateio`).
+
 ### Como funciona o hub
 - **Hub de Empresas** (tela inicial) — cartões-conta estilo "banco", cada um com
   faturamento, despesa, resultado e margem YTD; um clique abre o painel da empresa.
