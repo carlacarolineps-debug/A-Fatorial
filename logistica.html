@@ -316,6 +316,24 @@ select.fsel:focus{border-color:var(--red)}
 .cli .ct{font-size:13px;color:var(--ink-2);font-weight:500}
 .cli.on .ct{color:var(--ink-4);text-decoration:line-through}
 
+/* briefing do motorista (impressão) */
+#briefing{display:none}
+.brief-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #e11d2a;padding-bottom:12px;margin-bottom:16px}
+.brief-head h1{font-size:20px;color:#000}
+.brief-head .bh-sub{font-size:12px;color:#444;margin-top:5px;font-variant-numeric:tabular-nums}
+.brief-head .bh-logo{font-family:var(--fdisp);font-weight:800;letter-spacing:.18em;font-size:20px;color:#e11d2a}
+.brief-stop{display:flex;gap:12px;border:1px solid #ccc;border-left:4px solid #e11d2a;border-radius:8px;padding:11px 13px;margin-bottom:9px;break-inside:avoid}
+.brief-stop .bs-n{width:30px;height:30px;flex-shrink:0;border-radius:8px;background:#111;color:#fff;font-weight:800;display:grid;place-items:center;font-family:var(--fdisp);font-size:15px}
+.brief-stop .bs-body{flex:1;min-width:0}
+.brief-stop .bs-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.brief-stop .bs-top b{font-size:14px;color:#000}
+.brief-stop .bs-doc{font-size:11px;color:#666;font-variant-numeric:tabular-nums;white-space:nowrap}
+.brief-stop .bs-addr{font-size:12.5px;color:#222;margin-top:3px;font-weight:600}
+.brief-stop .bs-contacts{font-size:12px;color:#333;margin-top:4px}
+.brief-stop .bs-alerts{margin:7px 0 0;padding:8px 10px 8px 24px;background:#fdeaec;border-radius:6px;font-size:12px;color:#111;line-height:1.5}
+.brief-stop .bs-note{font-size:11.5px;color:#444;margin-top:5px;font-style:italic}
+.brief-stop .bs-sign{font-size:10.5px;color:#888;margin-top:8px;padding-top:7px;border-top:1px dashed #ccc}
+
 /* empty */
 .empty{text-align:center;padding:60px 20px;color:var(--ink-4)}
 .empty svg{width:44px;height:44px;opacity:.4;margin-bottom:14px}
@@ -349,6 +367,8 @@ select.fsel:focus{border-color:var(--red)}
   .content{overflow:visible;padding:0}
   .route{break-inside:avoid;border:1px solid #ccc}
   .route-body{display:block!important}
+  body.brief-mode>*{display:none!important}
+  body.brief-mode #briefing{display:block!important}
 }
 </style>
 </head>
@@ -369,6 +389,7 @@ select.fsel:focus{border-color:var(--red)}
     <a data-v="separacao"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7 12 3 4 7m16 0-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>Fila de separação<span class="cnt" id="c-sep">0</span></a>
     <a data-v="rotas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5"/></svg>Roteirização<span class="cnt" id="c-rotas">0</span></a>
     <a data-v="retiradas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9h18M3 9l2-5h14l2 5M3 9v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9M9 13h6"/></svg>Retiradas / balcão<span class="cnt" id="c-ret">0</span></a>
+    <a data-v="carga"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 4H2v11h12V4ZM14 8h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Planejador de carga<span class="cnt" id="c-carga">0</span></a>
     <div class="lbl">Análise</div>
     <a data-v="pedidos"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Todos os pedidos<span class="cnt" id="c-ped">0</span></a>
     <a data-v="gestao"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="m7 14 3-4 3 3 5-7"/></svg>Gestão &amp; risco</a>
@@ -462,6 +483,56 @@ function os(id){return STATE[id]||(STATE[id]={stage:defStage(id),chk:{},nota:'',
 function defStage(id){const o=O.find(x=>x.d===id);if(!o)return 0;if(o.st==='bloqueado')return 0;if(o.st==='separar')return 1;if(o.st==='pronto')return 3;return 0;}
 const STAGES=['Recebido','Em separação','Conferido','Pronto','Finalizado'];
 
+/* ---------- planejamento de carga (veículos) ---------- */
+const LSP='horus_plan_v1';
+let PLAN=JSON.parse(localStorage.getItem(LSP)||'null')||{caps:{V1:9000,V2:7000,V3:5000},assign:{}};
+function savePlan(){localStorage.setItem(LSP,JSON.stringify(PLAN));}
+const VEHS=[['V1','Caminhão · V1','var(--red)'],['V2','VUC / Van · V2','var(--blue)'],['V3','Utilitário · V3','var(--violet)']];
+function vehLoad(v){return O.filter(o=>o.tipo==='ENTREGA'&&PLAN.assign[o.d]===v);}
+function vehWeight(v){return vehLoad(v).reduce((s,o)=>s+o.peso,0);}
+function autoLoad(){
+  PLAN.assign={};
+  const ent=O.filter(o=>o.tipo==='ENTREGA').sort((a,b)=>{if(a.cid!==b.cid)return a.cid<b.cid?-1:1;return b.peso-a.peso;});
+  ent.forEach(o=>{
+    // veículo com mais folga que ainda comporta o peso
+    let best=null,bestFree=-1;
+    VEHS.forEach(([v])=>{const free=PLAN.caps[v]-vehWeight(v);if(free>=o.peso&&free>bestFree){best=v;bestFree=free;}});
+    if(!best){let bestFree2=-Infinity;VEHS.forEach(([v])=>{const free=PLAN.caps[v]-vehWeight(v);if(free>bestFree2){best=v;bestFree2=free;}});}
+    PLAN.assign[o.d]=best;
+  });
+  savePlan();
+}
+
+/* =====================================================================
+   CONSOLIDAÇÃO INTELIGENTE — descobre pedidos que podem virar 1 viagem
+   (mesmo cliente, mesmo telefone, mesmo contato/arquiteto, mesma rua)
+   ===================================================================== */
+function streetKey(o){if(!o.end)return null;const st=o.end.split(/,|—/)[0].trim().toLowerCase();return st.length>4?st+'|'+o.cid.toLowerCase():null;}
+function cttPhone(o){if(!o.fl.contato)return null;const m=o.fl.contato.match(/\(\d{2}\)[\s\d-]+/);return m?digits(m[0]):null;}
+function consolidations(){
+  const n=O.length,parent=[...Array(n).keys()];
+  const find=x=>{while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;};
+  const uni=(a,b)=>{parent[find(a)]=find(b);};
+  const km={};// key -> first index
+  const reasonMap={};
+  function link(i,key,reason){if(!key)return;if(km[key]!==undefined){uni(i,km[key]);reasonMap[find(i)]=reasonMap[find(i)]||reason;}else km[key]=i;}
+  O.forEach((o,i)=>{
+    link(i,'cli:'+o.cli.toLowerCase(),'mesmo cliente');
+    const t=digits(o.tel);if(t.length>=10)link(i,'tel:'+t,'mesmo telefone');
+    const c=cttPhone(o);if(c&&c.length>=10)link(i,'ctt:'+c,'mesmo contato no local');
+    link(i,streetKey(o),'mesma rua');
+  });
+  const groups={};
+  O.forEach((o,i)=>{const r=find(i);(groups[r]=groups[r]||[]).push(o);});
+  return Object.values(groups).filter(g=>g.length>1).map(g=>{
+    // motivo dominante
+    const same=(f)=>g.every(x=>f(x)===f(g[0])&&f(x));
+    let reason= same(x=>x.cli.toLowerCase())?'Mesmo cliente':same(x=>cttPhone(x))?'Mesmo contato / arquiteto':same(x=>streetKey(x))?'Mesma rua':'Cliente/contato em comum';
+    const tipos=[...new Set(g.map(x=>x.tipo))];
+    return {orders:g,reason,peso:g.reduce((s,x)=>s+x.peso,0),val:g.reduce((s,x)=>s+x.val,0),tipo:tipos.length===1?tipos[0]:'MISTO'};
+  }).sort((a,b)=>b.orders.length-a.orders.length||b.val-a.val);
+}
+
 /* ---------- helpers ---------- */
 const BRL=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const BRLc=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
@@ -493,6 +564,10 @@ const IC={
  store:'<path d="M3 9h18M3 9l2-5h14l2 5M3 9v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/>',
  layers:'<path d="M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/>',
  zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>',
+ merge:'<path d="M8 3v4a4 4 0 0 0 4 4h4M8 3H4M8 3l-2 2M8 21v-6M16 11l4 4-4 4M20 15H8"/>',
+ wheel:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M4.2 7l4.6 3M4.2 17l4.6-3M19.8 7l-4.6 3M19.8 17l-4.6-3"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ wand:'<path d="M15 4V2M15 10V8M12.5 6.5h-2M17.5 6.5h2M20 20l-8-8M9 5 5 9l10 10 4-4L9 5Z"/>',
 };
 const svg=(p,w=18)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="${w}" height="${w}">${p}</svg>`;
 
@@ -564,11 +639,11 @@ let CUR='painel', FILTER={emp:'',tipo:'',st:'',cid:'',q:''};
 
 function render(){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===CUR));
-  const titles={painel:['Painel de comando','Visão executiva da operação de hoje'],alertas:['Alertas inteligentes','O que a memória do time não pode esquecer'],separacao:['Fila de separação','Prioridade de picking por status e valor'],rotas:['Roteirização','Entregas agrupadas por região para montar carga'],retiradas:['Retiradas & balcão','Clientes que buscam no CD/loja'],pedidos:['Todos os pedidos','Base completa pesquisável'],gestao:['Gestão & risco','Onde está o valor, o peso e o risco']};
+  const titles={painel:['Painel de comando','Visão executiva da operação de hoje'],alertas:['Alertas inteligentes','O que a memória do time não pode esquecer'],separacao:['Fila de separação','Prioridade de picking por status e valor'],rotas:['Roteirização','Entregas agrupadas por região para montar carga'],retiradas:['Retiradas & balcão','Clientes que buscam no CD/loja'],carga:['Planejador de carga','Monte os veículos e gere o briefing do motorista'],pedidos:['Todos os pedidos','Base completa pesquisável'],gestao:['Gestão & risco','Onde está o valor, o peso e o risco']};
   document.getElementById('view-title').textContent=titles[CUR][0];
   document.getElementById('view-sub').innerHTML='Data-base operacional: <b>01/07/2026</b> · '+titles[CUR][1];
   const c=document.getElementById('content');
-  c.innerHTML='<div class="view">'+({painel:vPainel,alertas:vAlertas,separacao:vSep,rotas:vRotas,retiradas:vRet,pedidos:vPed,gestao:vGestao}[CUR])()+'</div>';
+  c.innerHTML='<div class="view">'+({painel:vPainel,alertas:vAlertas,separacao:vSep,rotas:vRotas,retiradas:vRet,carga:vCarga,pedidos:vPed,gestao:vGestao}[CUR])()+'</div>';
   wire();
 }
 
@@ -599,6 +674,21 @@ function vPainel(){
   h+=al.slice(0,6).map(a=>alertHTML(a)).join('')||'<div class="empty"><p>Nenhuma pendência crítica 🎉</p></div>';
   h+=`</div><button class="btn" style="width:100%;justify-content:center;margin-top:14px" onclick="go('alertas')">Ver todos os ${al.length} alertas</button></div>`;
   h+='</div>';
+  // consolidação inteligente
+  const cons=consolidations();
+  if(cons.length){
+    const trips=cons.reduce((s,g)=>s+(g.orders.length-1),0);
+    h+=`<div class="sec-h mt"><div><div class="ey">Economia oculta</div><h2>Oportunidades de consolidação</h2></div><span class="rt">${cons.length} grupos · até ${trips} viagem(ns)/retirada(s) a menos</span></div>`;
+    h+='<div class="grid3">';
+    h+=cons.slice(0,6).map(g=>{
+      const rc=g.reason==='Mesma rua'?'t-blue':g.reason.includes('contato')?'t-violet':'t-amber';
+      return `<div class="card" style="padding:15px;cursor:pointer" onclick="openOrder('${g.orders[0].d}')">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">${svg(IC.merge,17)}<span class="tag ${rc}">${g.reason}</span><span class="big" style="margin-left:auto;font-size:15px">${g.orders.length}<small> pedidos</small></span></div>
+        <div style="display:flex;flex-direction:column;gap:5px">${g.orders.map(o=>`<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px"><span style="color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.cli}</span><span class="mono" style="color:var(--ink-3)">#${o.d.slice(-5)}</span></div>`).join('')}</div>
+        <div style="display:flex;gap:14px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-3)"><span>${g.tipo==='RETIRA'?'Retiradas':g.tipo==='ENTREGA'?'Entregas':'Misto'}</span><span class="tnum">${KG(g.peso)}</span><span class="tnum" style="margin-left:auto;color:var(--ink);font-weight:700">${BRLc(g.val)}</span></div></div>`;
+    }).join('');
+    h+='</div>';
+  }
   return h;
 }
 function statusCard(){
@@ -685,6 +775,69 @@ function vRet(){
       <div class="oflags">${flagTags(o)||`<span class="tag t-slate">${o.cid}</span>`}</div></div>
     <div class="oright"><span class="vpill">${BRL(o.val)}</span><a class="btn sm" href="tel:${digits(o.tel)}" onclick="event.stopPropagation()" style="text-decoration:none">${svg(IC.phone,14)} Avisar</a></div></div>`;}).join('');
   h+='</div></div>';return h;
+}
+
+/* ---------- PLANEJADOR DE CARGA ---------- */
+function vCarga(){
+  const ent=O.filter(o=>o.tipo==='ENTREGA');
+  const unassigned=ent.filter(o=>!PLAN.assign[o.d]||!VEHS.find(v=>v[0]===PLAN.assign[o.d]));
+  let h=`<div class="callout">${svg(IC.wheel,22)}<div class="co-t"><b>Monte a carga dos veículos sem estourar a capacidade</b><span>Distribua as ${ent.length} entregas nos veículos respeitando o peso. O sistema pode montar sozinho e gerar a ficha de rua de cada motorista já com contatos, horários e avisos.</span></div><button class="btn red no-print" onclick="autoLoad();render();toast('Carga distribuída automaticamente')">${svg(IC.wand,15)} Montar automático</button></div>`;
+
+  // veículos
+  h+='<div class="grid3" style="align-items:start">';
+  VEHS.forEach(([v,label,col])=>{
+    const load=vehLoad(v).sort((a,b)=>(daysFrom(a.ent)??99)-(daysFrom(b.ent)??99));
+    const w=vehWeight(v),cap=PLAN.caps[v],pct=Math.min(100,w/cap*100),over=w>cap;
+    h+=`<div class="card" style="padding:15px"><div class="card-head" style="margin-bottom:12px;align-items:center">
+      <h3><span class="dot" style="background:${col}"></span>${label}</h3>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px" class="no-print"><span style="font-size:11px;color:var(--ink-3)">cap.</span><input type="number" value="${cap}" onchange="PLAN.caps['${v}']=+this.value||0;savePlan();render()" style="width:66px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:0 8px;font-size:12px;font-variant-numeric:tabular-nums"><span style="font-size:11px;color:var(--ink-3)">kg</span></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:${over?'var(--red-bright)':'var(--ink-2)'};font-weight:700">${KG(w)}${over?' — excedeu!':''}</span><span style="color:var(--ink-3)" class="tnum">${load.length} paradas · ${BRLc(load.reduce((s,o)=>s+o.val,0))}</span></div>
+      <div class="bar-track" style="height:11px;margin-bottom:14px"><div class="bar-fill" style="width:${pct}%;background:${over?'var(--red)':pct>85?'linear-gradient(90deg,var(--amber),var(--red))':`linear-gradient(90deg,${col},${col})`}"></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-height:40px">`;
+    h+=load.map(o=>`<div class="ord" style="grid-template-columns:1fr auto;padding:9px 11px;background:var(--panel-2);border-color:var(--line)">
+        <div class="oc"><div class="otop"><span class="oname" style="font-size:12.5px">${o.cli}</span></div><div class="oaddr" style="margin-top:2px">${svg(IC.pin,12)}${o.cid} · ${KG(o.peso)}</div>${flagTags(o)?`<div class="oflags">${flagTags(o)}</div>`:''}</div>
+        <button class="btn ic sm no-print" title="Tirar do veículo" onclick="unassign('${o.d}')">${svg('<path d="M18 6 6 18M6 6l12 12"/>',14)}</button></div>`).join('')||'<div class="empty" style="padding:16px"><p style="font-size:12px">Sem carga</p></div>';
+    h+=`</div><button class="btn no-print" style="width:100%;justify-content:center;margin-top:12px" onclick="printBrief('${v}')" ${load.length?'':'disabled style="opacity:.4;width:100%;justify-content:center;margin-top:12px"'}>${svg(IC.note,15)} Briefing do motorista</button></div>`;
+  });
+  h+='</div>';
+
+  // não atribuídos
+  h+=`<div class="sec-h mt"><div><div class="ey">Aguardando alocação</div><h2>Entregas sem veículo</h2></div><span class="rt">${unassigned.length} · ${KG(unassigned.reduce((s,o)=>s+o.peso,0))}</span></div>`;
+  h+='<div class="card" style="padding:10px"><div style="display:flex;flex-direction:column;gap:6px">';
+  h+=unassigned.length?unassigned.sort((a,b)=>b.peso-a.peso).map(o=>`<div class="ord" style="background:var(--panel-2);border-color:var(--line)">
+      <div class="oleft"><span class="wpill">${KG(o.peso)}</span></div>
+      <div class="oc" onclick="openOrder('${o.d}')" style="cursor:pointer"><div class="otop"><span class="oname">${o.cli}</span><span class="odoc">#${o.d.slice(-5)}</span></div><div class="oaddr">${svg(IC.pin,13)}${o.end||o.cid} · ${o.cid}</div>${flagTags(o)?`<div class="oflags">${flagTags(o)}</div>`:''}</div>
+      <div class="oright no-print"><div style="display:flex;gap:5px">${VEHS.map(([v,,col])=>`<button class="btn sm" style="border-color:${col}66" onclick="assign('${o.d}','${v}')">→ ${v}</button>`).join('')}</div><span class="vpill" style="font-size:12px">${BRL(o.val)}</span></div></div>`).join(''):'<div class="empty">'+svg(IC.check,44)+'<p>Todas as entregas já estão em um veículo.</p></div>';
+  h+='</div></div>';
+  return h;
+}
+function assign(id,v){PLAN.assign[id]=v;savePlan();render();}
+function unassign(id){delete PLAN.assign[id];savePlan();render();}
+
+/* ---------- BRIEFING DO MOTORISTA (impressão) ---------- */
+function printBrief(v){
+  const load=vehLoad(v).sort((a,b)=>(daysFrom(a.ent)??99)-(daysFrom(b.ent)??99));
+  if(!load.length)return;
+  const label=VEHS.find(x=>x[0]===v)[1];
+  const w=vehWeight(v),val=load.reduce((s,o)=>s+o.val,0);
+  let h=`<div class="brief-head"><div><h1>Ficha de rua — ${label}</h1><div class="bh-sub">Horus Acabamentos · Data-base 01/07/2026 · ${load.length} paradas · ${KG(w)} · ${BRL(val)}</div></div><div class="bh-logo">HORUS</div></div>`;
+  load.forEach((o,i)=>{
+    const al=alertsFor(o).filter(a=>['crit','warn','time'].includes(a.sev));
+    h+=`<div class="brief-stop"><div class="bs-n">${i+1}</div><div class="bs-body">
+      <div class="bs-top"><b>${o.cli}</b><span class="bs-doc">#${o.d.slice(-5)} · ${o.ent?dfmt(o.ent):'sem data'} · ${KG(o.peso)}</span></div>
+      <div class="bs-addr">${o.end||'—'} — ${o.bairro}, ${o.cid}</div>
+      <div class="bs-contacts">Cliente: <b>${o.tel||'—'}</b>${o.fl.contato?` · No local: <b>${o.fl.contato}</b>`:''}</div>
+      ${al.length?`<ul class="bs-alerts">${al.map(a=>`<li><b>${a.t}.</b> ${a.d.replace(/<[^>]+>/g,'')}</li>`).join('')}</ul>`:''}
+      ${o.fl.nota?`<div class="bs-note">Acesso: ${o.fl.nota}</div>`:''}
+      <div class="bs-sign">Recebido por: ____________________________  ·  Doc/Assin.: ____________________  ·  Hora: ______</div>
+    </div></div>`;
+  });
+  let host=document.getElementById('briefing');
+  if(!host){host=document.createElement('div');host.id='briefing';document.body.appendChild(host);}
+  host.innerHTML=h;
+  document.body.classList.add('brief-mode');
+  window.print();
+  setTimeout(()=>document.body.classList.remove('brief-mode'),300);
 }
 
 /* ---------- PEDIDOS (tabela filtrável) ---------- */
@@ -823,6 +976,7 @@ function refreshCounts(){
   document.getElementById('c-sep').textContent=O.filter(o=>o.st==='separar').length;
   document.getElementById('c-rotas').textContent=O.filter(o=>o.tipo==='ENTREGA').length;
   document.getElementById('c-ret').textContent=O.filter(o=>o.tipo==='RETIRA').length;
+  document.getElementById('c-carga').textContent=O.filter(o=>o.tipo==='ENTREGA').length;
   document.getElementById('c-ped').textContent=O.length;
   const crit=allAlerts().filter(a=>a.sev==='crit').length;
   document.getElementById('c-alertas').textContent=allAlerts().length;
