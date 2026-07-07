@@ -3,10 +3,15 @@
 Aplicação de página única (um arquivo `index.html`, sem build, JavaScript puro).
 Abra o arquivo no navegador para usar.
 
-> **Dois sistemas neste repositório**
+> **Sistemas neste repositório**
 > - `index.html` — **A! Fatorial** (gestão comercial/financeira, tema neon).
 > - `rebracil.html` — **NEXUS GRB** (motor de decisão financeira do Grupo Rebracil).
 >   Documentado na seção [NEXUS GRB — Hub de Empresas](#nexus-grb--hub-de-empresas-rebracilhtml) abaixo.
+> - `rebracil-offline.html` — **mesma coisa que `rebracil.html`, porém 100% offline**:
+>   Tailwind, Alpine, Chart.js, xlsx, Font Awesome e as fontes ficam **embutidos no
+>   próprio arquivo** (não depende de internet/CDN). Ideal para pen drive, rede
+>   isolada ou uso sem conexão. Gerado a partir do `rebracil.html` — mantenha o
+>   `rebracil.html` como fonte e regere o offline quando mudar algo.
 
 ---
 
