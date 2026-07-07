@@ -41,6 +41,19 @@ unidades** com uma **matriz/franqueador**:
   por unidade**, **ranking da rede** e a consolidação por empresa. A taxa é editável e
   fica salva no navegador (`nexus_taxa_rateio`).
 
+### Drill-down (drawer) + inteligência da rede
+Inspirado no padrão de *cards detalhados* do Horus:
+- **Drawer de detalhe** (painel que desliza da direita) ao clicar em qualquer
+  unidade (cartão do hub ou linha do ranking): mostra KPIs (faturamento, despesa,
+  resultado, margem, participação, rateio), **insight automático**, tabela dos maiores
+  grupos de despesa com % e **exportação CSV do recorte**, além de “Abrir painel
+  completo”. Funções: `abrirDrawerEmpresa`, `fecharDrawer`, `drawerCSV`.
+- **Inteligência da Rede** (hub): leitura automática do grupo — maior unidade, melhor
+  rentabilidade, unidade com margem em risco, maior despesa e arrecadação de rateio.
+  Getter `insightsRede`.
+- **Maiores Despesas do Grupo** (hub): ranking dos maiores blocos de custo entre todas
+  as unidades, clicáveis (abrem o drawer da unidade). Getter `topDespesasGrupo`.
+
 ### Como funciona o hub
 - **Hub de Empresas** (tela inicial) — cartões-conta estilo "banco", cada um com
   faturamento, despesa, resultado e margem YTD; um clique abre o painel da empresa.

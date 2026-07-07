@@ -397,6 +397,24 @@
       .rank-2{ background:#e6eaf0;color:#475569; }
       .rank-3{ background:#f3e2cf;color:#8a5a20; }
       .rank-n{ background:var(--color-surface2);color:var(--color-muted); }
+      /* Drawer (drill-down estilo Horus) */
+      #nxDrawerOverlay{ position:fixed; inset:0; background:rgba(10,11,16,.5); backdrop-filter:blur(2px); z-index:90; opacity:0; transition:opacity .25s; }
+      #nxDrawer{ position:fixed; top:0; right:0; height:100vh; width:min(560px,96vw); background:var(--color-bg); z-index:100;
+        box-shadow:-18px 0 50px -20px rgba(10,11,16,.5); display:flex; flex-direction:column; transform:translateX(102%); transition:transform .28s cubic-bezier(.4,0,.2,1); }
+      #nxDrawer.on{ transform:translateX(0); }
+      .nxdr-head{ padding:22px 24px; color:#fff; display:flex; align-items:flex-start; gap:14px; }
+      .nxdr-close{ margin-left:auto; background:rgba(255,255,255,.15); border:none; color:#fff; width:34px; height:34px; border-radius:10px; font-size:18px; cursor:pointer; flex:none; }
+      .nxdr-close:hover{ background:rgba(255,255,255,.28); }
+      .nxdr-stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--color-border); border-top:1px solid var(--color-border); border-bottom:1px solid var(--color-border); }
+      .nxdr-stats .s{ background:var(--color-surface); padding:13px 18px; }
+      .nxdr-stats .s .l{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--color-dim); font-weight:800; }
+      .nxdr-stats .s .v{ font-size:17px; font-weight:900; margin-top:3px; color:var(--accent-blue); font-variant-numeric:tabular-nums; }
+      .nxdr-tools{ padding:12px 20px; display:flex; gap:10px; align-items:center; background:var(--color-surface2); border-bottom:1px solid var(--color-border); }
+      .nxdr-btn{ border:1px solid var(--color-border2); background:var(--color-surface); color:var(--accent-blue); font-size:12px; padding:8px 13px; border-radius:9px; font-weight:800; cursor:pointer; }
+      .nxdr-btn:hover{ border-color:var(--accent-gold); color:var(--accent-gold-deep); }
+      .nxdr-btn.primary{ background:var(--accent-blue); color:#fff; border-color:var(--accent-blue); }
+      .nxdr-body{ flex:1; overflow:auto; padding:18px 20px 24px; }
+      .nxdr-insight{ background:var(--color-surface2); border-left:3px solid var(--accent-gold); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; }
     </style>
     <!-- ===================== HUB DE EMPRESAS ===================== -->
     <div x-show="aba==='hub'" x-cloak style="display:grid;gap:24px">
@@ -421,7 +439,7 @@
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
         <template x-for="e in consolidado.empresas" :key="e.id">
-          <div class="kpi-card" style="cursor:pointer;transition:.18s" @click="trocarEmpresa(e.id)" :style="'border-left:5px solid '+e.cor" @mouseenter="$el.style.transform='translateY(-3px)'" @mouseleave="$el.style.transform='none'">
+          <div class="kpi-card" style="cursor:pointer;transition:.18s" @click="abrirDrawerEmpresa(e.id)" :style="'border-left:5px solid '+e.cor" @mouseenter="$el.style.transform='translateY(-3px)'" @mouseleave="$el.style.transform='none'">
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
               <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;position:relative" :style="'background:'+e.cor">
                 <i class="fas" :class="e.icone" style="font-size:21px"></i>
@@ -443,7 +461,10 @@
               <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:var(--color-dim);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px"><span>Participação no faturamento</span><span :style="'color:'+e.cor" x-text="e.pctFat.toFixed(1)+'%'"></span></div>
               <div style="height:6px;border-radius:6px;background:var(--color-surface2);overflow:hidden"><div style="height:100%;border-radius:6px;transition:width .3s" :style="'width:'+Math.min(e.pctFat,100)+'%;background:'+e.cor"></div></div>
             </div>
-            <div style="margin-top:14px;text-align:right"><span style="font-size:12px;font-weight:800;color:var(--accent-gold)">Abrir painel <i class="fas fa-arrow-right ml-1"></i></span></div>
+            <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center">
+              <button @click.stop="trocarEmpresa(e.id)" style="font-size:11px;font-weight:800;color:var(--accent-blue);background:var(--color-surface2);border:1px solid var(--color-border);border-radius:8px;padding:6px 11px;cursor:pointer">Abrir painel</button>
+              <span style="font-size:12px;font-weight:800;color:var(--accent-gold)">Ver detalhe <i class="fas fa-arrow-right ml-1"></i></span>
+            </div>
           </div>
         </template>
 
@@ -462,6 +483,40 @@
             <div><div class="kpi-label" style="margin-bottom:2px">Empresas</div><div style="font-weight:900;font-size:15px;color:var(--accent-blue)" x-text="consolidado.empresas.length"></div></div>
           </div>
           <div style="margin-top:16px;text-align:right"><span style="font-size:12px;font-weight:800;color:var(--accent-gold)">Ver holding <i class="fas fa-arrow-right ml-1"></i></span></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="grid-inv">
+        <!-- Insights automáticos da rede -->
+        <div class="card-dark">
+          <div class="card-title"><i class="fas fa-wand-magic-sparkles mr-2" style="color:var(--accent-gold)"></i> Inteligência da Rede</div>
+          <div class="card-sub" style="margin-top:-8px">Leitura automática do grupo — o que merece sua atenção agora.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+            <template x-for="(o,i) in insightsRede" :key="i">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:11px;background:var(--color-surface2);border:1px solid var(--color-border)">
+                <div style="width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff" :style="'background:'+o.cor"><i class="fas" :class="o.ic" style="font-size:13px"></i></div>
+                <div><div style="font-weight:800;color:var(--accent-blue);font-size:12.5px" x-text="o.t"></div><div style="font-size:12px;color:var(--color-muted);margin-top:1px" x-text="o.d"></div></div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Top despesas consolidadas do grupo -->
+        <div class="card-dark">
+          <div class="card-title"><i class="fas fa-fire-flame-curved mr-2" style="color:var(--accent-red)"></i> Maiores Despesas do Grupo</div>
+          <div class="card-sub" style="margin-top:-8px">Ranking dos maiores blocos de custo entre todas as unidades. Clique para ver a unidade.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+            <template x-for="(d,i) in topDespesasGrupo" :key="i">
+              <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;background:var(--color-surface2);border:1px solid var(--color-border);cursor:pointer" @click="abrirDrawerEmpresa(d.id)">
+                <span style="font-size:11px;font-weight:900;color:var(--color-dim);width:18px" x-text="(i+1)"></span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:700;color:var(--accent-blue);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="d.grupo"></div>
+                  <div style="font-size:10px;font-weight:700;margin-top:1px" :style="'color:'+d.cor" x-text="d.empresa"></div>
+                </div>
+                <div style="text-align:right;flex-shrink:0"><div style="font-weight:900;color:var(--accent-blue);font-size:13px" x-text="formatarDinheiroExato(d.valor)"></div><div style="font-size:10px;color:var(--color-muted);font-weight:700" x-text="d.pct.toFixed(1)+'% do grupo'"></div></div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -577,7 +632,7 @@
           <div class="card-sub" style="margin-top:-8px">Por faturamento no ano.</div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
             <template x-for="(e,idx) in consolidado.ranking" :key="e.id">
-              <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;border:1px solid var(--color-border);background:var(--color-surface2);cursor:pointer" @click="trocarEmpresa(e.id)">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;border:1px solid var(--color-border);background:var(--color-surface2);cursor:pointer" @click="abrirDrawerEmpresa(e.id)">
                 <span class="rank-medal" :class="'rank-'+(idx+1<=3?idx+1:'n')" x-text="(idx+1)+'º'"></span>
                 <div style="flex:1;min-width:0">
                   <div style="font-weight:800;color:var(--accent-blue);font-size:14px" x-text="e.curto"></div>
@@ -1963,6 +2018,41 @@
     </div>
 
   </div>
+
+  <!-- ===================== DRAWER DRILL-DOWN (estilo Horus) ===================== -->
+  <div id="nxDrawerOverlay" x-show="drawer.open" @click="fecharDrawer()" x-transition.opacity style="display:none"></div>
+  <aside id="nxDrawer" :class="drawer.open?'on':''">
+    <div class="nxdr-head" :style="'background:linear-gradient(135deg,'+drawer.color+',#11131c)'">
+      <div style="width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas" :class="drawer.icone" style="font-size:19px"></i></div>
+      <div style="min-width:0">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-gold);font-weight:800" x-text="drawer.tag"></div>
+        <h3 class="display" style="font-size:18px;font-weight:900;margin-top:3px;line-height:1.25" x-text="drawer.title"></h3>
+        <div style="font-size:11px;color:#c9cdd8;margin-top:2px" x-text="drawer.subtitle"></div>
+      </div>
+      <button class="nxdr-close" @click="fecharDrawer()" aria-label="Fechar">×</button>
+    </div>
+    <div class="nxdr-stats">
+      <template x-for="(s,i) in drawer.stats" :key="i">
+        <div class="s"><div class="l" x-text="s.l"></div><div class="v" :style="s.cor?('color:'+s.cor):''" x-text="s.v"></div></div>
+      </template>
+    </div>
+    <div class="nxdr-tools">
+      <button class="nxdr-btn primary" x-show="drawer.acaoId" @click="drawerAbrirPainel()"><i class="fas fa-arrow-right-to-bracket mr-1"></i> <span x-text="drawer.acaoLabel"></span></button>
+      <button class="nxdr-btn" @click="drawerCSV()"><i class="fas fa-download mr-1"></i> Exportar CSV</button>
+      <span style="margin-left:auto;font-size:11px;color:var(--color-dim);font-weight:700" x-text="drawer.rows.length+' linhas'"></span>
+    </div>
+    <div class="nxdr-body">
+      <div class="nxdr-insight" x-show="drawer.insight"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> <span x-text="drawer.insight"></span></div>
+      <table class="dark-table">
+        <thead><tr><th x-text="drawer.rowsHead[0]"></th><th class="td-r" x-text="drawer.rowsHead[1]"></th><th class="td-r" x-text="drawer.rowsHead[2]"></th></tr></thead>
+        <tbody>
+          <template x-for="(r,i) in drawer.rows" :key="i">
+            <tr><td class="font-bold text-accent-blue" x-text="r.label"></td><td class="td-r" x-text="r.valor"></td><td class="td-r"><span class="badge-status badge-ok" x-text="r.pct"></span></td></tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </aside>
 </main>
 
 <script>
@@ -2120,6 +2210,7 @@ function sistemaUnificado(){
     estoqueBase: 1037371.61,
     invMode: 'diff',
     taxaRateio: (function(){ try{ let v=parseFloat(localStorage.getItem('nexus_taxa_rateio')); return isNaN(v)?5:v; }catch(e){ return 5; } })(),
+    drawer: { open:false, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-building', stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'', csv:[], csvName:'recorte', acaoLabel:'', acaoId:'' },
     abaConfig: 'importador',
     subAbaDespesa: 'abr', 
     mesAtivo: 'Abr',
@@ -2220,6 +2311,72 @@ function sistemaUnificado(){
       if(isNaN(n) || n < 0) n = 0; if(n > 100) n = 100;
       this.taxaRateio = n;
       try { localStorage.setItem('nexus_taxa_rateio', n); } catch(e) {}
+    },
+
+    // === DRILL-DOWN (drawer estilo Horus) ===
+    gruposDespesaEmpresa(id) {
+      const emp = EMPRESAS[id]; if(!emp) return [];
+      // linhas de grupo (ip===1), exceto Total/Ajustes; valor = acumulado (ac) ou soma dos meses
+      return emp.cc.filter(c => c[8] === 1 && c[0] !== 'Total' && c[0] !== 'Ajustes')
+        .map(c => ({ label: c[0], valor: (c[1]||0)+(c[2]||0)+(c[3]||0)+(c[4]||0) }))
+        .filter(g => g.valor > 0)
+        .sort((a,b) => b.valor - a.valor);
+    },
+    abrirDrawerEmpresa(id) {
+      const r = this.resumoEmpresa(id); if(!r) return;
+      const c = this.consolidado; const rc = c.empresas.find(e=>e.id===id) || r;
+      const grupos = this.gruposDespesaEmpresa(id);
+      const totalG = grupos.reduce((a,g)=>a+g.valor,0) || 1;
+      const maior = grupos[0];
+      this.drawer = {
+        open:true, tag:'Unidade da rede · '+rc.rank+'º no ranking',
+        title:r.nome, subtitle:r.setor, color:r.cor, icone:EMPRESAS[id].icone,
+        stats:[
+          {l:'Faturamento YTD', v:this.formatarDinheiroExato(r.fat)},
+          {l:'Despesa YTD', v:this.formatarDinheiroExato(r.desp)},
+          {l:'Resultado', v:this.formatarDinheiroExato(r.res), cor: r.res<0?'#e11d48':'#0d9488'},
+          {l:'Margem', v:r.margem.toFixed(1)+'%', cor: r.margem<0?'#e11d48':'#0d9488'},
+          {l:'Participação (rede)', v:rc.pctFat.toFixed(1)+'%'},
+          {l:'Rateio ('+this.taxaRateio+'%)', v:this.formatarDinheiroExato(rc.rateio), cor:'#c5a880'}
+        ],
+        rowsHead:['Grupo de despesa','Acum. (Jan+Fev)','% desp.'],
+        rows: grupos.map(g => ({ label:g.label, valor:this.formatarDinheiroExato(g.valor), pct:((g.valor/totalG)*100).toFixed(1)+'%' })),
+        insight: maior ? `Maior bloco de despesa: ${maior.label} (${this.formatarDinheiroExato(maior.valor)}, ${((maior.valor/totalG)*100).toFixed(0)}% do total). Margem ${r.margem<0?'negativa — atenção':(r.margem<10?'apertada':'saudável')} em ${r.margem.toFixed(1)}%.` : '',
+        csv: [['Grupo','Valor','% despesa'], ...grupos.map(g=>[g.label, g.valor.toFixed(2), ((g.valor/totalG)*100).toFixed(1)])],
+        csvName:'unidade_'+id, acaoLabel:'Abrir painel completo', acaoId:id
+      };
+    },
+    fecharDrawer() { this.drawer.open = false; },
+    drawerAbrirPainel() { const id=this.drawer.acaoId; this.fecharDrawer(); if(id) this.trocarEmpresa(id); },
+    drawerCSV() {
+      const linhas = (this.drawer.csv||[]).map(r => r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(';')).join('\r\n');
+      const blob = new Blob(['﻿'+linhas], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=url; a.download=(this.drawer.csvName||'recorte')+'.csv'; a.click(); URL.revokeObjectURL(url);
+      this.registrarLog('Exportou recorte: '+this.drawer.csvName);
+    },
+
+    // === "PENSE NO QUE NÃO PENSEI": inteligência da rede ===
+    get topDespesasGrupo() {
+      let all = [];
+      this.ordemEmpresas.forEach(id => {
+        const emp = EMPRESAS[id];
+        this.gruposDespesaEmpresa(id).forEach(g => all.push({ empresa:emp.curto, cor:emp.cor, id, grupo:g.label.replace(/^\d+\s*-\s*/,''), valor:g.valor }));
+      });
+      const tot = all.reduce((a,g)=>a+g.valor,0) || 1;
+      return all.sort((a,b)=>b.valor-a.valor).slice(0,8).map(g=>({ ...g, pct:(g.valor/tot)*100 }));
+    },
+    get insightsRede() {
+      const c = this.consolidado; const arr=[];
+      const maiorFat = c.ranking[0]; const melhorMargem = [...c.empresas].sort((a,b)=>b.margem-a.margem)[0];
+      const piorMargem = [...c.empresas].sort((a,b)=>a.margem-b.margem)[0];
+      const td = this.topDespesasGrupo[0];
+      if(maiorFat) arr.push({ ic:'fa-crown', cor:'#c5a880', t:'Maior unidade', d:`${maiorFat.curto} lidera com ${maiorFat.pctFat.toFixed(0)}% do faturamento da rede.` });
+      if(melhorMargem) arr.push({ ic:'fa-arrow-trend-up', cor:'#0d9488', t:'Melhor rentabilidade', d:`${melhorMargem.curto} tem a maior margem: ${melhorMargem.margem.toFixed(1)}%.` });
+      if(piorMargem && piorMargem.id!==melhorMargem.id) arr.push({ ic:'fa-triangle-exclamation', cor:'#e11d48', t:'Atenção à margem', d:`${piorMargem.curto} opera com margem de ${piorMargem.margem.toFixed(1)}% — foco em custos.` });
+      if(td) arr.push({ ic:'fa-fire', cor:'#f59e0b', t:'Maior despesa do grupo', d:`${td.grupo} (${td.empresa}) é o maior bloco: ${this.formatarDinheiroExato(td.valor)}.` });
+      arr.push({ ic:'fa-hand-holding-dollar', cor:'#191040', t:'Rateio da matriz', d:`A ${this.taxaRateio}% de rateio, a matriz arrecada ${this.formatarDinheiroExato(c.total.rateio)} no período.` });
+      return arr;
     },
     
     logsAuditoria: [],
