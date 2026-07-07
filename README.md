@@ -3,6 +3,66 @@
 Aplicação de página única (um arquivo `index.html`, sem build, JavaScript puro).
 Abra o arquivo no navegador para usar.
 
+> **Dois sistemas neste repositório**
+> - `index.html` — **A! Fatorial** (gestão comercial/financeira, tema neon).
+> - `rebracil.html` — **NEXUS GRB** (motor de decisão financeira do Grupo Rebracil).
+>   Documentado na seção [NEXUS GRB — Hub de Empresas](#nexus-grb--hub-de-empresas-rebracilhtml) abaixo.
+
+---
+
+## NEXUS GRB — Hub de Empresas (`rebracil.html`)
+
+Motor de decisão financeira do Grupo Rebracil, agora em formato **hub multiempresa**:
+cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com o
+**mesmo visual** e a mesma moldura. Nada da Requalificadora foi perdido — ela continua
+100% igual; a Embalagem entrou como uma segunda conta.
+
+### Contas cadastradas
+| Conta | Setor | Fonte dos dados |
+|-------|-------|-----------------|
+| **Rebracil Requalificadora** | Requalificação de recipientes de GLP (P13/P20/P45) | dados originais do NEXUS |
+| **Rebracil Embalagens** | Impressão e conversão de embalagens flexíveis | `Resultado_Embalagem_2026.xlsx` |
+
+### Como funciona o hub
+- **Hub de Empresas** (tela inicial) — cartões-conta estilo "banco", cada um com
+  faturamento, despesa, resultado e margem YTD; um clique abre o painel da empresa.
+- **Seletor de empresa** na barra lateral e **botão "Hub"** no topo — troca de conta
+  a qualquer momento sem sair de contexto. A conta ativa fica salva no navegador
+  (`localStorage` → `nexus_empresa`).
+- **Consolidado (Holding)** — soma todas as contas (faturamento, despesa, resultado,
+  margem), com gráfico comparativo, participação no faturamento e tabela por empresa.
+  Inclui alerta de **eliminação de operações Inter Company** na consolidação formal.
+- Todas as telas originais (Dashboard, DRE, Despesas por C.C., Despesa Mensal,
+  Provisões, Carteiras de Capital) passam a ler os dados da **conta ativa**.
+
+### Novidade da Embalagem: **Faturamento & Fator (R$/kg)**
+A indústria de embalagem é medida por quilo. A conta Embalagem ganha uma tela extra
+(oculta para a Requalificadora) com:
+- faturamento e **fator R$/kg por linha** (Embalagem, Linear, Inter Company, Testes);
+- peso faturado e fator médio do mês;
+- **inventário por categoria** (Produto Acabado, Em Processo, Tintas, Matéria-Prima)
+  com valor, kg e fator de cada um.
+
+### Fidelidade dos números (conferido)
+Os totais batem com a planilha de origem, inclusive as definições próprias da
+Embalagem (diferentes da Requalificadora):
+- **Total de Despesas** = detalhe por centro de custo **+ linha `Ajustes`** (Linear e
+  Testes não detalhados no pivô) → reconcilia exatamente ao valor da planilha.
+- **Resultado com Inventário** da Embalagem = Resultado Operacional **+ Estoque total**
+  do mês (modo `full`), enquanto a Requalificadora mantém o modo `diff` (diferença de
+  estoque). Controlado por empresa via `invMode`/`estoqueBase` — sem afetar a Requalificadora.
+
+### Onde mexer no código (`rebracil.html`)
+- **Registro de contas**: `const EMPRESAS = {…}` e `ORDEM_EMPRESAS` — cada empresa aponta
+  para seus datasets (`dre`, `historico`, `tendencia`, `previsoes`, `cc`, `extras`).
+- **Dados da Embalagem**: constantes `EMB_*` (geradas de `Resultado_Embalagem_2026.xlsx`).
+- **Troca de conta**: `carregarEmpresa(id)`, `trocarEmpresa(id)`, `empresaMeta`, `consolidado`.
+- **Adicionar uma nova empresa**: crie as constantes de dados, adicione uma entrada em
+  `EMPRESAS` e o `id` em `ORDEM_EMPRESAS` — ela aparece no hub, no seletor e no consolidado
+  automaticamente.
+
+---
+
 ## Acessos (tela de login)
 
 | Perfil | Entra vendo | Pode acessar (padrão) |
