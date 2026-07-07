@@ -351,6 +351,7 @@ main > header h2{ letter-spacing:-.4px; }
 
 /* ===== BADGES / BOTÕES / INPUTS ===== */
 .badge-status{ border-radius:999px !important; font-weight:800 !important; letter-spacing:.02em; }
+.badge-info{ background:rgba(37,99,235,.12); color:#1d4ed8; }
 .emc-input,.input-manual{ border-radius:12px !important; border:1px solid var(--color-border2) !important;
   transition:border-color .16s, box-shadow .16s; }
 .emc-input:focus,.input-manual:focus{ border-color:var(--nx-gold) !important; box-shadow:var(--ring-gold) !important; outline:none; }
@@ -383,6 +384,21 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
 .seg button{ border:none; background:transparent; padding:8px 16px; border-radius:11px; font-weight:800; font-size:12.5px;
   color:var(--color-muted); cursor:pointer; transition:all .16s var(--ease); display:flex; align-items:center; gap:7px; }
 .seg button.on{ background:linear-gradient(180deg,var(--accent-blue-soft),var(--accent-blue)); color:#fff; box-shadow:var(--shadow-sm); }
+
+/* ===== Refino telas legadas ===== */
+.ia-insight-box{ border-radius:var(--radius) !important; border:1px solid var(--color-border) !important;
+  background:linear-gradient(180deg,#ffffff,#fbfcff) !important; box-shadow:var(--shadow-sm) !important; }
+.controller-card{ border-radius:var(--radius) !important; }
+.nx-tab{ border-radius:12px !important; }
+.card-sub{ color:var(--color-muted); }
+select.emc-input{ appearance:none; -webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--color-dim) 50%),linear-gradient(135deg,var(--color-dim) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 52%, calc(100% - 11px) 52%; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:30px; }
+aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transparent 50%,#fff 50%),linear-gradient(135deg,#fff 50%,transparent 50%); }
+.kpi-card.blue{ border-left:4px solid var(--accent-blue) !important; }
+.kpi-card.red{ border-left:4px solid var(--accent-red) !important; }
+.kpi-card.green{ border-left:4px solid var(--accent-green) !important; }
+.kpi-card.gold{ border-left:4px solid var(--accent-gold) !important; }
 </style>
 </head>
 <body class="flex h-screen overflow-hidden" x-data="sistemaUnificado()" x-init="inicializar()">
@@ -825,8 +841,57 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
             <div class="kpi-card blue"><div class="kpi-label">Faturamento (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(empresaExtras.fatTotal.jan + empresaExtras.fatTotal.fev)"></div></div>
             <div class="kpi-card gold"><div class="kpi-label">Peso Faturado (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="(empresaExtras.fatTotal.kgJan + empresaExtras.fatTotal.kgFev).toLocaleString('pt-BR')+' kg'"></div></div>
-            <div class="kpi-card green"><div class="kpi-label">Fator Médio Jan (R$/kg)</div><div class="kpi-val text-green-strong" x-text="'R$ '+empresaExtras.fatTotal.fatorJan.toFixed(2).replace('.',',')"></div></div>
-            <div class="kpi-card green"><div class="kpi-label">Fator Médio Fev (R$/kg)</div><div class="kpi-val text-green-strong" x-text="'R$ '+empresaExtras.fatTotal.fatorFev.toFixed(2).replace('.',',')"></div></div>
+            <div class="kpi-card green"><div class="kpi-label">Fator — Receita/kg (méd.)</div><div class="kpi-val text-green-strong" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">quanto cada kg gera</div></div>
+            <div class="kpi-card red"><div class="kpi-label">Custo / kg (méd.)</div><div class="kpi-val text-red-strong" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">despesa por kg faturado</div></div>
+          </div>
+
+          <!-- MARGEM POR KG (resultado do negócio por quilo) -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
+            <div class="kpi-card" style="border-left:4px solid var(--accent-green)"><div class="kpi-label">Margem / kg</div><div class="kpi-val" :class="embSubTotais.margemKg<0?'text-red-strong':'text-green-strong'" x-text="'R$ '+embSubTotais.margemKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">receita/kg − custo/kg</div></div>
+            <div class="kpi-card" style="border-left:4px solid var(--accent-blue)"><div class="kpi-label">Resultado operacional</div><div class="kpi-val" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Margem <span x-text="embSubTotais.margem.toFixed(1)+'%'"></span></div></div>
+            <div class="kpi-card" style="border-left:4px solid var(--accent-purple)"><div class="kpi-label">Peso total faturado</div><div class="kpi-val text-accent-blue" x-text="embSubTotais.kg.toLocaleString('pt-BR')+' kg'"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Jan + Fev</div></div>
+            <div class="kpi-card" style="border-left:4px solid #64748b"><div class="kpi-label">Inter Company (eliminar)</div><div class="kpi-val text-accent-blue" x-text="embSubTotais.inter?formatarDinheiroExato(embSubTotais.inter.fat):'—'"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">venda entre empresas do grupo</div></div>
+          </div>
+
+          <!-- SUB-EMPRESAS (estratégia tributária) -->
+          <div class="card-dark">
+            <div class="card-title"><i class="fas fa-scale-unbalanced mr-2" style="color:var(--accent-gold)"></i> Sub-empresas da Embalagem — Estratégia Tributária</div>
+            <div class="card-sub" style="margin-top:-8px">A indústria fica na <b>Embalagem (Lucro Presumido)</b>; a margem é realizada por empresas com carga menor (ex.: <b>Linear = Simples Nacional</b>). Uma vende para a outra conforme o cliente/regime — é planejamento tributário. Valores em R$, kg, fator, custo/kg e margem.</div>
+            <div style="overflow-x:auto">
+              <table class="dark-table" style="min-width:820px">
+                <thead><tr><th>Empresa</th><th>Regime</th><th class="td-r">Faturamento</th><th class="td-r">Kg</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Despesa</th><th class="td-r">Custo/kg</th><th class="td-r">Resultado</th><th class="td-r">Margem</th></tr></thead>
+                <tbody>
+                  <template x-for="s in embSub" :key="s.nome">
+                    <tr :style="s.intercompany?'opacity:.72':''">
+                      <td class="font-bold text-accent-blue"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px" :style="'background:'+s.cor"></span><span x-text="s.nome"></span><i x-show="s.aparas" class="fas fa-recycle ml-1" style="color:var(--accent-gold);font-size:10px" title="Inclui aparas (Teste Sucata / Hanami)"></i></td>
+                      <td><span class="badge-status" :class="s.regime.includes('Simples')?'badge-ok':(s.intercompany?'badge-warn':'badge-info')" style="font-size:10px" x-text="s.regime"></span></td>
+                      <td class="td-r font-bold" x-text="formatarDinheiroExato(s.fat)"></td>
+                      <td class="td-r" x-text="s.kg.toLocaleString('pt-BR')+' kg'"></td>
+                      <td class="td-r font-bold text-green-strong" x-text="'R$ '+s.fator.toFixed(2).replace('.',',')"></td>
+                      <td class="td-r" style="color:var(--accent-red)" x-text="formatarDinheiroExato(s.desp)"></td>
+                      <td class="td-r" x-text="'R$ '+s.custoKg.toFixed(2).replace('.',',')"></td>
+                      <td class="td-r font-bold" :class="s.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(s.res)"></td>
+                      <td class="td-r"><span class="badge-status" :class="s.margem<0?'badge-danger':(s.margem<10?'badge-warn':'badge-ok')" x-text="s.margem.toFixed(1)+'%'"></span></td>
+                    </tr>
+                  </template>
+                  <tr class="highlight-row" style="font-weight:900">
+                    <td class="text-accent-blue">TOTAL OPERACIONAL</td><td style="font-size:10px;color:var(--color-muted)">(exclui Inter Company)</td>
+                    <td class="td-r" x-text="formatarDinheiroExato(embSubTotais.fat)"></td>
+                    <td class="td-r" x-text="embSubTotais.kg.toLocaleString('pt-BR')+' kg'"></td>
+                    <td class="td-r" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></td>
+                    <td class="td-r text-red-strong" x-text="formatarDinheiroExato(embSubTotais.desp)"></td>
+                    <td class="td-r" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></td>
+                    <td class="td-r" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></td>
+                    <td class="td-r" x-text="embSubTotais.margem.toFixed(1)+'%'"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px">
+              <div class="nxdr-insight" style="margin-bottom:0"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> A <b>Embalagem (indústria)</b> opera perto do zero por kg (fator ≈ custo/kg) — o lucro do grupo está nas empresas de menor carga tributária. Isso é <b>esperado</b> no planejamento: a fábrica entrega volume, as demais realizam a margem.</div>
+              <div class="nxdr-insight" style="margin-bottom:0;border-left-color:#64748b"><i class="fas fa-circle-info mr-1"></i> <b>Inter Company</b> (venda entre as empresas do grupo) deve ser <b>eliminada</b> na consolidação para não contar receita/lucro em dobro.</div>
+              <div class="nxdr-insight" style="margin-bottom:0;border-left-color:var(--accent-gold)"><i class="fas fa-recycle mr-1" style="color:var(--accent-gold)"></i> <b>Teste Sucata / Hanami = aparas</b> (erro de impressão) — receita de subproduto, não da venda principal.</div>
+            </div>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
@@ -872,6 +937,13 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
                 <table class="dark-table">
                   <thead><tr><th>Categoria</th><th class="td-r">Valor Jan</th><th class="td-r">Kg Jan</th><th class="td-r">Fator</th><th class="td-r">Valor Fev</th></tr></thead>
                   <tbody>
+                    <tr style="background:rgba(197,168,128,.06)" x-show="empresaExtras.itp">
+                      <td class="font-bold" style="color:var(--accent-gold-deep)"><i class="fas fa-people-carry-box mr-1"></i> ITP <span style="font-size:10px;font-weight:700;color:var(--color-muted)">(terceiros)</span></td>
+                      <td class="td-r" style="color:var(--color-dim)">a apurar</td>
+                      <td class="td-r" style="color:var(--color-dim)">—</td>
+                      <td class="td-r" style="color:var(--color-dim)">—</td>
+                      <td class="td-r" style="color:var(--color-dim)">a apurar</td>
+                    </tr>
                     <template x-for="i in empresaExtras.inventario" :key="i.item">
                       <tr>
                         <td class="font-bold text-accent-blue" x-text="i.item"></td>
@@ -892,7 +964,9 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
                 </table>
               </div>
             </div>
-            <div class="card-dark"><div class="card-title">Composição do Estoque (Jan)</div><div class="chart-wrap" style="height:260px"><canvas id="chartInv"></canvas></div></div>
+            <div class="card-dark"><div class="card-title">Composição do Estoque (Jan)</div><div class="chart-wrap" style="height:260px"><canvas id="chartInv"></canvas></div>
+              <div class="nxdr-insight" style="margin:14px 0 0;border-left-color:var(--accent-gold)"><i class="fas fa-people-carry-box mr-1" style="color:var(--accent-gold)"></i> <b>ITP — Itens de Terceiros</b>: tudo que é produzido/comprado de terceiros. Serve à decisão <b>make-or-buy</b> — a Rebracil compara produzir internamente vs. comprar pronto. (linha do inventário a apurar)</div>
+            </div>
           </div>
         </div>
       </template>
@@ -984,7 +1058,18 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
           </div>
         </template>
       </div>
-      <div class="card-dark"><div class="card-title">Comparativo — Faturamento x Despesa x Resultado</div><div class="chart-wrap" style="height:280px"><canvas id="chartComparador"></canvas></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="grid-inv">
+        <div class="card-dark"><div class="card-title">Anual — Faturamento x Despesa x Resultado</div><div class="card-sub" style="margin-top:-8px">Acumulado do período (YTD).</div><div class="chart-wrap" style="height:280px"><canvas id="chartComparador"></canvas></div></div>
+        <div class="card-dark">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div><div class="card-title" style="margin-bottom:2px">Mensal — evolução</div><div class="card-sub" style="margin-top:0">Mês a mês das duas empresas.</div></div>
+            <select x-model="compMetrica" @change="desenharGraficosNovos()" class="emc-input" style="width:auto;font-weight:700">
+              <option value="res">Resultado</option><option value="fat">Faturamento</option><option value="desp">Despesa</option>
+            </select>
+          </div>
+          <div class="chart-wrap" style="height:250px"><canvas id="chartComparadorMensal"></canvas></div>
+        </div>
+      </div>
     </div>
 
     <!-- ===================== SIMULADOR (WHAT-IF) ===================== -->
@@ -2454,6 +2539,10 @@ const EMB_CC_DATA=[["001 - INFRAESTRUTURA E ATIVOS", 4987.77, 2596.9, 0, 0, 7584
 // ===== REGISTRO DE EMPRESAS (HUB / "BANCO" DE CONTAS) =====
 // Cada empresa é uma conta independente com seus próprios dados; a Requalificadora
 // aponta para as constantes originais (nada foi perdido) e a Embalagem para as novas.
+const EMB_SUBEMPRESAS=[{"nome": "Embalagem", "regime": "Lucro Presumido", "cor": "#0f766e", "fatJan": 1559237.09, "fatFev": 1365643.59, "fat": 2924880.68, "kgJan": 35136, "kgFev": 27599.5, "kg": 62735.5, "despJan": 1663248.47, "despFev": 1269383.38, "desp": 2932631.85, "res": -7751.17, "fator": 46.62, "custoKg": 46.75, "margemKg": -0.12, "margem": -0.27, "principal": true}, {"nome": "Linear", "regime": "Simples Nacional", "cor": "#2563eb", "fatJan": 163040.72, "fatFev": 36454.86, "fat": 199495.58, "kgJan": 3513, "kgFev": 853, "kg": 4366, "despJan": 18167.66, "despFev": 5367.42, "desp": 23535.08, "res": 175960.5, "fator": 45.69, "custoKg": 5.39, "margemKg": 40.3, "margem": 88.2}, {"nome": "Teste", "regime": "Estratégia tributária", "cor": "#7c3aed", "fatJan": 72422.55, "fatFev": 81094.95, "fat": 153517.5, "kgJan": 5302.57, "kgFev": 5857.91, "kg": 11160.48, "despJan": 3883.9, "despFev": 8497.18, "desp": 12381.08, "res": 141136.42, "fator": 13.76, "custoKg": 1.11, "margemKg": 12.65, "margem": 91.94, "aparas": true, "obs": "Inclui Teste Sucata = aparas / erro de impressão (Hanami)"}, {"nome": "Teste X", "regime": "Estratégia tributária", "cor": "#d97706", "fatJan": 159334.04, "fatFev": 169707.84, "fat": 329041.88, "kgJan": 5584.78, "kgFev": 5792.07, "kg": 11376.85, "despJan": 1000.0, "despFev": 1000.0, "desp": 2000.0, "res": 327041.88, "fator": 28.92, "custoKg": 0.18, "margemKg": 28.75, "margem": 99.39}, {"nome": "Inter Company", "regime": "Intercompany (eliminar na consolidação)", "cor": "#64748b", "fatJan": 9007.84, "fatFev": 2084.18, "fat": 11092.02, "kgJan": 3513, "kgFev": 853, "kg": 4366, "despJan": 0, "despFev": 0, "desp": 0, "res": 11092.02, "fator": 2.54, "custoKg": 0.0, "margemKg": 2.54, "margem": 100.0, "intercompany": true}];
+// ITP = itens de terceiros (produzir vs. comprar). Fonte: inventário sem valor lançado ainda.
+const EMB_ITP={"descricao":"ITP — Itens de Terceiros (produzido/comprado de terceiros)","valorJan":null,"valorFev":null,"nota":"Base para decisão make-or-buy: a Rebracil compara produzir internamente vs. comprar de terceiros."};
+
 const EMPRESAS = {
   requalificadora: {
     id:'requalificadora', nome:'Rebracil Requalificadora', curto:'Requalificadora',
@@ -2471,7 +2560,7 @@ const EMPRESAS = {
     dre: EMB_DRE_MENSAL, historico: EMB_HISTORICO, tendencia: EMB_TENDENCIA,
     previsoes: EMB_PREVISOES, cc: EMB_CC_DATA,
     estoqueBase: 0, invMode: 'full',
-    extras: { faturamento: EMB_FATURAMENTO, fatTotal: EMB_FAT_TOTAL, inventario: EMB_INVENTARIO, invTotal: EMB_INV_TOTAL }
+    extras: { faturamento: EMB_FATURAMENTO, fatTotal: EMB_FAT_TOTAL, inventario: EMB_INVENTARIO, invTotal: EMB_INV_TOTAL, subempresas: EMB_SUBEMPRESAS, itp: EMB_ITP, porKg: true }
   }
 };
 const ORDEM_EMPRESAS = ['requalificadora','embalagem'];
@@ -2593,6 +2682,7 @@ function sistemaUnificado(){
     projCrescimento: 0,
     compA: 'requalificadora',
     compB: 'embalagem',
+    compMetrica: 'res',
     sim: { empresaId: '__grupo__', deltaFat: 0, grupoCorte: '', deltaCorte: 0 },
     simCortes: {},
     hubModo: 'geral',
@@ -2632,6 +2722,15 @@ function sistemaUnificado(){
     // === HUB / MULTIEMPRESA ===
     get empresaMeta() { return EMPRESAS[this.empresaAtiva] || EMPRESAS['requalificadora']; },
     get empresaExtras() { return this.empresaMeta.extras || {}; },
+    get embSub() { return this.empresaExtras.subempresas || []; },
+    get embSubTotais() {
+      const op = this.embSub.filter(s=>!s.intercompany);
+      const t = op.reduce((a,s)=>({ fat:a.fat+s.fat, desp:a.desp+s.desp, kg:a.kg+s.kg, res:a.res+s.res }), {fat:0,desp:0,kg:0,res:0});
+      t.fator = t.kg>0 ? t.fat/t.kg : 0; t.custoKg = t.kg>0 ? t.desp/t.kg : 0; t.margemKg = t.kg>0 ? t.res/t.kg : 0;
+      t.margem = t.fat>0 ? t.res/t.fat*100 : 0;
+      const inter = this.embSub.find(s=>s.intercompany);
+      return { ...t, inter };
+    },
     resumoEmpresa(id) {
       const emp = EMPRESAS[id]; if(!emp) return null;
       const find = d => emp.dre.find(l => l.desc === d);
@@ -2787,6 +2886,12 @@ function sistemaUnificado(){
         grupos: grupos.slice(0,6).map(x=>({label:x.label.replace(/^\d+\s*-\s*/,''), valor:x.valor, pct:(x.valor/totalG)*100})) };
     },
     get comparacao(){ return { a:this.ladoComparador(this.compA), b:this.ladoComparador(this.compB) }; },
+    serieMensal(id, metrica){
+      const emp=EMPRESAS[id];
+      const lFat=emp.dre.find(l=>l.desc==='Faturamento'), lDesp=emp.dre.find(l=>l.desc==='Total de Despesas');
+      return this.listaMeses.map(m=>{ const k=m.chave.toLowerCase(); const f=(lFat&&lFat[k])||0; const d=(lDesp&&lDesp[k])||0;
+        if(!f && !d) return null; return metrica==='fat'?f : metrica==='desp'?d : (f-d); });
+    },
 
     // === SIMULADOR DE CENÁRIOS (DRE interativo com régua por centro de custo) ===
     dadosEntidade(id){
@@ -4126,6 +4231,11 @@ function sistemaUnificado(){
             { label:A.curto, data:[A.fat,A.desp,A.res], backgroundColor:A.cor, categoryPercentage:0.6, barPercentage:0.9 },
             { label:B.curto, data:[B.fat,B.desp,B.res], backgroundColor:B.cor, categoryPercentage:0.6, barPercentage:0.9 }
           ]}, chartOptsBase({plugins:{legend:{display:!0}}}));
+        const mLabels=this.listaMeses.map(m=>m.labelData.slice(0,2));
+        renderChart('chartComparadorMensal','line',{ labels:mLabels, datasets:[
+          { label:A.curto, data:this.serieMensal(this.compA,this.compMetrica), borderColor:A.cor, backgroundColor:A.cor+'22', borderWidth:3, pointRadius:3, spanGaps:false, tension:.35 },
+          { label:B.curto, data:this.serieMensal(this.compB,this.compMetrica), borderColor:B.cor, backgroundColor:B.cor+'22', borderWidth:3, pointRadius:3, spanGaps:false, tension:.35 }
+        ]}, chartOptsBase({plugins:{legend:{display:!0}}}));
       }
 
       if(this.aba==='historico_comparativo') {

@@ -45,6 +45,22 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
   Presumido) e aparecem **dentro da Embalagem** (não são painéis próprios). Teste
   Sucata = aparas (Hanami); ITP = itens de terceiros (decisão de produzir vs. comprar).
 
+### Painel da Embalagem — tudo por R$ / kg / fator / peso
+A indústria de embalagem é medida por quilo, então o painel mostra as duas dimensões:
+- KPIs de **Fator (Receita/kg)**, **Custo/kg** (despesa ÷ kg), **Margem/kg**, peso e resultado.
+- **Sub-empresas (estratégia tributária)**: Embalagem (Lucro Presumido), **Linear (Simples
+  Nacional)**, Teste, Teste X e Inter Company — cada uma com faturamento, kg, fator, despesa,
+  custo/kg, resultado, margem e **regime**. A leitura-chave: a *indústria* (Embalagem) opera
+  perto do zero por kg e a **margem é realizada nas empresas de menor carga tributária** —
+  planejamento tributário esperado. Dados em `EMB_SUBEMPRESAS`; getters `embSub`/`embSubTotais`.
+- **Inter Company** marcada para eliminação na consolidação; **Teste Sucata = aparas (Hanami)**
+  = receita de subproduto; **ITP** (itens de terceiros) sinalizado no inventário como base da
+  decisão *make-or-buy*.
+
+### Comparador — mensal e anual
+O Comparador mostra os dois gráficos: **anual** (faturamento × despesa × resultado YTD) e
+**mensal** (evolução mês a mês, com seletor Resultado/Faturamento/Despesa). Getter `serieMensal`.
+
 ### Simulador = DRE interativo com régua por centro de custo
 O Simulador virou um **DRE ao vivo** com uma **régua (slider) por bloco de despesa**:
 escolha a entidade (**Grupo**, **Requalificadora** ou **Embalagem**), ajuste a régua da
