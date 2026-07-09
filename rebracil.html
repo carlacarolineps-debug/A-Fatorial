@@ -302,15 +302,18 @@ aside.nx-sidebar{
 }
 aside.nx-sidebar::before{ content:""; position:absolute; top:-40px; left:-40px; width:220px; height:220px;
   background:radial-gradient(circle, rgba(124,58,237,.28), transparent 66%); pointer-events:none; filter:blur(6px); }
-aside.nx-sidebar .nav-section{ color:rgba(232,207,154,.72) !important; font-weight:800; letter-spacing:1.3px; }
-aside.nx-sidebar .nav-item{ color:#c0c2d8 !important; border-radius:12px; margin:2px 0; font-weight:600; }
-aside.nx-sidebar .nav-item:hover{ background:rgba(255,255,255,.07) !important; color:#fff !important; }
-aside.nx-sidebar .nav-item.active{
-  background:linear-gradient(100deg, rgba(124,58,237,.34), rgba(197,168,128,.22)) !important;
-  color:#fff !important; box-shadow:inset 0 0 0 1px rgba(197,168,128,.38), 0 10px 22px -12px rgba(124,58,237,.7) !important; }
+aside.nx-sidebar nav{ padding:8px 12px !important; }
+aside.nx-sidebar .nav-section{ color:rgba(232,207,154,.7) !important; font-weight:800; letter-spacing:1.2px; font-size:9.5px !important; padding:0 8px !important; margin:16px 0 6px !important; }
+aside.nx-sidebar .nav-section:first-child{ margin-top:4px !important; }
+aside.nx-sidebar .nav-item{ color:#c3c5db !important; border-radius:11px !important; margin:1px 0 !important; padding:10px 12px !important; font-weight:600; font-size:13px !important;
+  display:flex !important; align-items:center !important; gap:12px !important; width:100% !important; }
+aside.nx-sidebar .nav-item .nav-label{ flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+aside.nx-sidebar .nav-item i{ color:#9599bd; width:18px !important; text-align:center; font-size:14px; flex-shrink:0; transition:color .15s; }
+aside.nx-sidebar .nav-item:hover{ background:rgba(255,255,255,.06) !important; color:#fff !important; }
+aside.nx-sidebar .nav-item:hover i{ color:#c9ccec; }
+aside.nx-sidebar .nav-item.active{ background:linear-gradient(100deg, rgba(124,58,237,.30), rgba(197,168,128,.14)) !important; color:#fff !important; box-shadow:none !important; }
 aside.nx-sidebar .nav-item.active i{ color:var(--nx-gold-bright) !important; }
-aside.nx-sidebar .nav-item i{ color:#8f92b4; }
-aside.nx-sidebar .nav-sep{ background:rgba(255,255,255,.09); }
+aside.nx-sidebar .nav-sep{ background:rgba(255,255,255,.09); margin:6px 12px; }
 
 /* ===== HEADER — glass claro com fio dourado ===== */
 main > header{
@@ -539,21 +542,29 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
   </div>
 
 <aside x-show="logado && depto" x-cloak :class="sidebarOpen ? 'sidebar-full' : 'sidebar-rail'" :style="sidebarOpen ? 'width:256px' : 'width:74px'" class="flex-shrink-0 flex flex-col overflow-y-auto overflow-x-hidden z-20 nx-sidebar" style="background: var(--color-surface); border-right: 1px solid var(--color-border); box-shadow: 2px 0 10px rgba(0,0,0,0.05); transition: width 0.22s var(--ease);">
-  <div class="nx-brand" :style="sidebarOpen ? 'padding:28px 20px' : 'padding:20px 8px'" style="border-bottom: 1px solid var(--color-border); text-align: center; display: flex; flex-direction: column; align-items: center;">
-    <img x-show="sidebarOpen" :src="logoCliente" alt="Logo Cliente" style="max-width: 90%; max-height: 60px; object-fit: contain; margin: 0 auto 12px auto; mix-blend-mode: multiply;">
-    <div x-show="!sidebarOpen" style="width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--accent-blue-soft),var(--accent-blue));box-shadow:var(--shadow-sm);">
-       <i class="fas fa-chart-pie" style="color:var(--accent-gold);font-size:17px;"></i>
+  <div class="nx-brand" :style="sidebarOpen ? 'padding:22px 18px' : 'padding:18px 8px'" style="border-bottom: 1px solid rgba(255,255,255,.08);">
+    <div x-show="sidebarOpen" style="display:flex;align-items:center;gap:11px">
+      <div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.35);flex-shrink:0"><i class="fas fa-cubes-stacked" style="color:var(--accent-gold);font-size:19px"></i></div>
+      <div>
+        <div class="display" style="font-weight:800;color:#fff;font-size:16px;letter-spacing:.3px;line-height:1">NEXUS GRB</div>
+        <div style="font-size:9px;color:var(--accent-gold);text-transform:uppercase;letter-spacing:1.6px;font-weight:700;margin-top:4px">Grupo Rebracil</div>
+      </div>
     </div>
-    <p x-show="sidebarOpen" class="display" style="font-size: 10px; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-top:2px;">Motor de Decisão</p>
+    <div x-show="!sidebarOpen" style="width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.35);margin:0 auto">
+       <i class="fas fa-cubes-stacked" style="color:var(--accent-gold);font-size:17px;"></i>
+    </div>
   </div>
   <!-- PAINEL ATIVO (departamento) -->
-  <div x-show="sidebarOpen" style="padding:12px 14px 4px;">
-    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--color-dim);font-weight:800;margin-bottom:6px;">Painel ativo</div>
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12)" :style="depto==='grupo'?'background:linear-gradient(160deg,#1b1642,#12102e)':(depto?('background:'+empresaMeta.cor):'background:rgba(255,255,255,.05)')">
-      <i class="fas" :class="depto==='grupo'?'fa-layer-group':(depto?empresaMeta.icone:'fa-grip')" style="color:#fff;font-size:15px"></i>
-      <div style="min-width:0"><div style="font-weight:800;color:#fff;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Escolha no Hub')"></div></div>
+  <div x-show="sidebarOpen" style="padding:14px 14px 4px;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.4px;color:var(--color-dim);font-weight:800;margin-bottom:7px;padding:0 2px;">Painel ativo</div>
+    <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 20px -12px rgba(0,0,0,.5)" :style="depto==='grupo'?'background:linear-gradient(160deg,#241d5c,#161232)':(depto?('background:linear-gradient(160deg,'+empresaMeta.cor+','+empresaMeta.cor+'cc)'):'background:rgba(255,255,255,.05)')">
+      <div style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas" :class="depto==='grupo'?'fa-layer-group':(depto?empresaMeta.icone:'fa-grip')" style="color:#fff;font-size:14px"></i></div>
+      <div style="min-width:0;flex:1">
+        <div style="font-weight:800;color:#fff;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Escolha no Hub')"></div>
+        <div style="font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:2px">departamento</div>
+      </div>
     </div>
-    <button @click="irParaHub()" class="w-full" style="margin-top:8px;font-size:11px;font-weight:800;color:#c4c6db;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:7px;cursor:pointer"><i class="fas fa-grip mr-1"></i> Trocar painel (Hub)</button>
+    <button @click="irParaHub()" style="width:100%;margin-top:9px;font-size:11px;font-weight:800;color:#c9ccec;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(255,255,255,.11)'" onmouseout="this.style.background='rgba(255,255,255,.06)'"><i class="fas fa-arrow-left-long mr-2"></i> Trocar painel</button>
   </div>
   <div x-show="!sidebarOpen" class="nav-sep"></div>
 
@@ -566,7 +577,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="nav-section" x-show="sidebarOpen">Grupo — Consolidado</div>
         <div class="nav-sep" x-show="!sidebarOpen"></div>
         <button class="nav-item" @click="mudarAba('consolidado')" :class="aba==='consolidado'?'active':''" title="Central do Grupo"><i class="fas fa-building-columns w-4"></i> <span class="nav-label">Central do Grupo</span></button>
-        <button class="nav-item" @click="mudarAba('comparador')" :class="aba==='comparador'?'active':''" title="Comparador de Empresas"><i class="fas fa-code-compare w-4"></i> <span class="nav-label">Comparador de Empresas</span></button>
+        <button class="nav-item" @click="mudarAba('comparador')" :class="aba==='comparador'?'active':''" title="Comparador de Empresas"><i class="fas fa-code-compare w-4"></i> <span class="nav-label">Comparador</span></button>
         <button class="nav-item" @click="mudarAba('projecao')" :class="aba==='projecao'?'active':''" title="Tendência & Projeção"><i class="fas fa-chart-line w-4"></i> <span class="nav-label">Tendência &amp; Projeção</span></button>
         <button class="nav-item" @click="mudarAba('simulador')" :class="aba==='simulador'?'active':''" title="Simulador de Cenários (What-if)"><i class="fas fa-sliders w-4"></i> <span class="nav-label">Simulador (What-if)</span></button>
       </div>
@@ -580,8 +591,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Dashboard"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Dashboard</span></button>
         <button class="nav-item" @click="mudarAba('resultado_anual')" :class="aba==='resultado_anual'?'active':''" title="DRE Consolidado"><i class="fas fa-table w-4"></i> <span class="nav-label">DRE Consolidado</span></button>
         <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C."><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
-        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal (Abas)</span></button>
-        <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões &amp; Previsões</span></button>
+        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal</span></button>
+        <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões</span></button>
         <button class="nav-item" @click="mudarAba('historico_comparativo')" :class="aba==='historico_comparativo'?'active':''" title="Comparativo Histórico (2017–2025)"><i class="fas fa-balance-scale w-4"></i> <span class="nav-label">Comparativo Histórico</span></button>
         <button class="nav-item" @click="mudarAba('dr_config')" :class="aba==='dr_config'?'active':''" title="Gestão de Carteiras de Capital"><i class="fas fa-wallet w-4"></i> <span class="nav-label">Carteiras de Capital</span></button>
       </div>
@@ -594,12 +605,12 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="nav-sep" x-show="!sidebarOpen"></div>
         <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Dashboard"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Dashboard</span></button>
         <button class="nav-item" @click="mudarAba('faturamento')" :class="aba==='faturamento'?'active':''" title="Faturamento & Fator (R$/kg)"><i class="fas fa-weight-hanging w-4"></i> <span class="nav-label">Faturamento &amp; Fator</span></button>
-        <button class="nav-item" @click="mudarAba('subempresas')" :class="aba==='subempresas'?'active':''" title="Sub-empresas & Tributação"><i class="fas fa-scale-unbalanced w-4"></i> <span class="nav-label">Sub-empresas &amp; Tributação</span></button>
+        <button class="nav-item" @click="mudarAba('subempresas')" :class="aba==='subempresas'?'active':''" title="Sub-empresas & Tributação"><i class="fas fa-scale-unbalanced w-4"></i> <span class="nav-label">Sub-empresas</span></button>
         <button class="nav-item" @click="mudarAba('inventario')" :class="aba==='inventario'?'active':''" title="Inventário & ITP"><i class="fas fa-boxes-stacked w-4"></i> <span class="nav-label">Inventário &amp; ITP</span></button>
         <button class="nav-item" @click="mudarAba('resultado_anual')" :class="aba==='resultado_anual'?'active':''" title="DRE Consolidado"><i class="fas fa-table w-4"></i> <span class="nav-label">DRE Consolidado</span></button>
         <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C."><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
-        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal (Abas)</span></button>
-        <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões &amp; Previsões</span></button>
+        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal</span></button>
+        <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões</span></button>
       </div>
     </template>
 
