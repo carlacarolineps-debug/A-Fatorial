@@ -334,7 +334,11 @@ main > header h2{ letter-spacing:-.4px; }
 .kpi-card:hover{ transform:translateY(-4px); box-shadow:var(--shadow-md) !important; border-color:#e0d3b6 !important; }
 .kpi-card:hover::after{ opacity:1; }
 .kpi-val{ font-size:26px !important; font-weight:800 !important; letter-spacing:-.6px; }
-.kpi-label{ letter-spacing:.4px; }
+.kpi-label{ letter-spacing:.4px; font-size:10.5px !important; text-transform:uppercase; color:var(--color-dim) !important; font-weight:800 !important; }
+.kpi-head{ display:flex; align-items:center; gap:10px; margin-bottom:13px; }
+.kpi-ic{ width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.kpi-foot{ margin-top:auto; padding-top:14px; margin-top:14px; border-top:1px solid var(--color-border); display:flex; justify-content:space-between; align-items:center; font-size:10px; font-weight:800; color:var(--color-dim); text-transform:uppercase; letter-spacing:.04em; }
+.kpi-foot b{ font-size:12.5px; color:var(--accent-blue); font-weight:900; text-transform:none; letter-spacing:0; }
 .card-title{ letter-spacing:-.2px; }
 
 /* Barras de acento coloridas nos KPI (mantém, arredonda) */
@@ -634,17 +638,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </select>
       </div>
 
-      <div class="hidden md:flex items-center" style="gap:14px; padding:6px 16px; background:var(--color-surface2); border:1px solid var(--color-border); border-radius:12px;" title="Relógio de produtividade do mês ativo">
-         <div style="text-align:right;">
-            <p style="font-size:9px; text-transform:uppercase; font-weight:800; color:var(--color-dim); letter-spacing:0.6px; margin-bottom:3px;">Tempo Ativo (Mês)</p>
-            <p class="display" style="font-size:14px; font-weight:700; color:var(--accent-green); line-height:1; font-variant-numeric:tabular-nums;"><i class="fas fa-stopwatch mr-1"></i> <span x-text="formatarTempo(tempoTracker.historicoMensal[mesAtivo.toLowerCase()]?.ativo || 0)"></span></p>
-         </div>
-         <div style="width:1px; height:30px; background:var(--color-border2);"></div>
-         <div style="text-align:left;">
-            <p style="font-size:9px; text-transform:uppercase; font-weight:800; color:var(--color-dim); letter-spacing:0.6px; margin-bottom:3px;">Tempo Ocioso</p>
-            <p class="display" style="font-size:14px; font-weight:700; color:var(--accent-amber); line-height:1; font-variant-numeric:tabular-nums;"><i class="fas fa-pause-circle mr-1"></i> <span x-text="formatarTempo(tempoTracker.historicoMensal[mesAtivo.toLowerCase()]?.ocioso || 0)"></span></p>
-         </div>
-      </div>
 
       <div class="relative" x-data="{ openMenu: false }">
         <button @click="openMenu = !openMenu" class="flex items-center gap-3 focus:outline-none p-1 rounded-lg hover:bg-gray-100 transition-colors">
@@ -1255,36 +1248,24 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     <div x-show="aba==='dashboard'" x-cloak style="display:grid;gap:24px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px">
         <div class="kpi-card blue">
-          <div class="kpi-label">Faturamento (Mês: <span x-text="mesAtivo"></span>)</div>
-          <div class="kpi-val text-green-strong" x-text="kpis.faturamento"></div>
-          <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center w-full">
-             <span style="font-size:10px; font-weight:800; color:var(--color-dim); text-transform:uppercase;">YTD Acumulado</span>
-             <span style="font-size:12px; font-weight:900; color:var(--accent-blue);" x-text="kpis.faturamentoYTD"></span>
-          </div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(25,16,64,.10);color:var(--accent-blue)"><i class="fas fa-arrow-trend-up"></i></div><div class="kpi-label">Faturamento · <span x-text="mesAtivo"></span></div></div>
+          <div class="kpi-val text-accent-blue" x-text="kpis.faturamento"></div>
+          <div class="kpi-foot"><span>YTD acumulado</span><b x-text="kpis.faturamentoYTD"></b></div>
         </div>
         <div class="kpi-card red">
-          <div class="kpi-label">Total de Despesas (Mês: <span x-text="mesAtivo"></span>)</div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(225,29,72,.10);color:var(--accent-red)"><i class="fas fa-arrow-trend-down"></i></div><div class="kpi-label">Despesas · <span x-text="mesAtivo"></span></div></div>
           <div class="kpi-val text-red-strong" x-text="kpis.despesa"></div>
-          <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center w-full">
-             <span style="font-size:10px; font-weight:800; color:var(--color-dim); text-transform:uppercase;">YTD Acumulado</span>
-             <span style="font-size:12px; font-weight:900; color:var(--accent-blue);" x-text="kpis.despesaYTD"></span>
-          </div>
+          <div class="kpi-foot"><span>YTD acumulado</span><b x-text="kpis.despesaYTD"></b></div>
         </div>
         <div class="kpi-card green">
-          <div class="kpi-label flex justify-between">Resultado Op. <span class="font-bold" :class="kpis.margem < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.margem + '%'"></span></div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(13,148,136,.12);color:var(--accent-green)"><i class="fas fa-coins"></i></div><div class="kpi-label flex justify-between" style="flex:1">Resultado Operacional <span class="font-bold" :class="kpis.margem < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.margem + '%'"></span></div></div>
           <div class="kpi-val" :class="kpis.margem < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.resultado"></div>
-          <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center w-full">
-             <span style="font-size:10px; font-weight:800; color:var(--color-dim); text-transform:uppercase;">YTD Acum. (<span x-text="kpis.margemYTD+'%'"></span>)</span>
-             <span style="font-size:12px; font-weight:900;" :class="kpis.margemYTD < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.resultadoYTD"></span>
-          </div>
+          <div class="kpi-foot"><span>YTD (<span x-text="kpis.margemYTD+'%'"></span>)</span><b :class="kpis.margemYTD < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.resultadoYTD"></b></div>
         </div>
         <div class="kpi-card gold">
-          <div class="kpi-label">Op. com Inventário</div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(197,168,128,.16);color:var(--accent-gold-deep)"><i class="fas fa-boxes-stacked"></i></div><div class="kpi-label">Op. com Inventário</div></div>
           <div class="kpi-val" :class="kpis.resultadoInvNum < 0 ? 'text-red-strong' : 'text-accent-blue'" x-text="kpis.resultadoInv"></div>
-          <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center w-full">
-             <span style="font-size:10px; font-weight:800; color:var(--color-dim); text-transform:uppercase;">YTD Acumulado</span>
-             <span style="font-size:12px; font-weight:900; color:var(--accent-blue);" x-text="kpis.resultadoInvYTD"></span>
-          </div>
+          <div class="kpi-foot"><span>YTD acumulado</span><b x-text="kpis.resultadoInvYTD"></b></div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
@@ -1292,28 +1273,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="card-dark"><div class="card-title">Resultado Operacional (Mensal)</div><div class="chart-wrap" style="height:250px"><canvas id="chartEvoRes"></canvas></div></div>
       </div>
 
-      <div class="card-dark" style="margin-bottom:0; border-top: 4px solid var(--accent-gold);">
-        <div class="card-title text-accent-blue" style="margin-bottom:16px;"><i class="fas fa-brain mr-2" style="color:var(--accent-gold)"></i> Auditoria de Produtividade Analítica</div>
-        <div class="card-sub" style="margin-top:-8px;">Tempo de operação no sistema por mês — ativo vs. ocioso (ocioso após 30s sem interação). O mês corrente acumula em tempo real.</div>
-        <div style="overflow-x:auto;">
-          <table class="dark-table">
-            <thead><tr><th>Recorte Mensal</th><th class="td-r">Tempo Ativo</th><th class="td-r">Tempo Ocioso</th><th class="td-r">Tempo Total</th><th class="td-r">Eficiência</th></tr></thead>
-            <tbody>
-              <template x-for="m in listaMeses" :key="m.chave">
-                <tr x-show="(tempoTracker.historicoMensal[m.chave.toLowerCase()].ativo + tempoTracker.historicoMensal[m.chave.toLowerCase()].ocioso) > 0 || mesAtivo === m.chave" :class="mesAtivo === m.chave ? 'highlight-row' : ''">
-                  <td class="font-bold text-accent-blue" x-text="m.nome"></td>
-                  <td class="td-r text-green-strong" x-text="formatarTempo(tempoTracker.historicoMensal[m.chave.toLowerCase()].ativo)"></td>
-                  <td class="td-r" style="color:var(--accent-amber); font-weight:700;" x-text="formatarTempo(tempoTracker.historicoMensal[m.chave.toLowerCase()].ocioso)"></td>
-                  <td class="td-r font-bold text-accent-blue" x-text="formatarTempo(tempoTracker.historicoMensal[m.chave.toLowerCase()].ativo + tempoTracker.historicoMensal[m.chave.toLowerCase()].ocioso)"></td>
-                  <td class="td-r">
-                    <span class="badge-status" :class="calcularEficiencia(m.chave.toLowerCase()) >= 50 ? 'badge-ok' : 'badge-warn'" x-text="calcularEficiencia(m.chave.toLowerCase()) + '% Foco'"></span>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-      </div>
       <div class="ia-insight-box no-print" x-data="{ a: {} }" x-effect="a = analiseDashboard()">
         <div class="font-bold mb-6 flex items-center text-accent-blue" style="font-size:16px;"><i class="fas fa-lightbulb mr-2 text-accent-gold"></i> Leitura &amp; Análise — Resultado Consolidado</div>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:20px;">
