@@ -32,10 +32,13 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
 - **Tela de login** (como no acesso da Rebracil): usuário + senha. Usuários semente:
   `Carla Caroline / admin` e `Andreia Pereira / admin123`. Ao entrar, a primeira tela é o **Hub**.
   Funções `fazerLogin`, `logout`; estado `logado`, `usuarioLogadoId`.
-- **Hub = painel de entrada por departamento**: 3 cartões — **Requalificadora**,
-  **Embalagem** e **Grupo — Consolidado**. Cada um é um departamento independente que
-  **vê somente as suas informações**; o menu lateral muda conforme o painel ativo
-  (`depto`). Método `entrarDepto`, botão “Trocar painel (Hub)”.
+- **Portal de seleção (tela cheia, sem menu)**: depois do login a primeira tela é um
+  **portal** que serve só para escolher o painel — **não tem sidebar/menu**, apenas 3
+  cartões (**Requalificadora**, **Embalagem**, **Grupo — Consolidado**). O menu lateral
+  só aparece **depois** que você entra num painel (o app-shell tem `x-show="logado && depto"`).
+  Cada painel é um departamento independente que **vê somente as suas informações**;
+  o menu muda conforme o painel ativo (`depto`). Método `entrarDepto`, botão “Trocar
+  painel (Hub)” volta ao portal.
   - **Requalificadora** (individual): Dashboard, DRE, C.C., Despesa Mensal, Provisões,
     **Comparativo Histórico (2017–2025)**, **Carteiras de Capital** — conceitos que são
     só dela; **sem** kg/fator/peso.
