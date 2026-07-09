@@ -466,19 +466,34 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
     </template>
 
-    <!-- ===== EMPRESA INDIVIDUAL (Requalificadora ou Embalagem) ===== -->
-    <template x-if="depto && depto!=='grupo'">
+    <!-- ===== REQUALIFICADORA (individual) ===== -->
+    <template x-if="depto==='requalificadora'">
       <div>
-        <div class="nav-section" x-show="sidebarOpen"><span x-text="empresaMeta.curto"></span> — Individual</div>
+        <div class="nav-section" x-show="sidebarOpen">Requalificadora — Individual</div>
         <div class="nav-sep" x-show="!sidebarOpen"></div>
         <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Dashboard"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Dashboard</span></button>
-        <button class="nav-item" x-show="empresaExtras.faturamento" @click="mudarAba('faturamento')" :class="aba==='faturamento'?'active':''" title="Faturamento & Fator (R$/kg)"><i class="fas fa-weight-hanging w-4"></i> <span class="nav-label">Faturamento &amp; Fator</span></button>
         <button class="nav-item" @click="mudarAba('resultado_anual')" :class="aba==='resultado_anual'?'active':''" title="DRE Consolidado"><i class="fas fa-table w-4"></i> <span class="nav-label">DRE Consolidado</span></button>
         <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C."><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
         <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal (Abas)</span></button>
         <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões &amp; Previsões</span></button>
-        <button class="nav-item" @click="mudarAba('historico_comparativo')" :class="aba==='historico_comparativo'?'active':''" title="Comparativo Histórico"><i class="fas fa-balance-scale w-4"></i> <span class="nav-label">Comparativo Histórico</span></button>
+        <button class="nav-item" @click="mudarAba('historico_comparativo')" :class="aba==='historico_comparativo'?'active':''" title="Comparativo Histórico (2017–2025)"><i class="fas fa-balance-scale w-4"></i> <span class="nav-label">Comparativo Histórico</span></button>
         <button class="nav-item" @click="mudarAba('dr_config')" :class="aba==='dr_config'?'active':''" title="Gestão de Carteiras de Capital"><i class="fas fa-wallet w-4"></i> <span class="nav-label">Carteiras de Capital</span></button>
+      </div>
+    </template>
+
+    <!-- ===== EMBALAGEM (individual) — foco em kg/fator/peso ===== -->
+    <template x-if="depto==='embalagem'">
+      <div>
+        <div class="nav-section" x-show="sidebarOpen">Embalagem — Individual</div>
+        <div class="nav-sep" x-show="!sidebarOpen"></div>
+        <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Dashboard"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Dashboard</span></button>
+        <button class="nav-item" @click="mudarAba('faturamento')" :class="aba==='faturamento'?'active':''" title="Faturamento & Fator (R$/kg)"><i class="fas fa-weight-hanging w-4"></i> <span class="nav-label">Faturamento &amp; Fator</span></button>
+        <button class="nav-item" @click="mudarAba('subempresas')" :class="aba==='subempresas'?'active':''" title="Sub-empresas & Tributação"><i class="fas fa-scale-unbalanced w-4"></i> <span class="nav-label">Sub-empresas &amp; Tributação</span></button>
+        <button class="nav-item" @click="mudarAba('inventario')" :class="aba==='inventario'?'active':''" title="Inventário & ITP"><i class="fas fa-boxes-stacked w-4"></i> <span class="nav-label">Inventário &amp; ITP</span></button>
+        <button class="nav-item" @click="mudarAba('resultado_anual')" :class="aba==='resultado_anual'?'active':''" title="DRE Consolidado"><i class="fas fa-table w-4"></i> <span class="nav-label">DRE Consolidado</span></button>
+        <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C."><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
+        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal (Abas)</span></button>
+        <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões &amp; Previsões</span></button>
       </div>
     </template>
 
@@ -523,7 +538,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
     
     <div style="display:flex;align-items:center;gap:24px">
-      <div x-show="!['hub', 'consolidado', 'faturamento', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
+      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
         <label style="font-size: 11px; color: var(--color-muted); text-transform: uppercase; font-weight: 800;">Recorte Atual:</label>
         <select @change="mesAtivo = $event.target.value; subAbaDespesa = mesAtivo.toLowerCase(); atualizarLeituraSistema()" class="emc-input" style="padding: 6px 12px; font-weight: 800; color: var(--accent-blue); width: auto; background: var(--color-surface2); border-color: var(--accent-gold);">
           <template x-for="m in listaMeses" :key="m.chave"><option :value="m.chave" :selected="m.chave === mesAtivo" x-text="m.labelData"></option></template>
@@ -846,150 +861,140 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
     </div>
 
-    <!-- ===================== FATURAMENTO & FATOR (R$/kg) ===================== -->
-    <div x-show="aba==='faturamento'" x-cloak style="display:grid;gap:24px">
-      <template x-if="!empresaExtras.faturamento">
-        <div class="card-dark" style="text-align:center;padding:40px">
-          <i class="fas fa-weight-hanging" style="font-size:34px;color:var(--color-dim);margin-bottom:12px"></i>
-          <div style="font-weight:800;color:var(--accent-blue);font-size:16px">Sem dados de fator (R$/kg) para esta empresa</div>
-          <div style="font-size:13px;color:var(--color-muted);margin-top:6px">Este módulo mede faturamento por quilo — disponível para a Embalagem. Selecione essa conta no seletor de empresas.</div>
+    <!-- ===================== EMBALAGEM · FATURAMENTO & FATOR (R$/kg) ===================== -->
+    <template x-if="aba==='faturamento' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
+        <div class="kpi-card blue"><div class="kpi-label">Faturamento (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(empresaExtras.fatTotal.jan + empresaExtras.fatTotal.fev)"></div></div>
+        <div class="kpi-card gold"><div class="kpi-label">Peso Faturado (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="(empresaExtras.fatTotal.kgJan + empresaExtras.fatTotal.kgFev).toLocaleString('pt-BR')+' kg'"></div></div>
+        <div class="kpi-card green"><div class="kpi-label">Fator — Receita/kg (méd.)</div><div class="kpi-val text-green-strong" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">quanto cada kg gera</div></div>
+        <div class="kpi-card red"><div class="kpi-label">Custo / kg (méd.)</div><div class="kpi-val text-red-strong" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">despesa por kg faturado</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
+        <div class="kpi-card" style="border-left:4px solid var(--accent-green)"><div class="kpi-label">Margem / kg</div><div class="kpi-val" :class="embSubTotais.margemKg<0?'text-red-strong':'text-green-strong'" x-text="'R$ '+embSubTotais.margemKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">receita/kg − custo/kg</div></div>
+        <div class="kpi-card" style="border-left:4px solid var(--accent-blue)"><div class="kpi-label">Resultado operacional</div><div class="kpi-val" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Margem <span x-text="embSubTotais.margem.toFixed(1)+'%'"></span></div></div>
+        <div class="kpi-card" style="border-left:4px solid var(--accent-purple)"><div class="kpi-label">Peso total faturado</div><div class="kpi-val text-accent-blue" x-text="embSubTotais.kg.toLocaleString('pt-BR')+' kg'"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Jan + Fev</div></div>
+        <div class="kpi-card" style="border-left:4px solid #64748b"><div class="kpi-label">Inter Company (eliminar)</div><div class="kpi-val text-accent-blue" x-text="embSubTotais.inter?formatarDinheiroExato(embSubTotais.inter.fat):'—'"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">venda entre empresas do grupo</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+        <div class="card-dark"><div class="card-title">Faturamento por Linha (Jan x Fev)</div><div class="chart-wrap" style="height:270px"><canvas id="chartFatTipo"></canvas></div></div>
+        <div class="card-dark"><div class="card-title">Fator R$/kg por Linha</div><div class="card-sub" style="margin-top:-8px">Quanto cada quilo faturado gera de receita — indicador central da indústria de embalagem.</div><div class="chart-wrap" style="height:250px"><canvas id="chartFator"></canvas></div></div>
+      </div>
+      <div class="card-dark">
+        <div class="card-title">Faturamento &amp; Fator por Linha de Produto</div>
+        <div style="overflow-x:auto">
+          <table class="dark-table">
+            <thead><tr><th>Linha</th><th class="td-r">Fat. Jan</th><th class="td-r">Kg Jan</th><th class="td-r">Fator Jan</th><th class="td-r">Fat. Fev</th><th class="td-r">Kg Fev</th><th class="td-r">Fator Fev</th></tr></thead>
+            <tbody>
+              <template x-for="f in empresaExtras.faturamento" :key="f.tipo">
+                <tr>
+                  <td class="font-bold text-accent-blue" x-text="f.tipo"></td>
+                  <td class="td-r" x-text="formatarDinheiroExato(f.jan)"></td>
+                  <td class="td-r" x-text="f.kgJan.toLocaleString('pt-BR')+' kg'"></td>
+                  <td class="td-r font-bold text-green-strong" x-text="'R$ '+f.fatorJan.toFixed(2).replace('.',',')"></td>
+                  <td class="td-r" x-text="formatarDinheiroExato(f.fev)"></td>
+                  <td class="td-r" x-text="f.kgFev.toLocaleString('pt-BR')+' kg'"></td>
+                  <td class="td-r font-bold text-green-strong" x-text="'R$ '+f.fatorFev.toFixed(2).replace('.',',')"></td>
+                </tr>
+              </template>
+              <tr class="highlight-row" style="font-weight:900">
+                <td class="text-accent-blue">TOTAL</td>
+                <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.fatTotal.jan)"></td>
+                <td class="td-r" x-text="empresaExtras.fatTotal.kgJan.toLocaleString('pt-BR')+' kg'"></td>
+                <td class="td-r" x-text="'R$ '+empresaExtras.fatTotal.fatorJan.toFixed(2).replace('.',',')"></td>
+                <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.fatTotal.fev)"></td>
+                <td class="td-r" x-text="empresaExtras.fatTotal.kgFev.toLocaleString('pt-BR')+' kg'"></td>
+                <td class="td-r" x-text="'R$ '+empresaExtras.fatTotal.fatorFev.toFixed(2).replace('.',',')"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </template>
-      <template x-if="empresaExtras.faturamento">
-        <div style="display:grid;gap:24px">
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
-            <div class="kpi-card blue"><div class="kpi-label">Faturamento (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(empresaExtras.fatTotal.jan + empresaExtras.fatTotal.fev)"></div></div>
-            <div class="kpi-card gold"><div class="kpi-label">Peso Faturado (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="(empresaExtras.fatTotal.kgJan + empresaExtras.fatTotal.kgFev).toLocaleString('pt-BR')+' kg'"></div></div>
-            <div class="kpi-card green"><div class="kpi-label">Fator — Receita/kg (méd.)</div><div class="kpi-val text-green-strong" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">quanto cada kg gera</div></div>
-            <div class="kpi-card red"><div class="kpi-label">Custo / kg (méd.)</div><div class="kpi-val text-red-strong" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">despesa por kg faturado</div></div>
-          </div>
+      </div>
+    </div></template>
 
-          <!-- MARGEM POR KG (resultado do negócio por quilo) -->
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
-            <div class="kpi-card" style="border-left:4px solid var(--accent-green)"><div class="kpi-label">Margem / kg</div><div class="kpi-val" :class="embSubTotais.margemKg<0?'text-red-strong':'text-green-strong'" x-text="'R$ '+embSubTotais.margemKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">receita/kg − custo/kg</div></div>
-            <div class="kpi-card" style="border-left:4px solid var(--accent-blue)"><div class="kpi-label">Resultado operacional</div><div class="kpi-val" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Margem <span x-text="embSubTotais.margem.toFixed(1)+'%'"></span></div></div>
-            <div class="kpi-card" style="border-left:4px solid var(--accent-purple)"><div class="kpi-label">Peso total faturado</div><div class="kpi-val text-accent-blue" x-text="embSubTotais.kg.toLocaleString('pt-BR')+' kg'"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">Jan + Fev</div></div>
-            <div class="kpi-card" style="border-left:4px solid #64748b"><div class="kpi-label">Inter Company (eliminar)</div><div class="kpi-val text-accent-blue" x-text="embSubTotais.inter?formatarDinheiroExato(embSubTotais.inter.fat):'—'"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">venda entre empresas do grupo</div></div>
-          </div>
+    <!-- ===================== EMBALAGEM · SUB-EMPRESAS & TRIBUTAÇÃO ===================== -->
+    <template x-if="aba==='subempresas' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
+      <div class="card-dark">
+        <div class="card-title"><i class="fas fa-scale-unbalanced mr-2" style="color:var(--accent-gold)"></i> Sub-empresas da Embalagem — Estratégia Tributária</div>
+        <div class="card-sub" style="margin-top:-8px">A indústria fica na <b>Embalagem (Lucro Presumido)</b>; a margem é realizada por empresas com carga menor (ex.: <b>Linear = Simples Nacional</b>). Uma vende para a outra conforme o cliente/regime — é planejamento tributário. Valores em R$, kg, fator, custo/kg e margem.</div>
+        <div style="overflow-x:auto">
+          <table class="dark-table" style="min-width:820px">
+            <thead><tr><th>Empresa</th><th>Regime</th><th class="td-r">Faturamento</th><th class="td-r">Kg</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Despesa</th><th class="td-r">Custo/kg</th><th class="td-r">Resultado</th><th class="td-r">Margem</th></tr></thead>
+            <tbody>
+              <template x-for="s in embSub" :key="s.nome">
+                <tr :style="s.intercompany?'opacity:.72':''">
+                  <td class="font-bold text-accent-blue"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px" :style="'background:'+s.cor"></span><span x-text="s.nome"></span><i x-show="s.aparas" class="fas fa-recycle ml-1" style="color:var(--accent-gold);font-size:10px" title="Inclui aparas (Teste Sucata / Hanami)"></i></td>
+                  <td><span class="badge-status" :class="s.regime.includes('Simples')?'badge-ok':(s.intercompany?'badge-warn':'badge-info')" style="font-size:10px" x-text="s.regime"></span></td>
+                  <td class="td-r font-bold" x-text="formatarDinheiroExato(s.fat)"></td>
+                  <td class="td-r" x-text="s.kg.toLocaleString('pt-BR')+' kg'"></td>
+                  <td class="td-r font-bold text-green-strong" x-text="'R$ '+s.fator.toFixed(2).replace('.',',')"></td>
+                  <td class="td-r" style="color:var(--accent-red)" x-text="formatarDinheiroExato(s.desp)"></td>
+                  <td class="td-r" x-text="'R$ '+s.custoKg.toFixed(2).replace('.',',')"></td>
+                  <td class="td-r font-bold" :class="s.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(s.res)"></td>
+                  <td class="td-r"><span class="badge-status" :class="s.margem<0?'badge-danger':(s.margem<10?'badge-warn':'badge-ok')" x-text="s.margem.toFixed(1)+'%'"></span></td>
+                </tr>
+              </template>
+              <tr class="highlight-row" style="font-weight:900">
+                <td class="text-accent-blue">TOTAL OPERACIONAL</td><td style="font-size:10px;color:var(--color-muted)">(exclui Inter Company)</td>
+                <td class="td-r" x-text="formatarDinheiroExato(embSubTotais.fat)"></td>
+                <td class="td-r" x-text="embSubTotais.kg.toLocaleString('pt-BR')+' kg'"></td>
+                <td class="td-r" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></td>
+                <td class="td-r text-red-strong" x-text="formatarDinheiroExato(embSubTotais.desp)"></td>
+                <td class="td-r" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></td>
+                <td class="td-r" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></td>
+                <td class="td-r" x-text="embSubTotais.margem.toFixed(1)+'%'"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px">
+          <div class="nxdr-insight" style="margin-bottom:0"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> A <b>Embalagem (indústria)</b> opera perto do zero por kg (fator ≈ custo/kg) — o lucro do grupo está nas empresas de menor carga tributária. Isso é <b>esperado</b> no planejamento: a fábrica entrega volume, as demais realizam a margem.</div>
+          <div class="nxdr-insight" style="margin-bottom:0;border-left-color:#64748b"><i class="fas fa-circle-info mr-1"></i> <b>Inter Company</b> (venda entre as empresas do grupo) deve ser <b>eliminada</b> na consolidação para não contar receita/lucro em dobro.</div>
+          <div class="nxdr-insight" style="margin-bottom:0;border-left-color:var(--accent-gold)"><i class="fas fa-recycle mr-1" style="color:var(--accent-gold)"></i> <b>Teste Sucata / Hanami = aparas</b> (erro de impressão) — receita de subproduto, não da venda principal.</div>
+        </div>
+      </div>
+    </div></template>
 
-          <!-- SUB-EMPRESAS (estratégia tributária) -->
-          <div class="card-dark">
-            <div class="card-title"><i class="fas fa-scale-unbalanced mr-2" style="color:var(--accent-gold)"></i> Sub-empresas da Embalagem — Estratégia Tributária</div>
-            <div class="card-sub" style="margin-top:-8px">A indústria fica na <b>Embalagem (Lucro Presumido)</b>; a margem é realizada por empresas com carga menor (ex.: <b>Linear = Simples Nacional</b>). Uma vende para a outra conforme o cliente/regime — é planejamento tributário. Valores em R$, kg, fator, custo/kg e margem.</div>
-            <div style="overflow-x:auto">
-              <table class="dark-table" style="min-width:820px">
-                <thead><tr><th>Empresa</th><th>Regime</th><th class="td-r">Faturamento</th><th class="td-r">Kg</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Despesa</th><th class="td-r">Custo/kg</th><th class="td-r">Resultado</th><th class="td-r">Margem</th></tr></thead>
-                <tbody>
-                  <template x-for="s in embSub" :key="s.nome">
-                    <tr :style="s.intercompany?'opacity:.72':''">
-                      <td class="font-bold text-accent-blue"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px" :style="'background:'+s.cor"></span><span x-text="s.nome"></span><i x-show="s.aparas" class="fas fa-recycle ml-1" style="color:var(--accent-gold);font-size:10px" title="Inclui aparas (Teste Sucata / Hanami)"></i></td>
-                      <td><span class="badge-status" :class="s.regime.includes('Simples')?'badge-ok':(s.intercompany?'badge-warn':'badge-info')" style="font-size:10px" x-text="s.regime"></span></td>
-                      <td class="td-r font-bold" x-text="formatarDinheiroExato(s.fat)"></td>
-                      <td class="td-r" x-text="s.kg.toLocaleString('pt-BR')+' kg'"></td>
-                      <td class="td-r font-bold text-green-strong" x-text="'R$ '+s.fator.toFixed(2).replace('.',',')"></td>
-                      <td class="td-r" style="color:var(--accent-red)" x-text="formatarDinheiroExato(s.desp)"></td>
-                      <td class="td-r" x-text="'R$ '+s.custoKg.toFixed(2).replace('.',',')"></td>
-                      <td class="td-r font-bold" :class="s.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(s.res)"></td>
-                      <td class="td-r"><span class="badge-status" :class="s.margem<0?'badge-danger':(s.margem<10?'badge-warn':'badge-ok')" x-text="s.margem.toFixed(1)+'%'"></span></td>
-                    </tr>
-                  </template>
-                  <tr class="highlight-row" style="font-weight:900">
-                    <td class="text-accent-blue">TOTAL OPERACIONAL</td><td style="font-size:10px;color:var(--color-muted)">(exclui Inter Company)</td>
-                    <td class="td-r" x-text="formatarDinheiroExato(embSubTotais.fat)"></td>
-                    <td class="td-r" x-text="embSubTotais.kg.toLocaleString('pt-BR')+' kg'"></td>
-                    <td class="td-r" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></td>
-                    <td class="td-r text-red-strong" x-text="formatarDinheiroExato(embSubTotais.desp)"></td>
-                    <td class="td-r" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></td>
-                    <td class="td-r" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></td>
-                    <td class="td-r" x-text="embSubTotais.margem.toFixed(1)+'%'"></td>
+    <!-- ===================== EMBALAGEM · INVENTÁRIO & ITP ===================== -->
+    <template x-if="aba==='inventario' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px" class="grid-inv">
+        <div class="card-dark" style="margin-bottom:0">
+          <div class="card-title">Inventário por Categoria (com fator R$/kg)</div>
+          <div style="overflow-x:auto">
+            <table class="dark-table">
+              <thead><tr><th>Categoria</th><th class="td-r">Valor Jan</th><th class="td-r">Kg Jan</th><th class="td-r">Fator</th><th class="td-r">Valor Fev</th></tr></thead>
+              <tbody>
+                <tr style="background:rgba(197,168,128,.06)" x-show="empresaExtras.itp">
+                  <td class="font-bold" style="color:var(--accent-gold-deep)"><i class="fas fa-people-carry-box mr-1"></i> ITP <span style="font-size:10px;font-weight:700;color:var(--color-muted)">(terceiros)</span></td>
+                  <td class="td-r" style="color:var(--color-dim)">a apurar</td>
+                  <td class="td-r" style="color:var(--color-dim)">—</td>
+                  <td class="td-r" style="color:var(--color-dim)">—</td>
+                  <td class="td-r" style="color:var(--color-dim)">a apurar</td>
+                </tr>
+                <template x-for="i in empresaExtras.inventario" :key="i.item">
+                  <tr>
+                    <td class="font-bold text-accent-blue" x-text="i.item"></td>
+                    <td class="td-r" x-text="formatarDinheiroExato(i.jan)"></td>
+                    <td class="td-r" x-text="i.kgJan.toLocaleString('pt-BR')+' kg'"></td>
+                    <td class="td-r text-green-strong font-bold" x-text="'R$ '+i.fatorJan.toFixed(2).replace('.',',')"></td>
+                    <td class="td-r" x-text="formatarDinheiroExato(i.fev)"></td>
                   </tr>
-                </tbody>
-              </table>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px">
-              <div class="nxdr-insight" style="margin-bottom:0"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> A <b>Embalagem (indústria)</b> opera perto do zero por kg (fator ≈ custo/kg) — o lucro do grupo está nas empresas de menor carga tributária. Isso é <b>esperado</b> no planejamento: a fábrica entrega volume, as demais realizam a margem.</div>
-              <div class="nxdr-insight" style="margin-bottom:0;border-left-color:#64748b"><i class="fas fa-circle-info mr-1"></i> <b>Inter Company</b> (venda entre as empresas do grupo) deve ser <b>eliminada</b> na consolidação para não contar receita/lucro em dobro.</div>
-              <div class="nxdr-insight" style="margin-bottom:0;border-left-color:var(--accent-gold)"><i class="fas fa-recycle mr-1" style="color:var(--accent-gold)"></i> <b>Teste Sucata / Hanami = aparas</b> (erro de impressão) — receita de subproduto, não da venda principal.</div>
-            </div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
-            <div class="card-dark"><div class="card-title">Faturamento por Linha (Jan x Fev)</div><div class="chart-wrap" style="height:270px"><canvas id="chartFatTipo"></canvas></div></div>
-            <div class="card-dark"><div class="card-title">Fator R$/kg por Linha</div><div class="card-sub" style="margin-top:-8px">Quanto cada quilo faturado gera de receita — indicador central da indústria de embalagem.</div><div class="chart-wrap" style="height:250px"><canvas id="chartFator"></canvas></div></div>
-          </div>
-
-          <div class="card-dark">
-            <div class="card-title">Faturamento &amp; Fator por Linha de Produto</div>
-            <div style="overflow-x:auto">
-              <table class="dark-table">
-                <thead><tr><th>Linha</th><th class="td-r">Fat. Jan</th><th class="td-r">Kg Jan</th><th class="td-r">Fator Jan</th><th class="td-r">Fat. Fev</th><th class="td-r">Kg Fev</th><th class="td-r">Fator Fev</th></tr></thead>
-                <tbody>
-                  <template x-for="f in empresaExtras.faturamento" :key="f.tipo">
-                    <tr>
-                      <td class="font-bold text-accent-blue" x-text="f.tipo"></td>
-                      <td class="td-r" x-text="formatarDinheiroExato(f.jan)"></td>
-                      <td class="td-r" x-text="f.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                      <td class="td-r font-bold text-green-strong" x-text="'R$ '+f.fatorJan.toFixed(2).replace('.',',')"></td>
-                      <td class="td-r" x-text="formatarDinheiroExato(f.fev)"></td>
-                      <td class="td-r" x-text="f.kgFev.toLocaleString('pt-BR')+' kg'"></td>
-                      <td class="td-r font-bold text-green-strong" x-text="'R$ '+f.fatorFev.toFixed(2).replace('.',',')"></td>
-                    </tr>
-                  </template>
-                  <tr class="highlight-row" style="font-weight:900">
-                    <td class="text-accent-blue">TOTAL</td>
-                    <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.fatTotal.jan)"></td>
-                    <td class="td-r" x-text="empresaExtras.fatTotal.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                    <td class="td-r" x-text="'R$ '+empresaExtras.fatTotal.fatorJan.toFixed(2).replace('.',',')"></td>
-                    <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.fatTotal.fev)"></td>
-                    <td class="td-r" x-text="empresaExtras.fatTotal.kgFev.toLocaleString('pt-BR')+' kg'"></td>
-                    <td class="td-r" x-text="'R$ '+empresaExtras.fatTotal.fatorFev.toFixed(2).replace('.',',')"></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px" class="grid-inv">
-            <div class="card-dark">
-              <div class="card-title">Inventário por Categoria (com fator R$/kg)</div>
-              <div style="overflow-x:auto">
-                <table class="dark-table">
-                  <thead><tr><th>Categoria</th><th class="td-r">Valor Jan</th><th class="td-r">Kg Jan</th><th class="td-r">Fator</th><th class="td-r">Valor Fev</th></tr></thead>
-                  <tbody>
-                    <tr style="background:rgba(197,168,128,.06)" x-show="empresaExtras.itp">
-                      <td class="font-bold" style="color:var(--accent-gold-deep)"><i class="fas fa-people-carry-box mr-1"></i> ITP <span style="font-size:10px;font-weight:700;color:var(--color-muted)">(terceiros)</span></td>
-                      <td class="td-r" style="color:var(--color-dim)">a apurar</td>
-                      <td class="td-r" style="color:var(--color-dim)">—</td>
-                      <td class="td-r" style="color:var(--color-dim)">—</td>
-                      <td class="td-r" style="color:var(--color-dim)">a apurar</td>
-                    </tr>
-                    <template x-for="i in empresaExtras.inventario" :key="i.item">
-                      <tr>
-                        <td class="font-bold text-accent-blue" x-text="i.item"></td>
-                        <td class="td-r" x-text="formatarDinheiroExato(i.jan)"></td>
-                        <td class="td-r" x-text="i.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                        <td class="td-r text-green-strong font-bold" x-text="'R$ '+i.fatorJan.toFixed(2).replace('.',',')"></td>
-                        <td class="td-r" x-text="formatarDinheiroExato(i.fev)"></td>
-                      </tr>
-                    </template>
-                    <tr class="highlight-row" style="font-weight:900">
-                      <td class="text-accent-blue">ESTOQUE TOTAL</td>
-                      <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.invTotal.jan)"></td>
-                      <td class="td-r" x-text="empresaExtras.invTotal.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                      <td class="td-r" x-text="'R$ '+empresaExtras.invTotal.fatorJan.toFixed(2).replace('.',',')"></td>
-                      <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.invTotal.fev)"></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="card-dark"><div class="card-title">Composição do Estoque (Jan)</div><div class="chart-wrap" style="height:260px"><canvas id="chartInv"></canvas></div>
-              <div class="nxdr-insight" style="margin:14px 0 0;border-left-color:var(--accent-gold)"><i class="fas fa-people-carry-box mr-1" style="color:var(--accent-gold)"></i> <b>ITP — Itens de Terceiros</b>: tudo que é produzido/comprado de terceiros. Serve à decisão <b>make-or-buy</b> — a Rebracil compara produzir internamente vs. comprar pronto. (linha do inventário a apurar)</div>
-            </div>
+                </template>
+                <tr class="highlight-row" style="font-weight:900">
+                  <td class="text-accent-blue">ESTOQUE TOTAL</td>
+                  <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.invTotal.jan)"></td>
+                  <td class="td-r" x-text="empresaExtras.invTotal.kgJan.toLocaleString('pt-BR')+' kg'"></td>
+                  <td class="td-r" x-text="'R$ '+empresaExtras.invTotal.fatorJan.toFixed(2).replace('.',',')"></td>
+                  <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.invTotal.fev)"></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </template>
-    </div>
+        <div class="card-dark" style="margin-bottom:0"><div class="card-title">Composição do Estoque (Jan)</div><div class="chart-wrap" style="height:260px"><canvas id="chartInv"></canvas></div>
+          <div class="nxdr-insight" style="margin:14px 0 0;border-left-color:var(--accent-gold)"><i class="fas fa-people-carry-box mr-1" style="color:var(--accent-gold)"></i> <b>ITP — Itens de Terceiros</b>: tudo que é produzido/comprado de terceiros. Serve à decisão <b>make-or-buy</b> — a Rebracil compara produzir internamente vs. comprar pronto. (linha do inventário a apurar)</div>
+        </div>
+      </div>
+    </div></template>
 
     <!-- ===================== TENDÊNCIA & PROJEÇÃO ===================== -->
     <div x-show="aba==='projecao'" x-cloak style="display:grid;gap:24px">
@@ -3411,7 +3416,7 @@ function sistemaUnificado(){
       this.recalcularTudo();
     },
 
-    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','faturamento':'Faturamento & Fator (R$/kg)','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Sub-empresas & Tributação','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
     
     get historicoOrdenado() {
       let d = [...this.tendenciaHistorica];
@@ -4266,6 +4271,10 @@ function sistemaUnificado(){
             ]
           }, chartOptsBase({plugins:{legend:{display:!0}, tooltip:{callbacks:{label:c=>'  '+c.dataset.label+':  R$ '+Number(c.parsed.y||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' /kg'}}}, scales:{y:{ticks:{callback:v=>'R$ '+v+'/kg'}}}}));
         }
+      }
+
+      if(this.aba==='inventario') {
+        const ex = this.empresaExtras;
         if(ex.inventario) {
           renderChart('chartInv','doughnut',{
             labels: ex.inventario.map(i=>i.item),

@@ -37,9 +37,12 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
   **vê somente as suas informações**; o menu lateral muda conforme o painel ativo
   (`depto`). Método `entrarDepto`, botão “Trocar painel (Hub)”.
   - **Requalificadora** (individual): Dashboard, DRE, C.C., Despesa Mensal, Provisões,
-    Histórico, Carteiras — **sem** kg/fator/peso.
-  - **Embalagem** (individual): o mesmo + **Faturamento & Fator (R$/kg)**; só a
-    Embalagem tem peso, fator e kg faturado.
+    **Comparativo Histórico (2017–2025)**, **Carteiras de Capital** — conceitos que são
+    só dela; **sem** kg/fator/peso.
+  - **Embalagem** (individual), menu próprio focado em kg: Dashboard,
+    **Faturamento & Fator (R$/kg)**, **Sub-empresas & Tributação**, **Inventário & ITP**,
+    DRE, C.C., Despesa Mensal, Provisões — **sem** Carteiras/Histórico da Requalificadora.
+    Só a Embalagem tem peso, fator, kg, custo/kg e margem/kg.
   - **Grupo — Consolidado** (o único que junta tudo): Central do Grupo, Comparador
     (mensal + anual), Tendência & Projeção (com seletor de empresa), Simulador (What-if,
     DRE com régua por centro de custo).
