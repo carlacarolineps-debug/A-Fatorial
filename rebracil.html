@@ -356,6 +356,13 @@ main > header h2{ letter-spacing:-.4px; }
 /* ===== BADGES / BOTÕES / INPUTS ===== */
 .badge-status{ border-radius:999px !important; font-weight:800 !important; letter-spacing:.02em; }
 .badge-info{ background:rgba(37,99,235,.12); color:#1d4ed8; }
+/* Cabeçalho de página premium (no topbar) */
+.nx-ph-ic{ width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:19px; flex-shrink:0; box-shadow:0 8px 18px -10px rgba(16,16,45,.5); }
+.nx-ph-crumb{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--color-dim); display:flex; align-items:center; gap:7px; margin-bottom:1px; }
+.nx-ph-desc{ font-size:12px; color:var(--color-muted); margin-top:2px; max-width:660px; }
+/* Tabelas: zebra sutil + total/ajustes reforçados */
+.dark-table tbody tr:nth-child(even):not(.highlight-row){ background:rgba(25,16,64,.016); }
+.dark-table tbody tr:hover:not(.highlight-row){ background:rgba(197,168,128,.09) !important; }
 .emc-input,.input-manual{ border-radius:12px !important; border:1px solid var(--color-border2) !important;
   transition:border-color .16s, box-shadow .16s; }
 .emc-input:focus,.input-manual:focus{ border-color:var(--nx-gold) !important; box-shadow:var(--ring-gold) !important; outline:none; }
@@ -616,14 +623,13 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       <button @click="sidebarOpen = !sidebarOpen" class="mr-4 text-accent-blue hover:text-accent-gold transition-colors focus:outline-none" title="Recolher/Expandir Menu">
           <i class="fas fa-bars text-xl"></i>
       </button>
-      <div>
-        <h2 style="font-size:20px;font-weight:900;color:var(--accent-blue)" x-text="tituloAba"></h2>
-        <p style="font-size:12px;margin-top:2px; font-weight:800;display:flex;align-items:center;gap:6px;">
-          <span style="width:9px;height:9px;border-radius:50%;display:inline-block;" :style="'background:'+(depto==='grupo'?'var(--accent-gold)':(depto?empresaMeta.cor:'var(--color-dim)'))"></span>
-          <span style="color:var(--accent-gold)">NEXUS GRB</span>
-          <span style="color:var(--color-dim)">·</span>
-          <span :style="'color:'+(depto==='grupo'?'var(--accent-gold-deep)':(depto?empresaMeta.cor:'var(--color-dim)'))" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Hub')"></span>
-        </p>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="nx-ph-ic" :style="depto==='grupo'?'background:linear-gradient(160deg,#1b1642,#12102e)':('background:'+(depto?empresaMeta.cor:'var(--accent-blue)'))"><i class="fas" :class="depto==='grupo'?'fa-layer-group':(depto?empresaMeta.icone:'fa-gauge-high')"></i></div>
+        <div>
+          <div class="nx-ph-crumb"><span x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'NEXUS GRB')"></span> <i class="fas fa-chevron-right" style="font-size:8px;opacity:.6"></i> <span style="color:var(--accent-gold-deep)" x-text="tituloAba"></span></div>
+          <h2 style="font-size:21px;font-weight:900;color:var(--accent-blue);letter-spacing:-.4px;line-height:1.1" x-text="tituloAba"></h2>
+          <p class="nx-ph-desc" x-text="descAba"></p>
+        </div>
       </div>
       <button @click="irParaHub()" x-show="aba!=='hub'" class="ml-4" title="Trocar de painel (Hub)" style="padding:7px 14px;border-radius:10px;border:1px solid var(--color-border2);background:var(--color-surface2);color:var(--accent-blue);font-weight:800;font-size:12px;cursor:pointer;">
         <i class="fas fa-th-large mr-1"></i> Hub
@@ -3401,6 +3407,23 @@ function sistemaUnificado(){
     },
 
     get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Sub-empresas & Tributação','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get descAba(){ return {
+      'consolidado':'Visão de holding: resultado somado, rentabilidade real e rateio de custos da matriz.',
+      'comparador':'Duas empresas lado a lado — mensal e anual — para decidir onde investir ou cortar.',
+      'projecao':'Fecha o ano a partir dos meses lançados, por empresa ou grupo.',
+      'simulador':'DRE ao vivo: mova a régua de cada centro de custo e veja o impacto e a projeção.',
+      'faturamento':'Receita medida por quilo: fator (R$/kg), custo/kg, margem/kg e peso.',
+      'subempresas':'Linear, Teste, Teste X e Inter Company — a estratégia tributária do grupo.',
+      'inventario':'Estoque por categoria com fator R$/kg, mais ITP (itens de terceiros).',
+      'dashboard':'Faturamento, despesa e resultado do período, com leitura automática.',
+      'resultado_anual':'Demonstrativo de resultado mês a mês do exercício.',
+      'centro_custo':'Rastreabilidade de gastos por centro de custo, com sub-lançamentos.',
+      'despesa_mensal':'Despesas lançadas do mês, por conta e fornecedor.',
+      'previsoes':'Provisões de risco: previsto x realizado e sobra/estouro.',
+      'historico_comparativo':'Série histórica 2017–2025 para leitura de tendência.',
+      'dr_config':'Distribuição de resultado e carteiras de capital.',
+      'configuracoes':'Usuários, marca, backup e parâmetros do sistema.'
+    }[this.aba] || ''; },
     
     get historicoOrdenado() {
       let d = [...this.tendenciaHistorica];
