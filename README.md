@@ -104,6 +104,17 @@ sozinho** e entrega alertas acionáveis, sem depender da memória de quem analis
   eliminar e as aparas (getter `embResumo`, estado `showResumo`).
 - **Sub-empresas** perdeu a coluna **Regime** (a informação de regime continua nos dados e no resumo).
 
+### Conferência linha a linha com as planilhas do cliente (2026)
+Auditoria completa contra `Resultado_Requalificadora_2026.xlsx` e `Resultado_Embalagem_2026.xlsx`:
+- **Requalificadora:** DRE mensal (12 linhas) ✓ · Centro de Custo (**157 linhas**) ✓ · Provisões (8) ✓ ·
+  Histórico 2017–2025 ✓ **após corrigir** *Total Despesas* e *Despesa Requalificadora* de 2024/2025
+  para os valores da planilha atual (e o mesmo em `TENDENCIA_YOY`).
+- **Embalagem:** DRE ✓ · Centro de Custo (**117 linhas**) ✓ · Faturamento por linha (6) ✓ · Inventário (4) ✓ ·
+  Provisões ✓ (o *Realizado* vem dos lançamentos reais de centro de custo — confere com a planilha).
+- **Total de Faturamento (Embalagem)** passou a seguir a planilha (linha *Total Faturamento*): **exclui as
+  aparas (Teste Sucata)** da receita principal, embora o **peso total as inclua** — por isso o Total pode
+  ficar abaixo da soma das linhas (há nota explicativa na tela). Helper `fatTot()`.
+
 ### Painel da Embalagem — tudo por R$ / kg / fator / peso
 A indústria de embalagem é medida por quilo, então o painel mostra as duas dimensões:
 - KPIs de **Fator (Receita/kg)**, **Custo/kg** (despesa ÷ kg), **Margem/kg**, peso e resultado.
