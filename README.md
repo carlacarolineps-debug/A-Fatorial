@@ -96,8 +96,11 @@ sozinho** e entrega alertas acionáveis, sem depender da memória de quem analis
 - **Tela cheia** em todo card com tabela: um botão de expandir (canto superior direito)
   abre a planilha ocupando **a tela inteira** (API nativa de fullscreen; `Esc` sai). Injeção
   automática via `montarTelaCheia()` — vale para DRE, Centro de Custo, Despesa Mensal,
-  Faturamento, Sub-empresas, Inventário, Histórico e Consolidado. **Em tela cheia, um seletor
-  de RECORTE (mês) é injetado** para não perder o controle de período (`nxMontarPeriodoFS`).
+  Faturamento, Sub-empresas, Inventário, Histórico e Consolidado. **Em tela cheia há uma barra
+  superior** (`nxMontarBarraFS`) com o botão *Sair da tela cheia* e uma **régua de meses de
+  janeiro a dezembro** (pílulas 01.2026…12.2026) para trocar o recorte — inclusive em
+  *Detalhamento C.C. - Mês*. A barra fica fixa no topo e empurra o conteúdo, sem sobrepor os
+  botões do card; no modo normal o cabeçalho reserva espaço para o botão de expandir.
 - **Resumo analítico** (estilo Horus): um painel **desliza da direita ao clicar em “Resumo”**
   (não é fixo, não ocupa espaço). Na tela **Sub-empresas** destaca faturamento/resultado/margem,
   fator médio, **quem realiza a margem**, a indústria que opera no zero, o Inter Company a

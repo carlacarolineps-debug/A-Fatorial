@@ -374,21 +374,29 @@ main > header h2{ letter-spacing:-.4px; }
 .dark-table thead th:last-child{ border-top-right-radius:10px; }
 /* ===== Tela cheia dos cards com tabela (facilita a análise) ===== */
 .nx-fs-host{ position:relative; }
+/* reserva espaço no cabeçalho do card p/ o botão de tela cheia não sobrepor os botões */
+.nx-fs-host > div:first-child{ padding-right:44px; }
 .nx-fs-btn{ position:absolute; top:14px; right:14px; z-index:6; width:32px; height:32px; border-radius:9px; border:1px solid var(--color-border2); background:var(--color-surface2); color:var(--accent-blue); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; transition:.15s; opacity:.7; }
 .nx-fs-btn:hover{ opacity:1; border-color:var(--accent-gold); color:var(--accent-gold-deep); }
 /* API nativa de tela cheia */
-.card-dark:fullscreen{ overflow:auto; padding:24px 30px; border-radius:0; background:var(--color-surface); }
-.card-dark:fullscreen div:has(> table.dark-table){ max-height:calc(100vh - 120px) !important; }
-.card-dark:fullscreen .nx-fs-btn{ position:fixed; top:18px; right:24px; width:38px; height:38px; font-size:14px; opacity:1; }
-/* Seletor de período dentro da tela cheia */
-.nx-fs-period{ position:fixed; top:20px; right:74px; z-index:8; display:flex; align-items:center; gap:8px; background:var(--color-surface2); border:1px solid var(--accent-gold); border-radius:10px; padding:6px 12px; box-shadow:0 8px 20px -10px rgba(0,0,0,.3); }
-.nx-fs-period span{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--color-muted); }
-.nx-fs-period select{ border:none; background:transparent; font-weight:800; font-size:13px; color:var(--accent-blue); cursor:pointer; outline:none; }
+.card-dark:fullscreen{ overflow:auto; padding:0 30px 30px; border-radius:0; background:var(--color-surface); }
+.card-dark:fullscreen div:has(> table.dark-table){ max-height:calc(100vh - 150px) !important; }
+.card-dark:fullscreen > .nx-fs-btn, .nx-fs-on > .nx-fs-btn{ display:none; }        /* esconde o botão de entrar; a barra tem o de sair */
+.card-dark:fullscreen > div:first-child, .nx-fs-on > div:first-child{ padding-right:0; }
 /* Fallback (card movido para o body) */
-.nx-fs-on{ position:fixed !important; inset:0 !important; z-index:170 !important; margin:0 !important; border-radius:0 !important; max-width:none !important; width:auto !important; height:auto !important; overflow:auto !important; padding:24px 30px !important; box-shadow:none !important; background:var(--color-surface) !important; }
-.nx-fs-on .nx-fs-btn{ position:fixed; top:18px; right:24px; width:38px; height:38px; font-size:14px; opacity:1; }
-.nx-fs-on div:has(> table.dark-table){ max-height:calc(100vh - 120px) !important; }
+.nx-fs-on{ position:fixed !important; inset:0 !important; z-index:170 !important; margin:0 !important; border-radius:0 !important; max-width:none !important; width:auto !important; height:auto !important; overflow:auto !important; padding:0 30px 30px !important; box-shadow:none !important; background:var(--color-surface) !important; }
+.nx-fs-on div:has(> table.dark-table){ max-height:calc(100vh - 150px) !important; }
 body.nx-fs-lock #mainScrollArea{ overflow:hidden !important; }
+/* Barra superior da tela cheia: botão Sair + régua de meses (jan..dez) */
+.nx-fs-bar{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:16px 0 13px; margin:0 0 14px; background:var(--color-surface); border-bottom:1px solid var(--color-border); }
+.nx-fs-exit{ display:inline-flex; align-items:center; gap:8px; padding:9px 15px; border-radius:11px; border:1px solid var(--color-border2); background:var(--color-surface2); color:var(--accent-blue); font-weight:800; font-size:12.5px; cursor:pointer; flex-shrink:0; transition:.15s; }
+.nx-fs-exit:hover{ border-color:var(--accent-gold); color:var(--accent-gold-deep); }
+.nx-fs-monthbar{ display:flex; align-items:center; gap:11px; flex:1; min-width:0; }
+.nx-fs-monthbar-lbl{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--color-dim); flex-shrink:0; }
+.nx-fs-months{ display:flex; gap:6px; overflow-x:auto; padding:4px 2px; flex:1; scrollbar-width:thin; }
+.nx-fs-month{ flex:0 0 auto; padding:8px 15px; border-radius:10px; border:1px solid var(--color-border2); background:var(--color-surface2); color:var(--color-muted); font-weight:800; font-size:12.5px; cursor:pointer; transition:.15s; white-space:nowrap; }
+.nx-fs-month:hover{ border-color:var(--accent-gold); color:var(--accent-blue); }
+.nx-fs-month.active{ background:linear-gradient(160deg,#241d5c,#191040); color:#fff; border-color:var(--accent-gold); box-shadow:0 6px 16px -8px rgba(25,16,64,.5); }
 .emc-input,.input-manual{ border-radius:12px !important; border:1px solid var(--color-border2) !important;
   transition:border-color .16s, box-shadow .16s; }
 .emc-input:focus,.input-manual:focus{ border-color:var(--nx-gold) !important; box-shadow:var(--ring-gold) !important; outline:none; }
@@ -2931,12 +2939,12 @@ function nxFsClasse(card, btn) {
   card.classList.add('nx-fs-on');
   document.body.classList.add('nx-fs-lock');
   if (btn) btn.innerHTML = NX_FS_CLOSE;
-  nxMontarPeriodoFS(card);
+  nxMontarBarraFS(card);
 }
 function sairTelaCheia() {
   const d = document;
   if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); }
-  document.querySelectorAll('.nx-fs-period').forEach(el => el.remove());
+  document.querySelectorAll('.nx-fs-bar').forEach(el => el.remove());
   document.querySelectorAll('.nx-fs-on').forEach(c => {
     c.classList.remove('nx-fs-on');
     const b = c.querySelector(':scope > .nx-fs-btn'); if (b) b.innerHTML = NX_FS_OPEN;
@@ -2946,25 +2954,43 @@ function sairTelaCheia() {
 }
 function nxFsSyncIcones() {
   document.querySelectorAll('.nx-fs-btn').forEach(b => { b.innerHTML = NX_FS_OPEN; });
+  document.querySelectorAll('.nx-fs-bar').forEach(el => el.remove()); // limpa barras antigas
   const fe = document.fullscreenElement || document.webkitFullscreenElement;
-  if (fe) { const b = fe.querySelector(':scope > .nx-fs-btn'); if (b) b.innerHTML = NX_FS_CLOSE; }
-  document.querySelectorAll('.nx-fs-period').forEach(el => el.remove()); // limpa seletores antigos
-  if (fe) nxMontarPeriodoFS(fe);
+  if (fe) nxMontarBarraFS(fe);
 }
-// Em tela cheia, o seletor de período do topo some — injeta um aqui para não perder o controle.
-const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','despesa_mensal'];
-function nxMontarPeriodoFS(card) {
-  const root = document.querySelector('[x-data]'); if (!root || !window.Alpine) return;
-  const cmp = Alpine.$data(root);
-  if (!cmp || NX_FS_ABAS_SEM_PERIODO.includes(cmp.aba)) return;   // só onde o recorte faz sentido
-  const wrap = document.createElement('div');
-  wrap.className = 'nx-fs-period';
-  const lbl = document.createElement('span'); lbl.textContent = 'Recorte:';
-  const sel = document.createElement('select');
-  (cmp.listaMeses || []).forEach(m => { const o = document.createElement('option'); o.value = m.chave; o.textContent = m.labelData; if (m.chave === cmp.mesAtivo) o.selected = true; sel.appendChild(o); });
-  sel.addEventListener('change', () => { cmp.mesAtivo = sel.value; cmp.subAbaDespesa = sel.value.toLowerCase(); try { cmp.atualizarLeituraSistema(); } catch(e){} });
-  wrap.appendChild(lbl); wrap.appendChild(sel);
-  card.appendChild(wrap);
+// Barra da tela cheia: botão Sair + régua de meses (só onde o recorte por mês se aplica).
+const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes'];
+function nxMontarBarraFS(card) {
+  const antiga = card.querySelector(':scope > .nx-fs-bar'); if (antiga) antiga.remove();
+  const root = document.querySelector('[x-data]'); const cmp = (root && window.Alpine) ? Alpine.$data(root) : null;
+  const bar = document.createElement('div'); bar.className = 'nx-fs-bar';
+  // botão Sair
+  const exit = document.createElement('button'); exit.type = 'button'; exit.className = 'nx-fs-exit';
+  exit.title = 'Sair da tela cheia (Esc)'; exit.innerHTML = NX_FS_CLOSE + ' <span>Sair da tela cheia</span>';
+  exit.addEventListener('click', (e) => { e.stopPropagation(); sairTelaCheia(); });
+  bar.appendChild(exit);
+  // régua de meses (jan..dez)
+  if (cmp && !NX_FS_ABAS_SEM_PERIODO.includes(cmp.aba)) {
+    const ativo = cmp.aba === 'despesa_mensal' ? String(cmp.subAbaDespesa).toLowerCase() : String(cmp.mesAtivo).toLowerCase();
+    const wrap = document.createElement('div'); wrap.className = 'nx-fs-monthbar';
+    const lbl = document.createElement('span'); lbl.className = 'nx-fs-monthbar-lbl'; lbl.textContent = 'Recorte'; wrap.appendChild(lbl);
+    const track = document.createElement('div'); track.className = 'nx-fs-months';
+    (cmp.listaMeses || []).forEach(m => {
+      const pill = document.createElement('button'); pill.type = 'button';
+      pill.className = 'nx-fs-month' + (m.chave.toLowerCase() === ativo ? ' active' : '');
+      pill.textContent = m.labelData;
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cmp.mesAtivo = m.chave; cmp.subAbaDespesa = m.chave.toLowerCase();
+        try { cmp.atualizarLeituraSistema(); } catch(_){}
+        track.querySelectorAll('.nx-fs-month').forEach(x => x.classList.remove('active'));
+        pill.classList.add('active');
+      });
+      track.appendChild(pill);
+    });
+    wrap.appendChild(track); bar.appendChild(wrap);
+  }
+  card.insertBefore(bar, card.firstChild);
 }
 document.addEventListener('fullscreenchange', nxFsSyncIcones);
 document.addEventListener('webkitfullscreenchange', nxFsSyncIcones);
