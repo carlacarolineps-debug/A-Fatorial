@@ -69,6 +69,29 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
   Presumido) e aparecem **dentro da Embalagem** (não são painéis próprios). Teste
   Sucata = aparas (Hanami); ITP = itens de terceiros (decisão de produzir vs. comprar).
 
+### Central de Inteligência — o sistema pensa pelo analista
+No topo (ícone de cérebro, com contador) abre um painel deslizante que **lê os números
+sozinho** e entrega alertas acionáveis, sem depender da memória de quem analisa:
+- **Prejuízo no mês**, **salto de despesa** mês contra mês (com o % e o porquê provável),
+  **margem apertada**, **concentração de despesa** num único grupo, e **projeção do ano
+  pelo ritmo atual** (run-rate) — cada um com severidade, explicação e **botão que leva
+  direto à tela** para agir.
+- **Embalagem**: alerta de **fator abaixo do custo por kg** (prejuízo por quilo) e de
+  margem/kg estreita.
+- **Grupo (Consolidado)**: empresas **no vermelho após o rateio da matriz**
+  (rentabilidade real), **risco de concentração** de faturamento, maior bloco de custo
+  do grupo e a empresa mais rentável (oportunidade a replicar).
+- No **Dashboard**, cada KPI de Faturamento e Despesa mostra a **variação vs. o mês
+  anterior** (▲/▼ %, com cor invertida para custo) — momentum na hora.
+
+### Menu enxuto e navegação sem redundância
+- **Uma única forma** de trocar de painel: o cartão **“Painel ativo”** na sidebar é o
+  próprio botão de troca (some o botão duplicado e o item “Hub” repetido no menu e no topo).
+- **Logo do cliente** de volta no topo da sidebar (placa clara, com brasão de reserva).
+- **Menu de perfil** (Meus Dados, Editar Perfil & Foto, Configurações, Sair) refeito em
+  tema escuro premium e **sem corte** — abre inteiro abaixo do avatar.
+- Rodapé “**Powered by Grupo A! Fatorial**” discreto no lugar do texto antigo.
+
 ### Painel da Embalagem — tudo por R$ / kg / fator / peso
 A indústria de embalagem é medida por quilo, então o painel mostra as duas dimensões:
 - KPIs de **Fator (Receita/kg)**, **Custo/kg** (despesa ÷ kg), **Margem/kg**, peso e resultado.

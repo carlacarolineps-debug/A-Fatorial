@@ -440,6 +440,22 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .kpi-card.red{ border-left:4px solid var(--accent-red) !important; }
 .kpi-card.green{ border-left:4px solid var(--accent-green) !important; }
 .kpi-card.gold{ border-left:4px solid var(--accent-gold) !important; }
+
+/* ===== Menu de perfil (premium, escuro) ===== */
+.nx-pmenu-item{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; font-size:13px; font-weight:700; color:#d7d9ea; cursor:pointer; transition:.14s; }
+.nx-pmenu-item:hover{ background:rgba(255,255,255,.06); color:#fff; }
+.nx-pmenu-danger{ color:#fb7185; }
+.nx-pmenu-danger:hover{ background:rgba(225,29,72,.12); color:#fda4b4; }
+
+/* ===== Central de Inteligência (alertas) ===== */
+.nx-slidein-e{ transition:transform .28s var(--ease); }
+.nx-slidein-s{ transform:translateX(100%); }
+.nx-slidein-end{ transform:translateX(0); }
+.nx-intel-chip{ font-size:11px; padding:5px 11px; border-radius:999px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); }
+.nx-intel-card{ background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.09); border-left:3px solid #2dd4a7; border-radius:13px; padding:14px 15px; margin-bottom:11px; transition:.15s; }
+.nx-intel-card:hover{ background:rgba(255,255,255,.06); }
+.nx-intel-ic{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.kpi-mom{ margin-left:auto; font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:999px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
 </style>
 </head>
 <body class="flex h-screen overflow-hidden" x-data="sistemaUnificado()" x-init="inicializar()">
@@ -542,34 +558,43 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
   </div>
 
 <aside x-show="logado && depto" x-cloak :class="sidebarOpen ? 'sidebar-full' : 'sidebar-rail'" :style="sidebarOpen ? 'width:256px' : 'width:74px'" class="flex-shrink-0 flex flex-col overflow-y-auto overflow-x-hidden z-20 nx-sidebar" style="background: var(--color-surface); border-right: 1px solid var(--color-border); box-shadow: 2px 0 10px rgba(0,0,0,0.05); transition: width 0.22s var(--ease);">
-  <div class="nx-brand" :style="sidebarOpen ? 'padding:22px 18px' : 'padding:18px 8px'" style="border-bottom: 1px solid rgba(255,255,255,.08);">
-    <div x-show="sidebarOpen" style="display:flex;align-items:center;gap:11px">
-      <div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.35);flex-shrink:0"><i class="fas fa-cubes-stacked" style="color:var(--accent-gold);font-size:19px"></i></div>
-      <div>
-        <div class="display" style="font-weight:800;color:#fff;font-size:16px;letter-spacing:.3px;line-height:1">NEXUS GRB</div>
-        <div style="font-size:9px;color:var(--accent-gold);text-transform:uppercase;letter-spacing:1.6px;font-weight:700;margin-top:4px">Grupo Rebracil</div>
+  <div class="nx-brand" :style="sidebarOpen ? 'padding:20px 16px' : 'padding:16px 8px'" style="border-bottom: 1px solid rgba(255,255,255,.08);">
+    <div x-show="sidebarOpen" style="display:flex;align-items:center;gap:11px" x-data="{ logoOk:true }">
+      <template x-if="logoOk">
+        <div style="background:#fff;border-radius:10px;padding:5px 9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 5px 14px -6px rgba(0,0,0,.6)">
+          <img :src="logoCliente" @error="logoOk=false" alt="Rebracil" style="height:30px;max-width:104px;object-fit:contain">
+        </div>
+      </template>
+      <template x-if="!logoOk">
+        <div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.35);flex-shrink:0"><i class="fas fa-cubes-stacked" style="color:var(--accent-gold);font-size:19px"></i></div>
+      </template>
+      <div style="min-width:0">
+        <div class="display" style="font-weight:800;color:#fff;font-size:15px;letter-spacing:.3px;line-height:1">NEXUS GRB</div>
+        <div style="font-size:8.5px;color:var(--accent-gold);text-transform:uppercase;letter-spacing:1.4px;font-weight:700;margin-top:3px">Grupo Rebracil</div>
       </div>
     </div>
     <div x-show="!sidebarOpen" style="width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.35);margin:0 auto">
        <i class="fas fa-cubes-stacked" style="color:var(--accent-gold);font-size:17px;"></i>
     </div>
   </div>
-  <!-- PAINEL ATIVO (departamento) -->
-  <div x-show="sidebarOpen" style="padding:14px 14px 4px;">
-    <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.4px;color:var(--color-dim);font-weight:800;margin-bottom:7px;padding:0 2px;">Painel ativo</div>
-    <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 20px -12px rgba(0,0,0,.5)" :style="depto==='grupo'?'background:linear-gradient(160deg,#241d5c,#161232)':(depto?('background:linear-gradient(160deg,'+empresaMeta.cor+','+empresaMeta.cor+'cc)'):'background:rgba(255,255,255,.05)')">
-      <div style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas" :class="depto==='grupo'?'fa-layer-group':(depto?empresaMeta.icone:'fa-grip')" style="color:#fff;font-size:14px"></i></div>
+  <!-- PAINEL ATIVO — chip único e clicável (troca de painel) -->
+  <div x-show="sidebarOpen" style="padding:13px 14px 3px;">
+    <button @click="irParaHub()" title="Trocar de painel"
+      style="width:100%;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:13px;border:1px solid rgba(255,255,255,.13);cursor:pointer;transition:.16s;text-align:left;box-shadow:0 8px 20px -13px rgba(0,0,0,.55)"
+      :style="depto==='grupo'?'background:linear-gradient(160deg,#241d5c,#161232)':(depto?('background:linear-gradient(160deg,'+empresaMeta.cor+'e6,'+empresaMeta.cor+'99)'):'background:rgba(255,255,255,.05)')"
+      onmouseover="this.style.filter='brightness(1.13)'" onmouseout="this.style.filter=''">
+      <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas" :class="depto==='grupo'?'fa-layer-group':(depto?empresaMeta.icone:'fa-grip')" style="color:#fff;font-size:13px"></i></div>
       <div style="min-width:0;flex:1">
-        <div style="font-weight:800;color:#fff;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Escolha no Hub')"></div>
-        <div style="font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:2px">departamento</div>
+        <div style="font-size:8px;color:rgba(255,255,255,.68);text-transform:uppercase;letter-spacing:1px;font-weight:800;line-height:1">Painel ativo</div>
+        <div style="font-weight:800;color:#fff;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-top:2px" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Escolha no Hub')"></div>
       </div>
-    </div>
-    <button @click="irParaHub()" style="width:100%;margin-top:9px;font-size:11px;font-weight:800;color:#c9ccec;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;cursor:pointer;transition:.15s" onmouseover="this.style.background='rgba(255,255,255,.11)'" onmouseout="this.style.background='rgba(255,255,255,.06)'"><i class="fas fa-arrow-left-long mr-2"></i> Trocar painel</button>
+      <i class="fas fa-right-left" style="color:rgba(255,255,255,.6);font-size:11px;flex-shrink:0"></i>
+    </button>
   </div>
   <div x-show="!sidebarOpen" class="nav-sep"></div>
 
   <nav style="flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 0">
-    <button class="nav-item" @click="irParaHub()" :class="aba==='hub'?'active':''" title="Hub — escolher painel"><i class="fas fa-house w-4"></i> <span class="nav-label">Hub (painéis)</span></button>
+    <button class="nav-item" x-show="!sidebarOpen" @click="irParaHub()" title="Trocar de painel"><i class="fas fa-right-left w-4"></i></button>
 
     <!-- ===== GRUPO — CONSOLIDADO ===== -->
     <template x-if="depto==='grupo'">
@@ -627,15 +652,20 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     <button class="nav-item" @click="mudarAba('configuracoes')" :class="aba==='configuracoes'?'active':''" title="Configurações Globais"><i class="fas fa-cog w-4"></i> <span class="nav-label">Configurações Globais</span></button>
   </nav>
 
-  <div x-show="sidebarOpen" style="padding: 16px; text-align: center; font-size: 10px; color: var(--color-muted); border-top: 1px solid var(--color-border); background: var(--color-surface2); margin-top: auto;">
-    Desenvolvido por:<br>
-    <span style="color: var(--accent-gold); font-weight: 900; letter-spacing: 0.5px;">GRUPO A! FATORIAL</span>
+  <div x-show="sidebarOpen" style="padding:13px 16px;margin-top:auto;border-top:1px solid rgba(255,255,255,.07);">
+    <div style="display:flex;align-items:center;gap:9px;opacity:.85">
+      <div style="width:23px;height:23px;border-radius:7px;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-bolt" style="color:var(--accent-gold);font-size:10px"></i></div>
+      <div style="line-height:1.25">
+        <div style="font-size:7.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--color-dim);font-weight:700">Powered by</div>
+        <div style="font-size:11px;font-weight:800;color:#cbcfe8;letter-spacing:.2px">Grupo <span style="color:var(--accent-gold)">A! Fatorial</span></div>
+      </div>
+    </div>
   </div>
 </aside>
 
 <main x-show="logado && depto" x-cloak class="flex-1 flex flex-col h-screen overflow-hidden">
   
-  <header class="flex-shrink-0" style="padding: 16px 28px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+  <header class="flex-shrink-0" style="position:relative; z-index:40; padding: 16px 28px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface); box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
     <div class="flex items-center">
       <button @click="sidebarOpen = !sidebarOpen" class="mr-4 text-accent-blue hover:text-accent-gold transition-colors focus:outline-none" title="Recolher/Expandir Menu">
           <i class="fas fa-bars text-xl"></i>
@@ -648,9 +678,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <p class="nx-ph-desc" x-text="descAba"></p>
         </div>
       </div>
-      <button @click="irParaHub()" x-show="aba!=='hub'" class="ml-4" title="Trocar de painel (Hub)" style="padding:7px 14px;border-radius:10px;border:1px solid var(--color-border2);background:var(--color-surface2);color:var(--accent-blue);font-weight:800;font-size:12px;cursor:pointer;">
-        <i class="fas fa-th-large mr-1"></i> Hub
-      </button>
     </div>
     
     <div style="display:flex;align-items:center;gap:24px">
@@ -662,25 +689,96 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
 
 
-      <div class="relative" x-data="{ openMenu: false }">
-        <button @click="openMenu = !openMenu" class="flex items-center gap-3 focus:outline-none p-1 rounded-lg hover:bg-gray-100 transition-colors">
+      <!-- CENTRAL DE INTELIGÊNCIA (sino de alertas) -->
+      <button @click="showAlertas=true" title="Central de Inteligência — alertas e recomendações"
+        style="position:relative;width:42px;height:42px;border-radius:12px;border:1px solid var(--color-border2);background:var(--color-surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s"
+        onmouseover="this.style.borderColor='var(--accent-gold)'" onmouseout="this.style.borderColor='var(--color-border2)'">
+        <i class="fas fa-brain" style="color:var(--accent-blue);font-size:16px"></i>
+        <template x-if="alertas.length">
+          <span x-text="alertas.length"
+            :style="alertasAlta ? 'background:#e11d48' : 'background:var(--accent-gold-deep,#b8935a)'"
+            style="position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--color-surface);box-shadow:0 2px 6px rgba(0,0,0,.25)"></span>
+        </template>
+      </button>
+
+      <div class="nx-profile" x-data="{ openMenu: false }" style="position:relative">
+        <button @click="openMenu = !openMenu" class="flex items-center gap-3 focus:outline-none" style="padding:5px 7px;border-radius:12px;transition:.15s" onmouseover="this.style.background='var(--color-surface2)'" onmouseout="this.style.background='transparent'">
           <div class="text-right hidden md:block">
             <p class="text-sm font-bold text-nexus-blue leading-tight" x-text="usuarioLogado.nome"></p>
             <p class="text-[10px] text-nexus-gold uppercase font-bold" x-text="usuarioLogado.cargo"></p>
           </div>
           <img :src="usuarioLogado.foto || 'https://ui-avatars.com/api/?name=' + usuarioLogado.nome + '&background=191040&color=fff'" class="w-10 h-10 rounded-full border-2" style="border-color: var(--accent-gold); object-fit: cover;">
-          <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+          <i class="fas fa-chevron-down text-xs" style="color:var(--color-muted)" :style="openMenu?'transform:rotate(180deg)':''"></i>
         </button>
-        
-        <div x-show="openMenu" @click.away="openMenu = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200 z-50">
-          <a href="#" @click.prevent="mudarAba('configuracoes'); abaConfig='sistema'; openMenu=false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-nexus-blue font-semibold"><i class="fas fa-id-card w-5 text-center mr-1 text-nexus-gold"></i> Meus Dados</a>
-          <a href="#" @click.prevent="mudarAba('configuracoes'); abaConfig='sistema'; openMenu=false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-nexus-blue font-semibold"><i class="fas fa-user-edit w-5 text-center mr-1 text-nexus-gold"></i> Editar Perfil</a>
-          <div class="border-t border-gray-100 my-1"></div>
-          <a href="#" @click.prevent="logout(); openMenu=false;" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold"><i class="fas fa-sign-out-alt w-5 text-center mr-1"></i> Sair do Sistema</a>
+
+        <div x-show="openMenu" x-cloak @click.away="openMenu = false" x-transition.origin.top.right
+          style="position:absolute;right:0;top:calc(100% + 10px);width:250px;background:#14112e;border:1px solid rgba(197,168,128,.22);border-radius:16px;box-shadow:0 24px 60px -18px rgba(0,0,0,.6);overflow:hidden;z-index:60">
+          <div style="padding:16px 16px 14px;background:linear-gradient(150deg,#1e1748,#12102e);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:12px">
+            <img :src="usuarioLogado.foto || 'https://ui-avatars.com/api/?name=' + usuarioLogado.nome + '&background=191040&color=fff'" style="width:44px;height:44px;border-radius:50%;border:2px solid var(--accent-gold);object-fit:cover;flex-shrink:0">
+            <div style="min-width:0">
+              <div style="font-weight:800;color:#fff;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="usuarioLogado.nome"></div>
+              <div style="font-size:10px;color:var(--accent-gold);text-transform:uppercase;letter-spacing:.6px;font-weight:700" x-text="usuarioLogado.cargo"></div>
+            </div>
+          </div>
+          <div style="padding:7px">
+            <a href="#" @click.prevent="mudarAba('configuracoes'); abaConfig='sistema'; openMenu=false" class="nx-pmenu-item"><i class="fas fa-id-card" style="color:var(--accent-gold);width:18px;text-align:center"></i> Meus Dados</a>
+            <a href="#" @click.prevent="mudarAba('configuracoes'); abaConfig='sistema'; openMenu=false" class="nx-pmenu-item"><i class="fas fa-user-pen" style="color:var(--accent-gold);width:18px;text-align:center"></i> Editar Perfil &amp; Foto</a>
+            <a href="#" @click.prevent="mudarAba('configuracoes'); abaConfig='sistema'; openMenu=false" class="nx-pmenu-item"><i class="fas fa-gear" style="color:var(--accent-gold);width:18px;text-align:center"></i> Configurações</a>
+            <div style="height:1px;background:rgba(255,255,255,.08);margin:6px 4px"></div>
+            <a href="#" @click.prevent="logout(); openMenu=false;" class="nx-pmenu-item nx-pmenu-danger"><i class="fas fa-arrow-right-from-bracket" style="width:18px;text-align:center"></i> Sair do Sistema</a>
+          </div>
         </div>
       </div>
     </div>
   </header>
+
+  <!-- ===== CENTRAL DE INTELIGÊNCIA (painel deslizante) ===== -->
+  <div x-show="showAlertas" x-cloak style="position:fixed;inset:0;z-index:120">
+    <div @click="showAlertas=false" x-show="showAlertas" x-transition.opacity style="position:absolute;inset:0;background:rgba(9,7,24,.55);backdrop-filter:blur(3px)"></div>
+    <div x-show="showAlertas" x-transition:enter="nx-slidein-e" x-transition:enter-start="nx-slidein-s" x-transition:enter-end="nx-slidein-end"
+      class="nx-intel-panel" style="position:absolute;top:0;right:0;height:100%;width:min(420px,92vw);background:#100d28;border-left:1px solid rgba(197,168,128,.2);box-shadow:-24px 0 70px -20px rgba(0,0,0,.7);display:flex;flex-direction:column">
+      <div style="padding:20px 22px;border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(150deg,#1e1748,#100d28);display:flex;align-items:center;gap:13px">
+        <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-brain" style="color:var(--accent-gold);font-size:18px"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.6px;color:var(--accent-gold);font-weight:800">Central de Inteligência</div>
+          <div style="font-weight:800;color:#fff;font-size:16px;line-height:1.1" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'NEXUS GRB')"></div>
+        </div>
+        <button @click="showAlertas=false" style="width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#cbcfe8;cursor:pointer;flex-shrink:0" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.05)'"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div style="padding:14px 18px 6px;display:flex;gap:8px;flex-wrap:wrap">
+        <div class="nx-intel-chip" style="border-color:rgba(225,29,72,.35)"><span style="color:#fb7185;font-weight:800" x-text="alertasAlta"></span> <span style="color:#9aa0b0">crítico(s)</span></div>
+        <div class="nx-intel-chip" style="border-color:rgba(197,168,128,.35)"><span style="color:var(--accent-gold);font-weight:800" x-text="alertas.filter(a=>a.sev==='media').length"></span> <span style="color:#9aa0b0">atenção</span></div>
+        <div class="nx-intel-chip"><span style="color:#67c9a8;font-weight:800" x-text="alertas.filter(a=>a.sev==='ok').length"></span> <span style="color:#9aa0b0">positivo(s)</span></div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:10px 18px 24px">
+        <template x-if="!alertas.length">
+          <div style="text-align:center;padding:60px 20px;color:#8b90a8">
+            <i class="fas fa-circle-check" style="font-size:38px;color:#67c9a8;margin-bottom:14px"></i>
+            <div style="font-weight:800;color:#e8eaf4;font-size:15px">Tudo sob controle</div>
+            <div style="font-size:12px;margin-top:6px;line-height:1.5">Nenhum alerta relevante neste painel. A inteligência monitora saltos de despesa, prejuízos, concentração e projeções automaticamente.</div>
+          </div>
+        </template>
+        <template x-for="(a,idx) in alertas" :key="idx">
+          <div class="nx-intel-card" :style="a.sev==='alta'?'border-left-color:#e11d48':(a.sev==='media'?'border-left-color:var(--accent-gold)':'border-left-color:#2dd4a7')">
+            <div style="display:flex;align-items:flex-start;gap:11px">
+              <div class="nx-intel-ic" :style="a.sev==='alta'?'background:rgba(225,29,72,.16);color:#fb7185':(a.sev==='media'?'background:rgba(197,168,128,.16);color:var(--accent-gold)':'background:rgba(45,212,167,.14);color:#2dd4a7')"><i class="fas" :class="a.ic"></i></div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
+                  <span style="font-size:8px;text-transform:uppercase;letter-spacing:.8px;font-weight:800;color:#8b90a8" x-text="a.cat"></span>
+                </div>
+                <div style="font-weight:800;color:#f2f3f9;font-size:13.5px;line-height:1.25" x-text="a.titulo"></div>
+                <div style="font-size:12px;color:#b3b8ce;line-height:1.5;margin-top:5px" x-text="a.texto"></div>
+                <div x-show="a.acao" style="margin-top:9px">
+                  <button @click="a.aba && mudarAba(a.aba); showAlertas=false" style="font-size:11px;font-weight:800;color:#100d28;background:var(--accent-gold);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;transition:.15s" onmouseover="this.style.filter='brightness(1.08)'" onmouseout="this.style.filter=''"><span x-text="a.acao"></span> <i class="fas fa-arrow-right" style="font-size:9px;margin-left:3px"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div style="padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:#6f7590;text-align:center">Análise automática · atualizada a cada leitura do sistema</div>
+    </div>
+  </div>
 
   <div id="mainScrollArea" style="flex:1;overflow-y:auto;padding:28px;background:var(--color-bg); position:relative;" @scroll="showBackToTop = $event.target.scrollTop > 300">
 
@@ -1271,12 +1369,12 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     <div x-show="aba==='dashboard'" x-cloak style="display:grid;gap:24px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px">
         <div class="kpi-card blue">
-          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(25,16,64,.10);color:var(--accent-blue)"><i class="fas fa-arrow-trend-up"></i></div><div class="kpi-label">Faturamento · <span x-text="mesAtivo"></span></div></div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(25,16,64,.10);color:var(--accent-blue)"><i class="fas fa-arrow-trend-up"></i></div><div class="kpi-label">Faturamento · <span x-text="mesAtivo"></span></div><template x-if="kpis.temMoM"><span class="kpi-mom" :title="'Variação vs '+kpis.momMesAnt" :style="kpis.fatMoM>=0?'color:#0d9488;background:rgba(13,148,136,.11)':'color:#e11d48;background:rgba(225,29,72,.11)'"><i class="fas" :class="kpis.fatMoM>=0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="Math.abs(kpis.fatMoM).toFixed(0)+'%'"></span></span></template></div>
           <div class="kpi-val text-accent-blue" x-text="kpis.faturamento"></div>
           <div class="kpi-foot"><span>YTD acumulado</span><b x-text="kpis.faturamentoYTD"></b></div>
         </div>
         <div class="kpi-card red">
-          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(225,29,72,.10);color:var(--accent-red)"><i class="fas fa-arrow-trend-down"></i></div><div class="kpi-label">Despesas · <span x-text="mesAtivo"></span></div></div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(225,29,72,.10);color:var(--accent-red)"><i class="fas fa-arrow-trend-down"></i></div><div class="kpi-label">Despesas · <span x-text="mesAtivo"></span></div><template x-if="kpis.temMoM"><span class="kpi-mom" :title="'Variação vs '+kpis.momMesAnt" :style="kpis.despMoM<=0?'color:#0d9488;background:rgba(13,148,136,.11)':'color:#e11d48;background:rgba(225,29,72,.11)'"><i class="fas" :class="kpis.despMoM>0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="Math.abs(kpis.despMoM).toFixed(0)+'%'"></span></span></template></div>
           <div class="kpi-val text-red-strong" x-text="kpis.despesa"></div>
           <div class="kpi-foot"><span>YTD acumulado</span><b x-text="kpis.despesaYTD"></b></div>
         </div>
@@ -2729,6 +2827,7 @@ function sistemaUnificado(){
     ordemMatriz: 'desc',
     showBackToTop: false,
     sidebarOpen: true,
+    showAlertas: false,
     collapsedCCs: [],
     mesImportacao: '',
     backupEstado: null,
@@ -2808,6 +2907,145 @@ function sistemaUnificado(){
       total.taxa = taxa;
       return { empresas, ranking: ordenadas, total };
     },
+
+    // ===== CENTRAL DE INTELIGÊNCIA — pensa pelo analista =====
+    get alertas() {
+      try {
+        if (this.depto === 'grupo') return this.alertasGrupo();
+        if (this.depto) return this.alertasEmpresa(this.empresaAtiva);
+      } catch(e) { return []; }
+      return [];
+    },
+    get alertasAlta() { return this.alertas.filter(a => a.sev === 'alta').length; },
+    _fmt(v) { return this.formatarDinheiroExato(v); },
+    alertasEmpresa(id) {
+      const emp = EMPRESAS[id]; if (!emp) return [];
+      const r = this.resumoEmpresa(id); if (!r) return [];
+      const meses = this.listaMeses;
+      const fatS = this.serieMensal(id, 'fat'), despS = this.serieMensal(id, 'desp'), resS = this.serieMensal(id, 'res');
+      const realIdx = meses.map((m, i) => i).filter(i => fatS[i] != null);
+      const nReal = realIdx.length;
+      const nomeMes = i => (meses[i] ? meses[i].labelData : '');
+      const last = realIdx[nReal - 1], prev = realIdx[nReal - 2];
+      const out = [];
+
+      // 1) Prejuízo em algum mês fechado
+      realIdx.forEach(i => { if (resS[i] < 0) out.push({
+        sev: 'alta', ic: 'fa-circle-exclamation', cat: 'Resultado',
+        titulo: 'Prejuízo em ' + nomeMes(i),
+        texto: 'O mês de ' + nomeMes(i) + ' fechou negativo em ' + this._fmt(resS[i]) + '. Vale investigar quais centros de custo pesaram e se houve receita atípica.',
+        acao: 'Ver despesa mensal', aba: 'despesa_mensal' });
+      });
+
+      // 2) Salto de despesa mês contra mês
+      if (last != null && prev != null && despS[prev] > 0) {
+        const varPct = (despS[last] - despS[prev]) / despS[prev] * 100;
+        if (varPct >= 12) out.push({
+          sev: varPct >= 25 ? 'alta' : 'media', ic: 'fa-arrow-trend-up', cat: 'Despesa',
+          titulo: 'Despesa subiu ' + varPct.toFixed(0) + '% em ' + nomeMes(last),
+          texto: 'A despesa passou de ' + this._fmt(despS[prev]) + ' (' + nomeMes(prev) + ') para ' + this._fmt(despS[last]) + '. Um salto desse tamanho costuma vir de provisões, sazonalidade ou lançamento pontual — confirme antes de projetar.',
+          acao: 'Abrir despesas por C.C.', aba: 'centro_custo' });
+      }
+
+      // 3) Margem YTD apertada / saudável
+      if (r.margem >= 0 && r.margem < 8) out.push({
+        sev: 'media', ic: 'fa-gauge-simple-high', cat: 'Margem',
+        titulo: 'Margem apertada: ' + r.margem.toFixed(1) + '%',
+        texto: 'No acumulado do ano a margem está em ' + r.margem.toFixed(1) + '%. Há pouca folga para absorver imprevistos — priorize os maiores blocos de custo no simulador.',
+        acao: 'Simular cenários', aba: 'simulador' });
+
+      // 4) Concentração de despesa em um único grupo
+      const grupos = this.gruposDespesaEmpresa(id);
+      const totG = grupos.reduce((a, g) => a + g.valor, 0) || 1;
+      if (grupos[0] && grupos[0].valor / totG >= 0.4) out.push({
+        sev: 'media', ic: 'fa-chart-pie', cat: 'Concentração',
+        titulo: grupos[0].label.replace(/^\d+\s*-\s*/, '') + ' concentra ' + ((grupos[0].valor / totG) * 100).toFixed(0) + '% da despesa',
+        texto: 'Um único grupo responde por boa parte do custo (' + this._fmt(grupos[0].valor) + '). É o ponto de maior alavancagem: pequenos ganhos aqui movem o resultado inteiro.',
+        acao: 'Abrir despesas por C.C.', aba: 'centro_custo' });
+
+      // 5) Projeção do ano (run-rate) — pensa no fechamento antes dele chegar
+      if (nReal > 0 && nReal < 12) {
+        const ytdRes = realIdx.reduce((a, i) => a + (resS[i] || 0), 0);
+        const projAno = ytdRes / nReal * 12;
+        if (projAno < 0) out.push({
+          sev: 'alta', ic: 'fa-triangle-exclamation', cat: 'Projeção',
+          titulo: 'Ritmo atual projeta ano no vermelho',
+          texto: 'Mantido o ritmo de ' + nReal + ' ' + (nReal === 1 ? 'mês' : 'meses') + ', o ano tende a fechar em ' + this._fmt(projAno) + '. Ainda dá tempo de reagir — teste cortes no simulador.',
+          acao: 'Ver tendência & projeção', aba: 'previsoes' });
+      }
+
+      // 6) Embalagem — inteligência de fator e custo por kg
+      if (emp.invMode === 'full' || (emp.extras && emp.extras.porKg)) {
+        const t = this.embSubTotais;
+        if (t && t.kg > 0) {
+          if (t.margemKg < 0) out.push({
+            sev: 'alta', ic: 'fa-weight-hanging', cat: 'Fator (R$/kg)',
+            titulo: 'Operação com prejuízo por kg',
+            texto: 'O fator médio (' + this._fmt(t.fator) + '/kg) está abaixo do custo por kg (' + this._fmt(t.custoKg) + '/kg): cada kg produzido perde ' + this._fmt(Math.abs(t.margemKg)) + '. Reveja preço ou mix antes de escalar volume.',
+            acao: 'Abrir faturamento & fator', aba: 'faturamento' });
+          else if (t.custoKg / (t.fator || 1) > 0.92) out.push({
+            sev: 'media', ic: 'fa-weight-hanging', cat: 'Fator (R$/kg)',
+            titulo: 'Margem por kg muito estreita',
+            texto: 'O custo por kg (' + this._fmt(t.custoKg) + ') consome ' + ((t.custoKg / (t.fator || 1)) * 100).toFixed(0) + '% do fator (' + this._fmt(t.fator) + '). Qualquer alta de insumo vira prejuízo — monitore de perto.',
+            acao: 'Abrir faturamento & fator', aba: 'faturamento' });
+        }
+      }
+
+      // 7) Nenhum problema → reforço positivo (para não parecer vazio)
+      if (!out.length && r.margem >= 10) out.push({
+        sev: 'ok', ic: 'fa-circle-check', cat: 'Saúde financeira',
+        titulo: 'Resultado saudável no acumulado',
+        texto: 'Margem de ' + r.margem.toFixed(1) + '% e nenhum sinal de alerta nos meses fechados. Bom momento para planejar investimentos ou reforçar caixa.',
+        acao: '', aba: '' });
+
+      const ordem = { alta: 0, media: 1, ok: 2 };
+      return out.sort((a, b) => ordem[a.sev] - ordem[b.sev]);
+    },
+    alertasGrupo() {
+      const c = this.consolidado; const out = [];
+
+      // 1) Empresas no vermelho após rateio da matriz (rentabilidade real)
+      c.empresas.filter(e => e.resReal < 0).forEach(e => out.push({
+        sev: 'alta', ic: 'fa-building-circle-exclamation', cat: 'Rentabilidade real',
+        titulo: e.curto + ' no vermelho após custos da matriz',
+        texto: 'Alocando ' + this.taxaRateio + '% de custos compartilhados, ' + e.nome + ' tem resultado real de ' + this._fmt(e.resReal) + ' (margem real ' + e.margemReal.toFixed(1) + '%). Sozinha parece saudável, mas não sustenta sua fatia da estrutura.',
+        acao: 'Abrir simulador', aba: 'simulador' }));
+
+      // 2) Concentração de faturamento numa só empresa
+      const top = c.ranking[0];
+      if (top && top.pctFat >= 55) out.push({
+        sev: 'media', ic: 'fa-chart-pie', cat: 'Risco de concentração',
+        titulo: top.curto + ' concentra ' + top.pctFat.toFixed(0) + '% do faturamento',
+        texto: 'O grupo depende fortemente de uma única empresa. Uma queda nela impacta todo o consolidado — vale acompanhar de perto e diversificar receita.',
+        acao: 'Comparar empresas', aba: 'comparador' });
+
+      // 3) Consolidado com resultado negativo
+      if (c.total.res < 0) out.push({
+        sev: 'alta', ic: 'fa-triangle-exclamation', cat: 'Consolidado',
+        titulo: 'Grupo com resultado negativo no acumulado',
+        texto: 'Somadas as empresas, o resultado do grupo está em ' + this._fmt(c.total.res) + '. Identifique no simulador qual centro de custo tem maior efeito no consolidado.',
+        acao: 'Abrir simulador', aba: 'simulador' });
+
+      // 4) Maior bloco de despesa do grupo
+      const td = this.topDespesasGrupo && this.topDespesasGrupo[0];
+      if (td) out.push({
+        sev: 'media', ic: 'fa-sitemap', cat: 'Alavancagem de custo',
+        titulo: 'Maior despesa do grupo: ' + td.grupo + ' (' + td.empresa + ')',
+        texto: 'O maior bloco de custo isolado do grupo é ' + this._fmt(td.valor) + '. É onde uma negociação ou corte gera o maior retorno em resultado.',
+        acao: 'Abrir tendência & projeção', aba: 'projecao' });
+
+      // 5) Empresa com maior margem real — oportunidade a replicar
+      const melhor = [...c.empresas].sort((a, b) => b.margemReal - a.margemReal)[0];
+      if (melhor && melhor.margemReal > 0 && !out.some(o => o.sev === 'alta')) out.push({
+        sev: 'ok', ic: 'fa-trophy', cat: 'Oportunidade',
+        titulo: melhor.curto + ' é a mais rentável do grupo',
+        texto: 'Com margem real de ' + melhor.margemReal.toFixed(1) + '%, ' + melhor.nome + ' é referência. Vale entender o que ela faz diferente e replicar nas demais.',
+        acao: 'Comparar empresas', aba: 'comparador' });
+
+      const ordem = { alta: 0, media: 1, ok: 2 };
+      return out.sort((a, b) => ordem[a.sev] - ordem[b.sev]);
+    },
+
     carregarEmpresa(id) {
       const emp = EMPRESAS[id] || EMPRESAS['requalificadora'];
       this.empresaAtiva = emp.id;
@@ -3069,9 +3307,10 @@ function sistemaUnificado(){
         faturamento:'', faturamentoYTD:'',
         despesa:'', despesaYTD:'',
         resultado:'', resultadoYTD:'',
-        resultadoInv:'', resultadoInvYTD:'', resultadoInvNum:0, 
-        margem:0, margemYTD:0, 
-        maiorFat:'', maiorDesp:'' 
+        resultadoInv:'', resultadoInvYTD:'', resultadoInvNum:0,
+        margem:0, margemYTD:0,
+        maiorFat:'', maiorDesp:'',
+        temMoM:false, momMesAnt:'', fatMoM:0, despMoM:0, resMoM:0
     },
     
     kpisProvisoes: { 
@@ -4162,6 +4401,17 @@ function sistemaUnificado(){
       this.kpis.resultadoYTD = this.formatarDinheiroExato(ytdOp);
       this.kpis.resultadoInvYTD = this.formatarDinheiroExato(ytdInv);
       this.kpis.margemYTD = ytdFat > 0 ? ((ytdOp/ytdFat)*100).toFixed(2) : 0;
+
+      // Variação mês contra mês (momentum) — pensa pelo analista
+      if(iMes > 0) {
+        const pk = this.listaMeses[iMes-1].chave.toLowerCase();
+        const pFat = lFat?(lFat[pk]||0):0, pDesp = lDesp?(lDesp[pk]||0):0, pOp = lOp?(lOp[pk]||0):0;
+        this.kpis.temMoM = (pFat !== 0 || pDesp !== 0);
+        this.kpis.momMesAnt = this.listaMeses[iMes-1].chave;
+        this.kpis.fatMoM = pFat ? ((rFat-pFat)/Math.abs(pFat)*100) : 0;
+        this.kpis.despMoM = pDesp ? ((rDesp-pDesp)/Math.abs(pDesp)*100) : 0;
+        this.kpis.resMoM = pOp ? ((rOp-pOp)/Math.abs(pOp)*100) : 0;
+      } else { this.kpis.temMoM = false; }
 
       let mFat=0, mDesp=0;
       if(lFat && lDesp) {
