@@ -380,6 +380,10 @@ main > header h2{ letter-spacing:-.4px; }
 .card-dark:fullscreen{ overflow:auto; padding:24px 30px; border-radius:0; background:var(--color-surface); }
 .card-dark:fullscreen div:has(> table.dark-table){ max-height:calc(100vh - 120px) !important; }
 .card-dark:fullscreen .nx-fs-btn{ position:fixed; top:18px; right:24px; width:38px; height:38px; font-size:14px; opacity:1; }
+/* Seletor de período dentro da tela cheia */
+.nx-fs-period{ position:fixed; top:20px; right:74px; z-index:8; display:flex; align-items:center; gap:8px; background:var(--color-surface2); border:1px solid var(--accent-gold); border-radius:10px; padding:6px 12px; box-shadow:0 8px 20px -10px rgba(0,0,0,.3); }
+.nx-fs-period span{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--color-muted); }
+.nx-fs-period select{ border:none; background:transparent; font-weight:800; font-size:13px; color:var(--accent-blue); cursor:pointer; outline:none; }
 /* Fallback (card movido para o body) */
 .nx-fs-on{ position:fixed !important; inset:0 !important; z-index:170 !important; margin:0 !important; border-radius:0 !important; max-width:none !important; width:auto !important; height:auto !important; overflow:auto !important; padding:24px 30px !important; box-shadow:none !important; background:var(--color-surface) !important; }
 .nx-fs-on .nx-fs-btn{ position:fixed; top:18px; right:24px; width:38px; height:38px; font-size:14px; opacity:1; }
@@ -469,15 +473,13 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .nx-intel-card:hover{ background:rgba(255,255,255,.06); }
 .nx-intel-ic{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
 .kpi-mom{ margin-left:auto; font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:999px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
-/* ===== Resumo lateral ===== */
-.nx-side{ align-self:start; position:sticky; top:8px; }
-.nx-sidestat{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:9px 12px; border-radius:11px; background:var(--color-surface2); border:1px solid var(--color-border); }
-.nx-sidestat span{ font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--color-dim); font-weight:800; }
-.nx-sidestat b{ font-size:14px; font-weight:900; color:var(--accent-blue); font-variant-numeric:tabular-nums; white-space:nowrap; }
-.nx-sidecard{ font-size:12px; line-height:1.5; color:var(--color-muted); padding:10px 12px; border-radius:11px; background:var(--color-surface2); border:1px solid var(--color-border); border-left:3px solid var(--accent-blue); }
-.nx-sidecard-t{ font-weight:800; color:var(--accent-blue); font-size:12px; margin-bottom:3px; }
-.nx-sidecard b{ color:var(--accent-blue); }
-@media (max-width:1024px){ .grid-sub{ grid-template-columns:1fr !important; } .nx-side{ position:static; } }
+/* ===== Resumo analítico (painel deslizante escuro) ===== */
+.nx-sidestat{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:10px 13px; border-radius:11px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); }
+.nx-sidestat span{ font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:#8b90a8; font-weight:800; }
+.nx-sidestat b{ font-size:14px; font-weight:900; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.nx-sidecard{ font-size:12px; line-height:1.5; color:#b3b8ce; padding:11px 13px; border-radius:11px; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.09); border-left:3px solid var(--accent-blue); }
+.nx-sidecard-t{ font-weight:800; color:#f2f3f9; font-size:12px; margin-bottom:3px; }
+.nx-sidecard b{ color:#fff; }
 </style>
 </head>
 <body class="flex h-screen overflow-hidden" x-data="sistemaUnificado()" x-init="inicializar()">
@@ -787,6 +789,54 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
   </div>
 
+  <!-- ===== RESUMO ANALÍTICO (painel deslizante — abre ao clicar) ===== -->
+  <div x-show="showResumo" x-cloak style="position:fixed;inset:0;z-index:120">
+    <div @click="showResumo=false" x-show="showResumo" x-transition.opacity style="position:absolute;inset:0;background:rgba(9,7,24,.55);backdrop-filter:blur(3px)"></div>
+    <div x-show="showResumo" x-transition:enter="nx-slidein-e" x-transition:enter-start="nx-slidein-s" x-transition:enter-end="nx-slidein-end"
+      style="position:absolute;top:0;right:0;height:100%;width:min(400px,92vw);background:#100d28;border-left:1px solid rgba(197,168,128,.2);box-shadow:-24px 0 70px -20px rgba(0,0,0,.7);display:flex;flex-direction:column">
+      <div style="padding:20px 22px;border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(150deg,#1e1748,#100d28);display:flex;align-items:center;gap:13px">
+        <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(160deg,#2a1d63,#191040);border:1px solid rgba(197,168,128,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-wand-magic-sparkles" style="color:var(--accent-gold);font-size:17px"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.6px;color:var(--accent-gold);font-weight:800">Resumo analítico</div>
+          <div style="font-weight:800;color:#fff;font-size:16px;line-height:1.1">Sub-empresas &amp; Tributação</div>
+        </div>
+        <button @click="showResumo=false" style="width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#cbcfe8;cursor:pointer;flex-shrink:0" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.05)'"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px 18px 24px;display:flex;flex-direction:column;gap:11px">
+        <template x-if="empresaExtras.porKg">
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div class="nx-sidestat"><span>Faturamento operacional</span><b x-text="formatarDinheiroExato(embResumo.t.fat)"></b></div>
+            <div class="nx-sidestat"><span>Resultado operacional</span><b :class="embResumo.t.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embResumo.t.res)"></b></div>
+            <div class="nx-sidestat"><span>Margem consolidada</span><b :class="embResumo.t.margem<0?'text-red-strong':'text-green-strong'" x-text="embResumo.t.margem.toFixed(1)+'%'"></b></div>
+            <div class="nx-sidestat"><span>Fator médio · Custo/kg</span><b x-text="'R$ '+embResumo.t.fator.toFixed(2).replace('.',',')+' · R$ '+embResumo.t.custoKg.toFixed(2).replace('.',',')"></b></div>
+            <template x-if="embResumo.maisRentavel">
+              <div class="nx-sidecard" style="border-left-color:var(--accent-green)">
+                <div class="nx-sidecard-t"><i class="fas fa-trophy mr-1" style="color:var(--accent-gold)"></i> Quem realiza a margem</div>
+                <div><b x-text="embResumo.maisRentavel.nome"></b> — margem <b x-text="embResumo.maisRentavel.margem.toFixed(1)+'%'"></b>. É onde o lucro do grupo é apurado (menor carga tributária).</div>
+              </div>
+            </template>
+            <template x-if="embResumo.industria">
+              <div class="nx-sidecard" style="border-left-color:var(--accent-gold)">
+                <div class="nx-sidecard-t"><i class="fas fa-industry mr-1" style="color:var(--accent-gold)"></i> A indústria opera no zero</div>
+                <div><b x-text="embResumo.industria.nome"></b> tem fator ≈ custo/kg (margem <b x-text="embResumo.industria.margem.toFixed(1)+'%'"></b>): entrega volume; a margem sai nas demais.</div>
+              </div>
+            </template>
+            <template x-if="embResumo.inter">
+              <div class="nx-sidecard" style="border-left-color:#64748b">
+                <div class="nx-sidecard-t"><i class="fas fa-circle-info mr-1"></i> Inter Company — eliminar</div>
+                <div>Venda entre empresas do grupo (<b x-text="formatarDinheiroExato(embResumo.inter.fat)"></b>) deve ser eliminada na consolidação para não contar receita em dobro.</div>
+              </div>
+            </template>
+            <div class="nx-sidecard" style="border-left-color:var(--accent-gold)">
+              <div class="nx-sidecard-t"><i class="fas fa-recycle mr-1" style="color:var(--accent-gold)"></i> Aparas (Hanami)</div>
+              <div><b>Teste Sucata</b> = aparas / erro de impressão — receita de subproduto, não da venda principal.</div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
   <div id="mainScrollArea" style="flex:1;overflow-y:auto;padding:28px;background:var(--color-bg); position:relative;" @scroll="showBackToTop = $event.target.scrollTop > 300">
 
     <style>
@@ -1086,10 +1136,15 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div></template>
 
     <!-- ===================== EMBALAGEM · SUB-EMPRESAS & TRIBUTAÇÃO ===================== -->
-    <template x-if="aba==='subempresas' && empresaExtras.porKg"><div x-cloak style="display:grid;grid-template-columns:minmax(0,1.75fr) minmax(250px,1fr);gap:20px" class="grid-sub">
+    <template x-if="aba==='subempresas' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
       <div class="card-dark" style="margin-bottom:0">
-        <div class="card-title"><i class="fas fa-scale-unbalanced mr-2" style="color:var(--accent-gold)"></i> Sub-empresas da Embalagem — Estratégia Tributária</div>
-        <div class="card-sub" style="margin-top:-8px">A indústria fica na <b>Embalagem (Lucro Presumido)</b>; a margem é realizada por empresas de carga menor (ex.: <b>Linear = Simples Nacional</b>). Uma vende para a outra conforme o cliente — é planejamento tributário. Valores em R$, kg, fator, custo/kg e margem.</div>
+        <div class="flex justify-between items-start flex-wrap gap-3">
+          <div>
+            <div class="card-title"><i class="fas fa-scale-unbalanced mr-2" style="color:var(--accent-gold)"></i> Sub-empresas da Embalagem — Estratégia Tributária</div>
+            <div class="card-sub" style="margin-top:-8px">A indústria fica na <b>Embalagem (Lucro Presumido)</b>; a margem é realizada por empresas de carga menor (ex.: <b>Linear = Simples Nacional</b>). Uma vende para a outra conforme o cliente — é planejamento tributário. Valores em R$, kg, fator, custo/kg e margem.</div>
+          </div>
+          <button @click="showResumo=true" class="emc-btn-secondary text-[12px] py-2 px-3 flex-shrink-0" title="Abrir resumo analítico"><i class="fas fa-wand-magic-sparkles mr-1" style="color:var(--accent-gold)"></i> Resumo</button>
+        </div>
         <div style="overflow-x:auto">
           <table class="dark-table" style="min-width:720px">
             <thead><tr><th>Empresa</th><th class="td-r">Faturamento</th><th class="td-r">Kg</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Despesa</th><th class="td-r">Custo/kg</th><th class="td-r">Resultado</th><th class="td-r">Margem</th></tr></thead>
@@ -1118,38 +1173,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
-      <!-- RESUMO LATERAL -->
-      <div class="card-dark nx-side" style="margin-bottom:0">
-        <div class="card-title" style="font-size:14px"><i class="fas fa-clipboard-list mr-2" style="color:var(--accent-gold)"></i> Resumo</div>
-        <div style="display:flex;flex-direction:column;gap:11px">
-          <div class="nx-sidestat"><span>Faturamento operacional</span><b x-text="formatarDinheiroExato(embResumo.t.fat)"></b></div>
-          <div class="nx-sidestat"><span>Resultado operacional</span><b :class="embResumo.t.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embResumo.t.res)"></b></div>
-          <div class="nx-sidestat"><span>Margem consolidada</span><b :class="embResumo.t.margem<0?'text-red-strong':'text-green-strong'" x-text="embResumo.t.margem.toFixed(1)+'%'"></b></div>
-          <div class="nx-sidestat"><span>Fator médio · Custo/kg</span><b x-text="'R$ '+embResumo.t.fator.toFixed(2).replace('.',',')+' · R$ '+embResumo.t.custoKg.toFixed(2).replace('.',',')"></b></div>
-          <template x-if="embResumo.maisRentavel">
-            <div class="nx-sidecard" style="border-left-color:var(--accent-green)">
-              <div class="nx-sidecard-t"><i class="fas fa-trophy mr-1" style="color:var(--accent-gold)"></i> Quem realiza a margem</div>
-              <div><b x-text="embResumo.maisRentavel.nome"></b> — margem <b x-text="embResumo.maisRentavel.margem.toFixed(1)+'%'"></b>. É onde o lucro do grupo é apurado (menor carga tributária).</div>
-            </div>
-          </template>
-          <template x-if="embResumo.industria">
-            <div class="nx-sidecard" style="border-left-color:var(--accent-gold)">
-              <div class="nx-sidecard-t"><i class="fas fa-industry mr-1" style="color:var(--accent-gold)"></i> A indústria opera no zero</div>
-              <div><b x-text="embResumo.industria.nome"></b> tem fator ≈ custo/kg (margem <b x-text="embResumo.industria.margem.toFixed(1)+'%'"></b>): entrega volume; a margem sai nas demais.</div>
-            </div>
-          </template>
-          <template x-if="embResumo.inter">
-            <div class="nx-sidecard" style="border-left-color:#64748b">
-              <div class="nx-sidecard-t"><i class="fas fa-circle-info mr-1"></i> Inter Company — eliminar</div>
-              <div>Venda entre empresas do grupo (<b x-text="formatarDinheiroExato(embResumo.inter.fat)"></b>) deve ser eliminada na consolidação para não contar receita em dobro.</div>
-            </div>
-          </template>
-          <div class="nx-sidecard" style="border-left-color:var(--accent-gold)">
-            <div class="nx-sidecard-t"><i class="fas fa-recycle mr-1" style="color:var(--accent-gold)"></i> Aparas (Hanami)</div>
-            <div><b>Teste Sucata</b> = aparas / erro de impressão — receita de subproduto, não da venda principal.</div>
-          </div>
         </div>
       </div>
     </div></template>
@@ -2907,10 +2930,12 @@ function nxFsClasse(card, btn) {
   card.classList.add('nx-fs-on');
   document.body.classList.add('nx-fs-lock');
   if (btn) btn.innerHTML = NX_FS_CLOSE;
+  nxMontarPeriodoFS(card);
 }
 function sairTelaCheia() {
   const d = document;
   if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); }
+  document.querySelectorAll('.nx-fs-period').forEach(el => el.remove());
   document.querySelectorAll('.nx-fs-on').forEach(c => {
     c.classList.remove('nx-fs-on');
     const b = c.querySelector(':scope > .nx-fs-btn'); if (b) b.innerHTML = NX_FS_OPEN;
@@ -2922,6 +2947,23 @@ function nxFsSyncIcones() {
   document.querySelectorAll('.nx-fs-btn').forEach(b => { b.innerHTML = NX_FS_OPEN; });
   const fe = document.fullscreenElement || document.webkitFullscreenElement;
   if (fe) { const b = fe.querySelector(':scope > .nx-fs-btn'); if (b) b.innerHTML = NX_FS_CLOSE; }
+  document.querySelectorAll('.nx-fs-period').forEach(el => el.remove()); // limpa seletores antigos
+  if (fe) nxMontarPeriodoFS(fe);
+}
+// Em tela cheia, o seletor de período do topo some — injeta um aqui para não perder o controle.
+const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','despesa_mensal'];
+function nxMontarPeriodoFS(card) {
+  const root = document.querySelector('[x-data]'); if (!root || !window.Alpine) return;
+  const cmp = Alpine.$data(root);
+  if (!cmp || NX_FS_ABAS_SEM_PERIODO.includes(cmp.aba)) return;   // só onde o recorte faz sentido
+  const wrap = document.createElement('div');
+  wrap.className = 'nx-fs-period';
+  const lbl = document.createElement('span'); lbl.textContent = 'Recorte:';
+  const sel = document.createElement('select');
+  (cmp.listaMeses || []).forEach(m => { const o = document.createElement('option'); o.value = m.chave; o.textContent = m.labelData; if (m.chave === cmp.mesAtivo) o.selected = true; sel.appendChild(o); });
+  sel.addEventListener('change', () => { cmp.mesAtivo = sel.value; cmp.subAbaDespesa = sel.value.toLowerCase(); try { cmp.atualizarLeituraSistema(); } catch(e){} });
+  wrap.appendChild(lbl); wrap.appendChild(sel);
+  card.appendChild(wrap);
 }
 document.addEventListener('fullscreenchange', nxFsSyncIcones);
 document.addEventListener('webkitfullscreenchange', nxFsSyncIcones);
@@ -2953,6 +2995,7 @@ function sistemaUnificado(){
     showBackToTop: false,
     sidebarOpen: true,
     showAlertas: false,
+    showResumo: false,
     collapsedCCs: [],
     collapsedFat: [],   // linhas de produto recolhidas na tela Faturamento & Fator
     mesImportacao: '',
@@ -4541,6 +4584,7 @@ function sistemaUnificado(){
     mudarAba(nome) { 
         this.aba = nome; 
         sairTelaCheia();
+        this.showResumo = false;
         setTimeout(() => {
             const scrollArea = document.getElementById('mainScrollArea');
             if(scrollArea) scrollArea.scrollTo({top:0, behavior:'smooth'});

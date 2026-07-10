@@ -92,15 +92,17 @@ sozinho** e entrega alertas acionáveis, sem depender da memória de quem analis
   tema escuro premium e **sem corte** — abre inteiro abaixo do avatar.
 - Rodapé “**Powered by Grupo A! Fatorial**” discreto no lugar do texto antigo.
 
-### Tela cheia + resumo lateral (análise mais confortável)
+### Tela cheia + resumo que abre ao clicar (análise mais confortável)
 - **Tela cheia** em todo card com tabela: um botão de expandir (canto superior direito)
   abre a planilha ocupando **a tela inteira** (API nativa de fullscreen; `Esc` sai). Injeção
   automática via `montarTelaCheia()` — vale para DRE, Centro de Custo, Despesa Mensal,
-  Faturamento, Sub-empresas, Inventário, Histórico e Consolidado.
-- **Resumo lateral** na tela **Sub-empresas**: um painel “Resumo” à direita destaca
-  faturamento/resultado/margem, fator médio, **quem realiza a margem**, a indústria que opera
-  no zero e o Inter Company a eliminar — leitura rápida sem varrer a tabela (getter `embResumo`).
-- **Sub-empresas** perdeu a coluna **Regime** (a informação já está no texto e no resumo).
+  Faturamento, Sub-empresas, Inventário, Histórico e Consolidado. **Em tela cheia, um seletor
+  de RECORTE (mês) é injetado** para não perder o controle de período (`nxMontarPeriodoFS`).
+- **Resumo analítico** (estilo Horus): um painel **desliza da direita ao clicar em “Resumo”**
+  (não é fixo, não ocupa espaço). Na tela **Sub-empresas** destaca faturamento/resultado/margem,
+  fator médio, **quem realiza a margem**, a indústria que opera no zero, o Inter Company a
+  eliminar e as aparas (getter `embResumo`, estado `showResumo`).
+- **Sub-empresas** perdeu a coluna **Regime** (a informação de regime continua nos dados e no resumo).
 
 ### Painel da Embalagem — tudo por R$ / kg / fator / peso
 A indústria de embalagem é medida por quilo, então o painel mostra as duas dimensões:
