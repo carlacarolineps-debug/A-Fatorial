@@ -1124,23 +1124,30 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                   </template>
                 </tr>
               </template>
-              <!-- TOTAL GERAL — conforme a planilha (Total Faturamento exclui aparas / Teste Sucata) -->
-              <tr class="highlight-row" style="font-weight:900;border-top:2px solid var(--accent-gold)">
-                <td class="text-accent-blue"><i class="fas fa-equals" style="font-size:9px;width:12px;color:var(--accent-gold)"></i> TOTAL · Faturamento</td>
-                <template x-for="m in fatMesesAtivos" :key="'tf'+m"><td class="td-r" x-text="formatarDinheiroExato(fatTot(m,'fat'))"></td></template>
+              <!-- TOTAIS: bruto (todas as linhas) → menos aparas → faturamento principal (conforme planilha) -->
+              <tr style="font-weight:800;border-top:2px solid var(--accent-gold);background:rgba(148,163,184,.05)">
+                <td class="text-accent-blue">Faturamento bruto <span style="font-size:9px;font-weight:700;color:var(--color-muted)">(soma das linhas)</span></td>
+                <template x-for="m in fatMesesAtivos" :key="'tb'+m"><td class="td-r" x-text="formatarDinheiroExato(fatColTotal(m,'fat','all'))"></td></template>
+              </tr>
+              <tr x-show="temAparas" style="font-weight:700;background:rgba(148,163,184,.05)">
+                <td style="color:var(--color-muted)"><i class="fas fa-recycle mr-1" style="color:var(--accent-gold)"></i> (−) Aparas — Teste Sucata</td>
+                <template x-for="m in fatMesesAtivos" :key="'ta'+m"><td class="td-r" style="color:var(--accent-red)" x-text="'− '+formatarDinheiroExato(fatColTotal(m,'fat','aparas'))"></td></template>
+              </tr>
+              <tr class="highlight-row" style="font-weight:900">
+                <td class="text-accent-blue"><i class="fas fa-equals" style="font-size:9px;width:12px;color:var(--accent-gold)"></i> Faturamento principal</td>
+                <template x-for="m in fatMesesAtivos" :key="'tp'+m"><td class="td-r" x-text="formatarDinheiroExato(fatColTotal(m,'fat','principal'))"></td></template>
               </tr>
               <tr style="font-weight:800;background:rgba(148,163,184,.06)">
-                <td style="padding-left:30px;color:var(--color-muted)">Peso total (kg)</td>
-                <template x-for="m in fatMesesAtivos" :key="'tk'+m"><td class="td-r" style="color:var(--color-muted)" x-text="fatTot(m,'kg').toLocaleString('pt-BR')+' kg'"></td></template>
+                <td style="padding-left:30px;color:var(--color-muted)">Peso total (kg) <span style="font-size:9px;font-weight:700">(inclui aparas)</span></td>
+                <template x-for="m in fatMesesAtivos" :key="'tk'+m"><td class="td-r" style="color:var(--color-muted)" x-text="fatColTotal(m,'kg','all').toLocaleString('pt-BR')+' kg'"></td></template>
               </tr>
               <tr style="font-weight:800;background:rgba(148,163,184,.06)">
-                <td style="padding-left:30px;color:var(--color-muted)">Fator médio (R$/kg)</td>
-                <template x-for="m in fatMesesAtivos" :key="'tr'+m"><td class="td-r text-green-strong" x-text="'R$ '+fatTot(m,'fator').toFixed(2).replace('.',',')"></td></template>
+                <td style="padding-left:30px;color:var(--color-muted)">Fator médio (R$/kg) <span style="font-size:9px;font-weight:700">(principal ÷ peso)</span></td>
+                <template x-for="m in fatMesesAtivos" :key="'tr'+m"><td class="td-r text-green-strong" x-text="'R$ '+(fatColTotal(m,'kg','all')>0?(fatColTotal(m,'fat','principal')/fatColTotal(m,'kg','all')):0).toFixed(2).replace('.',',')"></td></template>
               </tr>
             </tbody>
           </table>
         </div>
-        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> <b>Total Faturamento</b> segue a planilha do cliente: exclui as <b>aparas (Teste Sucata)</b> da receita principal, mas o <b>peso total inclui</b> as aparas — por isso o Total pode ser menor que a soma das linhas.</div>
       </div>
     </div></template>
 
@@ -1190,39 +1197,75 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     <template x-if="aba==='inventario' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
       <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px" class="grid-inv">
         <div class="card-dark" style="margin-bottom:0">
-          <div class="card-title">Inventário por Categoria (com fator R$/kg)</div>
+          <div class="flex justify-between items-center flex-wrap gap-3" style="margin-bottom:6px">
+            <div>
+              <div class="card-title" style="margin-bottom:2px">Inventário por Categoria (com fator R$/kg)</div>
+              <div class="card-sub" style="font-size:11.5px">Valor do estoque é a linha principal; abra para ver <b>Peso (kg)</b> e <b>Fator (R$/kg)</b>. As colunas seguem os meses lançados — de janeiro a dezembro.</div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+              <button @click="expandirTodosInv()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Todos</button>
+              <button @click="recolherTodosInv()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Todos</button>
+            </div>
+          </div>
           <div style="overflow-x:auto">
             <table class="dark-table">
-              <thead><tr><th>Categoria</th><th class="td-r">Valor Jan</th><th class="td-r">Kg Jan</th><th class="td-r">Fator</th><th class="td-r">Valor Fev</th></tr></thead>
-              <tbody>
-                <tr style="background:rgba(197,168,128,.06)" x-show="empresaExtras.itp">
-                  <td class="font-bold" style="color:var(--accent-gold-deep)"><i class="fas fa-people-carry-box mr-1"></i> ITP <span style="font-size:10px;font-weight:700;color:var(--color-muted)">(terceiros)</span></td>
-                  <td class="td-r" style="color:var(--color-dim)">a apurar</td>
-                  <td class="td-r" style="color:var(--color-dim)">—</td>
-                  <td class="td-r" style="color:var(--color-dim)">—</td>
-                  <td class="td-r" style="color:var(--color-dim)">a apurar</td>
+              <thead>
+                <tr>
+                  <th style="min-width:200px">Categoria</th>
+                  <template x-for="m in invMesesAtivos" :key="'ih'+m"><th class="td-r" x-text="m"></th></template>
                 </tr>
-                <template x-for="i in empresaExtras.inventario" :key="i.item">
-                  <tr>
-                    <td class="font-bold text-accent-blue" x-text="i.item"></td>
-                    <td class="td-r" x-text="formatarDinheiroExato(i.jan)"></td>
-                    <td class="td-r" x-text="i.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                    <td class="td-r text-green-strong font-bold" x-text="'R$ '+i.fatorJan.toFixed(2).replace('.',',')"></td>
-                    <td class="td-r" x-text="formatarDinheiroExato(i.fev)"></td>
+              </thead>
+              <tbody>
+                <template x-for="r in invRows" :key="r.item+'-'+r.kind">
+                  <tr :class="r.kind==='valor'?'cursor-pointer':''" @click="r.kind==='valor' && toggleInv(r.item)"
+                      :style="r.kind==='valor'?'border-top:1px solid var(--color-border)':'background:rgba(148,163,184,.05)'">
+                    <template x-if="r.kind==='valor'">
+                      <td class="font-bold text-accent-blue">
+                        <i class="fas fa-chevron-right transition-transform" :class="collapsedInv.includes(r.item)?'':'rotate-90'" style="font-size:9px;width:12px;color:var(--accent-gold)"></i>
+                        <span x-text="r.item"></span>
+                        <span style="font-size:9px;font-weight:800;color:var(--color-dim);text-transform:uppercase;letter-spacing:.5px;margin-left:6px">Valor</span>
+                      </td>
+                    </template>
+                    <template x-if="r.kind==='kg'">
+                      <td style="padding-left:30px;color:var(--color-muted);font-weight:600"><i class="fas fa-weight-hanging" style="font-size:10px;width:14px;color:var(--color-dim)"></i> Peso (kg)</td>
+                    </template>
+                    <template x-if="r.kind==='fator'">
+                      <td style="padding-left:30px;color:var(--color-muted);font-weight:600"><i class="fas fa-divide" style="font-size:10px;width:14px;color:var(--color-dim)"></i> Fator (R$/kg)</td>
+                    </template>
+                    <template x-for="m in invMesesAtivos" :key="r.item+r.kind+m">
+                      <td class="td-r" :class="r.kind==='valor'?'font-bold':(r.kind==='fator'?'font-bold text-green-strong':'')" :style="r.kind==='kg'?'color:var(--color-muted)':''" x-text="invCellText(r,m)"></td>
+                    </template>
                   </tr>
                 </template>
+                <tr style="background:rgba(197,168,128,.06)" x-show="empresaExtras.itp">
+                  <td class="font-bold" style="color:var(--accent-gold-deep)"><i class="fas fa-people-carry-box mr-1"></i> ITP <span style="font-size:10px;font-weight:700;color:var(--color-muted)">(terceiros — a apurar)</span></td>
+                  <template x-for="m in invMesesAtivos" :key="'itp'+m"><td class="td-r" style="color:var(--color-dim)">a apurar</td></template>
+                </tr>
+                <tr style="font-weight:800;border-top:2px solid var(--accent-gold);background:rgba(148,163,184,.05)">
+                  <td class="text-accent-blue">Estoque bruto <span style="font-size:9px;font-weight:700;color:var(--color-muted)">(soma das categorias)</span></td>
+                  <template x-for="m in invMesesAtivos" :key="'ibv'+m"><td class="td-r" x-text="formatarDinheiroExato(invColTotal(m,'valor','all'))"></td></template>
+                </tr>
+                <tr x-show="temForaEstoque" style="font-weight:700;background:rgba(148,163,184,.05)">
+                  <td style="color:var(--color-muted)">(−) <span x-text="invForaNomes"></span> <span style="font-size:9px;font-weight:700">(fora do estoque avaliado)</span></td>
+                  <template x-for="m in invMesesAtivos" :key="'ifo'+m"><td class="td-r" style="color:var(--accent-red)" x-text="'− '+formatarDinheiroExato(invColTotal(m,'valor','fora'))"></td></template>
+                </tr>
                 <tr class="highlight-row" style="font-weight:900">
-                  <td class="text-accent-blue">ESTOQUE TOTAL</td>
-                  <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.invTotal.jan)"></td>
-                  <td class="td-r" x-text="empresaExtras.invTotal.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                  <td class="td-r" x-text="'R$ '+empresaExtras.invTotal.fatorJan.toFixed(2).replace('.',',')"></td>
-                  <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.invTotal.fev)"></td>
+                  <td class="text-accent-blue"><i class="fas fa-equals" style="font-size:9px;width:12px;color:var(--accent-gold)"></i> ESTOQUE TOTAL</td>
+                  <template x-for="m in invMesesAtivos" :key="'itv'+m"><td class="td-r" x-text="formatarDinheiroExato(invColTotal(m,'valor','principal'))"></td></template>
+                </tr>
+                <tr style="font-weight:800;background:rgba(148,163,184,.06)">
+                  <td style="padding-left:30px;color:var(--color-muted)">Peso total (kg) <span style="font-size:9px;font-weight:700">(inclui todas as categorias)</span></td>
+                  <template x-for="m in invMesesAtivos" :key="'itk'+m"><td class="td-r" style="color:var(--color-muted)" x-text="invColTotal(m,'kg','all').toLocaleString('pt-BR')+' kg'"></td></template>
+                </tr>
+                <tr style="font-weight:800;background:rgba(148,163,184,.06)">
+                  <td style="padding-left:30px;color:var(--color-muted)">Fator médio (R$/kg) <span style="font-size:9px;font-weight:700">(total ÷ peso)</span></td>
+                  <template x-for="m in invMesesAtivos" :key="'itf'+m"><td class="td-r text-green-strong" x-text="'R$ '+(invColTotal(m,'kg','all')>0?(invColTotal(m,'valor','principal')/invColTotal(m,'kg','all')):0).toFixed(2).replace('.',',')"></td></template>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-        <div class="card-dark" style="margin-bottom:0"><div class="card-title">Composição do Estoque (Jan)</div><div class="chart-wrap" style="height:260px"><canvas id="chartInv"></canvas></div>
+        <div class="card-dark" style="margin-bottom:0"><div class="card-title">Composição do Estoque <span x-text="'('+(invMesesAtivos[invMesesAtivos.length-1]||'')+')'"></span></div><div class="chart-wrap" style="height:260px"><canvas id="chartInv"></canvas></div>
           <div class="nxdr-insight" style="margin:14px 0 0;border-left-color:var(--accent-gold)"><i class="fas fa-people-carry-box mr-1" style="color:var(--accent-gold)"></i> <b>ITP — Itens de Terceiros</b>: tudo que é produzido/comprado de terceiros. Serve à decisão <b>make-or-buy</b> — a Rebracil compara produzir internamente vs. comprar pronto. (linha do inventário a apurar)</div>
         </div>
       </div>
@@ -2761,12 +2804,18 @@ const EMB_FATURAMENTO=[
  {tipo:"Linear",        fat:{jan:163040.72, fev:36454.86},   kg:{jan:3513,fev:853},         fator:{jan:46.41,fev:42.74}},
  {tipo:"Inter Company", fat:{jan:9007.84,   fev:2084.18},    kg:{jan:3513,fev:853},         fator:{jan:2.56,fev:2.44}},
  {tipo:"Teste Venda",   fat:{jan:51036,     fev:55130.4},    kg:{jan:1907.88,fev:2039.6},   fator:{jan:26.75,fev:27.03}},
- {tipo:"Teste Sucata",  fat:{jan:21386.55,  fev:25964.55},   kg:{jan:3394.69,fev:3818.31},  fator:{jan:6.3,fev:6.8}},
+ {tipo:"Teste Sucata",  fat:{jan:21386.55,  fev:25964.55},   kg:{jan:3394.69,fev:3818.31},  fator:{jan:6.3,fev:6.8}, aparas:true},
  {tipo:"Teste X",       fat:{jan:159334.04, fev:169707.84},  kg:{jan:5584.78,fev:5792.07},  fator:{jan:28.53,fev:29.3}}
 ];
 const EMB_FAT_TOTAL={ fat:{jan:1941655.69,fev:1629020.87}, kg:{jan:53049.35,fev:40955.48}, fator:{jan:36.6,fev:39.78} };
-const EMB_INVENTARIO=[{"item": "Produto Acabado", "jan": 795428.64, "fev": 704571.27, "kgJan": 27831.4, "kgFev": 26123.4, "fatorJan": 28.58, "fatorFev": 26.97}, {"item": "Produto em Processo", "jan": 1328355.38, "fev": 329372.96, "kgJan": 61078.6, "kgFev": 13189.7, "fatorJan": 21.75, "fatorFev": 24.97}, {"item": "Tintas", "jan": 172975.46, "fev": 155315.42, "kgJan": 7581, "kgFev": 7232, "fatorJan": 22.82, "fatorFev": 21.48}, {"item": "Matéria Prima", "jan": 393284.56, "fev": 490315.06, "kgJan": 52462.74, "kgFev": 59711.14, "fatorJan": 7.5, "fatorFev": 8.21}];
-const EMB_INV_TOTAL={"jan": 2517068.58, "fev": 1524259.29, "kgJan": 148953.74, "kgFev": 106256.24, "fatorJan": 16.9, "fatorFev": 14.35};
+// Inventário — modelo mensal (jan..dez), pronto p/ o ano inteiro. valor = R$, kg = peso, fator = R$/kg.
+const EMB_INVENTARIO=[
+ {item:"Produto Acabado",    valor:{jan:795428.64, fev:704571.27}, kg:{jan:27831.4,fev:26123.4},  fator:{jan:28.58,fev:26.97}},
+ {item:"Produto em Processo",valor:{jan:1328355.38,fev:329372.96}, kg:{jan:61078.6,fev:13189.7},  fator:{jan:21.75,fev:24.97}},
+ {item:"Tintas",            valor:{jan:172975.46, fev:155315.42}, kg:{jan:7581,fev:7232},        fator:{jan:22.82,fev:21.48}, foraEstoque:true},
+ {item:"Matéria Prima",      valor:{jan:393284.56, fev:490315.06}, kg:{jan:52462.74,fev:59711.14},fator:{jan:7.5,fev:8.21}}
+];
+const EMB_INV_TOTAL={ valor:{jan:2517068.58,fev:1524259.29}, kg:{jan:148953.74,fev:106256.24}, fator:{jan:16.9,fev:14.35} };
 const EMB_PREVISOES=[{"categoria": "Férias + 1/3", "provisao_mensal": 5000, "jan": 0, "fev": 0}, {"categoria": "Rescisões", "provisao_mensal": 10000, "jan": 6324.84, "fev": 0}, {"categoria": "GRRF", "provisao_mensal": 1500, "jan": 0, "fev": 0}, {"categoria": "PLR", "provisao_mensal": 6000, "jan": 25875.0, "fev": 0}, {"categoria": "13º Salário", "provisao_mensal": 6500, "jan": 0, "fev": 0}, {"categoria": "Uniformes", "provisao_mensal": 1250, "jan": 0, "fev": 0}, {"categoria": "Treinamentos", "provisao_mensal": 5000, "jan": 6000.0, "fev": 5543.34}, {"categoria": "Manutenção de Ativo", "provisao_mensal": 21000, "jan": 0, "fev": 0}];
 const EMB_TENDENCIA=[{"ano": 2026, "fat": 3570676.56, "desp": 2970548.01, "lucro": 600128.55, "tendencia": "Início de série", "icon": "•"}];
 const EMB_HISTORICO=[{"desc": "Total Despesas", "2026": 2970548.01, "2024": 265910.13, "2023": 354546.84, "2022": 354546.84, "2021": 391919.19, "2020": 92848.12}, {"desc": "Faturamento", "2026": 3570676.56}, {"desc": "Resultado Operacional", "2026": 600128.55}, {"desc": "Estoque", "2026": 4041327.87}];
@@ -3025,6 +3074,7 @@ function sistemaUnificado(){
     showResumo: false,
     collapsedCCs: [],
     collapsedFat: [],   // linhas de produto recolhidas na tela Faturamento & Fator
+    collapsedInv: [],   // categorias recolhidas na tela Inventário
     mesImportacao: '',
     backupEstado: null,
     pilhaEstados: [],
@@ -3400,9 +3450,15 @@ function sistemaUnificado(){
       const emp=EMPRESAS[id]; const grupos=this.gruposDespesaEmpresa(id);
       const totalG=grupos.reduce((a,x)=>a+x.valor,0)||1;
       const c=this.consolidado.empresas.find(e=>e.id===id)||r;
-      const fatTot = emp.extras && emp.extras.fatTotal ? emp.extras.fatTotal : null;
-      return { ...r, resReal:c.resReal, margemReal:c.margemReal, rateio:c.rateio,
-        fatorMedio: fatTot ? (fatTot.kg && (fatTot.kg.jan+fatTot.kg.fev)>0 ? (fatTot.fat.jan+fatTot.fat.fev)/(fatTot.kg.jan+fatTot.kg.fev) : ((fatTot.fator.jan+fatTot.fator.fev)/2)) : null,
+      // Fator médio = faturamento principal (exclui aparas) ÷ peso total, somando todos os meses lançados.
+      let fatorMedio = null;
+      if(emp.extras && emp.extras.faturamento){
+        const mk = this.listaMeses.map(m=>m.chave.toLowerCase());
+        let pf=0, tk=0;
+        emp.extras.faturamento.forEach(l=>{ mk.forEach(k=>{ tk += (l.kg&&l.kg[k])||0; if(!l.aparas) pf += (l.fat&&l.fat[k])||0; }); });
+        fatorMedio = tk>0 ? pf/tk : null;
+      }
+      return { ...r, resReal:c.resReal, margemReal:c.margemReal, rateio:c.rateio, fatorMedio,
         grupos: grupos.slice(0,6).map(x=>({label:x.label.replace(/^\d+\s*-\s*/,''), valor:x.valor, pct:(x.valor/totalG)*100})) };
     },
     get comparacao(){ return { a:this.ladoComparador(this.compA), b:this.ladoComparador(this.compB) }; },
@@ -4116,23 +4172,19 @@ function sistemaUnificado(){
       if (kg > 0) return fat / kg;
       return (linha.fator && linha.fator[mk]) || 0;
     },
-    // Total de uma coluna (mês) somando as linhas de produto — bate com o TOTAL da planilha.
-    fatColTotal(mesChave, campo) {
+    // Soma de uma coluna (mês). filtro: 'all' (bruto), 'principal' (exclui aparas) ou 'aparas'.
+    fatColTotal(mesChave, campo, filtro) {
       const mk = String(mesChave).toLowerCase();
-      const linhas = this.empresaExtras.faturamento || [];
+      let linhas = this.empresaExtras.faturamento || [];
+      if (filtro === 'principal') linhas = linhas.filter(l => !l.aparas);
+      else if (filtro === 'aparas') linhas = linhas.filter(l => l.aparas);
       return linhas.reduce((a, l) => a + ((l[campo] && l[campo][mk]) || 0), 0);
     },
-    // TOTAL conforme a planilha do cliente (linha "Total Faturamento" / PESO / FATOR).
-    // Fiel à fonte: o Total de Faturamento exclui as aparas (Teste Sucata), mas o PESO as inclui.
-    fatTot(mesChave, campo) {
-      const mk = String(mesChave).toLowerCase();
-      const ft = this.empresaExtras.fatTotal || {};
-      return (ft[campo] && ft[campo][mk]) || 0;
-    },
-    // KPIs acumulados (todos os meses ativos) — usa o total declarado na planilha.
+    get temAparas() { return (this.empresaExtras.faturamento || []).some(l => l.aparas); },
+    // KPIs acumulados (meses ativos) — Faturamento principal (exclui aparas), peso inclui aparas.
     get fatTotalAcum() {
       let fat = 0, kg = 0;
-      this.fatMesesAtivos.forEach(m => { fat += this.fatTot(m, 'fat'); kg += this.fatTot(m, 'kg'); });
+      this.fatMesesAtivos.forEach(m => { fat += this.fatColTotal(m, 'fat', 'principal'); kg += this.fatColTotal(m, 'kg', 'all'); });
       return { fat, kg, fator: kg > 0 ? fat / kg : 0 };
     },
     // Lista achatada de linhas para a tabela (pai Faturamento + filhos Kg/Fator quando expandido).
@@ -4160,6 +4212,53 @@ function sistemaUnificado(){
     },
     expandirTodosFat() { this.collapsedFat = []; },
     recolherTodosFat() { this.collapsedFat = (this.empresaExtras.faturamento || []).map(l => l.tipo); },
+
+    // ===== Inventário (árvore mensal: Valor = principal; Kg e Fator = subcategorias) =====
+    get invMesesAtivos() {
+      const linhas = this.empresaExtras.inventario || [];
+      return this.listaMeses
+        .filter(m => { const mk = m.chave.toLowerCase(); return linhas.some(l => l.valor && (l.valor[mk] || 0) !== 0); })
+        .map(m => m.chave);
+    },
+    invFator(linha, mesChave) {
+      const mk = String(mesChave).toLowerCase();
+      const v = (linha.valor && linha.valor[mk]) || 0, kg = (linha.kg && linha.kg[mk]) || 0;
+      if (kg > 0) return v / kg;
+      return (linha.fator && linha.fator[mk]) || 0;
+    },
+    invColTotal(mesChave, campo, filtro) {
+      const mk = String(mesChave).toLowerCase();
+      let linhas = this.empresaExtras.inventario || [];
+      if (filtro === 'principal') linhas = linhas.filter(l => !l.foraEstoque);
+      else if (filtro === 'fora') linhas = linhas.filter(l => l.foraEstoque);
+      return linhas.reduce((a, l) => a + ((l[campo] && l[campo][mk]) || 0), 0);
+    },
+    get invForaNomes() { return (this.empresaExtras.inventario || []).filter(l => l.foraEstoque).map(l => l.item).join(', '); },
+    get temForaEstoque() { return (this.empresaExtras.inventario || []).some(l => l.foraEstoque); },
+    get invRows() {
+      const linhas = this.empresaExtras.inventario || [];
+      const rows = [];
+      linhas.forEach(l => {
+        rows.push({ kind: 'valor', item: l.item, l });
+        if (!this.collapsedInv.includes(l.item)) {
+          rows.push({ kind: 'kg', item: l.item, l });
+          rows.push({ kind: 'fator', item: l.item, l });
+        }
+      });
+      return rows;
+    },
+    invCellText(r, mesChave) {
+      const mk = String(mesChave).toLowerCase(); const l = r.l;
+      if (r.kind === 'kg') return (((l.kg && l.kg[mk]) || 0)).toLocaleString('pt-BR') + ' kg';
+      if (r.kind === 'fator') return 'R$ ' + this.invFator(l, mesChave).toFixed(2).replace('.', ',');
+      return this.formatarDinheiroExato((l.valor && l.valor[mk]) || 0);
+    },
+    toggleInv(item) {
+      if (this.collapsedInv.includes(item)) this.collapsedInv = this.collapsedInv.filter(t => t !== item);
+      else this.collapsedInv.push(item);
+    },
+    expandirTodosInv() { this.collapsedInv = []; },
+    recolherTodosInv() { this.collapsedInv = (this.empresaExtras.inventario || []).map(l => l.item); },
 
     expandirTodosCC() {
       this.collapsedCCs = [];
@@ -4816,9 +4915,10 @@ function sistemaUnificado(){
       if(this.aba==='inventario') {
         const ex = this.empresaExtras;
         if(ex.inventario) {
+          const mAtivos = this.invMesesAtivos; const mkInv = (mAtivos[mAtivos.length-1]||'Jan').toLowerCase();
           renderChart('chartInv','doughnut',{
             labels: ex.inventario.map(i=>i.item),
-            datasets:[{ data:ex.inventario.map(i=>i.jan), backgroundColor:[cBlue,cGreen,cGold,'#7c3aed'], borderWidth:2, borderColor:'#fff' }]
+            datasets:[{ data:ex.inventario.map(i=>(i.valor&&i.valor[mkInv])||0), backgroundColor:[cBlue,cGreen,cGold,'#7c3aed'], borderWidth:2, borderColor:'#fff' }]
           }, { responsive:!0, maintainAspectRatio:!1, cutout:'60%', plugins:{legend:{display:!0, position:'bottom'}, tooltip:{callbacks:{label:c=>'  '+c.label+':  R$ '+Number(c.parsed||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}}} });
         }
       }

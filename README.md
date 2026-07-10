@@ -114,9 +114,17 @@ Auditoria completa contra `Resultado_Requalificadora_2026.xlsx` e `Resultado_Emb
   para os valores da planilha atual (e o mesmo em `TENDENCIA_YOY`).
 - **Embalagem:** DRE ✓ · Centro de Custo (**117 linhas**) ✓ · Faturamento por linha (6) ✓ · Inventário (4) ✓ ·
   Provisões ✓ (o *Realizado* vem dos lançamentos reais de centro de custo — confere com a planilha).
-- **Total de Faturamento (Embalagem)** passou a seguir a planilha (linha *Total Faturamento*): **exclui as
-  aparas (Teste Sucata)** da receita principal, embora o **peso total as inclua** — por isso o Total pode
-  ficar abaixo da soma das linhas (há nota explicativa na tela). Helper `fatTot()`.
+- **Total de Faturamento (Embalagem)** — em vez de nota de rodapé, o total é **auto-explicativo**:
+  *Faturamento bruto (soma das linhas)* → *(−) Aparas (Teste Sucata)* → *Faturamento principal*
+  (= valor da planilha), mais *Peso total (inclui aparas)* e *Fator médio (principal ÷ peso)*.
+  Teste Sucata aparece normalmente como linha.
+- **Inventário** virou **árvore mensal** (igual a Faturamento): *Valor* é a linha principal, *Peso (kg)* e
+  *Fator (R$/kg)* são subcategorias; colunas seguem os meses. O total também é auto-explicativo —
+  *Estoque bruto* → *(−) Tintas (fora do estoque avaliado)* → *Estoque total* (= planilha, R$ 2.517.068,58),
+  espelhando exatamente a planilha do cliente.
+- **Modelo mensal (jan..dez) em Faturamento e Inventário**: as colunas crescem conforme os meses são
+  lançados; testado injetando um mês novo (março) — a coluna aparece sozinha, com bruto/principal/aparas
+  corretos. Nenhuma tela fica presa a Jan/Fev.
 
 ### Painel da Embalagem — tudo por R$ / kg / fator / peso
 A indústria de embalagem é medida por quilo, então o painel mostra as duas dimensões:
