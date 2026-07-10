@@ -107,6 +107,18 @@ sozinho** e entrega alertas acionáveis, sem depender da memória de quem analis
   eliminar e as aparas (getter `embResumo`, estado `showResumo`).
 - **Sub-empresas** perdeu a coluna **Regime** (a informação de regime continua nos dados e no resumo).
 
+### Painel da Embalagem redesenhado em torno da planilha do cliente
+O cliente enxerga tudo numa aba só ("Resultado 2026"); o sistema espalhava isso em várias telas e
+gerava confusão ao reconciliar. Agora:
+- **Resultado 2026** (tela âncora, `resultado_emb`) — **réplica fiel da aba do cliente, linha a linha e
+  na mesma ordem**: DESPESAS (por empresa) → RECEITAS (faturamento por linha com Kg e Fator) → Totais →
+  Fat.(−)Despesa → INVENTÁRIO (por categoria com Kg/Fator) → Estoque/Dif. → Devoluções → Resultados.
+  Colunas por mês. Composto de `resultadoEmbalagem` a partir das mesmas fontes já auditadas; cada valor
+  bate com a planilha (verificado célula a célula).
+- **Menu enxuto** (de 8 para 5): *Visão Geral · Resultado 2026 · Sub-empresas · Despesas por C.C. ·
+  Provisões*. As antigas telas Faturamento & Fator, Inventário e DRE viraram seções dentro do Resultado
+  2026 (mesma informação, junta). A Embalagem **abre direto no Resultado 2026**.
+
 ### Conferência linha a linha com as planilhas do cliente (2026)
 Auditoria completa contra `Resultado_Requalificadora_2026.xlsx` e `Resultado_Embalagem_2026.xlsx`:
 - **Requalificadora:** DRE mensal (12 linhas) ✓ · Centro de Custo (**157 linhas**) ✓ · Provisões (8) ✓ ·

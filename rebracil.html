@@ -481,6 +481,16 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .nx-intel-card:hover{ background:rgba(255,255,255,.06); }
 .nx-intel-ic{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
 .kpi-mom{ margin-left:auto; font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:999px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+/* ===== Resultado 2026 (réplica fiel da planilha) ===== */
+.res-band td{ background:linear-gradient(90deg, rgba(197,168,128,.20), transparent 70%) !important; color:var(--accent-gold-deep) !important; font-weight:900 !important; font-size:11px !important; letter-spacing:.09em; text-transform:uppercase; padding:11px 12px !important; border-top:2px solid var(--accent-gold) !important; }
+.res-line > td:first-child{ font-weight:800; color:var(--accent-blue); }
+.res-sub > td{ color:var(--color-muted); font-size:12px; }
+.res-sub > td:first-child{ padding-left:32px; font-weight:600; }
+.res-total{ font-weight:900; }
+.res-total > td{ background:rgba(197,168,128,.11) !important; color:var(--accent-blue); }
+.res-result > td{ background:rgba(13,148,136,.09) !important; font-weight:900; }
+.res-result > td:first-child{ color:var(--accent-blue); }
+.res-pct > td{ color:var(--color-muted) !important; font-weight:700; font-size:12px; }
 /* ===== Resumo analítico (painel deslizante escuro) ===== */
 .nx-sidestat{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:10px 13px; border-radius:11px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); }
 .nx-sidestat span{ font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:#8b90a8; font-weight:800; }
@@ -645,15 +655,14 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       <div>
         <div class="nav-section" x-show="sidebarOpen">Embalagem — Individual</div>
         <div class="nav-sep" x-show="!sidebarOpen"></div>
-        <!-- Ordem espelhando a planilha "Resultado 2026": Despesas → Receitas → Resultado → Inventário → Provisões → detalhe -->
-        <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Dashboard"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Dashboard</span></button>
-        <button class="nav-item" @click="mudarAba('subempresas')" :class="aba==='subempresas'?'active':''" title="Sub-empresas & Tributação (Despesas por empresa)"><i class="fas fa-scale-unbalanced w-4"></i> <span class="nav-label">Sub-empresas</span></button>
-        <button class="nav-item" @click="mudarAba('faturamento')" :class="aba==='faturamento'?'active':''" title="Faturamento & Fator (R$/kg)"><i class="fas fa-weight-hanging w-4"></i> <span class="nav-label">Faturamento &amp; Fator</span></button>
-        <button class="nav-item" @click="mudarAba('resultado_anual')" :class="aba==='resultado_anual'?'active':''" title="DRE Consolidado (Resultado)"><i class="fas fa-table w-4"></i> <span class="nav-label">DRE Consolidado</span></button>
-        <button class="nav-item" @click="mudarAba('inventario')" :class="aba==='inventario'?'active':''" title="Inventário & ITP"><i class="fas fa-boxes-stacked w-4"></i> <span class="nav-label">Inventário &amp; ITP</span></button>
+        <!-- Menu enxuto, espelhando o arquivo do cliente: Resultado 2026 (tudo junto) + análises/detalhes -->
+        <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Visão geral"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Visão Geral</span></button>
+        <button class="nav-item" @click="mudarAba('resultado_emb')" :class="aba==='resultado_emb'?'active':''" title="Resultado 2026 — igual à sua planilha"><i class="fas fa-file-invoice-dollar w-4"></i> <span class="nav-label">Resultado 2026</span></button>
+        <div class="nav-section" x-show="sidebarOpen" style="padding-top:14px">Aprofundar</div>
+        <div class="nav-sep" x-show="!sidebarOpen"></div>
+        <button class="nav-item" @click="mudarAba('subempresas')" :class="aba==='subempresas'?'active':''" title="Análise por empresa e tributação"><i class="fas fa-scale-unbalanced w-4"></i> <span class="nav-label">Sub-empresas</span></button>
+        <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por Centro de Custo (lançamentos)"><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
         <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões</span></button>
-        <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C. (detalhe dos lançamentos)"><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
-        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal</span></button>
       </div>
     </template>
 
@@ -699,7 +708,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
     
     <div style="display:flex;align-items:center;gap:24px">
-      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
+      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal', 'resultado_emb'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
         <label style="font-size: 11px; color: var(--color-muted); text-transform: uppercase; font-weight: 800;">Recorte Atual:</label>
         <select @change="mesAtivo = $event.target.value; subAbaDespesa = mesAtivo.toLowerCase(); atualizarLeituraSistema()" class="emc-input" style="padding: 6px 12px; font-weight: 800; color: var(--accent-blue); width: auto; background: var(--color-surface2); border-color: var(--accent-gold);">
           <template x-for="m in listaMeses" :key="m.chave"><option :value="m.chave" :selected="m.chave === mesAtivo" x-text="m.labelData"></option></template>
@@ -1065,6 +1074,47 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </div>
       </div>
     </div>
+
+    <!-- ===================== EMBALAGEM · RESULTADO 2026 (réplica fiel da planilha) ===================== -->
+    <template x-if="aba==='resultado_emb' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:20px">
+      <div class="card-dark" style="margin-bottom:0">
+        <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:4px">
+          <div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-file-invoice-dollar mr-2" style="color:var(--accent-gold)"></i> Resultado 2026 — Embalagem</div>
+            <div class="card-sub" style="font-size:11.5px">A mesma leitura da sua planilha, linha a linha e na mesma ordem: <b>Despesas</b> → <b>Receitas</b> (com Kg e Fator) → <b>Inventário/Estoque</b> → <b>Devoluções</b> → <b>Resultado</b>. Colunas por mês.</div>
+          </div>
+          <div class="badge-status badge-info flex-shrink-0" style="font-size:10.5px"><i class="fas fa-table-list mr-1"></i> espelho da aba "Resultado 2026"</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="dark-table">
+            <thead>
+              <tr>
+                <th style="min-width:250px">Descrição</th>
+                <template x-for="m in resultadoEmbalagem.meses" :key="'rh'+m"><th class="td-r" x-text="listaMeses.find(x=>x.chave===m)?.labelData || m"></th></template>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(row,ri) in resultadoEmbalagem.rows" :key="'rr'+ri">
+                <tr :class="rowClassRes(row)">
+                  <template x-if="row.sec">
+                    <td :colspan="resultadoEmbalagem.meses.length+1" x-text="row.sec"></td>
+                  </template>
+                  <template x-if="!row.sec">
+                    <td x-text="row.label"></td>
+                  </template>
+                  <template x-if="!row.sec">
+                    <template x-for="m in resultadoEmbalagem.meses" :key="'rc'+ri+m">
+                      <td class="td-r" :class="row.kind==='result'?(row.vals[m]<0?'text-red-strong':'text-green-strong'):(row.tipo==='kgrs'&&row.kind!=='sub'?'text-green-strong':'')" x-text="fmtResVal(row,m)"></td>
+                    </template>
+                  </template>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> <b>Total Faturamento</b> e <b>Estoque</b> seguem a planilha (o faturamento exclui as aparas/Teste Sucata; o estoque exclui Tintas do valor). Para o detalhe por empresa, veja <b>Sub-empresas</b>; para os lançamentos, <b>Despesas por C.C.</b></div>
+      </div>
+    </div></template>
 
     <!-- ===================== EMBALAGEM · FATURAMENTO & FATOR (R$/kg) ===================== -->
     <template x-if="aba==='faturamento' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
@@ -2828,6 +2878,8 @@ const EMB_CC_DATA=[["001 - INFRAESTRUTURA E ATIVOS", 4987.77, 2596.9, 0, 0, 7584
 const EMB_SUBEMPRESAS=[{"nome": "Embalagem", "regime": "Lucro Presumido", "cor": "#0f766e", "fatJan": 1559237.09, "fatFev": 1365643.59, "fat": 2924880.68, "kgJan": 35136, "kgFev": 27599.5, "kg": 62735.5, "despJan": 1663248.47, "despFev": 1269383.38, "desp": 2932631.85, "res": -7751.17, "fator": 46.62, "custoKg": 46.75, "margemKg": -0.12, "margem": -0.27, "principal": true}, {"nome": "Linear", "regime": "Simples Nacional", "cor": "#2563eb", "fatJan": 163040.72, "fatFev": 36454.86, "fat": 199495.58, "kgJan": 3513, "kgFev": 853, "kg": 4366, "despJan": 18167.66, "despFev": 5367.42, "desp": 23535.08, "res": 175960.5, "fator": 45.69, "custoKg": 5.39, "margemKg": 40.3, "margem": 88.2}, {"nome": "Teste", "regime": "Estratégia tributária", "cor": "#7c3aed", "fatJan": 72422.55, "fatFev": 81094.95, "fat": 153517.5, "kgJan": 5302.57, "kgFev": 5857.91, "kg": 11160.48, "despJan": 3883.9, "despFev": 8497.18, "desp": 12381.08, "res": 141136.42, "fator": 13.76, "custoKg": 1.11, "margemKg": 12.65, "margem": 91.94, "aparas": true, "obs": "Inclui Teste Sucata = aparas / erro de impressão (Hanami)"}, {"nome": "Teste X", "regime": "Estratégia tributária", "cor": "#d97706", "fatJan": 159334.04, "fatFev": 169707.84, "fat": 329041.88, "kgJan": 5584.78, "kgFev": 5792.07, "kg": 11376.85, "despJan": 1000.0, "despFev": 1000.0, "desp": 2000.0, "res": 327041.88, "fator": 28.92, "custoKg": 0.18, "margemKg": 28.75, "margem": 99.39}, {"nome": "Inter Company", "regime": "Intercompany (eliminar na consolidação)", "cor": "#64748b", "fatJan": 9007.84, "fatFev": 2084.18, "fat": 11092.02, "kgJan": 3513, "kgFev": 853, "kg": 4366, "despJan": 0, "despFev": 0, "desp": 0, "res": 11092.02, "fator": 2.54, "custoKg": 0.0, "margemKg": 2.54, "margem": 100.0, "intercompany": true}];
 // ITP = itens de terceiros (produzir vs. comprar). Fonte: inventário sem valor lançado ainda.
 const EMB_ITP={"descricao":"ITP — Itens de Terceiros (produzido/comprado de terceiros)","valorJan":null,"valorFev":null,"nota":"Base para decisão make-or-buy: a Rebracil compara produzir internamente vs. comprar de terceiros."};
+// Diferença de Kg do estoque (linha da planilha "Dif. Kg Estoque")
+const EMB_DIF_KG={jan:-148953.74, fev:255209.98};
 
 const EMPRESAS = {
   requalificadora: {
@@ -3009,7 +3061,7 @@ function nxFsSyncIcones() {
   if (fe) nxMontarBarraFS(fe);
 }
 // Barra da tela cheia: botão Sair + régua de meses (só onde o recorte por mês se aplica).
-const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes'];
+const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','resultado_emb'];
 function nxMontarBarraFS(card) {
   const antiga = card.querySelector(':scope > .nx-fs-bar'); if (antiga) antiga.remove();
   const root = document.querySelector('[x-data]'); const cmp = (root && window.Alpine) ? Alpine.$data(root) : null;
@@ -3238,12 +3290,12 @@ function sistemaUnificado(){
             sev: 'alta', ic: 'fa-weight-hanging', cat: 'Fator (R$/kg)',
             titulo: 'Operação com prejuízo por kg',
             texto: 'O fator médio (' + this._fmt(t.fator) + '/kg) está abaixo do custo por kg (' + this._fmt(t.custoKg) + '/kg): cada kg produzido perde ' + this._fmt(Math.abs(t.margemKg)) + '. Reveja preço ou mix antes de escalar volume.',
-            acao: 'Abrir faturamento & fator', aba: 'faturamento' });
+            acao: 'Abrir Resultado 2026', aba: 'resultado_emb' });
           else if (t.custoKg / (t.fator || 1) > 0.92) out.push({
             sev: 'media', ic: 'fa-weight-hanging', cat: 'Fator (R$/kg)',
             titulo: 'Margem por kg muito estreita',
             texto: 'O custo por kg (' + this._fmt(t.custoKg) + ') consome ' + ((t.custoKg / (t.fator || 1)) * 100).toFixed(0) + '% do fator (' + this._fmt(t.fator) + '). Qualquer alta de insumo vira prejuízo — monitore de perto.',
-            acao: 'Abrir faturamento & fator', aba: 'faturamento' });
+            acao: 'Abrir Resultado 2026', aba: 'resultado_emb' });
         }
       }
 
@@ -3355,6 +3407,8 @@ function sistemaUnificado(){
       // requalificadora | embalagem: define a empresa ativa e abre o painel individual
       this.depto = d;
       this.trocarEmpresa(d); // já recalcula, define mês ativo e vai p/ dashboard
+      // Embalagem abre na "Resultado 2026" (a mesma leitura da planilha do cliente)
+      if(d === 'embalagem') { this.mudarAba('resultado_emb'); setTimeout(()=>this.atualizarLeituraSistema(),80); }
     },
     setTaxaRateio(v) {
       let n = parseFloat(String(v).replace(',','.'));
@@ -3924,12 +3978,13 @@ function sistemaUnificado(){
       this.recalcularTudo();
     },
 
-    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Sub-empresas & Tributação','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','resultado_emb':'Resultado 2026 — Embalagem','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Sub-empresas & Tributação','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
     get descAba(){ return {
       'consolidado':'Visão de holding: resultado somado, rentabilidade real e rateio de custos da matriz.',
       'comparador':'Duas empresas lado a lado — mensal e anual — para decidir onde investir ou cortar.',
       'projecao':'Fecha o ano a partir dos meses lançados, por empresa ou grupo.',
       'simulador':'DRE ao vivo: mova a régua de cada centro de custo e veja o impacto e a projeção.',
+      'resultado_emb':'A mesma leitura da sua planilha, em uma tela só: despesas, receitas (kg/fator), inventário e resultado.',
       'faturamento':'Receita medida por quilo: fator (R$/kg), custo/kg, margem/kg e peso.',
       'subempresas':'Linear, Teste, Teste X e Inter Company — a estratégia tributária do grupo.',
       'inventario':'Estoque por categoria com fator R$/kg, mais ITP (itens de terceiros).',
@@ -4260,6 +4315,60 @@ function sistemaUnificado(){
     },
     expandirTodosInv() { this.collapsedInv = []; },
     recolherTodosInv() { this.collapsedInv = (this.empresaExtras.inventario || []).map(l => l.item); },
+
+    // ===== RESULTADO 2026 — réplica fiel da aba do cliente (tudo numa tela só) =====
+    get resultadoEmbalagem() {
+      const ex = this.empresaExtras;
+      if (!ex.porKg) return { meses: [], rows: [] };
+      const meses = this.fatMesesAtivos.length ? this.fatMesesAtivos : ['Jan', 'Fev'];
+      const low = ch => ch.toLowerCase();
+      const dre = k => this.dreAtual.find(x => x.desc === k) || {};
+      const despSub = (s, ch) => s['desp' + ch.charAt(0).toUpperCase() + ch.slice(1).toLowerCase()] || 0;
+      const rows = [];
+      const push = (label, kind, tipo, fn) => { const vals = {}; meses.forEach(ch => vals[ch] = fn(ch)); rows.push({ label, kind, tipo, vals }); };
+      const sec = t => rows.push({ sec: t });
+      // DESPESAS (por sub-empresa)
+      sec('DESPESAS');
+      (ex.subempresas || []).filter(s => !s.intercompany && (s.despJan || s.despFev)).forEach(s => push('Despesas ' + s.nome, 'line', 'money', ch => despSub(s, ch)));
+      push('Total Despesas', 'total', 'money', ch => dre('Total de Despesas')[low(ch)] || 0);
+      // RECEITAS (faturamento por linha, com kg e fator)
+      sec('RECEITAS');
+      (ex.faturamento || []).forEach(f => {
+        push('Faturamento ' + f.tipo, 'line', 'money', ch => (f.fat && f.fat[low(ch)]) || 0);
+        push('Kg Faturado', 'sub', 'kg', ch => (f.kg && f.kg[low(ch)]) || 0);
+        push('Fator', 'sub', 'kgrs', ch => this.fatorLinha(f, ch));
+      });
+      push('Total Faturamento', 'total', 'money', ch => this.fatColTotal(ch, 'fat', 'principal'));
+      push('PESO', 'total', 'kg', ch => this.fatColTotal(ch, 'kg', 'all'));
+      push('FATOR', 'total', 'kgrs', ch => { const kg = this.fatColTotal(ch, 'kg', 'all'); return kg > 0 ? this.fatColTotal(ch, 'fat', 'principal') / kg : 0; });
+      push('Fat. (−) Despesa líq.', 'result', 'money', ch => dre('Resultado Operacional')[low(ch)] || 0);
+      push('% (margem operacional)', 'pct', 'pct', ch => { const f = this.fatColTotal(ch, 'fat', 'principal'); const r = dre('Resultado Operacional')[low(ch)] || 0; return f > 0 ? r / f * 100 : 0; });
+      // INVENTÁRIO (por categoria, com kg e fator)
+      sec('INVENTÁRIO');
+      (ex.inventario || []).forEach(i => {
+        push(i.item, 'line', 'money', ch => (i.valor && i.valor[low(ch)]) || 0);
+        push('Kg', 'sub', 'kg', ch => (i.kg && i.kg[low(ch)]) || 0);
+        push('Fator', 'sub', 'kgrs', ch => this.invFator(i, ch));
+      });
+      push('Estoque', 'total', 'money', ch => this.invColTotal(ch, 'valor', 'principal'));
+      push('Estoque kg', 'total', 'kg', ch => this.invColTotal(ch, 'kg', 'all'));
+      push('Fator Estoque', 'total', 'kgrs', ch => { const kg = this.invColTotal(ch, 'kg', 'all'); return kg > 0 ? this.invColTotal(ch, 'valor', 'principal') / kg : 0; });
+      push('Dif. R$ Estoque', 'line', 'money', ch => dre('Diferença de Estoque')[low(ch)] || 0);
+      push('Dif. Kg Estoque', 'line', 'kg', ch => (typeof EMB_DIF_KG !== 'undefined' ? (EMB_DIF_KG[low(ch)] || 0) : 0));
+      push('Devoluções Clientes', 'line', 'money', ch => dre('Devoluções Clientes')[low(ch)] || 0);
+      push('Devoluções Fornecedor', 'line', 'money', ch => dre('Devoluções Fornecedor')[low(ch)] || 0);
+      push('Fat.(−) Desp. Líq.(+) Inventário', 'result', 'money', ch => dre('Resultado Operacional com Inventário')[low(ch)] || 0);
+      push('Fat.(−) Desp. (−) Prov.', 'result', 'money', ch => dre('Resultado Operacional')[low(ch)] || 0);
+      return { meses, rows };
+    },
+    fmtResVal(row, ch) {
+      const v = row.vals[ch]; if (v == null) return '—';
+      if (row.tipo === 'pct') return v.toFixed(1).replace('.', ',') + '%';
+      if (row.tipo === 'kg') return v.toLocaleString('pt-BR') + ' kg';
+      if (row.tipo === 'kgrs') return 'R$ ' + v.toFixed(2).replace('.', ',');
+      return this.formatarDinheiroExato(v);
+    },
+    rowClassRes(row) { return row.sec ? 'res-band' : ('res-' + row.kind); },
 
     expandirTodosCC() {
       this.collapsedCCs = [];
