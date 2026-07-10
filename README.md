@@ -95,6 +95,13 @@ sozinho** e entrega alertas acionáveis, sem depender da memória de quem analis
 ### Painel da Embalagem — tudo por R$ / kg / fator / peso
 A indústria de embalagem é medida por quilo, então o painel mostra as duas dimensões:
 - KPIs de **Fator (Receita/kg)**, **Custo/kg** (despesa ÷ kg), **Margem/kg**, peso e resultado.
+- **Faturamento & Fator por Linha de Produto — em árvore** (igual a Despesas por C.C.):
+  o **Faturamento é a linha principal** de cada produto e **Peso (kg)** e **Fator (R$/kg)**
+  são subcategorias que abrem/fecham, com **Expandir Todos / Recolher Todos**. As **colunas
+  são os meses** e crescem de janeiro a dezembro conforme os dados são lançados — o modelo é
+  mensal (`fat/kg/fator` por mês em `EMB_FATURAMENTO`), então **cada mês importado alimenta a
+  coluna certa**. Fator recalculado de `fat ÷ kg` (fonte da verdade), com o valor da planilha
+  como reserva. Getters: `fatMesesAtivos`, `fatRows`, `fatColTotal`, `fatTotalAcum`, `fatorLinha`.
 - **Sub-empresas (estratégia tributária)**: Embalagem (Lucro Presumido), **Linear (Simples
   Nacional)**, Teste, Teste X e Inter Company — cada uma com faturamento, kg, fator, despesa,
   custo/kg, resultado, margem e **regime**. A leitura-chave: a *indústria* (Embalagem) opera

@@ -577,24 +577,9 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
        <i class="fas fa-cubes-stacked" style="color:var(--accent-gold);font-size:17px;"></i>
     </div>
   </div>
-  <!-- PAINEL ATIVO — chip único e clicável (troca de painel) -->
-  <div x-show="sidebarOpen" style="padding:13px 14px 3px;">
-    <button @click="irParaHub()" title="Trocar de painel"
-      style="width:100%;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:13px;border:1px solid rgba(255,255,255,.13);cursor:pointer;transition:.16s;text-align:left;box-shadow:0 8px 20px -13px rgba(0,0,0,.55)"
-      :style="depto==='grupo'?'background:linear-gradient(160deg,#241d5c,#161232)':(depto?('background:linear-gradient(160deg,'+empresaMeta.cor+'e6,'+empresaMeta.cor+'99)'):'background:rgba(255,255,255,.05)')"
-      onmouseover="this.style.filter='brightness(1.13)'" onmouseout="this.style.filter=''">
-      <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas" :class="depto==='grupo'?'fa-layer-group':(depto?empresaMeta.icone:'fa-grip')" style="color:#fff;font-size:13px"></i></div>
-      <div style="min-width:0;flex:1">
-        <div style="font-size:8px;color:rgba(255,255,255,.68);text-transform:uppercase;letter-spacing:1px;font-weight:800;line-height:1">Painel ativo</div>
-        <div style="font-weight:800;color:#fff;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-top:2px" x-text="depto==='grupo'?'Grupo — Consolidado':(depto?empresaMeta.nome:'Escolha no Hub')"></div>
-      </div>
-      <i class="fas fa-right-left" style="color:rgba(255,255,255,.6);font-size:11px;flex-shrink:0"></i>
-    </button>
-  </div>
-  <div x-show="!sidebarOpen" class="nav-sep"></div>
-
   <nav style="flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 0">
-    <button class="nav-item" x-show="!sidebarOpen" @click="irParaHub()" title="Trocar de painel"><i class="fas fa-right-left w-4"></i></button>
+    <button class="nav-item" @click="irParaHub()" title="Trocar de painel"><i class="fas fa-right-left w-4"></i> <span class="nav-label">Trocar painel</span></button>
+    <div class="nav-sep"></div>
 
     <!-- ===== GRUPO — CONSOLIDADO ===== -->
     <template x-if="depto==='grupo'">
@@ -1003,8 +988,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     <!-- ===================== EMBALAGEM · FATURAMENTO & FATOR (R$/kg) ===================== -->
     <template x-if="aba==='faturamento' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
-        <div class="kpi-card blue"><div class="kpi-label">Faturamento (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(empresaExtras.fatTotal.jan + empresaExtras.fatTotal.fev)"></div></div>
-        <div class="kpi-card gold"><div class="kpi-label">Peso Faturado (Jan+Fev)</div><div class="kpi-val text-accent-blue" x-text="(empresaExtras.fatTotal.kgJan + empresaExtras.fatTotal.kgFev).toLocaleString('pt-BR')+' kg'"></div></div>
+        <div class="kpi-card blue"><div class="kpi-label">Faturamento (acum.)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(fatTotalAcum.fat)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px" x-text="fatMesesAtivos.join(' + ')"></div></div>
+        <div class="kpi-card gold"><div class="kpi-label">Peso Faturado (acum.)</div><div class="kpi-val text-accent-blue" x-text="fatTotalAcum.kg.toLocaleString('pt-BR')+' kg'"></div></div>
         <div class="kpi-card green"><div class="kpi-label">Fator — Receita/kg (méd.)</div><div class="kpi-val text-green-strong" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">quanto cada kg gera</div></div>
         <div class="kpi-card red"><div class="kpi-label">Custo / kg (méd.)</div><div class="kpi-val text-red-strong" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">despesa por kg faturado</div></div>
       </div>
@@ -1019,30 +1004,58 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="card-dark"><div class="card-title">Fator R$/kg por Linha</div><div class="card-sub" style="margin-top:-8px">Quanto cada quilo faturado gera de receita — indicador central da indústria de embalagem.</div><div class="chart-wrap" style="height:250px"><canvas id="chartFator"></canvas></div></div>
       </div>
       <div class="card-dark">
-        <div class="card-title">Faturamento &amp; Fator por Linha de Produto</div>
+        <div class="flex justify-between items-center flex-wrap gap-3" style="margin-bottom:6px">
+          <div>
+            <div class="card-title" style="margin-bottom:2px">Faturamento &amp; Fator por Linha de Produto</div>
+            <div class="card-sub" style="font-size:11.5px">Faturamento é a linha principal. Clique numa linha (ou use os botões) para abrir <b>Peso (kg)</b> e <b>Fator (R$/kg)</b>. As colunas seguem os meses lançados — de janeiro a dezembro.</div>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button @click="expandirTodosFat()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Todos</button>
+            <button @click="recolherTodosFat()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Todos</button>
+          </div>
+        </div>
         <div style="overflow-x:auto">
           <table class="dark-table">
-            <thead><tr><th>Linha</th><th class="td-r">Fat. Jan</th><th class="td-r">Kg Jan</th><th class="td-r">Fator Jan</th><th class="td-r">Fat. Fev</th><th class="td-r">Kg Fev</th><th class="td-r">Fator Fev</th></tr></thead>
+            <thead>
+              <tr>
+                <th style="min-width:210px">Linha de Produto</th>
+                <template x-for="m in fatMesesAtivos" :key="'h'+m"><th class="td-r" x-text="m"></th></template>
+              </tr>
+            </thead>
             <tbody>
-              <template x-for="f in empresaExtras.faturamento" :key="f.tipo">
-                <tr>
-                  <td class="font-bold text-accent-blue" x-text="f.tipo"></td>
-                  <td class="td-r" x-text="formatarDinheiroExato(f.jan)"></td>
-                  <td class="td-r" x-text="f.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                  <td class="td-r font-bold text-green-strong" x-text="'R$ '+f.fatorJan.toFixed(2).replace('.',',')"></td>
-                  <td class="td-r" x-text="formatarDinheiroExato(f.fev)"></td>
-                  <td class="td-r" x-text="f.kgFev.toLocaleString('pt-BR')+' kg'"></td>
-                  <td class="td-r font-bold text-green-strong" x-text="'R$ '+f.fatorFev.toFixed(2).replace('.',',')"></td>
+              <template x-for="r in fatRows" :key="r.tipo+'-'+r.kind">
+                <tr :class="r.kind==='fat'?'cursor-pointer':''" @click="r.kind==='fat' && toggleFat(r.tipo)"
+                    :style="r.kind==='fat'?'border-top:1px solid var(--color-border)':'background:rgba(148,163,184,.05)'">
+                  <template x-if="r.kind==='fat'">
+                    <td class="font-bold text-accent-blue">
+                      <i class="fas fa-chevron-right transition-transform" :class="collapsedFat.includes(r.tipo)?'':'rotate-90'" style="font-size:9px;width:12px;color:var(--accent-gold)"></i>
+                      <span x-text="r.tipo"></span>
+                      <span style="font-size:9px;font-weight:800;color:var(--color-dim);text-transform:uppercase;letter-spacing:.5px;margin-left:6px">Faturamento</span>
+                    </td>
+                  </template>
+                  <template x-if="r.kind==='kg'">
+                    <td style="padding-left:30px;color:var(--color-muted);font-weight:600"><i class="fas fa-weight-hanging" style="font-size:10px;width:14px;color:var(--color-dim)"></i> Peso (kg)</td>
+                  </template>
+                  <template x-if="r.kind==='fator'">
+                    <td style="padding-left:30px;color:var(--color-muted);font-weight:600"><i class="fas fa-divide" style="font-size:10px;width:14px;color:var(--color-dim)"></i> Fator (R$/kg)</td>
+                  </template>
+                  <template x-for="m in fatMesesAtivos" :key="r.tipo+r.kind+m">
+                    <td class="td-r" :class="r.kind==='fat'?'font-bold':(r.kind==='fator'?'font-bold text-green-strong':'')" :style="r.kind==='kg'?'color:var(--color-muted)':''" x-text="fatCellText(r,m)"></td>
+                  </template>
                 </tr>
               </template>
-              <tr class="highlight-row" style="font-weight:900">
-                <td class="text-accent-blue">TOTAL</td>
-                <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.fatTotal.jan)"></td>
-                <td class="td-r" x-text="empresaExtras.fatTotal.kgJan.toLocaleString('pt-BR')+' kg'"></td>
-                <td class="td-r" x-text="'R$ '+empresaExtras.fatTotal.fatorJan.toFixed(2).replace('.',',')"></td>
-                <td class="td-r" x-text="formatarDinheiroExato(empresaExtras.fatTotal.fev)"></td>
-                <td class="td-r" x-text="empresaExtras.fatTotal.kgFev.toLocaleString('pt-BR')+' kg'"></td>
-                <td class="td-r" x-text="'R$ '+empresaExtras.fatTotal.fatorFev.toFixed(2).replace('.',',')"></td>
+              <!-- TOTAL GERAL -->
+              <tr class="highlight-row" style="font-weight:900;border-top:2px solid var(--accent-gold)">
+                <td class="text-accent-blue"><i class="fas fa-equals" style="font-size:9px;width:12px;color:var(--accent-gold)"></i> TOTAL · Faturamento</td>
+                <template x-for="m in fatMesesAtivos" :key="'tf'+m"><td class="td-r" x-text="formatarDinheiroExato(fatColTotal(m,'fat'))"></td></template>
+              </tr>
+              <tr style="font-weight:800;background:rgba(148,163,184,.06)">
+                <td style="padding-left:30px;color:var(--color-muted)">Peso total (kg)</td>
+                <template x-for="m in fatMesesAtivos" :key="'tk'+m"><td class="td-r" style="color:var(--color-muted)" x-text="fatColTotal(m,'kg').toLocaleString('pt-BR')+' kg'"></td></template>
+              </tr>
+              <tr style="font-weight:800;background:rgba(148,163,184,.06)">
+                <td style="padding-left:30px;color:var(--color-muted)">Fator médio (R$/kg)</td>
+                <template x-for="m in fatMesesAtivos" :key="'tr'+m"><td class="td-r text-green-strong" x-text="'R$ '+(fatColTotal(m,'kg')>0?(fatColTotal(m,'fat')/fatColTotal(m,'kg')):0).toFixed(2).replace('.',',')"></td></template>
               </tr>
             </tbody>
           </table>
@@ -2660,8 +2673,18 @@ const CC_DATA=[["001- INFRAESTRUTURA",49626.16,36296.72,68057.57,53365.85,207346
 
 // ===== DADOS EMBALAGEM (Resultado_Embalagem_2026.xlsx) =====
 const EMB_DRE_MENSAL=[{"desc": "Total de Despesas", "jan": 1686300.03, "fev": 1284247.98, "acum": 2970548.01, "bold": true}, {"desc": "Faturamento", "jan": 1941655.69, "fev": 1629020.87, "acum": 3570676.56, "bold": true}, {"desc": "Resultado Operacional", "jan": 255355.66, "fev": 344772.89, "acum": 600128.55, "bold": true}, {"desc": "%", "jan": 13.15, "fev": 21.16, "acum": 16.81, "isPercent": true, "bold": true}, {"desc": "Estoque", "jan": 2517068.58, "fev": 1524259.29, "acum": 4041327.87}, {"desc": "Diferença de Estoque", "jan": 2517068.58, "fev": -992809.29, "acum": 1524259.29}, {"desc": "Resultado Operacional com Inventário", "jan": 2772424.24, "fev": 1869032.18, "acum": 4641456.42, "bold": true}, {"desc": "% ", "jan": 142.79, "fev": 114.73, "acum": 130.0, "isPercent": true, "bold": true}, {"desc": "Devoluções Clientes", "jan": 0, "fev": 102151.76, "acum": 102151.76}, {"desc": "Devoluções Fornecedor", "jan": 21130.67, "fev": 5104.83, "acum": 26235.5}];
-const EMB_FATURAMENTO=[{"tipo": "Embalagem", "jan": 1559237.09, "fev": 1365643.59, "kgJan": 35136, "kgFev": 27599.5, "fatorJan": 44.38, "fatorFev": 49.48}, {"tipo": "Linear", "jan": 163040.72, "fev": 36454.86, "kgJan": 3513, "kgFev": 853, "fatorJan": 46.41, "fatorFev": 42.74}, {"tipo": "Inter Company", "jan": 9007.84, "fev": 2084.18, "kgJan": 3513, "kgFev": 853, "fatorJan": 2.56, "fatorFev": 2.44}, {"tipo": "Teste Venda", "jan": 51036, "fev": 55130.4, "kgJan": 1907.88, "kgFev": 2039.6, "fatorJan": 26.75, "fatorFev": 27.03}, {"tipo": "Teste Sucata", "jan": 21386.55, "fev": 25964.55, "kgJan": 3394.69, "kgFev": 3818.31, "fatorJan": 6.3, "fatorFev": 6.8}, {"tipo": "Teste X", "jan": 159334.04, "fev": 169707.84, "kgJan": 5584.78, "kgFev": 5792.07, "fatorJan": 28.53, "fatorFev": 29.3}];
-const EMB_FAT_TOTAL={"kgJan": 53049.35, "kgFev": 40955.48, "fatorJan": 36.6, "fatorFev": 39.78, "jan": 1941655.69, "fev": 1629020.87};
+// Faturamento & Fator por linha de produto — modelo mensal (jan..dez), pronto p/ o ano inteiro.
+// Fat = receita; Kg = peso faturado; Fator = R$/kg (receita por quilo). A importação mensal
+// alimenta a chave do mês correspondente em cada linha (ver importarFaturamentoMes).
+const EMB_FATURAMENTO=[
+ {tipo:"Embalagem",     fat:{jan:1559237.09,fev:1365643.59}, kg:{jan:35136,fev:27599.5},    fator:{jan:44.38,fev:49.48}},
+ {tipo:"Linear",        fat:{jan:163040.72, fev:36454.86},   kg:{jan:3513,fev:853},         fator:{jan:46.41,fev:42.74}},
+ {tipo:"Inter Company", fat:{jan:9007.84,   fev:2084.18},    kg:{jan:3513,fev:853},         fator:{jan:2.56,fev:2.44}},
+ {tipo:"Teste Venda",   fat:{jan:51036,     fev:55130.4},    kg:{jan:1907.88,fev:2039.6},   fator:{jan:26.75,fev:27.03}},
+ {tipo:"Teste Sucata",  fat:{jan:21386.55,  fev:25964.55},   kg:{jan:3394.69,fev:3818.31},  fator:{jan:6.3,fev:6.8}},
+ {tipo:"Teste X",       fat:{jan:159334.04, fev:169707.84},  kg:{jan:5584.78,fev:5792.07},  fator:{jan:28.53,fev:29.3}}
+];
+const EMB_FAT_TOTAL={ fat:{jan:1941655.69,fev:1629020.87}, kg:{jan:53049.35,fev:40955.48}, fator:{jan:36.6,fev:39.78} };
 const EMB_INVENTARIO=[{"item": "Produto Acabado", "jan": 795428.64, "fev": 704571.27, "kgJan": 27831.4, "kgFev": 26123.4, "fatorJan": 28.58, "fatorFev": 26.97}, {"item": "Produto em Processo", "jan": 1328355.38, "fev": 329372.96, "kgJan": 61078.6, "kgFev": 13189.7, "fatorJan": 21.75, "fatorFev": 24.97}, {"item": "Tintas", "jan": 172975.46, "fev": 155315.42, "kgJan": 7581, "kgFev": 7232, "fatorJan": 22.82, "fatorFev": 21.48}, {"item": "Matéria Prima", "jan": 393284.56, "fev": 490315.06, "kgJan": 52462.74, "kgFev": 59711.14, "fatorJan": 7.5, "fatorFev": 8.21}];
 const EMB_INV_TOTAL={"jan": 2517068.58, "fev": 1524259.29, "kgJan": 148953.74, "kgFev": 106256.24, "fatorJan": 16.9, "fatorFev": 14.35};
 const EMB_PREVISOES=[{"categoria": "Férias + 1/3", "provisao_mensal": 5000, "jan": 0, "fev": 0}, {"categoria": "Rescisões", "provisao_mensal": 10000, "jan": 6324.84, "fev": 0}, {"categoria": "GRRF", "provisao_mensal": 1500, "jan": 0, "fev": 0}, {"categoria": "PLR", "provisao_mensal": 6000, "jan": 25875.0, "fev": 0}, {"categoria": "13º Salário", "provisao_mensal": 6500, "jan": 0, "fev": 0}, {"categoria": "Uniformes", "provisao_mensal": 1250, "jan": 0, "fev": 0}, {"categoria": "Treinamentos", "provisao_mensal": 5000, "jan": 6000.0, "fev": 5543.34}, {"categoria": "Manutenção de Ativo", "provisao_mensal": 21000, "jan": 0, "fev": 0}];
@@ -2829,6 +2852,7 @@ function sistemaUnificado(){
     sidebarOpen: true,
     showAlertas: false,
     collapsedCCs: [],
+    collapsedFat: [],   // linhas de produto recolhidas na tela Faturamento & Fator
     mesImportacao: '',
     backupEstado: null,
     pilhaEstados: [],
@@ -3197,7 +3221,7 @@ function sistemaUnificado(){
       const c=this.consolidado.empresas.find(e=>e.id===id)||r;
       const fatTot = emp.extras && emp.extras.fatTotal ? emp.extras.fatTotal : null;
       return { ...r, resReal:c.resReal, margemReal:c.margemReal, rateio:c.rateio,
-        fatorMedio: fatTot ? ((fatTot.fatorJan+fatTot.fatorFev)/2) : null,
+        fatorMedio: fatTot ? (fatTot.kg && (fatTot.kg.jan+fatTot.kg.fev)>0 ? (fatTot.fat.jan+fatTot.fat.fev)/(fatTot.kg.jan+fatTot.kg.fev) : ((fatTot.fator.jan+fatTot.fator.fev)/2)) : null,
         grupos: grupos.slice(0,6).map(x=>({label:x.label.replace(/^\d+\s*-\s*/,''), valor:x.valor, pct:(x.valor/totalG)*100})) };
     },
     get comparacao(){ return { a:this.ladoComparador(this.compA), b:this.ladoComparador(this.compB) }; },
@@ -3896,6 +3920,59 @@ function sistemaUnificado(){
       reader.readAsDataURL(file);
     },
 
+    // ===== Faturamento & Fator (árvore: Fat = principal; Kg e Fator = subcategorias) =====
+    // Meses com dado lançado em qualquer linha — as colunas crescem de jan a dez conforme importa.
+    get fatMesesAtivos() {
+      const linhas = this.empresaExtras.faturamento || [];
+      return this.listaMeses
+        .filter(m => { const mk = m.chave.toLowerCase(); return linhas.some(l => l.fat && (l.fat[mk] || 0) !== 0); })
+        .map(m => m.chave);
+    },
+    // Fator R$/kg de uma linha num mês: recalcula de fat/kg (fonte da verdade); usa valor da planilha como reserva.
+    fatorLinha(linha, mesChave) {
+      const mk = String(mesChave).toLowerCase();
+      const fat = (linha.fat && linha.fat[mk]) || 0, kg = (linha.kg && linha.kg[mk]) || 0;
+      if (kg > 0) return fat / kg;
+      return (linha.fator && linha.fator[mk]) || 0;
+    },
+    // Total de uma coluna (mês) somando as linhas de produto — bate com o TOTAL da planilha.
+    fatColTotal(mesChave, campo) {
+      const mk = String(mesChave).toLowerCase();
+      const linhas = this.empresaExtras.faturamento || [];
+      return linhas.reduce((a, l) => a + ((l[campo] && l[campo][mk]) || 0), 0);
+    },
+    // KPIs acumulados (todos os meses ativos)
+    get fatTotalAcum() {
+      let fat = 0, kg = 0;
+      this.fatMesesAtivos.forEach(m => { fat += this.fatColTotal(m, 'fat'); kg += this.fatColTotal(m, 'kg'); });
+      return { fat, kg, fator: kg > 0 ? fat / kg : 0 };
+    },
+    // Lista achatada de linhas para a tabela (pai Faturamento + filhos Kg/Fator quando expandido).
+    get fatRows() {
+      const linhas = this.empresaExtras.faturamento || [];
+      const rows = [];
+      linhas.forEach(f => {
+        rows.push({ kind: 'fat', tipo: f.tipo, f });
+        if (!this.collapsedFat.includes(f.tipo)) {
+          rows.push({ kind: 'kg', tipo: f.tipo, f });
+          rows.push({ kind: 'fator', tipo: f.tipo, f });
+        }
+      });
+      return rows;
+    },
+    fatCellText(r, mesChave) {
+      const mk = String(mesChave).toLowerCase(); const f = r.f;
+      if (r.kind === 'kg') return (((f.kg && f.kg[mk]) || 0)).toLocaleString('pt-BR') + ' kg';
+      if (r.kind === 'fator') return 'R$ ' + this.fatorLinha(f, mesChave).toFixed(2).replace('.', ',');
+      return this.formatarDinheiroExato((f.fat && f.fat[mk]) || 0);
+    },
+    toggleFat(tipo) {
+      if (this.collapsedFat.includes(tipo)) this.collapsedFat = this.collapsedFat.filter(t => t !== tipo);
+      else this.collapsedFat.push(tipo);
+    },
+    expandirTodosFat() { this.collapsedFat = []; },
+    recolherTodosFat() { this.collapsedFat = (this.empresaExtras.faturamento || []).map(l => l.tipo); },
+
     expandirTodosCC() {
       this.collapsedCCs = [];
       this.registrarLog('Expandiu todos os Centros de Custo');
@@ -4530,19 +4607,17 @@ function sistemaUnificado(){
       if(this.aba==='faturamento') {
         const ex = this.empresaExtras;
         if(ex.faturamento) {
+          const mesesFat = this.fatMesesAtivos;
+          const paletaFat = [cBlue, cGreen, cGold, '#7c3aed', '#0f766e', '#e11d48', '#f59e0b', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f43f5e', '#64748b'];
           renderChart('chartFatTipo','bar',{
             labels: ex.faturamento.map(f=>f.tipo),
-            datasets:[
-              {label:'Janeiro', data:ex.faturamento.map(f=>f.jan), backgroundColor: ctx=>chartGrad(ctx,cBlue), categoryPercentage:0.7, barPercentage:0.88},
-              {label:'Fevereiro', data:ex.faturamento.map(f=>f.fev), backgroundColor: ctx=>chartGrad(ctx,cGreen), categoryPercentage:0.7, barPercentage:0.88}
-            ]
+            datasets: mesesFat.map((m,idx)=>{ const mk=m.toLowerCase(); const cor=paletaFat[idx%paletaFat.length];
+              return {label:m, data:ex.faturamento.map(f=>(f.fat&&f.fat[mk])||0), backgroundColor: ctx=>chartGrad(ctx,cor), categoryPercentage:0.7, barPercentage:0.88}; })
           }, chartOptsBase({plugins:{legend:{display:!0}}}));
           renderChart('chartFator','bar',{
             labels: ex.faturamento.map(f=>f.tipo),
-            datasets:[
-              {label:'Fator Jan (R$/kg)', data:ex.faturamento.map(f=>f.fatorJan), backgroundColor: cGold, categoryPercentage:0.7, barPercentage:0.88},
-              {label:'Fator Fev (R$/kg)', data:ex.faturamento.map(f=>f.fatorFev), backgroundColor: cBlue, categoryPercentage:0.7, barPercentage:0.88}
-            ]
+            datasets: mesesFat.map((m,idx)=>{ const cor=paletaFat[idx%paletaFat.length];
+              return {label:'Fator '+m+' (R$/kg)', data:ex.faturamento.map(f=>this.fatorLinha(f,m)), backgroundColor: cor, categoryPercentage:0.7, barPercentage:0.88}; })
           }, chartOptsBase({plugins:{legend:{display:!0}, tooltip:{callbacks:{label:c=>'  '+c.dataset.label+':  R$ '+Number(c.parsed.y||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' /kg'}}}, scales:{y:{ticks:{callback:v=>'R$ '+v+'/kg'}}}}));
         }
       }
