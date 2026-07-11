@@ -655,9 +655,14 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       <div>
         <div class="nav-section" x-show="sidebarOpen">Embalagem — Individual</div>
         <div class="nav-sep" x-show="!sidebarOpen"></div>
-        <!-- Menu enxuto, espelhando o arquivo do cliente: Resultado 2026 (tudo junto) + análises/detalhes -->
+        <!-- Menu enxuto, espelhando o arquivo do cliente: Resultado 2026 (tudo junto) + cada seção separada -->
         <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Visão geral"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Visão Geral</span></button>
-        <button class="nav-item" @click="mudarAba('resultado_emb')" :class="aba==='resultado_emb'?'active':''" title="Resultado 2026 — igual à sua planilha"><i class="fas fa-file-invoice-dollar w-4"></i> <span class="nav-label">Resultado 2026</span></button>
+        <button class="nav-item" @click="mudarAba('resultado_emb')" :class="aba==='resultado_emb'?'active':''" title="Resultado 2026 — igual à sua planilha (tudo junto)"><i class="fas fa-file-invoice-dollar w-4"></i> <span class="nav-label">Resultado 2026</span></button>
+        <div class="nav-section" x-show="sidebarOpen" style="padding-top:14px">Por seção</div>
+        <div class="nav-sep" x-show="!sidebarOpen"></div>
+        <button class="nav-item" @click="mudarAba('emb_despesa')" :class="aba==='emb_despesa'?'active':''" title="Despesa (bloco DESPESAS)"><i class="fas fa-arrow-trend-down w-4"></i> <span class="nav-label">Despesa</span></button>
+        <button class="nav-item" @click="mudarAba('emb_receita')" :class="aba==='emb_receita'?'active':''" title="Receita (bloco RECEITAS — faturamento, kg, fator)"><i class="fas fa-hand-holding-dollar w-4"></i> <span class="nav-label">Receita</span></button>
+        <button class="nav-item" @click="mudarAba('emb_inventario')" :class="aba==='emb_inventario'?'active':''" title="Inventário (bloco INVENTÁRIO — estoque, kg, fator)"><i class="fas fa-boxes-stacked w-4"></i> <span class="nav-label">Inventário</span></button>
         <div class="nav-section" x-show="sidebarOpen" style="padding-top:14px">Aprofundar</div>
         <div class="nav-sep" x-show="!sidebarOpen"></div>
         <button class="nav-item" @click="mudarAba('subempresas')" :class="aba==='subempresas'?'active':''" title="Análise por empresa e tributação"><i class="fas fa-scale-unbalanced w-4"></i> <span class="nav-label">Sub-empresas</span></button>
@@ -708,7 +713,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
     
     <div style="display:flex;align-items:center;gap:24px">
-      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal', 'resultado_emb'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
+      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal', 'resultado_emb', 'emb_despesa', 'emb_receita', 'emb_inventario'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
         <label style="font-size: 11px; color: var(--color-muted); text-transform: uppercase; font-weight: 800;">Recorte Atual:</label>
         <select @change="mesAtivo = $event.target.value; subAbaDespesa = mesAtivo.toLowerCase(); atualizarLeituraSistema()" class="emc-input" style="padding: 6px 12px; font-weight: 800; color: var(--accent-blue); width: auto; background: var(--color-surface2); border-color: var(--accent-gold);">
           <template x-for="m in listaMeses" :key="m.chave"><option :value="m.chave" :selected="m.chave === mesAtivo" x-text="m.labelData"></option></template>
@@ -1076,34 +1081,34 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
 
     <!-- ===================== EMBALAGEM · RESULTADO 2026 (réplica fiel da planilha) ===================== -->
-    <template x-if="aba==='resultado_emb' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:20px">
+    <template x-if="['resultado_emb','emb_despesa','emb_receita','emb_inventario'].includes(aba) && empresaExtras.porKg"><div x-cloak style="display:grid;gap:20px">
       <div class="card-dark" style="margin-bottom:0">
         <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:4px">
           <div>
-            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-file-invoice-dollar mr-2" style="color:var(--accent-gold)"></i> Resultado 2026 — Embalagem</div>
-            <div class="card-sub" style="font-size:11.5px">A mesma leitura da sua planilha, linha a linha e na mesma ordem: <b>Despesas</b> → <b>Receitas</b> (com Kg e Fator) → <b>Inventário/Estoque</b> → <b>Devoluções</b> → <b>Resultado</b>. Colunas por mês.</div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-file-invoice-dollar mr-2" style="color:var(--accent-gold)"></i> <span x-text="resultadoEmbTitulo"></span></div>
+            <div class="card-sub" style="font-size:11.5px" x-html="resultadoEmbDesc"></div>
           </div>
-          <div class="badge-status badge-info flex-shrink-0" style="font-size:10.5px"><i class="fas fa-table-list mr-1"></i> espelho da aba "Resultado 2026"</div>
+          <div class="badge-status badge-info flex-shrink-0" style="font-size:10.5px"><i class="fas fa-table-list mr-1"></i> espelho da planilha "Resultado 2026"</div>
         </div>
         <div style="overflow-x:auto">
           <table class="dark-table">
             <thead>
               <tr>
                 <th style="min-width:250px">Descrição</th>
-                <template x-for="m in resultadoEmbalagem.meses" :key="'rh'+m"><th class="td-r" x-text="listaMeses.find(x=>x.chave===m)?.labelData || m"></th></template>
+                <template x-for="m in resultadoEmbView.meses" :key="'rh'+m"><th class="td-r" x-text="listaMeses.find(x=>x.chave===m)?.labelData || m"></th></template>
               </tr>
             </thead>
             <tbody>
-              <template x-for="(row,ri) in resultadoEmbalagem.rows" :key="'rr'+ri">
+              <template x-for="(row,ri) in resultadoEmbView.rows" :key="aba+'rr'+ri">
                 <tr :class="rowClassRes(row)">
                   <template x-if="row.sec">
-                    <td :colspan="resultadoEmbalagem.meses.length+1" x-text="row.sec"></td>
+                    <td :colspan="resultadoEmbView.meses.length+1" x-text="row.sec"></td>
                   </template>
                   <template x-if="!row.sec">
                     <td x-text="row.label"></td>
                   </template>
                   <template x-if="!row.sec">
-                    <template x-for="m in resultadoEmbalagem.meses" :key="'rc'+ri+m">
+                    <template x-for="m in resultadoEmbView.meses" :key="aba+'rc'+ri+m">
                       <td class="td-r" :class="row.kind==='result'?(row.vals[m]<0?'text-red-strong':'text-green-strong'):(row.tipo==='kgrs'&&row.kind!=='sub'?'text-green-strong':'')" x-text="fmtResVal(row,m)"></td>
                     </template>
                   </template>
@@ -1112,7 +1117,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             </tbody>
           </table>
         </div>
-        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> <b>Total Faturamento</b> e <b>Estoque</b> seguem a planilha (o faturamento exclui as aparas/Teste Sucata; o estoque exclui Tintas do valor). Para o detalhe por empresa, veja <b>Sub-empresas</b>; para os lançamentos, <b>Despesas por C.C.</b></div>
+        <div x-show="aba==='resultado_emb'" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> <b>Total Faturamento</b> e <b>Estoque</b> seguem a planilha (o faturamento exclui as aparas/Teste Sucata; o estoque exclui Tintas do valor). Para o detalhe por empresa, veja <b>Sub-empresas</b>; para os lançamentos, <b>Despesas por C.C.</b></div>
       </div>
     </div></template>
 
@@ -3061,7 +3066,7 @@ function nxFsSyncIcones() {
   if (fe) nxMontarBarraFS(fe);
 }
 // Barra da tela cheia: botão Sair + régua de meses (só onde o recorte por mês se aplica).
-const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','resultado_emb'];
+const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','resultado_emb','emb_despesa','emb_receita','emb_inventario'];
 function nxMontarBarraFS(card) {
   const antiga = card.querySelector(':scope > .nx-fs-bar'); if (antiga) antiga.remove();
   const root = document.querySelector('[x-data]'); const cmp = (root && window.Alpine) ? Alpine.$data(root) : null;
@@ -3978,13 +3983,16 @@ function sistemaUnificado(){
       this.recalcularTudo();
     },
 
-    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','resultado_emb':'Resultado 2026 — Embalagem','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Sub-empresas & Tributação','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get tituloAba(){ return {'hub':'Hub de Empresas — Grupo Rebracil','consolidado':'Central do Grupo — Consolidado','resultado_emb':'Resultado 2026 — Embalagem','emb_despesa':'Embalagem · Despesa','emb_receita':'Embalagem · Receita','emb_inventario':'Embalagem · Inventário','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Sub-empresas & Tributação','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários (What-if)','dashboard':'Dashboard de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
     get descAba(){ return {
       'consolidado':'Visão de holding: resultado somado, rentabilidade real e rateio de custos da matriz.',
       'comparador':'Duas empresas lado a lado — mensal e anual — para decidir onde investir ou cortar.',
       'projecao':'Fecha o ano a partir dos meses lançados, por empresa ou grupo.',
       'simulador':'DRE ao vivo: mova a régua de cada centro de custo e veja o impacto e a projeção.',
       'resultado_emb':'A mesma leitura da sua planilha, em uma tela só: despesas, receitas (kg/fator), inventário e resultado.',
+      'emb_despesa':'Bloco DESPESAS da planilha: despesa por empresa e total, mês a mês.',
+      'emb_receita':'Bloco RECEITAS da planilha: faturamento por linha com kg e fator, totais e margem.',
+      'emb_inventario':'Bloco INVENTÁRIO da planilha: estoque por categoria com kg e fator.',
       'faturamento':'Receita medida por quilo: fator (R$/kg), custo/kg, margem/kg e peso.',
       'subempresas':'Linear, Teste, Teste X e Inter Company — a estratégia tributária do grupo.',
       'inventario':'Estoque por categoria com fator R$/kg, mais ITP (itens de terceiros).',
@@ -4369,6 +4377,32 @@ function sistemaUnificado(){
       return this.formatarDinheiroExato(v);
     },
     rowClassRes(row) { return row.sec ? 'res-band' : ('res-' + row.kind); },
+    // Uma seção isolada (DESPESAS / RECEITAS / INVENTÁRIO) do Resultado 2026 — mesmos valores.
+    resultadoEmbSecao(sec) {
+      const full = this.resultadoEmbalagem;
+      const rows = []; let dentro = false;
+      for (const r of full.rows) {
+        if (r.sec) { dentro = (r.sec === sec); continue; }
+        if (dentro) rows.push(r);
+      }
+      return { meses: full.meses, rows };
+    },
+    get resultadoEmbView() {
+      if (this.aba === 'emb_despesa') return this.resultadoEmbSecao('DESPESAS');
+      if (this.aba === 'emb_receita') return this.resultadoEmbSecao('RECEITAS');
+      if (this.aba === 'emb_inventario') return this.resultadoEmbSecao('INVENTÁRIO');
+      return this.resultadoEmbalagem;
+    },
+    get resultadoEmbTitulo() {
+      return { emb_despesa: 'Despesa', emb_receita: 'Receita', emb_inventario: 'Inventário' }[this.aba] || 'Resultado 2026 — Embalagem';
+    },
+    get resultadoEmbDesc() {
+      return {
+        emb_despesa: 'Bloco <b>DESPESAS</b> da planilha: despesa por empresa e total, mês a mês. Para o detalhe por conta, veja <b>Despesas por C.C.</b>',
+        emb_receita: 'Bloco <b>RECEITAS</b> da planilha: faturamento por linha com <b>Kg</b> e <b>Fator</b>, totais e a margem operacional.',
+        emb_inventario: 'Bloco <b>INVENTÁRIO</b> da planilha: estoque por categoria com <b>Kg</b> e <b>Fator</b>, diferença de estoque e devoluções.'
+      }[this.aba] || 'A mesma leitura da sua planilha, linha a linha e na mesma ordem: <b>Despesas</b> → <b>Receitas</b> (com Kg e Fator) → <b>Inventário/Estoque</b> → <b>Devoluções</b> → <b>Resultado</b>. Colunas por mês.';
+    },
 
     expandirTodosCC() {
       this.collapsedCCs = [];
