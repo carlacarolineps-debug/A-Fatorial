@@ -69,6 +69,20 @@ cada empresa é uma **conta independente dentro do mesmo "banco" de dados**, com
   Presumido) e aparecem **dentro da Embalagem** (não são painéis próprios). Teste
   Sucata = aparas (Hanami); ITP = itens de terceiros (decisão de produzir vs. comprar).
 
+### Razão — drill-down ao clicar em qualquer informação (inspirado no Horus)
+Clique em qualquer linha do **Resultado 2026** (ou no ícone de lupa em **Despesas por C.C.**) e
+um **painel lateral premium desliza da direita** mostrando *a razão daquele número*:
+- **Valor em foco** + variação vs. mês anterior (pill ▲/▼).
+- **Sparkline mensal** (SVG) da evolução.
+- **Stats** (acumulado, média, % do total, nº de lançamentos / menor-maior mês).
+- **Composição** — o que forma aquele total: para *Total Despesas*, a despesa por empresa; para
+  *Total Faturamento*, as linhas de faturamento; para *Estoque*, as categorias; para um grupo de
+  centro de custo, os lançamentos reais que o compõem — cada um com R$ e %.
+- **Insight automático** (maior componente, participação) + **Exportar CSV** + atalho para a tela cheia.
+
+Motor: `abrirRazao(ctx)` genérico, com `razaoResLinha(row)` (linhas do Resultado 2026) e `razaoCC(cc)`
+(centros de custo). Afordância de clique com realce e ícone de lupa (`.nx-drill`).
+
 ### Central de Inteligência — o sistema pensa pelo analista
 No topo (ícone de cérebro, com contador) abre um painel deslizante que **lê os números
 sozinho** e entrega alertas acionáveis, sem depender da memória de quem analisa:

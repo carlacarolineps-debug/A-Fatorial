@@ -491,6 +491,10 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .res-result > td{ background:rgba(13,148,136,.09) !important; font-weight:900; }
 .res-result > td:first-child{ color:var(--accent-blue); }
 .res-pct > td{ color:var(--color-muted) !important; font-weight:700; font-size:12px; }
+/* Afordância de "clique para ver a razão" */
+.nx-drill{ cursor:pointer; }
+.nx-drill:hover{ background:rgba(197,168,128,.10) !important; }
+.nx-drill:hover .nx-drill-ic{ opacity:1 !important; }
 /* ===== Resumo analítico (painel deslizante escuro) ===== */
 .nx-sidestat{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:10px 13px; border-radius:11px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); }
 .nx-sidestat span{ font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:#8b90a8; font-weight:800; }
@@ -1100,12 +1104,12 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             </thead>
             <tbody>
               <template x-for="(row,ri) in resultadoEmbView.rows" :key="aba+'rr'+ri">
-                <tr :class="rowClassRes(row)">
+                <tr :class="rowClassRes(row)+((!row.sec && row.kind!=='sub')?' nx-drill':'')" @click="(!row.sec && row.kind!=='sub') && razaoResLinha(row)">
                   <template x-if="row.sec">
                     <td :colspan="resultadoEmbView.meses.length+1" x-text="row.sec"></td>
                   </template>
                   <template x-if="!row.sec">
-                    <td x-text="row.label"></td>
+                    <td><span x-text="row.label"></span><i x-show="row.kind!=='sub'" class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i></td>
                   </template>
                   <template x-if="!row.sec">
                     <template x-for="m in resultadoEmbView.meses" :key="aba+'rc'+ri+m">
@@ -1964,12 +1968,15 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                   <td class="td-r font-bold text-amber-500" style="background:rgba(197,168,128,0.05);" x-text="formatarDinheiroExato(cc.ac)"></td>
                   <td class="td-r text-gray-500" x-text="formatarDinheiroExato(cc.mm)"></td>
                   <td class="td-r no-print">
-                     <template x-if="!cc.ip && cc.c !== 'Total' && cc.c !== 'Ajustes'">
-                        <span style="white-space:nowrap;">
-                           <button @click.stop="abrirTransferenciaCC(cc.c, mesAtivo.toLowerCase(), cc[mesAtivo.toLowerCase()])" class="text-accent-blue hover:text-accent-gold mr-3" title="Transferir valor (mês atual) para outro C.C."><i class="fas fa-exchange-alt"></i></button>
-                           <button @click.stop="removerCC(cc)" class="text-red-400 hover:text-red-600" title="Excluir lançamento"><i class="fas fa-trash"></i></button>
-                        </span>
-                     </template>
+                     <span style="white-space:nowrap;">
+                       <button x-show="cc.c !== 'Total' && cc.c !== 'Ajustes'" @click.stop="razaoCC(cc)" class="text-accent-gold hover:text-accent-blue mr-3" title="Ver razão — detalhe e evolução"><i class="fas fa-magnifying-glass-chart"></i></button>
+                       <template x-if="!cc.ip && cc.c !== 'Total' && cc.c !== 'Ajustes'">
+                          <span style="white-space:nowrap;">
+                             <button @click.stop="abrirTransferenciaCC(cc.c, mesAtivo.toLowerCase(), cc[mesAtivo.toLowerCase()])" class="text-accent-blue hover:text-accent-gold mr-3" title="Transferir valor (mês atual) para outro C.C."><i class="fas fa-exchange-alt"></i></button>
+                             <button @click.stop="removerCC(cc)" class="text-red-400 hover:text-red-600" title="Excluir lançamento"><i class="fas fa-trash"></i></button>
+                          </span>
+                       </template>
+                     </span>
                   </td>
                 </tr>
               </template>
@@ -2819,18 +2826,44 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
       <button class="nxdr-close" @click="fecharDrawer()" aria-label="Fechar">×</button>
     </div>
+    <!-- HERO: valor em foco + variação -->
+    <template x-if="drawer.hero">
+      <div style="padding:16px 24px 14px;background:var(--color-surface);border-bottom:1px solid var(--color-border);display:flex;align-items:flex-end;justify-content:space-between;gap:14px">
+        <div style="min-width:0">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-dim);font-weight:800" x-text="drawer.heroLabel"></div>
+          <div style="font-size:27px;font-weight:900;color:var(--accent-blue);font-variant-numeric:tabular-nums;line-height:1.1;margin-top:3px" x-text="drawer.hero"></div>
+        </div>
+        <template x-if="drawer.delta!==null && drawer.delta!==undefined">
+          <div style="font-size:12px;font-weight:800;padding:6px 11px;border-radius:999px;white-space:nowrap;flex-shrink:0" :style="drawer.delta>=0?'color:#0d9488;background:rgba(13,148,136,.12)':'color:#e11d48;background:rgba(225,29,72,.12)'">
+            <i class="fas" :class="drawer.delta>=0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="Math.abs(drawer.delta).toFixed(0)+'%'"></span>
+          </div>
+        </template>
+      </div>
+    </template>
+    <!-- SPARKLINE mensal -->
+    <template x-if="drawer.serie && drawer.serie.length>1">
+      <div style="padding:14px 24px 8px;background:var(--color-surface);border-bottom:1px solid var(--color-border)">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--color-dim);font-weight:800;margin-bottom:9px">Evolução mensal</div>
+        <div x-html="drawerSparkSVG"></div>
+        <div style="display:flex;gap:7px;margin-top:5px">
+          <template x-for="(pt,i) in drawer.serie" :key="'sl'+i">
+            <div style="flex:1;text-align:center;font-size:8.5px;color:var(--color-dim);font-weight:700" x-text="pt.label"></div>
+          </template>
+        </div>
+      </div>
+    </template>
     <div class="nxdr-stats">
       <template x-for="(s,i) in drawer.stats" :key="i">
         <div class="s"><div class="l" x-text="s.l"></div><div class="v" :style="s.cor?('color:'+s.cor):''" x-text="s.v"></div></div>
       </template>
     </div>
     <div class="nxdr-tools">
-      <button class="nxdr-btn primary" x-show="drawer.acaoId" @click="drawerAbrirPainel()"><i class="fas fa-arrow-right-to-bracket mr-1"></i> <span x-text="drawer.acaoLabel"></span></button>
+      <button class="nxdr-btn primary" x-show="drawer.acaoId || drawer.acaoAba" @click="drawerAcao()"><i class="fas fa-arrow-right-to-bracket mr-1"></i> <span x-text="drawer.acaoLabel"></span></button>
       <button class="nxdr-btn" @click="drawerCSV()"><i class="fas fa-download mr-1"></i> Exportar CSV</button>
       <span style="margin-left:auto;font-size:11px;color:var(--color-dim);font-weight:700" x-text="drawer.rows.length+' linhas'"></span>
     </div>
     <div class="nxdr-body">
-      <div class="nxdr-insight" x-show="drawer.insight"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> <span x-text="drawer.insight"></span></div>
+      <div class="nxdr-insight" x-show="drawer.insight"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> <span x-html="drawer.insight"></span></div>
       <table class="dark-table">
         <thead><tr><th x-text="drawer.rowsHead[0]"></th><th class="td-r" x-text="drawer.rowsHead[1]"></th><th class="td-r" x-text="drawer.rowsHead[2]"></th></tr></thead>
         <tbody>
@@ -3111,7 +3144,7 @@ function sistemaUnificado(){
     estoqueBase: 1037371.61,
     invMode: 'diff',
     taxaRateio: (function(){ try{ let v=parseFloat(localStorage.getItem('nexus_taxa_rateio')); return isNaN(v)?5:v; }catch(e){ return 5; } })(),
-    drawer: { open:false, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-building', stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'', csv:[], csvName:'recorte', acaoLabel:'', acaoId:'' },
+    drawer: { open:false, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-building', hero:'', heroLabel:'', delta:null, serie:[], stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'', csv:[], csvName:'recorte', acaoLabel:'', acaoId:'', acaoAba:'' },
     projMetodo: 'media',
     projCrescimento: 0,
     compA: 'requalificadora',
@@ -3457,6 +3490,116 @@ function sistemaUnificado(){
     },
     fecharDrawer() { this.drawer.open = false; },
     drawerAbrirPainel() { const id=this.drawer.acaoId; this.fecharDrawer(); if(id) this.trocarEmpresa(id); },
+    drawerAcao() { if(this.drawer.acaoAba){ const a=this.drawer.acaoAba; this.fecharDrawer(); this.mudarAba(a); } else if(this.drawer.acaoId){ this.drawerAbrirPainel(); } },
+
+    // ===== RAZÃO — drill-down universal: clique em qualquer informação =====
+    abrirRazao(ctx) {
+      this.drawer = Object.assign({
+        open:true, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-magnifying-glass-chart',
+        hero:'', heroLabel:'', delta:null, serie:[],
+        stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'',
+        csv:[], csvName:'razao', acaoLabel:'', acaoId:'', acaoAba:''
+      }, ctx);
+    },
+    drawerBarH(val) {
+      const mx = Math.max(1, ...(this.drawer.serie||[]).map(p=>Math.abs(p.val)));
+      return Math.max(3, Math.abs(val)/mx*100);
+    },
+    get drawerSparkSVG() {
+      const s = this.drawer.serie || []; if (s.length < 2) return '';
+      const W = 100, H = 40, n = s.length, gap = Math.min(3, 40/n);
+      const bw = (W - gap*(n-1))/n;
+      const mx = Math.max(1, ...s.map(p=>Math.abs(p.val)));
+      const col = this.drawer.color || '#191040';
+      const bars = s.map((p,i)=>{ const h = Math.max(2, Math.abs(p.val)/mx*H); const x = i*(bw+gap); const y = H-h; const c = p.val<0 ? '#e11d48' : col; return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${bw.toFixed(2)}" height="${h.toFixed(2)}" rx="1.2" fill="${c}" opacity="0.92"/>`; }).join('');
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:56px;display:block">${bars}</svg>`;
+    },
+    // Razão de um Centro de Custo (grupo → seus lançamentos; folha → evolução mensal)
+    razaoCC(cc) {
+      if(!cc || cc.c==='Total' || cc.c==='Ajustes') return;
+      const meses = this.listaMeses.filter(m=>{ const k=m.chave.toLowerCase(); return this.centrosCustoData.some(c=>(c[k]||0)!==0); });
+      const mkey = this.subAbaDespesa;
+      const nomeMes = (this.listaMeses.find(m=>m.chave.toLowerCase()===mkey)||{}).labelData || mkey;
+      const isParent = cc.ip===1;
+      const filhos = isParent ? this.centrosCustoData.filter(c=>!c.ip && c.parentCode===cc.c) : [];
+      const serie = meses.map(m=>({label:m.chave, val: cc[m.chave.toLowerCase()]||0}));
+      const idxAtual = meses.findIndex(m=>m.chave.toLowerCase()===mkey);
+      const prev = idxAtual>0 ? (cc[meses[idxAtual-1].chave.toLowerCase()]||0) : null;
+      const atual = cc[mkey]||0;
+      const delta = (prev!=null && prev!==0) ? ((atual-prev)/Math.abs(prev)*100) : null;
+      const acum = serie.reduce((a,p)=>a+p.val,0);
+      const media = serie.length ? acum/serie.length : 0;
+      const limpa = s => String(s).replace(/^\d+(\.\d+)*\s*-\s*/,'');
+      let rows=[], head, insight='';
+      if(isParent && filhos.length){
+        const tot = filhos.reduce((a,c)=>a+(c[mkey]||0),0) || atual;
+        const fs = filhos.map(c=>({label:limpa(c.c), raw:c[mkey]||0})).filter(x=>x.raw!==0).sort((a,b)=>Math.abs(b.raw)-Math.abs(a.raw));
+        head = ['Lançamento','Valor · '+nomeMes,'%'];
+        rows = fs.map(x=>({label:x.label, valor:this.formatarDinheiroExato(x.raw), pct: tot?((x.raw/tot)*100).toFixed(1)+'%':'—'}));
+        const maior = fs[0];
+        insight = maior ? ('Maior componente: <b>'+maior.label+'</b> ('+this.formatarDinheiroExato(maior.raw)+', '+(tot?((maior.raw/tot)*100).toFixed(0):'0')+'% do grupo). '+fs.length+' lançamento(s) em '+nomeMes+'.') : 'Sem lançamentos neste mês.';
+      } else {
+        head = ['Mês','Valor','% do acum.'];
+        rows = serie.map(p=>({label:(this.listaMeses.find(m=>m.chave===p.label)||{}).labelData||p.label, valor:this.formatarDinheiroExato(p.val), pct: acum?((p.val/acum)*100).toFixed(1)+'%':'—'}));
+        insight = 'Acumulado no ano: <b>'+this.formatarDinheiroExato(acum)+'</b> · média mensal '+this.formatarDinheiroExato(media)+(delta!=null?(' · '+(delta>=0?'▲ ':'▼ ')+Math.abs(delta).toFixed(0)+'% vs mês anterior'):'')+'.';
+      }
+      const totalRow = this.centrosCustoData.find(c=>c.c==='Total');
+      const totMes = totalRow ? (totalRow[mkey]||0) : 0;
+      this.abrirRazao({
+        tag:'Razão · Centro de Custo', title:limpa(cc.c), subtitle:(isParent?'Grupo de despesa':'Lançamento')+' · '+nomeMes,
+        color:'#191040', icone:'fa-sitemap',
+        hero:this.formatarDinheiroExato(atual), heroLabel:'Valor em '+nomeMes, delta, serie,
+        stats:[
+          {l:'Acumulado (ano)', v:this.formatarDinheiroExato(acum)},
+          {l:'Média por mês', v:this.formatarDinheiroExato(media)},
+          {l:'% do total do mês', v: totMes?((atual/totMes)*100).toFixed(1)+'%':'—'},
+          {l:isParent?'Nº de lançamentos':'Meses lançados', v: String(isParent?filhos.filter(c=>(c[mkey]||0)!==0).length:serie.length)}
+        ],
+        rows, rowsHead:head, insight,
+        csv:[head, ...rows.map(r=>[r.label,r.valor,r.pct])], csvName:'razao_'+limpa(cc.c).slice(0,24),
+        acaoLabel:'Ver Despesa Mensal', acaoAba:'despesa_mensal'
+      });
+    },
+    // Razão de uma linha do Resultado 2026 (composição dos totais ou evolução mensal)
+    razaoResLinha(row) {
+      if(!row || row.sec || row.kind==='sub') return;
+      const full = this.resultadoEmbalagem; const meses = full.meses;
+      const mAtual = meses[meses.length-1];
+      const nomeMes = (this.listaMeses.find(m=>m.chave===mAtual)||{}).labelData || mAtual;
+      const serie = meses.map(ch=>({label:ch, val: row.vals[ch]||0}));
+      const atual = row.vals[mAtual]||0;
+      const idx = meses.length-1, prev = idx>0 ? (row.vals[meses[idx-1]]||0) : null;
+      const delta = (prev!=null && prev!==0) ? ((atual-prev)/Math.abs(prev)*100) : null;
+      const secLines = (sec) => { const out=[]; let dentro=false; for(const r of full.rows){ if(r.sec){dentro=r.sec===sec;continue;} if(dentro && r.kind==='line') out.push(r); } return out; };
+      const comp = (lines) => { const tot=lines.reduce((a,l)=>a+(l.vals[mAtual]||0),0)||1; return lines.map(l=>({label:l.label, raw:l.vals[mAtual]||0, valor:this.fmtResVal(l,mAtual), pct:((l.vals[mAtual]||0)/tot*100).toFixed(1)+'%'})).filter(x=>x.raw!==0).sort((a,b)=>Math.abs(b.raw)-Math.abs(a.raw)); };
+      let rows=[], head, insight='', comps=false;
+      if(row.label==='Total Despesas'){ rows=comp(secLines('DESPESAS')); head=['Empresa','Valor · '+nomeMes,'%']; comps=true; }
+      else if(row.label==='Total Faturamento'){ rows=comp(secLines('RECEITAS').filter(l=>/^Faturamento/.test(l.label))); head=['Linha','Valor · '+nomeMes,'%']; comps=true; }
+      else if(row.label==='Estoque'){
+        const mkL=String(mAtual).toLowerCase(); const inv=this.empresaExtras.inventario||[]; const tot=inv.reduce((a,i)=>a+((i.valor&&i.valor[mkL])||0),0)||1;
+        rows=inv.map(i=>{const rv=(i.valor&&i.valor[mkL])||0; return {label:i.item, raw:rv, valor:this.formatarDinheiroExato(rv), pct:(rv/tot*100).toFixed(1)+'%'};}).filter(x=>x.raw!==0).sort((a,b)=>Math.abs(b.raw)-Math.abs(a.raw));
+        head=['Categoria','Valor · '+nomeMes,'%']; comps=true;
+      }
+      if(comps){ const m=rows[0]; if(m) insight='Maior componente: <b>'+m.label.replace(/^Faturamento /,'')+'</b> — '+m.pct+' do total em '+nomeMes+'.'; }
+      else {
+        head=['Mês','Valor','% do acum.']; const acum=serie.reduce((a,p)=>a+p.val,0);
+        rows=serie.map(p=>({label:(this.listaMeses.find(m=>m.chave===p.label)||{}).labelData||p.label, valor:this.fmtResVal(row,p.label), pct: acum?((p.val/acum)*100).toFixed(1)+'%':'—'}));
+        insight='Evolução mês a mês'+(delta!=null?(' · '+(delta>=0?'▲ ':'▼ ')+Math.abs(delta).toFixed(0)+'% vs mês anterior'):'')+'.';
+      }
+      this.abrirRazao({
+        tag:'Razão · Resultado 2026', title:row.label.replace(/^Faturamento /,'Faturamento — '), subtitle:'Embalagem · '+nomeMes,
+        color:'#0f766e', icone:'fa-magnifying-glass-chart',
+        hero:this.fmtResVal(row,mAtual), heroLabel:'Valor em '+nomeMes, delta, serie,
+        stats:[
+          {l:'Menor mês', v:this.fmtResVal(row, serie.reduce((a,p)=>p.val<a.val?p:a, serie[0]).label)},
+          {l:'Maior mês', v:this.fmtResVal(row, serie.reduce((a,p)=>p.val>a.val?p:a, serie[0]).label)},
+          {l:'Média', v: this.fmtResVal({tipo:row.tipo, vals:{_:serie.reduce((a,p)=>a+p.val,0)/(serie.length||1)}}, '_') },
+          {l:'Meses', v:String(serie.length)}
+        ],
+        rows, rowsHead:head, insight,
+        csv:[head, ...rows.map(r=>[r.label,r.valor,r.pct])], csvName:'razao_'+row.label.slice(0,24)
+      });
+    },
     drawerCSV() {
       const linhas = (this.drawer.csv||[]).map(r => r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(';')).join('\r\n');
       const blob = new Blob(['﻿'+linhas], {type:'text/csv;charset=utf-8;'});
