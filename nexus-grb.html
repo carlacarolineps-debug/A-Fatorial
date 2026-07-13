@@ -152,6 +152,8 @@
   .emc-btn-danger { background: #fff1f2; color: var(--accent-red); border-color: #ffe1e5; }
   .emc-btn-danger:hover { background: #ffe1e5; border-color: var(--accent-red); }
   .emc-btn-success { background: linear-gradient(180deg, #14b8a6, var(--accent-green)); border-color: var(--accent-green); color: #fff; }
+  .emc-btn-gold { background: linear-gradient(180deg, #e0c18e, var(--accent-gold)); border: 1px solid var(--accent-gold); color: #191040 !important; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 11.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: var(--shadow-xs); transition: all .15s var(--ease); }
+  .emc-btn-gold:hover { filter: brightness(1.06); transform: translateY(-1px); }
   .emc-btn-success:hover { background: linear-gradient(180deg, #18c6b3, #0b8478); border-color: #0b8478; box-shadow: 0 8px 18px -6px rgba(13,148,136,0.40); transform: translateY(-1px); }
   .emc-btn-gold { background: linear-gradient(180deg, var(--accent-gold), var(--accent-gold-deep)); border-color: var(--accent-gold-deep); color: #2c1f0c; }
   .emc-btn-gold:hover { background: linear-gradient(180deg, #d4ba95, var(--accent-gold-deep)); box-shadow: 0 8px 18px -6px rgba(171,142,98,0.45); transform: translateY(-1px); }
@@ -539,7 +541,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .emb-stat{ background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:13px 15px; min-width:0; }
 .emb-stat .l{ font-size:9.5px; text-transform:uppercase; letter-spacing:1.2px; color:#9aa0b0; font-weight:800; white-space:nowrap; }
 .emb-stat .v{ font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:900; margin-top:4px; white-space:nowrap; color:#fff; }
-.emb-stat .s{ font-size:10px; color:#8b90a8; margin-top:3px; white-space:nowrap; }
+.emb-stat .s{ font-size:10px; color:#8b90a8; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.emb-stat .v{ overflow:hidden; text-overflow:ellipsis; }
 .emb-stat.gold .v{ color:var(--nx-gold-bright,#e8cf9a); }
 .emb-stat.green .v{ color:#4fe3b0; }
 .emb-stat.red .v{ color:#ff8095; }
@@ -1222,6 +1225,12 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <button @click="recolherTodosRes()" class="emc-btn-secondary text-[11px] py-1.5 px-3" title="Ocultar Kg e Fator de todas as linhas"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Kg/Fator</button>
           </div>
         </div>
+        <div x-show="aba==='resultado_emb'" class="nx-tabs no-print" style="border-bottom:1px solid var(--color-border2);margin-top:14px">
+          <button class="nx-tab" :class="resSecao==='tudo'?'active':''" @click="resSecao='tudo'"><i class="fas fa-table-list mr-1"></i> Planilha completa</button>
+          <button class="nx-tab" :class="resSecao==='DESPESAS'?'active':''" @click="resSecao='DESPESAS'"><i class="fas fa-arrow-trend-down mr-1"></i> Despesas</button>
+          <button class="nx-tab" :class="resSecao==='RECEITAS'?'active':''" @click="resSecao='RECEITAS'"><i class="fas fa-hand-holding-dollar mr-1"></i> Faturamento</button>
+          <button class="nx-tab" :class="resSecao==='INVENTÁRIO'?'active':''" @click="resSecao='INVENTÁRIO'"><i class="fas fa-boxes-stacked mr-1"></i> Inventário</button>
+        </div>
         <div x-show="resEditMode" x-cloak class="no-print" style="margin-top:10px;background:rgba(197,168,128,.10);border:1px solid rgba(197,168,128,.45);border-radius:11px;padding:9px 14px;font-size:11.5px;color:var(--accent-gold-deep);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <i class="fas fa-pen"></i> Modo de edição ligado: altere qualquer valor e tecle Enter. Totais, fatores, percentuais e o painel de comando recalculam sozinhos; tudo fica salvo e registrado na auditoria.
           <button @click="desfazerAcao()" class="emc-btn-secondary text-[10.5px] py-1 px-2" style="margin-left:auto"><i class="fas fa-undo mr-1"></i> Desfazer última</button>
@@ -1473,28 +1482,23 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
     <!-- ===================== SERVIÇOS (abas R.Serviços da planilha) ===================== -->
     <template x-if="aba==='servicos' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:20px">
-      <div class="card-dark" style="margin-bottom:0">
-        <div class="flex justify-between items-start flex-wrap gap-3">
+      <div class="emb-hero">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:13px;background:rgba(197,168,128,.16);border:1px solid rgba(197,168,128,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-user-gear" style="color:var(--accent-gold);font-size:19px"></i></div>
           <div style="min-width:0">
-            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-user-gear mr-2" style="color:var(--accent-gold)"></i> Serviços · Fechamento da Unidade</div>
-            <div class="card-sub" style="font-size:11.5px">Folha e encargos da unidade de serviços, conta a conta, mesma leitura das abas <b>R.Serviços</b> da planilha. Valores editáveis direto na tabela.</div>
+            <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">Serviços · Fechamento da Unidade</div>
+            <div style="font-size:11.5px;color:#a9adc6;white-space:nowrap">Folha e encargos conta a conta, mesma leitura das abas <b style="color:var(--nx-gold-bright,#e8cf9a)">R.Serviços</b> da planilha</div>
           </div>
-          <div class="flex items-center gap-2 flex-shrink-0 no-print">
-            <button @click="servNovaConta()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-plus mr-1"></i> Nova conta</button>
-          </div>
+          <button @click="servNovaConta()" class="emc-btn-gold no-print" style="margin-left:auto"><i class="fas fa-plus"></i> Nova conta</button>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 4px">
-          <template x-for="m in servMesesLancados" :key="'sk'+m.chave">
-            <div style="background:var(--color-surface2);border:1px solid var(--color-border);border-radius:13px;padding:12px 15px">
-              <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--color-dim);font-weight:800" x-text="'Fechamento '+m.labelData"></div>
-              <div style="font-size:19px;font-weight:900;color:var(--accent-blue);margin-top:3px;white-space:nowrap" x-text="formatarDinheiroExato(servTotalMes(m.chave.toLowerCase()))"></div>
-            </div>
-          </template>
-          <div style="background:rgba(197,168,128,.10);border:1px solid rgba(197,168,128,.4);border-radius:13px;padding:12px 15px">
-            <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--accent-gold-deep);font-weight:800">Acumulado no ano</div>
-            <div style="font-size:19px;font-weight:900;color:var(--accent-blue);margin-top:3px;white-space:nowrap" x-text="formatarDinheiroExato(servAcum)"></div>
-          </div>
+        <div class="emb-hero-grid">
+          <div class="emb-stat gold"><div class="l">Último fechamento</div><div class="v" x-text="servUltimo?formatarDinheiroExato(servUltimo.valor):'—'"></div><div class="s" x-text="servUltimo?servUltimo.nome:'nenhum mês lançado'"></div></div>
+          <div class="emb-stat"><div class="l">Média mensal</div><div class="v" x-text="formatarDinheiroExato(servMedia)"></div><div class="s" x-text="servMesesLancados.length+' mês(es) lançado(s)'"></div></div>
+          <div class="emb-stat green"><div class="l">Acumulado no ano</div><div class="v" x-text="formatarDinheiroExato(servAcum)"></div><div class="s">janeiro a dezembro</div></div>
         </div>
+      </div>
+
+      <div class="card-dark" style="margin-bottom:0">
         <div class="js-hscroll" style="overflow-x:auto;max-width:100%">
           <table class="dark-table res-table">
             <thead>
@@ -1935,7 +1939,23 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
     </div>
 
-    <div x-show="aba==='despesa_mensal'" x-cloak style="display:flex; flex-direction:column; gap:24px; max-width: 1000px; margin: 0 auto;">
+    <div x-show="aba==='despesa_mensal'" x-cloak style="display:flex; flex-direction:column; gap:20px; max-width: 1000px; margin: 0 auto;">
+
+      <div class="emb-hero">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:13px;background:rgba(197,168,128,.16);border:1px solid rgba(197,168,128,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-list-alt" style="color:var(--accent-gold);font-size:19px"></i></div>
+          <div style="min-width:0">
+            <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">Despesa Mensal Lançada</div>
+            <div style="font-size:11.5px;color:#a9adc6;white-space:nowrap">Lançamentos do mês por conta, direto da importação, com edição e transferência</div>
+          </div>
+        </div>
+        <div class="emb-hero-grid">
+          <div class="emb-stat gold"><div class="l">Total · <span x-text="listaMeses.find(x=>x.chave.toLowerCase()===subAbaDespesa)?.labelData"></span></div><div class="v" x-text="fmtAbrev(centrosCustoData.find(c=>c.c==='Total')?.[subAbaDespesa]||0)"></div><div class="s">mês selecionado abaixo</div></div>
+          <div class="emb-stat"><div class="l">Lançamentos no mês</div><div class="v" x-text="centrosCustoData.filter(c=>!c.ip && c.c!=='Total' && c.c!=='Ajustes' && (c[subAbaDespesa]||0)!==0).length"></div><div class="s">contas com movimento</div></div>
+          <div class="emb-stat"><div class="l">Média mensal</div><div class="v" x-text="fmtAbrev(centrosCustoData.find(c=>c.c==='Total')?.mm||0)"></div><div class="s">dos meses lançados</div></div>
+        </div>
+      </div>
+
       <div class="nx-tabs" style="border-bottom:1px solid var(--color-border2); margin-bottom:18px;">
           <template x-for="m in listaMeses" :key="m.chave">
               <button class="nx-tab"
@@ -1952,9 +1972,9 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <p class="text-xs text-gray-500 mb-0">Dados extraídos diretamente da importação do mês.</p>
           </div>
           <div class="flex gap-2 no-print">
-             <button @click="abrirModalNovoCC()" class="emc-btn emc-btn-success text-[11px] py-1.5 px-3"><i class="fas fa-plus mr-1"></i> Novo Lançamento</button>
-             <button @click="expandirTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Todos</button>
-             <button @click="recolherTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Todos</button>
+             <button @click="abrirModalNovoCC()" class="emc-btn-gold"><i class="fas fa-plus"></i> Novo Lançamento</button>
+             <button @click="expandirTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:10px"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Todos</button>
+             <button @click="recolherTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:10px"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Todos</button>
           </div>
         </div>
 
@@ -2336,17 +2356,34 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
     </div>
 
-    <div x-show="aba==='centro_custo'" x-cloak style="display:grid;gap:24px">
-      <div class="card-dark" style="margin-bottom:0;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 16px;">
-          <div>
-            <div class="card-title mb-1">Matriz Fiel de Despesas por Centro de Custo (Ano Completo)</div>
-            <p class="text-xs text-gray-500 mb-0">Rastreabilidade completa de gastos. Selecione as categorias para expandir/recolher os sub-lançamentos e role a tabela lateralmente.</p>
+    <div x-show="aba==='centro_custo'" x-cloak style="display:grid;gap:20px">
+
+      <div class="emb-hero">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:13px;background:rgba(197,168,128,.16);border:1px solid rgba(197,168,128,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-sitemap" style="color:var(--accent-gold);font-size:19px"></i></div>
+          <div style="min-width:0">
+            <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">Despesas por Centro de Custo · Ano Completo</div>
+            <div style="font-size:11.5px;color:#a9adc6;white-space:nowrap">Rastreabilidade total: clique num grupo para abrir os lançamentos, ou numa linha para ver a razão</div>
           </div>
-          <div class="flex gap-2 no-print">
-             <button @click="abrirModalNovoCC()" class="emc-btn emc-btn-success text-[11px] py-1.5 px-3"><i class="fas fa-plus mr-1"></i> Novo Lançamento</button>
-             <button @click="expandirTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Todos</button>
-             <button @click="recolherTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Todos</button>
+        </div>
+        <div class="emb-hero-grid">
+          <div class="emb-stat gold"><div class="l">Despesa · <span x-text="listaMeses.find(m=>m.chave===mesAtivo)?.labelData"></span></div><div class="v" x-text="fmtAbrev(centrosCustoData.find(c=>c.c==='Total')?.[mesAtivo.toLowerCase()]||0)"></div><div class="s">mês do recorte atual</div></div>
+          <div class="emb-stat"><div class="l">Acumulado no ano</div><div class="v" x-text="fmtAbrev(centrosCustoData.find(c=>c.c==='Total')?.ac||0)"></div><div class="s">todos os meses lançados</div></div>
+          <div class="emb-stat"><div class="l">Média mensal</div><div class="v" x-text="fmtAbrev(centrosCustoData.find(c=>c.c==='Total')?.mm||0)"></div><div class="s">por mês lançado</div></div>
+          <div class="emb-stat"><div class="l">Grupos de custo</div><div class="v" x-text="ccPais.length"></div><div class="s" x-text="ccFolhas.length+' lançamentos'"></div></div>
+        </div>
+      </div>
+
+      <div class="card-dark" style="margin-bottom:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:10px;">
+          <div style="min-width:0">
+            <div class="card-title mb-1">Matriz de Despesas</div>
+            <p class="text-xs text-gray-500 mb-0">Valores editáveis nos lançamentos; grupos e total recalculam sozinhos.</p>
+          </div>
+          <div class="flex gap-2 no-print flex-shrink-0">
+             <button @click="abrirModalNovoCC()" class="emc-btn-gold"><i class="fas fa-plus"></i> Novo Lançamento</button>
+             <button @click="expandirTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:10px"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Todos</button>
+             <button @click="recolherTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:10px"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Todos</button>
           </div>
         </div>
         <div class="js-hscroll" style="overflow-x:auto; max-width: 100%; border: 1px solid var(--color-border); border-radius: 8px;">
@@ -2704,7 +2741,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <div class="card-title mb-2">Matriz Fiel de Provisões (Mensal 2026 Completo)</div>
             <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Preencha manualmente o valor Realizado de cada categoria mês a mês (A diferença irá direto para o DRE). Somente a pior fuga do orçamento ficará em vermelho absoluto.</p>
           </div>
-          <button @click="adicionarCategoriaProvisao()" class="emc-btn emc-btn-success text-[11px] py-1.5 px-3 no-print" style="white-space:nowrap;"><i class="fas fa-plus mr-1"></i> Nova Categoria</button>
+          <button @click="adicionarCategoriaProvisao()" class="emc-btn-gold no-print"><i class="fas fa-plus"></i> Nova Categoria</button>
         </div>
         <div class="js-hscroll" style="overflow-x:auto; border: 1px solid var(--color-border); border-radius: 8px;">
           <table class="dark-table" style="width:100%; font-size:12px; white-space: nowrap;">
@@ -3704,6 +3741,7 @@ function sistemaUnificado(){
 
     // ===== Resultado 2026: modo de edição + movimentos entre empresas =====
     resEditMode: false,
+    resSecao: 'tudo',
     movEmpresas: [
       { id: 1, data: '31/01/2026', mes: 'jan', tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: 9007.84, kg: 3513, obs: 'Venda interna do mês (linha Fat Inter Company da planilha)', usuario: 'Carla Caroline' },
       { id: 2, data: '28/02/2026', mes: 'fev', tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: 2084.18, kg: 853, obs: 'Venda interna do mês (linha Fat Inter Company da planilha)', usuario: 'Carla Caroline' }
@@ -5514,6 +5552,15 @@ function sistemaUnificado(){
       this.registrarLog('Editou Serviços · ' + linha.desc + ' (' + mk.toUpperCase() + '): ' + this.formatarDinheiroExato(linha[mk]));
       this.persistirDados();
     },
+    get servUltimo() {
+      const ms = this.servMesesLancados;
+      const m = ms[ms.length - 1];
+      return m ? { label: m.labelData, nome: m.nome, valor: this.servTotalMes(m.chave.toLowerCase()) } : null;
+    },
+    get servMedia() {
+      const n = this.servMesesLancados.length;
+      return n ? this.servAcum / n : 0;
+    },
     servNovaConta() {
       if (!this.exigirEdicao()) return;
       const desc = prompt('Descrição da nova conta de Serviços:'); if (!desc) return;
@@ -5644,6 +5691,7 @@ function sistemaUnificado(){
       if (this.aba === 'emb_despesa') return this.resultadoEmbSecao('DESPESAS');
       if (this.aba === 'emb_receita') return this.resultadoEmbSecao('RECEITAS');
       if (this.aba === 'emb_inventario') return this.resultadoEmbSecao('INVENTÁRIO');
+      if (this.aba === 'resultado_emb' && this.resSecao !== 'tudo') return this.resultadoEmbSecao(this.resSecao);
       return this.resultadoEmbalagem;
     },
     get resultadoEmbTitulo() {
