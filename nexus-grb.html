@@ -516,6 +516,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .res-future{ opacity:1 !important; color:#b9bfce !important; }
 .res-edit-in{ width:96px; text-align:right; padding:4px 7px; font-size:11.5px; border:1.5px solid rgba(197,168,128,.65); border-radius:8px; background:#fffdf6; font-weight:700; color:var(--accent-blue); font-variant-numeric:tabular-nums; transition:.12s; }
 .res-edit-in:focus{ outline:none; border-color:var(--accent-gold); box-shadow:0 0 0 3px rgba(197,168,128,.22); background:#fff; }
+.res-nota{ font-size:8.5px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:#8a6a3a; background:rgba(197,168,128,.18); border:1px solid rgba(197,168,128,.4); border-radius:999px; padding:2px 8px; margin-left:8px; white-space:nowrap; vertical-align:1px; }
 .res-future-h{ opacity:1; color:rgba(232,207,154,.55) !important; }
 .res-future-h::after{ content:"aberto"; display:block; font-size:7.5px; letter-spacing:.1em; color:var(--nx-gold-bright,#e8cf9a); margin-top:2px; }
 .res-band td{ background:linear-gradient(92deg,#191040 0%,#2a1d63 55%,#3b2a7a 100%) !important; color:#e8cf9a !important; font-weight:900 !important; font-size:11px !important; letter-spacing:.14em; text-transform:uppercase; padding:11px 14px !important; border-top:none !important; }
@@ -930,18 +931,18 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <div style="display:flex;flex-direction:column;gap:11px">
             <div class="nx-sidestat"><span>Faturamento operacional</span><b x-text="formatarDinheiroExato(embResumo.t.fat)"></b></div>
             <div class="nx-sidestat"><span>Resultado operacional</span><b :class="embResumo.t.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embResumo.t.res)"></b></div>
-            <div class="nx-sidestat"><span>Margem consolidada</span><b :class="embResumo.t.margem<0?'text-red-strong':'text-green-strong'" x-text="embResumo.t.margem.toFixed(1)+'%'"></b></div>
+            <div class="nx-sidestat"><span>Margem do conjunto</span><b :class="embResumo.t.margem<0?'text-red-strong':'text-green-strong'" x-text="embResumo.t.margem.toFixed(1)+'%'"></b></div>
             <div class="nx-sidestat"><span>Fator médio · Custo/kg</span><b x-text="'R$ '+embResumo.t.fator.toFixed(2).replace('.',',')+' · R$ '+embResumo.t.custoKg.toFixed(2).replace('.',',')"></b></div>
             <template x-if="embResumo.maisRentavel">
               <div class="nx-sidecard" style="border-left-color:var(--accent-green)">
-                <div class="nx-sidecard-t"><i class="fas fa-trophy mr-1" style="color:var(--accent-gold)"></i> Quem realiza a margem</div>
-                <div><b x-text="embResumo.maisRentavel.nome"></b>, margem <b x-text="embResumo.maisRentavel.margem.toFixed(1)+'%'"></b>. É onde o lucro do grupo é apurado (menor carga tributária).</div>
+                <div class="nx-sidecard-t"><i class="fas fa-trophy mr-1" style="color:var(--accent-gold)"></i> Onde o resultado é apurado</div>
+                <div><b x-text="embResumo.maisRentavel.nome"></b> concentra <b x-text="formatarDinheiroExato(embResumo.maisRentavel.res)"></b> do resultado, por ter a menor carga tributária. Como as empresas negociam entre si, o número que vale é o do conjunto.</div>
               </div>
             </template>
             <template x-if="embResumo.industria">
               <div class="nx-sidecard" style="border-left-color:var(--accent-gold)">
                 <div class="nx-sidecard-t"><i class="fas fa-industry mr-1" style="color:var(--accent-gold)"></i> A indústria opera no zero</div>
-                <div><b x-text="embResumo.industria.nome"></b> tem fator ≈ custo/kg (margem <b x-text="embResumo.industria.margem.toFixed(1)+'%'"></b>): entrega volume; a margem sai nas demais.</div>
+                <div><b x-text="embResumo.industria.nome"></b> tem fator próximo do custo/kg: entrega volume; o resultado do conjunto aparece nas demais.</div>
               </div>
             </template>
             <template x-if="embResumo.inter">
@@ -998,7 +999,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       .nxdr-btn{ border:1px solid var(--color-border2); background:var(--color-surface); color:var(--accent-blue); font-size:12px; padding:8px 13px; border-radius:9px; font-weight:800; cursor:pointer; }
       .nxdr-btn:hover{ border-color:var(--accent-gold); color:var(--accent-gold-deep); }
       .nxdr-btn.primary{ background:var(--accent-blue); color:#fff; border-color:var(--accent-blue); }
-      .nxdr-body{ flex:1; overflow:auto; padding:18px 20px 24px; }
+      .nxdr-scroll{ flex:1; overflow-y:auto; min-height:0; overscroll-behavior:contain; }
+      .nxdr-body{ padding:18px 20px 24px; }
       .nxdr-insight{ background:var(--color-surface2); border-left:3px solid var(--accent-gold); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; }
     </style>
 
@@ -1252,7 +1254,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                       <span x-show="row.ckey" @click.stop="toggleRes(row.ckey)" style="display:inline-block;width:16px;cursor:pointer" title="Recolher/expandir Kg e Fator desta linha">
                         <i class="fas text-xs" style="color:var(--accent-gold)" :class="collapsedRes.includes(row.ckey) ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
                       </span>
-                      <span x-text="row.label"></span><i x-show="row.kind!=='sub'" class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i>
+                      <span x-text="row.label"></span><span x-show="row.nota" class="res-nota" x-text="row.nota"></span><i x-show="row.kind!=='sub'" class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i>
                     </td>
                   </template>
                   <template x-if="!row.sec">
@@ -1403,13 +1405,13 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="flex justify-between items-start flex-wrap gap-3">
           <div>
             <div class="card-title"><i class="fas fa-scale-unbalanced mr-2" style="color:var(--accent-gold)"></i> Visão e Estratégia da Embalagem</div>
-            <div class="card-sub" style="margin-top:-8px">Valores em R$, kg, fator, custo/kg e margem por empresa.</div>
+            <div class="card-sub" style="margin-top:-8px">Valores em R$, kg, fator, custo/kg e resultado por empresa.</div>
           </div>
           <button @click="showResumo=true" class="emc-btn-secondary text-[12px] py-2 px-3 flex-shrink-0" title="Abrir resumo analítico"><i class="fas fa-wand-magic-sparkles mr-1" style="color:var(--accent-gold)"></i> Resumo</button>
         </div>
         <div style="overflow-x:auto">
           <table class="dark-table" style="min-width:720px">
-            <thead><tr><th>Empresa</th><th class="td-r">Faturamento</th><th class="td-r">Kg</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Despesa</th><th class="td-r">Custo/kg</th><th class="td-r">Resultado</th><th class="td-r">Margem</th></tr></thead>
+            <thead><tr><th>Empresa</th><th class="td-r">Faturamento</th><th class="td-r">Kg</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Despesa</th><th class="td-r">Custo/kg</th><th class="td-r">Resultado</th></tr></thead>
             <tbody>
               <template x-for="s in embSub" :key="s.nome">
                 <tr :style="s.intercompany?'opacity:.72':''">
@@ -1420,7 +1422,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                   <td class="td-r" style="color:var(--accent-red)" x-text="formatarDinheiroExato(s.desp)"></td>
                   <td class="td-r" x-text="'R$ '+s.custoKg.toFixed(2).replace('.',',')"></td>
                   <td class="td-r font-bold" :class="s.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(s.res)"></td>
-                  <td class="td-r"><span class="badge-status" :class="s.margem<0?'badge-danger':(s.margem<10?'badge-warn':'badge-ok')" x-text="s.margem.toFixed(1)+'%'"></span></td>
                 </tr>
               </template>
               <tr class="highlight-row" style="font-weight:900">
@@ -1431,22 +1432,22 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                 <td class="td-r text-red-strong" x-text="formatarDinheiroExato(embSubTotais.desp)"></td>
                 <td class="td-r" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></td>
                 <td class="td-r" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></td>
-                <td class="td-r" x-text="embSubTotais.margem.toFixed(1)+'%'"></td>
               </tr>
             </tbody>
           </table>
         </div>
+        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> Como as empresas compram e vendem entre si, a margem individual não representa o desempenho de cada uma. O que vale é o <b>resultado do conjunto</b>, na linha Total Operacional e no Painel de Comando.</div>
       </div>
 
       <!-- Como a estratégia funciona, sem depender de ninguém lembrar -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
         <div class="card-dark" style="margin-bottom:0;border-top:3px solid #0f766e">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(15,118,110,.12);color:#0f766e;display:flex;align-items:center;justify-content:center"><i class="fas fa-industry"></i></div><div style="font-weight:900;color:var(--accent-blue);font-size:13px;white-space:nowrap">1 · A indústria produz</div></div>
-          <div style="font-size:12px;color:var(--color-muted);line-height:1.55"><b>Embalagem (Lucro Presumido)</b> concentra máquinas, equipe e custo, opera com fator ≈ custo/kg (margem <b x-text="(embResumo.industria?embResumo.industria.margem.toFixed(1):'0')+'%'"></b>). Ela não foi feita para lucrar: foi feita para produzir.</div>
+          <div style="font-size:12px;color:var(--color-muted);line-height:1.55"><b>Embalagem (Lucro Presumido)</b> concentra máquinas, equipe e custo, com fator próximo do custo por quilo. Ela não foi feita para lucrar: foi feita para produzir.</div>
         </div>
         <div class="card-dark" style="margin-bottom:0;border-top:3px solid #2563eb">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(37,99,235,.12);color:#2563eb;display:flex;align-items:center;justify-content:center"><i class="fas fa-file-invoice-dollar"></i></div><div style="font-weight:900;color:var(--accent-blue);font-size:13px;white-space:nowrap">2 · Quem emite a nota</div></div>
-          <div style="font-size:12px;color:var(--color-muted);line-height:1.55">Quando a tributação é menor, a venda sai por <b>Linear (Simples), Teste e Teste X</b>, empresas que <b>não produzem</b>: compram da indústria e faturam o cliente. É aí que a margem aparece (<b x-text="embResumo.maisRentavel?embResumo.maisRentavel.nome+' '+embResumo.maisRentavel.margem.toFixed(1)+'%':'·'"></b>).</div>
+          <div style="font-size:12px;color:var(--color-muted);line-height:1.55">Quando a tributação é menor, a venda sai por <b>Linear (Simples), Teste e Teste X</b>, empresas que <b>não produzem</b>: compram da indústria e faturam o cliente. É nelas que o resultado do conjunto aparece.</div>
         </div>
         <div class="card-dark" style="margin-bottom:0;border-top:3px solid #64748b">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(100,116,139,.12);color:#64748b;display:flex;align-items:center;justify-content:center"><i class="fas fa-ban"></i></div><div style="font-weight:900;color:var(--accent-blue);font-size:13px;white-space:nowrap">3 · O que não é receita</div></div>
@@ -1461,8 +1462,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <div class="chart-wrap" style="height:260px"><canvas id="chartSubFat"></canvas></div>
         </div>
         <div class="card-dark" style="margin-bottom:0">
-          <div class="card-title" style="margin-bottom:2px"><i class="fas fa-sack-dollar mr-2" style="color:var(--accent-gold)"></i> Quem fica com a margem (resultado no ano)</div>
-          <div class="card-sub" style="font-size:11.5px">A indústria opera no zero; o lucro aparece nas empresas de carga tributária menor, exatamente o desenho da estratégia.</div>
+          <div class="card-title" style="margin-bottom:2px"><i class="fas fa-sack-dollar mr-2" style="color:var(--accent-gold)"></i> Onde o resultado aparece (no ano)</div>
+          <div class="card-sub" style="font-size:11.5px">A indústria opera perto do zero; o resultado do conjunto aparece nas empresas de carga tributária menor, exatamente o desenho da estratégia.</div>
           <div class="chart-wrap" style="height:260px"><canvas id="chartSubRes"></canvas></div>
         </div>
       </div>
@@ -3195,6 +3196,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
       <button class="nxdr-close" @click="fecharDrawer()" aria-label="Fechar">×</button>
     </div>
+    <div class="nxdr-scroll">
     <!-- HERO: valor em foco + variação -->
     <template x-if="drawer.hero">
       <div style="padding:16px 24px 14px;background:var(--color-surface);border-bottom:1px solid var(--color-border);display:flex;align-items:flex-end;justify-content:space-between;gap:14px">
@@ -3209,30 +3211,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </template>
       </div>
     </template>
-    <!-- SPARKLINE mensal -->
-    <template x-if="drawer.serie && drawer.serie.length>1">
-      <div style="padding:14px 24px 8px;background:var(--color-surface);border-bottom:1px solid var(--color-border)">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--color-dim);font-weight:800;margin-bottom:9px">Evolução mensal</div>
-        <div x-html="drawerSparkSVG"></div>
-        <div style="display:flex;gap:7px;margin-top:5px">
-          <template x-for="(pt,i) in drawer.serie" :key="'sl'+i">
-            <div style="flex:1;text-align:center;font-size:8.5px;color:var(--color-dim);font-weight:700" x-text="pt.label"></div>
-          </template>
-        </div>
-      </div>
-    </template>
-    <div class="nxdr-stats">
-      <template x-for="(s,i) in drawer.stats" :key="i">
-        <div class="s"><div class="l" x-text="s.l"></div><div class="v" :style="s.cor?('color:'+s.cor):''" x-text="s.v"></div></div>
-      </template>
-    </div>
-    <div class="nxdr-tools">
-      <button class="nxdr-btn primary" x-show="drawer.acaoId || drawer.acaoAba" @click="drawerAcao()"><i class="fas fa-arrow-right-to-bracket mr-1"></i> <span x-text="drawer.acaoLabel"></span></button>
-      <button class="nxdr-btn" @click="drawerCSV()"><i class="fas fa-download mr-1"></i> Exportar CSV</button>
-      <span style="margin-left:auto;font-size:11px;color:var(--color-dim);font-weight:700" x-text="drawer.rows.length+' linhas'"></span>
-    </div>
-    <div class="nxdr-body">
-
+    <!-- Conteúdo de trabalho: explicação, ações e movimentos (logo abaixo do valor) -->
+    <div style="padding:14px 20px 0">
       <!-- O que é esta linha (educativo: o cliente nunca fica na dúvida) -->
       <div x-show="drawer.explica" class="nxdr-insight" style="border-left-color:var(--accent-blue);background:rgba(25,16,64,.05)">
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-blue);font-weight:800;margin-bottom:4px"><i class="fas fa-circle-question mr-1"></i> O que é esta linha</div>
@@ -3278,6 +3258,32 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </div>
       </div>
 
+    </div>
+
+    <!-- SPARKLINE mensal -->
+    <template x-if="drawer.serie && drawer.serie.length>1">
+      <div style="padding:14px 24px 8px;background:var(--color-surface);border-bottom:1px solid var(--color-border)">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--color-dim);font-weight:800;margin-bottom:9px">Evolução mensal</div>
+        <div x-html="drawerSparkSVG"></div>
+        <div style="display:flex;gap:7px;margin-top:5px">
+          <template x-for="(pt,i) in drawer.serie" :key="'sl'+i">
+            <div style="flex:1;text-align:center;font-size:8.5px;color:var(--color-dim);font-weight:700" x-text="pt.label"></div>
+          </template>
+        </div>
+      </div>
+    </template>
+    <div class="nxdr-stats">
+      <template x-for="(s,i) in drawer.stats" :key="i">
+        <div class="s"><div class="l" x-text="s.l"></div><div class="v" :style="s.cor?('color:'+s.cor):''" x-text="s.v"></div></div>
+      </template>
+    </div>
+    <div class="nxdr-tools">
+      <button class="nxdr-btn primary" x-show="drawer.acaoId || drawer.acaoAba" @click="drawerAcao()"><i class="fas fa-arrow-right-to-bracket mr-1"></i> <span x-text="drawer.acaoLabel"></span></button>
+      <button class="nxdr-btn" @click="drawerCSV()"><i class="fas fa-download mr-1"></i> Exportar CSV</button>
+      <span style="margin-left:auto;font-size:11px;color:var(--color-dim);font-weight:700" x-text="drawer.rows.length+' linhas'"></span>
+    </div>
+    <div class="nxdr-body">
+
       <div class="nxdr-insight" x-show="drawer.insight"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> <span x-html="drawer.insight"></span></div>
       <table class="dark-table">
         <thead><tr><th x-text="drawer.rowsHead[0]"></th><th class="td-r" x-text="drawer.rowsHead[1]"></th><th class="td-r" x-text="drawer.rowsHead[2]"></th></tr></thead>
@@ -3287,6 +3293,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </template>
         </tbody>
       </table>
+    </div>
     </div>
   </aside>
 </main>
@@ -4138,6 +4145,9 @@ function sistemaUnificado(){
         'Dif. R$ Estoque': 'Variação do valor do estoque contra o mês anterior. Positiva, produção maior que venda; negativa, o estoque financiou a venda.',
         'Dif. Kg Estoque': 'Variação do peso em estoque contra o mês anterior.',
         'Invest. Realizado': 'Investimentos do período (linha da planilha). Preenchida pela importação ou pela edição direta.',
+        '%': 'Percentual do investimento realizado sobre o faturamento do mês (linha da planilha).',
+        'ITP': 'Itens produzidos por terceiros: tudo que a Rebracil compra pronto em vez de produzir. Base para a decisão produzir × comprar.',
+        'Aparas': 'Aparas e erros de impressão (material Hanami), vendidos como subproduto pela linha Teste Sucata.',
         'Provisões': 'Provisões do período (linha da planilha). Preenchida pela importação ou pela edição direta.',
         'Devoluções Clientes': 'Mercadoria devolvida por clientes: vira estoque de novo e pressiona frete e retrabalho. Investigue cliente e lote.',
         'Devoluções Fornecedor': 'Mercadoria devolvida a fornecedores (insumo fora de especificação, por exemplo).',
@@ -4870,7 +4880,7 @@ function sistemaUnificado(){
       'emb_receita':'Bloco RECEITAS da planilha: faturamento por linha com kg e fator, totais e margem.',
       'emb_inventario':'Bloco INVENTÁRIO da planilha: estoque por categoria com kg e fator.',
       'faturamento':'Receita medida por quilo: fator (R$/kg), custo/kg, margem/kg e peso.',
-      'subempresas':'Onde a receita nasce, quem emite a nota e onde a margem aparece.',
+      'subempresas':'Onde a receita nasce, quem emite a nota e onde o resultado aparece.',
       'inventario':'Estoque por categoria com fator R$/kg, mais ITP (itens de terceiros).',
       'dashboard':'Faturamento, despesa e resultado do período, com leitura automática.',
       'resultado_anual':'Demonstrativo de resultado mês a mês do exercício.',
@@ -5243,6 +5253,8 @@ function sistemaUnificado(){
         push('Faturamento ' + f.tipo, 'line', 'money', ch => (f.fat && f.fat[low(ch)]) || 0);
         rows[rows.length-1].ckey = 'F:' + f.tipo;
         rows[rows.length-1].edit = { t:'fat', ref:f };
+        if (f.aparas) rows[rows.length-1].nota = 'aparas · Hanami';
+        if (f.tipo === 'Inter Company') rows[rows.length-1].nota = 'eliminar na consolidação';
         if (!this.collapsedRes.includes('F:' + f.tipo)) {
           push('Kg Faturado', 'sub', 'kg', ch => (f.kg && f.kg[low(ch)]) || 0);
           rows[rows.length-1].edit = { t:'fatkg', ref:f };
@@ -5263,6 +5275,9 @@ function sistemaUnificado(){
         push(i.item, 'line', 'money', ch => (i.valor && i.valor[low(ch)]) || 0, 'last');
         rows[rows.length-1].ckey = 'I:' + i.item;
         rows[rows.length-1].edit = { t:'inv', ref:i };
+        if (i.item === 'ITP') rows[rows.length-1].nota = 'produzido por terceiros';
+        if (i.item === 'Aparas') rows[rows.length-1].nota = 'Hanami';
+        if (i.foraEstoque) rows[rows.length-1].nota = 'fora do valor do estoque';
         if (!this.collapsedRes.includes('I:' + i.item)) {
           push('Kg', 'sub', 'kg', ch => (i.kg && i.kg[low(ch)]) || 0, 'last');
           rows[rows.length-1].edit = { t:'invkg', ref:i };
@@ -5280,6 +5295,8 @@ function sistemaUnificado(){
       rows[rows.length-1].edit = { t:'difkg' };
       push('Invest. Realizado', 'line', 'money', ch => (typeof EMB_LINHAS_EXTRAS !== 'undefined' ? (EMB_LINHAS_EXTRAS.invest[low(ch)] || 0) : 0));
       rows[rows.length-1].edit = { t:'extra', k:'invest' };
+      push('%', 'pct', 'pct', ch => { const f = this.fatColTotal(ch, 'fat', 'principal'); const iv = (typeof EMB_LINHAS_EXTRAS !== 'undefined' ? (EMB_LINHAS_EXTRAS.invest[low(ch)] || 0) : 0); return f > 0 ? iv / f * 100 : 0; }, 'none');
+      rows[rows.length-1].nota = 'investimento sobre o faturamento';
       push('Provisões', 'line', 'money', ch => (typeof EMB_LINHAS_EXTRAS !== 'undefined' ? (EMB_LINHAS_EXTRAS.prov[low(ch)] || 0) : 0));
       rows[rows.length-1].edit = { t:'extra', k:'prov' };
       push('Devoluções Clientes', 'line', 'money', ch => dre('Devoluções Clientes')[low(ch)] || 0);
@@ -6323,7 +6340,7 @@ function sistemaUnificado(){
           datasets:[{ label:'Resultado no ano', data: subs.map(s=>s.res), backgroundColor: subs.map(s=>s.res<0?cRed:s.cor), borderRadius:8 }]
         }, chartOptsBase({ indexAxis:'y', plugins:{ legend:{display:!1}, tooltip:{callbacks:{
           label:c=>'  Resultado:  '+(c.parsed.x<0?'- ':'')+'R$ '+Math.abs(c.parsed.x||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),
-          footer:items=>{ const s=subs[items[0].dataIndex]; return 'Margem: '+s.margem.toFixed(1)+'%  ·  '+(s.intercompany?'eliminar na consolidação':s.regime); } }}},
+          footer:items=>{ const s=subs[items[0].dataIndex]; return s.intercompany?'eliminar na consolidação':s.regime; } }}},
           scales:{ x:{ ticks:{ callback:v=>fmtAbrev(v) } }, y:{ grid:{display:!1} } } }));
       }
 
