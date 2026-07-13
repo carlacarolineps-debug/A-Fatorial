@@ -1287,6 +1287,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             </tbody>
           </table>
         </div>
+        <div x-show="aba==='resultado_emb' && resSecao==='INVENTÁRIO'" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-recycle mr-1" style="color:var(--accent-gold)"></i> <b>Hanami = aparas</b>: tudo que entra lançado como Hanami corresponde à linha <b>Aparas</b> do inventário e à receita de <b>Teste Sucata</b> (venda de subproduto). O <b>Estoque</b> exclui Tintas do valor, como na planilha.</div>
         <div x-show="aba==='resultado_emb'" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> <b>Total Faturamento</b> e <b>Estoque</b> seguem a planilha (o faturamento exclui as aparas/Teste Sucata; o estoque exclui Tintas do valor). A coluna <b>Acum./Atual</b> soma os fluxos do ano, mostra a <b>posição atual</b> do estoque e recalcula fator e % pela fórmula correta. Clique em qualquer linha para abrir a <b>razão</b>.</div>
       </div>
 
@@ -3747,7 +3748,7 @@ function sistemaUnificado(){
       { id: 2, data: '28/02/2026', mes: 'fev', tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: 2084.18, kg: 853, obs: 'Venda interna do mês (linha Fat Inter Company da planilha)', usuario: 'Carla Caroline' }
     ],
     novoMov: { tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: '', kg: '', obs: '' },
-    movEmpresasNomes: ['Embalagem','Linear','Teste','Teste X','Requalificadora','Terceiros'],
+    movEmpresasNomes: ['Embalagem','Linear','Teste','Teste X','Requalificadora','Hanami (aparas)','Terceiros'],
     kbNovaAberta: false,
     kbOver: '',
     kbDragId: null,
@@ -4275,7 +4276,7 @@ function sistemaUnificado(){
         'Invest. Realizado': 'Investimentos do período (linha da planilha). Preenchida pela importação ou pela edição direta.',
         '%': 'Percentual do investimento realizado sobre o faturamento do mês (linha da planilha).',
         'ITP': 'Itens produzidos por terceiros: tudo que a Rebracil compra pronto em vez de produzir. Base para a decisão produzir × comprar.',
-        'Aparas': 'Aparas e erros de impressão (material Hanami), vendidos como subproduto pela linha Teste Sucata.',
+        'Aparas': 'Aparas e erros de impressão. Tudo que entra lançado como Hanami corresponde a esta linha; a venda desse material aparece na receita como Teste Sucata.',
         'Provisões': 'Provisões do período (linha da planilha). Preenchida pela importação ou pela edição direta.',
         'Devoluções Clientes': 'Mercadoria devolvida por clientes: vira estoque de novo e pressiona frete e retrabalho. Investigue cliente e lote.',
         'Devoluções Fornecedor': 'Mercadoria devolvida a fornecedores (insumo fora de especificação, por exemplo).',
@@ -6112,6 +6113,7 @@ function sistemaUnificado(){
             if (rotulo === 'total faturamento') { aplicaDre('Faturamento', row); alvoFat = null; continue; }
             // Inventário
             const invItens = ['itp','produto acabado','produto em processo','tintas','materia prima','outros insumos','aparas'];
+            if (rotulo.includes('hanami')) { alvoInv = invPor('Aparas'); alvoFat = null; if (alvoInv) aplica(alvoInv, 'valor', row); continue; }
             if (invItens.includes(rotulo)) { alvoInv = invPor(row[0]); alvoFat = null; if (alvoInv) aplica(alvoInv, 'valor', row); continue; }
             if (rotulo === 'kg' && alvoInv) { aplica(alvoInv, 'kg', row); continue; }
             if (rotulo === 'fator' && alvoInv) { aplica(alvoInv, 'fator', row); alvoInv = null; continue; }
