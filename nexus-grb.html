@@ -2148,7 +2148,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
       <div x-show="abaConfig==='importador'" x-cloak class="card-dark" style="margin-bottom:0;">
         <div class="card-title text-accent-green mb-2"><i class="fas fa-cloud-upload-alt mr-2"></i> Importador Universal de Despesas</div>
-        <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Selecione o mês e envie a planilha. Aceita <b>dois formatos</b>: o resumo por conta (Rótulos de Linha) e o <b>relatório de contas a pagar</b> exportado direto do sistema do cliente (uma linha por título), que é agregado automaticamente com conferência do total. Contas 023 vão para a tela Serviços. <span class="font-bold text-accent-blue">Nota: Faturamento, Estoque, Relatório TF e o Realizado das Provisões devem ser imputados manualmente no sistema, já que a importação reflete apenas os centros de custo operacionais.</span></p>
+        <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Selecione o mês e envie a planilha. Aceita o resumo por conta (Rótulos de Linha), o <b>relatório de contas a pagar</b> do sistema do cliente (agregado automaticamente com conferência do total) e o <b>relatório de inventário</b>. Na Embalagem, escolha de qual empresa é o relatório: o da <b>indústria</b> alimenta os centros de custo e a linha Despesas Embalagem; o de <b>Linear, Teste, Teste X ou Inter Company</b> alimenta a linha de despesas da própria empresa no Resultado 2026, com o Total acompanhando a soma. Contas 023 vão para a tela Serviços. As linhas de despesas também podem ser digitadas direto na tabela (botão Editar valores).</p>
         
         <div style="display:flex; flex-direction:column; gap:16px; background:var(--color-surface2); padding:32px; border-radius:12px; border: 2px dashed rgba(13,148,136,0.4); align-items:center; text-align:center;">
           
@@ -2162,11 +2162,20 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               </select>
           </div>
 
+          <div class="config-input-group w-full max-w-xs mb-2" x-show="empresaAtiva==='embalagem' && depto==='embalagem'">
+              <label class="text-accent-blue font-bold" style="font-size:12px;">2. Relatório de despesas de qual empresa?</label>
+              <select x-model="empresaRelatorio" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size: 14px; height: 45px;">
+                  <template x-for="s in (empresaExtras.subempresas || [])" :key="'er'+s.nome">
+                      <option :value="s.nome" x-text="s.nome + (s.principal ? ' (indústria, alimenta os centros de custo)' : ' (alimenta a linha Despesas ' + s.nome + ')')"></option>
+                  </template>
+              </select>
+          </div>
+
           <div style="background: rgba(13,148,136,0.1); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items:center; justify-content:center; margin-top: 10px;">
              <i class="fas fa-file-excel text-3xl text-accent-green"></i>
           </div>
           <div>
-            <h3 class="font-bold text-accent-blue text-lg">2. Selecione o arquivo CSV/XLSX</h3>
+            <h3 class="font-bold text-accent-blue text-lg">3. Selecione o arquivo CSV/XLSX</h3>
           </div>
           <label class="emc-btn" style="cursor:pointer; font-size:14px; padding: 12px 32px; background:var(--accent-green); color:white; border-color:var(--accent-green);" :class="!mesImportacao ? 'opacity-50 cursor-not-allowed' : ''">
               <i class="fas fa-search mr-2"></i> Procurar Planilha...
@@ -3837,6 +3846,7 @@ function sistemaUnificado(){
     collapsedInv: [],   // categorias recolhidas na tela Inventário
     collapsedRes: [],   // linhas com Kg/Fator recolhidos no Resultado 2026 (Embalagem)
     mesImportacao: '',
+    empresaRelatorio: 'Embalagem',
     fatoresMtTick: 0,
     backupEstado: null,
     pilhaEstados: [],
@@ -6172,6 +6182,43 @@ function sistemaUnificado(){
                 if (!confirm('Atenção: as emissões desta planilha são de ' + mesesArq[0].toUpperCase() + ', mas você selecionou ' + parsedMonth.toUpperCase() + '.\n\nImportar mesmo assim em ' + parsedMonth.toUpperCase() + '?')) { evt.target.value = ''; return; }
                 buckets[parsedMonth] = buckets[mesesArq[0]]; delete buckets[mesesArq[0]]; mesesArq = [parsedMonth];
               }
+              // Relatório de uma sub-empresa (Linear, Teste, Teste X, Inter Company):
+              // alimenta a linha "Despesas <empresa>" do Resultado 2026; os centros de
+              // custo são da indústria (Embalagem) e não são tocados
+              const subDest = (this.empresaAtiva === 'embalagem') ? (this.empresaExtras.subempresas || []).find(s => s.nome === this.empresaRelatorio) : null;
+              if (subDest && !subDest.principal) {
+                const cap = k => k.charAt(0).toUpperCase() + k.slice(1);
+                const jaTem = mesesArq.filter(m => (subDest['desp' + cap(m)] || 0) !== 0);
+                if (jaTem.length && !confirm('Despesas ' + subDest.nome + ' já tem valor em ' + jaTem.map(m => m.toUpperCase()).join(', ') + '.\n\nOK = SUBSTITUIR pelo total deste relatório.\nCancelar = não importar.')) { evt.target.value = ''; return; }
+                const rowAj = this.centrosCustoData.find(c => c.c === 'Ajustes');
+                const rowTot = this.centrosCustoData.find(c => c.c === 'Total');
+                const tDespL = this.dreAtual.find(l => l.desc === 'Total de Despesas');
+                const resumoS = [];
+                mesesArq.forEach(mk2 => {
+                  const b = buckets[mk2];
+                  const totalMes = (mesesArq.length === 1 && totalDecl) ? Math.round(totalDecl * 100) / 100 : Math.round((Object.values(b.porConta).reduce((a, x) => a + x, 0) + Object.values(b.servicos).reduce((a, x) => a + x, 0)) * 100) / 100;
+                  subDest['desp' + cap(mk2)] = totalMes;
+                  // Total de Despesas do mês = soma das linhas de todas as empresas; a
+                  // diferença para os centros de custo lançados fica na linha Ajustes
+                  const alvo = Math.round((this.empresaExtras.subempresas || []).reduce((a, s) => a + (s['desp' + cap(mk2)] || 0), 0) * 100) / 100;
+                  const somaFilhos = this.centrosCustoData.reduce((acc, c) => acc + (!c.ip && c.c !== 'Total' && c.c !== 'Ajustes' ? (c[mk2] || 0) : 0), 0);
+                  if (rowAj) rowAj[mk2] = Math.round((alvo - somaFilhos) * 100) / 100;
+                  if (rowTot) rowTot[mk2] = alvo;
+                  if (tDespL) tDespL[mk2] = alvo;
+                  resumoS.push(mk2.toUpperCase() + ': ' + this.formatarDinheiroExato(totalMes));
+                });
+                this.recalcularSubEmpresas();
+                this.dreAtual = [...this.dreAtual];
+                this.registrarLog('Importou despesas de ' + subDest.nome + ' (' + file.name + '): ' + resumoS.join(' | '));
+                this.recalcularTudo();
+                alert('Despesas de ' + subDest.nome + ' importadas!\n\n' + resumoS.join('\n') + '\n\nA linha "Despesas ' + subDest.nome + '" do Resultado 2026 foi alimentada e o Total de Despesas acompanhou a soma das empresas.');
+                const ultS = mesesArq[mesesArq.length - 1];
+                this.mesAtivo = ultS.charAt(0).toUpperCase() + ultS.slice(1);
+                this.atualizarLeituraSistema();
+                evt.target.value = '';
+                return;
+              }
+
               // Meses que já têm Total de Despesas oficial da planilha: o usuário decide
               const despOf = this.dreAtual.find(l => l.desc === 'Total de Despesas');
               const oficiais = mesesArq.filter(m => despOf && (despOf[m] || 0) !== 0);
@@ -6503,11 +6550,17 @@ function sistemaUnificado(){
                 let reqLine = this.dreAtual.find(l => l.desc === "Despesa Requalificadora");
                 if(reqLine) reqLine[parsedMonth] = alvoMes;
 
-                // No formato bruto, o mês novo aparece na linha "Despesas Embalagem" do Resultado
+                // No formato bruto, o relatório da indústria alimenta a linha "Despesas Embalagem";
+                // o Total de Despesas do mês é a soma das linhas de todas as empresas
                 if (ehBruto) {
                   const subPrincipal = (this.empresaExtras.subempresas || []).find(x => x.principal);
                   if (subPrincipal) {
-                    subPrincipal['desp' + parsedMonth.charAt(0).toUpperCase() + parsedMonth.slice(1)] = alvoMes;
+                    const capM = parsedMonth.charAt(0).toUpperCase() + parsedMonth.slice(1);
+                    subPrincipal['desp' + capM] = alvoMes;
+                    const somaEmp = Math.round((this.empresaExtras.subempresas || []).reduce((a, s) => a + (s['desp' + capM] || 0), 0) * 100) / 100;
+                    if (despLine) despLine[parsedMonth] = somaEmp;
+                    if (rowTotal) rowTotal[parsedMonth] = somaEmp;
+                    if (rowAjustes) rowAjustes[parsedMonth] = Math.round((somaEmp - somaFilhosMes) * 100) / 100;
                     this.recalcularSubEmpresas();
                   }
                 }
