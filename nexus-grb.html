@@ -497,28 +497,37 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .res-table td{ font-variant-numeric:tabular-nums; }
 .res-col-acum{ background:rgba(25,16,64,.045); border-left:2px solid rgba(197,168,128,.45) !important; font-weight:800; }
 .res-col-media{ background:rgba(25,16,64,.03); color:var(--color-muted); }
+/* A página nunca rola para o lado: tabelas largas rolam dentro do próprio cartão */
+#mainScrollArea{ overflow-x:hidden; }
+#mainScrollArea .card-dark{ max-width:100%; min-width:0; }
+#mainScrollArea .card-dark > div[style*="overflow-x:auto"]{ max-width:100%; }
 .res-future{ opacity:.38; }
 /* Primeira coluna fixa ao rolar o ano inteiro */
-.res-table th:first-child, .res-table td:first-child{ position:sticky; left:0; z-index:3; }
-.res-table thead th:first-child{ z-index:4; }
-.res-table tbody td:first-child{ background:var(--color-surface); }
-.res-table .res-sub > td:first-child{ background:#eef1f7 !important; }
-.res-table .res-total > td:first-child{ background:#f2e9d8 !important; }
-.res-table .res-result > td:first-child{ background:#e3f2ee !important; }
-.res-future-h{ opacity:.55; }
-.res-future-h::after{ content:"aberto"; display:block; font-size:7.5px; letter-spacing:.1em; color:var(--nx-gold-bright,#e8cf9a); opacity:.85; margin-top:2px; }
+.res-table th:first-child, .res-table td.res-stick{ position:sticky; left:0; z-index:5; }
+.res-table thead th:first-child{ z-index:7; background:linear-gradient(180deg,#1b1642,#12102e) !important; }
+.res-table tbody td.res-stick{ background:var(--color-surface) !important; box-shadow:6px 0 10px -6px rgba(16,24,40,.14); }
+.res-table tbody tr:nth-child(even) td.res-stick{ background:#f4f6fb !important; }
+.res-table .res-sub > td.res-stick{ background:#eef1f7 !important; }
+.res-table .res-total > td.res-stick{ background:#f2e9d8 !important; }
+.res-table .res-result > td.res-stick{ background:#e3f2ee !important; }
+/* Rótulo da faixa de seção acompanha a rolagem (fica sempre visível) */
+.res-band td span.res-band-lbl{ position:sticky; left:14px; display:inline-block; }
+/* Meses em aberto: esmaecidos por cor (sem transparência, para não vazar sob a coluna fixa) */
+.res-future{ opacity:1 !important; color:#b9bfce !important; }
+.res-future-h{ opacity:1; color:rgba(232,207,154,.55) !important; }
+.res-future-h::after{ content:"aberto"; display:block; font-size:7.5px; letter-spacing:.1em; color:var(--nx-gold-bright,#e8cf9a); margin-top:2px; }
 .res-band td{ background:linear-gradient(92deg,#191040 0%,#2a1d63 55%,#3b2a7a 100%) !important; color:#e8cf9a !important; font-weight:900 !important; font-size:11px !important; letter-spacing:.14em; text-transform:uppercase; padding:11px 14px !important; border-top:none !important; }
-.res-band td::before{ content:"◆"; color:var(--accent-gold); margin-right:9px; font-size:8px; vertical-align:1px; }
-.res-line > td:first-child{ font-weight:800; color:var(--accent-blue); }
+.res-band td span.res-band-lbl::before{ content:"◆"; color:var(--accent-gold); margin-right:9px; font-size:8px; vertical-align:1px; }
+.res-line > td.res-stick{ font-weight:800; color:var(--accent-blue); }
 .res-line:hover > td{ background:rgba(197,168,128,.07); }
 .res-sub > td{ color:var(--color-muted); font-size:11.5px; padding-top:5px !important; padding-bottom:5px !important; background:rgba(148,163,184,.06); border-bottom:1px dashed var(--color-border) !important; }
-.res-sub > td:first-child{ padding-left:40px; font-weight:600; position:relative; }
-.res-sub > td:first-child::before{ content:"└"; position:absolute; left:24px; color:var(--accent-gold); opacity:.55; font-size:10px; }
+.res-sub > td.res-stick{ padding-left:40px; font-weight:600; }
+.res-sub > td.res-stick::before{ content:"└"; color:var(--accent-gold); opacity:.55; font-size:10px; margin-right:6px; margin-left:-14px; }
 .res-sub .res-kgrs{ color:var(--accent-gold-deep); font-weight:800; }
 .res-total{ font-weight:900; }
 .res-total > td{ background:linear-gradient(180deg,rgba(197,168,128,.20),rgba(197,168,128,.10)) !important; color:var(--accent-blue); border-top:1.5px solid var(--accent-gold) !important; border-bottom:1.5px solid rgba(197,168,128,.5) !important; font-size:13px; }
 .res-result > td{ background:linear-gradient(180deg,rgba(13,148,136,.14),rgba(13,148,136,.06)) !important; font-weight:900; font-size:13px; border-top:1.5px solid rgba(13,148,136,.4) !important; }
-.res-result > td:first-child{ color:var(--accent-blue); }
+.res-result > td.res-stick{ color:var(--accent-blue); }
 .res-pct > td{ color:var(--color-muted) !important; font-weight:700; font-size:12px; }
 /* Cockpit kg/fator (faixa de KPIs do painel Embalagem) */
 .emb-hero{ background:radial-gradient(900px 300px at 105% -40%,rgba(124,58,237,.35),transparent 60%),linear-gradient(140deg,#1b1642 0%,#12102e 60%,#0d0b22 100%); border:1px solid rgba(197,168,128,.30); border-radius:20px; padding:22px 26px; color:#fff; position:relative; overflow:hidden; box-shadow:var(--shadow-md); }
@@ -1216,7 +1225,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <div class="badge-status badge-info" style="font-size:10.5px"><i class="fas fa-table-list mr-1"></i> espelho da planilha "Resultado 2026"</div>
           </div>
         </div>
-        <div style="overflow-x:auto">
+        <div class="js-hscroll" style="overflow-x:auto;max-width:100%">
           <table class="dark-table res-table">
             <thead>
               <tr>
@@ -1230,10 +1239,10 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               <template x-for="(row,ri) in resultadoEmbView.rows" :key="aba+'rr'+ri">
                 <tr :class="rowClassRes(row)+((!row.sec && row.kind!=='sub')?' nx-drill':'')" @click="(!row.sec && row.kind!=='sub') && razaoResLinha(row)">
                   <template x-if="row.sec">
-                    <td :colspan="resultadoEmbView.meses.length+3" x-text="row.sec"></td>
+                    <td :colspan="resultadoEmbView.meses.length+3"><span class="res-band-lbl" x-text="row.sec"></span></td>
                   </template>
                   <template x-if="!row.sec">
-                    <td>
+                    <td class="res-stick">
                       <span x-show="row.ckey" @click.stop="toggleRes(row.ckey)" style="display:inline-block;width:16px;cursor:pointer" title="Recolher/expandir Kg e Fator desta linha">
                         <i class="fas text-xs" style="color:var(--accent-gold)" :class="collapsedRes.includes(row.ckey) ? 'fa-chevron-right' : 'fa-chevron-down'"></i>
                       </span>
