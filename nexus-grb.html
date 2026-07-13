@@ -2145,7 +2145,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
       <div x-show="abaConfig==='importador'" x-cloak class="card-dark" style="margin-bottom:0;">
         <div class="card-title text-accent-green mb-2"><i class="fas fa-cloud-upload-alt mr-2"></i> Importador Universal de Despesas</div>
-        <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Selecione o mês correspondente e faça o upload da planilha de custos exportada do sistema. <span class="font-bold text-accent-blue">Nota: Faturamento, Estoque, Relatório TF e o Realizado das Provisões devem ser imputados manualmente no sistema, já que a importação reflete apenas os centros de custo operacionais.</span></p>
+        <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Selecione o mês e envie a planilha. Aceita <b>dois formatos</b>: o resumo por conta (Rótulos de Linha) e o <b>relatório de contas a pagar</b> exportado direto do sistema do cliente (uma linha por título), que é agregado automaticamente com conferência do total. Contas 023 vão para a tela Serviços. <span class="font-bold text-accent-blue">Nota: Faturamento, Estoque, Relatório TF e o Realizado das Provisões devem ser imputados manualmente no sistema, já que a importação reflete apenas os centros de custo operacionais.</span></p>
         
         <div style="display:flex; flex-direction:column; gap:16px; background:var(--color-surface2); padding:32px; border-radius:12px; border: 2px dashed rgba(13,148,136,0.4); align-items:center; text-align:center;">
           
@@ -3439,9 +3439,98 @@ const EMB_INVENTARIO=[
 ];
 // Linhas da planilha ainda sem lançamentos (preenchidas pela importação do Resultado)
 const EMB_LINHAS_EXTRAS={ invest:{}, prov:{} };
+// JUNHO/2026: agregado do relatório de contas a pagar enviado pelo cliente (TESTE_SISTEMA_06.2026)
+const EMB_CC_MESES={
+ jun: {
+ "001.05 - Equipamentos": 0.02,
+ "001.13 - Rede": 1632.52,
+ "002.01 - Manutenção Impressão": 10385.58,
+ "002.03 - Manutenção Corte/Acabamento": 19913.50,
+ "002.05 - Manutenção Predial": 2025.75,
+ "002.06 - Manutenção de Veículos": 2550.00,
+ "002.07 - Manutenção de Ativo": 4120.00,
+ "003.03 - Café e Afins": 2769.00,
+ "003.04 - Análise de Crédito": 615.40,
+ "003.05 - Telefonia": 3731.89,
+ "003.07 - Despesas Administrativas": 287.90,
+ "003.08 - Assessoria de Informática": 8815.50,
+ "003.12 - Água Mineral": 238.00,
+ "004.01 - Bonificação por Resultado": 10000.00,
+ "004.02 - Softwares / Licenças / Provedores": 273.96,
+ "004.03 - Treinamentos com Pessoal": 1723.10,
+ "004.04 - Encargos Sociais": 249.15,
+ "004.07 - Assistência Médica e Odontológica": 1031.17,
+ "004.08 - INSS - Patronal - 2100": 31195.22,
+ "004.10 - Refeições": 18987.38,
+ "004.11 - Farmácia": 54.35,
+ "004.12 - Seguros": 345.52,
+ "004.13 - Medicina e Segurança do Trabalho": 6425.45,
+ "004.14 - FGTS": 6573.02,
+ "004.15 - Encargos Fiscais": 632.39,
+ "004.18 - Horas Extras Agências": 290.11,
+ "004.19 - Taxa Administrativa Agências": 299.92,
+ "004.20 - Benefícios": 3472.20,
+ "004.21 - Salários Diretos": 30664.39,
+ "004.22 - Salários Indiretos": 33878.02,
+ "004.23 - IRRF Salários - 0561": 1404.43,
+ "004.24 - IRRF Serviços - 1708": 128.18,
+ "004.25 - PCC - PIS/COFINS/CSLL - 5952": 77.36,
+ "004.26 - INSS RETIDO - 2631": 183.00,
+ "004.27 - ISS TOMADOR": 532.77,
+ "004.28 - Férias": 3395.77,
+ "004.30 - Despesas com Pessoal": 353.47,
+ "004.32 - Rescisões": 2356.47,
+ "004.33 - GRRF Rescisório": 198.25,
+ "004.36 - Bonificação funcionários": 2600.00,
+ "004.38 - Confraternização": 574.74,
+ "004.41 - HORAS EXTRAS DIRETO": 3162.77,
+ "004.42 - HORAS EXTRAS INDIRETO": 2785.70,
+ "004.47 - Taxas sobre Vale Transporte": 80.83,
+ "004.48 - Repasse sobre Vale Transporte": 109.50,
+ "004.49 - Auxílio Alimentação": 12500.00,
+ "004.60 - FGTS CONSIGNADO": 4982.50,
+ "005.03 - IRRF - 8045": 81.92,
+ "005.04 - IRRF Serviços - 1708": 214.79,
+ "005.05 - PCC - PIS/COFINS/CSLL - 5952": 1214.52,
+ "005.06 - INSS RETIDO - 2631": 1226.92,
+ "005.09 - IPI - 5123": 67197.35,
+ "005.10 - PIS - 8109": 6744.62,
+ "005.11 - COFINS - 2172": 31129.01,
+ "005.13 - IRPJ - 2089": 30873.79,
+ "005.14 - CSLL - 2372": 2526.67,
+ "005.15 - Impostos e Taxas Municipais": 1716.75,
+ "006.01 - Consultoria Industrial": 4793.00,
+ "006.02 - Assessoria Contábil": 7075.70,
+ "006.05 - Consultoria Administrativa": 3916.72,
+ "007.01 - Álcool / Solventes": 23780.25,
+ "007.03 - Composto": 477936.14,
+ "007.04 - Tintas": 72933.93,
+ "007.07 - Matéria Prima BOPP/Poliester": 130710.76,
+ "007.11 - Insumos - Corte/Acabamento": 123242.80,
+ "009.01 - Serviços - Impressora": 23240.82,
+ "010.01 - Frete de Vendas - CIF": 38933.87,
+ "010.05 - Combustível": 1711.04,
+ "010.06 - Frete - Remessa / Retorno": 124.15,
+ "011.01 - Veículos": 314.68,
+ "011.02 - Energia Elétrica": 20322.15,
+ "011.03 - Água e Esgoto": 1026.60,
+ "011.04 - Sindicatos - Associações de Classe": 258.00,
+ "011.06 - Aluguel (Interno)": 25232.00,
+ "011.08 - Segurança": 6984.64,
+ "014.01 - Comissão": 60798.02,
+ "015.01 - Empréstimo Finame": 133682.70,
+ "016.01 - Material de Embalagem": 1200.00,
+ "016.02 - Correios": 317.19,
+ "016.03 - Combustível": 1100.00,
+ "018.05 - Equipamentos": 218.03,
+ "420101.045 - CONVENIO MEDICO": 14671.21
+ }
+};
+const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
+
 // Versão do formato dos dados salvos no navegador: quando a estrutura embutida evolui,
 // dados antigos são descartados para nunca esconderem linhas novas (ex.: ITP, Aparas).
-const NEXUS_DADOS_VERSAO = 3;
+const NEXUS_DADOS_VERSAO = 4;
 // SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
 const EMB_SERVICOS=[
  {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
@@ -3463,7 +3552,7 @@ const EMB_SERVICOS=[
  {conta:'023.006.02', desc:'Assessoria Contábil',               jan:0,       fev:500}
 ];
 const EMB_INV_TOTAL={ valor:{jan:2517068.58,fev:1524259.29}, kg:{jan:148953.74,fev:106256.24}, fator:{jan:16.9,fev:14.35} };
-const EMB_PREVISOES=[{"categoria": "Férias + 1/3", "provisao_mensal": 5000, "jan": 0, "fev": 0}, {"categoria": "Rescisões", "provisao_mensal": 10000, "jan": 6324.84, "fev": 0}, {"categoria": "GRRF", "provisao_mensal": 1500, "jan": 0, "fev": 0}, {"categoria": "PLR", "provisao_mensal": 6000, "jan": 25875.0, "fev": 0}, {"categoria": "13º Salário", "provisao_mensal": 6500, "jan": 0, "fev": 0}, {"categoria": "Uniformes", "provisao_mensal": 1250, "jan": 0, "fev": 0}, {"categoria": "Treinamentos", "provisao_mensal": 5000, "jan": 6000.0, "fev": 5543.34}, {"categoria": "Manutenção de Ativo", "provisao_mensal": 21000, "jan": 0, "fev": 0}];
+const EMB_PREVISOES=[{"categoria": "Férias + 1/3", "provisao_mensal": 5000, "jan": 0, "fev": 0, "jun": 3395.77}, {"categoria": "Rescisões", "provisao_mensal": 10000, "jan": 6324.84, "fev": 0, "jun": 2356.47}, {"categoria": "GRRF", "provisao_mensal": 1500, "jan": 0, "fev": 0, "jun": 198.25}, {"categoria": "PLR", "provisao_mensal": 6000, "jan": 25875.0, "fev": 0}, {"categoria": "13º Salário", "provisao_mensal": 6500, "jan": 0, "fev": 0}, {"categoria": "Uniformes", "provisao_mensal": 1250, "jan": 0, "fev": 0}, {"categoria": "Treinamentos", "provisao_mensal": 5000, "jan": 6000.0, "fev": 5543.34, "jun": 1723.10}, {"categoria": "Manutenção de Ativo", "provisao_mensal": 21000, "jan": 0, "fev": 0, "jun": 10385.58}];
 const EMB_TENDENCIA=[{"ano": 2026, "fat": 3570676.56, "desp": 2970548.01, "lucro": 600128.55, "tendencia": "Início de série", "icon": "•"}];
 const EMB_HISTORICO=[{"desc": "Total Despesas", "2026": 2970548.01, "2024": 265910.13, "2023": 354546.84, "2022": 354546.84, "2021": 391919.19, "2020": 92848.12}, {"desc": "Faturamento", "2026": 3570676.56}, {"desc": "Resultado Operacional", "2026": 600128.55}, {"desc": "Estoque", "2026": 4041327.87}];
 const EMB_CC_DATA=[["001 - INFRAESTRUTURA E ATIVOS", 4987.77, 2596.9, 0, 0, 7584.67, 3792.34, 632.06, 1], ["001.02 - Consultoria Industrial", 1800.0, 0.0, 0, 0, 1800.0, 900.0, 150.0, 0], ["001.05 - Equipamentos", 1767.13, 0.0, 0, 0, 1767.13, 883.57, 147.26, 0], ["001.07 - Móveis e Utensílios", 624.0, 1199.9, 0, 0, 1823.9, 911.95, 151.99, 0], ["001.12 - Segurança", 796.64, 0.0, 0, 0, 796.64, 398.32, 66.39, 0], ["001.13 - ALL LIGHTING", 0.0, 1397.0, 0, 0, 1397.0, 698.5, 116.42, 0], ["002 - MANUTENÇÃO", 342020.73, 35539.47, 0, 0, 377560.2, 188780.1, 31463.35, 1], ["002.01 - Manutenção Impressão", 304456.92, 17792.62, 0, 0, 322249.54, 161124.77, 26854.13, 0], ["002.03 - Manutenção Corte/Acabamento", 7400.14, 13078.6, 0, 0, 20478.74, 10239.37, 1706.56, 0], ["002.04 - Manutenção Rebobinadeira Etiqueta", 27128.86, 0.0, 0, 0, 27128.86, 13564.43, 2260.74, 0], ["002.05 - Manutenção Predial", 467.81, 814.88, 0, 0, 1282.69, 641.35, 106.89, 0], ["002.06 - Manutenção de Veículos", 2567.0, 2582.87, 0, 0, 5149.87, 2574.93, 429.16, 0], ["002.07 - POLARES VARIEDADES", 0.0, 1270.5, 0, 0, 1270.5, 635.25, 105.88, 0], ["003 - ADMINISTRATIVO", 6961.84, 11181.2, 0, 0, 18143.04, 9071.52, 1511.92, 1], ["003.02 - Material de Escritório", 496.48, 830.72, 0, 0, 1327.2, 663.6, 110.6, 0], ["003.03 - Café e Afins", 1295.2, 1806.4, 0, 0, 3101.6, 1550.8, 258.47, 0], ["003.04 - Análise de Crédito", 274.27, 773.44, 0, 0, 1047.71, 523.86, 87.31, 0], ["003.05 - Telefonia", 944.89, 944.89, 0, 0, 1889.78, 944.89, 157.48, 0], ["003.07 - Despesas Administrativas", 228.0, 687.5, 0, 0, 915.5, 457.75, 76.29, 0], ["003.08 - Assessoria de Informática", 2815.5, 2815.5, 0, 0, 5631.0, 2815.5, 469.25, 0], ["003.09 - Aluguel de Máquinas e Equipamentos", 907.5, 0.0, 0, 0, 907.5, 453.75, 75.62, 0], ["003.12 - THOR SOFTWARE", 0.0, 312.0, 0, 0, 312.0, 156.0, 26.0, 0], ["003.13 - MATRIZ DISTRIBUIDORA ÁGUA", 0.0, 3010.75, 0, 0, 3010.75, 1505.38, 250.9, 0], ["004 - DESPESAS TRABALHISTAS E ENCARGOS SOCIAIS", 228537.37, 156937.56, 0, 0, 385474.93, 192737.46, 32122.91, 1], ["004.01 - Bonificação por Resultado", 500.0, 0.0, 0, 0, 500.0, 250.0, 41.67, 0], ["004.02 - Softwares / Licenças / Provedores", 102.05, 110.4, 0, 0, 212.45, 106.22, 17.7, 0], ["004.03 - Treinamentos com Pessoal", 6000.0, 5543.34, 0, 0, 11543.34, 5771.67, 961.95, 0], ["004.04 - Encargos Sociais", 1524.92, 578.07, 0, 0, 2102.99, 1051.49, 175.25, 0], ["004.07 - Assistência Médica e Odontológica", 691.8, 530.8, 0, 0, 1222.6, 611.3, 101.88, 0], ["004.08 - INSS - Patronal - 2100", 49696.01, 29142.71, 0, 0, 78838.72, 39419.36, 6569.89, 0], ["004.10 - Refeições", 13892.2, 18102.88, 0, 0, 31995.08, 15997.54, 2666.26, 0], ["004.11 - Farmácia", 362.18, 380.78, 0, 0, 742.96, 371.48, 61.91, 0], ["004.12 - VMB DROGARIA", 0.0, 293.3, 0, 0, 293.3, 146.65, 24.44, 0], ["004.13 - Medicina e Segurança do Trabalho", 1200.0, 1815.56, 0, 0, 3015.56, 1507.78, 251.3, 0], ["004.14 - FGTS", 13858.84, 6118.16, 0, 0, 19977.0, 9988.5, 1664.75, 0], ["004.15 - Encargos Fiscais", 3335.27, 1284.61, 0, 0, 4619.88, 2309.94, 384.99, 0], ["004.18 - MODERNA EMPREGOS", 0.0, 653.31, 0, 0, 653.31, 326.65, 54.44, 0], ["004.19 - Taxa Administrativa Agências", 1755.83, 697.78, 0, 0, 2453.61, 1226.81, 204.47, 0], ["004.20 - Benefícios", 15715.65, 3377.88, 0, 0, 19093.53, 9546.76, 1591.13, 0], ["004.21 - Salários Diretos", 34604.0, 25503.55, 0, 0, 60107.55, 30053.78, 5008.96, 0], ["004.22 - Salários Indiretos", 34401.99, 40875.06, 0, 0, 75277.05, 37638.53, 6273.09, 0], ["004.23 - IRRF Salários - 0561", 3529.25, 999.0, 0, 0, 4528.25, 2264.12, 377.35, 0], ["004.24 - IRRF Serviços - 1708", 218.71, 0.0, 0, 0, 218.71, 109.36, 18.23, 0], ["004.25 - PCC - PIS/COFINS/CSLL - 5952", 226.27, 0.0, 0, 0, 226.27, 113.14, 18.86, 0], ["004.26 - INSS RETIDO - 2631", 535.27, 0.0, 0, 0, 535.27, 267.63, 44.61, 0], ["004.27 - ISS TOMADOR", 874.83, 0.0, 0, 0, 874.83, 437.42, 72.9, 0], ["004.28 - RECEITA FEDERAL", 0.0, 3062.44, 0, 0, 3062.44, 1531.22, 255.2, 0], ["004.30 - Despesas com Pessoal", 13.3, 500.0, 0, 0, 513.3, 256.65, 42.77, 0], ["004.32 - Rescisões", 6324.84, 0.0, 0, 0, 6324.84, 3162.42, 527.07, 0], ["004.36 - Bonificação funcionários", 5650.0, 14000.0, 0, 0, 19650.0, 9825.0, 1637.5, 0], ["004.38 - Caju", 0.0, 244.03, 0, 0, 244.03, 122.02, 20.34, 0], ["004.41 - HORAS EXTRAS DIRETO", 2123.0, 829.15, 0, 0, 2952.15, 1476.08, 246.01, 0], ["004.42 - HORAS EXTRAS INDIRETO", 1020.97, 1755.81, 0, 0, 2776.78, 1388.39, 231.4, 0], ["004.43 - Salário", 0.0, 350.0, 0, 0, 350.0, 175.0, 29.17, 0], ["004.44 - PLR", 25875.0, 0.0, 0, 0, 25875.0, 12937.5, 2156.25, 0], ["004.47 - Taxas sobre Vale Transporte", 48.91, 81.69, 0, 0, 130.6, 65.3, 10.88, 0], ["004.48 - Repasse sobre Vale Transporte", 63.0, 107.25, 0, 0, 170.25, 85.12, 14.19, 0], ["004.60 - FGTS CONSIGNADO", 4393.28, 0.0, 0, 0, 4393.28, 2196.64, 366.11, 0], ["005 - DESPESAS TRIBUTÁRIAS", 230487.49, 230883.54, 0, 0, 461371.03, 230685.52, 38447.59, 1], ["005.01 - GNRE", 2298.88, 0.0, 0, 0, 2298.88, 1149.44, 191.57, 0], ["005.02 - IPTU", 7000.0, 0.0, 0, 0, 7000.0, 3500.0, 583.33, 0], ["005.03 - IRRF - 8045", 81.22, 156.42, 0, 0, 237.64, 118.82, 19.8, 0], ["005.04 - IRRF Serviços - 1708", 158.33, 374.57, 0, 0, 532.9, 266.45, 44.41, 0], ["005.05 - PCC - PIS/COFINS/CSLL - 5952", 1476.19, 1418.37, 0, 0, 2894.56, 1447.28, 241.21, 0], ["005.06 - INSS RETIDO - 2631", 2769.12, 1964.48, 0, 0, 4733.6, 2366.8, 394.47, 0], ["005.07 - ISS TOMADOR", 380.89, 714.36, 0, 0, 1095.25, 547.62, 91.27, 0], ["005.08 - ICMS - 0462", 23038.76, 54928.78, 0, 0, 77967.54, 38983.77, 6497.29, 0], ["005.09 - IPI - 5123", 88476.9, 74965.37, 0, 0, 163442.27, 81721.13, 13620.19, 0], ["005.10 - PIS - 8109", 7979.36, 6393.18, 0, 0, 14372.54, 7186.27, 1197.71, 0], ["005.11 - COFINS - 2172", 36827.84, 29506.97, 0, 0, 66334.81, 33167.4, 5527.9, 0], ["005.13 - IRPJ - 2089", 40000.0, 40000.0, 0, 0, 80000.0, 40000.0, 6666.67, 0], ["005.14 - CSLL - 2372", 20000.0, 20000.0, 0, 0, 40000.0, 20000.0, 3333.33, 0], ["005.18 - RECEITA FEDERAL", 0.0, 461.04, 0, 0, 461.04, 230.52, 38.42, 0], ["006 - CONSULTORIAS E ASSESSORIAS", 42049.51, 28277.06, 0, 0, 70326.57, 35163.29, 5860.55, 1], ["006.01 - Consultoria Industrial", 4793.0, 0.0, 0, 0, 4793.0, 2396.5, 399.42, 0], ["006.02 - Assessoria Contábil", 25000.0, 21625.81, 0, 0, 46625.81, 23312.9, 3885.48, 0], ["006.03 - Assessoria Jurídica", 10277.0, 5000.0, 0, 0, 15277.0, 7638.5, 1273.08, 0], ["006.05 - Consultoria Administrativa", 1979.51, 1651.25, 0, 0, 3630.76, 1815.38, 302.56, 0], ["007 - INSUMOS E MATÉRIA-PRIMA", 476471.42, 492438.99, 0, 0, 968910.41, 484455.21, 80742.53, 1], ["007.01 - Álcool / Solventes", 8539.06, 21086.13, 0, 0, 29625.19, 14812.59, 2468.77, 0], ["007.02 - Adesivo", 22133.93, 19120.44, 0, 0, 41254.37, 20627.19, 3437.86, 0], ["007.03 - Composto", 92996.03, 264374.91, 0, 0, 357370.94, 178685.47, 29780.91, 0], ["007.04 - Tintas", 72028.0, 4633.84, 0, 0, 76661.84, 38330.92, 6388.49, 0], ["007.05 - Matéria Prima PEBD", 106214.4, 0.0, 0, 0, 106214.4, 53107.2, 8851.2, 0], ["007.07 - Matéria Prima BOPP/Poliester", 94375.7, 100000.22, 0, 0, 194375.92, 97187.96, 16197.99, 0], ["007.09 - Matéria Prima PP", 500.5, 0.0, 0, 0, 500.5, 250.25, 41.71, 0], ["007.11 - Insumos - Corte/Acabamento", 79683.8, 82209.15, 0, 0, 161892.95, 80946.48, 13491.08, 0], ["007.12 - Indaco", 0.0, 1014.3, 0, 0, 1014.3, 507.15, 84.52, 0], ["009 - PRESTAÇÃO DE SERVIÇO", 5936.18, 8877.19, 0, 0, 14813.37, 7406.69, 1234.45, 1], ["009.01 - Serviços - Impressora", 5936.18, 6697.19, 0, 0, 12633.37, 6316.69, 1052.78, 0], ["009.02 - CLIART CLICHES S/S LTDA", 0.0, 2180.0, 0, 0, 2180.0, 1090.0, 181.67, 0], ["010 - FRETES E TRANSPORTE", 56553.57, 36309.87, 0, 0, 92863.44, 46431.72, 7738.62, 1], ["010.01 - Frete de Vendas - CIF", 52920.51, 34725.15, 0, 0, 87645.66, 43822.83, 7303.81, 0], ["010.02 - Frete sobre Compras", 125.05, 0.0, 0, 0, 125.05, 62.52, 10.42, 0], ["010.05 - Combustível", 608.01, 1584.72, 0, 0, 2192.73, 1096.37, 182.73, 0], ["010.06 - Frete - Remessa / Retorno", 2900.0, 0.0, 0, 0, 2900.0, 1450.0, 241.67, 0], ["011 - CORPORATIVAS", 54493.48, 53755.76, 0, 0, 108249.24, 54124.62, 9020.77, 1], ["011.01 - Veículos", 451.99, 321.79, 0, 0, 773.78, 386.89, 64.48, 0], ["011.02 - Energia Elétrica", 20105.94, 20840.93, 0, 0, 40946.87, 20473.44, 3412.24, 0], ["011.03 - Água e Esgoto", 1316.2, 1741.98, 0, 0, 3058.18, 1529.09, 254.85, 0], ["011.04 - Sindicatos - Associações de Classe", 258.0, 258.0, 0, 0, 516.0, 258.0, 43.0, 0], ["011.06 - Aluguel (Interno)", 22800.0, 22800.0, 0, 0, 45600.0, 22800.0, 3800.0, 0], ["011.08 - Segurança", 6482.25, 7480.7, 0, 0, 13962.95, 6981.48, 1163.58, 0], ["011.10 - IPVA", 1395.02, 0.0, 0, 0, 1395.02, 697.51, 116.25, 0], ["011.11 - Licenciamento", 212.91, 0.0, 0, 0, 212.91, 106.45, 17.74, 0], ["011.12 - Multas", 1471.17, 312.36, 0, 0, 1783.53, 891.76, 148.63, 0], ["014 - COMISSÕES", 74637.61, 56802.95, 0, 0, 131440.56, 65720.28, 10953.38, 1], ["014.01 - Comissão", 74637.61, 56802.95, 0, 0, 131440.56, 65720.28, 10953.38, 0], ["015 - DESPESAS FINANCEIRAS / EMPRÉSTIMOS", 67065.36, 66892.32, 0, 0, 133957.68, 66978.84, 11163.14, 1], ["015.01 - Empréstimo Finame", 67065.36, 66892.32, 0, 0, 133957.68, 66978.84, 11163.14, 0], ["016 - DESCARTE E CORREIOS", 4583.21, 20058.75, 0, 0, 24641.96, 12320.98, 2053.5, 1], ["016.01", 0.0, 16524.2, 0, 0, 16524.2, 8262.1, 1377.02, 0], ["016.02 - Correios", 4583.21, 2143.67, 0, 0, 6726.88, 3363.44, 560.57, 0], ["016.03 - EMPRESA BRASILEIRA DE CORREIOS E TELEGRA", 0.0, 1050.0, 0, 0, 1050.0, 525.0, 87.5, 0], ["016.04 - GAS MEIRELES", 0.0, 340.88, 0, 0, 340.88, 170.44, 28.41, 0], ["018 - QUALIDADE", 1120.36, 0.0, 0, 0, 1120.36, 560.18, 93.36, 1], ["018.03 - Controle de Qualidade", 1120.36, 0.0, 0, 0, 1120.36, 560.18, 93.36, 0], ["Ajustes", 90394.13, 83696.42, 0, 0, 174090.55, 0, 0, 1], ["Total", 1686300.03, 1284247.98, 0, 0, 2970548.01, 0, 0, 1]];
@@ -4035,6 +4124,7 @@ function sistemaUnificado(){
         return o;
       });
       this.collapsedCCs = this.centrosCustoData.filter(c => c.ip === 1).map(c => c.c);
+      this.aplicarMesesEmbutidos(emp);
       this.garantirLinhasPlanilha(emp);
       // Persistência: se houver dados salvos neste navegador (importações/edições), eles prevalecem
       try {
@@ -4067,6 +4157,38 @@ function sistemaUnificado(){
       if (salvo.extras.difKg && typeof EMB_DIF_KG !== 'undefined') { Object.keys(EMB_DIF_KG).forEach(k=>delete EMB_DIF_KG[k]); Object.assign(EMB_DIF_KG, salvo.extras.difKg); }
       if (salvo.extras.linhasExtras && typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = salvo.extras.linhasExtras.invest || {}; EMB_LINHAS_EXTRAS.prov = salvo.extras.linhasExtras.prov || {}; }
       this.garantirLinhasPlanilha(emp);
+    },
+    // Meses agregados do relatório de contas a pagar embutidos (ex.: junho/2026)
+    aplicarMesesEmbutidos(emp) {
+      if (emp.id !== 'embalagem' || typeof EMB_CC_MESES === 'undefined') return;
+      Object.entries(EMB_CC_MESES).forEach(([mk, contas]) => {
+        Object.entries(contas).forEach(([chave, valor]) => {
+          let cc = this.centrosCustoData.find(c => c.c === chave);
+          if (!cc) cc = this.criarContaCC(chave);
+          cc[mk] = valor;
+        });
+        const rowAj = this.centrosCustoData.find(c => c.c === 'Ajustes');
+        const soma = this.centrosCustoData.reduce((a, c) => a + (!c.ip && c.c !== 'Total' && c.c !== 'Ajustes' ? (c[mk] || 0) : 0), 0);
+        const tot = (typeof EMB_CC_MESES_TOTAL !== 'undefined' && EMB_CC_MESES_TOTAL[mk]) || soma;
+        if (rowAj) rowAj[mk] = Math.round((tot - soma) * 100) / 100;
+      });
+      this.ordenarCentrosCusto();
+    },
+    // Cria uma conta de centro de custo (com o grupo-pai, criando-o se não existir)
+    criarContaCC(chave) {
+      const code = String(chave).split(' ')[0];
+      const prefixo = code.split('.')[0];
+      let parent = this.centrosCustoData.find(c => c.ip === 1 && c.c.startsWith(prefixo));
+      if (!parent) {
+        parent = { c: prefixo + ' - OUTROS', ip: 1, parentCode: null, ac: 0, mm: 0, ma: 0 };
+        this.listaMeses.forEach(m => parent[m.chave.toLowerCase()] = 0);
+        this.centrosCustoData.push(parent);
+        if (!this.collapsedCCs.includes(parent.c)) this.collapsedCCs.push(parent.c);
+      }
+      const cc = { c: chave, ip: 0, parentCode: parent.c, ac: 0, mm: 0, ma: 0 };
+      this.listaMeses.forEach(m => cc[m.chave.toLowerCase()] = 0);
+      this.centrosCustoData.push(cc);
+      return cc;
     },
     // Trava de integridade: as categorias fixas da planilha nunca podem sumir da tela
     garantirLinhasPlanilha(emp) {
@@ -5933,9 +6055,56 @@ function sistemaUnificado(){
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+            let json = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
 
             const parsedMonth = this.mesImportacao;
+
+            // ===== FORMATO BRUTO (relatório de contas a pagar, uma linha por título) =====
+            // Detecta pelo cabeçalho com "Valor total" + "Conta Contábil Número" e agrega por conta.
+            let servicosMes = null;
+            let cabIdx = -1, cab = null;
+            for (let i = 0; i < Math.min(json.length, 8); i++) {
+              const r = json[i] || [];
+              if (r.some(c => String(c || '').trim() === 'Valor total') && r.some(c => String(c || '').trim() === 'Conta Contábil Número')) { cabIdx = i; cab = r; break; }
+            }
+            if (cabIdx >= 0) {
+              const ixh = n => cab.findIndex(h => String(h || '').trim() === n);
+              const iVal = ixh('Valor total'), iNum = ixh('Conta Contábil Número'), iDescC = ixh('Conta Contábil Descrição'), iCred = ixh('Credor Nome'), iEm = ixh('Emissão');
+              const porConta = {}; servicosMes = {}; let totalDecl = 0; const mesesEm = {};
+              json.slice(cabIdx + 1).forEach(r => {
+                if (!r) return;
+                let v = r[iVal];
+                if (typeof v === 'string') v = this.parseNumero(v);
+                if (v == null || isNaN(v) || v === 0) return;
+                const num = String(r[iNum] || '').trim();
+                const cred = String(r[iCred] || '').trim();
+                // Linhas totalizadoras do próprio relatório (sem conta e sem credor): a maior é o Total Geral
+                if (!num && !cred) { if (v > totalDecl) totalDecl = v; return; }
+                // Mês de emissão (conferência de segurança)
+                let dEm = r[iEm];
+                if (typeof dEm === 'number') dEm = new Date(Math.round((dEm - 25569) * 86400 * 1000));
+                else if (typeof dEm === 'string' && /\d{4}/.test(dEm)) dEm = new Date(dEm);
+                if (dEm instanceof Date && !isNaN(dEm)) mesesEm[dEm.getUTCMonth()] = (mesesEm[dEm.getUTCMonth()] || 0) + 1;
+                const descC = String(r[iDescC] || '').trim();
+                const chave = num ? (num + (descC ? ' - ' + descC : '')) : ('SEM CONTA - ' + cred);
+                if (num.startsWith('023')) { servicosMes[chave] = Math.round(((servicosMes[chave] || 0) + v) * 100) / 100; return; }
+                porConta[chave] = Math.round(((porConta[chave] || 0) + v) * 100) / 100;
+              });
+              // Mês selecionado × mês dominante das emissões: bloqueia engano de mês
+              const dom = Object.entries(mesesEm).sort((a, b) => b[1] - a[1])[0];
+              if (dom) {
+                const mesDom = this.listaMeses[Number(dom[0])];
+                if (mesDom && mesDom.chave.toLowerCase() !== parsedMonth) {
+                  if (!confirm('Atenção: as emissões desta planilha são de ' + mesDom.nome + ', mas você selecionou ' + parsedMonth.toUpperCase() + '.\n\nImportar mesmo assim em ' + parsedMonth.toUpperCase() + '?')) { evt.target.value = ''; return; }
+                }
+              }
+              const somaContas = Object.values(porConta).reduce((a, b) => a + b, 0) + Object.values(servicosMes).reduce((a, b) => a + b, 0);
+              // Converte para o formato pivô e segue o fluxo normal (Total = checksum do relatório)
+              json = [['Rótulos de Linha', 'Soma de Valor total'],
+                      ...Object.entries(porConta),
+                      ['Total Geral', (totalDecl || somaContas) - Object.values(servicosMes).reduce((a, b) => a + b, 0)]];
+              this.registrarLog('Importação em formato bruto detectada: ' + Object.keys(porConta).length + ' contas agregadas, checksum ' + this.formatarDinheiroExato(totalDecl || somaContas));
+            }
 
             this.backupEstado = JSON.stringify({
                 cc: this.centrosCustoData,
@@ -5992,26 +6161,16 @@ function sistemaUnificado(){
                          cc[parsedMonth] = valNum;
                      } else {
                          let codeMatch = catStr.match(/^(\d+(?:\.\d+)*)/);
-                         let isParent = false;
-                         let parentCode = null;
-
-                         if (codeMatch) {
-                             let code = codeMatch[1];
-                             isParent = !code.includes('.');
-                             if (!isParent) {
-                                 let parentPrefix = code.split('.')[0];
-                                 let parentItem = this.centrosCustoData.find(c => c.ip === 1 && c.c.startsWith(parentPrefix));
-                                 if (parentItem) parentCode = parentItem.c;
-                             }
-                         }
-
-                         let newRow = { c: catStr, ip: isParent ? 1 : 0, parentCode: parentCode };
-                         this.listaMeses.forEach(m => newRow[m.chave.toLowerCase()] = 0);
-                         newRow[parsedMonth] = valNum;
-                         this.centrosCustoData.push(newRow);
-                         
-                         if (isParent && !this.collapsedCCs.includes(newRow.c)) {
-                             this.collapsedCCs.push(newRow.c);
+                         let isParent = codeMatch ? !codeMatch[1].includes('.') : false;
+                         if (isParent) {
+                             let newRow = { c: catStr, ip: 1, parentCode: null };
+                             this.listaMeses.forEach(m => newRow[m.chave.toLowerCase()] = 0);
+                             newRow[parsedMonth] = valNum;
+                             this.centrosCustoData.push(newRow);
+                             if (!this.collapsedCCs.includes(newRow.c)) this.collapsedCCs.push(newRow.c);
+                         } else {
+                             let novo = this.criarContaCC(catStr); // cria o grupo-pai automaticamente se preciso
+                             novo[parsedMonth] = valNum;
                          }
                      }
                 }
@@ -6056,7 +6215,15 @@ function sistemaUnificado(){
             // Atualiza o "Realizado" das PROVISÕES apenas do MÊS IMPORTADO, a partir das linhas
             // de centro de custo correspondentes. Os meses já existentes (jan–abr) preservam os
             // valores reais curados da fonte e NÃO são tocados. Mapeamento por código de conta:
-            const mapaProvisao = {
+            const mapaProvisao = this.empresaAtiva === 'embalagem' ? {
+              // Códigos da aba PREVISÕES da planilha da Embalagem
+              'Férias + 1/3': ['004.28'],
+              'Rescisões':    ['004.32'],
+              'GRRF':         ['004.33'],
+              'PLR':          ['004.44'],
+              'Treinamentos': ['004.03'],
+              'Manutenção de Ativo': ['002.01']
+            } : {
               'Férias + 1/3': ['004.13'],
               'Rescisões':    ['004.23'],
               'GRRF':         ['004.43'],
@@ -6075,6 +6242,20 @@ function sistemaUnificado(){
               p[parsedMonth] = Math.round(soma * 100) / 100;
             });
             this.previsoesData = [...this.previsoesData];
+
+            // Contas 023.* (unidade de Serviços) vão para a tela Serviços, fora dos centros de custo
+            if (servicosMes && Object.keys(servicosMes).length) {
+              const lista = this.empresaExtras.servicos || [];
+              lista.forEach(l => l[parsedMonth] = 0);
+              Object.entries(servicosMes).forEach(([chave, v]) => {
+                const num = chave.split(' - ')[0].trim();
+                const descS = chave.split(' - ').slice(1).join(' - ').trim() || num;
+                let li = lista.find(l => l.conta === num) || lista.find(l => l.desc === descS);
+                if (!li) { li = { conta: num, desc: descS }; this.listaMeses.forEach(m => li[m.chave.toLowerCase()] = 0); lista.push(li); }
+                li[parsedMonth] = Math.round(((li[parsedMonth] || 0) + v) * 100) / 100;
+              });
+              this.registrarLog('Serviços de ' + parsedMonth.toUpperCase() + ' atualizados pela importação: ' + this.formatarDinheiroExato(Object.values(servicosMes).reduce((a, b) => a + b, 0)));
+            }
 
             this.registrarLog(`Importou arquivo contábil cirúrgico: ${file.name} [Mês: ${parsedMonth.toUpperCase()}]`);
             this.recalcularTudo();
