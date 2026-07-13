@@ -3530,7 +3530,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 
 // Versão do formato dos dados salvos no navegador: quando a estrutura embutida evolui,
 // dados antigos são descartados para nunca esconderem linhas novas (ex.: ITP, Aparas).
-const NEXUS_DADOS_VERSAO = 4;
+const NEXUS_DADOS_VERSAO = 5;
 // SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
 const EMB_SERVICOS=[
  {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
@@ -4171,8 +4171,12 @@ function sistemaUnificado(){
         const soma = this.centrosCustoData.reduce((a, c) => a + (!c.ip && c.c !== 'Total' && c.c !== 'Ajustes' ? (c[mk] || 0) : 0), 0);
         const tot = (typeof EMB_CC_MESES_TOTAL !== 'undefined' && EMB_CC_MESES_TOTAL[mk]) || soma;
         if (rowAj) rowAj[mk] = Math.round((tot - soma) * 100) / 100;
+        // A linha visível "Despesas Embalagem" do Resultado recebe o mês (o relatório é da indústria; redistribuível na edição)
+        const subPrincipal = (emp.extras.subempresas || []).find(x => x.principal);
+        if (subPrincipal) subPrincipal['desp' + mk.charAt(0).toUpperCase() + mk.slice(1)] = tot;
       });
       this.ordenarCentrosCusto();
+      this.recalcularSubEmpresas();
     },
     // Cria uma conta de centro de custo (com o grupo-pai, criando-o se não existir)
     criarContaCC(chave) {
@@ -5608,7 +5612,15 @@ function sistemaUnificado(){
       return { meses, rows };
     },
     // Mês ainda sem lançamento na Embalagem (para esmaecer colunas futuras)
-    mesFuturoEmb(ch) { return !this.fatMesesAtivos.includes(ch); },
+    mesFuturoEmb(ch) {
+      if (this.fatMesesAtivos.includes(ch)) return false;
+      const mk = String(ch).toLowerCase();
+      const tDesp = this.dreAtual.find(l => l.desc === 'Total de Despesas');
+      if (tDesp && (tDesp[mk] || 0) !== 0) return false;
+      const est = this.dreAtual.find(l => l.desc === 'Estoque');
+      if (est && (est[mk] || 0) !== 0) return false;
+      return true;
+    },
 
     // ===== Movimentos entre empresas (compra, venda, transferência, empréstimo) =====
     movAdd() {
@@ -6242,6 +6254,15 @@ function sistemaUnificado(){
               p[parsedMonth] = Math.round(soma * 100) / 100;
             });
             this.previsoesData = [...this.previsoesData];
+
+            // No formato bruto, a despesa do mês aparece na linha "Despesas Embalagem" do Resultado
+            if (cabIdx >= 0 && totalImported > 0) {
+              const subPrincipal = (this.empresaExtras.subempresas || []).find(x => x.principal);
+              if (subPrincipal) {
+                subPrincipal['desp' + parsedMonth.charAt(0).toUpperCase() + parsedMonth.slice(1)] = totalImported;
+                this.recalcularSubEmpresas();
+              }
+            }
 
             // Contas 023.* (unidade de Serviços) vão para a tela Serviços, fora dos centros de custo
             if (servicosMes && Object.keys(servicosMes).length) {
