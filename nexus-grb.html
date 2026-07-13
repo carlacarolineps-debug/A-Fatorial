@@ -1581,6 +1581,9 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                     <template x-if="r.kind==='kg'">
                       <td style="padding-left:30px;color:var(--color-muted);font-weight:600"><i class="fas fa-weight-hanging" style="font-size:10px;width:14px;color:var(--color-dim)"></i> Peso (kg)</td>
                     </template>
+                    <template x-if="r.kind==='mts'">
+                      <td style="padding-left:30px;color:var(--color-muted);font-weight:600"><i class="fas fa-ruler-horizontal" style="font-size:10px;width:14px;color:var(--color-dim)"></i> Metros <span style="font-size:9px;color:var(--color-dim)">(convertidos em kg no peso)</span></td>
+                    </template>
                     <template x-if="r.kind==='fator'">
                       <td style="padding-left:30px;color:var(--color-muted);font-weight:600"><i class="fas fa-divide" style="font-size:10px;width:14px;color:var(--color-dim)"></i> Fator (R$/kg)</td>
                     </template>
@@ -2182,6 +2185,21 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <i class="fas fa-file-import mr-2"></i> Enviar planilha "Resultado 2026"...
             <input type="file" accept=".xlsx, .xls" class="hidden" @change="importarResultadoEmb">
           </label>
+        </div>
+
+        <!-- Conversão Metros para Kg (inventário) -->
+        <div x-show="empresaAtiva==='embalagem' && depto==='embalagem'" style="margin-top:20px;background:rgba(197,168,128,.06);padding:26px;border-radius:12px;border:2px dashed rgba(197,168,128,.5)">
+          <div class="card-title" style="color:var(--accent-gold-deep);margin-bottom:4px;white-space:normal"><i class="fas fa-ruler-horizontal mr-2"></i> Metros para Kg · Inventário</div>
+          <p class="text-xs text-gray-500 mb-4" style="line-height:1.6">O importador também reconhece o <b>relatório de inventário</b> do sistema do cliente e distribui as categorias na planilha. Itens medidos em <b>metros</b> são convertidos em <b>kg</b> pelos fatores abaixo (kg por metro). Quando o relatório traz a coluna <b>Peso</b>, o fator é aprendido e atualizado sozinho; itens sem fator entram com 0 e aparecem no aviso da importação. Os metros continuam visíveis nas telas de inventário.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px">
+            <template x-for="cod in Object.keys(fatoresMtLista)" :key="'fmt'+cod">
+              <div style="display:flex;align-items:center;gap:8px;background:var(--color-surface2);border:1px solid var(--color-border);border-radius:10px;padding:8px 12px">
+                <span style="font-size:11.5px;font-weight:800;color:var(--accent-blue);white-space:nowrap" x-text="cod"></span>
+                <input type="text" :value="fatoresMtLista[cod]" @change="setFatorMt(cod, $event.target.value)" class="emc-input" style="height:32px;font-size:12px;text-align:right" :disabled="!permEdita">
+                <span style="font-size:10px;color:var(--color-muted);white-space:nowrap">kg/mt</span>
+              </div>
+            </template>
+          </div>
         </div>
 
         <!-- Dados salvos neste navegador -->
@@ -3439,6 +3457,10 @@ const EMB_INVENTARIO=[
 ];
 // Linhas da planilha ainda sem lançamentos (preenchidas pela importação do Resultado)
 const EMB_LINHAS_EXTRAS={ invest:{}, prov:{} };
+// Fatores de conversão METROS para KG por código de item (kg por metro), extraídos dos
+// relatórios de inventário que trazem a coluna Peso. Atualizados automaticamente a cada
+// importação com Peso e editáveis em Configurações. Itens sem fator entram com 0 (aviso).
+const EMB_FATORES_MT={"VAM-0288":7.5059,"VAM-0340":7.6667,"VAM-0458":8.6429,"VAM-0465":0.0084,"VAM-0466":0.0079,"VAM-0467":0.0085};
 // JUNHO/2026: agregado do relatório de contas a pagar enviado pelo cliente (TESTE_SISTEMA_06.2026)
 const EMB_CC_MESES={
  jun: {
@@ -3815,6 +3837,7 @@ function sistemaUnificado(){
     collapsedInv: [],   // categorias recolhidas na tela Inventário
     collapsedRes: [],   // linhas com Kg/Fator recolhidos no Resultado 2026 (Embalagem)
     mesImportacao: '',
+    fatoresMtTick: 0,
     backupEstado: null,
     pilhaEstados: [],
 
@@ -4155,6 +4178,7 @@ function sistemaUnificado(){
       rep(emp.extras.subempresas, salvo.extras.subempresas, 'nome');
       rep(emp.extras.servicos, salvo.extras.servicos, 'desc');
       if (salvo.extras.difKg && typeof EMB_DIF_KG !== 'undefined') { Object.keys(EMB_DIF_KG).forEach(k=>delete EMB_DIF_KG[k]); Object.assign(EMB_DIF_KG, salvo.extras.difKg); }
+      if (salvo.extras.fatoresMt && typeof EMB_FATORES_MT !== 'undefined') Object.assign(EMB_FATORES_MT, salvo.extras.fatoresMt);
       if (salvo.extras.linhasExtras && typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = salvo.extras.linhasExtras.invest || {}; EMB_LINHAS_EXTRAS.prov = salvo.extras.linhasExtras.prov || {}; }
       this.garantirLinhasPlanilha(emp);
     },
@@ -4227,7 +4251,8 @@ function sistemaUnificado(){
             subempresas: emp.extras.subempresas,
             servicos: emp.extras.servicos,
             difKg: (typeof EMB_DIF_KG !== 'undefined') ? EMB_DIF_KG : null,
-            linhasExtras: (typeof EMB_LINHAS_EXTRAS !== 'undefined') ? EMB_LINHAS_EXTRAS : null
+            linhasExtras: (typeof EMB_LINHAS_EXTRAS !== 'undefined') ? EMB_LINHAS_EXTRAS : null,
+            fatoresMt: (typeof EMB_FATORES_MT !== 'undefined') ? EMB_FATORES_MT : null
           };
         }
         localStorage.setItem('nexus_v2_dados_' + id, JSON.stringify(pacote));
@@ -5505,6 +5530,7 @@ function sistemaUnificado(){
         rows.push({ kind: 'valor', item: l.item, l });
         if (!this.collapsedInv.includes(l.item)) {
           rows.push({ kind: 'kg', item: l.item, l });
+          if (l.mts && Object.values(l.mts).some(v => v)) rows.push({ kind: 'mts', item: l.item, l });
           rows.push({ kind: 'fator', item: l.item, l });
         }
       });
@@ -5513,6 +5539,7 @@ function sistemaUnificado(){
     invCellText(r, mesChave) {
       const mk = String(mesChave).toLowerCase(); const l = r.l;
       if (r.kind === 'kg') return (((l.kg && l.kg[mk]) || 0)).toLocaleString('pt-BR') + ' kg';
+      if (r.kind === 'mts') return (((l.mts && l.mts[mk]) || 0)).toLocaleString('pt-BR') + ' mts';
       if (r.kind === 'fator') return 'R$ ' + this.invFator(l, mesChave).toFixed(2).replace('.', ',');
       return this.formatarDinheiroExato((l.valor && l.valor[mk]) || 0);
     },
@@ -5585,6 +5612,12 @@ function sistemaUnificado(){
         if (!this.collapsedRes.includes('I:' + i.item)) {
           push('Kg', 'sub', 'kg', ch => (i.kg && i.kg[low(ch)]) || 0, 'last');
           rows[rows.length-1].edit = { t:'invkg', ref:i };
+          // Itens medidos em metros: os metros ficam visíveis e o peso convertido já está no Kg
+          if (i.mts && Object.values(i.mts).some(v => v)) {
+            push('Metros', 'sub', 'mts', ch => (i.mts && i.mts[low(ch)]) || 0, 'last');
+            rows[rows.length-1].edit = { t:'invmts', ref:i };
+            rows[rows.length-1].nota = 'convertidos em kg no peso';
+          }
           push('Fator', 'sub', 'kgrs', ch => this.invFator(i, ch),
             () => { let v = 0; for (const ch of meses) if (this.invFator(i, ch)) v = this.invFator(i, ch); return v; });
         }
@@ -5670,6 +5703,7 @@ function sistemaUnificado(){
       else if (e.t === 'fatkg') { e.ref.kg = e.ref.kg || {}; e.ref.kg[mk] = v; }
       else if (e.t === 'inv')   { e.ref.valor = e.ref.valor || {}; e.ref.valor[mk] = v; this.syncEstoqueEmb(); }
       else if (e.t === 'invkg') { e.ref.kg = e.ref.kg || {}; e.ref.kg[mk] = v; }
+      else if (e.t === 'invmts'){ e.ref.mts = e.ref.mts || {}; e.ref.mts[mk] = v; }
       else if (e.t === 'dre')   { const l = this.dreAtual.find(x => x.desc === e.desc); if (l) l[mk] = v; }
       else if (e.t === 'difkg') { if (typeof EMB_DIF_KG !== 'undefined') EMB_DIF_KG[mk] = v; }
       else if (e.t === 'extra') { if (typeof EMB_LINHAS_EXTRAS !== 'undefined') EMB_LINHAS_EXTRAS[e.k][mk] = v; }
@@ -5840,6 +5874,7 @@ function sistemaUnificado(){
       const v = row.vals[ch]; if (v == null) return '·';
       if (row.tipo === 'pct') return v.toFixed(1).replace('.', ',') + '%';
       if (row.tipo === 'kg') return v.toLocaleString('pt-BR') + ' kg';
+      if (row.tipo === 'mts') return v.toLocaleString('pt-BR') + ' mts';
       if (row.tipo === 'kgrs') return 'R$ ' + v.toFixed(2).replace('.', ',');
       return this.formatarDinheiroExato(v);
     },
@@ -6069,6 +6104,13 @@ function sistemaUnificado(){
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             let json = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
 
+            // ===== RELATÓRIO DE INVENTÁRIO (identificado pela coluna "Clas. Fiscal") =====
+            const abaInvNome = workbook.SheetNames.find(s => /invent/i.test(s));
+            const jsonInv = (abaInvNome && abaInvNome !== workbook.SheetNames[0]) ? XLSX.utils.sheet_to_json(workbook.Sheets[abaInvNome], {header: 1}) : json;
+            const ehInventario = arr => arr.slice(0, 40).some(r => (r || []).some(c => String(c || '').trim() === 'Clas. Fiscal'));
+            if (ehInventario(jsonInv)) { this.importarInventarioBruto(jsonInv, file, evt); return; }
+            if (ehInventario(json)) { this.importarInventarioBruto(json, file, evt); return; }
+
             const parsedMonth = this.mesImportacao;
 
             this.backupEstado = JSON.stringify({
@@ -6162,6 +6204,123 @@ function sistemaUnificado(){
             evt.target.value = '';
         };
         reader.readAsArrayBuffer(file);
+    },
+
+    // Tabela de conversão Metros para Kg (Configurações)
+    get fatoresMtLista() { this.fatoresMtTick; return (typeof EMB_FATORES_MT !== 'undefined') ? EMB_FATORES_MT : {}; },
+    setFatorMt(cod, v) {
+      if (!this.exigirEdicao()) return;
+      if (typeof EMB_FATORES_MT === 'undefined') return;
+      EMB_FATORES_MT[cod] = this.parseNumero(v);
+      this.fatoresMtTick++;
+      this.registrarLog('Definiu o fator metros para kg de ' + cod + ': ' + EMB_FATORES_MT[cod] + ' kg/mt');
+      this.persistirDados();
+    },
+
+    // ===== Importador do RELATÓRIO DE INVENTÁRIO (estoque por categoria) =====
+    // Mapeia as seções do relatório para as linhas da planilha; itens em METROS ficam
+    // registrados em metros para visualização e são convertidos em KG pelo fator do item
+    // (coluna Peso do próprio relatório ou tabela Metros para Kg das Configurações).
+    importarInventarioBruto(json, file, evt) {
+      const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
+      const selMes = this.mesImportacao;
+      // Mês do relatório: data do título "Inventário da Empresa ... em DD/MM/AAAA"
+      let mesArq = null;
+      for (const r of json.slice(0, 6)) {
+        for (const c of (r || [])) {
+          const m = String(c || '').match(/em\s+(\d{2})\/(\d{2})\/(\d{4})/i);
+          if (m) { mesArq = ordem[parseInt(m[2], 10) - 1] || null; break; }
+        }
+        if (mesArq) break;
+      }
+      const mk = mesArq || selMes;
+      if (mesArq && mesArq !== selMes) {
+        if (!confirm('Este relatório de inventário é de ' + mesArq.toUpperCase() + ' (pela data do título), mas você selecionou ' + selMes.toUpperCase() + '.\n\nImportar no mês do relatório, ' + mesArq.toUpperCase() + '?')) { evt.target.value = ''; return; }
+      }
+      // Seções do relatório nas linhas da planilha (Tintas e Aparas saem pelo nome da subseção)
+      const MAPA_INV = { '01':'Matéria Prima', '02':'Outros Insumos', '03':'Produto em Processo', '04':'Produto Acabado', '06':'Produto em Processo', '07':'Outros Insumos', '10':'Outros Insumos', '99':'ITP' };
+      const num = x => typeof x === 'number' ? x : NaN;
+      const r2 = x => Math.round(x * 100) / 100;
+      let cat = null, sub = null, hdr = null, totalGeral = 0;
+      const agg = {}; const semFator = {};
+      const add = (dest, campo, v) => { const a = agg[dest] || (agg[dest] = { val: 0, kg: 0, mts: 0 }); a[campo] += v; };
+      json.forEach(r => {
+        if (!r || !r.length) return;
+        const c0 = String(r[0] || '').trim();
+        const vals = r.filter(x => x != null);
+        const mCat = c0.match(/^(\d{2}) - .+/);
+        if (mCat && vals.length <= 2) { cat = mCat[1]; sub = null; return; }
+        const joined = r.map(x => String(x == null ? '' : x)).join('|');
+        if (/Total de Geral/i.test(joined)) { const v = r.map(num).filter(x => !isNaN(x)); totalGeral = v[v.length - 1] || 0; return; }
+        if (/Total de/i.test(joined)) return;
+        if (r.some(x => String(x || '').trim() === 'Quantidade') && r.some(x => String(x || '').trim().startsWith('Total Custo'))) {
+          hdr = { q: r.findIndex(x => String(x || '').trim() === 'Quantidade'), un: r.findIndex(x => String(x || '').trim() === 'Un'),
+                  tot: r.findIndex(x => String(x || '').trim().startsWith('Total Custo')), peso: r.findIndex(x => String(x || '').trim() === 'Peso') };
+          return;
+        }
+        if (c0 && vals.length === 1 && typeof r[0] === 'string') { sub = c0; return; }
+        if (!hdr || !cat) return;
+        const q = num(r[hdr.q]), tot = num(r[hdr.tot]);
+        if (isNaN(tot)) return;
+        const un = String(r[hdr.un] || '').trim().toUpperCase();
+        if (!un) return;
+        const cod = String(r[1] || '').trim();
+        const dest = /tinta/i.test(sub || '') ? 'Tintas' : (/apara|hanami/i.test(sub || '') ? 'Aparas' : (MAPA_INV[cat] || 'Outros Insumos'));
+        add(dest, 'val', tot);
+        if (un === 'KG') { if (!isNaN(q)) add(dest, 'kg', q); }
+        else if (un === 'MT' || un === 'MTS' || un === 'M') {
+          if (!isNaN(q)) add(dest, 'mts', q);
+          const p = hdr.peso >= 0 ? num(r[hdr.peso]) : NaN;
+          if (!isNaN(p)) { add(dest, 'kg', p); if (q > 0 && typeof EMB_FATORES_MT !== 'undefined') EMB_FATORES_MT[cod] = Math.round(p / q * 10000) / 10000; }
+          else if (typeof EMB_FATORES_MT !== 'undefined' && EMB_FATORES_MT[cod] > 0 && !isNaN(q)) add(dest, 'kg', q * EMB_FATORES_MT[cod]);
+          else { semFator[cod] = String(r[2] || '').trim().slice(0, 42); if (typeof EMB_FATORES_MT !== 'undefined' && !(cod in EMB_FATORES_MT)) EMB_FATORES_MT[cod] = 0; }
+        }
+      });
+      if (!Object.keys(agg).length) { alert('Nenhum item de inventário foi encontrado nesta planilha.'); evt.target.value = ''; return; }
+      const somaVal = Object.values(agg).reduce((a, x) => a + x.val, 0);
+      // Regra de ouro: mês com inventário oficial da planilha do cliente não muda
+      const inv = this.empresaExtras.inventario || [];
+      const jaOficial = inv.some(l => l.valor && (l.valor[mk] || 0) !== 0);
+      if (jaOficial) {
+        this.registrarLog('Importação de inventário de ' + mk.toUpperCase() + ' não aplicada: o mês já tem inventário oficial da planilha (' + file.name + ')');
+        alert('O inventário de ' + mk.toUpperCase() + ' já está lançado com os valores oficiais da planilha conferida com o cliente e foi mantido.\n\nPara substituir, zere os valores do mês na tela Resultado 2026 e importe novamente.');
+        evt.target.value = ''; return;
+      }
+      this.salvarEstado('Importação de inventário: ' + mk.toUpperCase());
+      inv.forEach(l => {
+        const a = agg[l.item];
+        l.valor = l.valor || {}; l.kg = l.kg || {}; l.mts = l.mts || {};
+        l.valor[mk] = a ? r2(a.val) : 0;
+        l.kg[mk] = a ? r2(a.kg) : 0;
+        if (a && a.mts) l.mts[mk] = r2(a.mts); else delete l.mts[mk];
+      });
+      // Estoque do DRE (sem Tintas, critério da planilha) e cadeia da Diferença de Estoque
+      this.syncEstoqueEmb();
+      const est = this.dreAtual.find(l => l.desc === 'Estoque');
+      const difEst = this.dreAtual.find(l => l.desc === 'Diferença de Estoque');
+      if (est && difEst) {
+        let prev = 0;
+        this.listaMeses.forEach(m => { const k = m.chave.toLowerCase();
+          if ((est[k] || 0) !== 0) { difEst[k] = r2(est[k] - prev); prev = est[k]; } });
+      }
+      // Diferença de Kg do estoque apenas do mês importado (meses oficiais mantêm a planilha)
+      if (typeof EMB_DIF_KG !== 'undefined') {
+        const kgMes = this.invColTotal(mk, 'kg', 'all');
+        let prevKg = 0;
+        for (const m of this.listaMeses) { const k = m.chave.toLowerCase(); if (k === mk) break;
+          const kgm = this.invColTotal(k, 'kg', 'all'); if (kgm) prevKg = kgm; }
+        EMB_DIF_KG[mk] = r2(kgMes - prevKg);
+      }
+      if (totalGeral && Math.abs(totalGeral - somaVal) > 0.05) this.registrarLog('Aviso: soma dos itens do inventário (' + this.formatarDinheiroExato(somaVal) + ') difere do Total de Geral do relatório (' + this.formatarDinheiroExato(totalGeral) + ')');
+      const pend = Object.keys(semFator);
+      this.registrarLog('Importou inventário ' + file.name + ' em ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(somaVal) + ' em ' + Object.keys(agg).length + ' categorias' + (totalGeral ? ' (Total de Geral do relatório: ' + this.formatarDinheiroExato(totalGeral) + ')' : ''));
+      this.recalcularTudo();
+      alert('Inventário de ' + mk.toUpperCase() + ' importado!\n\nEstoque (sem Tintas): ' + this.formatarDinheiroExato((est && est[mk]) || 0) + '\nPeso total: ' + this.invColTotal(mk, 'kg', 'all').toLocaleString('pt-BR') + ' kg'
+        + (pend.length ? '\n\nAtenção: ' + pend.length + ' item(ns) em metros ainda sem peso conhecido (os metros ficam visíveis, mas não somam no kg). Informe o kg por metro na tabela Metros para Kg, em Configurações:\n' + pend.map(c => '  ' + c + ' ' + semFator[c]).join('\n') : ''));
+      this.fatoresMtTick++;
+      this.mesAtivo = mk.charAt(0).toUpperCase() + mk.slice(1);
+      this.atualizarLeituraSistema();
+      evt.target.value = '';
     },
 
     // Aplica um mês de despesas (formato pivô já normalizado) nos centros de custo.
