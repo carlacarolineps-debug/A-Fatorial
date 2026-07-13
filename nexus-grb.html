@@ -3437,6 +3437,9 @@ const EMB_INVENTARIO=[
 ];
 // Linhas da planilha ainda sem lançamentos (preenchidas pela importação do Resultado)
 const EMB_LINHAS_EXTRAS={ invest:{}, prov:{} };
+// Versão do formato dos dados salvos no navegador: quando a estrutura embutida evolui,
+// dados antigos são descartados para nunca esconderem linhas novas (ex.: ITP, Aparas).
+const NEXUS_DADOS_VERSAO = 3;
 // SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
 const EMB_SERVICOS=[
  {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
@@ -4033,22 +4036,31 @@ function sistemaUnificado(){
       // Persistência: se houver dados salvos neste navegador (importações/edições), eles prevalecem
       try {
         const salvo = JSON.parse(localStorage.getItem('nexus_v2_dados_' + emp.id) || 'null');
-        if (salvo) {
+        if (salvo && salvo.versao === NEXUS_DADOS_VERSAO) {
           if (salvo.dre) this.dreAtual = salvo.dre;
           if (salvo.cc) this.centrosCustoData = salvo.cc;
           if (salvo.prev) this.previsoesData = salvo.prev;
           this.hidratarExtras(emp, salvo);
           this.collapsedCCs = this.centrosCustoData.filter(c => c.ip === 1).map(c => c.c);
+        } else if (salvo) {
+          localStorage.removeItem('nexus_v2_dados_' + emp.id); // formato antigo: volta aos dados embutidos da planilha
         }
       } catch(e) {}
     },
     hidratarExtras(emp, salvo) {
       if (!salvo || !salvo.extras || !emp.extras) return;
-      const rep = (alvo, novo) => { if (alvo && novo) alvo.splice(0, alvo.length, ...novo); };
-      rep(emp.extras.faturamento, salvo.extras.faturamento);
-      rep(emp.extras.inventario, salvo.extras.inventario);
-      rep(emp.extras.subempresas, salvo.extras.subempresas);
-      rep(emp.extras.servicos, salvo.extras.servicos);
+      // Mescla por chave: atualiza itens salvos e PRESERVA linhas novas da estrutura embutida
+      const rep = (alvo, novo, chave) => {
+        if (!alvo || !novo) return;
+        novo.forEach(item => {
+          const i = alvo.findIndex(a => a[chave] === item[chave]);
+          if (i >= 0) Object.assign(alvo[i], item); else alvo.push(item);
+        });
+      };
+      rep(emp.extras.faturamento, salvo.extras.faturamento, 'tipo');
+      rep(emp.extras.inventario, salvo.extras.inventario, 'item');
+      rep(emp.extras.subempresas, salvo.extras.subempresas, 'nome');
+      rep(emp.extras.servicos, salvo.extras.servicos, 'desc');
       if (salvo.extras.difKg && typeof EMB_DIF_KG !== 'undefined') { Object.keys(EMB_DIF_KG).forEach(k=>delete EMB_DIF_KG[k]); Object.assign(EMB_DIF_KG, salvo.extras.difKg); }
       if (salvo.extras.linhasExtras && typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = salvo.extras.linhasExtras.invest || {}; EMB_LINHAS_EXTRAS.prov = salvo.extras.linhasExtras.prov || {}; }
     },
@@ -4056,7 +4068,7 @@ function sistemaUnificado(){
       try {
         const id = this.empresaAtiva;
         const emp = EMPRESAS[id];
-        const pacote = { dre: this.dreAtual, cc: this.centrosCustoData, prev: this.previsoesData };
+        const pacote = { versao: NEXUS_DADOS_VERSAO, dre: this.dreAtual, cc: this.centrosCustoData, prev: this.previsoesData };
         if (emp.extras && emp.extras.porKg) {
           pacote.extras = {
             faturamento: emp.extras.faturamento, inventario: emp.extras.inventario,
@@ -6231,6 +6243,7 @@ function sistemaUnificado(){
       try {
         this.ordemEmpresas.forEach(id => {
           const salvo = JSON.parse(localStorage.getItem('nexus_v2_dados_' + id) || 'null');
+          if (salvo && salvo.versao !== NEXUS_DADOS_VERSAO) { localStorage.removeItem('nexus_v2_dados_' + id); return; }
           if (salvo && salvo.dre) EMPRESAS[id].dre = salvo.dre;
           if (salvo) this.hidratarExtras(EMPRESAS[id], salvo);
         });
