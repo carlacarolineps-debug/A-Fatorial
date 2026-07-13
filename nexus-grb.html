@@ -394,6 +394,8 @@ main > header h2{ letter-spacing:-.4px; }
 .card-dark:fullscreen > .nx-fs-btn, .nx-fs-on > .nx-fs-btn{ display:none; }        /* esconde o botão de entrar; a barra tem o de sair */
 .card-dark:fullscreen > div:first-child, .nx-fs-on > div:first-child{ padding-right:0; }
 /* Fallback (card movido para o body) */
+.nx-fs-allow:fullscreen{ background:var(--color-bg); overflow:auto; padding:24px 30px 30px; }
+.nx-fs-allow:fullscreen > .nx-fs-btn{ display:none; }
 .nx-fs-on{ position:fixed !important; inset:0 !important; z-index:170 !important; margin:0 !important; border-radius:0 !important; max-width:none !important; width:auto !important; height:auto !important; overflow:auto !important; padding:0 30px 30px !important; box-shadow:none !important; background:var(--color-surface) !important; }
 .nx-fs-on div:has(> table.dark-table){ max-height:calc(100vh - 150px) !important; }
 body.nx-fs-lock #mainScrollArea{ overflow:hidden !important; }
@@ -2060,7 +2062,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
 
     <!-- ===================== CENTRAL DE AÇÕES (kanban to-do: arraste ou use as setas) ===================== -->
-    <div x-show="aba==='acoes'" x-cloak style="display:flex;flex-direction:column;gap:20px">
+    <div x-show="aba==='acoes'" x-cloak class="nx-fs-allow" style="display:flex;flex-direction:column;gap:20px;position:relative">
 
       <div class="card-dark" style="margin-bottom:0">
         <div class="flex justify-between items-start flex-wrap gap-3">
@@ -3605,8 +3607,8 @@ window.addEventListener('resize', () => { try { setupHScroll(); } catch(e){} });
 const NX_FS_OPEN = '<i class="fas fa-up-right-and-down-left-from-center"></i>';
 const NX_FS_CLOSE = '<i class="fas fa-down-left-and-up-right-to-center"></i>';
 function montarTelaCheia() {
-  document.querySelectorAll('#mainScrollArea .card-dark').forEach(card => {
-    if (!card.querySelector('table')) return;                      // só cards com tabela
+  document.querySelectorAll('#mainScrollArea .card-dark, #mainScrollArea .nx-fs-allow').forEach(card => {
+    if (!card.classList.contains('nx-fs-allow') && !card.querySelector('table')) return; // cards com tabela ou contêineres marcados
     if (card.querySelector(':scope > .nx-fs-btn')) return;         // evita duplicar
     card.classList.add('nx-fs-host');
     const btn = document.createElement('button');
@@ -3655,7 +3657,7 @@ function nxFsSyncIcones() {
   if (fe) nxMontarBarraFS(fe);
 }
 // Barra da tela cheia: botão Sair + régua de meses (só onde o recorte por mês se aplica).
-const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','resultado_emb','emb_despesa','emb_receita','emb_inventario'];
+const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','resultado_emb','emb_despesa','emb_receita','emb_inventario','acoes','servicos'];
 function nxMontarBarraFS(card) {
   const antiga = card.querySelector(':scope > .nx-fs-bar'); if (antiga) antiga.remove();
   const root = document.querySelector('[x-data]'); const cmp = (root && window.Alpine) ? Alpine.$data(root) : null;
@@ -4174,6 +4176,7 @@ function sistemaUnificado(){
         .sort((a,b) => b.valor - a.valor);
     },
     abrirDrawerEmpresa(id) {
+      sairTelaCheia();
       const r = this.resumoEmpresa(id); if(!r) return;
       const c = this.consolidado; const rc = c.empresas.find(e=>e.id===id) || r;
       const grupos = this.gruposDespesaEmpresa(id);
@@ -4203,6 +4206,7 @@ function sistemaUnificado(){
 
     // ===== RAZÃO, drill-down universal: clique em qualquer informação =====
     abrirRazao(ctx) {
+      sairTelaCheia(); // o painel lateral renderiza fora do elemento em tela cheia
       this.drawer = Object.assign({
         open:true, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-magnifying-glass-chart',
         hero:'', heroLabel:'', delta:null, serie:[],
@@ -4638,6 +4642,7 @@ function sistemaUnificado(){
 
     // ===== Transferência entre CARTEIRAS via popup (pedido 3) =====
     abrirModalTransferencia(carteira) {
+      sairTelaCheia();
       this.modalTransferencia.origemId = carteira.id;
       this.modalTransferencia.destinoId = '';
       this.modalTransferencia.valor = carteira.valorRapido || '';
@@ -4669,6 +4674,7 @@ function sistemaUnificado(){
 
     // ===== Centro de Custo: editar / transferir / novo / excluir (pedidos 5 e 7) =====
     abrirTransferenciaCC(origemC, mesAtual, valorMax) {
+      sairTelaCheia();
       this.modalTCC.origem = origemC;
       this.modalTCC.mes = mesAtual;
       this.modalTCC.valor = valorMax || 0;
@@ -4690,6 +4696,7 @@ function sistemaUnificado(){
       this.registrarLog('Transferência contábil entre centros de custo via interface.');
     },
     abrirModalNovoCC() {
+      sairTelaCheia();
       this.modalNovoCC.mes = this.subAbaDespesa;
       this.modalNovoCC.parentCode = '';
       this.modalNovoCC.nome = '';
@@ -5652,6 +5659,7 @@ function sistemaUnificado(){
 
     // Transferência entre centros de custo com origem livre (chamada pelo painel lateral)
     abrirTransferenciaCCLivre() {
+      sairTelaCheia();
       this.modalTCC.origem = '';
       this.modalTCC.mes = this.mesAtivo.toLowerCase();
       this.modalTCC.valor = 0;
