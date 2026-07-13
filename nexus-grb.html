@@ -514,6 +514,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .res-band td span.res-band-lbl{ position:sticky; left:14px; display:inline-block; }
 /* Meses em aberto: esmaecidos por cor (sem transparência, para não vazar sob a coluna fixa) */
 .res-future{ opacity:1 !important; color:#b9bfce !important; }
+.res-edit-in{ width:96px; text-align:right; padding:4px 7px; font-size:11.5px; border:1.5px solid rgba(197,168,128,.65); border-radius:8px; background:#fffdf6; font-weight:700; color:var(--accent-blue); font-variant-numeric:tabular-nums; transition:.12s; }
+.res-edit-in:focus{ outline:none; border-color:var(--accent-gold); box-shadow:0 0 0 3px rgba(197,168,128,.22); background:#fff; }
 .res-future-h{ opacity:1; color:rgba(232,207,154,.55) !important; }
 .res-future-h::after{ content:"aberto"; display:block; font-size:7.5px; letter-spacing:.1em; color:var(--nx-gold-bright,#e8cf9a); margin-top:2px; }
 .res-band td{ background:linear-gradient(92deg,#191040 0%,#2a1d63 55%,#3b2a7a 100%) !important; color:#e8cf9a !important; font-weight:900 !important; font-size:11px !important; letter-spacing:.14em; text-transform:uppercase; padding:11px 14px !important; border-top:none !important; }
@@ -1219,11 +1221,15 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <div class="card-title" style="margin-bottom:2px"><i class="fas fa-file-invoice-dollar mr-2" style="color:var(--accent-gold)"></i> <span x-text="resultadoEmbTitulo"></span></div>
             <div class="card-sub" style="font-size:11.5px" x-html="resultadoEmbDesc"></div>
           </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <button @click="expandirTodosRes()" class="emc-btn-secondary no-print text-[11px] py-1.5 px-3" title="Mostrar Kg e Fator de todas as linhas"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Kg/Fator</button>
-            <button @click="recolherTodosRes()" class="emc-btn-secondary no-print text-[11px] py-1.5 px-3" title="Ocultar Kg e Fator de todas as linhas"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Kg/Fator</button>
-            <div class="badge-status badge-info" style="font-size:10.5px"><i class="fas fa-table-list mr-1"></i> espelho da planilha "Resultado 2026"</div>
+          <div class="flex items-center gap-2 flex-shrink-0 no-print">
+            <button @click="resEditMode=!resEditMode" class="text-[11px] py-1.5 px-3" :class="resEditMode?'emc-btn':'emc-btn-secondary'" :style="resEditMode?'background:var(--accent-gold);border-color:var(--accent-gold);color:#191040;font-weight:800;border-radius:9px':''" title="Ligar/desligar a edição direta dos valores na tabela"><i class="fas fa-pen mr-1"></i> <span x-text="resEditMode?'Concluir edição':'Editar valores'"></span></button>
+            <button @click="expandirTodosRes()" class="emc-btn-secondary text-[11px] py-1.5 px-3" title="Mostrar Kg e Fator de todas as linhas"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Kg/Fator</button>
+            <button @click="recolherTodosRes()" class="emc-btn-secondary text-[11px] py-1.5 px-3" title="Ocultar Kg e Fator de todas as linhas"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Kg/Fator</button>
           </div>
+        </div>
+        <div x-show="resEditMode" x-cloak class="no-print" style="margin-top:10px;background:rgba(197,168,128,.10);border:1px solid rgba(197,168,128,.45);border-radius:11px;padding:9px 14px;font-size:11.5px;color:var(--accent-gold-deep);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <i class="fas fa-pen"></i> Modo de edição ligado: altere qualquer valor e tecle Enter. Totais, fatores, percentuais e o painel de comando recalculam sozinhos; tudo fica salvo e registrado na auditoria.
+          <button @click="desfazerAcao()" class="emc-btn-secondary text-[10.5px] py-1 px-2" style="margin-left:auto"><i class="fas fa-undo mr-1"></i> Desfazer última</button>
         </div>
         <div class="js-hscroll" style="overflow-x:auto;max-width:100%">
           <table class="dark-table res-table">
@@ -1237,7 +1243,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             </thead>
             <tbody>
               <template x-for="(row,ri) in resultadoEmbView.rows" :key="aba+'rr'+ri">
-                <tr :class="rowClassRes(row)+((!row.sec && row.kind!=='sub')?' nx-drill':'')" @click="(!row.sec && row.kind!=='sub') && razaoResLinha(row)">
+                <tr :class="rowClassRes(row)+((!row.sec && row.kind!=='sub' && !resEditMode)?' nx-drill':'')" @click="(!row.sec && row.kind!=='sub' && !resEditMode) && razaoResLinha(row)">
                   <template x-if="row.sec">
                     <td :colspan="resultadoEmbView.meses.length+3"><span class="res-band-lbl" x-text="row.sec"></span></td>
                   </template>
@@ -1251,7 +1257,16 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                   </template>
                   <template x-if="!row.sec">
                     <template x-for="m in resultadoEmbView.meses" :key="aba+'rc'+ri+m">
-                      <td class="td-r" :class="(row.kind==='result'?(row.vals[m]<0?'text-red-strong':'text-green-strong'):(row.tipo==='kgrs'?(row.kind==='sub'?'res-kgrs':'text-green-strong'):''))+(row.vals[m]<0 && row.tipo==='money' && row.kind!=='result'?' text-red-strong':'')+(mesFuturoEmb(m)?' res-future':'')" x-text="fmtResVal(row,m)"></td>
+                      <td class="td-r" :class="(row.kind==='result'?(row.vals[m]<0?'text-red-strong':'text-green-strong'):(row.tipo==='kgrs'?(row.kind==='sub'?'res-kgrs':'text-green-strong'):''))+(row.vals[m]<0 && row.tipo==='money' && row.kind!=='result'?' text-red-strong':'')+(mesFuturoEmb(m) && !resEditMode?' res-future':'')">
+                        <template x-if="!(resEditMode && row.edit && permEdita)"><span x-text="fmtResVal(row,m)"></span></template>
+                        <template x-if="resEditMode && row.edit && permEdita">
+                          <input type="text" inputmode="decimal" class="res-edit-in" @click.stop
+                                 :value="row.vals[m] ? fmtNum(row.vals[m]) : ''"
+                                 :placeholder="row.tipo==='kg'?'0 kg':'0,00'"
+                                 @focus="$event.target.select()"
+                                 @change="resEditCell(row, m, $event.target.value)">
+                        </template>
+                      </td>
                     </template>
                   </template>
                   <template x-if="!row.sec">
@@ -3103,7 +3118,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="flex flex-col gap-3">
           <div>
             <label class="text-[11px] font-bold text-gray-500 uppercase">Origem · Mês <span x-text="modalTCC.mes?.toUpperCase()"></span></label>
-            <div class="emc-input" style="background:var(--color-surface2); font-weight:800; color:var(--accent-blue);" x-text="modalTCC.origem"></div>
+            <template x-if="modalTCC.origem"><div class="emc-input" style="background:var(--color-surface2); font-weight:800; color:var(--accent-blue);" x-text="modalTCC.origem"></div></template>
+            <template x-if="!modalTCC.origem"><select x-model="modalTCC.origem" class="emc-input"><option value="">Selecione o centro de custo de origem...</option><template x-for="c in ccFolhas" :key="'org'+c.c"><option :value="c.c" x-text="c.c"></option></template></select></template>
           </div>
           <div>
             <label class="text-[11px] font-bold text-gray-500 uppercase">Destino</label>
@@ -3216,6 +3232,52 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       <span style="margin-left:auto;font-size:11px;color:var(--color-dim);font-weight:700" x-text="drawer.rows.length+' linhas'"></span>
     </div>
     <div class="nxdr-body">
+
+      <!-- O que é esta linha (educativo: o cliente nunca fica na dúvida) -->
+      <div x-show="drawer.explica" class="nxdr-insight" style="border-left-color:var(--accent-blue);background:rgba(25,16,64,.05)">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-blue);font-weight:800;margin-bottom:4px"><i class="fas fa-circle-question mr-1"></i> O que é esta linha</div>
+        <span x-text="drawer.explica"></span>
+      </div>
+
+      <!-- Ações rápidas (só no Resultado da Embalagem) -->
+      <div x-show="drawer.embRes" class="no-print" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+        <button x-show="drawer.editavel" @click="resEditMode=true; fecharDrawer()" class="nxdr-btn primary" style="justify-content:center;display:inline-flex;align-items:center"><i class="fas fa-pen mr-1"></i> Editar valores desta linha</button>
+        <button @click="fecharDrawer(); abrirTransferenciaCCLivre()" class="nxdr-btn" style="justify-content:center;display:inline-flex;align-items:center"><i class="fas fa-exchange-alt mr-1"></i> Transferir entre C.C.</button>
+      </div>
+
+      <!-- Movimentos entre empresas: compra, venda, transferência, empréstimo -->
+      <div x-show="drawer.embRes" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:14px;padding:14px 15px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <i class="fas fa-right-left" style="color:var(--accent-gold);font-size:13px"></i>
+          <div style="font-weight:900;color:var(--accent-blue);font-size:13px;white-space:nowrap">Movimentos entre empresas</div>
+          <span style="margin-left:auto;font-size:10px;color:var(--color-dim);font-weight:700;white-space:nowrap" x-text="movEmpresas.length+' registro(s)'"></span>
+        </div>
+        <div style="font-size:10.5px;color:var(--color-muted);line-height:1.5;margin-bottom:10px">Registre compra, venda, transferência ou empréstimo entre as empresas do grupo, com rastreabilidade. Movimentos internos são eliminados na consolidação.</div>
+        <div class="no-print" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;background:var(--color-surface2);border:1px dashed var(--color-border2);border-radius:11px;padding:10px">
+          <select x-model="novoMov.tipo" class="emc-input" style="padding:6px 8px;font-size:12px"><option>Venda</option><option>Compra</option><option>Transferência</option><option>Empréstimo</option><option>Remessa industrialização</option></select>
+          <input type="text" inputmode="decimal" x-model="novoMov.valor" class="emc-input" placeholder="Valor (R$)" style="padding:6px 8px;font-size:12px;text-align:right">
+          <select x-model="novoMov.origem" class="emc-input" style="padding:6px 8px;font-size:12px"><template x-for="n in movEmpresasNomes" :key="'o'+n"><option :value="n" x-text="'De: '+n"></option></template></select>
+          <select x-model="novoMov.destino" class="emc-input" style="padding:6px 8px;font-size:12px"><template x-for="n in movEmpresasNomes" :key="'d'+n"><option :value="n" x-text="'Para: '+n"></option></template></select>
+          <input type="text" inputmode="decimal" x-model="novoMov.kg" class="emc-input" placeholder="Peso (kg, opcional)" style="padding:6px 8px;font-size:12px;text-align:right">
+          <input type="text" x-model="novoMov.obs" class="emc-input" placeholder="Observação / nota fiscal" style="padding:6px 8px;font-size:12px">
+          <button @click="movAdd()" class="emc-btn" style="grid-column:1/-1;height:34px;font-size:12px"><i class="fas fa-plus mr-1"></i> Registrar no mês <span x-text="mesAtivo" class="ml-1"></span></button>
+        </div>
+        <div style="margin-top:10px;max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
+          <template x-for="m in movEmpresas.slice(0,12)" :key="m.id">
+            <div style="display:flex;align-items:center;gap:8px;background:var(--color-surface2);border:1px solid var(--color-border);border-radius:10px;padding:7px 10px">
+              <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;padding:2px 7px;border-radius:999px;white-space:nowrap"
+                :style="m.tipo==='Venda'?'background:rgba(13,148,136,.13);color:#0d9488':(m.tipo==='Compra'?'background:rgba(37,99,235,.12);color:#2563eb':'background:rgba(197,168,128,.2);color:#8a6a3a')" x-text="m.tipo"></span>
+              <div style="min-width:0;flex:1">
+                <div style="font-size:11.5px;font-weight:800;color:var(--accent-blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span x-text="m.origem"></span> <i class="fas fa-arrow-right" style="font-size:8px;color:var(--accent-gold)"></i> <span x-text="m.destino"></span> · <span x-text="formatarDinheiroExato(m.valor)"></span><span x-show="m.kg" x-text="' · '+Number(m.kg).toLocaleString('pt-BR')+' kg'"></span></div>
+                <div style="font-size:9.5px;color:var(--color-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="(m.mes||'').toUpperCase()+' · '+m.data+' · '+(m.usuario||'')+(m.obs?' · '+m.obs:'')"></div>
+              </div>
+              <button class="no-print" @click="movRemover(m.id)" title="Excluir movimento" style="border:none;background:none;color:#cbd0dd;cursor:pointer;font-size:11px;flex-shrink:0" onmouseover="this.style.color='#e11d48'" onmouseout="this.style.color='#cbd0dd'"><i class="fas fa-trash"></i></button>
+            </div>
+          </template>
+          <div x-show="!movEmpresas.length" style="text-align:center;font-size:11px;color:var(--color-dim);padding:10px">Nenhum movimento registrado ainda.</div>
+        </div>
+      </div>
+
       <div class="nxdr-insight" x-show="drawer.insight"><i class="fas fa-lightbulb mr-1" style="color:var(--accent-gold)"></i> <span x-html="drawer.insight"></span></div>
       <table class="dark-table">
         <thead><tr><th x-text="drawer.rowsHead[0]"></th><th class="td-r" x-text="drawer.rowsHead[1]"></th><th class="td-r" x-text="drawer.rowsHead[2]"></th></tr></thead>
@@ -3502,7 +3564,7 @@ function sistemaUnificado(){
     estoqueBase: 1037371.61,
     invMode: 'diff',
     taxaRateio: (function(){ try{ let v=parseFloat(localStorage.getItem('nexus_taxa_rateio')); return isNaN(v)?5:v; }catch(e){ return 5; } })(),
-    drawer: { open:false, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-building', hero:'', heroLabel:'', delta:null, serie:[], stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'', csv:[], csvName:'recorte', acaoLabel:'', acaoId:'', acaoAba:'' },
+    drawer: { open:false, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-building', hero:'', heroLabel:'', delta:null, serie:[], stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'', csv:[], csvName:'recorte', acaoLabel:'', acaoId:'', acaoAba:'', embRes:false, explica:'', editavel:false },
     projMetodo: 'media',
     projCrescimento: 0,
     compA: 'requalificadora',
@@ -3544,6 +3606,15 @@ function sistemaUnificado(){
       { id:6, titulo:'Conferir Resultado 2026 × planilha (jan–abr)', detalhe:'DRE da Requalificadora confere com a planilha do cliente: resultado operacional acumulado de R$ 864.181,69.', coluna:'done', empresa:'requalificadora', empresaNome:'Requalificadora', prio:'baixa', prazo:'', origem:'manual', criadoPor:'Carla Caroline', criadoEm:'2026-07-01' }
     ],
     kbNova: { titulo:'', detalhe:'', prio:'media', prazo:'' },
+
+    // ===== Resultado 2026: modo de edição + movimentos entre empresas =====
+    resEditMode: false,
+    movEmpresas: [
+      { id: 1, data: '31/01/2026', mes: 'jan', tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: 9007.84, kg: 3513, obs: 'Venda interna do mês (linha Fat Inter Company da planilha)', usuario: 'Carla Caroline' },
+      { id: 2, data: '28/02/2026', mes: 'fev', tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: 2084.18, kg: 853, obs: 'Venda interna do mês (linha Fat Inter Company da planilha)', usuario: 'Carla Caroline' }
+    ],
+    novoMov: { tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: '', kg: '', obs: '' },
+    movEmpresasNomes: ['Embalagem','Linear','Teste','Teste X','Requalificadora','Terceiros'],
     kbNovaAberta: false,
     kbOver: '',
     kbDragId: null,
@@ -3864,6 +3935,7 @@ function sistemaUnificado(){
         emp.dre = this.dreAtual;
         localStorage.setItem('nexus_v2_usuarios', JSON.stringify(this.usuarios));
         localStorage.setItem('nexus_v2_kanban', JSON.stringify(this.kbCardsData));
+        localStorage.setItem('nexus_v2_movimentos', JSON.stringify(this.movEmpresas));
         localStorage.setItem('nexus_v2_logs', JSON.stringify(this.logsAuditoria.slice(0, 500)));
       } catch(e) {}
     },
@@ -3963,7 +4035,7 @@ function sistemaUnificado(){
         open:true, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-magnifying-glass-chart',
         hero:'', heroLabel:'', delta:null, serie:[],
         stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'',
-        csv:[], csvName:'razao', acaoLabel:'', acaoId:'', acaoAba:''
+        csv:[], csvName:'razao', acaoLabel:'', acaoId:'', acaoAba:'', embRes:false, explica:'', editavel:false
       }, ctx);
     },
     drawerBarH(val) {
@@ -4053,8 +4125,32 @@ function sistemaUnificado(){
         rows=serie.map(p=>({label:(this.listaMeses.find(m=>m.chave===p.label)||{}).labelData||p.label, valor:this.fmtResVal(row,p.label), pct: acum?((p.val/acum)*100).toFixed(1)+'%':'·'}));
         insight='Evolução mês a mês'+(delta!=null?(' · '+(delta>=0?'▲ ':'▼ ')+Math.abs(delta).toFixed(0)+'% vs mês anterior'):'')+'.';
       }
+      const EXPLICA = {
+        'Total Despesas': 'Soma das despesas de todas as empresas da Embalagem no mês (indústria + Linear + Teste + Teste X). Nasce dos lançamentos por centro de custo.',
+        'Total Faturamento': 'Soma das receitas das linhas de faturamento, sem as aparas (Teste Sucata), exatamente como a planilha calcula.',
+        'PESO': 'Peso total faturado no mês, somando todas as linhas (inclusive aparas). É o denominador do fator.',
+        'FATOR': 'Preço médio do quilo: faturamento (sem aparas) dividido pelo peso total. É a régua central deste negócio.',
+        'Fat. (−) Despesa líq.': 'Resultado operacional do mês: total faturado menos total de despesas.',
+        '% (margem operacional)': 'Quanto do faturamento sobra como resultado: resultado operacional dividido pelo faturamento.',
+        'Estoque': 'Valor do estoque no fim do mês (sem Tintas, como na planilha). É uma foto da posição, não um fluxo.',
+        'Estoque kg': 'Peso total parado em estoque no fim do mês.',
+        'Fator Estoque': 'Valor do estoque dividido pelo peso: quanto vale, em média, cada kg parado.',
+        'Dif. R$ Estoque': 'Variação do valor do estoque contra o mês anterior. Positiva, produção maior que venda; negativa, o estoque financiou a venda.',
+        'Dif. Kg Estoque': 'Variação do peso em estoque contra o mês anterior.',
+        'Invest. Realizado': 'Investimentos do período (linha da planilha). Preenchida pela importação ou pela edição direta.',
+        'Provisões': 'Provisões do período (linha da planilha). Preenchida pela importação ou pela edição direta.',
+        'Devoluções Clientes': 'Mercadoria devolvida por clientes: vira estoque de novo e pressiona frete e retrabalho. Investigue cliente e lote.',
+        'Devoluções Fornecedor': 'Mercadoria devolvida a fornecedores (insumo fora de especificação, por exemplo).',
+        'Fat.(−) Desp. Líq.(+) Inventário': 'Resultado operacional somado ao estoque do mês: mostra o resultado considerando o que ficou produzido e parado.',
+        'Fat.(−) Desp. (−) Prov.': 'Resultado operacional descontando o efeito das provisões, na leitura da planilha.'
+      };
+      let explica = EXPLICA[row.label] || '';
+      if (!explica && /^Faturamento /.test(row.label)) explica = 'Receita emitida por ' + row.label.replace('Faturamento ','') + ' no mês. Abaixo dela, Kg Faturado é o peso vendido e Fator é a receita dividida pelo peso (R$/kg).';
+      if (!explica && /^Despesas /.test(row.label)) explica = 'Despesas registradas em ' + row.label.replace('Despesas ','') + ' no mês. O detalhe conta a conta está em Despesas por C.C.';
+      if (!explica && ['ITP','Produto Acabado','Produto em Processo','Tintas','Matéria Prima','Outros Insumos','Aparas'].includes(row.label)) explica = 'Categoria de estoque "' + row.label + '": valor em reais, peso (Kg) e fator (R$/kg) no fim de cada mês.';
       this.abrirRazao({
         tag:'Razão · Resultado 2026', title:row.label.replace(/^Faturamento /,'Faturamento · '), subtitle:'Embalagem · '+nomeMes,
+        embRes:true, explica, editavel: !!row.edit,
         color:'#0f766e', icone:'fa-magnifying-glass-chart',
         hero:this.fmtResVal(row,mAtual), heroLabel:'Valor em '+nomeMes, delta, serie,
         stats:[
@@ -4920,6 +5016,9 @@ function sistemaUnificado(){
         else s = s.replace(/,/g,'');
       } else if(s.includes(',')) {
         s = s.replace(',', '.');
+      } else if(s.includes('.') && /\.\d{3}(\.\d{3})*$/.test(s)) {
+        // Padrão brasileiro sem centavos: "30.000" é trinta mil, não trinta
+        s = s.replace(/\./g, '');
       }
       let n = parseFloat(s);
       return isNaN(n) ? 0 : Math.round(n*100)/100;
@@ -5136,15 +5235,17 @@ function sistemaUnificado(){
       const somaM = getter => meses.reduce((a, ch) => a + (getter(ch) || 0), 0);
       // DESPESAS (por sub-empresa)
       sec('DESPESAS');
-      (ex.subempresas || []).filter(s => !s.intercompany && (s.despJan || s.despFev)).forEach(s => push('Despesas ' + s.nome, 'line', 'money', ch => despSub(s, ch)));
+      (ex.subempresas || []).filter(s => !s.intercompany && (s.despJan || s.despFev)).forEach(s => { push('Despesas ' + s.nome, 'line', 'money', ch => despSub(s, ch)); rows[rows.length-1].edit = { t:'desp', ref:s }; });
       push('Total Despesas', 'total', 'money', ch => dre('Total de Despesas')[low(ch)] || 0);
       // RECEITAS (faturamento por linha, com kg e fator)
       sec('RECEITAS');
       (ex.faturamento || []).forEach(f => {
         push('Faturamento ' + f.tipo, 'line', 'money', ch => (f.fat && f.fat[low(ch)]) || 0);
         rows[rows.length-1].ckey = 'F:' + f.tipo;
+        rows[rows.length-1].edit = { t:'fat', ref:f };
         if (!this.collapsedRes.includes('F:' + f.tipo)) {
           push('Kg Faturado', 'sub', 'kg', ch => (f.kg && f.kg[low(ch)]) || 0);
+          rows[rows.length-1].edit = { t:'fatkg', ref:f };
           push('Fator', 'sub', 'kgrs', ch => this.fatorLinha(f, ch),
             () => { const tf = somaM(ch => (f.fat && f.fat[low(ch)]) || 0), tk = somaM(ch => (f.kg && f.kg[low(ch)]) || 0); return tk > 0 ? tf / tk : 0; });
         }
@@ -5161,8 +5262,10 @@ function sistemaUnificado(){
       (ex.inventario || []).forEach(i => {
         push(i.item, 'line', 'money', ch => (i.valor && i.valor[low(ch)]) || 0, 'last');
         rows[rows.length-1].ckey = 'I:' + i.item;
+        rows[rows.length-1].edit = { t:'inv', ref:i };
         if (!this.collapsedRes.includes('I:' + i.item)) {
           push('Kg', 'sub', 'kg', ch => (i.kg && i.kg[low(ch)]) || 0, 'last');
+          rows[rows.length-1].edit = { t:'invkg', ref:i };
           push('Fator', 'sub', 'kgrs', ch => this.invFator(i, ch),
             () => { let v = 0; for (const ch of meses) if (this.invFator(i, ch)) v = this.invFator(i, ch); return v; });
         }
@@ -5172,17 +5275,128 @@ function sistemaUnificado(){
       push('Fator Estoque', 'total', 'kgrs', ch => { const kg = this.invColTotal(ch, 'kg', 'all'); return kg > 0 ? this.invColTotal(ch, 'valor', 'principal') / kg : 0; },
         () => { let v = 0; for (const ch of meses) { const kg = this.invColTotal(ch, 'kg', 'all'); if (kg > 0) v = this.invColTotal(ch, 'valor', 'principal') / kg; } return v; });
       push('Dif. R$ Estoque', 'line', 'money', ch => dre('Diferença de Estoque')[low(ch)] || 0);
+      rows[rows.length-1].edit = { t:'dre', desc:'Diferença de Estoque' };
       push('Dif. Kg Estoque', 'line', 'kg', ch => (typeof EMB_DIF_KG !== 'undefined' ? (EMB_DIF_KG[low(ch)] || 0) : 0));
+      rows[rows.length-1].edit = { t:'difkg' };
       push('Invest. Realizado', 'line', 'money', ch => (typeof EMB_LINHAS_EXTRAS !== 'undefined' ? (EMB_LINHAS_EXTRAS.invest[low(ch)] || 0) : 0));
+      rows[rows.length-1].edit = { t:'extra', k:'invest' };
       push('Provisões', 'line', 'money', ch => (typeof EMB_LINHAS_EXTRAS !== 'undefined' ? (EMB_LINHAS_EXTRAS.prov[low(ch)] || 0) : 0));
+      rows[rows.length-1].edit = { t:'extra', k:'prov' };
       push('Devoluções Clientes', 'line', 'money', ch => dre('Devoluções Clientes')[low(ch)] || 0);
+      rows[rows.length-1].edit = { t:'dre', desc:'Devoluções Clientes' };
       push('Devoluções Fornecedor', 'line', 'money', ch => dre('Devoluções Fornecedor')[low(ch)] || 0);
+      rows[rows.length-1].edit = { t:'dre', desc:'Devoluções Fornecedor' };
       push('Fat.(−) Desp. Líq.(+) Inventário', 'result', 'money', ch => dre('Resultado Operacional com Inventário')[low(ch)] || 0);
       push('Fat.(−) Desp. (−) Prov.', 'result', 'money', ch => dre('Resultado Operacional')[low(ch)] || 0);
       return { meses, rows };
     },
     // Mês ainda sem lançamento na Embalagem (para esmaecer colunas futuras)
     mesFuturoEmb(ch) { return !this.fatMesesAtivos.includes(ch); },
+
+    // ===== Movimentos entre empresas (compra, venda, transferência, empréstimo) =====
+    movAdd() {
+      if (!this.exigirEdicao()) return;
+      const v = this.parseNumero(this.novoMov.valor);
+      if (!this.novoMov.origem || !this.novoMov.destino || v <= 0) { alert('Preencha origem, destino e o valor do movimento.'); return; }
+      if (this.novoMov.origem === this.novoMov.destino) { alert('Origem e destino não podem ser a mesma empresa.'); return; }
+      this.movEmpresas.unshift({
+        id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), mes: this.mesAtivo.toLowerCase(),
+        tipo: this.novoMov.tipo, origem: this.novoMov.origem, destino: this.novoMov.destino,
+        valor: v, kg: this.parseNumero(this.novoMov.kg), obs: (this.novoMov.obs || '').trim(),
+        usuario: this.usuarioLogado.nome
+      });
+      this.registrarLog('Registrou movimento entre empresas: ' + this.novoMov.tipo + ' de ' + this.novoMov.origem + ' para ' + this.novoMov.destino + ' (' + this.formatarDinheiroExato(v) + ')');
+      this.novoMov = { tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: '', kg: '', obs: '' };
+      this.persistirDados();
+    },
+    movRemover(id) {
+      if (!this.exigirEdicao()) return;
+      const m = this.movEmpresas.find(x => x.id === id); if (!m) return;
+      if (!confirm('Excluir o movimento ' + m.tipo + ' de ' + m.origem + ' para ' + m.destino + ' (' + this.formatarDinheiroExato(m.valor) + ')?')) return;
+      this.movEmpresas = this.movEmpresas.filter(x => x.id !== id);
+      this.registrarLog('Excluiu movimento entre empresas: ' + m.tipo + ' ' + m.origem + ' > ' + m.destino);
+      this.persistirDados();
+    },
+    get movTotalMes() {
+      const mk = this.mesAtivo.toLowerCase();
+      return this.movEmpresas.filter(m => m.mes === mk).reduce((a, m) => a + m.valor, 0);
+    },
+
+    // ===== Edição direta das células do Resultado 2026 =====
+    resEditCell(row, mChave, valor) {
+      if (!this.exigirEdicao()) return;
+      const e = row.edit; if (!e) return;
+      const mk = String(mChave).toLowerCase();
+      const v = this.parseNumero(valor);
+      const cap = k => k.charAt(0).toUpperCase() + k.slice(1);
+      this.salvarEstado('Edição no Resultado 2026: ' + row.label + ' · ' + mChave);
+      if (e.t === 'desp') {
+        const antigo = e.ref['desp' + cap(mk)] || 0;
+        e.ref['desp' + cap(mk)] = v;
+        // Mantém o Total de Despesas coerente com os centros de custo via linha Ajustes
+        const rowAj = this.centrosCustoData.find(c => c.c === 'Ajustes');
+        if (rowAj) rowAj[mk] = Math.round(((rowAj[mk] || 0) + (v - antigo)) * 100) / 100;
+      }
+      else if (e.t === 'fat')   { e.ref.fat = e.ref.fat || {}; e.ref.fat[mk] = v; this.syncFatTotalEmb(); }
+      else if (e.t === 'fatkg') { e.ref.kg = e.ref.kg || {}; e.ref.kg[mk] = v; }
+      else if (e.t === 'inv')   { e.ref.valor = e.ref.valor || {}; e.ref.valor[mk] = v; this.syncEstoqueEmb(); }
+      else if (e.t === 'invkg') { e.ref.kg = e.ref.kg || {}; e.ref.kg[mk] = v; }
+      else if (e.t === 'dre')   { const l = this.dreAtual.find(x => x.desc === e.desc); if (l) l[mk] = v; }
+      else if (e.t === 'difkg') { if (typeof EMB_DIF_KG !== 'undefined') EMB_DIF_KG[mk] = v; }
+      else if (e.t === 'extra') { if (typeof EMB_LINHAS_EXTRAS !== 'undefined') EMB_LINHAS_EXTRAS[e.k][mk] = v; }
+      if (['desp','fat','fatkg'].includes(e.t)) this.recalcularSubEmpresas();
+      this.registrarLog('Editou "' + row.label + '" em ' + mChave + ': ' + (row.tipo === 'kg' ? v.toLocaleString('pt-BR') + ' kg' : this.formatarDinheiroExato(v)));
+      this.recalcularTudo();
+    },
+    // O Faturamento total do DRE acompanha as linhas editadas (como na planilha)
+    syncFatTotalEmb() {
+      const l = this.dreAtual.find(x => x.desc === 'Faturamento'); if (!l) return;
+      const linhas = this.empresaExtras.faturamento || [];
+      this.listaMeses.forEach(m => {
+        const mk = m.chave.toLowerCase();
+        if (!linhas.some(f => f.fat && (mk in f.fat))) return;
+        l[mk] = Math.round(linhas.reduce((a, f) => a + ((f.fat && f.fat[mk]) || 0), 0) * 100) / 100;
+      });
+    },
+    // O Estoque do DRE acompanha as categorias de inventário editadas
+    syncEstoqueEmb() {
+      const l = this.dreAtual.find(x => x.desc === 'Estoque'); if (!l) return;
+      const linhas = this.empresaExtras.inventario || [];
+      this.listaMeses.forEach(m => {
+        const mk = m.chave.toLowerCase();
+        if (!linhas.some(i => i.valor && (mk in i.valor))) return;
+        l[mk] = Math.round(this.invColTotal(m.chave, 'valor', 'principal') * 100) / 100;
+      });
+    },
+    // Recalcula os agregados das sub-empresas (mesma regra da importação)
+    recalcularSubEmpresas() {
+      const ex = this.empresaExtras; if (!ex.porKg) return;
+      const cap = k => k.charAt(0).toUpperCase() + k.slice(1);
+      const fatPor = t => (ex.faturamento || []).find(l => l.tipo === t);
+      const GRUPO_FAT = { 'Embalagem':['Embalagem'], 'Linear':['Linear'], 'Teste':['Teste Venda','Teste Sucata'], 'Teste X':['Teste X'], 'Inter Company':['Inter Company'] };
+      (ex.subempresas || []).forEach(su => {
+        const linhas = (GRUPO_FAT[su.nome] || []).map(fatPor).filter(Boolean);
+        let fat = 0, kg = 0, desp = 0;
+        this.listaMeses.forEach(m => { const mk = m.chave.toLowerCase();
+          linhas.forEach(l => { fat += (l.fat && l.fat[mk]) || 0; kg += (l.kg && l.kg[mk]) || 0; });
+          desp += su['desp' + cap(mk)] || 0; });
+        su.fat = Math.round(fat*100)/100; su.kg = Math.round(kg*100)/100; su.desp = Math.round(desp*100)/100;
+        su.res = Math.round((fat - desp)*100)/100;
+        su.fator = kg > 0 ? Math.round(fat/kg*100)/100 : 0;
+        su.custoKg = kg > 0 ? Math.round(desp/kg*100)/100 : 0;
+        su.margemKg = kg > 0 ? Math.round((fat-desp)/kg*100)/100 : 0;
+        su.margem = fat > 0 ? Math.round((fat-desp)/fat*10000)/100 : 0;
+      });
+    },
+    // Transferência entre centros de custo com origem livre (chamada pelo painel lateral)
+    abrirTransferenciaCCLivre() {
+      this.modalTCC.origem = '';
+      this.modalTCC.mes = this.mesAtivo.toLowerCase();
+      this.modalTCC.valor = 0;
+      this.modalTCC.destino = '';
+      this.modalTCC.open = true;
+    },
+    get ccFolhas() { return this.centrosCustoData.filter(c => !c.ip && c.c !== 'Total' && c.c !== 'Ajustes'); },
     // Formata a célula de Acumulado/Atual e Média da tabela Resultado 2026
     fmtResAcum(row, campo) {
       const v = row[campo];
@@ -5780,6 +5994,8 @@ function sistemaUnificado(){
         if (us && us.length) this.usuarios = us;
         const kb = JSON.parse(localStorage.getItem('nexus_v2_kanban') || 'null');
         if (kb && kb.length) this.kbCardsData = kb;
+        const mv = JSON.parse(localStorage.getItem('nexus_v2_movimentos') || 'null');
+        if (mv && mv.length) this.movEmpresas = mv;
         const lg = JSON.parse(localStorage.getItem('nexus_v2_logs') || 'null');
         if (lg && lg.length) this.logsAuditoria = lg;
       } catch(e) {}
