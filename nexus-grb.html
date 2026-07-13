@@ -4033,6 +4033,7 @@ function sistemaUnificado(){
         return o;
       });
       this.collapsedCCs = this.centrosCustoData.filter(c => c.ip === 1).map(c => c.c);
+      this.garantirLinhasPlanilha(emp);
       // Persistência: se houver dados salvos neste navegador (importações/edições), eles prevalecem
       try {
         const salvo = JSON.parse(localStorage.getItem('nexus_v2_dados_' + emp.id) || 'null');
@@ -4063,6 +4064,29 @@ function sistemaUnificado(){
       rep(emp.extras.servicos, salvo.extras.servicos, 'desc');
       if (salvo.extras.difKg && typeof EMB_DIF_KG !== 'undefined') { Object.keys(EMB_DIF_KG).forEach(k=>delete EMB_DIF_KG[k]); Object.assign(EMB_DIF_KG, salvo.extras.difKg); }
       if (salvo.extras.linhasExtras && typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = salvo.extras.linhasExtras.invest || {}; EMB_LINHAS_EXTRAS.prov = salvo.extras.linhasExtras.prov || {}; }
+      this.garantirLinhasPlanilha(emp);
+    },
+    // Trava de integridade: as categorias fixas da planilha nunca podem sumir da tela
+    garantirLinhasPlanilha(emp) {
+      if (!emp || !emp.extras || !emp.extras.porKg) return;
+      const inv = emp.extras.inventario;
+      const ORDEM_INV = ['ITP','Produto Acabado','Produto em Processo','Tintas','Matéria Prima','Outros Insumos','Aparas'];
+      ORDEM_INV.forEach(nome => {
+        if (!inv.some(i => i.item === nome)) inv.push({ item: nome, valor: {}, kg: {}, fator: {}, ...(nome === 'Tintas' ? { foraEstoque: true } : {}) });
+      });
+      inv.sort((a, b) => {
+        const ia = ORDEM_INV.indexOf(a.item), ib = ORDEM_INV.indexOf(b.item);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
+      const fat = emp.extras.faturamento;
+      const ORDEM_FAT = ['Embalagem','Linear','Inter Company','Teste Venda','Teste Sucata','Teste X'];
+      ORDEM_FAT.forEach(nome => {
+        if (!fat.some(f => f.tipo === nome)) fat.push({ tipo: nome, fat: {}, kg: {}, fator: {}, ...(nome === 'Teste Sucata' ? { aparas: true } : {}) });
+      });
+      fat.sort((a, b) => {
+        const ia = ORDEM_FAT.indexOf(a.tipo), ib = ORDEM_FAT.indexOf(b.tipo);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
     },
     persistirDados() {
       try {
