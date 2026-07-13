@@ -746,23 +746,17 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
     </template>
 
-    <!-- ===== EMBALAGEM (individual), foco em kg/fator/peso ===== -->
+    <!-- ===== EMBALAGEM (individual), menu plano ===== -->
     <template x-if="depto==='embalagem'">
       <div>
         <div class="nav-section" x-show="sidebarOpen">Embalagem · Individual</div>
         <div class="nav-sep" x-show="!sidebarOpen"></div>
-        <!-- Menu enxuto, espelhando o arquivo do cliente: Resultado 2026 (tudo junto) + cada seção separada -->
         <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Visão geral"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Visão Geral</span></button>
-        <button class="nav-item" @click="mudarAba('resultado_emb')" :class="aba==='resultado_emb'?'active':''" title="Resultado 2026, igual à sua planilha (tudo junto)"><i class="fas fa-file-invoice-dollar w-4"></i> <span class="nav-label">Resultado 2026</span></button>
-        <div class="nav-section" x-show="sidebarOpen" style="padding-top:14px">Por seção</div>
-        <div class="nav-sep" x-show="!sidebarOpen"></div>
-        <button class="nav-item" @click="mudarAba('emb_despesa')" :class="aba==='emb_despesa'?'active':''" title="Despesa (bloco DESPESAS)"><i class="fas fa-arrow-trend-down w-4"></i> <span class="nav-label">Despesa</span></button>
-        <button class="nav-item" @click="mudarAba('emb_receita')" :class="aba==='emb_receita'?'active':''" title="Receita (bloco RECEITAS, faturamento, kg, fator)"><i class="fas fa-hand-holding-dollar w-4"></i> <span class="nav-label">Receita</span></button>
-        <button class="nav-item" @click="mudarAba('emb_inventario')" :class="aba==='emb_inventario'?'active':''" title="Inventário (bloco INVENTÁRIO, estoque, kg, fator)"><i class="fas fa-boxes-stacked w-4"></i> <span class="nav-label">Inventário</span></button>
-        <div class="nav-section" x-show="sidebarOpen" style="padding-top:14px">Aprofundar</div>
-        <div class="nav-sep" x-show="!sidebarOpen"></div>
-        <button class="nav-item" @click="mudarAba('subempresas')" :class="aba==='subempresas'?'active':''" title="Visão e Estratégia da Embalagem"><i class="fas fa-scale-unbalanced w-4"></i> <span class="nav-label">Visão e Estratégia</span></button>
-        <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por Centro de Custo (lançamentos)"><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
+        <button class="nav-item" @click="mudarAba('resultado_emb')" :class="aba==='resultado_emb'?'active':''" title="Resultado 2026, igual à planilha"><i class="fas fa-file-invoice-dollar w-4"></i> <span class="nav-label">Resultado 2026</span></button>
+        <button class="nav-item" @click="mudarAba('fechamento')" :class="aba==='fechamento'?'active':''" title="Fechamento do mês: checklist e conferência automática"><i class="fas fa-clipboard-check w-4"></i> <span class="nav-label">Fechamento do Mês</span></button>
+        <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por Centro de Custo"><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
+        <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal Lançada"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal</span></button>
+        <button class="nav-item" @click="mudarAba('servicos')" :class="aba==='servicos'?'active':''" title="Fechamento da unidade de Serviços"><i class="fas fa-user-gear w-4"></i> <span class="nav-label">Serviços</span></button>
         <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões</span></button>
         <button class="nav-item" @click="mudarAba('acoes')" :class="aba==='acoes'?'active':''" title="Central de Ações, plano de ação com cartões arrastáveis"><i class="fas fa-list-check w-4"></i> <span class="nav-label">Central de Ações</span> <span x-show="kbPendentes>0 && sidebarOpen" x-text="kbPendentes" style="margin-left:auto;background:var(--accent-gold);color:#191040;font-size:10px;font-weight:900;min-width:19px;height:19px;padding:0 5px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center"></span></button>
       </div>
@@ -814,7 +808,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <button @click="exportarXLSX()" title="Exportar tudo em Excel (planilha .xlsx com todas as abas do painel)" style="height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--color-border2);background:var(--color-surface2);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--accent-blue);white-space:nowrap;transition:.15s" onmouseover="this.style.borderColor='var(--accent-gold)'" onmouseout="this.style.borderColor='var(--color-border2)'"><i class="fas fa-file-excel" style="color:#0d9488;font-size:15px"></i> Excel</button>
         <button @click="imprimirA4()" title="Imprimir a tela atual em padrão A4 (ou salvar em PDF)" style="height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--color-border2);background:var(--color-surface2);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--accent-blue);white-space:nowrap;transition:.15s" onmouseover="this.style.borderColor='var(--accent-gold)'" onmouseout="this.style.borderColor='var(--color-border2)'"><i class="fas fa-print" style="color:var(--accent-gold-deep);font-size:14px"></i> A4</button>
       </div>
-      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal', 'resultado_emb', 'emb_despesa', 'emb_receita', 'emb_inventario', 'acoes'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
+      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal', 'resultado_emb', 'emb_despesa', 'emb_receita', 'emb_inventario', 'acoes', 'servicos'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
         <label style="font-size: 11px; color: var(--color-muted); text-transform: uppercase; font-weight: 800;">Recorte Atual:</label>
         <select @change="mesAtivo = $event.target.value; subAbaDespesa = mesAtivo.toLowerCase(); atualizarLeituraSistema()" class="emc-input" style="padding: 6px 12px; font-weight: 800; color: var(--accent-blue); width: auto; background: var(--color-surface2); border-color: var(--accent-gold);">
           <template x-for="m in listaMeses" :key="m.chave"><option :value="m.chave" :selected="m.chave === mesAtivo" x-text="m.labelData"></option></template>
@@ -1205,7 +1199,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">Painel de Comando da Embalagem · o negócio em quilos</div>
             <div style="font-size:11.5px;color:#a9adc6;white-space:nowrap">Cada kg vendido a <b style="color:var(--nx-gold-bright,#e8cf9a)" x-text="'R$ '+embCockpit.fator.toFixed(2).replace('.',',')"></b> custa <b style="color:#ff8095" x-text="'R$ '+embCockpit.custoKg.toFixed(2).replace('.',',')"></b>, sobra <b :style="embCockpit.margemKg<0?'color:#ff8095':'color:#4fe3b0'" x-text="'R$ '+embCockpit.margemKg.toFixed(2).replace('.',',')+'/kg'"></b> <span style="color:#8b90a8">(critério da planilha)</span></div>
           </div>
-          <span style="margin-left:auto;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent-gold);background:rgba(197,168,128,.14);border:1px solid rgba(197,168,128,.35);padding:6px 14px;border-radius:999px;white-space:nowrap"><i class="fas fa-satellite-dish mr-1"></i> Leitura ao vivo da planilha</span>
         </div>
         <div class="emb-hero-grid">
           <div class="emb-stat gold"><div class="l">Fator médio (R$/kg)</div><div class="v" x-text="'R$ '+embCockpit.fator.toFixed(2).replace('.',',')"></div><div class="s">linha FATOR da planilha</div></div>
@@ -1400,72 +1393,148 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div></template>
 
     <!-- ===================== EMBALAGEM · SUB-EMPRESAS & TRIBUTAÇÃO ===================== -->
-    <template x-if="aba==='subempresas' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:24px">
+    <!-- ===================== FECHAMENTO DO MÊS (checklist + conferência automática) ===================== -->
+    <template x-if="aba==='fechamento' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:20px">
+
+      <div class="emb-hero">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:13px;background:rgba(197,168,128,.16);border:1px solid rgba(197,168,128,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-clipboard-check" style="color:var(--accent-gold);font-size:19px"></i></div>
+          <div style="min-width:0">
+            <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">Fechamento de <span x-text="listaMeses.find(m=>m.chave===mesAtivo)?.nome"></span></div>
+            <div style="font-size:11.5px;color:#a9adc6;white-space:nowrap">O sistema confere sozinho o que antes dependia da memória: <b style="color:var(--nx-gold-bright,#e8cf9a)" x-text="fechamento.feitos+' de '+fechamento.total+' passos concluídos'"></b></div>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:14px;flex-shrink:0">
+            <div style="text-align:right">
+              <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:#9aa0b0;font-weight:800;white-space:nowrap">Resultado do mês</div>
+              <div class="display" :style="'font-size:20px;font-weight:900;white-space:nowrap;color:'+(fechamento.resultado<0?'#ff8095':'#4fe3b0')" x-text="formatarDinheiroExato(fechamento.resultado)"></div>
+            </div>
+            <div style="width:64px;height:64px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center"'" + ' + fechamento.pct + ' + "'" + '), rgba(255,255,255,.12) 0)" :style="'background:conic-gradient(var(--accent-gold) '+fechamento.pct+'%, rgba(255,255,255,.12) 0)'">
+              <div style="width:50px;height:50px;border-radius:50%;background:#171438;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:var(--nx-gold-bright,#e8cf9a)" x-text="fechamento.pct+'%'"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:20px" class="grid-inv">
+        <!-- Checklist automático -->
+        <div class="card-dark" style="margin-bottom:0">
+          <div class="card-title" style="margin-bottom:2px"><i class="fas fa-list-check mr-2" style="color:var(--accent-gold)"></i> Passo a passo do fechamento</div>
+          <div class="card-sub" style="font-size:11.5px">Status calculado ao vivo a partir dos números lançados, sem depender de ninguém lembrar do que falta.</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+            <template x-for="(p,pi) in fechamento.passos" :key="'fp'+pi">
+              <div :style="'display:flex;align-items:center;gap:12px;border:1px solid var(--color-border);border-radius:13px;padding:11px 14px;background:var(--color-surface);border-left:4px solid '+(p.ok?'#0d9488':(p.aviso?'var(--accent-gold)':'#e11d48'))">
+                <div :style="'width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;'+(p.ok?'background:rgba(13,148,136,.12);color:#0d9488':(p.aviso?'background:rgba(197,168,128,.16);color:#8a6a3a':'background:rgba(225,29,72,.10);color:#e11d48'))"><i class="fas" :class="p.ic"></i></div>
+                <div style="min-width:0;flex:1">
+                  <div style="font-weight:800;color:var(--accent-blue);font-size:13px;white-space:nowrap" x-text="p.titulo"></div>
+                  <div style="font-size:11.5px;color:var(--color-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="p.det"></div>
+                </div>
+                <span class="badge-status flex-shrink-0" style="width:auto" :class="p.ok?'badge-ok':(p.aviso?'badge-warn':'badge-danger')" x-text="p.ok?'Feito':(p.aviso?'Confirmar':'Pendente')"></span>
+                <button x-show="!p.ok" @click="fechamentoIr(p.acao)" class="emc-btn-secondary no-print flex-shrink-0 text-[10.5px] py-1 px-2" style="border-radius:9px;white-space:nowrap" x-text="p.acaoLabel"></button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Conferência de consistência -->
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="card-dark" style="margin-bottom:0">
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-scale-balanced mr-2" style="color:var(--accent-gold)"></i> Conferência automática</div>
+            <div class="card-sub" style="font-size:11.5px">Os cruzamentos que garantem que o sistema bate com a planilha, centavo a centavo, no mês <span x-text="listaMeses.find(m=>m.chave===mesAtivo)?.labelData"></span>.</div>
+            <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+              <template x-for="(c,ci) in fechamento.conf" :key="'fc'+ci">
+                <div :style="'border:1px solid var(--color-border);border-radius:13px;padding:11px 14px;background:var(--color-surface);border-left:4px solid '+(Math.abs(c.dif)<0.02?'#0d9488':'#e11d48')">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <i class="fas" :class="Math.abs(c.dif)<0.02?'fa-circle-check':'fa-triangle-exclamation'" :style="'color:'+(Math.abs(c.dif)<0.02?'#0d9488':'#e11d48')"></i>
+                    <div style="font-weight:800;color:var(--accent-blue);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="c.t"></div>
+                  </div>
+                  <div style="display:flex;gap:14px;margin-top:6px;font-size:11.5px;color:var(--color-muted);white-space:nowrap">
+                    <span x-text="formatarDinheiroExato(c.a)"></span>
+                    <span style="color:var(--color-dim)">×</span>
+                    <span x-text="formatarDinheiroExato(c.b)"></span>
+                    <b :style="'margin-left:auto;color:'+(Math.abs(c.dif)<0.02?'#0d9488':'#e11d48')" x-text="Math.abs(c.dif)<0.02?'confere':('difere '+formatarDinheiroExato(c.dif))"></b>
+                  </div>
+                </div>
+              </template>
+              <div x-show="!fechamento.conf.length" style="text-align:center;font-size:11.5px;color:var(--color-dim);padding:12px">Sem lançamentos neste mês para conferir ainda.</div>
+            </div>
+          </div>
+          <div class="ia-insight-box no-print" style="margin-bottom:0">
+            <div class="font-bold flex items-center text-accent-blue" style="font-size:13.5px"><i class="fas fa-wand-magic-sparkles mr-2 text-accent-gold"></i> Encerrar o mês</div>
+            <div style="font-size:11.5px;color:var(--color-muted);line-height:1.6;margin-top:6px">Com os passos verdes e as conferências batendo: gere as ações da Inteligência, exporte o Excel do painel e imprima o A4 para arquivar o fechamento.</div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <button @click="mudarAba('acoes')" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:9px"><i class="fas fa-brain mr-1"></i> Central de Ações</button>
+              <button @click="exportarXLSX()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:9px"><i class="fas fa-file-excel mr-1"></i> Exportar Excel</button>
+              <button @click="imprimirA4()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:9px"><i class="fas fa-print mr-1"></i> Imprimir A4</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></template>
+
+    <!-- ===================== SERVIÇOS (abas R.Serviços da planilha) ===================== -->
+    <template x-if="aba==='servicos' && empresaExtras.porKg"><div x-cloak style="display:grid;gap:20px">
       <div class="card-dark" style="margin-bottom:0">
         <div class="flex justify-between items-start flex-wrap gap-3">
-          <div>
-            <div class="card-title"><i class="fas fa-scale-unbalanced mr-2" style="color:var(--accent-gold)"></i> Visão e Estratégia da Embalagem</div>
-            <div class="card-sub" style="margin-top:-8px">Valores em R$, kg, fator, custo/kg e resultado por empresa.</div>
+          <div style="min-width:0">
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-user-gear mr-2" style="color:var(--accent-gold)"></i> Serviços · Fechamento da Unidade</div>
+            <div class="card-sub" style="font-size:11.5px">Folha e encargos da unidade de serviços, conta a conta, mesma leitura das abas <b>R.Serviços</b> da planilha. Valores editáveis direto na tabela.</div>
           </div>
-          <button @click="showResumo=true" class="emc-btn-secondary text-[12px] py-2 px-3 flex-shrink-0" title="Abrir resumo analítico"><i class="fas fa-wand-magic-sparkles mr-1" style="color:var(--accent-gold)"></i> Resumo</button>
+          <div class="flex items-center gap-2 flex-shrink-0 no-print">
+            <button @click="servNovaConta()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-plus mr-1"></i> Nova conta</button>
+          </div>
         </div>
-        <div style="overflow-x:auto">
-          <table class="dark-table" style="min-width:720px">
-            <thead><tr><th>Empresa</th><th class="td-r">Faturamento</th><th class="td-r">Kg</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Despesa</th><th class="td-r">Custo/kg</th><th class="td-r">Resultado</th></tr></thead>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 4px">
+          <template x-for="m in servMesesLancados" :key="'sk'+m.chave">
+            <div style="background:var(--color-surface2);border:1px solid var(--color-border);border-radius:13px;padding:12px 15px">
+              <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--color-dim);font-weight:800" x-text="'Fechamento '+m.labelData"></div>
+              <div style="font-size:19px;font-weight:900;color:var(--accent-blue);margin-top:3px;white-space:nowrap" x-text="formatarDinheiroExato(servTotalMes(m.chave.toLowerCase()))"></div>
+            </div>
+          </template>
+          <div style="background:rgba(197,168,128,.10);border:1px solid rgba(197,168,128,.4);border-radius:13px;padding:12px 15px">
+            <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--accent-gold-deep);font-weight:800">Acumulado no ano</div>
+            <div style="font-size:19px;font-weight:900;color:var(--accent-blue);margin-top:3px;white-space:nowrap" x-text="formatarDinheiroExato(servAcum)"></div>
+          </div>
+        </div>
+        <div class="js-hscroll" style="overflow-x:auto;max-width:100%">
+          <table class="dark-table res-table">
+            <thead>
+              <tr>
+                <th style="min-width:110px">Conta</th>
+                <th style="min-width:230px">Descrição</th>
+                <template x-for="m in listaMeses" :key="'sh'+m.chave"><th class="td-r" :class="servTotalMes(m.chave.toLowerCase())>0?'':'res-future-h'" x-text="m.labelData"></th></template>
+                <th class="td-r res-col-acum" style="min-width:120px">Acumulado</th>
+              </tr>
+            </thead>
             <tbody>
-              <template x-for="s in embSub" :key="s.nome">
-                <tr :style="s.intercompany?'opacity:.72':''">
-                  <td class="font-bold text-accent-blue"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px" :style="'background:'+s.cor"></span><span x-text="s.nome"></span><i x-show="s.aparas" class="fas fa-recycle ml-1" style="color:var(--accent-gold);font-size:10px" title="Inclui aparas (Teste Sucata / Hanami)"></i></td>
-                  <td class="td-r font-bold" x-text="formatarDinheiroExato(s.fat)"></td>
-                  <td class="td-r" x-text="s.kg.toLocaleString('pt-BR')+' kg'"></td>
-                  <td class="td-r font-bold text-green-strong" x-text="'R$ '+s.fator.toFixed(2).replace('.',',')"></td>
-                  <td class="td-r" style="color:var(--accent-red)" x-text="formatarDinheiroExato(s.desp)"></td>
-                  <td class="td-r" x-text="'R$ '+s.custoKg.toFixed(2).replace('.',',')"></td>
-                  <td class="td-r font-bold" :class="s.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(s.res)"></td>
+              <template x-for="l in servicosData" :key="l.conta+l.desc">
+                <tr>
+                  <td class="res-stick" style="font-weight:700;color:var(--color-muted);font-size:11.5px" x-text="l.conta"></td>
+                  <td class="font-bold text-accent-blue" x-text="l.desc"></td>
+                  <template x-for="m in listaMeses" :key="'sc'+l.conta+m.chave">
+                    <td class="td-r" :class="servTotalMes(m.chave.toLowerCase())>0?'':'res-future'">
+                      <template x-if="!permEdita"><span x-text="formatarDinheiroExato(l[m.chave.toLowerCase()]||0)"></span></template>
+                      <template x-if="permEdita">
+                        <input type="text" inputmode="decimal" class="res-edit-in" style="border-color:transparent;background:transparent"
+                               onfocus="this.style.borderColor='var(--accent-gold)';this.style.background='#fffdf6';this.select()"
+                               onblur="this.style.borderColor='transparent';this.style.background='transparent'"
+                               :value="fmtNum(l[m.chave.toLowerCase()]||0)"
+                               @change="servEdit(l, m.chave.toLowerCase(), $event.target.value)">
+                      </template>
+                    </td>
+                  </template>
+                  <td class="td-r res-col-acum" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+(l[m.chave.toLowerCase()]||0),0))"></td>
                 </tr>
               </template>
-              <tr class="highlight-row" style="font-weight:900">
-                <td class="text-accent-blue">TOTAL OPERACIONAL <span style="font-size:10px;font-weight:700;color:var(--color-muted)">(exclui Inter Company)</span></td>
-                <td class="td-r" x-text="formatarDinheiroExato(embSubTotais.fat)"></td>
-                <td class="td-r" x-text="embSubTotais.kg.toLocaleString('pt-BR')+' kg'"></td>
-                <td class="td-r" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></td>
-                <td class="td-r text-red-strong" x-text="formatarDinheiroExato(embSubTotais.desp)"></td>
-                <td class="td-r" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></td>
-                <td class="td-r" :class="embSubTotais.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(embSubTotais.res)"></td>
+              <tr class="res-total">
+                <td class="res-stick">TOTAL</td>
+                <td>Total Geral (planilha)</td>
+                <template x-for="m in listaMeses" :key="'st'+m.chave"><td class="td-r" x-text="formatarDinheiroExato(servTotalMes(m.chave.toLowerCase()))"></td></template>
+                <td class="td-r res-col-acum" x-text="formatarDinheiroExato(servAcum)"></td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> Como as empresas compram e vendem entre si, a margem individual não representa o desempenho de cada uma. O que vale é o <b>resultado do conjunto</b>, na linha Total Operacional e no Painel de Comando.</div>
-      </div>
-
-      <!-- Como a estratégia funciona, sem depender de ninguém lembrar -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
-        <div class="card-dark" style="margin-bottom:0;border-top:3px solid #0f766e">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(15,118,110,.12);color:#0f766e;display:flex;align-items:center;justify-content:center"><i class="fas fa-industry"></i></div><div style="font-weight:900;color:var(--accent-blue);font-size:13px;white-space:nowrap">1 · A indústria produz</div></div>
-          <div style="font-size:12px;color:var(--color-muted);line-height:1.55"><b>Embalagem (Lucro Presumido)</b> concentra máquinas, equipe e custo, com fator próximo do custo por quilo. Ela não foi feita para lucrar: foi feita para produzir.</div>
-        </div>
-        <div class="card-dark" style="margin-bottom:0;border-top:3px solid #2563eb">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(37,99,235,.12);color:#2563eb;display:flex;align-items:center;justify-content:center"><i class="fas fa-file-invoice-dollar"></i></div><div style="font-weight:900;color:var(--accent-blue);font-size:13px;white-space:nowrap">2 · Quem emite a nota</div></div>
-          <div style="font-size:12px;color:var(--color-muted);line-height:1.55">Quando a tributação é menor, a venda sai por <b>Linear (Simples), Teste e Teste X</b>, empresas que <b>não produzem</b>: compram da indústria e faturam o cliente. É nelas que o resultado do conjunto aparece.</div>
-        </div>
-        <div class="card-dark" style="margin-bottom:0;border-top:3px solid #64748b">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:34px;height:34px;border-radius:10px;background:rgba(100,116,139,.12);color:#64748b;display:flex;align-items:center;justify-content:center"><i class="fas fa-ban"></i></div><div style="font-weight:900;color:var(--accent-blue);font-size:13px;white-space:nowrap">3 · O que não é receita</div></div>
-          <div style="font-size:12px;color:var(--color-muted);line-height:1.55"><b>Inter Company</b> (<b x-text="embResumo.inter?formatarDinheiroExato(embResumo.inter.fat):'·'"></b>) é venda entre as próprias empresas, eliminada na consolidação. <b>Teste Sucata</b> é apara/erro de impressão: receita de subproduto, não de venda.</div>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:20px" class="grid-inv">
-        <div class="card-dark" style="margin-bottom:0">
-          <div class="card-title" style="margin-bottom:2px"><i class="fas fa-chart-pie mr-2" style="color:var(--accent-gold)"></i> Quem fatura (no ano)</div>
-          <div class="card-sub" style="font-size:11.5px">Participação de cada empresa na receita.</div>
-          <div class="chart-wrap" style="height:260px"><canvas id="chartSubFat"></canvas></div>
-        </div>
-        <div class="card-dark" style="margin-bottom:0">
-          <div class="card-title" style="margin-bottom:2px"><i class="fas fa-sack-dollar mr-2" style="color:var(--accent-gold)"></i> Onde o resultado aparece (no ano)</div>
-          <div class="card-sub" style="font-size:11.5px">A indústria opera perto do zero; o resultado do conjunto aparece nas empresas de carga tributária menor, exatamente o desenho da estratégia.</div>
-          <div class="chart-wrap" style="height:260px"><canvas id="chartSubRes"></canvas></div>
-        </div>
+        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> Janeiro fecha em <b>R$ 67.342,57</b> e fevereiro em <b>R$ 68.831,82</b>, os mesmos totais das abas R.Serviços da planilha. O <b>Acordo Trabalhista</b> de R$ 25.000,00 por mês é o maior peso da unidade.</div>
       </div>
     </div></template>
 
@@ -3245,8 +3314,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div style="margin-top:10px;max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
           <template x-for="m in movEmpresas.slice(0,12)" :key="m.id">
             <div style="display:flex;align-items:center;gap:8px;background:var(--color-surface2);border:1px solid var(--color-border);border-radius:10px;padding:7px 10px">
-              <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;padding:2px 7px;border-radius:999px;white-space:nowrap"
-                :style="m.tipo==='Venda'?'background:rgba(13,148,136,.13);color:#0d9488':(m.tipo==='Compra'?'background:rgba(37,99,235,.12);color:#2563eb':'background:rgba(197,168,128,.2);color:#8a6a3a')" x-text="m.tipo"></span>
+              <span :style="'font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;padding:2px 7px;border-radius:999px;white-space:nowrap;'+(m.tipo==='Venda'?'background:rgba(13,148,136,.13);color:#0d9488':(m.tipo==='Compra'?'background:rgba(37,99,235,.12);color:#2563eb':'background:rgba(197,168,128,.2);color:#8a6a3a'))" x-text="m.tipo"></span>
               <div style="min-width:0;flex:1">
                 <div style="font-size:11.5px;font-weight:800;color:var(--accent-blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span x-text="m.origem"></span> <i class="fas fa-arrow-right" style="font-size:8px;color:var(--accent-gold)"></i> <span x-text="m.destino"></span> · <span x-text="formatarDinheiroExato(m.valor)"></span><span x-show="m.kg" x-text="' · '+Number(m.kg).toLocaleString('pt-BR')+' kg'"></span></div>
                 <div style="font-size:9.5px;color:var(--color-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" x-text="(m.mes||'').toUpperCase()+' · '+m.data+' · '+(m.usuario||'')+(m.obs?' · '+m.obs:'')"></div>
@@ -3331,6 +3399,26 @@ const EMB_INVENTARIO=[
 ];
 // Linhas da planilha ainda sem lançamentos (preenchidas pela importação do Resultado)
 const EMB_LINHAS_EXTRAS={ invest:{}, prov:{} };
+// SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
+const EMB_SERVICOS=[
+ {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
+ {conta:'023.004.07', desc:'Assistência Médica e Odontológica', jan:418.20,  fev:418.20},
+ {conta:'023.004.08', desc:'INSS Patronal',                     jan:5714.94, fev:2986.61},
+ {conta:'023.004.12', desc:'Seguros',                           jan:184.12,  fev:219.19},
+ {conta:'023.004.14', desc:'FGTS',                              jan:6120.43, fev:2691.64},
+ {conta:'023.004.16', desc:'Pensão Alimentícia',                jan:941.95,  fev:972.33},
+ {conta:'023.004.20', desc:'Benefícios',                        jan:300,     fev:630},
+ {conta:'023.004.21', desc:'Salários Diretos',                  jan:4344,    fev:6401.40},
+ {conta:'023.004.22', desc:'Salários Indiretos',                jan:20189,   fev:24403.70},
+ {conta:'023.004.23', desc:'IRRF Salários',                     jan:3648.29, fev:1113.44},
+ {conta:'023.004.28', desc:'Férias',                            jan:0,       fev:3189.17},
+ {conta:'023.004.31', desc:'Acordo Trabalhista',                jan:25000,   fev:25000},
+ {conta:'023.004.41', desc:'Horas Extras Direto',               jan:231.50,  fev:111.29},
+ {conta:'023.004.42', desc:'Horas Extras Indireto',             jan:176.33,  fev:98.99},
+ {conta:'023.004.47', desc:'Taxas sobre Vale Transporte',       jan:7.73,    fev:16.24},
+ {conta:'023.004.48', desc:'Repasse sobre Vale Transporte',     jan:9,       fev:18.90},
+ {conta:'023.006.02', desc:'Assessoria Contábil',               jan:0,       fev:500}
+];
 const EMB_INV_TOTAL={ valor:{jan:2517068.58,fev:1524259.29}, kg:{jan:148953.74,fev:106256.24}, fator:{jan:16.9,fev:14.35} };
 const EMB_PREVISOES=[{"categoria": "Férias + 1/3", "provisao_mensal": 5000, "jan": 0, "fev": 0}, {"categoria": "Rescisões", "provisao_mensal": 10000, "jan": 6324.84, "fev": 0}, {"categoria": "GRRF", "provisao_mensal": 1500, "jan": 0, "fev": 0}, {"categoria": "PLR", "provisao_mensal": 6000, "jan": 25875.0, "fev": 0}, {"categoria": "13º Salário", "provisao_mensal": 6500, "jan": 0, "fev": 0}, {"categoria": "Uniformes", "provisao_mensal": 1250, "jan": 0, "fev": 0}, {"categoria": "Treinamentos", "provisao_mensal": 5000, "jan": 6000.0, "fev": 5543.34}, {"categoria": "Manutenção de Ativo", "provisao_mensal": 21000, "jan": 0, "fev": 0}];
 const EMB_TENDENCIA=[{"ano": 2026, "fat": 3570676.56, "desp": 2970548.01, "lucro": 600128.55, "tendencia": "Início de série", "icon": "•"}];
@@ -3363,7 +3451,7 @@ const EMPRESAS = {
     dre: EMB_DRE_MENSAL, historico: EMB_HISTORICO, tendencia: EMB_TENDENCIA,
     previsoes: EMB_PREVISOES, cc: EMB_CC_DATA,
     estoqueBase: 0, invMode: 'full',
-    extras: { faturamento: EMB_FATURAMENTO, fatTotal: EMB_FAT_TOTAL, inventario: EMB_INVENTARIO, invTotal: EMB_INV_TOTAL, subempresas: EMB_SUBEMPRESAS, itp: EMB_ITP, porKg: true }
+    extras: { faturamento: EMB_FATURAMENTO, fatTotal: EMB_FAT_TOTAL, inventario: EMB_INVENTARIO, invTotal: EMB_INV_TOTAL, subempresas: EMB_SUBEMPRESAS, itp: EMB_ITP, servicos: EMB_SERVICOS, porKg: true }
   }
 };
 const ORDEM_EMPRESAS = ['requalificadora','embalagem'];
@@ -3921,6 +4009,7 @@ function sistemaUnificado(){
       rep(emp.extras.faturamento, salvo.extras.faturamento);
       rep(emp.extras.inventario, salvo.extras.inventario);
       rep(emp.extras.subempresas, salvo.extras.subempresas);
+      rep(emp.extras.servicos, salvo.extras.servicos);
       if (salvo.extras.difKg && typeof EMB_DIF_KG !== 'undefined') { Object.keys(EMB_DIF_KG).forEach(k=>delete EMB_DIF_KG[k]); Object.assign(EMB_DIF_KG, salvo.extras.difKg); }
       if (salvo.extras.linhasExtras && typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = salvo.extras.linhasExtras.invest || {}; EMB_LINHAS_EXTRAS.prov = salvo.extras.linhasExtras.prov || {}; }
     },
@@ -3933,6 +4022,7 @@ function sistemaUnificado(){
           pacote.extras = {
             faturamento: emp.extras.faturamento, inventario: emp.extras.inventario,
             subempresas: emp.extras.subempresas,
+            servicos: emp.extras.servicos,
             difKg: (typeof EMB_DIF_KG !== 'undefined') ? EMB_DIF_KG : null,
             linhasExtras: (typeof EMB_LINHAS_EXTRAS !== 'undefined') ? EMB_LINHAS_EXTRAS : null
           };
@@ -4838,9 +4928,13 @@ function sistemaUnificado(){
               ...res.rows.map(r => r.sec ? [r.sec] : [r.label, ...res.meses.map(m => r.vals[m] != null ? r.vals[m] : '')])
             ]), 'Resultado 2026');
             XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
-              ['Empresa', 'Regime', 'Faturamento', 'Kg', 'Despesa', 'Resultado', 'Fator R$/kg', 'Custo/kg', 'Margem %'],
-              ...this.embSub.map(s => [s.nome, s.regime, s.fat, s.kg, s.desp, s.res, s.fator, s.custoKg, s.margem])
+              ['Empresa', 'Regime', 'Faturamento', 'Kg', 'Despesa', 'Resultado', 'Fator R$/kg', 'Custo/kg'],
+              ...this.embSub.map(s => [s.nome, s.regime, s.fat, s.kg, s.desp, s.res, s.fator, s.custoKg])
             ]), 'Sub-empresas');
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+              ['Conta', 'Descrição', ...this.listaMeses.map(m => m.labelData), 'Acumulado'],
+              ...this.servicosData.map(l => [l.conta, l.desc, ...mk.map(k => l[k] || 0), this.listaMeses.reduce((a,m)=>a+(l[m.chave.toLowerCase()]||0),0)])
+            ]), 'Serviços');
           }
         }
         // Plano de ação sempre acompanha (rastreabilidade da gestão)
@@ -4868,9 +4962,11 @@ function sistemaUnificado(){
       this.registrarLog('Exportou os logs de auditoria (CSV).');
     },
 
-    get tituloAba(){ return {'acoes':'Central de Ações · Plano Estratégico','hub':'Portal de Empresas · Grupo Rebracil','consolidado':'Central do Grupo · Consolidado','resultado_emb':'Resultado 2026 · Embalagem','emb_despesa':'Embalagem · Despesa','emb_receita':'Embalagem · Receita','emb_inventario':'Embalagem · Inventário','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Visão e Estratégia','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários','dashboard':'Visão Geral de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get tituloAba(){ return {'acoes':'Central de Ações · Plano Estratégico','hub':'Portal de Empresas · Grupo Rebracil','consolidado':'Central do Grupo · Consolidado','resultado_emb':'Resultado 2026 · Embalagem','emb_despesa':'Embalagem · Despesa','emb_receita':'Embalagem · Receita','emb_inventario':'Embalagem · Inventário','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Visão e Estratégia','fechamento':'Fechamento do Mês · Embalagem','servicos':'Serviços · Fechamento da Unidade','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários','dashboard':'Visão Geral de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
     get descAba(){ return {
       'acoes':'Quadro estratégico: arraste os cartões (ou use as setas) entre A Fazer, Em Andamento e Concluído. A Inteligência gera ações a partir dos alertas.',
+      'fechamento':'Checklist do fechamento com status automático e conferência de consistência, o sistema confere o que antes era conferido na mão.',
+      'servicos':'Folha da unidade de serviços conta a conta (abas R.Serviços da planilha), mês a mês e editável.',
       'consolidado':'Visão de grupo: resultado somado, rentabilidade real e rateio de custos da matriz.',
       'comparador':'Duas empresas lado a lado, mensal e anual, para decidir onde investir ou cortar.',
       'projecao':'Fecha o ano a partir dos meses lançados, por empresa ou grupo.',
@@ -5245,7 +5341,7 @@ function sistemaUnificado(){
       const somaM = getter => meses.reduce((a, ch) => a + (getter(ch) || 0), 0);
       // DESPESAS (por sub-empresa)
       sec('DESPESAS');
-      (ex.subempresas || []).filter(s => !s.intercompany && (s.despJan || s.despFev)).forEach(s => { push('Despesas ' + s.nome, 'line', 'money', ch => despSub(s, ch)); rows[rows.length-1].edit = { t:'desp', ref:s }; });
+      (ex.subempresas || []).filter(s => !s.intercompany).forEach(s => { push('Despesas ' + s.nome, 'line', 'money', ch => despSub(s, ch)); rows[rows.length-1].edit = { t:'desp', ref:s }; });
       push('Total Despesas', 'total', 'money', ch => dre('Total de Despesas')[low(ch)] || 0);
       // RECEITAS (faturamento por linha, com kg e fator)
       sec('RECEITAS');
@@ -5372,7 +5468,8 @@ function sistemaUnificado(){
       this.listaMeses.forEach(m => {
         const mk = m.chave.toLowerCase();
         if (!linhas.some(f => f.fat && (mk in f.fat))) return;
-        l[mk] = Math.round(linhas.reduce((a, f) => a + ((f.fat && f.fat[mk]) || 0), 0) * 100) / 100;
+        // Critério da planilha: Total Faturamento exclui as aparas (Teste Sucata)
+        l[mk] = Math.round(linhas.filter(f => !f.aparas).reduce((a, f) => a + ((f.fat && f.fat[mk]) || 0), 0) * 100) / 100;
       });
     },
     // O Estoque do DRE acompanha as categorias de inventário editadas
@@ -5405,6 +5502,70 @@ function sistemaUnificado(){
         su.margem = fat > 0 ? Math.round((fat-desp)/fat*10000)/100 : 0;
       });
     },
+    // ===== SERVIÇOS (unidade de serviços, abas R.Serviços da planilha) =====
+    get servicosData() { return this.empresaExtras.servicos || []; },
+    servTotalMes(mk) { return this.servicosData.reduce((a, l) => a + (l[mk] || 0), 0); },
+    get servMesesLancados() { return this.listaMeses.filter(m => this.servTotalMes(m.chave.toLowerCase()) > 0); },
+    get servAcum() { return this.listaMeses.reduce((a, m) => a + this.servTotalMes(m.chave.toLowerCase()), 0); },
+    servEdit(linha, mk, valor) {
+      if (!this.exigirEdicao()) return;
+      this.salvarEstado('Edição em Serviços: ' + linha.desc);
+      linha[mk] = this.parseNumero(valor);
+      this.registrarLog('Editou Serviços · ' + linha.desc + ' (' + mk.toUpperCase() + '): ' + this.formatarDinheiroExato(linha[mk]));
+      this.persistirDados();
+    },
+    servNovaConta() {
+      if (!this.exigirEdicao()) return;
+      const desc = prompt('Descrição da nova conta de Serviços:'); if (!desc) return;
+      const conta = prompt('Código da conta (ex.: 023.004.50):') || '';
+      const nova = { conta, desc };
+      this.listaMeses.forEach(m => nova[m.chave.toLowerCase()] = 0);
+      this.servicosData.push(nova);
+      this.registrarLog('Criou conta em Serviços: ' + desc);
+      this.persistirDados();
+    },
+
+    // ===== FECHAMENTO DO MÊS: checklist automático + conferência de consistência =====
+    get fechamento() {
+      const mk = this.mesAtivo.toLowerCase();
+      const ch = this.mesAtivo;
+      const dre = d => this.dreAtual.find(x => x.desc === d) || {};
+      const ccTotal = (this.centrosCustoData.find(c => c.c === 'Total') || {})[mk] || 0;
+      const fatLinhas = (this.empresaExtras.faturamento || []);
+      // Critério da planilha: o Total Faturamento exclui as aparas (Teste Sucata)
+      const fatMes = fatLinhas.filter(f => !f.aparas).reduce((a, f) => a + ((f.fat && f.fat[mk]) || 0), 0);
+      const kgMes = fatLinhas.reduce((a, f) => a + ((f.kg && f.kg[mk]) || 0), 0);
+      const invMes = (this.empresaExtras.inventario || []).reduce((a, i) => a + ((i.valor && i.valor[mk]) || 0), 0);
+      const provMes = this.previsoesData.reduce((a, p) => a + (p[mk] || 0), 0);
+      const servMes = this.servTotalMes(mk);
+      const movsMes = this.movEmpresas.filter(m => m.mes === mk);
+      const passos = [
+        { ic:'fa-file-import', titulo:'Despesas do mês importadas', det: ccTotal > 0 ? 'Total lançado: ' + this.formatarDinheiroExato(ccTotal) : 'Nenhum lançamento de despesa em ' + ch + '. Importe a planilha do mês.', ok: ccTotal > 0, acaoLabel:'Abrir importador', acao:'importador' },
+        { ic:'fa-hand-holding-dollar', titulo:'Receitas e Kg lançados', det: fatMes > 0 ? this.formatarDinheiroExato(fatMes) + ' · ' + Math.round(kgMes).toLocaleString('pt-BR') + ' kg' : 'Sem faturamento lançado. Importe o Resultado ou edite direto na tabela.', ok: fatMes > 0, acaoLabel:'Abrir Resultado 2026', acao:'resultado_emb' },
+        { ic:'fa-boxes-stacked', titulo:'Inventário do mês', det: invMes > 0 ? 'Estoque lançado: ' + this.formatarDinheiroExato(invMes) : 'Inventário ainda não lançado neste mês.', ok: invMes > 0, acaoLabel:'Abrir Resultado 2026', acao:'resultado_emb' },
+        { ic:'fa-piggy-bank', titulo:'Provisões realizadas', det: provMes > 0 ? 'Realizado no mês: ' + this.formatarDinheiroExato(provMes) : 'Nenhum realizado de provisão registrado (confirme se realmente não houve).', ok: provMes > 0, aviso: provMes === 0, acaoLabel:'Abrir Provisões', acao:'previsoes' },
+        { ic:'fa-user-gear', titulo:'Serviços fechados', det: servMes > 0 ? 'Folha de serviços: ' + this.formatarDinheiroExato(servMes) : 'Fechamento de Serviços ainda não lançado.', ok: servMes > 0, acaoLabel:'Abrir Serviços', acao:'servicos' },
+        { ic:'fa-right-left', titulo:'Movimentos entre empresas', det: movsMes.length ? movsMes.length + ' movimento(s), total ' + this.formatarDinheiroExato(movsMes.reduce((a,m)=>a+m.valor,0)) : 'Nenhum movimento registrado (registre as vendas internas do mês).', ok: movsMes.length > 0, aviso: !movsMes.length, acaoLabel:'Abrir Resultado 2026', acao:'resultado_emb' }
+      ];
+      // Conferências de consistência (o sistema confere sozinho o que o cliente conferiria na mão)
+      const arred = v => Math.round(v * 100) / 100;
+      const subDesp = (this.embSub || []).filter(x => !x.intercompany).reduce((a, x) => a + (x['desp' + ch.charAt(0) + ch.slice(1).toLowerCase()] || 0), 0);
+      const conf = [];
+      if (ccTotal > 0 || subDesp > 0) conf.push({ t:'Despesas por empresa × Total dos centros de custo', a: subDesp, b: ccTotal, dif: arred(subDesp - ccTotal) });
+      const dreFat = dre('Faturamento')[mk] || 0;
+      if (fatMes > 0 || dreFat > 0) conf.push({ t:'Faturamento (sem aparas) × Faturamento do DRE', a: fatMes, b: dreFat, dif: arred(fatMes - dreFat) });
+      const estLinha = dre('Estoque')[mk] || 0;
+      const invSemTintas = (this.empresaExtras.inventario || []).filter(i => !i.foraEstoque).reduce((a, i) => a + ((i.valor && i.valor[mk]) || 0), 0);
+      if (estLinha > 0 || invSemTintas > 0) conf.push({ t:'Categorias de estoque (sem Tintas) × linha Estoque', a: invSemTintas, b: estLinha, dif: arred(invSemTintas - estLinha) });
+      const feitos = passos.filter(p => p.ok).length;
+      return { mk, passos, conf, feitos, total: passos.length, pct: Math.round(feitos / passos.length * 100),
+               resultado: dre('Resultado Operacional')[mk] || 0, fat: dreFat, desp: ccTotal };
+    },
+    fechamentoIr(acao) {
+      if (acao === 'importador') { this.mudarAba('configuracoes'); this.abaConfig = 'importador'; this.mesImportacao = this.mesAtivo.toLowerCase(); return; }
+      this.mudarAba(acao);
+    },
+
     // Transferência entre centros de custo com origem livre (chamada pelo painel lateral)
     abrirTransferenciaCCLivre() {
       this.modalTCC.origem = '';
@@ -6327,21 +6488,6 @@ function sistemaUnificado(){
               return {label:'Fator '+m+' (R$/kg)', data:ex.faturamento.map(f=>this.fatorLinha(f,m)), backgroundColor: cor, categoryPercentage:0.7, barPercentage:0.88}; })
           }, chartOptsBase({plugins:{legend:{display:!0}, tooltip:{callbacks:{label:c=>'  '+c.dataset.label+':  R$ '+Number(c.parsed.y||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' /kg'}}}, scales:{y:{ticks:{callback:v=>'R$ '+v+'/kg'}}}}));
         }
-      }
-
-      if(this.aba==='subempresas' && this.empresaExtras.porKg) {
-        const subs = this.embSub;
-        renderChart('chartSubFat','doughnut',{
-          labels: subs.map(s=>s.nome),
-          datasets:[{ data: subs.map(s=>Math.max(s.fat,0)), backgroundColor: subs.map(s=>s.cor), borderWidth:2, borderColor:'#fff', hoverOffset:7 }]
-        }, { responsive:!0, maintainAspectRatio:!1, cutout:'62%', plugins:{ legend:{display:!0, position:'bottom'}, tooltip:{callbacks:{label:c=>{ const tot=subs.reduce((a,s)=>a+Math.max(s.fat,0),0)||1; return '  '+c.label+':  R$ '+Number(c.parsed||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' ('+(c.parsed/tot*100).toFixed(1)+'%)'; }}}} });
-        renderChart('chartSubRes','bar',{
-          labels: subs.map(s=>s.nome),
-          datasets:[{ label:'Resultado no ano', data: subs.map(s=>s.res), backgroundColor: subs.map(s=>s.res<0?cRed:s.cor), borderRadius:8 }]
-        }, chartOptsBase({ indexAxis:'y', plugins:{ legend:{display:!1}, tooltip:{callbacks:{
-          label:c=>'  Resultado:  '+(c.parsed.x<0?'- ':'')+'R$ '+Math.abs(c.parsed.x||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),
-          footer:items=>{ const s=subs[items[0].dataIndex]; return s.intercompany?'eliminar na consolidação':s.regime; } }}},
-          scales:{ x:{ ticks:{ callback:v=>fmtAbrev(v) } }, y:{ grid:{display:!1} } } }));
       }
 
       if(this.aba==='inventario') {
