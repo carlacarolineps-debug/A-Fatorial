@@ -6071,9 +6071,17 @@ function sistemaUnificado(){
 
             const parsedMonth = this.mesImportacao;
 
+            this.backupEstado = JSON.stringify({
+                cc: this.centrosCustoData,
+                dre: this.dreAtual,
+                prev: this.previsoesData
+            });
+            this.salvarEstado('Importação de planilha: ' + parsedMonth.toUpperCase());
+
             // ===== FORMATO BRUTO (relatório de contas a pagar, uma linha por título) =====
-            // Detecta pelo cabeçalho com "Valor total" + "Conta Contábil Número" e agrega por conta.
-            let servicosMes = null;
+            // Detecta pelo cabeçalho com "Valor total" + "Conta Contábil Número".
+            // Os lançamentos são separados pelo mês de emissão: o arquivo pode trazer um
+            // único mês ou vários meses acumulados; cada mês vai para a sua própria coluna.
             let cabIdx = -1, cab = null;
             for (let i = 0; i < Math.min(json.length, 8); i++) {
               const r = json[i] || [];
@@ -6082,7 +6090,8 @@ function sistemaUnificado(){
             if (cabIdx >= 0) {
               const ixh = n => cab.findIndex(h => String(h || '').trim() === n);
               const iVal = ixh('Valor total'), iNum = ixh('Conta Contábil Número'), iDescC = ixh('Conta Contábil Descrição'), iCred = ixh('Credor Nome'), iEm = ixh('Emissão');
-              const porConta = {}; servicosMes = {}; let totalDecl = 0; const mesesEm = {};
+              const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
+              const buckets = {}; let totalDecl = 0;
               json.slice(cabIdx + 1).forEach(r => {
                 if (!r) return;
                 let v = r[iVal];
@@ -6090,41 +6099,76 @@ function sistemaUnificado(){
                 if (v == null || isNaN(v) || v === 0) return;
                 const num = String(r[iNum] || '').trim();
                 const cred = String(r[iCred] || '').trim();
-                // Linhas totalizadoras do próprio relatório (sem conta e sem credor): a maior é o Total Geral
+                // Linhas de rodapé do próprio relatório (sem conta e sem credor): a maior é o
+                // Total Geral; as demais (média por dia etc.) são ignoradas
                 if (!num && !cred) { if (v > totalDecl) totalDecl = v; return; }
-                // Mês de emissão (conferência de segurança)
+                // O mês de emissão define a coluna de destino; sem data válida, usa o mês selecionado
+                let mk = parsedMonth;
                 let dEm = r[iEm];
                 if (typeof dEm === 'number') dEm = new Date(Math.round((dEm - 25569) * 86400 * 1000));
                 else if (typeof dEm === 'string' && /\d{4}/.test(dEm)) dEm = new Date(dEm);
-                if (dEm instanceof Date && !isNaN(dEm)) mesesEm[dEm.getUTCMonth()] = (mesesEm[dEm.getUTCMonth()] || 0) + 1;
+                if (dEm instanceof Date && !isNaN(dEm)) mk = ordem[dEm.getUTCMonth()] || parsedMonth;
+                const b = buckets[mk] || (buckets[mk] = { porConta: {}, servicos: {}, n: 0 });
+                b.n++;
                 const descC = String(r[iDescC] || '').trim();
                 const chave = num ? (num + (descC ? ' - ' + descC : '')) : ('SEM CONTA - ' + cred);
-                if (num.startsWith('023')) { servicosMes[chave] = Math.round(((servicosMes[chave] || 0) + v) * 100) / 100; return; }
-                porConta[chave] = Math.round(((porConta[chave] || 0) + v) * 100) / 100;
+                const alvoObj = num.startsWith('023') ? b.servicos : b.porConta;
+                alvoObj[chave] = Math.round(((alvoObj[chave] || 0) + v) * 100) / 100;
               });
-              // Mês selecionado × mês dominante das emissões: bloqueia engano de mês
-              const dom = Object.entries(mesesEm).sort((a, b) => b[1] - a[1])[0];
-              if (dom) {
-                const mesDom = this.listaMeses[Number(dom[0])];
-                if (mesDom && mesDom.chave.toLowerCase() !== parsedMonth) {
-                  if (!confirm('Atenção: as emissões desta planilha são de ' + mesDom.nome + ', mas você selecionou ' + parsedMonth.toUpperCase() + '.\n\nImportar mesmo assim em ' + parsedMonth.toUpperCase() + '?')) { evt.target.value = ''; return; }
-                }
+              let mesesArq = Object.keys(buckets).sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
+              if (!mesesArq.length) { alert('Nenhum lançamento com valor foi encontrado nesta planilha.'); evt.target.value = ''; return; }
+              const somaGeral = mesesArq.reduce((acc, mk) => acc + Object.values(buckets[mk].porConta).reduce((a, b) => a + b, 0) + Object.values(buckets[mk].servicos).reduce((a, b) => a + b, 0), 0);
+              if (mesesArq.length > 1) {
+                // Arquivo acumulado (vários meses): confirma e importa cada mês na sua coluna
+                const nomes = mesesArq.map(mk => '  ' + mk.toUpperCase() + ' (' + buckets[mk].n + ' lançamentos)').join('\n');
+                if (!confirm('Este arquivo contém lançamentos de ' + mesesArq.length + ' meses:\n\n' + nomes + '\n\nCada mês será importado na sua própria coluna. Continuar?')) { evt.target.value = ''; return; }
+                if (totalDecl && Math.abs(totalDecl - somaGeral) > 0.05) this.registrarLog('Aviso: Total Geral do relatório (' + this.formatarDinheiroExato(totalDecl) + ') difere da soma dos lançamentos (' + this.formatarDinheiroExato(somaGeral) + ').');
+              } else if (mesesArq[0] !== parsedMonth) {
+                // Mês selecionado × mês das emissões: bloqueia engano de mês
+                if (!confirm('Atenção: as emissões desta planilha são de ' + mesesArq[0].toUpperCase() + ', mas você selecionou ' + parsedMonth.toUpperCase() + '.\n\nImportar mesmo assim em ' + parsedMonth.toUpperCase() + '?')) { evt.target.value = ''; return; }
+                buckets[parsedMonth] = buckets[mesesArq[0]]; delete buckets[mesesArq[0]]; mesesArq = [parsedMonth];
               }
-              const somaContas = Object.values(porConta).reduce((a, b) => a + b, 0) + Object.values(servicosMes).reduce((a, b) => a + b, 0);
-              // Converte para o formato pivô e segue o fluxo normal (Total = checksum do relatório)
-              json = [['Rótulos de Linha', 'Soma de Valor total'],
-                      ...Object.entries(porConta),
-                      ['Total Geral', (totalDecl || somaContas) - Object.values(servicosMes).reduce((a, b) => a + b, 0)]];
-              this.registrarLog('Importação em formato bruto detectada: ' + Object.keys(porConta).length + ' contas agregadas, checksum ' + this.formatarDinheiroExato(totalDecl || somaContas));
+              const resumo = [];
+              mesesArq.forEach(mk => {
+                const b = buckets[mk];
+                const somaServ = Object.values(b.servicos).reduce((a, x) => a + x, 0);
+                const somaContasMes = Object.values(b.porConta).reduce((a, x) => a + x, 0);
+                // Com linha de Total Geral no relatório (arquivo de um mês), ela é o checksum;
+                // sem ela, ou em arquivo de vários meses, vale a soma dos lançamentos do mês
+                const totalMes = (mesesArq.length === 1 && totalDecl) ? Math.round((totalDecl - somaServ) * 100) / 100 : Math.round(somaContasMes * 100) / 100;
+                const jsonPivo = [['Rótulos de Linha', 'Soma de Valor total'], ...Object.entries(b.porConta), ['Total Geral', totalMes]];
+                const res = this.aplicarDespesasMes(jsonPivo, mk, true, b.servicos);
+                resumo.push(mk.toUpperCase() + ': ' + this.formatarDinheiroExato(res.total) + (res.oficialPreservado ? ' (Resultado oficial mantido)' : ''));
+              });
+              this.registrarLog('Importação em formato bruto: ' + file.name + ' | ' + resumo.join(' | '));
+              this.recalcularTudo();
+              alert('Sucesso! Despesas importadas:\n\n' + resumo.join('\n'));
+              const ultimo = mesesArq[mesesArq.length - 1];
+              this.mesAtivo = ultimo.charAt(0).toUpperCase() + ultimo.slice(1);
+              this.subAbaDespesa = ultimo;
+              this.atualizarLeituraSistema();
+              evt.target.value = '';
+              return;
             }
 
-            this.backupEstado = JSON.stringify({
-                cc: this.centrosCustoData,
-                dre: this.dreAtual,
-                prev: this.previsoesData
-            });
-            this.salvarEstado('Importação de planilha: ' + parsedMonth.toUpperCase());
+            // ===== FORMATO PIVÔ (Rótulos de Linha / Soma de Valor total) =====
+            this.aplicarDespesasMes(json, parsedMonth, false, null);
+            this.registrarLog(`Importou arquivo contábil cirúrgico: ${file.name} [Mês: ${parsedMonth.toUpperCase()}]`);
+            this.recalcularTudo();
+            alert(`Sucesso! Os dados do mês de ${parsedMonth.toUpperCase()} foram integrados e distribuídos na matriz.`);
+            this.mesAtivo = parsedMonth.charAt(0).toUpperCase() + parsedMonth.slice(1);
+            this.subAbaDespesa = parsedMonth;
+            this.atualizarLeituraSistema();
+            evt.target.value = '';
+        };
+        reader.readAsArrayBuffer(file);
+    },
 
+    // Aplica um mês de despesas (formato pivô já normalizado) nos centros de custo.
+    // Regra de ouro: se o mês já tem "Total de Despesas" oficial no Resultado (planilha
+    // conferida com o cliente), o Resultado NÃO muda; o detalhamento entra nos centros
+    // de custo e a diferença vai para "Ajustes". Mês sem valor oficial assume o total importado.
+    aplicarDespesasMes(json, parsedMonth, ehBruto, servicosMes) {
             // Substituição limpa: zera o mês-alvo em todos os lançamentos (filhos) antes de
             // aplicar a nova planilha, evitando que categorias ausentes na nova planilha
             // mantenham valores antigos. Pais são recalculados; 'Ajustes' (manual) é preservado.
@@ -6204,29 +6248,46 @@ function sistemaUnificado(){
                totalImported = somaFilhosMes;
             }
 
+            // Valor oficial do Resultado tem prioridade: se o mês já tem Total de Despesas
+            // lançado (conferido com a planilha do cliente), a importação só preenche o
+            // detalhamento e a diferença entre o relatório e o oficial vai para "Ajustes".
+            let despLine = this.dreAtual.find(l => l.desc === "Total de Despesas");
+            const oficialMes = despLine ? (despLine[parsedMonth] || 0) : 0;
+            const oficialPreservado = oficialMes !== 0;
+            const alvoMes = oficialPreservado ? oficialMes : totalImported;
+
             // Reconciliação automática: garante que o Total do mês bata CENTAVO A CENTAVO com o
-            // "Total Geral" declarado na planilha, mesmo que a soma dos itens difira (gaps de
-            // itemização da contabilidade). A diferença vai para a linha "Ajustes" deste mês.
+            // valor de referência (Total Geral do relatório ou Total de Despesas oficial),
+            // mesmo que a soma dos itens difira. A diferença vai para a linha "Ajustes".
             let rowAjustes = this.centrosCustoData.find(c => c.c === 'Ajustes');
-            if(rowAjustes) rowAjustes[parsedMonth] = Math.round((totalImported - somaFilhosMes) * 100) / 100;
+            if(rowAjustes) rowAjustes[parsedMonth] = Math.round((alvoMes - somaFilhosMes) * 100) / 100;
 
             let rowTotal = this.centrosCustoData.find(c=>c.c==='Total');
-            if(rowTotal) rowTotal[parsedMonth] = totalImported;
+            if(rowTotal) rowTotal[parsedMonth] = alvoMes;
 
-            if(totalImported > 0) {
-                let despLine = this.dreAtual.find(l => l.desc === "Total de Despesas");
-                if(despLine) despLine[parsedMonth] = totalImported;
-                
+            if(alvoMes > 0 && !oficialPreservado) {
+                if(despLine) despLine[parsedMonth] = alvoMes;
+
                 let reqLine = this.dreAtual.find(l => l.desc === "Despesa Requalificadora");
-                if(reqLine) reqLine[parsedMonth] = totalImported; 
+                if(reqLine) reqLine[parsedMonth] = alvoMes;
+
+                // No formato bruto, o mês novo aparece na linha "Despesas Embalagem" do Resultado
+                if (ehBruto) {
+                  const subPrincipal = (this.empresaExtras.subempresas || []).find(x => x.principal);
+                  if (subPrincipal) {
+                    subPrincipal['desp' + parsedMonth.charAt(0).toUpperCase() + parsedMonth.slice(1)] = alvoMes;
+                    this.recalcularSubEmpresas();
+                  }
+                }
             }
 
             this.centrosCustoData = [...this.centrosCustoData];
             this.dreAtual = [...this.dreAtual];
 
             // Atualiza o "Realizado" das PROVISÕES apenas do MÊS IMPORTADO, a partir das linhas
-            // de centro de custo correspondentes. Os meses já existentes (jan–abr) preservam os
-            // valores reais curados da fonte e NÃO são tocados. Mapeamento por código de conta:
+            // de centro de custo correspondentes. Meses com valor oficial do Resultado preservam
+            // os valores reais curados da fonte e NÃO são tocados. Mapeamento por código de conta:
+            if (!oficialPreservado) {
             const mapaProvisao = this.empresaAtiva === 'embalagem' ? {
               // Códigos da aba PREVISÕES da planilha da Embalagem
               'Férias + 1/3': ['004.28'],
@@ -6254,14 +6315,6 @@ function sistemaUnificado(){
               p[parsedMonth] = Math.round(soma * 100) / 100;
             });
             this.previsoesData = [...this.previsoesData];
-
-            // No formato bruto, a despesa do mês aparece na linha "Despesas Embalagem" do Resultado
-            if (cabIdx >= 0 && totalImported > 0) {
-              const subPrincipal = (this.empresaExtras.subempresas || []).find(x => x.principal);
-              if (subPrincipal) {
-                subPrincipal['desp' + parsedMonth.charAt(0).toUpperCase() + parsedMonth.slice(1)] = totalImported;
-                this.recalcularSubEmpresas();
-              }
             }
 
             // Contas 023.* (unidade de Serviços) vão para a tela Serviços, fora dos centros de custo
@@ -6278,16 +6331,7 @@ function sistemaUnificado(){
               this.registrarLog('Serviços de ' + parsedMonth.toUpperCase() + ' atualizados pela importação: ' + this.formatarDinheiroExato(Object.values(servicosMes).reduce((a, b) => a + b, 0)));
             }
 
-            this.registrarLog(`Importou arquivo contábil cirúrgico: ${file.name} [Mês: ${parsedMonth.toUpperCase()}]`);
-            this.recalcularTudo();
-            alert(`Sucesso! Os dados do mês de ${parsedMonth.toUpperCase()} foram integrados e distribuídos na matriz.`);
-            
-            this.mesAtivo = parsedMonth.charAt(0).toUpperCase() + parsedMonth.slice(1);
-            this.subAbaDespesa = parsedMonth; 
-            this.atualizarLeituraSistema();
-            evt.target.value = ''; 
-        };
-        reader.readAsArrayBuffer(file);
+            return { total: alvoMes, oficialPreservado };
     },
 
     // ===== Importador do RESULTADO da Embalagem: receitas (kg/fator), inventário, despesas por empresa =====
