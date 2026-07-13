@@ -3552,7 +3552,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 
 // Versão do formato dos dados salvos no navegador: quando a estrutura embutida evolui,
 // dados antigos são descartados para nunca esconderem linhas novas (ex.: ITP, Aparas).
-const NEXUS_DADOS_VERSAO = 5;
+const NEXUS_DADOS_VERSAO = 6;
 // SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
 const EMB_SERVICOS=[
  {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
@@ -6110,8 +6110,8 @@ function sistemaUnificado(){
             const abaInvNome = workbook.SheetNames.find(s => /invent/i.test(s));
             const jsonInv = (abaInvNome && abaInvNome !== workbook.SheetNames[0]) ? XLSX.utils.sheet_to_json(workbook.Sheets[abaInvNome], {header: 1}) : json;
             const ehInventario = arr => arr.slice(0, 40).some(r => (r || []).some(c => String(c || '').trim() === 'Clas. Fiscal'));
-            if (ehInventario(jsonInv)) { this.importarInventarioBruto(jsonInv, file, evt); return; }
-            if (ehInventario(json)) { this.importarInventarioBruto(json, file, evt); return; }
+            if (ehInventario(jsonInv)) { this.importarInventarioBruto(jsonInv, file, evt, workbook); return; }
+            if (ehInventario(json)) { this.importarInventarioBruto(json, file, evt, workbook); return; }
 
             const parsedMonth = this.mesImportacao;
 
@@ -6172,6 +6172,13 @@ function sistemaUnificado(){
                 if (!confirm('Atenção: as emissões desta planilha são de ' + mesesArq[0].toUpperCase() + ', mas você selecionou ' + parsedMonth.toUpperCase() + '.\n\nImportar mesmo assim em ' + parsedMonth.toUpperCase() + '?')) { evt.target.value = ''; return; }
                 buckets[parsedMonth] = buckets[mesesArq[0]]; delete buckets[mesesArq[0]]; mesesArq = [parsedMonth];
               }
+              // Meses que já têm Total de Despesas oficial da planilha: o usuário decide
+              const despOf = this.dreAtual.find(l => l.desc === 'Total de Despesas');
+              const oficiais = mesesArq.filter(m => despOf && (despOf[m] || 0) !== 0);
+              let substituirOficial = false;
+              if (oficiais.length) {
+                substituirOficial = confirm('Atenção: ' + oficiais.map(m => m.toUpperCase()).join(', ') + ' já tem Total de Despesas oficial da planilha Resultado.\n\nOK = SUBSTITUIR pelo total deste relatório (o Resultado 2026 muda).\nCancelar = manter o valor oficial e lançar só o detalhamento por conta (a diferença fica na linha Ajustes).');
+              }
               const resumo = [];
               mesesArq.forEach(mk => {
                 const b = buckets[mk];
@@ -6181,7 +6188,7 @@ function sistemaUnificado(){
                 // sem ela, ou em arquivo de vários meses, vale a soma dos lançamentos do mês
                 const totalMes = (mesesArq.length === 1 && totalDecl) ? Math.round((totalDecl - somaServ) * 100) / 100 : Math.round(somaContasMes * 100) / 100;
                 const jsonPivo = [['Rótulos de Linha', 'Soma de Valor total'], ...Object.entries(b.porConta), ['Total Geral', totalMes]];
-                const res = this.aplicarDespesasMes(jsonPivo, mk, true, b.servicos);
+                const res = this.aplicarDespesasMes(jsonPivo, mk, true, b.servicos, substituirOficial);
                 resumo.push(mk.toUpperCase() + ': ' + this.formatarDinheiroExato(res.total) + (res.oficialPreservado ? ' (Resultado oficial mantido)' : ''));
               });
               this.registrarLog('Importação em formato bruto: ' + file.name + ' | ' + resumo.join(' | '));
@@ -6196,7 +6203,12 @@ function sistemaUnificado(){
             }
 
             // ===== FORMATO PIVÔ (Rótulos de Linha / Soma de Valor total) =====
-            this.aplicarDespesasMes(json, parsedMonth, false, null);
+            const despOfP = this.dreAtual.find(l => l.desc === 'Total de Despesas');
+            let substituirP = false;
+            if (despOfP && (despOfP[parsedMonth] || 0) !== 0) {
+              substituirP = confirm('Atenção: ' + parsedMonth.toUpperCase() + ' já tem Total de Despesas oficial da planilha Resultado.\n\nOK = SUBSTITUIR pelo total desta planilha (o Resultado 2026 muda).\nCancelar = manter o valor oficial e lançar só o detalhamento por conta (a diferença fica na linha Ajustes).');
+            }
+            this.aplicarDespesasMes(json, parsedMonth, false, null, substituirP);
             this.registrarLog(`Importou arquivo contábil cirúrgico: ${file.name} [Mês: ${parsedMonth.toUpperCase()}]`);
             this.recalcularTudo();
             alert(`Sucesso! Os dados do mês de ${parsedMonth.toUpperCase()} foram integrados e distribuídos na matriz.`);
@@ -6218,7 +6230,7 @@ function sistemaUnificado(){
       this.registrarLog('Definiu o fator metros para kg de ' + cod + ': ' + EMB_FATORES_MT[cod] + ' kg/mt');
       // Reconverte os meses importados com o fator novo (kg e diferenças acompanham)
       const ex = this.empresaExtras;
-      if (ex.invMt && Object.keys(ex.invMt).length) { Object.keys(ex.invMt).forEach(mk => this.converterInvMt(mk)); this.recalcularTudo(); }
+      if (ex.invMt && Object.keys(ex.invMt).length) { Object.keys(ex.invMt).forEach(mk => this.converterInvMt(mk)); this.dreAtual = [...this.dreAtual]; this.recalcularTudo(); }
       else this.persistirDados();
     },
 
@@ -6234,6 +6246,8 @@ function sistemaUnificado(){
       const estimados = [];
       (ex.inventario || []).forEach(l => {
         if (!l.valor || !(mk in l.valor)) return;
+        // Peso real da aba de contagem do relatório vale mais que qualquer conversão
+        if (l.item === 'Produto Acabado' && det.kgContagem > 0) { l.kg = l.kg || {}; l.kg[mk] = r2(det.kgContagem); return; }
         let kg = det.kgBase[l.item] || 0;
         (porDest[l.item] || []).forEach(i => {
           const f = (typeof EMB_FATORES_MT !== 'undefined') ? (EMB_FATORES_MT[i.cod] || 0) : 0;
@@ -6261,7 +6275,7 @@ function sistemaUnificado(){
     // Mapeia as seções do relatório para as linhas da planilha; itens em METROS ficam
     // registrados em metros para visualização e são convertidos em KG pelo fator do item
     // (coluna Peso do próprio relatório ou tabela Metros para Kg das Configurações).
-    importarInventarioBruto(json, file, evt) {
+    importarInventarioBruto(json, file, evt, workbook) {
       const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
       const selMes = this.mesImportacao;
       // Mês do relatório: data do título "Inventário da Empresa ... em DD/MM/AAAA"
@@ -6318,13 +6332,32 @@ function sistemaUnificado(){
       });
       if (!Object.keys(agg).length) { alert('Nenhum item de inventário foi encontrado nesta planilha.'); evt.target.value = ''; return; }
       const somaVal = Object.values(agg).reduce((a, x) => a + x.val, 0);
-      // Regra de ouro: mês com inventário oficial da planilha do cliente não muda
+      // Aba de contagem/pesagem do Produto Acabado (PESO PA, Contagem): peso real pesado
+      let kgContagem = 0;
+      if (workbook) {
+        for (const sn of workbook.SheetNames) {
+          if (/invent/i.test(sn)) continue;
+          const js = XLSX.utils.sheet_to_json(workbook.Sheets[sn], { header: 1 });
+          let hi = -1, hrow = null;
+          for (let i = 0; i < Math.min(js.length, 6); i++) {
+            const r = js[i] || [];
+            if (r.some(x => /C[OÓ]DIGO/i.test(String(x || ''))) && r.some(x => String(x || '').trim().toUpperCase() === 'PESO')) { hi = i; hrow = r; break; }
+          }
+          if (hi < 0) continue;
+          const iP = hrow.findIndex(x => String(x || '').trim().toUpperCase() === 'PESO');
+          js.slice(hi + 1).forEach(r => { if (r && typeof r[iP] === 'number') kgContagem += r[iP]; });
+          if (kgContagem > 0) { this.registrarLog('Aba de pesagem "' + sn + '" encontrada: ' + r2(kgContagem).toLocaleString('pt-BR') + ' kg de Produto Acabado pesados'); break; }
+        }
+      }
+      // Mês com inventário oficial da planilha: o usuário decide substituir ou manter
       const inv = this.empresaExtras.inventario || [];
       const jaOficial = inv.some(l => l.valor && (l.valor[mk] || 0) !== 0);
       if (jaOficial) {
-        this.registrarLog('Importação de inventário de ' + mk.toUpperCase() + ' não aplicada: o mês já tem inventário oficial da planilha (' + file.name + ')');
-        alert('O inventário de ' + mk.toUpperCase() + ' já está lançado com os valores oficiais da planilha conferida com o cliente e foi mantido.\n\nPara substituir, zere os valores do mês na tela Resultado 2026 e importe novamente.');
-        evt.target.value = ''; return;
+        if (!confirm('O inventário de ' + mk.toUpperCase() + ' já está lançado com os valores oficiais da planilha conferida com o cliente.\n\nOK = SUBSTITUIR pelos dados deste relatório (as telas mudam).\nCancelar = manter os valores oficiais como estão.')) {
+          this.registrarLog('Importação de inventário de ' + mk.toUpperCase() + ' cancelada: valores oficiais mantidos (' + file.name + ')');
+          evt.target.value = ''; return;
+        }
+        this.registrarLog('Inventário oficial de ' + mk.toUpperCase() + ' substituído pelo relatório ' + file.name);
       }
       this.salvarEstado('Importação de inventário: ' + mk.toUpperCase());
       inv.forEach(l => {
@@ -6338,7 +6371,7 @@ function sistemaUnificado(){
       // conversão em kg (e a reconversão automática quando um fator for corrigido)
       const ex = this.empresaExtras;
       ex.invMt = ex.invMt || {};
-      ex.invMt[mk] = { kgBase: {}, valKgBase: {}, itens: itensMt };
+      ex.invMt[mk] = { kgBase: {}, valKgBase: {}, itens: itensMt, kgContagem: r2(kgContagem) };
       Object.entries(agg).forEach(([d, a]) => { ex.invMt[mk].kgBase[d] = r2(a.kg); ex.invMt[mk].valKgBase[d] = r2(a.valkg || 0); });
       const estimados = this.converterInvMt(mk);
       // Estoque do DRE (sem Tintas, critério da planilha) e cadeia da Diferença de Estoque
@@ -6350,6 +6383,8 @@ function sistemaUnificado(){
         this.listaMeses.forEach(m => { const k = m.chave.toLowerCase();
           if ((est[k] || 0) !== 0) { difEst[k] = r2(est[k] - prev); prev = est[k]; } });
       }
+      // Força a atualização das telas que leem o inventário e o DRE
+      this.dreAtual = [...this.dreAtual];
       if (totalGeral && Math.abs(totalGeral - somaVal) > 0.05) this.registrarLog('Aviso: soma dos itens do inventário (' + this.formatarDinheiroExato(somaVal) + ') difere do Total de Geral do relatório (' + this.formatarDinheiroExato(totalGeral) + ')');
       this.registrarLog('Importou inventário ' + file.name + ' em ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(somaVal) + ' em ' + Object.keys(agg).length + ' categorias' + (totalGeral ? ' (Total de Geral do relatório: ' + this.formatarDinheiroExato(totalGeral) + ')' : ''));
       this.recalcularTudo();
@@ -6365,7 +6400,7 @@ function sistemaUnificado(){
     // Regra de ouro: se o mês já tem "Total de Despesas" oficial no Resultado (planilha
     // conferida com o cliente), o Resultado NÃO muda; o detalhamento entra nos centros
     // de custo e a diferença vai para "Ajustes". Mês sem valor oficial assume o total importado.
-    aplicarDespesasMes(json, parsedMonth, ehBruto, servicosMes) {
+    aplicarDespesasMes(json, parsedMonth, ehBruto, servicosMes, substituirOficial) {
             // Substituição limpa: zera o mês-alvo em todos os lançamentos (filhos) antes de
             // aplicar a nova planilha, evitando que categorias ausentes na nova planilha
             // mantenham valores antigos. Pais são recalculados; 'Ajustes' (manual) é preservado.
@@ -6450,7 +6485,7 @@ function sistemaUnificado(){
             // detalhamento e a diferença entre o relatório e o oficial vai para "Ajustes".
             let despLine = this.dreAtual.find(l => l.desc === "Total de Despesas");
             const oficialMes = despLine ? (despLine[parsedMonth] || 0) : 0;
-            const oficialPreservado = oficialMes !== 0;
+            const oficialPreservado = !substituirOficial && oficialMes !== 0;
             const alvoMes = oficialPreservado ? oficialMes : totalImported;
 
             // Reconciliação automática: garante que o Total do mês bata CENTAVO A CENTAVO com o
