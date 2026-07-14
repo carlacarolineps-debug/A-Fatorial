@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A! Multiplicadora — sistema do programa de multiplicadores de vendas. Planeje, extraia o método dos melhores, multiplique pelo time e comprove resultados.">
+<title>A! Multiplicadora — Sistema do Programa de Multiplicadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<style>
+/* ============================================================
+   A! MULTIPLICADORA — Sistema do Programa de Multiplicadores
+   Design system: dark-luxury, gold-on-black, Fraunces + Manrope
+   ============================================================ */
+:root{
+  --bg:#0A0A0E; --bg-2:#0E0F14; --bg-3:#101219;
+  --surface:#14151C; --surface-2:#191B24; --surface-3:#20222E;
+  --glass:rgba(255,255,255,.035); --glass-2:rgba(255,255,255,.06);
+  --line:rgba(232,200,122,.13); --line-soft:rgba(255,255,255,.07); --line-hard:rgba(255,255,255,.12);
+  --ink:#F4F0E6; --ink-2:#BAB5A6; --ink-3:#807C70; --ink-4:#5A5750;
+  --gold:#E8C87A; --gold-2:#D4AF5E; --gold-deep:#A8842F; --gold-bright:#F7E6B0; --gold-ghost:rgba(232,200,122,.10);
+  --good:#4CC08D; --good-bg:rgba(76,192,141,.12);
+  --warn:#E3B23C; --warn-bg:rgba(227,178,60,.12);
+  --bad:#E5675C; --bad-bg:rgba(229,103,92,.12);
+  --info:#6AA6E0; --info-bg:rgba(106,166,224,.12);
+  --top:#E8C87A; --bottom:#6E7E9E; --teal:#4FB6A8; --violet:#A99BE8;
+  --r:18px; --r-sm:12px; --r-xs:9px; --r-lg:26px; --pill:999px;
+  --f-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --f-body:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 42%,var(--gold-deep));
+  --gold-grad-soft:linear-gradient(135deg,rgba(247,230,176,.18),rgba(168,132,47,.06));
+  --sh:0 1px 0 rgba(255,255,255,.03),0 24px 60px -30px rgba(0,0,0,.9);
+  --sh-lg:0 2px 0 rgba(255,255,255,.04),0 40px 90px -34px rgba(0,0,0,.95);
+  --glow:0 0 0 1px rgba(232,200,122,.16),0 20px 60px -22px rgba(232,200,122,.22);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--f-body); background:var(--bg); color:var(--ink);
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  min-height:100vh; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(1200px 620px at 78% -8%, rgba(232,200,122,.10), transparent 60%),
+    radial-gradient(900px 500px at 6% 108%, rgba(168,132,47,.08), transparent 62%),
+    radial-gradient(700px 700px at 100% 100%, rgba(79,182,168,.05), transparent 60%);
+}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(232,200,122,.16);border-radius:10px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-thumb:hover{background:rgba(232,200,122,.34);background-clip:padding-box;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px;}
+
+/* ---------- Splash ---------- */
+#splash{position:fixed;inset:0;z-index:200;background:radial-gradient(900px 600px at 50% 40%,#15161f,#08080c);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .7s ease,visibility .7s;}
+#splash.done{opacity:0;visibility:hidden;}
+.splash-mark{width:96px;height:96px;position:relative;animation:splashPulse 2.4s ease-in-out infinite;}
+.splash-tag{font-family:var(--f-display);font-size:15px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);
+  opacity:0;animation:fadeUp .9s ease .35s forwards;padding-left:.42em;}
+.splash-sub{font-size:10.5px;letter-spacing:.36em;text-transform:uppercase;color:var(--ink-3);margin-top:-16px;opacity:0;animation:fadeUp .9s ease .55s forwards;padding-left:.36em;}
+.splash-bar{width:170px;height:2px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;position:relative;}
+.splash-bar::after{content:"";position:absolute;inset:0;width:40%;background:var(--gold-grad);border-radius:2px;animation:splashLoad 1.25s ease forwards;}
+@keyframes splashLoad{from{transform:translateX(-120%);}to{transform:translateX(320%);}}
+@keyframes splashPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 12px rgba(232,200,122,.3));}50%{transform:scale(1.06);filter:drop-shadow(0 0 26px rgba(232,200,122,.55));}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------- Brand mark (the A! ) ---------- */
+.amark{position:relative;display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-display);
+  font-weight:900;color:#0a0a0e;background:var(--gold-grad);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 6px 18px -6px rgba(232,200,122,.5);}
+.amark::before{content:"A!";line-height:1;letter-spacing:-.05em;padding-right:.02em;}
+
+/* ---------- App frame ---------- */
+#app{position:relative;z-index:1;display:none;min-height:100vh;}
+#app.ready{display:grid;grid-template-columns:270px 1fr;}
+
+/* ---------- Sidebar ---------- */
+.side{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#0b0b10,#08080c);
+  border-right:1px solid var(--line-soft);display:flex;flex-direction:column;overflow:hidden;}
+.side-brand{display:flex;align-items:center;gap:12px;padding:22px 22px 18px;border-bottom:1px solid var(--line-soft);}
+.side-brand .amark{width:40px;height:40px;border-radius:11px;font-size:20px;}
+.side-brand .bt b{display:block;font-family:var(--f-display);font-weight:700;font-size:16px;color:var(--ink);letter-spacing:.2px;line-height:1;}
+.side-brand .bt span{display:block;font-size:8.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-top:5px;}
+.side-nav{flex:1;overflow-y:auto;padding:14px 12px 20px;}
+.nav-group{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);font-weight:700;margin:20px 14px 8px;}
+.nav-group:first-child{margin-top:4px;}
+.nav-item{display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;color:var(--ink-2);
+  padding:9.5px 13px;border-radius:11px;font-size:13px;font-weight:500;cursor:pointer;text-align:left;margin-bottom:2px;
+  transition:background .16s,color .16s,transform .16s;position:relative;}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;stroke-width:1.7;opacity:.8;}
+.nav-item:hover{background:var(--glass);color:var(--ink);}
+.nav-item.active{background:var(--gold-grad-soft);color:var(--gold-bright);}
+.nav-item.active::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:20px;
+  background:var(--gold-grad);border-radius:0 3px 3px 0;}
+.nav-item.active svg{opacity:1;color:var(--gold);}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:700;background:var(--gold-ghost);color:var(--gold);padding:2px 8px;border-radius:var(--pill);}
+.side-foot{padding:14px;border-top:1px solid var(--line-soft);}
+.prog-card{background:var(--glass);border:1px solid var(--line-soft);border-radius:14px;padding:13px;}
+.prog-card .pc-top{display:flex;align-items:center;gap:9px;}
+.prog-card .pc-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px var(--good-bg);}
+.prog-card .pc-lbl{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);}
+.prog-card b{display:block;font-size:13px;color:var(--ink);margin-top:8px;font-weight:600;}
+.prog-card .pc-meta{font-size:11px;color:var(--ink-3);margin-top:2px;}
+
+/* ---------- Topbar ---------- */
+.main{min-width:0;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:16px;padding:15px 30px;
+  background:rgba(10,10,14,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line-soft);}
+.tb-crumb{display:flex;flex-direction:column;min-width:0;}
+.tb-crumb .tb-eyebrow{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.tb-crumb h1{margin:2px 0 0;font-family:var(--f-display);font-weight:600;font-size:20px;letter-spacing:.1px;color:var(--ink);}
+.tb-spacer{flex:1;}
+.tb-search{display:flex;align-items:center;gap:9px;background:var(--glass);border:1px solid var(--line-soft);border-radius:var(--pill);
+  padding:8px 15px;color:var(--ink-3);min-width:210px;transition:border .16s,background .16s;}
+.tb-search:focus-within{border-color:var(--line);background:var(--glass-2);}
+.tb-search svg{width:15px;height:15px;flex-shrink:0;}
+.tb-search input{background:none;border:none;color:var(--ink);font-size:12.5px;width:100%;outline:none;font-family:inherit;}
+.tb-search input::placeholder{color:var(--ink-4);}
+.tb-chip{display:flex;align-items:center;gap:7px;background:var(--gold-grad-soft);border:1px solid var(--line);border-radius:var(--pill);
+  padding:7px 14px;font-size:11.5px;font-weight:600;color:var(--gold-bright);white-space:nowrap;}
+.tb-chip .ph{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);}
+.tb-ico{position:relative;width:38px;height:38px;border-radius:11px;background:var(--glass);border:1px solid var(--line-soft);
+  color:var(--ink-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.16s;}
+.tb-ico:hover{background:var(--glass-2);color:var(--ink);}
+.tb-ico svg{width:17px;height:17px;}
+.tb-ico .dot{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);}
+.tb-user{display:flex;align-items:center;gap:10px;padding-left:6px;cursor:pointer;}
+.tb-user .av{width:38px;height:38px;border-radius:11px;background:var(--gold-grad);color:#0a0a0e;display:flex;align-items:center;
+  justify-content:center;font-weight:800;font-size:14px;font-family:var(--f-display);}
+.tb-user .ut b{display:block;font-size:12.5px;font-weight:600;line-height:1.1;}
+.tb-user .ut span{display:block;font-size:10px;color:var(--ink-3);}
+
+/* ---------- View / page ---------- */
+.view{padding:28px 30px 60px;max-width:1420px;margin:0 auto;width:100%;display:none;animation:viewIn .5s cubic-bezier(.2,.7,.2,1);}
+.view.active{display:block;}
+@keyframes viewIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.rise{opacity:0;transform:translateY(16px);animation:viewIn .6s cubic-bezier(.2,.7,.2,1) forwards;}
+
+/* ---------- Section heading ---------- */
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:34px 0 16px;}
+.sec-h:first-child{margin-top:6px;}
+.sec-h .st{display:flex;align-items:center;gap:11px;}
+.sec-h .st .bar{width:3px;height:20px;background:var(--gold-grad);border-radius:3px;}
+.sec-h h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:19px;color:var(--ink);letter-spacing:.1px;}
+.sec-h .sub{font-size:12.5px;color:var(--ink-3);margin-top:1px;}
+.sec-h .act{display:flex;gap:8px;}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-soft);background:var(--glass);color:var(--ink);
+  padding:9px 15px;border-radius:11px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.16s;white-space:nowrap;}
+.btn svg{width:15px;height:15px;}
+.btn:hover{background:var(--glass-2);border-color:var(--line);transform:translateY(-1px);}
+.btn.gold{background:var(--gold-grad);color:#0a0a0e;border-color:transparent;box-shadow:0 8px 22px -10px rgba(232,200,122,.6);}
+.btn.gold:hover{filter:brightness(1.06);box-shadow:0 12px 28px -10px rgba(232,200,122,.7);}
+.btn.ghost{background:transparent;}
+
+/* ---------- Cards & grids ---------- */
+.card{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line-soft);border-radius:var(--r);
+  box-shadow:var(--sh);position:relative;overflow:hidden;}
+.card.pad{padding:22px;}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;}
+.card-h .ct{display:flex;align-items:center;gap:10px;}
+.card-h h3{margin:0;font-family:var(--f-display);font-weight:600;font-size:15.5px;color:var(--ink);}
+.card-h .hint{font-size:11px;color:var(--ink-3);}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:4px 10px;border-radius:var(--pill);text-transform:uppercase;}
+.tag.gold{background:var(--gold-ghost);color:var(--gold);}
+.tag.good{background:var(--good-bg);color:var(--good);}
+.tag.warn{background:var(--warn-bg);color:var(--warn);}
+.tag.bad{background:var(--bad-bg);color:var(--bad);}
+.tag.info{background:var(--info-bg);color:var(--info);}
+.tag.mute{background:var(--glass);color:var(--ink-3);}
+
+.grid{display:grid;gap:18px;}
+.g-2{grid-template-columns:repeat(2,1fr);}
+.g-3{grid-template-columns:repeat(3,1fr);}
+.g-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:1180px){.g-4{grid-template-columns:repeat(2,1fr);}.g-3{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- Stat tiles ---------- */
+.stat{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line-soft);border-radius:var(--r);
+  padding:18px 19px;position:relative;overflow:hidden;transition:transform .18s,border-color .18s;}
+.stat:hover{transform:translateY(-3px);border-color:var(--line);}
+.stat .si{width:34px;height:34px;border-radius:10px;background:var(--gold-ghost);color:var(--gold);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.stat .si svg{width:17px;height:17px;}
+.stat .sl{font-size:11px;color:var(--ink-3);letter-spacing:.02em;font-weight:500;}
+.stat .sv{font-family:var(--f-display);font-weight:600;font-size:27px;color:var(--ink);margin-top:3px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.2px;}
+.stat .sd{display:flex;align-items:center;gap:5px;margin-top:9px;font-size:11.5px;font-weight:600;}
+.stat .sd.up{color:var(--good);}
+.stat .sd.down{color:var(--bad);}
+.stat .sd .sub{color:var(--ink-4);font-weight:500;}
+.stat .spark{position:absolute;right:14px;top:16px;opacity:.85;}
+
+/* ---------- Hero (IM north-star) ---------- */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:0;border-radius:var(--r-lg);overflow:hidden;
+  border:1px solid var(--line);box-shadow:var(--glow),var(--sh-lg);position:relative;
+  background:linear-gradient(135deg,#16151b 0%,#100f14 60%,#0c0b10 100%);}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 320px at 88% 8%,rgba(232,200,122,.16),transparent 62%);pointer-events:none;}
+.hero-l{padding:30px 32px;position:relative;z-index:1;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.hero-eyebrow .amark{width:18px;height:18px;border-radius:5px;font-size:9px;}
+.hero-l h2{font-family:var(--f-display);font-weight:600;font-size:23px;line-height:1.18;margin:16px 0 6px;color:var(--ink);text-wrap:balance;max-width:22ch;}
+.hero-l p{color:var(--ink-2);font-size:13px;max-width:44ch;margin:0 0 22px;}
+.im-num{font-family:var(--f-display);font-weight:600;font-size:74px;line-height:.9;color:var(--gold-bright);
+  letter-spacing:-1px;text-shadow:0 4px 40px rgba(232,200,122,.35);font-variant-numeric:tabular-nums;}
+.im-num small{font-size:34px;color:var(--gold);}
+.im-cap{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em;margin-top:6px;max-width:34ch;}
+.drivers{display:flex;flex-direction:column;gap:14px;margin-top:24px;}
+.driver .dh{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:6px;}
+.driver .dh b{color:var(--ink);font-weight:600;}
+.driver .dh span{color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;}
+.driver .track{height:7px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden;}
+.driver .fill{height:100%;border-radius:6px;background:var(--gold-grad);width:0;transition:width 1.3s cubic-bezier(.2,.7,.2,1);}
+.hero-r{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;padding:24px;
+  border-left:1px solid var(--line-soft);background:radial-gradient(400px 400px at 50% 46%,rgba(232,200,122,.08),transparent 70%);}
+.ring-wrap{position:relative;width:240px;height:240px;display:flex;align-items:center;justify-content:center;}
+.ring-center{position:absolute;text-align:center;}
+.ring-center .rc-v{font-family:var(--f-display);font-weight:600;font-size:44px;color:var(--gold-bright);line-height:1;}
+.ring-center .rc-l{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:6px;}
+
+/* ---------- Lists / rows ---------- */
+.rows{display:flex;flex-direction:column;}
+.row{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line-soft);}
+.row:last-child{border-bottom:none;}
+.rank-badge{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;
+  font-family:var(--f-display);flex-shrink:0;background:var(--glass);color:var(--ink-2);}
+.rank-badge.g1{background:var(--gold-grad);color:#0a0a0e;box-shadow:0 6px 16px -6px rgba(232,200,122,.6);}
+.rank-badge.g2{background:linear-gradient(135deg,#dfe2ea,#a7adba);color:#15151b;}
+.rank-badge.g3{background:linear-gradient(135deg,#e0a877,#a9662f);color:#1a1109;}
+.av-init{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+  flex-shrink:0;background:var(--surface-3);color:var(--gold);border:1px solid var(--line-soft);font-family:var(--f-body);}
+.row .who{min-width:0;flex:1;}
+.row .who b{display:block;font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row .who span{font-size:11.5px;color:var(--ink-3);}
+.row .metric{text-align:right;flex-shrink:0;}
+.row .metric b{display:block;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums;font-family:var(--f-mono);}
+.row .metric span{font-size:10.5px;color:var(--ink-3);}
+.bar-mini{flex:1;max-width:180px;height:8px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden;}
+.bar-mini i{display:block;height:100%;border-radius:6px;background:var(--gold-grad);width:0;transition:width 1s cubic-bezier(.2,.7,.2,1);}
+.bar-mini.slate i{background:linear-gradient(135deg,#8a97b3,#5a6683);}
+
+/* ---------- Progress / meter ---------- */
+.meter{height:8px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden;}
+.meter i{display:block;height:100%;border-radius:6px;background:var(--gold-grad);width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1);}
+.meter.good i{background:linear-gradient(135deg,#6bd6a6,#2f9e6f);}
+
+/* ---------- Chart primitives ---------- */
+.chart-svg{width:100%;height:auto;display:block;overflow:visible;}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;}
+.legend .lg{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-2);font-weight:500;}
+.legend .sw{width:12px;height:12px;border-radius:4px;flex-shrink:0;}
+.tt{position:fixed;z-index:120;pointer-events:none;background:rgba(16,17,24,.97);border:1px solid var(--line);border-radius:11px;
+  padding:9px 12px;font-size:12px;color:var(--ink);box-shadow:var(--sh-lg);opacity:0;transform:translateY(4px);transition:opacity .12s;backdrop-filter:blur(8px);max-width:240px;}
+.tt.on{opacity:1;transform:translateY(0);}
+.tt b{color:var(--gold-bright);font-family:var(--f-display);}
+.tt .tr{display:flex;align-items:center;gap:7px;margin-top:5px;font-size:11.5px;color:var(--ink-2);}
+.tt .tr .sw{width:9px;height:9px;border-radius:3px;}
+.tt .tr b{color:var(--ink);font-family:var(--f-mono);margin-left:auto;padding-left:14px;}
+
+/* ---------- Empresa cards ---------- */
+.co-card{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line-soft);border-radius:var(--r);
+  padding:20px;transition:transform .18s,border-color .18s;cursor:pointer;position:relative;overflow:hidden;}
+.co-card:hover{transform:translateY(-4px);border-color:var(--line);box-shadow:var(--glow);}
+.co-logo{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);
+  font-weight:700;font-size:19px;color:#0a0a0e;flex-shrink:0;}
+.co-top{display:flex;align-items:center;gap:13px;margin-bottom:16px;}
+.co-top .ci{flex:1;min-width:0;}
+.co-top b{font-size:15px;font-weight:600;color:var(--ink);}
+.co-top span{font-size:11.5px;color:var(--ink-3);}
+.co-stats{display:flex;gap:0;border-top:1px solid var(--line-soft);padding-top:14px;}
+.co-stats .cs{flex:1;text-align:center;border-right:1px solid var(--line-soft);}
+.co-stats .cs:last-child{border-right:none;}
+.co-stats .cs b{display:block;font-family:var(--f-display);font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums;}
+.co-stats .cs span{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-4);}
+
+/* ---------- Timeline / jornada ---------- */
+.jstage{display:flex;gap:18px;position:relative;padding-bottom:6px;}
+.jline{position:absolute;left:19px;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),rgba(255,255,255,.06));}
+.jrow{display:flex;gap:18px;position:relative;padding-bottom:22px;}
+.jrow:last-child{padding-bottom:0;}
+.jdot{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;z-index:1;
+  background:var(--surface-2);border:1px solid var(--line-soft);color:var(--ink-3);font-weight:800;font-family:var(--f-display);position:relative;}
+.jdot.done{background:var(--gold-grad);color:#0a0a0e;border-color:transparent;box-shadow:0 8px 20px -8px rgba(232,200,122,.55);}
+.jdot.now{background:var(--surface-2);border:1.5px solid var(--gold);color:var(--gold);box-shadow:0 0 0 4px var(--gold-ghost);}
+.jdot.now::after{content:"";position:absolute;inset:-4px;border-radius:14px;border:1.5px solid var(--gold);opacity:.5;animation:ping 2s ease-out infinite;}
+@keyframes ping{0%{transform:scale(1);opacity:.5;}100%{transform:scale(1.5);opacity:0;}}
+.jcard{flex:1;background:var(--glass);border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;}
+.jcard .jh{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.jcard h4{margin:0;font-size:14.5px;font-weight:600;color:var(--ink);font-family:var(--f-display);}
+.jcard p{margin:8px 0 0;font-size:12.5px;color:var(--ink-2);}
+.jcard .jmeta{display:flex;gap:16px;margin-top:12px;font-size:11px;color:var(--ink-3);}
+.jcard .jmeta b{color:var(--ink);font-weight:600;}
+
+/* ---------- Método / playbook ---------- */
+.pb-item{display:flex;gap:15px;padding:16px;border:1px solid var(--line-soft);border-radius:14px;background:var(--glass);
+  transition:.16s;margin-bottom:10px;}
+.pb-item:hover{border-color:var(--line);background:var(--glass-2);}
+.pb-n{width:36px;height:36px;border-radius:10px;flex-shrink:0;background:var(--gold-grad-soft);border:1px solid var(--line);
+  color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:15px;}
+.pb-b{flex:1;min-width:0;}
+.pb-b b{font-size:14px;font-weight:600;color:var(--ink);}
+.pb-b p{margin:5px 0 0;font-size:12.5px;color:var(--ink-2);}
+.pb-src{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:10.5px;color:var(--gold);background:var(--gold-ghost);
+  padding:3px 9px;border-radius:var(--pill);font-weight:600;}
+
+/* ---------- Objection bank ---------- */
+.obj{border:1px solid var(--line-soft);border-radius:13px;overflow:hidden;background:var(--glass);}
+.obj-q{display:flex;align-items:center;gap:11px;padding:14px 16px;cursor:pointer;transition:background .14s;}
+.obj-q:hover{background:var(--glass-2);}
+.obj-q .qi{width:26px;height:26px;border-radius:8px;background:var(--bad-bg);color:var(--bad);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:13px;}
+.obj-q b{flex:1;font-size:13px;color:var(--ink);font-weight:600;}
+.obj-q .chev{color:var(--ink-3);transition:transform .2s;}
+.obj.open .obj-q .chev{transform:rotate(180deg);}
+.obj-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.obj.open .obj-a{max-height:260px;}
+.obj-a .inner{padding:0 16px 16px 53px;font-size:12.5px;color:var(--ink-2);}
+.obj-a .inner .win{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--good);background:var(--good-bg);padding:3px 9px;border-radius:var(--pill);font-weight:700;margin-top:10px;}
+
+/* ---------- Certification belts ---------- */
+.belt{display:flex;align-items:center;gap:14px;padding:15px;border:1px solid var(--line-soft);border-radius:14px;background:var(--glass);}
+.belt-ic{width:46px;height:46px;border-radius:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.belt-ic svg{width:24px;height:24px;}
+.belt b{font-size:14px;font-weight:600;color:var(--ink);font-family:var(--f-display);}
+.belt .bn{font-family:var(--f-display);font-size:24px;color:var(--ink);font-variant-numeric:tabular-nums;}
+.belt span{font-size:11.5px;color:var(--ink-3);}
+
+/* ---------- Tree / multiplication ---------- */
+.tree-wrap{overflow-x:auto;padding:8px 0;}
+.wave-row{display:flex;flex-direction:column;gap:20px;}
+.wave{display:flex;align-items:center;gap:16px;}
+.wave-lbl{width:120px;flex-shrink:0;text-align:right;}
+.wave-lbl b{display:block;font-family:var(--f-display);font-size:15px;color:var(--gold);}
+.wave-lbl span{font-size:10.5px;color:var(--ink-3);}
+.wave-nodes{display:flex;gap:7px;flex-wrap:wrap;flex:1;}
+.tnode{width:26px;height:26px;border-radius:8px;background:var(--gold-grad-soft);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:var(--gold);transition:transform .3s;opacity:0;transform:scale(.4);}
+.tnode.seed{background:var(--gold-grad);color:#0a0a0e;border-color:transparent;}
+.tnode svg{width:14px;height:14px;}
+.wave-count{width:60px;flex-shrink:0;font-family:var(--f-mono);font-size:15px;color:var(--ink);text-align:left;font-variant-numeric:tabular-nums;}
+
+/* ---------- Depoimentos ---------- */
+.quote{background:linear-gradient(180deg,var(--surface),var(--bg-2));border:1px solid var(--line-soft);border-radius:var(--r);padding:24px;position:relative;overflow:hidden;}
+.quote::before{content:"\201C";position:absolute;top:-10px;right:18px;font-family:var(--f-display);font-size:120px;color:rgba(232,200,122,.09);line-height:1;}
+.quote .stars{color:var(--gold);letter-spacing:2px;font-size:14px;}
+.quote p{font-size:14px;color:var(--ink);line-height:1.6;margin:12px 0 18px;font-style:italic;position:relative;z-index:1;}
+.quote .qwho{display:flex;align-items:center;gap:11px;}
+.quote .qwho b{font-size:13px;color:var(--ink);}
+.quote .qwho span{font-size:11px;color:var(--ink-3);}
+
+/* ---------- KPI comparison (antes/depois) ---------- */
+.cmp{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line-soft);}
+.cmp:last-child{border-bottom:none;}
+.cmp .cl{width:150px;flex-shrink:0;font-size:12.5px;color:var(--ink-2);font-weight:500;}
+.cmp .cvals{flex:1;display:flex;align-items:center;gap:12px;}
+.cmp .before{font-family:var(--f-mono);font-size:13px;color:var(--ink-3);width:60px;text-align:right;}
+.cmp .arrow{color:var(--gold);}
+.cmp .after{font-family:var(--f-mono);font-size:15px;color:var(--ink);font-weight:700;width:64px;}
+.cmp .delta{margin-left:auto;font-size:12px;font-weight:700;}
+
+/* ---------- misc ---------- */
+.divider{height:1px;background:var(--line-soft);margin:18px 0;}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;}
+.dot-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px;}
+.dot-list li{display:flex;gap:10px;font-size:12.5px;color:var(--ink-2);align-items:flex-start;}
+.dot-list li .dl-ic{width:20px;height:20px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums;}
+.up{color:var(--good);}.down{color:var(--bad);}
+.text-gold{color:var(--gold);}
+@media(max-width:1080px){
+  #app.ready{grid-template-columns:1fr;}
+  .side{position:fixed;left:0;top:0;width:270px;z-index:60;transform:translateX(-100%);transition:transform .3s;box-shadow:var(--sh-lg);}
+  .side.open{transform:translateX(0);}
+  .hero{grid-template-columns:1fr;}.hero-r{border-left:none;border-top:1px solid var(--line-soft);}
+  .g-2{grid-template-columns:1fr;}.tb-search{display:none;}
+}
+.menu-btn{display:none;}
+@media(max-width:1080px){.menu-btn{display:flex;}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}
+  #splash{display:none;}.tnode{opacity:1;transform:none;}}
+</style>
+
+<!-- ============ SPLASH ============ -->
+<div id="splash">
+  <div class="splash-mark amark" style="width:96px;height:96px;border-radius:24px;font-size:52px;"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div class="splash-tag">Multiplicadora</div>
+    <div class="splash-sub">Processos Autogerenciáveis</div>
+  </div>
+  <div class="splash-bar"></div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <!-- ---------- SIDEBAR ---------- -->
+  <aside class="side" id="side">
+    <div class="side-brand">
+      <div class="amark" aria-hidden="true"></div>
+      <div class="bt"><b>Multiplicadora</b><span>Command Center</span></div>
+    </div>
+    <nav class="side-nav" id="nav">
+      <div class="nav-group">Programa</div>
+      <button class="nav-item active" data-view="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h8V3H3zM13 21h8V8h-8zM3 21h8v-5H3zM13 3v3"/></svg>
+        Central de Comando</button>
+      <button class="nav-item" data-view="empresas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4"/></svg>
+        Empresas & Diagnóstico <span class="nav-badge">4</span></button>
+
+      <div class="nav-group">Método</div>
+      <button class="nav-item" data-view="dna">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3c0 6 16 6 16 12M4 21c0-6 16-6 16-12M7 4c2 1.5 8 1.5 10 0M7 20c2-1.5 8-1.5 10 0M8 8h8M8 16h8"/></svg>
+        DNA de Vendas</button>
+      <button class="nav-item" data-view="metodo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h12a2 2 0 012 2v14H6a2 2 0 01-2-2zM4 4v13a2 2 0 002 2M20 6v14M9 8h6M9 12h4"/></svg>
+        Método Vivo</button>
+      <button class="nav-item" data-view="multiplicadores">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13A4 4 0 0116 11"/></svg>
+        Multiplicadores</button>
+
+      <div class="nav-group">Execução</div>
+      <button class="nav-item" data-view="jornada">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+        Jornada do Programa</button>
+      <button class="nav-item" data-view="arvore">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v6M6 21v-4a3 3 0 013-3h6a3 3 0 013 3v4M12 9a3 3 0 100-6 3 3 0 000 6M6 21a2 2 0 100-4 2 2 0 000 4M18 21a2 2 0 100-4 2 2 0 000 4M12 21a2 2 0 100-4 2 2 0 000 4"/></svg>
+        Árvore de Multiplicação</button>
+      <button class="nav-item" data-view="ranking">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4a2 2 0 01-2-2V5h4M18 9h2a2 2 0 002-2V5h-4M6 5h12v4a6 6 0 01-12 0zM12 15v4M8 21h8M9 21v-2h6v2"/></svg>
+        Ranking & Premiação <span class="nav-badge">ao vivo</span></button>
+
+      <div class="nav-group">Resultados</div>
+      <button class="nav-item" data-view="resultados">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M7 15l4-4 3 3 5-6M18 8h3v3"/></svg>
+        Resultados & ROI</button>
+      <button class="nav-item" data-view="depoimentos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2zM8 10h.01M12 10h.01M16 10h.01"/></svg>
+        Depoimentos & Feedback</button>
+    </nav>
+    <div class="side-foot">
+      <div class="prog-card">
+        <div class="pc-top"><span class="pc-dot"></span><span class="pc-lbl">Programa ativo</span></div>
+        <b>Solaris Energia Solar</b>
+        <div class="pc-meta">Fase 4 · Multiplicação — Semana 9 de 16</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ---------- MAIN ---------- -->
+  <div class="main">
+    <header class="topbar">
+      <button class="tb-ico menu-btn" id="menuBtn" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="tb-crumb">
+        <div class="tb-eyebrow" id="crumbEyebrow">Programa</div>
+        <h1 id="crumbTitle">Central de Comando</h1>
+      </div>
+      <div class="tb-spacer"></div>
+      <div class="tb-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input placeholder="Buscar vendedor, empresa, método…" aria-label="Buscar">
+      </div>
+      <div class="tb-chip"><span class="ph"></span>Solaris Energia</div>
+      <button class="tb-ico" aria-label="Notificações"><span class="dot"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>
+      </button>
+      <div class="tb-user">
+        <div class="av">C</div>
+        <div class="ut"><b>Carla Caroline</b><span>Diretora do Programa</span></div>
+      </div>
+    </header>
+
+    <!-- =========================================================
+         VIEW: DASHBOARD / CENTRAL DE COMANDO
+    ========================================================== -->
+    <section class="view active" id="view-dashboard">
+      <div class="hero rise">
+        <div class="hero-l">
+          <span class="hero-eyebrow"><span class="amark"></span> Índice de Multiplicação</span>
+          <div style="display:flex;align-items:flex-end;gap:14px;margin-top:18px;">
+            <div class="im-num"><span class="count" data-to="3.5" data-dec="1">0.0</span><small>×</small></div>
+          </div>
+          <div class="im-cap">Cada método extraído dos melhores vendedores multiplicou por <b class="text-gold">3,5×</b> o resultado médio do time da Solaris — combinando alcance, adoção e amplificação.</div>
+          <div class="drivers">
+            <div class="driver"><div class="dh"><b>Alcance</b><span>148 vendedores impactados</span></div><div class="track"><i class="fill" data-w="92"></i></div></div>
+            <div class="driver"><div class="dh"><b>Adoção do método</b><span>87%</span></div><div class="track"><i class="fill" data-w="87"></i></div></div>
+            <div class="driver"><div class="dh"><b>Amplificação por vendedor</b><span>+72% conversão</span></div><div class="track"><i class="fill" data-w="72"></i></div></div>
+          </div>
+        </div>
+        <div class="hero-r">
+          <div class="ring-wrap">
+            <svg width="240" height="240" viewBox="0 0 240 240" style="transform:rotate(-90deg)">
+              <circle cx="120" cy="120" r="100" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="16"/>
+              <circle id="imRing" cx="120" cy="120" r="100" fill="none" stroke="url(#imGrad)" stroke-width="16" stroke-linecap="round" stroke-dasharray="628" stroke-dashoffset="628"/>
+              <defs><linearGradient id="imGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7E6B0"/><stop offset="1" stop-color="#A8842F"/></linearGradient></defs>
+            </svg>
+            <div class="ring-center"><div class="rc-v"><span class="count" data-to="87" data-suffix="%">0</span></div><div class="rc-l">Meta do programa</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Pulso do programa</h2><div class="sub">Solaris Energia · atualizado há 4 minutos</div></div></div></div>
+      <div class="grid g-4">
+        <div class="stat rise" style="animation-delay:.05s">
+          <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87"/></svg></div>
+          <div class="sl">Vendedores multiplicados</div>
+          <div class="sv"><span class="count" data-to="148">0</span></div>
+          <div class="sd up">▲ de 42 produtivos <span class="sub">no início</span></div>
+        </div>
+        <div class="stat rise" style="animation-delay:.1s">
+          <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div class="sl">Receita incremental</div>
+          <div class="sv">R$ <span class="count" data-to="4.7" data-dec="1">0</span>M</div>
+          <div class="sd up">▲ 38% <span class="sub">vs. baseline</span></div>
+        </div>
+        <div class="stat rise" style="animation-delay:.15s">
+          <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <div class="sl">Conversão média</div>
+          <div class="sv"><span class="count" data-to="31" data-suffix="%">0</span></div>
+          <div class="sd up">▲ +72% <span class="sub">era 18%</span></div>
+        </div>
+        <div class="stat rise" style="animation-delay:.2s">
+          <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="sl">ROI do programa</div>
+          <div class="sv"><span class="count" data-to="6.2" data-dec="1">0</span>×</div>
+          <div class="sd up">▲ payback em 3 meses</div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:18px;grid-template-columns:1.5fr 1fr;">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Receita da carteira multiplicada</h3></div><span class="tag gold">6 meses</span></div>
+          <div id="revChart"></div>
+          <div class="legend">
+            <div class="lg"><span class="sw" style="background:var(--gold)"></span>Receita com o método A!</div>
+            <div class="lg"><span class="sw" style="background:var(--bottom)"></span>Projeção sem o programa</div>
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Top multiplicadores</h3></div><span class="hint">Semana 9</span></div>
+          <div class="rows" id="topRows"></div>
+        </div>
+      </div>
+
+      <div class="grid g-3" style="margin-top:18px;">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Adoção do método</h3></div></div>
+          <div style="display:flex;justify-content:center;padding:6px 0 2px" id="adoGauge"></div>
+          <div style="text-align:center;font-size:12px;color:var(--ink-3);margin-top:6px;">129 de 148 vendedores aplicando os 6 módulos</div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Foco da semana</h3></div><span class="tag warn">Ação</span></div>
+          <ul class="dot-list">
+            <li><span class="dl-ic" style="background:var(--good-bg);color:var(--good)">✓</span><div><b style="color:var(--ink)">Onda 3 certificada</b> — 100 novos multiplicadores concluíram a trilha.</div></li>
+            <li><span class="dl-ic" style="background:var(--warn-bg);color:var(--warn)">!</span><div><b style="color:var(--ink)">19 vendedores</b> abaixo da meta de follow-up. Reforço agendado.</div></li>
+            <li><span class="dl-ic" style="background:var(--info-bg);color:var(--info)">↑</span><div>Nova objeção mapeada: <b style="color:var(--ink)">"vou esperar a conta de luz baixar"</b>.</div></li>
+            <li><span class="dl-ic" style="background:var(--gold-ghost);color:var(--gold)">★</span><div>Premiação do trimestre em <b style="color:var(--ink)">12 dias</b> — viagem para o 1º lugar.</div></li>
+          </ul>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Saúde do programa</h3></div></div>
+          <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--ink-2)">Engajamento do time</span><b class="mono text-gold">91%</b></div><div class="meter good"><i data-w="91"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--ink-2)">NPS interno</span><b class="mono text-gold">84</b></div><div class="meter"><i data-w="84"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--ink-2)">Retenção de talentos</span><b class="mono text-gold">96%</b></div><div class="meter good"><i data-w="96"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--ink-2)">Método vs. meta trimestral</span><b class="mono text-gold">78%</b></div><div class="meter"><i data-w="78"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: EMPRESAS & DIAGNÓSTICO
+    ========================================================== -->
+    <section class="view" id="view-empresas">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Carteira de clientes</h2><div class="sub">Empresas em programa de multiplicação de vendas</div></div></div>
+        <div class="act"><button class="btn gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Nova empresa</button></div></div>
+      <div class="grid g-4">
+        <div class="co-card" data-co="0">
+          <div class="co-top"><div class="co-logo" style="background:linear-gradient(135deg,#F7E6B0,#A8842F)">S</div><div class="ci"><b>Solaris Energia</b><span>Energia solar · 148 vendedores</span></div></div>
+          <div style="margin:2px 0 14px"><span class="tag gold">Fase 4 · Multiplicação</span></div>
+          <div class="co-stats"><div class="cs"><b>3,5×</b><span>Índice</span></div><div class="cs"><b>31%</b><span>Conversão</span></div><div class="cs"><b>6,2×</b><span>ROI</span></div></div>
+        </div>
+        <div class="co-card" data-co="1">
+          <div class="co-top"><div class="co-logo" style="background:linear-gradient(135deg,#8FD3C8,#2C7D71)">V</div><div class="ci"><b>Vitrine Móveis</b><span>Varejo · 62 vendedores</span></div></div>
+          <div style="margin:2px 0 14px"><span class="tag info">Fase 2 · Método</span></div>
+          <div class="co-stats"><div class="cs"><b>2,1×</b><span>Índice</span></div><div class="cs"><b>24%</b><span>Conversão</span></div><div class="cs"><b>3,4×</b><span>ROI</span></div></div>
+        </div>
+        <div class="co-card" data-co="2">
+          <div class="co-top"><div class="co-logo" style="background:linear-gradient(135deg,#B9AEF0,#5B4CA8)">M</div><div class="ci"><b>MedVita Planos</b><span>Saúde · 210 vendedores</span></div></div>
+          <div style="margin:2px 0 14px"><span class="tag warn">Fase 1 · Diagnóstico</span></div>
+          <div class="co-stats"><div class="cs"><b>—</b><span>Índice</span></div><div class="cs"><b>12%</b><span>Conversão</span></div><div class="cs"><b>—</b><span>ROI</span></div></div>
+        </div>
+        <div class="co-card" data-co="3">
+          <div class="co-top"><div class="co-logo" style="background:linear-gradient(135deg,#E9A17C,#B15427)">A</div><div class="ci"><b>AutoPrime Veículos</b><span>Concessionária · 88 vendedores</span></div></div>
+          <div style="margin:2px 0 14px"><span class="tag good">Fase 5 · Resultados</span></div>
+          <div class="co-stats"><div class="cs"><b>4,1×</b><span>Índice</span></div><div class="cs"><b>29%</b><span>Conversão</span></div><div class="cs"><b>7,8×</b><span>ROI</span></div></div>
+        </div>
+      </div>
+
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Diagnóstico inicial — Solaris Energia</h2><div class="sub">O ponto de partida: onde o time estava antes do método</div></div></div></div>
+      <div class="grid g-2" style="grid-template-columns:1fr 1fr;">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Raio-X do time comercial</h3></div><span class="tag mute">Semana 0</span></div>
+          <div style="display:flex;flex-direction:column;gap:15px;margin-top:6px">
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span style="color:var(--ink-2)">Vendedores acima da meta</span><b class="mono">9 de 42</b></div><div class="meter"><i data-w="21"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span style="color:var(--ink-2)">Padronização do discurso</span><b class="mono">Baixa</b></div><div class="meter"><i data-w="18"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span style="color:var(--ink-2)">Registro de follow-up</span><b class="mono">27%</b></div><div class="meter"><i data-w="27"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span style="color:var(--ink-2)">Uso de método definido</span><b class="mono">Nenhum</b></div><div class="meter"><i data-w="6"></i></div></div>
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Hipóteses do diagnóstico</h3></div></div>
+          <ul class="dot-list" style="margin-top:4px">
+            <li><span class="dl-ic" style="background:var(--good-bg);color:var(--good)">✓</span><div><b style="color:var(--ink)">Existe talento oculto.</b> 3 vendedores convertem 3× a média — o método deles nunca foi documentado.</div></li>
+            <li><span class="dl-ic" style="background:var(--bad-bg);color:var(--bad)">✕</span><div><b style="color:var(--ink)">O fundo do funil vaza.</b> 64% das perdas acontecem por falta de follow-up estruturado.</div></li>
+            <li><span class="dl-ic" style="background:var(--warn-bg);color:var(--warn)">!</span><div><b style="color:var(--ink)">Cada um vende de um jeito.</b> Sem discurso padrão, o resultado depende de sorte e carisma.</div></li>
+            <li><span class="dl-ic" style="background:var(--info-bg);color:var(--info)">↑</span><div><b style="color:var(--ink)">A objeção do preço</b> derruba 4 em cada 10 negociações — e ninguém tem resposta pronta.</div></li>
+          </ul>
+          <div class="divider"></div>
+          <div style="display:flex;align-items:center;gap:10px"><span class="tag gold">Conclusão</span><span style="font-size:12.5px;color:var(--ink-2)">Não falta gente — falta <b class="text-gold">método replicável</b>. É o que multiplicamos.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: DNA DE VENDAS
+    ========================================================== -->
+    <section class="view" id="view-dna">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>DNA de Vendas</h2><div class="sub">O código genético do que funciona — extraído dos melhores, contrastado com os piores</div></div></div>
+        <div class="act"><span class="tag gold">Amostra: 42 vendedores</span></div></div>
+
+      <div class="grid g-2" style="grid-template-columns:1.1fr .9fr;">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Genoma comportamental</h3></div><span class="hint">7 competências · escala 0–100</span></div>
+          <div id="dnaRadar" style="display:flex;justify-content:center"></div>
+          <div class="legend" style="justify-content:center">
+            <div class="lg"><span class="sw" style="background:var(--top)"></span>Top 5 (o que replicar)</div>
+            <div class="lg"><span class="sw" style="background:var(--bottom)"></span>Bottom 5 (o que corrigir)</div>
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Onde mora a diferença</h3></div></div>
+          <div class="sub" style="font-size:12px;color:var(--ink-3);margin:-8px 0 16px">Distância entre o topo e a base em cada competência</div>
+          <div id="dnaGaps"></div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:18px;grid-template-columns:1fr 1fr;">
+        <div class="card pad" style="border-color:rgba(232,200,122,.3)">
+          <div class="card-h"><div class="ct"><div class="belt-ic" style="background:var(--gold-grad-soft);border:1px solid var(--line)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1-6.3-4.6L5.7 21 8 14 2 9.4h7.6z"/></svg></div><h3>DNA vencedor</h3></div></div>
+          <p style="font-size:12.5px;color:var(--ink-3);margin:0 0 14px">O que os 5 melhores fazem que ninguém percebeu — a matéria-prima do método.</p>
+          <ul class="dot-list">
+            <li><span class="dl-ic" style="background:var(--good-bg);color:var(--good)">✓</span><div><b style="color:var(--ink)">Diagnosticam antes de ofertar.</b> Fazem 7+ perguntas antes de falar de preço.</div></li>
+            <li><span class="dl-ic" style="background:var(--good-bg);color:var(--good)">✓</span><div><b style="color:var(--ink)">Ancoram no valor da conta de luz</b>, não no preço do sistema.</div></li>
+            <li><span class="dl-ic" style="background:var(--good-bg);color:var(--good)">✓</span><div><b style="color:var(--ink)">Follow-up em cadência</b> — 5 toques em 14 dias, sempre com novidade.</div></li>
+            <li><span class="dl-ic" style="background:var(--good-bg);color:var(--good)">✓</span><div><b style="color:var(--ink)">Fecham por assunção</b>: "prefere a instalação na semana 1 ou 2?"</div></li>
+          </ul>
+        </div>
+        <div class="card pad" style="border-color:rgba(110,126,158,.28)">
+          <div class="card-h"><div class="ct"><div class="belt-ic" style="background:rgba(110,126,158,.14);border:1px solid rgba(110,126,158,.28)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--bottom)" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg></div><h3>Anti-DNA</h3></div></div>
+          <p style="font-size:12.5px;color:var(--ink-3);margin:0 0 14px">Os padrões dos 5 piores — o que o método precisa eliminar do time.</p>
+          <ul class="dot-list">
+            <li><span class="dl-ic" style="background:var(--bad-bg);color:var(--bad)">✕</span><div><b style="color:var(--ink)">Empurram preço no primeiro minuto</b>, antes de gerar valor.</div></li>
+            <li><span class="dl-ic" style="background:var(--bad-bg);color:var(--bad)">✕</span><div><b style="color:var(--ink)">Somem após o "vou pensar"</b> — zero cadência de retorno.</div></li>
+            <li><span class="dl-ic" style="background:var(--bad-bg);color:var(--bad)">✕</span><div><b style="color:var(--ink)">Falam 80% do tempo</b> e não escutam a dor do cliente.</div></li>
+            <li><span class="dl-ic" style="background:var(--bad-bg);color:var(--bad)">✕</span><div><b style="color:var(--ink)">Aceitam a objeção como "não"</b> em vez de virar a conversa.</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: MÉTODO VIVO
+    ========================================================== -->
+    <section class="view" id="view-metodo">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Método Vivo — Solaris</h2><div class="sub">O playbook que nasceu do que já funciona. Vivo porque evolui a cada venda registrada.</div></div></div>
+        <div class="act"><button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Exportar playbook</button></div></div>
+
+      <div class="grid g-2" style="grid-template-columns:1.35fr .65fr;">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Os 6 módulos do método</h3></div><span class="tag gold">v3.2 · atualizado hoje</span></div>
+          <div class="pb-item"><div class="pb-n">1</div><div class="pb-b"><b>Abertura magnética</b><p>Primeiros 30 segundos que quebram a defensiva e ganham permissão para diagnosticar.</p><span class="pb-src">★ do DNA de Rafael Mendes</span></div></div>
+          <div class="pb-item"><div class="pb-n">2</div><div class="pb-b"><b>Diagnóstico da dor</b><p>7 perguntas que revelam o custo real da conta de luz e criam urgência genuína.</p><span class="pb-src">★ do DNA de Juliana Prado</span></div></div>
+          <div class="pb-item"><div class="pb-n">3</div><div class="pb-b"><b>Ancoragem de valor</b><p>Traduzir o investimento em economia mensal — nunca vender "placa", vender liberdade da conta.</p><span class="pb-src">★ do DNA de Camila Rocha</span></div></div>
+          <div class="pb-item"><div class="pb-n">4</div><div class="pb-b"><b>Banco de objeções</b><p>Respostas prontas e testadas para as 12 objeções que mais aparecem.</p><span class="pb-src">★ consolidado do top 5</span></div></div>
+          <div class="pb-item"><div class="pb-n">5</div><div class="pb-b"><b>Fechamento por assunção</b><p>Conduzir a decisão com escolhas, não com "e aí, vai querer?".</p><span class="pb-src">★ do DNA de Rafael Mendes</span></div></div>
+          <div class="pb-item"><div class="pb-n">6</div><div class="pb-b"><b>Máquina de follow-up</b><p>Cadência de 5 toques em 14 dias — cada contato entrega algo novo, nunca "só passando pra saber".</p><span class="pb-src">★ do DNA de Juliana Prado</span></div></div>
+        </div>
+        <div class="card pad" style="align-self:flex-start">
+          <div class="card-h"><div class="ct"><h3>Banco de objeções</h3></div><span class="hint">Top 4 de 12</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="obj"><div class="obj-q"><span class="qi">?</span><b>"Está caro."</b><span class="chev">▾</span></div><div class="obj-a"><div class="inner">Reenquadre para o custo de <i>não</i> agir: "Caro é continuar pagando R$ 480/mês pra distribuidora por mais 25 anos. Aqui você troca uma conta que só sobe por uma parcela que acaba."<div class="win">✓ Converte 61% após esta resposta</div></div></div></div>
+            <div class="obj"><div class="obj-q"><span class="qi">?</span><b>"Vou pensar."</b><span class="chev">▾</span></div><div class="obj-a"><div class="inner">Isole a real objeção: "Perfeito. Só pra eu te ajudar melhor — o que exatamente você quer pensar: o valor, o timing, ou a confiança na instalação?"<div class="win">✓ Recupera 44% dos "vou pensar"</div></div></div></div>
+            <div class="obj"><div class="obj-q"><span class="qi">?</span><b>"Preciso falar com meu marido/sócio."</b><span class="chev">▾</span></div><div class="obj-a"><div class="inner">Traga o decisor pra dentro: "Faz todo sentido. Que tal marcarmos 15 min com os dois amanhã? Assim ninguém decide por ninguém e eu tiro todas as dúvidas de uma vez."<div class="win">✓ 3ª objeção mais comum</div></div></div></div>
+            <div class="obj"><div class="obj-q"><span class="qi">?</span><b>"Vou esperar a conta de luz baixar."</b><span class="chev">▾</span></div><div class="obj-a"><div class="inner">Nova — mapeada esta semana. "A tarifa subiu 11% no último ano. Esperar é apostar contra a história. Cada mês esperando é dinheiro que não volta."<div class="win">✓ Recém-adicionada ao método</div></div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: MULTIPLICADORES
+    ========================================================== -->
+    <section class="view" id="view-multiplicadores">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Multiplicadores</h2><div class="sub">Quem carrega o método adiante — e em qual faixa de maestria está</div></div></div></div>
+
+      <div class="grid g-4">
+        <div class="belt"><div class="belt-ic" style="background:rgba(255,255,255,.05)"><svg viewBox="0 0 24 24" fill="none" stroke="#BAB5A6" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0116 0v1"/></svg></div><div><span>Faixa Aprendiz</span><div class="bn"><span class="count" data-to="61">0</span></div><b style="font-size:12px;color:var(--ink-3);font-weight:500">aprendendo o método</b></div></div>
+        <div class="belt"><div class="belt-ic" style="background:var(--info-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="1.6"><path d="M12 2l2 5 5 .5-4 3.5 1.5 5L12 18l-4.5 3 1.5-5-4-3.5 5-.5z"/></svg></div><div><span>Faixa Praticante</span><div class="bn"><span class="count" data-to="49">0</span></div><b style="font-size:12px;color:var(--ink-3);font-weight:500">aplica com consistência</b></div></div>
+        <div class="belt"><div class="belt-ic" style="background:var(--gold-ghost)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.4 5.7 21 8 13.9 2 9.4h7.6z"/></svg></div><div><span>Faixa Multiplicador</span><div class="bn"><span class="count" data-to="32">0</span></div><b style="font-size:12px;color:var(--ink-3);font-weight:500">já treina outros</b></div></div>
+        <div class="belt" style="border-color:var(--line)"><div class="belt-ic" style="background:var(--gold-grad);box-shadow:0 8px 20px -8px rgba(232,200,122,.5)"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0e" stroke-width="1.7"><path d="M5 16L3 5l5.5 4L12 4l3.5 5L21 5l-2 11zM5 20h14"/></svg></div><div><span>Mestre Multiplicador</span><div class="bn"><span class="count" data-to="6">0</span></div><b style="font-size:12px;color:var(--gold);font-weight:600">DNA fonte do método</b></div></div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:18px;grid-template-columns:1fr 1fr;">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Mestres — a fonte do método</h3></div><span class="tag gold">Top performers</span></div>
+          <div class="rows">
+            <div class="row"><div class="av-init">RM</div><div class="who"><b>Rafael Mendes</b><span>Fechamento & abertura · 34 vendas/mês</span></div><div class="metric"><b>96</b><span>DNA score</span></div></div>
+            <div class="row"><div class="av-init">JP</div><div class="who"><b>Juliana Prado</b><span>Diagnóstico & follow-up · 31 vendas/mês</span></div><div class="metric"><b>94</b><span>DNA score</span></div></div>
+            <div class="row"><div class="av-init">CR</div><div class="who"><b>Camila Rocha</b><span>Ancoragem de valor · 29 vendas/mês</span></div><div class="metric"><b>91</b><span>DNA score</span></div></div>
+            <div class="row"><div class="av-init">TA</div><div class="who"><b>Thiago Alves</b><span>Rapport & indicações · 27 vendas/mês</span></div><div class="metric"><b>89</b><span>DNA score</span></div></div>
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Curva de rampa dos aprendizes</h3></div><span class="hint">dias até a 1ª meta</span></div>
+          <p style="font-size:12.5px;color:var(--ink-3);margin:-4px 0 14px">Com o método, novos vendedores batem meta em 27 dias — antes levava 74.</p>
+          <div id="rampChart"></div>
+          <div class="legend">
+            <div class="lg"><span class="sw" style="background:var(--gold)"></span>Com o método A!</div>
+            <div class="lg"><span class="sw" style="background:var(--bottom)"></span>Onboarding antigo</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: JORNADA
+    ========================================================== -->
+    <section class="view" id="view-jornada">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Jornada do Programa</h2><div class="sub">Solaris Energia · da descoberta ao resultado — 6 fases, 16 semanas</div></div></div>
+        <div class="act"><span class="tag good">62% concluído</span></div></div>
+
+      <div class="card pad">
+        <div class="jstage">
+          <div class="jline"></div>
+          <div style="flex:1;display:flex;flex-direction:column">
+            <div class="jrow"><div class="jdot done">✓</div><div class="jcard"><div class="jh"><h4>Fase 1 — Diagnóstico</h4><span class="tag good">Concluída</span></div><p>Raio-X do time: mapeamos os 5 melhores e os 5 piores, quantificamos os vazamentos do funil e definimos as hipóteses.</p><div class="jmeta"><span>Semanas 1–2</span><span>Entregue: <b>Relatório de diagnóstico</b></span></div></div></div>
+            <div class="jrow"><div class="jdot done">✓</div><div class="jcard"><div class="jh"><h4>Fase 2 — Extração do método</h4><span class="tag good">Concluída</span></div><p>Acompanhamos os mestres em campo e destilamos o DNA vencedor nos 6 módulos do Método Vivo.</p><div class="jmeta"><span>Semanas 3–5</span><span>Entregue: <b>Método Vivo v1</b></span></div></div></div>
+            <div class="jrow"><div class="jdot done">✓</div><div class="jcard"><div class="jh"><h4>Fase 3 — Piloto</h4><span class="tag good">Concluída</span></div><p>Testamos o método com 12 vendedores. Conversão do grupo saltou de 18% para 28% em 3 semanas.</p><div class="jmeta"><span>Semanas 6–8</span><span>Resultado: <b>+55% conversão no piloto</b></span></div></div></div>
+            <div class="jrow"><div class="jdot now">4</div><div class="jcard" style="border-color:var(--line)"><div class="jh"><h4>Fase 4 — Multiplicação</h4><span class="tag gold">Em andamento</span></div><p>Cada mestre treina uma onda de multiplicadores, que treinam a próxima. O método se espalha por todo o time.</p><div class="jmeta"><span>Semanas 9–13</span><span>Progresso: <b>148 de 160 vendedores</b></span></div></div></div>
+            <div class="jrow"><div class="jdot">5</div><div class="jcard"><div class="jh"><h4>Fase 5 — Consolidação</h4><span class="tag mute">Prevista</span></div><p>Certificação por faixas, premiação do trimestre e ajuste fino do método com os dados de campo.</p><div class="jmeta"><span>Semanas 14–15</span><span>Marco: <b>Certificação & premiação</b></span></div></div></div>
+            <div class="jrow"><div class="jdot">6</div><div class="jcard"><div class="jh"><h4>Fase 6 — Resultados & autogestão</h4><span class="tag mute">Prevista</span></div><p>Relatório final de ROI, coleta de depoimentos e entrega do processo autogerenciável — o time roda sozinho.</p><div class="jmeta"><span>Semana 16</span><span>Entregável: <b>Relatório final + processo vivo</b></span></div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: ÁRVORE DE MULTIPLICAÇÃO
+    ========================================================== -->
+    <section class="view" id="view-arvore">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Árvore de Multiplicação</h2><div class="sub">Como o método se espalha em ondas — cada multiplicador forma os próximos</div></div></div>
+        <div class="act"><span class="tag gold">Efeito multiplicador: 3,5×</span></div></div>
+
+      <div class="grid g-2" style="grid-template-columns:1.4fr .6fr;">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>O efeito cascata</h3></div><span class="hint">6 mestres → 148 vendedores</span></div>
+          <div class="tree-wrap"><div class="wave-row" id="treeWaves"></div></div>
+          <div class="divider"></div>
+          <p style="font-size:12.5px;color:var(--ink-2);margin:0">Começamos com <b class="text-gold">6 mestres</b>. Cada um formou multiplicadores, que formaram os próximos. Em 4 ondas, o método chegou a <b class="text-gold">148 vendedores</b> — sem depender de um único treinador. É isso que torna o processo <b>autogerenciável</b>.</p>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Ondas de formação</h3></div></div>
+          <div class="rows">
+            <div class="row"><div class="rank-badge g1">0</div><div class="who"><b>Mestres fundadores</b><span>DNA original do método</span></div><div class="metric"><b>6</b><span>pessoas</span></div></div>
+            <div class="row"><div class="rank-badge">1</div><div class="who"><b>Onda 1</b><span>Cada mestre formou ~3</span></div><div class="metric"><b>18</b><span>pessoas</span></div></div>
+            <div class="row"><div class="rank-badge">2</div><div class="who"><b>Onda 2</b><span>Multiplicação acelerada</span></div><div class="metric"><b>48</b><span>pessoas</span></div></div>
+            <div class="row"><div class="rank-badge">3</div><div class="who"><b>Onda 3</b><span>Todo o time restante</span></div><div class="metric"><b>76</b><span>pessoas</span></div></div>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12.5px;color:var(--ink-2)">Total multiplicado</span><b class="mono text-gold" style="font-size:20px;font-family:var(--f-display)">148</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: RANKING & PREMIAÇÃO
+    ========================================================== -->
+    <section class="view" id="view-ranking">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Ranking & Premiação</h2><div class="sub">A corrida do trimestre — atualizada ao vivo com cada venda registrada</div></div></div>
+        <div class="act"><span class="tag gold">Encerra em 12 dias</span></div></div>
+
+      <div class="grid g-3" style="align-items:end;margin-bottom:6px">
+        <div class="card pad" style="text-align:center;order:1">
+          <div class="rank-badge g2" style="margin:0 auto 12px;width:44px;height:44px;border-radius:14px;font-size:18px">2</div>
+          <div class="av-init" style="margin:0 auto 10px;width:54px;height:54px;font-size:18px">JP</div>
+          <b style="display:block;font-size:15px">Juliana Prado</b><span style="font-size:11.5px;color:var(--ink-3)">Onda 0 · Mestre</span>
+          <div style="font-family:var(--f-display);font-size:26px;color:var(--ink);margin-top:8px">8.940 <span style="font-size:12px;color:var(--ink-3)">pts</span></div>
+          <div class="tag mute" style="margin-top:8px">🥈 Bônus + troféu</div>
+        </div>
+        <div class="card pad" style="text-align:center;order:2;border-color:var(--line);box-shadow:var(--glow);transform:translateY(-10px)">
+          <div class="rank-badge g1" style="margin:0 auto 12px;width:52px;height:52px;border-radius:16px;font-size:22px">1</div>
+          <div class="av-init" style="margin:0 auto 10px;width:64px;height:64px;font-size:22px;background:var(--gold-grad);color:#0a0a0e;border:none">RM</div>
+          <b style="display:block;font-size:16px">Rafael Mendes</b><span style="font-size:11.5px;color:var(--gold)">Onda 0 · Mestre</span>
+          <div style="font-family:var(--f-display);font-size:32px;color:var(--gold-bright);margin-top:8px">9.720 <span style="font-size:13px;color:var(--ink-3)">pts</span></div>
+          <div class="tag gold" style="margin-top:8px">🏆 Viagem + R$ 5.000</div>
+        </div>
+        <div class="card pad" style="text-align:center;order:3">
+          <div class="rank-badge g3" style="margin:0 auto 12px;width:44px;height:44px;border-radius:14px;font-size:18px">3</div>
+          <div class="av-init" style="margin:0 auto 10px;width:54px;height:54px;font-size:18px">CR</div>
+          <b style="display:block;font-size:15px">Camila Rocha</b><span style="font-size:11.5px;color:var(--ink-3)">Onda 0 · Mestre</span>
+          <div style="font-family:var(--f-display);font-size:26px;color:var(--ink);margin-top:8px">8.310 <span style="font-size:12px;color:var(--ink-3)">pts</span></div>
+          <div class="tag mute" style="margin-top:8px">🥉 Bônus + troféu</div>
+        </div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:18px;grid-template-columns:1.3fr .7fr">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Classificação geral</h3></div><span class="hint">pontos = vendas × ticket × adoção do método</span></div>
+          <div class="rows" id="rankRows"></div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Quadro de premiação</h3></div></div>
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div class="belt"><div class="belt-ic" style="background:var(--gold-grad)"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0e" stroke-width="1.7"><path d="M2 3h20v5a4 4 0 01-4 4H6a4 4 0 01-4-4zM8 21h8M12 12v9"/></svg></div><div><b>1º lugar</b><br><span>Viagem para 2 + R$ 5.000 + troféu de ouro</span></div></div>
+            <div class="belt"><div class="belt-ic" style="background:rgba(215,218,226,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#cfd3db" stroke-width="1.7"><path d="M12 15a5 5 0 100-10 5 5 0 000 10zM8.2 13.5L7 22l5-3 5 3-1.2-8.5"/></svg></div><div><b>2º e 3º lugar</b><br><span>Bônus em dinheiro + troféu + dia de folga</span></div></div>
+            <div class="belt"><div class="belt-ic" style="background:var(--gold-ghost)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.7"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.4 5.7 21 8 13.9 2 9.4h7.6z"/></svg></div><div><b>Top 10</b><br><span>Certificação Multiplicador + destaque no mural</span></div></div>
+            <div class="belt"><div class="belt-ic" style="background:var(--info-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="1.7"><path d="M12 2a7 7 0 00-4 12.7V17a2 2 0 002 2h4a2 2 0 002-2v-2.3A7 7 0 0012 2zM9 22h6"/></svg></div><div><b>Maior evolução</b><br><span>Prêmio "Salto do trimestre" para quem mais subiu</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: RESULTADOS & ROI
+    ========================================================== -->
+    <section class="view" id="view-resultados">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Resultados & ROI</h2><div class="sub">O que o programa entregou em números — o argumento que renova o contrato</div></div></div>
+        <div class="act"><button class="btn gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M9 15l2 2 4-4"/></svg>Gerar relatório final</button></div></div>
+
+      <div class="grid g-4">
+        <div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="sl">Receita incremental</div><div class="sv">R$ <span class="count" data-to="4.7" data-dec="1">0</span>M</div><div class="sd up">▲ em 4 meses</div></div>
+        <div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="sl">Retorno sobre investimento</div><div class="sv"><span class="count" data-to="6.2" data-dec="1">0</span>×</div><div class="sd up">▲ cada R$1 virou R$6,20</div></div>
+        <div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="sl">Payback</div><div class="sv"><span class="count" data-to="3">0</span> meses</div><div class="sd up">▲ antes do previsto</div></div>
+        <div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18M18 9l-5 5-3-3-4 4"/></svg></div><div class="sl">Ciclo de venda</div><div class="sv"><span class="count" data-to="27">0</span> dias</div><div class="sd up">▲ −36% (era 42)</div></div>
+      </div>
+
+      <div class="grid g-2" style="margin-top:18px;grid-template-columns:1fr 1fr">
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Antes & depois do método</h3></div><span class="tag gold">Solaris</span></div>
+          <div class="cmp"><div class="cl">Conversão média</div><div class="cvals"><span class="before">18%</span><span class="arrow">→</span><span class="after">31%</span></div><span class="delta up">+72%</span></div>
+          <div class="cmp"><div class="cl">Ticket médio</div><div class="cvals"><span class="before">R$ 8,2k</span><span class="arrow">→</span><span class="after">R$ 11,4k</span></div><span class="delta up">+39%</span></div>
+          <div class="cmp"><div class="cl">Ciclo de venda</div><div class="cvals"><span class="before">42d</span><span class="arrow">→</span><span class="after">27d</span></div><span class="delta up">−36%</span></div>
+          <div class="cmp"><div class="cl">Follow-up registrado</div><div class="cvals"><span class="before">27%</span><span class="arrow">→</span><span class="after">89%</span></div><span class="delta up">+230%</span></div>
+          <div class="cmp"><div class="cl">Vendedores na meta</div><div class="cvals"><span class="before">21%</span><span class="arrow">→</span><span class="after">76%</span></div><span class="delta up">+262%</span></div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Evolução da conversão</h3></div><span class="hint">média do time · % por mês</span></div>
+          <div id="convChart"></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:20px">
+            <div><div style="font-size:11px;color:var(--ink-3)">Início do programa</div><div class="mono" style="font-size:18px;color:var(--ink)">18%</div></div>
+            <div style="align-self:center;color:var(--gold);font-size:20px">→</div>
+            <div><div style="font-size:11px;color:var(--ink-3)">Hoje</div><div class="mono" style="font-size:18px;color:var(--gold)">31%</div></div>
+            <div style="margin-left:auto;text-align:right"><div style="font-size:11px;color:var(--ink-3)">Meta fim do programa</div><div class="mono" style="font-size:18px;color:var(--ink)">35%</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         VIEW: DEPOIMENTOS & FEEDBACK
+    ========================================================== -->
+    <section class="view" id="view-depoimentos">
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Depoimentos & Feedback</h2><div class="sub">A prova social do programa — e o termômetro que mantém o método afiado</div></div></div></div>
+
+      <div class="grid g-3">
+        <div class="card pad" style="text-align:center">
+          <div style="font-family:var(--f-display);font-size:44px;color:var(--gold-bright);line-height:1"><span class="count" data-to="84">0</span></div>
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:4px">NPS do time</div>
+          <div id="npsGauge" style="display:flex;justify-content:center;margin-top:8px"></div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>O que mudou, na voz do time</h3></div></div>
+          <div class="pill-row" style="margin-top:2px">
+            <span class="tag good">+ "Agora sei o que falar"</span>
+            <span class="tag good">+ "Bato meta todo mês"</span>
+            <span class="tag good">+ "Follow-up virou hábito"</span>
+            <span class="tag info">± "Quero mais role-play"</span>
+            <span class="tag good">+ "Time mais unido"</span>
+            <span class="tag warn">− "Sistema poderia avisar antes"</span>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;flex-direction:column;gap:13px">
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--ink-2)">"O método me deu segurança"</span><b class="mono text-gold">92%</b></div><div class="meter good"><i data-w="92"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--ink-2)">"Recomendaria o programa"</span><b class="mono text-gold">88%</b></div><div class="meter good"><i data-w="88"></i></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--ink-2)">"Minha renda aumentou"</span><b class="mono text-gold">81%</b></div><div class="meter"><i data-w="81"></i></div></div>
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="card-h"><div class="ct"><h3>Hall da Fama</h3></div><span class="tag gold">★</span></div>
+          <div class="rows">
+            <div class="row"><div class="rank-badge g1">★</div><div class="who"><b>Rafael Mendes</b><span>Mestre do trimestre · 3× seguidas</span></div></div>
+            <div class="row"><div class="av-init">JP</div><div class="who"><b>Juliana Prado</b><span>Maior taxa de follow-up: 96%</span></div></div>
+            <div class="row"><div class="av-init">LS</div><div class="who"><b>Lucas Santos</b><span>Salto do trimestre: +214% em vendas</span></div></div>
+            <div class="row"><div class="av-init">CR</div><div class="who"><b>Camila Rocha</b><span>Maior ticket médio: R$ 16,2k</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-h"><div class="st"><span class="bar"></span><div><h2>Depoimentos</h2><div class="sub">Para o relatório final e para vender o próximo programa</div></div></div></div>
+      <div class="grid g-3">
+        <div class="quote">
+          <div class="stars">★★★★★</div>
+          <p>"Eu era o vendedor que mais sumia depois do 'vou pensar'. Hoje tenho uma cadência e bati minha meta três meses seguidos. O método destravou algo que eu nem sabia que travava."</p>
+          <div class="qwho"><div class="av-init">LS</div><div><b>Lucas Santos</b><span>Vendedor · Onda 2 · Solaris</span></div></div>
+        </div>
+        <div class="quote">
+          <div class="stars">★★★★★</div>
+          <p>"Contratei a A! Multiplicadora achando que ia comprar um treinamento. Recebi um processo que roda sem mim. Minha operação virou uma máquina previsível — e o ROI apareceu no terceiro mês."</p>
+          <div class="qwho"><div class="av-init" style="background:var(--gold-grad);color:#0a0a0e;border:none">RF</div><div><b>Ricardo Fontes</b><span>CEO · Solaris Energia</span></div></div>
+        </div>
+        <div class="quote">
+          <div class="stars">★★★★★</div>
+          <p>"Ser Mestre Multiplicadora mudou minha carreira. Ensinar o que eu fazia no automático me fez vender ainda melhor — e ganhei uma viagem no caminho."</p>
+          <div class="qwho"><div class="av-init">JP</div><div><b>Juliana Prado</b><span>Mestre Multiplicadora · Solaris</span></div></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div class="tt" id="tt"></div>
+
+<script>
+(function(){
+  "use strict";
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ---------- Splash ---------- */
+  function boot(){
+    var app=document.getElementById('app'); app.classList.add('ready');
+    setTimeout(function(){ var s=document.getElementById('splash'); if(s) s.classList.add('done'); },RM?0:1350);
+    setTimeout(runAnims, RM?60:180);
+  }
+  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
+
+  /* ---------- Navigation ---------- */
+  var crumbMap={
+    dashboard:['Programa','Central de Comando'], empresas:['Programa','Empresas & Diagnóstico'],
+    dna:['Método','DNA de Vendas'], metodo:['Método','Método Vivo'], multiplicadores:['Método','Multiplicadores'],
+    jornada:['Execução','Jornada do Programa'], arvore:['Execução','Árvore de Multiplicação'],
+    ranking:['Execução','Ranking & Premiação'], resultados:['Resultados','Resultados & ROI'],
+    depoimentos:['Resultados','Depoimentos & Feedback']
+  };
+  var rendered={};
+  function go(v){
+    document.querySelectorAll('.nav-item').forEach(function(b){b.classList.toggle('active',b.dataset.view===v);});
+    document.querySelectorAll('.view').forEach(function(s){s.classList.toggle('active',s.id==='view-'+v);});
+    var c=crumbMap[v]||['',''];
+    document.getElementById('crumbEyebrow').textContent=c[0];
+    document.getElementById('crumbTitle').textContent=c[1];
+    var side=document.getElementById('side'); if(side) side.classList.remove('open');
+    window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+    if(!rendered[v]){ rendered[v]=true; setTimeout(function(){renderView(v);},60); }
+  }
+  document.getElementById('nav').addEventListener('click',function(e){
+    var b=e.target.closest('.nav-item'); if(b) go(b.dataset.view);
+  });
+  document.querySelectorAll('.co-card').forEach(function(c){c.addEventListener('click',function(){go('dna');});});
+  var mb=document.getElementById('menuBtn');
+  if(mb) mb.addEventListener('click',function(){document.getElementById('side').classList.toggle('open');});
+
+  /* ---------- Objection accordions ---------- */
+  document.addEventListener('click',function(e){
+    var q=e.target.closest('.obj-q'); if(q){ q.parentElement.classList.toggle('open'); }
+  });
+
+  /* ---------- Count-up ---------- */
+  function countUp(el){
+    var to=parseFloat(el.dataset.to), dec=parseInt(el.dataset.dec||'0',10),
+        suf=el.dataset.suffix||'', dur=RM?0:1200, t0=null;
+    function fmt(n){ var s=n.toFixed(dec); s=s.replace('.',','); return s+suf; }
+    if(RM){ el.textContent=fmt(to); return; }
+    function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/dur,1); var e=1-Math.pow(1-p,3);
+      el.textContent=fmt(to*e); if(p<1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- Animate meters/bars on view ---------- */
+  function animMeters(root){
+    root.querySelectorAll('.fill[data-w],.meter i[data-w],.bar-mini i[data-w]').forEach(function(i){
+      var w=i.dataset.w; setTimeout(function(){ i.style.width=w+'%'; }, RM?0:120);
+    });
+    root.querySelectorAll('.count').forEach(function(c){ if(!c.dataset.done){c.dataset.done='1';countUp(c);} });
+  }
+
+  /* ---------- Tooltip helper ---------- */
+  var tt=document.getElementById('tt');
+  function showTT(html,x,y){ tt.innerHTML=html; tt.classList.add('on');
+    var r=tt.getBoundingClientRect(); var nx=x+14, ny=y-r.height-10;
+    if(nx+r.width>window.innerWidth-8) nx=x-r.width-14; if(ny<8) ny=y+16;
+    tt.style.left=nx+'px'; tt.style.top=ny+'px'; }
+  function hideTT(){ tt.classList.remove('on'); }
+
+  var SVGNS='http://www.w3.org/2000/svg';
+  function svg(tag,attrs){ var e=document.createElementNS(SVGNS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); return e; }
+
+  /* ================= CHARTS ================= */
+
+  /* Revenue area chart (dashboard) */
+  function revChart(id){
+    var el=document.getElementById(id); if(!el||el.dataset.done)return; el.dataset.done=1;
+    var W=560,H=230,pad={l:44,r:16,t:16,b:30};
+    var months=['Fev','Mar','Abr','Mai','Jun','Jul'];
+    var withM=[3.1,3.6,4.4,5.9,7.2,8.6];      // R$ M cumulative with method
+    var without=[3.1,3.3,3.5,3.7,3.9,4.1];    // projection without
+    var max=9;
+    var s=svg('svg',{viewBox:'0 0 '+W+' '+H,class:'chart-svg'});
+    var pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+    function X(i){return pad.l+pw*(i/(months.length-1));}
+    function Y(v){return pad.t+ph*(1-v/max);}
+    // grid
+    for(var g=0;g<=3;g++){ var gy=pad.t+ph*(g/3);
+      s.appendChild(svg('line',{x1:pad.l,y1:gy,x2:W-pad.r,y2:gy,stroke:'rgba(255,255,255,.06)','stroke-width':1}));
+      var tx=document.createElementNS(SVGNS,'text'); tx.setAttribute('x',pad.l-8);tx.setAttribute('y',gy+3);
+      tx.setAttribute('fill','#807C70');tx.setAttribute('font-size','9.5');tx.setAttribute('text-anchor','end');
+      tx.textContent='R$'+((max-max*g/3).toFixed(0))+'M'; s.appendChild(tx);
+    }
+    // area with method
+    var defs=svg('defs',{}); var grad=svg('linearGradient',{id:'revGrad',x1:0,y1:0,x2:0,y2:1});
+    grad.appendChild(svg('stop',{offset:0,'stop-color':'#E8C87A','stop-opacity':.34}));
+    grad.appendChild(svg('stop',{offset:1,'stop-color':'#E8C87A','stop-opacity':0}));
+    defs.appendChild(grad); s.appendChild(defs);
+    var dA='M'+X(0)+' '+Y(withM[0]); withM.forEach(function(v,i){ if(i)dA+=' L'+X(i)+' '+Y(v); });
+    var area=dA+' L'+X(months.length-1)+' '+(pad.t+ph)+' L'+X(0)+' '+(pad.t+ph)+' Z';
+    s.appendChild(svg('path',{d:area,fill:'url(#revGrad)'}));
+    // without line (dashed slate)
+    var dW='M'+X(0)+' '+Y(without[0]); without.forEach(function(v,i){ if(i)dW+=' L'+X(i)+' '+Y(v); });
+    s.appendChild(svg('path',{d:dW,fill:'none',stroke:'#6E7E9E','stroke-width':2,'stroke-dasharray':'5 5','stroke-linecap':'round'}));
+    // method line
+    var line=svg('path',{d:dA,fill:'none',stroke:'#E8C87A','stroke-width':2.6,'stroke-linecap':'round','stroke-linejoin':'round'});
+    s.appendChild(line);
+    // month labels + points + hover
+    months.forEach(function(m,i){
+      var tx=document.createElementNS(SVGNS,'text'); tx.setAttribute('x',X(i));tx.setAttribute('y',H-10);
+      tx.setAttribute('fill','#807C70');tx.setAttribute('font-size','10');tx.setAttribute('text-anchor','middle');tx.textContent=m; s.appendChild(tx);
+      s.appendChild(svg('circle',{cx:X(i),cy:Y(withM[i]),r:3.4,fill:'#0A0A0E',stroke:'#E8C87A','stroke-width':2}));
+      var hit=svg('rect',{x:X(i)-pw/12,y:pad.t,width:pw/6,height:ph,fill:'transparent'});
+      hit.style.cursor='pointer';
+      (function(i){ hit.addEventListener('mousemove',function(ev){
+        showTT('<b>'+months[i]+'</b><div class="tr"><span class="sw" style="background:#E8C87A"></span>Com método<b>R$ '+withM[i].toFixed(1).replace('.',',')+'M</b></div><div class="tr"><span class="sw" style="background:#6E7E9E"></span>Sem programa<b>R$ '+without[i].toFixed(1).replace('.',',')+'M</b></div>',ev.clientX,ev.clientY);
+      }); hit.addEventListener('mouseleave',hideTT); })(i);
+      s.appendChild(hit);
+    });
+    // emphasized endpoint
+    s.appendChild(svg('circle',{cx:X(5),cy:Y(withM[5]),r:5,fill:'#E8C87A'}));
+    el.appendChild(s);
+    if(!RM){ var L=line.getTotalLength(); line.style.strokeDasharray=L;line.style.strokeDashoffset=L;
+      line.getBoundingClientRect(); line.style.transition='stroke-dashoffset 1.6s ease'; line.style.strokeDashoffset=0; }
+  }
+
+  /* Generic line chart (conversion / ramp) */
+  function lineChart(id,opt){
+    var el=document.getElementById(id); if(!el||el.dataset.done)return; el.dataset.done=1;
+    var W=520,H=210,pad={l:38,r:14,t:16,b:28};
+    var labels=opt.labels, max=opt.max, series=opt.series, unit=opt.unit||'';
+    var pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+    function X(i){return pad.l+pw*(i/(labels.length-1));}
+    function Y(v){return pad.t+ph*(1-v/max);}
+    var s=svg('svg',{viewBox:'0 0 '+W+' '+H,class:'chart-svg'});
+    for(var g=0;g<=3;g++){ var gy=pad.t+ph*(g/3);
+      s.appendChild(svg('line',{x1:pad.l,y1:gy,x2:W-pad.r,y2:gy,stroke:'rgba(255,255,255,.06)'}));
+      var tx=document.createElementNS(SVGNS,'text'); tx.setAttribute('x',pad.l-7);tx.setAttribute('y',gy+3);
+      tx.setAttribute('fill','#807C70');tx.setAttribute('font-size','9.5');tx.setAttribute('text-anchor','end');
+      tx.textContent=Math.round(max-max*g/3)+unit; s.appendChild(tx);
+    }
+    labels.forEach(function(m,i){ var tx=document.createElementNS(SVGNS,'text'); tx.setAttribute('x',X(i));tx.setAttribute('y',H-9);
+      tx.setAttribute('fill','#807C70');tx.setAttribute('font-size','9.5');tx.setAttribute('text-anchor','middle');tx.textContent=m; s.appendChild(tx); });
+    series.forEach(function(se){
+      var d='M'+X(0)+' '+Y(se.data[0]); se.data.forEach(function(v,i){ if(i)d+=' L'+X(i)+' '+Y(v); });
+      var ln=svg('path',{d:d,fill:'none',stroke:se.color,'stroke-width':se.dash?2:2.6,'stroke-linecap':'round','stroke-linejoin':'round'});
+      if(se.dash) ln.setAttribute('stroke-dasharray','5 5'); s.appendChild(ln);
+      se.data.forEach(function(v,i){ s.appendChild(svg('circle',{cx:X(i),cy:Y(v),r:3,fill:'#0A0A0E',stroke:se.color,'stroke-width':2})); });
+    });
+    // hover columns
+    labels.forEach(function(m,i){ var hit=svg('rect',{x:X(i)-pw/(labels.length*1.6),y:pad.t,width:pw/(labels.length*.8),height:ph,fill:'transparent'});
+      hit.style.cursor='pointer';
+      (function(i){ hit.addEventListener('mousemove',function(ev){
+        var rows=series.map(function(se){return '<div class="tr"><span class="sw" style="background:'+se.color+'"></span>'+se.name+'<b>'+se.data[i]+unit+'</b></div>';}).join('');
+        showTT('<b>'+labels[i]+'</b>'+rows,ev.clientX,ev.clientY);
+      }); hit.addEventListener('mouseleave',hideTT); })(i);
+      s.appendChild(hit);
+    });
+    el.appendChild(s);
+  }
+
+  /* Radar chart (DNA) */
+  function radar(id){
+    var el=document.getElementById(id); if(!el||el.dataset.done)return; el.dataset.done=1;
+    var axes=['Prospecção','Rapport','Diagnóstico','Valor','Objeções','Fechamento','Follow-up'];
+    var top=[82,88,94,90,86,93,91], bot=[54,60,38,44,32,49,26];
+    var W=380,H=340,cx=W/2,cy=H/2+6,R=120,N=axes.length;
+    var s=svg('svg',{viewBox:'0 0 '+W+' '+H,class:'chart-svg'});
+    function pt(i,r){ var a=-Math.PI/2+i*2*Math.PI/N; return [cx+Math.cos(a)*r,cy+Math.sin(a)*r]; }
+    for(var ring=1;ring<=4;ring++){ var d=''; for(var i=0;i<N;i++){ var p=pt(i,R*ring/4); d+=(i?'L':'M')+p[0]+' '+p[1]; } d+='Z';
+      s.appendChild(svg('path',{d:d,fill:'none',stroke:'rgba(255,255,255,.07)'})); }
+    for(var i=0;i<N;i++){ var p=pt(i,R); s.appendChild(svg('line',{x1:cx,y1:cy,x2:p[0],y2:p[1],stroke:'rgba(255,255,255,.07)'}));
+      var lp=pt(i,R+24); var tx=document.createElementNS(SVGNS,'text');
+      tx.setAttribute('x',lp[0]);tx.setAttribute('y',lp[1]+3);tx.setAttribute('fill','#BAB5A6');tx.setAttribute('font-size','9.5');
+      tx.setAttribute('text-anchor',lp[0]<cx-6?'end':lp[0]>cx+6?'start':'middle'); tx.textContent=axes[i]; s.appendChild(tx); }
+    function poly(data,color,fill){ var d=''; for(var i=0;i<N;i++){ var p=pt(i,R*data[i]/100); d+=(i?'L':'M')+p[0]+' '+p[1]; } d+='Z';
+      s.appendChild(svg('path',{d:d,fill:fill,stroke:color,'stroke-width':2,'stroke-linejoin':'round'}));
+      for(var j=0;j<N;j++){ var p=pt(j,R*data[j]/100); var c=svg('circle',{cx:p[0],cy:p[1],r:3.4,fill:color,stroke:'#0A0A0E','stroke-width':1.5});
+        c.style.cursor='pointer'; (function(j,color,name){ c.addEventListener('mousemove',function(ev){
+          showTT('<b>'+axes[j]+'</b><div class="tr"><span class="sw" style="background:'+color+'"></span>'+name+'<b>'+data[j]+'</b></div>',ev.clientX,ev.clientY);
+        }); c.addEventListener('mouseleave',hideTT);})(j,color,color===  '#E8C87A'?'Top 5':'Bottom 5'); s.appendChild(c); }
+    }
+    poly(bot,'#6E7E9E','rgba(110,126,158,.18)');
+    poly(top,'#E8C87A','rgba(232,200,122,.16)');
+    el.appendChild(s);
+  }
+
+  /* DNA gaps (diverging-ish horizontal) */
+  function dnaGaps(id){
+    var el=document.getElementById(id); if(!el||el.dataset.done)return; el.dataset.done=1;
+    var rows=[['Contorno de objeções',86,32],['Diagnóstico',94,38],['Follow-up',91,26],['Fechamento',93,49],['Ancoragem de valor',90,44],['Rapport',88,60],['Prospecção',82,54]];
+    var wrap=document.createElement('div'); wrap.style.display='flex';wrap.style.flexDirection='column';wrap.style.gap='13px';
+    rows.forEach(function(r){
+      var gap=r[1]-r[2];
+      var d=document.createElement('div');
+      d.innerHTML='<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--ink-2)">'+r[0]+'</span><span class="mono" style="color:var(--gold);font-weight:700">+'+gap+' pts</span></div>'+
+        '<div style="position:relative;height:9px;border-radius:6px;background:rgba(255,255,255,.06)">'+
+        '<div style="position:absolute;left:0;top:0;height:100%;width:'+r[2]+'%;background:linear-gradient(135deg,#8a97b3,#5a6683);border-radius:6px"></div>'+
+        '<div class="gapfill" data-w="'+r[1]+'" style="position:absolute;left:'+r[2]+'%;top:0;height:100%;width:0;background:var(--gold-grad);border-radius:0 6px 6px 0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)"></div>'+
+        '</div>';
+      wrap.appendChild(d);
+    });
+    el.appendChild(wrap);
+    setTimeout(function(){ el.querySelectorAll('.gapfill').forEach(function(g){ g.style.width=(parseFloat(g.dataset.w)-parseFloat(g.previousElementSibling.style.width))+'%'; }); },RM?0:150);
+  }
+
+  /* Gauge (semicircle) */
+  function gauge(id,val,color){
+    var el=document.getElementById(id); if(!el||el.dataset.done)return; el.dataset.done=1;
+    var W=200,H=120,cx=100,cy=110,R=80;
+    var s=svg('svg',{viewBox:'0 0 '+W+' '+H,width:'200',height:'120'});
+    function arc(a0,a1,r){ var x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+      var large=(a1-a0)>Math.PI?1:0; return 'M'+x0+' '+y0+' A'+r+' '+r+' 0 '+large+' 1 '+x1+' '+y1; }
+    s.appendChild(svg('path',{d:arc(Math.PI,2*Math.PI,R),fill:'none',stroke:'rgba(255,255,255,.07)','stroke-width':14,'stroke-linecap':'round'}));
+    var a1=Math.PI+Math.PI*(val/100);
+    var p=svg('path',{d:arc(Math.PI,a1,R),fill:'none',stroke:color||'url(#gg)','stroke-width':14,'stroke-linecap':'round'});
+    var defs=svg('defs',{}); var g=svg('linearGradient',{id:'gg',x1:0,y1:0,x2:1,y2:0});
+    g.appendChild(svg('stop',{offset:0,'stop-color':'#A8842F'})); g.appendChild(svg('stop',{offset:1,'stop-color':'#F7E6B0'}));
+    defs.appendChild(g); s.appendChild(defs); s.appendChild(p);
+    var tx=document.createElementNS(SVGNS,'text'); tx.setAttribute('x',cx);tx.setAttribute('y',cy-14);
+    tx.setAttribute('fill','#F4F0E6');tx.setAttribute('font-size','30');tx.setAttribute('text-anchor','middle');
+    tx.setAttribute('font-family','Fraunces,Georgia,serif');tx.setAttribute('font-weight','600');tx.textContent=val+'%'; s.appendChild(tx);
+    el.appendChild(s);
+    if(!RM){ var L=p.getTotalLength(); p.style.strokeDasharray=L;p.style.strokeDashoffset=L; p.getBoundingClientRect();
+      p.style.transition='stroke-dashoffset 1.4s ease'; p.style.strokeDashoffset=0; }
+  }
+
+  /* Multiplication tree waves */
+  function tree(id){
+    var el=document.getElementById(id); if(!el||el.dataset.done)return; el.dataset.done=1;
+    var waves=[['Onda 0 · Mestres','DNA original',6,true],['Onda 1','cada mestre forma ~3',18,false],['Onda 2','multiplicação acelera',48,false],['Onda 3','todo o time',76,false]];
+    var delay=0;
+    waves.forEach(function(w,wi){
+      var row=document.createElement('div'); row.className='wave';
+      var lbl=document.createElement('div'); lbl.className='wave-lbl'; lbl.innerHTML='<b>'+w[0]+'</b><span>'+w[1]+'</span>';
+      var nodes=document.createElement('div'); nodes.className='wave-nodes';
+      var show=Math.min(w[2],w[2]>30?30:w[2]);
+      for(var i=0;i<show;i++){ var n=document.createElement('div'); n.className='tnode'+(w[3]?' seed':'');
+        n.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M6 20a6 6 0 0112 0"/></svg>';
+        nodes.appendChild(n); if(!RM){ (function(n,d){ setTimeout(function(){ n.style.opacity=1;n.style.transform='scale(1)'; },d); })(n,delay); delay+=22; } else { n.style.opacity=1;n.style.transform='none'; } }
+      if(w[2]>show){ var more=document.createElement('div'); more.style.cssText='align-self:center;font-size:11px;color:var(--ink-3);margin-left:4px;font-family:var(--f-mono)';
+        more.textContent='+'+(w[2]-show); nodes.appendChild(more); }
+      var cnt=document.createElement('div'); cnt.className='wave-count'; cnt.textContent=w[2];
+      row.appendChild(lbl); row.appendChild(nodes); row.appendChild(cnt); el.appendChild(row);
+    });
+  }
+
+  /* Ramp chart bars comparison handled by lineChart; ranking rows */
+  function topRows(id,full){
+    var el=document.getElementById(id); if(!el||el.dataset.done)return; el.dataset.done=1;
+    var data=[['Rafael Mendes','Mestre · Onda 0',9720,'RM'],['Juliana Prado','Mestre · Onda 0',8940,'JP'],['Camila Rocha','Mestre · Onda 0',8310,'CR'],['Thiago Alves','Multiplicador · Onda 1',7420,'TA'],['Lucas Santos','Praticante · Onda 2',6890,'LS'],['Mariana Dias','Multiplicador · Onda 1',6540,'MD'],['Bruno Costa','Praticante · Onda 2',6120,'BC'],['Paula Nunes','Multiplicador · Onda 1',5980,'PN']];
+    var max=data[0][2];
+    data.slice(0,full?8:5).forEach(function(d,i){
+      var row=document.createElement('div'); row.className='row';
+      var badge=i<3?'rank-badge g'+(i+1):'rank-badge';
+      row.innerHTML='<div class="'+badge+'">'+(i+1)+'</div>'+
+        (full?'<div class="av-init">'+d[3]+'</div>':'')+
+        '<div class="who"><b>'+d[0]+'</b><span>'+d[1]+'</span></div>'+
+        (full?'<div class="bar-mini"><i data-w="'+Math.round(d[2]/max*100)+'"></i></div>':'')+
+        '<div class="metric"><b>'+d[2].toLocaleString('pt-BR')+'</b><span>pontos</span></div>';
+      el.appendChild(row);
+    });
+    setTimeout(function(){ el.querySelectorAll('.bar-mini i').forEach(function(i){i.style.width=i.dataset.w+'%';}); },RM?0:150);
+  }
+
+  /* ---------- Per-view renderer ---------- */
+  function renderView(v){
+    var root=document.getElementById('view-'+v); if(root) animMeters(root);
+    if(v==='dashboard'){ /* handled at boot */ }
+    if(v==='empresas'){}
+    if(v==='dna'){ radar('dnaRadar'); dnaGaps('dnaGaps'); }
+    if(v==='metodo'){}
+    if(v==='multiplicadores'){ lineChart('rampChart',{labels:['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6'],max:100,unit:'',series:[{name:'Método A!',color:'#E8C87A',data:[20,45,68,84,94,100]},{name:'Onboarding antigo',color:'#6E7E9E',dash:true,data:[8,16,27,38,46,54]}]}); }
+    if(v==='jornada'){}
+    if(v==='arvore'){ tree('treeWaves'); }
+    if(v==='ranking'){ topRows('rankRows',true); }
+    if(v==='resultados'){ lineChart('convChart',{labels:['Fev','Mar','Abr','Mai','Jun','Jul'],max:40,unit:'%',series:[{name:'Conversão',color:'#E8C87A',data:[18,21,24,27,29,31]}]}); }
+    if(v==='depoimentos'){ gauge('npsGauge',84); }
+  }
+
+  /* ---------- Run dashboard animations at boot ---------- */
+  function runAnims(){
+    var root=document.getElementById('view-dashboard'); animMeters(root);
+    // IM ring
+    var ring=document.getElementById('imRing'); if(ring){ var v=87; var off=628*(1-v/100);
+      if(RM){ ring.style.strokeDashoffset=off; } else { setTimeout(function(){ ring.style.transition='stroke-dashoffset 1.6s cubic-bezier(.2,.7,.2,1)'; ring.style.strokeDashoffset=off; },200);} }
+    revChart('revChart'); topRows('topRows',false); gauge('adoGauge',87);
+    rendered['dashboard']=true;
+  }
+})();
+</script>
+</body>
+</html>
