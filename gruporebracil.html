@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<!--
+  =====================================================================
+  GRUPO REBRACIL — Site institucional (arquivo único, autossuficiente)
+  Redesign editorial / industrial-luxe · v2
+  =====================================================================
+  ABRIR: duplo clique neste arquivo no navegador. Nada a instalar.
+  ROTAS (hash):  #/  ·  #/requalificadora  ·  #/embalagens  ·  #/tubos
+
+  TROCAR FOTOS: procure "TROCAR FOTO" — cada bloco .media é um placeholder
+  editorial. Substitua o <div class="media ..."> por <img ... loading="lazy">.
+
+  E-MAIL DOS FORMULÁRIOS: procure "PLUGAR ENDPOINT" na função sendForm().
+
+  Paleta: azul-marinho #12345B · marinho-escuro #0C2140 · dourado #C6A44E · branco #F5F8FC
+  Tipos: Space Grotesk (display) · Fraunces itálico (acento) · Inter (corpo)
+  =====================================================================
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupo Rebracil — Requalificação de GLP, Embalagens Flexíveis e Tubos de Papelão</title>
+<meta name="description" content="Grupo industrial brasileiro desde 2012. Três unidades: requalificação de recipientes de GLP, embalagens plásticas flexíveis e tubos radiais de papelão. Qualidade garantida, pontualidade e flexibilidade.">
+<meta name="theme-color" content="#0C2140">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Grupo Rebracil">
+<meta property="og:title" content="Grupo Rebracil — Três forças industriais, uma só exigência: qualidade">
+<meta property="og:description" content="Desde 2012. Requalificação de recipientes de GLP, embalagens plásticas flexíveis e tubos radiais de papelão.">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:image" content="https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Grupo-Rebracil-Colorful-Horizontal-1024x253.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..500&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: {
+        plum:'#12345B', plum2:'#1B4E8A', canvas:'#0C2140', night:'#081627',
+        gold:'#C6A44E', goldlt:'#E2CC87', cream:'#F5F8FC', sand:'#E5EBF3', ink:'#1E2A3D',
+      },
+      fontFamily: {
+        display:['"Space Grotesk"','system-ui','sans-serif'],
+        serif:['"Fraunces"','Georgia','serif'],
+        body:['"Inter"','system-ui','sans-serif'],
+      },
+    }}
+  }
+</script>
+
+<!-- JSON-LD: Organization + LocalBusiness (dois endereços) -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"Organization","name":"Grupo Rebracil","url":"https://rebracil.com.br","logo":"https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Grupo-Rebracil-Colorful-Horizontal-1024x253.png","foundingDate":"2012","description":"Grupo industrial brasileiro com três unidades: requalificação de recipientes transportáveis para GLP, fabricação de embalagens plásticas flexíveis e tubos radiais de papelão.","telephone":"+551141618000","contactPoint":{"@type":"ContactPoint","telephone":"+551141618000","contactType":"sales","areaServed":"BR","availableLanguage":"Portuguese"}},
+ {"@type":"LocalBusiness","name":"Rebracil — Requalificadora & Embalagens Flexíveis","telephone":"+551141618000","address":{"@type":"PostalAddress","streetAddress":"Av. Santa Mônica, 396 — Vila Santa Cecília","addressLocality":"Mauá","addressRegion":"SP","postalCode":"09380-110","addressCountry":"BR"},"openingHours":"Mo-Fr 08:00-17:00"},
+ {"@type":"LocalBusiness","name":"Rebracil — Tubos & Papelão","telephone":"+551141618000","address":{"@type":"PostalAddress","streetAddress":"Rua Pierre Lafage, 147 — Vila Jaraguá","addressLocality":"São Paulo","addressRegion":"SP","postalCode":"05163-060","addressCountry":"BR"},"openingHours":"Mo-Fr 08:00-17:00"}
+]}
+</script>
+
+<style>
+  :root{
+    --plum:#12345B; --plum2:#1B4E8A; --canvas:#0C2140; --night:#081627;
+    --gold:#C6A44E; --goldlt:#E2CC87; --cream:#F5F8FC; --sand:#E5EBF3; --ink:#1E2A3D;
+    --hh:74px;
+  }
+  *{ -webkit-font-smoothing:antialiased; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; overflow-x:clip; }
+  body{ font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:var(--cream); line-height:1.6; overflow-x:clip; }
+  [hidden]{ display:none !important; }
+  ::selection{ background:var(--gold); color:#fff; }
+  img{ max-width:100%; }
+
+  a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{ outline:2px solid var(--gold); outline-offset:4px; border-radius:3px; }
+
+  /* ---------- Tipografia ---------- */
+  .display{ font-family:'Space Grotesk',sans-serif; }
+  .serif{ font-family:'Fraunces',Georgia,serif; font-style:italic; font-weight:400; letter-spacing:-.01em; }
+  .h-hero{ font-family:'Space Grotesk',sans-serif; font-weight:700; line-height:.9; letter-spacing:-.035em; font-size:clamp(3rem,10vw,9rem); }
+  .h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; line-height:.98; letter-spacing:-.03em; font-size:clamp(2.4rem,6.2vw,5.4rem); }
+  .h2{ font-family:'Space Grotesk',sans-serif; font-weight:700; line-height:1.02; letter-spacing:-.025em; font-size:clamp(2rem,4.6vw,3.7rem); }
+  .eyebrow{ font-family:'Space Grotesk',sans-serif; font-size:.72rem; font-weight:600; letter-spacing:.34em; text-transform:uppercase; color:var(--gold); }
+  .lead{ font-size:clamp(1.05rem,1.5vw,1.35rem); line-height:1.7; }
+
+  /* Rótulo vertical rotacionado */
+  .vlabel{ writing-mode:vertical-rl; transform:rotate(180deg); font-family:'Space Grotesk',sans-serif;
+    font-size:.7rem; font-weight:600; letter-spacing:.4em; text-transform:uppercase; }
+
+  /* ---------- Botões (pílula) ---------- */
+  .btn{ position:relative; display:inline-flex; align-items:center; gap:.6rem; font-family:'Space Grotesk',sans-serif;
+    font-weight:600; font-size:.92rem; padding:.9rem 1.7rem; border-radius:100px; overflow:hidden; isolation:isolate;
+    transition:color .35s, border-color .35s, transform .2s; border:1px solid transparent; }
+  .btn::before{ content:""; position:absolute; inset:0; z-index:-1; transform:scaleX(0); transform-origin:left; transition:transform .45s cubic-bezier(.7,0,.2,1); border-radius:100px; }
+  .btn:hover::before{ transform:scaleX(1); }
+  .btn svg{ width:16px; height:16px; }
+  .btn-gold{ background:var(--gold); color:#fff; }
+  .btn-gold::before{ background:#A5883C; }
+  .btn-outline{ border-color:rgba(255,255,255,.28); color:#fff; }
+  .btn-outline::before{ background:#fff; }
+  .btn-outline:hover{ color:var(--canvas); border-color:#fff; }
+  .btn-dark{ background:var(--plum); color:#fff; }
+  .btn-dark::before{ background:var(--canvas); }
+  .btn-ghost-dark{ border-color:rgba(18,52,91,.25); color:var(--plum); }
+  .btn-ghost-dark::before{ background:var(--plum); }
+  .btn-ghost-dark:hover{ color:#fff; border-color:var(--plum); }
+
+  .arrowlink{ display:inline-flex; align-items:center; gap:.6rem; font-family:'Space Grotesk',sans-serif; font-weight:600; transition:.25s; }
+  .arrowlink .arw{ transition:.3s; } .arrowlink:hover .arw{ transform:translateX(7px); }
+
+  /* ---------- Superfícies escuras + grão + mesh ---------- */
+  .dark{ background:var(--canvas); color:var(--cream); position:relative; }
+  .mesh{ position:relative; overflow:hidden; background:var(--canvas); }
+  .mesh .blob{ position:absolute; border-radius:50%; filter:blur(60px); opacity:.5; pointer-events:none; }
+  .b1{ width:46vw; height:46vw; background:radial-gradient(circle,#2C63A8,transparent 60%); }
+  .b2{ width:40vw; height:40vw; background:radial-gradient(circle,#12345B,transparent 62%); }
+  .b3{ width:26vw; height:26vw; background:radial-gradient(circle,rgba(198,164,78,.55),transparent 64%); }
+
+  /* Grão global */
+  #grain{ position:fixed; inset:0; z-index:9998; pointer-events:none; opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  .hair{ height:1px; background:linear-gradient(90deg,transparent,rgba(198,164,78,.55),transparent); }
+  .rule{ width:60px; height:2px; background:var(--gold); }
+
+  /* Wordmark fantasma */
+  .ghost{ font-family:'Space Grotesk',sans-serif; font-weight:700; color:transparent; -webkit-text-stroke:1px rgba(226,204,135,.16);
+    letter-spacing:-.04em; line-height:.8; user-select:none; pointer-events:none; }
+
+  /* ---------- Placeholder de FOTO ---------- */
+  .media{ position:relative; overflow:hidden;
+    background:radial-gradient(120% 120% at 20% 0%, #1E4E86 0%, #123056 45%, #091A30 100%);
+    box-shadow:0 40px 80px -40px rgba(8,22,39,.8), inset 0 0 0 1px rgba(255,255,255,.05); }
+  .media::before{ content:""; position:absolute; inset:0; opacity:.16; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"); }
+  .media::after{ content:""; position:absolute; inset:0; opacity:.45;
+    background-image:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 1px, transparent 1px 30px); }
+  .media img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .media .tag{ position:absolute; left:18px; bottom:16px; z-index:2; display:flex; align-items:center; gap:.5rem;
+    font-family:'Space Grotesk',sans-serif; font-size:.6rem; letter-spacing:.24em; text-transform:uppercase; color:rgba(245,248,252,.6); }
+  .media .tag::before{ content:""; width:22px; height:1px; background:var(--gold); }
+  .arch{ border-radius:999px 999px 26px 26px; }
+  .soft{ border-radius:28px; }
+  .blobmask{ border-radius:42% 58% 60% 40% / 45% 42% 58% 55%; }
+
+  /* ---------- Reveal ---------- */
+  .reveal{ opacity:0; transform:translateY(42px); transition:opacity 1s cubic-bezier(.16,.84,.44,1), transform 1s cubic-bezier(.16,.84,.44,1); }
+  .reveal.in{ opacity:1; transform:none; }
+  .wipe{ clip-path:inset(0 0 100% 0); transition:clip-path 1.1s cubic-bezier(.7,0,.2,1); }
+  .wipe.in{ clip-path:inset(0 0 0 0); }
+  [data-delay="1"]{ transition-delay:.1s } [data-delay="2"]{ transition-delay:.2s }
+  [data-delay="3"]{ transition-delay:.3s } [data-delay="4"]{ transition-delay:.4s }
+  @media (prefers-reduced-motion:reduce){ .reveal,.wipe{ opacity:1 !important; transform:none !important; clip-path:none !important; transition:none } html{ scroll-behavior:auto } }
+
+  /* ---------- Cursor customizado ---------- */
+  .cur-dot,.cur-ring{ position:fixed; top:0; left:0; z-index:10000; pointer-events:none; border-radius:50%;
+    transform:translate(-50%,-50%); mix-blend-mode:difference; }
+  .cur-dot{ width:7px; height:7px; background:#fff; }
+  .cur-ring{ width:38px; height:38px; border:1px solid rgba(255,255,255,.7); transition:width .28s,height .28s,background .28s,border-color .28s; }
+  body.cur-hover .cur-ring{ width:66px; height:66px; background:rgba(255,255,255,.12); }
+  @media (hover:hover) and (pointer:fine){
+    body.has-cursor, body.has-cursor a, body.has-cursor button, body.has-cursor .unit-row{ cursor:none; }
+    body.has-cursor input, body.has-cursor textarea{ cursor:text; }
+  }
+  @media not all and (pointer:fine){ .cur-dot,.cur-ring{ display:none; } }
+
+  /* Barra de progresso */
+  #prog{ position:fixed; top:0; left:0; height:2px; width:0; z-index:9999; background:linear-gradient(90deg,var(--gold),var(--goldlt)); }
+
+  /* ---------- Header ---------- */
+  #hdr{ position:fixed; top:0; left:0; right:0; z-index:60; transition:.4s; }
+  #hdr .bar{ transition:.4s; }
+  #hdr.solid .bar{ background:rgba(12,33,64,.7); backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,.08); border-radius:100px; }
+  #hdr .navlink{ font-family:'Space Grotesk',sans-serif; font-weight:500; font-size:.88rem; color:rgba(245,248,252,.82); position:relative; transition:color .25s; }
+  #hdr .navlink:hover{ color:#fff; } #hdr .navlink.active{ color:#fff; }
+  #hdr .navlink::after{ content:""; position:absolute; left:0; bottom:-3px; height:1px; width:0; background:var(--gold); transition:width .3s; }
+  #hdr .navlink:hover::after,#hdr .navlink.active::after{ width:100%; }
+  .logo-white{ filter:brightness(0) invert(1); }
+  .drop{ position:relative; }
+  .drop-menu{ position:absolute; top:100%; left:50%; transform:translateX(-50%) translateY(10px); min-width:280px; background:#fff; color:var(--ink);
+    border-radius:20px; padding:.5rem; opacity:0; visibility:hidden; box-shadow:0 40px 80px -30px rgba(8,22,39,.5); transition:.25s; }
+  .drop:hover .drop-menu,.drop:focus-within .drop-menu{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(6px); }
+  .drop-item{ display:block; padding:.75rem .9rem; border-radius:14px; transition:.2s; }
+  .drop-item:hover{ background:var(--cream); }
+  .drop-item .t{ font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--plum); font-size:.95rem; }
+  .drop-item .s{ font-size:.76rem; color:#6B7789; }
+
+  #mobile{ position:fixed; inset:0; z-index:70; background:var(--night); transform:translateY(-100%); transition:transform .55s cubic-bezier(.7,0,.2,1); }
+  #mobile.open{ transform:translateY(0); }
+
+  /* ---------- Marquee ---------- */
+  .marquee{ overflow:hidden; white-space:nowrap; }
+  .marquee-track{ display:inline-flex; align-items:center; animation:scrollx 26s linear infinite; }
+  .marquee:hover .marquee-track{ animation-play-state:paused; }
+  @keyframes scrollx{ to{ transform:translateX(-50%); } }
+  .mq-item{ font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:-.01em; font-size:clamp(1.4rem,3vw,2.4rem); padding:0 1.4rem; }
+  .mq-dot{ width:9px; height:9px; border-radius:50%; background:var(--gold); flex:none; margin:0 1.4rem; }
+
+  /* ---------- Scoop (curva entre seções) ---------- */
+  .scoop{ border-top-left-radius:44px; border-top-right-radius:44px; margin-top:-44px; position:relative; z-index:2; }
+  @media(min-width:1024px){ .scoop{ border-top-left-radius:80px; border-top-right-radius:80px; margin-top:-64px; } }
+
+  /* ---------- Unidades (lista com reveal) ---------- */
+  .unit-row{ position:relative; display:block; border-top:1px solid rgba(18,52,91,.16); padding:clamp(1.6rem,4vw,2.6rem) 0; transition:.4s; }
+  .units-list:hover .unit-row{ opacity:.42; }
+  .units-list .unit-row:hover{ opacity:1; }
+  .unit-row .u-name{ font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.03em; line-height:1; font-size:clamp(2.1rem,6.5vw,5rem); color:var(--plum); transition:transform .4s cubic-bezier(.7,0,.2,1); display:inline-block; }
+  .unit-row:hover .u-name{ transform:translateX(24px); }
+  .unit-row .u-desc{ font-family:'Inter',sans-serif; color:#5A6478; }
+  .unit-row .u-arw{ font-family:'Space Grotesk',sans-serif; color:var(--gold); font-size:1.6rem; transition:.4s; opacity:0; transform:translateX(-10px); }
+  .unit-row:hover .u-arw{ opacity:1; transform:none; }
+  /* Float image (desktop) */
+  #unitFloat{ position:fixed; top:0; left:0; z-index:40; width:min(30vw,360px); aspect-ratio:4/5; pointer-events:none;
+    opacity:0; transform:translate(-50%,-50%) scale(.85) rotate(-4deg); transition:opacity .4s, transform .4s; }
+  #unitFloat.show{ opacity:1; transform:translate(-50%,-50%) scale(1) rotate(-4deg); }
+  #unitFloat .media{ position:absolute; inset:0; opacity:0; transition:opacity .3s; }
+  #unitFloat .media.on{ opacity:1; }
+
+  /* ---------- Diferenciais ---------- */
+  .dif{ position:relative; padding:clamp(1.4rem,3vw,2rem) 0; border-top:1px solid rgba(255,255,255,.14); transition:.4s; }
+  .dif:hover{ padding-left:14px; }
+  .dif .spark{ color:var(--gold); font-size:1.1rem; }
+
+  /* ---------- Formulário (underline) ---------- */
+  .field label{ font-family:'Space Grotesk',sans-serif; font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:#6B7789; }
+  .field input,.field textarea{ width:100%; margin-top:.4rem; padding:.7rem 0; border:0; border-bottom:1px solid rgba(18,52,91,.2); background:transparent; color:var(--ink); font-size:1.05rem; transition:.25s; }
+  .field textarea{ min-height:80px; resize:vertical; }
+  .field input:focus,.field textarea:focus{ outline:none; border-color:var(--gold); }
+  .field.err input,.field.err textarea{ border-color:#c0392b; }
+  .field .msg{ display:none; color:#c0392b; font-size:.76rem; margin-top:.3rem; }
+  .field.err .msg{ display:block; }
+  .form-dark label{ color:rgba(245,248,252,.5); }
+  .form-dark input,.form-dark textarea{ color:#fff; border-color:rgba(255,255,255,.2); }
+  .form-dark input::placeholder,.form-dark textarea::placeholder{ color:rgba(255,255,255,.3); }
+  .form-dark input:focus,.form-dark textarea:focus{ border-color:var(--gold); }
+  .form-ok{ display:none; align-items:center; gap:.7rem; border:1px solid rgba(198,164,78,.4); border-radius:16px; padding:1rem 1.1rem;
+    font-family:'Space Grotesk',sans-serif; font-weight:600; }
+  .form-ok.show{ display:flex; }
+
+  /* ---------- Subnav unidades ---------- */
+  .subnav{ position:sticky; top:calc(var(--hh) - 2px); z-index:45; }
+  .subnav .inner{ display:inline-flex; gap:.3rem; padding:.4rem; margin:0 auto; background:rgba(12,33,64,.85); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.1); border-radius:100px; }
+  .subnav a{ font-family:'Space Grotesk',sans-serif; font-size:.82rem; font-weight:500; color:rgba(245,248,252,.7); padding:.55rem 1.1rem; border-radius:100px; white-space:nowrap; transition:.25s; }
+  .subnav a:hover{ color:#fff; } .subnav a.active{ background:var(--gold); color:#fff; }
+
+  /* ---------- WhatsApp float ---------- */
+  #wa{ position:fixed; right:22px; bottom:22px; z-index:80; width:60px; height:60px; border-radius:50%; background:#25D366;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 16px 40px -10px rgba(37,211,102,.6); transition:transform .25s; }
+  #wa:hover{ transform:scale(1.09) rotate(-6deg); }
+  #wa::after{ content:""; position:absolute; inset:-3px; border-radius:50%; border:1px solid var(--gold); opacity:.6; }
+  #wa svg{ width:31px; height:31px; fill:#fff; }
+
+  .pill-tag{ display:inline-flex; align-items:center; gap:.5rem; font-family:'Space Grotesk',sans-serif; font-size:.72rem; font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--gold); border:1px solid rgba(198,164,78,.4); border-radius:100px; padding:.4rem .9rem; }
+  .prod-line{ padding:.55rem 0; border-bottom:1px solid rgba(18,52,91,.1); display:flex; gap:.9rem; }
+  .prod-line .d{ flex:none; width:6px; height:6px; margin-top:.6rem; border-radius:50%; background:var(--gold); }
+  .footlink{ color:rgba(245,248,252,.7); transition:.2s; } .footlink:hover{ color:var(--goldlt); }
+  .wrap{ max-width:1280px; margin:0 auto; padding-left:20px; padding-right:20px; }
+  @media(min-width:768px){ .wrap{ padding-left:40px; padding-right:40px; } }
+</style>
+</head>
+
+<body>
+<div id="grain"></div>
+<div id="prog"></div>
+<div class="cur-ring" id="curRing"></div>
+<div class="cur-dot" id="curDot"></div>
+
+
+<!-- ===================== HEADER ===================== -->
+<header id="hdr">
+  <div class="wrap pt-4">
+    <div class="bar flex items-center justify-between h-[58px] px-4">
+      <a href="#/" data-nav class="flex items-center shrink-0" data-hover aria-label="Grupo Rebracil — início">
+        <img src="https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Grupo-Rebracil-Colorful-Horizontal-1024x253.png" alt="Grupo Rebracil" class="logo-white h-7 md:h-8 w-auto">
+      </a>
+      <nav class="hidden lg:flex items-center gap-8" aria-label="Navegação principal">
+        <a href="#/" data-nav data-hover class="navlink" data-match="home">Grupo</a>
+        <div class="drop">
+          <button class="navlink flex items-center gap-1.5" data-hover aria-haspopup="true">Unidades
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+          <div class="drop-menu">
+            <a href="#/requalificadora" data-nav data-hover class="drop-item"><span class="t">Requalificadora</span><span class="s">Recipientes transportáveis para GLP</span></a>
+            <a href="#/embalagens" data-nav data-hover class="drop-item"><span class="t">Embalagens Flexíveis</span><span class="s">Embalagens plásticas flexíveis</span></a>
+            <a href="#/tubos" data-nav data-hover class="drop-item"><span class="t">Tubos &amp; Papelão</span><span class="s">Tubos radiais de papelão</span></a>
+          </div>
+        </div>
+        <a href="#/" data-scroll="grupo-sobre" data-hover class="navlink">Institucional</a>
+        <a href="#/" data-scroll="grupo-local" data-hover class="navlink">Localização</a>
+        <a href="#/" data-scroll="grupo-contato" data-hover class="btn btn-gold magnetic !py-2.5 !px-5 text-sm">Fale Conosco</a>
+      </nav>
+      <button id="burger" class="lg:hidden text-cream p-2 -mr-2" data-hover aria-label="Abrir menu" aria-expanded="false">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="mobile" aria-hidden="true">
+  <div class="wrap flex items-center justify-between h-[74px]">
+    <img src="https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Grupo-Rebracil-Colorful-Horizontal-1024x253.png" alt="Grupo Rebracil" class="logo-white h-7 w-auto">
+    <button id="closeMenu" class="text-cream p-2 -mr-2" aria-label="Fechar menu">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav class="wrap pt-8 flex flex-col" aria-label="Navegação mobile">
+    <a href="#/" data-nav class="text-cream text-4xl display font-semibold py-4 border-b border-white/10">Grupo</a>
+    <a href="#/requalificadora" data-nav class="text-cream text-4xl display font-semibold py-4 border-b border-white/10">Requalificadora</a>
+    <a href="#/embalagens" data-nav class="text-cream text-4xl display font-semibold py-4 border-b border-white/10">Embalagens</a>
+    <a href="#/tubos" data-nav class="text-cream text-4xl display font-semibold py-4 border-b border-white/10">Tubos &amp; Papelão</a>
+    <a href="#/" data-scroll="grupo-contato" class="btn btn-gold mt-8 justify-center">Fale Conosco</a>
+    <p class="mt-10 text-goldlt display text-sm tracking-widest">(11) 4161-8000 · SEG–SEX 08H–17H</p>
+  </nav>
+</div>
+
+
+<main>
+<!-- =================================================================== -->
+<!-- ======================= PÁGINA: GRUPO ============================= -->
+<!-- =================================================================== -->
+<div data-page="home">
+
+  <!-- HERO -->
+  <section class="page-hero mesh min-h-[100svh] flex flex-col justify-center pt-[var(--hh)] text-cream relative">
+    <span class="blob b1" data-parallax="0.12" style="top:-8%; left:-6%"></span>
+    <span class="blob b2" data-parallax="0.18" style="bottom:-14%; right:-4%"></span>
+    <span class="blob b3" data-parallax="0.26" style="top:34%; right:26%"></span>
+
+    <div class="hidden md:block absolute left-6 top-1/2 -translate-y-1/2 text-cream/50 vlabel">Grupo industrial · Est. 2012</div>
+
+    <div class="wrap relative z-10 w-full">
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-8">
+          <p class="eyebrow reveal">Três frentes · uma exigência</p>
+          <h1 class="h-hero mt-6">
+            <span class="reveal block" data-delay="1">Três</span>
+            <span class="reveal block serif text-goldlt font-normal" data-delay="2" style="font-size:.92em">unidades,</span>
+            <span class="reveal block" data-delay="3">uma exigência.</span>
+          </h1>
+          <p class="lead reveal mt-8 max-w-xl text-cream/75" data-delay="2">
+            Requalificação de recipientes de GLP, embalagens plásticas flexíveis e tubos radiais de papelão —
+            movidos por <span class="serif text-goldlt">qualidade garantida</span>, pontualidade e flexibilidade.
+          </p>
+          <div class="reveal mt-10 flex flex-wrap gap-4" data-delay="3">
+            <a href="#/" data-scroll="grupo-unidades" data-hover class="btn btn-gold magnetic">Conheça o Grupo
+              <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a href="#/" data-scroll="grupo-contato" data-hover class="btn btn-outline magnetic">Fale Conosco</a>
+          </div>
+        </div>
+
+        <!-- imagem em arco, sangrando -->
+        <div class="lg:col-span-4 relative reveal" data-delay="2">
+          <!-- TROCAR FOTO: visão ampla de chão de fábrica -->
+          <div class="media arch wipe aspect-[3/4] lg:scale-110 lg:translate-x-4"><span class="tag">Chão de fábrica</span></div>
+          <div class="absolute -left-6 bottom-8 bg-cream text-plum rounded-full w-28 h-28 flex flex-col items-center justify-center shadow-2xl">
+            <span id="yearsCount" class="display font-bold text-3xl leading-none" data-count="14" data-from="0">0</span>
+            <span class="text-[.62rem] tracking-wider uppercase mt-1 text-ink/60">anos ativos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap absolute bottom-4 left-0 right-0 z-0">
+      <div class="ghost text-[19vw] leading-none -mb-[3vw] select-none">REBRACIL</div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="dark py-7 border-y border-white/8 marquee text-cream" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="mq-item">Qualidade garantida</span><span class="mq-dot"></span>
+      <span class="mq-item serif text-goldlt">Pontualidade</span><span class="mq-dot"></span>
+      <span class="mq-item">Flexibilidade</span><span class="mq-dot"></span>
+      <span class="mq-item serif text-goldlt">Desde 2012</span><span class="mq-dot"></span>
+      <span class="mq-item">Qualidade garantida</span><span class="mq-dot"></span>
+      <span class="mq-item serif text-goldlt">Pontualidade</span><span class="mq-dot"></span>
+      <span class="mq-item">Flexibilidade</span><span class="mq-dot"></span>
+      <span class="mq-item serif text-goldlt">Desde 2012</span><span class="mq-dot"></span>
+    </div>
+  </div>
+
+  <!-- SOBRE -->
+  <section id="grupo-sobre" class="bg-cream scoop py-24 lg:py-36">
+    <div class="wrap">
+      <div class="grid lg:grid-cols-12 gap-10 lg:gap-16">
+        <div class="lg:col-span-4">
+          <p class="eyebrow reveal">Sobre o Grupo</p>
+          <div class="rule reveal mt-6"></div>
+        </div>
+        <div class="lg:col-span-8">
+          <h2 class="h1 reveal text-plum">Um grupo, <span class="serif text-gold">três forças</span> industriais que não param de crescer.</h2>
+          <p class="lead reveal mt-9 text-ink/85 max-w-3xl" data-delay="1">
+            O Grupo Rebracil é uma empresa composta por três unidades de diferentes ramos de atividade:
+            <strong class="text-plum font-semibold">Requalificação de Recipientes Transportáveis para GLP</strong>,
+            <strong class="text-plum font-semibold">Fabricação de Embalagens Plásticas Flexíveis</strong> e
+            <strong class="text-plum font-semibold">Tubos Radiais de Papelão</strong>. Possui uma equipe diversificada e
+            capacitada para realizar prestação de serviço de excelência e produtos com qualidade garantida.
+          </p>
+          <p class="lead reveal mt-6 text-ink/85 max-w-3xl" data-delay="2">
+            O Grupo iniciou suas atividades em 2012 e, a partir de então, teve crescimento constante,
+            aumentando gradativamente e diversificando seu ramo de atividade, destacando-se em todas as suas
+            unidades, buscando sempre <span class="serif text-gold">qualidade, pontualidade e flexibilidade</span>
+            a todos os clientes e parceiros.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid sm:grid-cols-3 gap-6 mt-20">
+        <div class="reveal">
+          <div class="display font-bold text-goldlt leading-none" style="font-size:clamp(3.4rem,7vw,6rem)"><span data-count="2012" data-from="1985">2012</span></div>
+          <p class="mt-2 text-ink/60 display text-sm tracking-widest uppercase">Desde · início das atividades</p>
+        </div>
+        <div class="reveal" data-delay="1">
+          <div class="display font-bold text-plum leading-none" style="font-size:clamp(3.4rem,7vw,6rem)"><span data-count="3" data-from="0">0</span></div>
+          <p class="mt-2 text-ink/60 display text-sm tracking-widest uppercase">Unidades de negócio</p>
+        </div>
+        <div class="reveal" data-delay="2">
+          <div class="display font-bold text-plum leading-none" style="font-size:clamp(3.4rem,7vw,6rem)"><span data-count="3" data-from="0">0</span></div>
+          <p class="mt-2 text-ink/60 display text-sm tracking-widest uppercase">Setores industriais</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UNIDADES (lista com reveal no hover) -->
+  <section id="grupo-unidades" class="dark py-24 lg:py-36 relative">
+    <div class="wrap">
+      <div class="max-w-2xl">
+        <p class="eyebrow reveal">As unidades</p>
+        <h2 class="h1 reveal mt-5 text-cream">Nossas <span class="serif text-goldlt">unidades</span></h2>
+        <p class="lead reveal mt-6 text-cream/70" data-delay="1">Acesse a unidade desejada e conheça nossos serviços e produtos.</p>
+      </div>
+
+      <!-- Desktop: lista interativa -->
+      <div class="units-list mt-14 hidden lg:block" id="unitsList">
+        <a href="#/requalificadora" data-nav data-hover class="unit-row" data-img="req">
+          <div class="flex items-center justify-between gap-8">
+            <div><span class="u-name">Requalificadora</span></div>
+            <div class="text-right shrink-0 max-w-xs"><p class="u-desc">Recipientes transportáveis para GLP · P02 a P45</p></div>
+            <span class="u-arw">↗</span>
+          </div>
+        </a>
+        <a href="#/embalagens" data-nav data-hover class="unit-row" data-img="emb">
+          <div class="flex items-center justify-between gap-8">
+            <div><span class="u-name">Embalagens Flexíveis</span></div>
+            <div class="text-right shrink-0 max-w-xs"><p class="u-desc">PE, PP, PET, BOPP e estruturas laminadas</p></div>
+            <span class="u-arw">↗</span>
+          </div>
+        </a>
+        <a href="#/tubos" data-nav data-hover class="unit-row" data-img="tub" style="border-bottom:1px solid rgba(18,52,91,.16)">
+          <div class="flex items-center justify-between gap-8">
+            <div><span class="u-name">Tubos &amp; Papelão</span></div>
+            <div class="text-right shrink-0 max-w-xs"><p class="u-desc">Tubos radiais para enrolamento de filmes</p></div>
+            <span class="u-arw">↗</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Mobile: cards grandes -->
+      <div class="mt-12 grid gap-8 lg:hidden">
+        <a href="#/requalificadora" data-nav class="reveal">
+          <!-- TROCAR FOTO: recipientes de GLP -->
+          <div class="media soft wipe aspect-[16/10]"><span class="tag">Recipientes de GLP</span></div>
+          <h3 class="display font-bold text-3xl text-cream mt-5">Requalificadora</h3>
+          <p class="text-cream/60 mt-1">Recipientes transportáveis para GLP · P02 a P45</p>
+        </a>
+        <a href="#/embalagens" data-nav class="reveal">
+          <!-- TROCAR FOTO: bobinas de filme -->
+          <div class="media soft wipe aspect-[16/10]"><span class="tag">Bobinas de filme</span></div>
+          <h3 class="display font-bold text-3xl text-cream mt-5">Embalagens Flexíveis</h3>
+          <p class="text-cream/60 mt-1">PE, PP, PET, BOPP e estruturas laminadas</p>
+        </a>
+        <a href="#/tubos" data-nav class="reveal">
+          <!-- TROCAR FOTO: tubetes de papelão -->
+          <div class="media soft wipe aspect-[16/10]"><span class="tag">Tubetes de papelão</span></div>
+          <h3 class="display font-bold text-3xl text-cream mt-5">Tubos &amp; Papelão</h3>
+          <p class="text-cream/60 mt-1">Tubos radiais para enrolamento de filmes</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Float image (desktop hover) -->
+    <div id="unitFloat">
+      <!-- TROCAR FOTO: imagens de preview de cada unidade -->
+      <div class="media arch" data-key="req"><span class="tag">Requalificação · GLP</span></div>
+      <div class="media arch" data-key="emb"><span class="tag">Embalagens flexíveis</span></div>
+      <div class="media arch" data-key="tub"><span class="tag">Tubos radiais</span></div>
+    </div>
+  </section>
+
+  <!-- DIFERENCIAIS -->
+  <section class="dark pb-24 lg:pb-36">
+    <div class="wrap grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-4">
+        <p class="eyebrow reveal">Por que o Grupo</p>
+        <h2 class="h2 reveal mt-5 text-cream">O que sustenta <span class="serif text-goldlt">cada entrega.</span></h2>
+      </div>
+      <div class="lg:col-span-8">
+        <div class="dif reveal group">
+          <div class="flex items-baseline gap-4"><span class="spark">✦</span>
+            <h3 class="display font-semibold text-2xl lg:text-3xl text-cream">Qualidade <span class="serif text-goldlt">garantida</span></h3></div>
+          <p class="text-cream/60 mt-2 lg:pl-9 max-w-xl">Produtos e serviços com controle rigoroso em todas as unidades.</p>
+        </div>
+        <div class="dif reveal" data-delay="1">
+          <div class="flex items-baseline gap-4"><span class="spark">✦</span>
+            <h3 class="display font-semibold text-2xl lg:text-3xl text-cream">Pontualidade</h3></div>
+          <p class="text-cream/60 mt-2 lg:pl-9 max-w-xl">Compromisso com prazos que sustentam a operação dos clientes.</p>
+        </div>
+        <div class="dif reveal" data-delay="2">
+          <div class="flex items-baseline gap-4"><span class="spark">✦</span>
+            <h3 class="display font-semibold text-2xl lg:text-3xl text-cream">Flexibilidade</h3></div>
+          <p class="text-cream/60 mt-2 lg:pl-9 max-w-xl">Soluções que se adaptam à necessidade de cada cliente e parceiro.</p>
+        </div>
+        <div class="dif reveal" data-delay="3" style="border-bottom:1px solid rgba(255,255,255,.14)">
+          <div class="flex items-baseline gap-4"><span class="spark">✦</span>
+            <h3 class="display font-semibold text-2xl lg:text-3xl text-cream">Equipe <span class="serif text-goldlt">capacitada</span></h3></div>
+          <p class="text-cream/60 mt-2 lg:pl-9 max-w-xl">Time diversificado e preparado para prestação de serviço de excelência.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCALIZAÇÃO -->
+  <section id="grupo-local" class="bg-cream scoop py-24 lg:py-36">
+    <div class="wrap">
+      <div class="max-w-2xl">
+        <p class="eyebrow reveal">Onde estamos</p>
+        <h2 class="h1 reveal mt-5 text-plum">Localização</h2>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-8 mt-14">
+        <div class="reveal">
+          <div class="soft overflow-hidden bg-white shadow-[0_40px_80px_-50px_rgba(8,22,39,.5)] border border-sand">
+            <iframe title="Mapa — Requalificadora & Embalagens, Mauá/SP" loading="lazy" class="w-full h-60 border-0" referrerpolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps?q=Av.+Santa+M%C3%B4nica,+396,+Vila+Santa+Cec%C3%ADlia,+Mau%C3%A1+-+SP,+09380-110&z=15&output=embed"></iframe>
+            <div class="p-7">
+              <span class="pill-tag">Requalificadora &amp; Embalagens</span>
+              <p class="lead mt-4 text-ink/85">Av. Santa Mônica, 396 — Vila Santa Cecília<br>Mauá / SP — CEP 09380-110</p>
+              <a class="arrowlink mt-4 text-plum" target="_blank" rel="noopener" data-hover
+                 href="https://www.google.com/maps/search/?api=1&query=Av.+Santa+M%C3%B4nica,+396,+Vila+Santa+Cec%C3%ADlia,+Mau%C3%A1+SP+09380-110">Ver no mapa <span class="arw">→</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="reveal" data-delay="1">
+          <div class="soft overflow-hidden bg-white shadow-[0_40px_80px_-50px_rgba(8,22,39,.5)] border border-sand">
+            <iframe title="Mapa — Tubos & Papelão, São Paulo/SP" loading="lazy" class="w-full h-60 border-0" referrerpolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps?q=Rua+Pierre+Lafage,+147,+Vila+Jaragu%C3%A1,+S%C3%A3o+Paulo+-+SP,+05163-060&z=15&output=embed"></iframe>
+            <div class="p-7">
+              <span class="pill-tag">Tubos &amp; Papelão</span>
+              <p class="lead mt-4 text-ink/85">Rua Pierre Lafage, 147 — Vila Jaraguá<br>São Paulo / SP — CEP 05163-060</p>
+              <a class="arrowlink mt-4 text-plum" target="_blank" rel="noopener" data-hover
+                 href="https://www.google.com/maps/search/?api=1&query=Rua+Pierre+Lafage,+147,+Vila+Jaragu%C3%A1,+S%C3%A3o+Paulo+SP+05163-060">Ver no mapa <span class="arw">→</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section id="grupo-contato" class="dark scoop py-24 lg:py-36 relative overflow-hidden">
+    <span class="blob b3" data-parallax="0.2" style="top:10%; right:8%"></span>
+    <div class="wrap relative z-10 grid lg:grid-cols-12 gap-14">
+      <div class="lg:col-span-5">
+        <p class="eyebrow reveal">Fale com o Grupo</p>
+        <h2 class="h1 reveal mt-5 text-cream">Vamos falar sobre o <span class="serif text-goldlt">seu projeto.</span></h2>
+        <div class="reveal mt-10 space-y-7 text-cream/85" data-delay="1">
+          <div><p class="eyebrow !text-cream/40">Telefone / WhatsApp</p>
+            <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="display font-semibold text-3xl hover:text-goldlt transition">(11) 4161-8000</a></div>
+          <div><p class="eyebrow !text-cream/40">Horário</p><p class="lead mt-1">Segunda a Sexta, das 08h às 17h</p></div>
+          <div><p class="eyebrow !text-cream/40">Endereços</p>
+            <p class="mt-1 text-cream/80">Av. Santa Mônica, 396 — Mauá/SP</p>
+            <p class="text-cream/80">Rua Pierre Lafage, 147 — São Paulo/SP</p></div>
+        </div>
+      </div>
+      <div class="lg:col-span-7 reveal" data-delay="1">
+        <form class="contact-form form-dark" data-setor="Grupo Rebracil" novalidate>
+          <p class="pill-tag">Formulário · Setor Comercial</p>
+          <div class="grid sm:grid-cols-2 gap-x-8 gap-y-6 mt-8">
+            <div class="field sm:col-span-2" data-field="assunto"><label>Assunto</label><input name="assunto" type="text" placeholder="Sobre o que deseja falar?"><span class="msg">Informe o assunto.</span></div>
+            <div class="field" data-field="nome"><label>Nome</label><input name="nome" type="text" placeholder="Seu nome"><span class="msg">Informe seu nome.</span></div>
+            <div class="field" data-field="email"><label>E-mail</label><input name="email" type="email" placeholder="voce@empresa.com"><span class="msg">Informe um e-mail válido.</span></div>
+            <div class="field sm:col-span-2" data-field="telefone"><label>Telefone</label><input name="telefone" type="tel" placeholder="(11) 90000-0000"><span class="msg">Informe um telefone válido.</span></div>
+            <div class="field sm:col-span-2" data-field="mensagem"><label>Mensagem</label><textarea name="mensagem" placeholder="Como podemos ajudar?"></textarea><span class="msg">Escreva sua mensagem.</span></div>
+          </div>
+          <div class="mt-9 flex flex-wrap items-center gap-4">
+            <button type="submit" data-hover class="btn btn-gold magnetic">Enviar mensagem
+              <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="btn btn-outline magnetic">WhatsApp</a>
+          </div>
+          <div class="form-ok mt-7 text-goldlt" role="status">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Mensagem pronta para envio. Configure o endpoint para que chegue ao Setor Comercial.
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div><!-- /home -->
+
+
+<!-- =================================================================== -->
+<!-- ================== PÁGINA: REQUALIFICADORA ======================== -->
+<!-- =================================================================== -->
+<div data-page="requalificadora" hidden>
+  <section class="page-hero mesh min-h-[92svh] flex items-center pt-[var(--hh)] text-cream relative">
+    <span class="blob b1" data-parallax="0.12" style="top:-10%; right:-8%"></span>
+    <span class="blob b3" data-parallax="0.24" style="bottom:-6%; left:12%"></span>
+    <div class="wrap relative z-10 w-full grid lg:grid-cols-12 gap-10 items-center py-16">
+      <div class="lg:col-span-7">
+        <img src="https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Rebracil-Requalificadora-Colorful-Horizontal-1024x217.png" alt="Rebracil Requalificadora" class="reveal logo-white h-10 lg:h-12 w-auto">
+        <p class="eyebrow reveal mt-8">GLP · Requalificação</p>
+        <h1 class="h1 reveal mt-5">Recipientes transportáveis para <span class="serif text-goldlt">GLP</span>, requalificados com precisão.</h1>
+        <p class="lead reveal mt-7 max-w-xl text-cream/75" data-delay="1">Segurança, controle de qualidade e desenvolvimento contínuo na requalificação de recipientes P02 a P45.</p>
+        <div class="reveal mt-9 flex flex-wrap gap-4" data-delay="2">
+          <a href="#requalificadora-servicos" data-anchor data-hover class="btn btn-gold magnetic">Ver serviços</a>
+          <a href="#requalificadora-contato" data-anchor data-hover class="btn btn-outline magnetic">Falar com o Comercial</a>
+        </div>
+      </div>
+      <div class="lg:col-span-5 reveal" data-delay="1">
+        <!-- TROCAR FOTO: bancada de requalificação / recipientes -->
+        <div class="media arch wipe aspect-[3/4]"><span class="tag">Requalificação de recipientes</span></div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="subnav flex justify-center pt-4" aria-label="Seções — Requalificadora">
+    <div class="inner">
+      <a href="#requalificadora-sobre" data-anchor data-hover>Sobre nós</a>
+      <a href="#requalificadora-qualidade" data-anchor data-hover>Qualidade</a>
+      <a href="#requalificadora-servicos" data-anchor data-hover>Serviços</a>
+      <a href="#requalificadora-contato" data-anchor data-hover>Contato</a>
+    </div>
+  </nav>
+
+  <section id="requalificadora-sobre" class="bg-cream py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-5 reveal">
+        <!-- TROCAR FOTO: proximidade de engarrafadoras / pátio -->
+        <div class="media blobmask wipe aspect-[5/5]"><span class="tag">Próximo às engarrafadoras</span></div>
+      </div>
+      <div class="lg:col-span-7">
+        <p class="eyebrow reveal">Sobre nós</p>
+        <h2 class="h2 reveal mt-5 text-plum">No <span class="serif text-gold">coração</span> do mercado de GLP.</h2>
+        <div class="rule reveal mt-7"></div>
+        <p class="lead reveal mt-7 text-ink/85 max-w-2xl" data-delay="1">A Rebracil Requalificadora está instalada nas proximidades das maiores engarrafadoras de GLP do município, garantindo agilidade logística e resposta rápida às demandas de requalificação dos nossos clientes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="requalificadora-qualidade" class="dark scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7 order-2 lg:order-1">
+        <p class="eyebrow reveal">Controle de Qualidade</p>
+        <h2 class="h2 reveal mt-5 text-cream">Desenvolvimento contínuo e uma <span class="serif text-goldlt">Política da Qualidade</span> própria.</h2>
+        <p class="lead reveal mt-7 text-cream/75 max-w-2xl" data-delay="1">Realizamos novos desenvolvimentos para melhor atender nossos clientes e o mercado, sempre com forte controle de qualidade. A unidade possui Política da Qualidade própria, que orienta cada etapa do processo.</p>
+        <!-- Link "Conheça nossa Política da Qualidade" — apontar para o documento/página real -->
+        <a href="#requalificadora-contato" data-anchor data-hover class="reveal btn btn-outline magnetic mt-8" data-delay="1">Conheça nossa Política da Qualidade
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+      <div class="lg:col-span-5 order-1 lg:order-2 reveal">
+        <!-- TROCAR FOTO: inspeção / controle -->
+        <div class="media arch wipe aspect-[4/5]"><span class="tag">Inspeção e controle</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="requalificadora-servicos" class="bg-cream scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap">
+      <div class="max-w-2xl"><p class="eyebrow reveal">Serviços</p>
+        <h2 class="h2 reveal mt-5 text-plum">Requalificação de <span class="serif text-gold">Recipientes</span></h2></div>
+      <div class="grid md:grid-cols-2 gap-x-16 mt-12">
+        <div class="reveal prod-line"><span class="d"></span><p class="lead text-ink/90">Requalificação de Recipientes <strong class="text-plum">P02</strong></p></div>
+        <div class="reveal prod-line"><span class="d"></span><p class="lead text-ink/90">Requalificação de Recipientes <strong class="text-plum">P05</strong></p></div>
+        <div class="reveal prod-line"><span class="d"></span><p class="lead text-ink/90">Requalificação de Recipientes <strong class="text-plum">P08</strong></p></div>
+        <div class="reveal prod-line"><span class="d"></span><p class="lead text-ink/90">Requalificação de Recipientes <strong class="text-plum">P13</strong></p></div>
+        <div class="reveal prod-line"><span class="d"></span><p class="lead text-ink/90">Requalificação de Recipientes <strong class="text-plum">P190</strong></p></div>
+        <div class="reveal prod-line"><span class="d"></span><p class="lead text-ink/90">Requalificação de Recipientes <strong class="text-plum">P20</strong> e Troca de Calota Inferior P20</p></div>
+        <div class="reveal prod-line md:col-span-2"><span class="d"></span><p class="lead text-ink/90">Requalificação de Recipientes <strong class="text-plum">P45</strong> e Troca de Calota Inferior P45</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="requalificadora-contato" class="dark scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-14">
+      <div class="lg:col-span-5">
+        <p class="eyebrow reveal">Contato</p>
+        <h2 class="h2 reveal mt-5 text-cream">Fale com o Comercial da <span class="serif text-goldlt">Requalificadora.</span></h2>
+        <div class="reveal mt-8 space-y-4 text-cream/85" data-delay="1">
+          <p><span class="text-goldlt display font-semibold">WhatsApp/Telefone:</span> <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="hover:text-goldlt">(11) 4161-8000</a></p>
+          <p><span class="text-goldlt display font-semibold">Horário:</span> Seg a Sex, 08h–17h</p>
+          <p><span class="text-goldlt display font-semibold">Endereço:</span> Av. Santa Mônica, 396 — Vila Santa Cecília — Mauá/SP — CEP 09380-110</p>
+        </div>
+      </div>
+      <div class="lg:col-span-7 reveal" data-delay="1">
+        <form class="contact-form form-dark" data-setor="Requalificadora" novalidate>
+          <div class="grid sm:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="field sm:col-span-2" data-field="assunto"><label>Assunto</label><input name="assunto" type="text" placeholder="Ex.: Requalificação P13"><span class="msg">Informe o assunto.</span></div>
+            <div class="field" data-field="nome"><label>Nome</label><input name="nome" type="text" placeholder="Seu nome"><span class="msg">Informe seu nome.</span></div>
+            <div class="field" data-field="email"><label>E-mail</label><input name="email" type="email" placeholder="voce@empresa.com"><span class="msg">Informe um e-mail válido.</span></div>
+            <div class="field sm:col-span-2" data-field="telefone"><label>Telefone</label><input name="telefone" type="tel" placeholder="(11) 90000-0000"><span class="msg">Informe um telefone válido.</span></div>
+            <div class="field sm:col-span-2" data-field="mensagem"><label>Mensagem</label><textarea name="mensagem" placeholder="Como podemos ajudar?"></textarea><span class="msg">Escreva sua mensagem.</span></div>
+          </div>
+          <div class="mt-8 flex flex-wrap items-center gap-4">
+            <button type="submit" data-hover class="btn btn-gold magnetic">Enviar mensagem</button>
+            <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="btn btn-outline magnetic">WhatsApp</a>
+          </div>
+          <div class="form-ok mt-7 text-goldlt" role="status"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Mensagem pronta para envio ao Setor Comercial.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div><!-- /requalificadora -->
+
+
+<!-- =================================================================== -->
+<!-- ==================== PÁGINA: EMBALAGENS =========================== -->
+<!-- =================================================================== -->
+<div data-page="embalagens" hidden>
+  <section class="page-hero mesh min-h-[92svh] flex items-center pt-[var(--hh)] text-cream relative">
+    <span class="blob b1" data-parallax="0.12" style="top:-6%; left:-8%"></span>
+    <span class="blob b3" data-parallax="0.24" style="bottom:-8%; right:16%"></span>
+    <div class="wrap relative z-10 w-full grid lg:grid-cols-12 gap-10 items-center py-16">
+      <div class="lg:col-span-6 order-2 lg:order-1 reveal" data-delay="1">
+        <div class="grid grid-cols-2 gap-4">
+          <!-- TROCAR FOTO: filme técnico / laminados -->
+          <div class="media arch wipe aspect-[3/4]"><span class="tag">Filme técnico</span></div>
+          <div class="media arch wipe aspect-[3/4] mt-12"><span class="tag">Laminados</span></div>
+        </div>
+      </div>
+      <div class="lg:col-span-6 order-1 lg:order-2">
+        <img src="https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Rebracil-Embalagens-Colorful-Horizontal-1024x252.png" alt="Rebracil Embalagens" class="reveal logo-white h-10 lg:h-12 w-auto">
+        <p class="eyebrow reveal mt-8">Plásticas · Flexíveis</p>
+        <h1 class="h1 reveal mt-5">Embalagens com espírito <span class="serif text-goldlt">jovem</span> e moderno.</h1>
+        <p class="lead reveal mt-7 max-w-lg text-cream/75" data-delay="1">Parque industrial verticalizado e as melhores soluções em PE, PP, PET, BOPP e estruturas laminadas.</p>
+        <div class="reveal mt-9 flex flex-wrap gap-4" data-delay="2">
+          <a href="#embalagens-produtos" data-anchor data-hover class="btn btn-gold magnetic">Ver produtos</a>
+          <a href="#embalagens-contato" data-anchor data-hover class="btn btn-outline magnetic">Falar com o Comercial</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="subnav flex justify-center pt-4" aria-label="Seções — Embalagens">
+    <div class="inner">
+      <a href="#embalagens-sobre" data-anchor data-hover>Sobre nós</a>
+      <a href="#embalagens-conduta" data-anchor data-hover>Conduta</a>
+      <a href="#embalagens-estrutura" data-anchor data-hover>Estrutura</a>
+      <a href="#embalagens-produtos" data-anchor data-hover>Produtos</a>
+      <a href="#embalagens-contato" data-anchor data-hover>Contato</a>
+    </div>
+  </nav>
+
+  <section id="embalagens-sobre" class="bg-cream py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7">
+        <p class="eyebrow reveal">Sobre nós</p>
+        <h2 class="h2 reveal mt-5 text-plum">Espírito <span class="serif text-gold">jovem</span>, foco total no cliente.</h2>
+        <div class="rule reveal mt-7"></div>
+        <p class="lead reveal mt-7 text-ink/85 max-w-2xl" data-delay="1">A Rebracil Embalagens Flexíveis tem um espírito jovem e moderno, com o compromisso de atender aos seus clientes.</p>
+      </div>
+      <div class="lg:col-span-5 reveal">
+        <!-- TROCAR FOTO: equipe / linha moderna -->
+        <div class="media blobmask wipe aspect-[5/5]"><span class="tag">Time &amp; produção</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="embalagens-conduta" class="dark scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-6 reveal">
+        <!-- TROCAR FOTO: ambiente / valores -->
+        <div class="media arch wipe aspect-[4/5]"><span class="tag">Código de Conduta</span></div>
+      </div>
+      <div class="lg:col-span-6">
+        <p class="eyebrow reveal">Conduta</p>
+        <h2 class="h2 reveal mt-5 text-cream">Código de Conduta <span class="serif text-goldlt">Rebracil</span></h2>
+        <p class="lead reveal mt-7 text-cream/75 max-w-xl" data-delay="1">Instrumento que busca esclarecer as medidas e posições da empresa, orientando relações internas e externas com transparência e responsabilidade.</p>
+        <!-- Link "Conheça nosso Código de Conduta" — apontar para o documento/página real -->
+        <a href="#embalagens-contato" data-anchor data-hover class="reveal btn btn-gold magnetic mt-8" data-delay="1">Conheça nosso Código de Conduta
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="embalagens-estrutura" class="bg-cream scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7 order-2 lg:order-1">
+        <p class="eyebrow reveal">Estrutura</p>
+        <h2 class="h2 reveal mt-5 text-plum">Parque industrial moderno e <span class="serif text-gold">verticalizado.</span></h2>
+        <p class="lead reveal mt-7 text-ink/85 max-w-2xl" data-delay="1">A Rebracil de hoje tem um parque industrial moderno e verticalizado, distribuído de maneira a otimizar a produção.</p>
+      </div>
+      <div class="lg:col-span-5 order-1 lg:order-2 reveal">
+        <!-- TROCAR FOTO: maquinário / parque fabril -->
+        <div class="media arch wipe aspect-[4/5]"><span class="tag">Parque industrial</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="embalagens-produtos" class="dark scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap">
+      <div class="max-w-2xl"><p class="eyebrow reveal">Produtos</p>
+        <h2 class="h2 reveal mt-5 text-cream">Três linhas para acondicionar <span class="serif text-goldlt">qualquer necessidade.</span></h2></div>
+      <div class="grid lg:grid-cols-3 gap-6 mt-14">
+        <div class="reveal rounded-[28px] p-8 bg-white/[.04] border border-white/10 hover:border-gold/40 transition">
+          <span class="pill-tag">Linha Industrial</span>
+          <p class="text-cream/70 mt-5">As melhores soluções de embalagens em PE, PP, PET, BOPP e estruturas laminadas para melhor acondicionamento.</p>
+          <div class="hair my-6"></div>
+          <ul class="space-y-3 text-cream/85">
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Filme técnico liso e impresso</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Laminados</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Bobinas para enfardadeiras</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Shrink</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Sacos com solda lateral, beira lateral e beira no fundo</li>
+          </ul>
+        </div>
+        <div class="reveal rounded-[28px] p-8 bg-white/[.04] border border-white/10 hover:border-gold/40 transition" data-delay="1">
+          <span class="pill-tag">Linha para Lojas</span>
+          <p class="text-cream/70 mt-5">Personalize sua sacola ou saco de presente. Produtos em diversos modelos e acabamentos.</p>
+          <div class="hair my-6"></div>
+          <ul class="space-y-3 text-cream/85">
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Sacos de BOPP metalizado e perolizado</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Sacolas em PEAD e PEBD</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Modelos vazada, camiseta e alça fita</li>
+          </ul>
+        </div>
+        <div class="reveal rounded-[28px] p-8 bg-white/[.04] border border-white/10 hover:border-gold/40 transition" data-delay="2">
+          <span class="pill-tag">Linha Especial</span>
+          <p class="text-cream/70 mt-5">Mix de produtos para atender a sua necessidade.</p>
+          <div class="hair my-6"></div>
+          <ul class="space-y-3 text-cream/85">
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Sacos com zip</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Sacos com fita dupla face (abre-fecha ou lacre)</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Sacos adesivados</li>
+            <li class="flex gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gold mt-2 shrink-0"></span>Solda Pouch e StandUp Pouch</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="embalagens-contato" class="bg-cream scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-14">
+      <div class="lg:col-span-5">
+        <p class="eyebrow reveal">Contato</p>
+        <h2 class="h2 reveal mt-5 text-plum">Fale com o Comercial de <span class="serif text-gold">Embalagens.</span></h2>
+        <div class="reveal mt-8 space-y-4 text-ink/85" data-delay="1">
+          <p><span class="text-gold display font-semibold">WhatsApp/Telefone:</span> <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="hover:text-gold">(11) 4161-8000</a></p>
+          <p><span class="text-gold display font-semibold">Horário:</span> Seg a Sex, 08h–17h</p>
+          <p><span class="text-gold display font-semibold">Endereço:</span> Av. Santa Mônica, 396 — Vila Santa Cecília — Mauá/SP — CEP 09380-110</p>
+        </div>
+      </div>
+      <div class="lg:col-span-7 reveal" data-delay="1">
+        <form class="contact-form" data-setor="Embalagens Flexíveis" novalidate>
+          <div class="grid sm:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="field sm:col-span-2" data-field="assunto"><label>Assunto</label><input name="assunto" type="text" placeholder="Ex.: Filme técnico impresso"><span class="msg">Informe o assunto.</span></div>
+            <div class="field" data-field="nome"><label>Nome</label><input name="nome" type="text" placeholder="Seu nome"><span class="msg">Informe seu nome.</span></div>
+            <div class="field" data-field="email"><label>E-mail</label><input name="email" type="email" placeholder="voce@empresa.com"><span class="msg">Informe um e-mail válido.</span></div>
+            <div class="field sm:col-span-2" data-field="telefone"><label>Telefone</label><input name="telefone" type="tel" placeholder="(11) 90000-0000"><span class="msg">Informe um telefone válido.</span></div>
+            <div class="field sm:col-span-2" data-field="mensagem"><label>Mensagem</label><textarea name="mensagem" placeholder="Como podemos ajudar?"></textarea><span class="msg">Escreva sua mensagem.</span></div>
+          </div>
+          <div class="mt-8 flex flex-wrap items-center gap-4">
+            <button type="submit" data-hover class="btn btn-dark magnetic">Enviar mensagem</button>
+            <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="btn btn-ghost-dark magnetic">WhatsApp</a>
+          </div>
+          <div class="form-ok mt-7 text-plum" role="status"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Mensagem pronta para envio ao Setor Comercial.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div><!-- /embalagens -->
+
+
+<!-- =================================================================== -->
+<!-- ====================== PÁGINA: TUBOS ============================== -->
+<!-- =================================================================== -->
+<div data-page="tubos" hidden>
+  <section class="page-hero mesh min-h-[92svh] flex items-center pt-[var(--hh)] text-cream relative overflow-hidden">
+    <svg class="absolute -right-40 -top-24 w-[620px] h-[620px] opacity-50 pointer-events-none" data-parallax="0.1" viewBox="0 0 200 200" fill="none">
+      <g stroke="#C6A44E" stroke-width="0.5"><circle cx="100" cy="100" r="26"/><circle cx="100" cy="100" r="42"/><circle cx="100" cy="100" r="58"/><circle cx="100" cy="100" r="74"/><circle cx="100" cy="100" r="90"/></g>
+    </svg>
+    <div class="wrap relative z-10 w-full grid lg:grid-cols-12 gap-10 items-center py-16">
+      <div class="lg:col-span-7">
+        <img src="https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Rebracil-Tubos-Colorful-Horizontal-1024x227.png" alt="Rebracil Tubos" class="reveal logo-white h-10 lg:h-12 w-auto">
+        <p class="eyebrow reveal mt-8">Tubos · Papelão</p>
+        <h1 class="h1 reveal mt-5">Tubos <span class="serif text-goldlt">radiais</span> de papelão, resposta precisa.</h1>
+        <p class="lead reveal mt-7 max-w-xl text-cream/75" data-delay="1">Abordagem técnica radial para o enrolamento de filmes industriais — menos peso, mais resistência.</p>
+        <div class="reveal mt-9 flex flex-wrap gap-4" data-delay="2">
+          <a href="#tubos-produtos" data-anchor data-hover class="btn btn-gold magnetic">Ver produtos</a>
+          <a href="#tubos-contato" data-anchor data-hover class="btn btn-outline magnetic">Falar com o Comercial</a>
+        </div>
+      </div>
+      <div class="lg:col-span-5 reveal" data-delay="1">
+        <!-- TROCAR FOTO: tubetes / tubos radiais -->
+        <div class="media arch wipe aspect-[3/4]"><span class="tag">Tubos radiais de papelão</span></div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="subnav flex justify-center pt-4" aria-label="Seções — Tubos">
+    <div class="inner">
+      <a href="#tubos-sobre" data-anchor data-hover>Sobre nós</a>
+      <a href="#tubos-produtos" data-anchor data-hover>Produtos</a>
+      <a href="#tubos-contato" data-anchor data-hover>Contato</a>
+    </div>
+  </nav>
+
+  <section id="tubos-sobre" class="bg-cream py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-5 reveal">
+        <!-- TROCAR FOTO: fabricação de tubetes -->
+        <div class="media blobmask wipe aspect-[5/5]"><span class="tag">Fabricação radial</span></div>
+      </div>
+      <div class="lg:col-span-7">
+        <p class="eyebrow reveal">Sobre nós</p>
+        <h2 class="h2 reveal mt-5 text-plum">Abordagem técnica <span class="serif text-gold">radial.</span></h2>
+        <div class="rule reveal mt-7"></div>
+        <p class="lead reveal mt-7 text-ink/85 max-w-2xl" data-delay="1">A Rebracil Tubos de Papelão tem uma abordagem técnica radial, fornecendo uma resposta precisa às demandas do mercado.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tubos-produtos" class="dark scoop py-24 lg:py-32 scroll-mt-[150px] relative overflow-hidden">
+    <div class="wrap grid lg:grid-cols-12 gap-12 items-center relative z-10">
+      <div class="lg:col-span-7">
+        <p class="eyebrow reveal">Produtos</p>
+        <h2 class="h2 reveal mt-5 text-cream">A solução de qualidade e preço no <span class="serif text-goldlt">seu tubete.</span></h2>
+        <p class="lead reveal mt-7 text-cream/75 max-w-2xl" data-delay="1">Os tubos radiais Rebracil são projetados para o enrolamento de filmes industriais. O resultado final é garantido graças ao domínio da matéria-prima aliado à capacidade de medição, garantindo <span class="serif text-goldlt">menos peso e mais resistência</span>.</p>
+        <div class="reveal grid sm:grid-cols-3 gap-6 mt-10" data-delay="2">
+          <div class="border-t border-white/15 pt-4"><p class="display font-semibold text-goldlt">Enrolamento</p><p class="text-sm text-cream/60 mt-1">Projetados para filmes industriais</p></div>
+          <div class="border-t border-white/15 pt-4"><p class="display font-semibold text-goldlt">Matéria-prima</p><p class="text-sm text-cream/60 mt-1">Domínio técnico do insumo</p></div>
+          <div class="border-t border-white/15 pt-4"><p class="display font-semibold text-goldlt">Medição</p><p class="text-sm text-cream/60 mt-1">Menos peso, mais resistência</p></div>
+        </div>
+      </div>
+      <div class="lg:col-span-5 reveal" data-delay="1">
+        <!-- TROCAR FOTO: tubetes prontos -->
+        <div class="media arch wipe aspect-[4/5]"><span class="tag">Enrolamento de filmes</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tubos-contato" class="bg-cream scoop py-24 lg:py-32 scroll-mt-[150px]">
+    <div class="wrap grid lg:grid-cols-12 gap-14">
+      <div class="lg:col-span-5">
+        <p class="eyebrow reveal">Contato</p>
+        <h2 class="h2 reveal mt-5 text-plum">Fale com o Comercial de <span class="serif text-gold">Tubos.</span></h2>
+        <div class="reveal mt-8 space-y-4 text-ink/85" data-delay="1">
+          <p><span class="text-gold display font-semibold">WhatsApp/Telefone:</span> <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="hover:text-gold">(11) 4161-8000</a></p>
+          <p><span class="text-gold display font-semibold">Horário:</span> Seg a Sex, 08h–17h</p>
+          <p><span class="text-gold display font-semibold">Endereço:</span> Rua Pierre Lafage, 147 — Vila Jaraguá — São Paulo/SP — CEP 05163-060</p>
+        </div>
+      </div>
+      <div class="lg:col-span-7 reveal" data-delay="1">
+        <form class="contact-form" data-setor="Tubos & Papelão" novalidate>
+          <div class="grid sm:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="field sm:col-span-2" data-field="assunto"><label>Assunto</label><input name="assunto" type="text" placeholder="Ex.: Tubetes para enrolamento"><span class="msg">Informe o assunto.</span></div>
+            <div class="field" data-field="nome"><label>Nome</label><input name="nome" type="text" placeholder="Seu nome"><span class="msg">Informe seu nome.</span></div>
+            <div class="field" data-field="email"><label>E-mail</label><input name="email" type="email" placeholder="voce@empresa.com"><span class="msg">Informe um e-mail válido.</span></div>
+            <div class="field sm:col-span-2" data-field="telefone"><label>Telefone</label><input name="telefone" type="tel" placeholder="(11) 90000-0000"><span class="msg">Informe um telefone válido.</span></div>
+            <div class="field sm:col-span-2" data-field="mensagem"><label>Mensagem</label><textarea name="mensagem" placeholder="Como podemos ajudar?"></textarea><span class="msg">Escreva sua mensagem.</span></div>
+          </div>
+          <div class="mt-8 flex flex-wrap items-center gap-4">
+            <button type="submit" data-hover class="btn btn-dark magnetic">Enviar mensagem</button>
+            <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="btn btn-ghost-dark magnetic">WhatsApp</a>
+          </div>
+          <div class="form-ok mt-7 text-plum" role="status"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Mensagem pronta para envio ao Setor Comercial.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div><!-- /tubos -->
+</main>
+
+
+<!-- ===================== RODAPÉ ===================== -->
+<footer class="dark scoop pt-20 pb-10">
+  <div class="wrap">
+    <div class="grid lg:grid-cols-12 gap-12 pb-14 border-b border-white/10">
+      <div class="lg:col-span-5">
+        <img src="https://rebracil.com.br/wp-content/uploads/2022/05/Logo-Grupo-Rebracil-Colorful-Horizontal-1024x253.png" alt="Grupo Rebracil" class="logo-white h-9 w-auto">
+        <p class="mt-6 max-w-sm text-cream/60">Grupo industrial brasileiro desde 2012. Três unidades, três setores — a mesma exigência por <span class="serif text-goldlt">qualidade, pontualidade e flexibilidade.</span></p>
+        <a href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover class="arrowlink on-dark text-cream mt-7 hover:text-goldlt">(11) 4161-8000 <span class="arw">→</span></a>
+      </div>
+      <div class="lg:col-span-3">
+        <p class="eyebrow !text-goldlt">Unidades</p>
+        <ul class="mt-5 space-y-3">
+          <li><a href="#/" data-nav data-hover class="footlink">Grupo Rebracil</a></li>
+          <li><a href="#/embalagens" data-nav data-hover class="footlink">Embalagens Flexíveis</a></li>
+          <li><a href="#/requalificadora" data-nav data-hover class="footlink">Requalificadora</a></li>
+          <li><a href="#/tubos" data-nav data-hover class="footlink">Tubos de Papelão</a></li>
+        </ul>
+      </div>
+      <div class="lg:col-span-4">
+        <p class="eyebrow !text-goldlt">Contato &amp; Endereços</p>
+        <div class="mt-5 space-y-4 text-sm text-cream/70">
+          <p>Seg a Sex, das 08h às 17h</p>
+          <p><span class="text-cream/90 font-medium">Requalificadora &amp; Embalagens</span><br>Av. Santa Mônica, 396 — Vila Santa Cecília — Mauá/SP — CEP 09380-110</p>
+          <p><span class="text-cream/90 font-medium">Tubos &amp; Papelão</span><br>Rua Pierre Lafage, 147 — Vila Jaraguá — São Paulo/SP — CEP 05163-060</p>
+        </div>
+      </div>
+    </div>
+    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-cream/45">
+      <p>© <span id="year"></span> Grupo Rebracil — Todos os direitos reservados.</p>
+      <p class="text-cream/35 serif">Qualidade · Pontualidade · Flexibilidade</p>
+    </div>
+  </div>
+</footer>
+
+<a id="wa" href="https://api.whatsapp.com/send?phone=551141618000" target="_blank" rel="noopener" data-hover aria-label="Fale conosco no WhatsApp">
+  <svg viewBox="0 0 32 32"><path d="M16.01 3C9.38 3 4 8.37 4 15c0 2.1.55 4.14 1.6 5.95L4 29l8.27-1.55A11.9 11.9 0 0 0 16.01 27C22.64 27 28 21.63 28 15S22.64 3 16.01 3Zm0 21.8c-1.86 0-3.68-.5-5.27-1.44l-.38-.22-4.9.92.93-4.78-.25-.4A9.76 9.76 0 0 1 6.2 15c0-5.4 4.4-9.8 9.81-9.8 5.4 0 9.8 4.4 9.8 9.8 0 5.4-4.4 9.8-9.8 9.8Zm5.38-7.34c-.29-.15-1.74-.86-2.01-.96-.27-.1-.47-.15-.67.15-.2.29-.77.96-.94 1.16-.17.2-.35.22-.64.07-.29-.15-1.24-.46-2.36-1.46-.87-.78-1.46-1.74-1.63-2.03-.17-.29-.02-.45.13-.6.13-.13.29-.35.44-.52.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5l-.57-.01c-.2 0-.52.07-.79.37-.27.29-1.04 1.02-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.09 3.2 5.07 4.48.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.74-.71 1.99-1.4.24-.69.24-1.28.17-1.4-.07-.12-.27-.2-.56-.35Z"/></svg>
+</a>
+
+
+<script>
+(function(){
+  'use strict';
+  var META={
+    home:{t:'Grupo Rebracil — Requalificação de GLP, Embalagens Flexíveis e Tubos de Papelão',d:'Grupo industrial brasileiro desde 2012. Três unidades: requalificação de GLP, embalagens plásticas flexíveis e tubos radiais de papelão.'},
+    requalificadora:{t:'Rebracil Requalificadora — Recipientes Transportáveis para GLP',d:'Requalificação de recipientes de GLP P02 a P45, com forte controle de qualidade e Política da Qualidade própria. Mauá/SP.'},
+    embalagens:{t:'Rebracil Embalagens Flexíveis — PE, PP, PET, BOPP e Laminados',d:'Embalagens plásticas flexíveis: linhas Industrial, para Lojas e Especial. Parque industrial moderno e verticalizado.'},
+    tubos:{t:'Rebracil Tubos & Papelão — Tubos Radiais de Papelão',d:'Tubos radiais de papelão para enrolamento de filmes industriais: menos peso, mais resistência. São Paulo/SP.'}
+  };
+  var PAGES=['home','requalificadora','embalagens','tubos'];
+  var hdr=document.getElementById('hdr'), mobile=document.getElementById('mobile'), headerH=74;
+  var fine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+  /* Reveal */
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:0.12,rootMargin:'0px 0px -6% 0px'});
+  function observeReveals(s){(s||document).querySelectorAll('.reveal:not(.in),.wipe:not(.in)').forEach(function(el){io.observe(el);});}
+
+  /* Contadores */
+  var cObs=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var el=e.target,to=parseInt(el.getAttribute('data-count'),10),from=parseInt(el.getAttribute('data-from')||'0',10),t0=null,dur=1400;
+    function tick(ts){if(!t0)t0=ts;var p=Math.min((ts-t0)/dur,1),k=1-Math.pow(1-p,3);el.textContent=Math.round(from+(to-from)*k);if(p<1)requestAnimationFrame(tick);}requestAnimationFrame(tick);cObs.unobserve(el);});},{threshold:0.6});
+  function observeCounters(s){(s||document).querySelectorAll('[data-count]').forEach(function(el){cObs.observe(el);});}
+
+  /* Header + progresso + parallax */
+  var prog=document.getElementById('prog'), ticking=false;
+  function applyScroll(){
+    ticking=false;
+    if(window.scrollY>40) hdr.classList.add('solid'); else hdr.classList.remove('solid');
+    var h=document.documentElement, sc=h.scrollHeight-h.clientHeight;
+    prog.style.width=(sc>0?(window.scrollY/sc*100):0)+'%';
+  }
+  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(applyScroll); } }
+  function refreshParallax(){}
+  window.addEventListener('scroll',onScroll,{passive:true});
+
+  /* Nav ativo */
+  function setActiveNav(n){document.querySelectorAll('#hdr .navlink[data-match]').forEach(function(a){a.classList.toggle('active',a.getAttribute('data-match')===n);});}
+
+  /* Router */
+  function showPage(name){
+    if(PAGES.indexOf(name)===-1)name='home';
+    document.querySelectorAll('[data-page]').forEach(function(p){p.hidden=(p.getAttribute('data-page')!==name);});
+    var m=META[name]||META.home; document.title=m.t; var md=document.querySelector('meta[name="description"]'); if(md)md.setAttribute('content',m.d);
+    window.scrollTo(0,0); setActiveNav(name);
+    var s=document.querySelector('[data-page="'+name+'"]');
+    s.querySelectorAll('.page-hero .reveal,.page-hero .wipe').forEach(function(el){el.classList.add('in');});
+    refreshParallax(); onScroll(); observeReveals(s); observeCounters(s);
+  }
+  function route(){var h=location.hash.replace(/^#\/?/,'');showPage(h||'home');}
+  window.addEventListener('hashchange',route);
+
+  /* Cliques nav / scroll / anchor */
+  document.addEventListener('click',function(ev){
+    var el=ev.target.closest('[data-nav],[data-scroll],[data-anchor]'); if(!el)return; closeMobile();
+    if(el.hasAttribute('data-anchor')){var id=(el.getAttribute('href')||'').replace('#','');var t=document.getElementById(id);if(t){ev.preventDefault();window.scrollTo({top:t.getBoundingClientRect().top+window.scrollY-(headerH+58),behavior:'smooth'});}return;}
+    if(el.hasAttribute('data-scroll')){ev.preventDefault();var sid=el.getAttribute('data-scroll');var home=document.querySelector('[data-page="home"]');var need=!home||home.hidden;
+      if(need){if(location.hash!==''&&location.hash!=='#/')location.hash='#/';else showPage('home');setTimeout(function(){scrollToId(sid);},70);}else scrollToId(sid);return;}
+  });
+  function scrollToId(id){var t=document.getElementById(id);if(!t)return;window.scrollTo({top:t.getBoundingClientRect().top+window.scrollY-(headerH-6),behavior:'smooth'});}
+
+  /* Mobile menu */
+  var burger=document.getElementById('burger');
+  function openMobile(){mobile.classList.add('open');mobile.setAttribute('aria-hidden','false');burger.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';}
+  function closeMobile(){mobile.classList.remove('open');mobile.setAttribute('aria-hidden','true');burger.setAttribute('aria-expanded','false');document.body.style.overflow='';}
+  burger.addEventListener('click',openMobile);
+  document.getElementById('closeMenu').addEventListener('click',closeMobile);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMobile();});
+
+  /* Cursor customizado + magnético + hover */
+  if(fine){
+    document.body.classList.add('has-cursor');
+    var dot=document.getElementById('curDot'), ring=document.getElementById('curRing');
+    var mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+    window.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+    (function loop(){rx+=(mx-rx)*0.18;ry+=(my-ry)*0.18;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+    document.addEventListener('mouseover',function(e){if(e.target.closest('[data-hover],a,button'))document.body.classList.add('cur-hover');});
+    document.addEventListener('mouseout',function(e){if(e.target.closest('[data-hover],a,button'))document.body.classList.remove('cur-hover');});
+    /* Magnético */
+    document.addEventListener('mousemove',function(e){
+      document.querySelectorAll('.magnetic').forEach(function(el){
+        var r=el.getBoundingClientRect();if(r.width===0)return;var cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,d=Math.hypot(dx,dy);
+        if(d<90){el.style.transform='translate('+dx*0.28+'px,'+dy*0.28+'px)';}else{el.style.transform='';}
+      });
+    });
+  }
+
+  /* Unidades — imagem flutuante (desktop) */
+  var list=document.getElementById('unitsList'), float=document.getElementById('unitFloat');
+  if(list&&float&&fine){
+    var medias=float.querySelectorAll('.media');
+    list.addEventListener('mousemove',function(e){float.style.left=e.clientX+'px';float.style.top=e.clientY+'px';});
+    list.addEventListener('mouseenter',function(){float.classList.add('show');});
+    list.addEventListener('mouseleave',function(){float.classList.remove('show');});
+    list.querySelectorAll('.unit-row').forEach(function(row){
+      row.addEventListener('mouseenter',function(){var k=row.getAttribute('data-img');medias.forEach(function(m){m.classList.toggle('on',m.getAttribute('data-key')===k);});});
+    });
+  }
+
+  /* Formulários */
+  function isEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+  function digits(v){return (v||'').replace(/\D/g,'');}
+  function validateField(f){var n=f.getAttribute('data-field'),c=f.querySelector('input,textarea'),v=(c.value||'').trim(),ok=true;
+    if(n==='email')ok=isEmail(v);else if(n==='telefone')ok=digits(v).length>=10;else ok=v.length>=2;f.classList.toggle('err',!ok);return ok;}
+  document.querySelectorAll('.contact-form').forEach(function(form){
+    form.querySelectorAll('.field input,.field textarea').forEach(function(c){
+      c.addEventListener('blur',function(){validateField(c.closest('.field'));});
+      c.addEventListener('input',function(){var f=c.closest('.field');if(f.classList.contains('err'))validateField(f);});
+    });
+    form.addEventListener('submit',function(ev){ev.preventDefault();var ok=true;form.querySelectorAll('.field[data-field]').forEach(function(f){if(!validateField(f))ok=false;});
+      if(!ok){var fe=form.querySelector('.field.err input,.field.err textarea');if(fe)fe.focus();return;}sendForm(form);});
+  });
+  function sendForm(form){
+    var data={setor:form.getAttribute('data-setor')||'Grupo Rebracil',assunto:form.querySelector('[name="assunto"]').value.trim(),nome:form.querySelector('[name="nome"]').value.trim(),email:form.querySelector('[name="email"]').value.trim(),telefone:form.querySelector('[name="telefone"]').value.trim(),mensagem:form.querySelector('[name="mensagem"]').value.trim()};
+    /* =========================================================
+       PLUGAR ENDPOINT — envio de e-mail ao Setor Comercial.
+       Descomente e ajuste (Formspree, Basin, EmailJS, /api/contact):
+
+       fetch('https://formspree.io/f/SEU_ID',{method:'POST',
+         headers:{'Content-Type':'application/json','Accept':'application/json'},
+         body:JSON.stringify(data)})
+         .then(function(r){if(!r.ok)throw 0;return r.json();})
+         .then(function(){showSuccess(form);})
+         .catch(function(){alert('Não foi possível enviar agora. Tente novamente ou chame no WhatsApp.');});
+       return;
+    ========================================================= */
+    console.log('[Rebracil] Formulário pronto →',data); showSuccess(form);
+  }
+  function showSuccess(form){var ok=form.querySelector('.form-ok');if(ok)ok.classList.add('show');form.querySelectorAll('.field input,.field textarea').forEach(function(c){c.value='';});setTimeout(function(){if(ok)ok.classList.remove('show');},9000);}
+
+  /* Init */
+  document.getElementById('year').textContent=new Date().getFullYear();
+  var yearsEl=document.getElementById('yearsCount');
+  if(yearsEl){ yearsEl.setAttribute('data-count', String(Math.max(0, new Date().getFullYear()-2012))); }
+  route();
+})();
+</script>
+</body>
+</html>
