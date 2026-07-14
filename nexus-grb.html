@@ -2147,7 +2147,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       </div>
 
       <div x-show="abaConfig==='importador'" x-cloak class="card-dark" style="margin-bottom:0;">
-        <div class="card-title text-accent-green mb-2"><i class="fas fa-cloud-upload-alt mr-2"></i> Importador Universal de Despesas</div>
+        <div class="card-title text-accent-green mb-2"><i class="fas fa-cloud-upload-alt mr-2"></i> Importador Universal de Planilhas</div>
         <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Envie o arquivo e o sistema faz o resto: identifica se é <b>despesa</b> (contas a pagar ou resumo por conta), <b>faturamento</b> ou <b>inventário</b>, encontra o <b>mês</b> dentro do próprio arquivo e mostra tudo preenchido para você só conferir e clicar em Importar. Dá para ajustar mês, tipo e empresa antes de confirmar: o relatório da <b>indústria</b> alimenta os centros de custo e a linha Despesas Embalagem; o de <b>Linear, Teste, Teste X ou Inter Company</b> alimenta a linha da própria empresa no Resultado 2026. Contas 023 vão para a tela Serviços. Tudo também pode ser digitado direto na tabela (botão Editar valores).</p>
         
         <div style="display:flex; flex-direction:column; gap:16px; background:var(--color-surface2); padding:32px; border-radius:12px; border: 2px dashed rgba(13,148,136,0.4); align-items:center; text-align:center;"
@@ -2179,7 +2179,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                 </div>
               </div>
               <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-                <div class="config-input-group" style="min-width:170px">
+                <div class="config-input-group" style="min-width:170px" x-show="tipoImportacao!=='resultado'">
                   <label class="text-accent-blue font-bold" style="font-size:11px;">Mês</label>
                   <select x-model="mesImportacao" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size:13px;height:42px;">
                     <option value="">-- MÊS --</option>
@@ -2195,9 +2195,10 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                     <option value="despesa">Despesa</option>
                     <option value="faturamento">Faturamento</option>
                     <option value="inventario">Inventário</option>
+                    <option value="resultado">Resultado completo (planilha)</option>
                   </select>
                 </div>
-                <div class="config-input-group" style="min-width:220px" x-show="empresaAtiva==='embalagem' && depto==='embalagem' && tipoImportacao!=='inventario'">
+                <div class="config-input-group" style="min-width:220px" x-show="empresaAtiva==='embalagem' && depto==='embalagem' && tipoImportacao!=='inventario' && tipoImportacao!=='resultado'">
                   <label class="text-accent-blue font-bold" style="font-size:11px;">Empresa do relatório</label>
                   <select x-model="empresaRelatorio" x-effect="$el.value = empresaRelatorio" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size:13px;height:42px;">
                     <template x-for="s in (empresaExtras.subempresas || [])" :key="'er'+s.nome">
@@ -2215,31 +2216,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
           <button x-show="backupEstado && !impPendente" @click="desfazerImportacao()" class="emc-btn emc-btn-danger mt-4" style="padding: 10px 24px;"><i class="fas fa-undo mr-2"></i> Desfazer Última Importação</button>
 
-        </div>
-
-        <!-- Importador do RESULTADO da Embalagem (receitas, kg, fator e inventário) -->
-        <div x-show="empresaAtiva==='embalagem' && depto==='embalagem'" style="margin-top:20px;background:rgba(15,118,110,.05);padding:26px;border-radius:12px;border:2px dashed rgba(15,118,110,.4)">
-          <div class="card-title" style="color:#0f766e;margin-bottom:4px;white-space:normal"><i class="fas fa-weight-hanging mr-2"></i> Importador do Resultado · Embalagem (Receitas · Kg · Fator · Inventário)</div>
-          <p class="text-xs text-gray-500 mb-4" style="line-height:1.6">Envie a própria aba <b>"Resultado 2026"</b> da planilha da Embalagem. O sistema localiza as colunas de <b>JANEIRO a DEZEMBRO</b> e distribui automaticamente: faturamento por linha (Embalagem, Linear, Inter Company, Teste Venda, Teste Sucata, Teste X) com <b>Kg e Fator</b>, inventário por categoria, despesas por empresa, devoluções e estoque, só os meses preenchidos na planilha são atualizados.</p>
-          <label class="emc-btn" style="cursor:pointer;font-size:13px;padding:11px 26px;background:#0f766e;border-color:#0f766e">
-            <i class="fas fa-file-import mr-2"></i> Enviar planilha "Resultado 2026"...
-            <input type="file" accept=".xlsx, .xls" class="hidden" @change="importarResultadoEmb">
-          </label>
-        </div>
-
-        <!-- Conversão Metros para Kg (inventário) -->
-        <div x-show="empresaAtiva==='embalagem' && depto==='embalagem'" style="margin-top:20px;background:rgba(197,168,128,.06);padding:26px;border-radius:12px;border:2px dashed rgba(197,168,128,.5)">
-          <div class="card-title" style="color:var(--accent-gold-deep);margin-bottom:4px;white-space:normal"><i class="fas fa-ruler-horizontal mr-2"></i> Metros para Kg · Inventário</div>
-          <p class="text-xs text-gray-500 mb-4" style="line-height:1.6">O importador também reconhece o <b>relatório de inventário</b> do sistema do cliente e distribui as categorias na planilha. Itens medidos em <b>metros</b> são SEMPRE convertidos em <b>kg</b>: pelo fator abaixo (kg por metro) quando conhecido, ou por estimativa pelo valor do item quando o fator estiver em 0. Quando o relatório traz a coluna <b>Peso</b>, o fator é aprendido e atualizado sozinho. Ao corrigir um fator aqui, os meses importados são reconvertidos na hora. Os metros continuam visíveis nas telas de inventário.</p>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px">
-            <template x-for="cod in Object.keys(fatoresMtLista)" :key="'fmt'+cod">
-              <div style="display:flex;align-items:center;gap:8px;background:var(--color-surface2);border:1px solid var(--color-border);border-radius:10px;padding:8px 12px">
-                <span style="font-size:11.5px;font-weight:800;color:var(--accent-blue);white-space:nowrap" x-text="cod"></span>
-                <input type="text" :value="fatoresMtLista[cod]" @change="setFatorMt(cod, $event.target.value)" class="emc-input" style="height:32px;font-size:12px;text-align:right" :disabled="!permEdita">
-                <span style="font-size:10px;color:var(--color-muted);white-space:nowrap">kg/mt</span>
-              </div>
-            </template>
-          </div>
         </div>
 
         <!-- Dados salvos neste navegador -->
@@ -6227,6 +6203,17 @@ function sistemaUnificado(){
                 if (mes) break;
             }
             nota = 'Relatório de inventário (estoque por categoria)' + (mes ? ', data do título: ' + mes.toUpperCase() : '');
+        } else if (this.empresaAtiva === 'embalagem' && (() => {
+            // Planilha "Resultado 2026" completa: linha-cabeçalho com os meses por extenso
+            const normR = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+            const MESES_R = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            const abaRes = workbook.SheetNames.find(n => normR(n).includes('resultado'));
+            const jsonRes = abaRes ? XLSX.utils.sheet_to_json(workbook.Sheets[abaRes], { header: 1 }) : json;
+            const temMeses = arr => arr.slice(0, 30).some(r => (r || []).filter(c => MESES_R.includes(normR(c))).length >= 3);
+            return temMeses(jsonRes) || temMeses(json);
+        })()) {
+            tipo = 'resultado';
+            nota = 'Planilha "Resultado 2026" completa: receitas com Kg e Fator, inventário, despesas por empresa, devoluções e estoque; só os meses preenchidos são atualizados';
         } else {
             // Contas a pagar: cabeçalho com Valor total + Conta Contábil Número; meses pela emissão
             let cabIdx = -1, cab = null;
@@ -6264,7 +6251,7 @@ function sistemaUnificado(){
     cancelarImportacaoPendente() { this.impPendente = null; this.impNota = ''; },
     confirmarImportacaoPendente() {
         if (!this.impPendente) return;
-        if (!this.mesImportacao) { alert('Escolha o mês antes de importar.'); return; }
+        if (this.tipoImportacao !== 'resultado' && !this.mesImportacao) { alert('Escolha o mês antes de importar.'); return; }
         const wb = this.impPendente.workbook;
         const fileLike = { name: this.impPendente.nome };
         const evtStub = { target: { value: '' } };
@@ -6301,6 +6288,7 @@ function sistemaUnificado(){
             const ehInventario = arr => arr.slice(0, 40).some(r => (r || []).some(c => String(c || '').trim() === 'Clas. Fiscal'));
             const pareceInv = ehInventario(jsonInv) || ehInventario(json);
             const tipo = (this.empresaAtiva === 'embalagem') ? (this.tipoImportacao || 'auto') : 'auto';
+            if (tipo === 'resultado') { this.aplicarResultadoEmb(workbook, file, evt); return; }
             if (tipo === 'inventario') {
               if (!pareceInv) { alert('Este arquivo não parece um relatório de inventário: não encontrei a coluna "Clas. Fiscal".\n\nVerifique o arquivo ou escolha outro tipo de informação.'); evt.target.value = ''; return; }
               this.importarInventarioBruto(ehInventario(jsonInv) ? jsonInv : json, file, evt, workbook); return;
@@ -6702,7 +6690,7 @@ function sistemaUnificado(){
       this.registrarLog('Importou inventário ' + file.name + ' em ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(somaVal) + ' em ' + Object.keys(agg).length + ' categorias' + (totalGeral ? ' (Total de Geral do relatório: ' + this.formatarDinheiroExato(totalGeral) + ')' : ''));
       this.recalcularTudo();
       alert('Inventário de ' + mk.toUpperCase() + ' importado!\n\nEstoque (sem Tintas): ' + this.formatarDinheiroExato((est && est[mk]) || 0) + '\nPeso total: ' + this.invColTotal(mk, 'kg', 'all').toLocaleString('pt-BR') + ' kg'
-        + (estimados.length ? '\n\nTudo em metros foi convertido em kg. ' + estimados.length + ' item(ns) sem peso cadastrado foram convertidos por estimativa (valor do item dividido pelo R$/kg dos itens pesados da mesma categoria):\n' + estimados.map(c => '  ' + c).join('\n') + '\n\nPara refinar, informe o kg por metro na tabela Metros para Kg, em Configurações. O sistema recalcula sozinho.' : ''));
+        + (estimados.length ? '\n\nTudo em metros foi convertido em kg. ' + estimados.length + ' item(ns) sem peso cadastrado foram convertidos por estimativa (valor do item dividido pelo R$/kg dos itens pesados da mesma categoria):\n' + estimados.map(c => '  ' + c).join('\n') + '\n\nQuando um relatório trouxer a coluna Peso para esses itens, o fator é aprendido e os meses são reconvertidos sozinhos.' : ''));
       this.fatoresMtTick++;
       this.mesAtivo = mk.charAt(0).toUpperCase() + mk.slice(1);
       this.atualizarLeituraSistema();
@@ -6894,6 +6882,15 @@ function sistemaUnificado(){
       reader.onload = (e) => {
         try {
           const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+          this.aplicarResultadoEmb(wb, file, evt);
+        } catch(err) { alert('Erro ao ler a planilha: ' + err.message); evt.target.value = ''; }
+      };
+      reader.readAsArrayBuffer(file);
+    },
+    // Aplica a planilha "Resultado 2026" completa (receitas com Kg/Fator, invent\u00e1rio,
+    // despesas por empresa, devolu\u00e7\u00f5es e estoque), s\u00f3 os meses preenchidos
+    aplicarResultadoEmb(wb, file, evt) {
+        try {
           const norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
           let sheetName = wb.SheetNames.find(n => norm(n).includes('resultado')) || wb.SheetNames[0];
           const json = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1 });
@@ -6991,8 +6988,6 @@ function sistemaUnificado(){
           alert('Resultado da Embalagem importado e distribuído com sucesso!\n\nMeses atualizados: ' + nomes + '.\nReceitas (com Kg e Fator), inventário, despesas por empresa, devoluções e estoque já refletem a planilha.');
           evt.target.value = '';
         } catch(err) { alert('Erro ao ler a planilha: ' + err.message); evt.target.value = ''; }
-      };
-      reader.readAsArrayBuffer(file);
     },
 
     desfazerImportacao() {
