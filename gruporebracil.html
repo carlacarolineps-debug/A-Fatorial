@@ -153,18 +153,6 @@
   [data-delay="3"]{ transition-delay:.3s } [data-delay="4"]{ transition-delay:.4s }
   @media (prefers-reduced-motion:reduce){ .reveal,.wipe{ opacity:1 !important; transform:none !important; clip-path:none !important; transition:none } html{ scroll-behavior:auto } }
 
-  /* ---------- Cursor customizado ---------- */
-  .cur-dot,.cur-ring{ position:fixed; top:0; left:0; z-index:10000; pointer-events:none; border-radius:50%;
-    transform:translate(-50%,-50%); mix-blend-mode:difference; }
-  .cur-dot{ width:7px; height:7px; background:#fff; }
-  .cur-ring{ width:38px; height:38px; border:1px solid rgba(255,255,255,.7); transition:width .28s,height .28s,background .28s,border-color .28s; }
-  body.cur-hover .cur-ring{ width:66px; height:66px; background:rgba(255,255,255,.12); }
-  @media (hover:hover) and (pointer:fine){
-    body.has-cursor, body.has-cursor a, body.has-cursor button, body.has-cursor .unit-row{ cursor:none; }
-    body.has-cursor input, body.has-cursor textarea{ cursor:text; }
-  }
-  @media not all and (pointer:fine){ .cur-dot,.cur-ring{ display:none; } }
-
   /* Barra de progresso */
   #prog{ position:fixed; top:0; left:0; height:2px; width:0; z-index:9999; background:linear-gradient(90deg,var(--gold),var(--goldlt)); }
 
@@ -202,20 +190,14 @@
   @media(min-width:1024px){ .scoop{ border-top-left-radius:80px; border-top-right-radius:80px; margin-top:-64px; } }
 
   /* ---------- Unidades (lista com reveal) ---------- */
-  .unit-row{ position:relative; display:block; border-top:1px solid rgba(18,52,91,.16); padding:clamp(1.6rem,4vw,2.6rem) 0; transition:.4s; }
+  .unit-row{ position:relative; display:block; border-top:1px solid rgba(255,255,255,.14); padding:clamp(1.6rem,4vw,2.6rem) 0; transition:.4s; }
   .units-list:hover .unit-row{ opacity:.42; }
   .units-list .unit-row:hover{ opacity:1; }
-  .unit-row .u-name{ font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.03em; line-height:1; font-size:clamp(2.1rem,6.5vw,5rem); color:var(--plum); transition:transform .4s cubic-bezier(.7,0,.2,1); display:inline-block; }
-  .unit-row:hover .u-name{ transform:translateX(24px); }
+  .unit-row .u-name{ font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-.03em; line-height:1; font-size:clamp(2.1rem,6.5vw,5rem); color:var(--cream); transition:transform .4s cubic-bezier(.7,0,.2,1), color .3s; display:inline-block; }
+  .unit-row:hover .u-name{ transform:translateX(24px); color:var(--goldlt); }
   .unit-row .u-desc{ font-family:'Inter',sans-serif; color:#5A6478; }
   .unit-row .u-arw{ font-family:'Space Grotesk',sans-serif; color:var(--gold); font-size:1.6rem; transition:.4s; opacity:0; transform:translateX(-10px); }
   .unit-row:hover .u-arw{ opacity:1; transform:none; }
-  /* Float image (desktop) */
-  #unitFloat{ position:fixed; top:0; left:0; z-index:40; width:min(30vw,360px); aspect-ratio:4/5; pointer-events:none;
-    opacity:0; transform:translate(-50%,-50%) scale(.85) rotate(-4deg); transition:opacity .4s, transform .4s; }
-  #unitFloat.show{ opacity:1; transform:translate(-50%,-50%) scale(1) rotate(-4deg); }
-  #unitFloat .media{ position:absolute; inset:0; opacity:0; transition:opacity .3s; }
-  #unitFloat .media.on{ opacity:1; }
 
   /* ---------- Diferenciais ---------- */
   .dif{ position:relative; padding:clamp(1.4rem,3vw,2rem) 0; border-top:1px solid rgba(255,255,255,.14); transition:.4s; }
@@ -264,8 +246,6 @@
 <body>
 <div id="grain"></div>
 <div id="prog"></div>
-<div class="cur-ring" id="curRing"></div>
-<div class="cur-dot" id="curDot"></div>
 
 
 <!-- ===================== HEADER ===================== -->
@@ -360,14 +340,10 @@
         </div>
       </div>
     </div>
-
-    <div class="wrap absolute bottom-4 left-0 right-0 z-0">
-      <div class="ghost text-[19vw] leading-none -mb-[3vw] select-none">REBRACIL</div>
-    </div>
   </section>
 
   <!-- MARQUEE -->
-  <div class="dark py-7 border-y border-white/8 marquee text-cream" aria-hidden="true">
+  <div class="dark pt-7 pb-24 lg:pb-28 border-y border-white/8 marquee text-cream" aria-hidden="true">
     <div class="marquee-track">
       <span class="mq-item">Qualidade garantida</span><span class="mq-dot"></span>
       <span class="mq-item serif text-goldlt">Pontualidade</span><span class="mq-dot"></span>
@@ -449,7 +425,7 @@
             <span class="u-arw">↗</span>
           </div>
         </a>
-        <a href="#/tubos" data-nav data-hover class="unit-row" data-img="tub" style="border-bottom:1px solid rgba(18,52,91,.16)">
+        <a href="#/tubos" data-nav data-hover class="unit-row" data-img="tub" style="border-bottom:1px solid rgba(255,255,255,.14)">
           <div class="flex items-center justify-between gap-8">
             <div><span class="u-name">Tubos &amp; Papelão</span></div>
             <div class="text-right shrink-0 max-w-xs"><p class="u-desc">Tubos radiais para enrolamento de filmes</p></div>
@@ -479,14 +455,6 @@
           <p class="text-cream/60 mt-1">Tubos radiais para enrolamento de filmes</p>
         </a>
       </div>
-    </div>
-
-    <!-- Float image (desktop hover) -->
-    <div id="unitFloat">
-      <!-- TROCAR FOTO: imagens de preview de cada unidade -->
-      <div class="media arch" data-key="req"><span class="tag">Requalificação · GLP</span></div>
-      <div class="media arch" data-key="emb"><span class="tag">Embalagens flexíveis</span></div>
-      <div class="media arch" data-key="tub"><span class="tag">Tubos radiais</span></div>
     </div>
   </section>
 
@@ -1079,33 +1047,13 @@
   document.getElementById('closeMenu').addEventListener('click',closeMobile);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMobile();});
 
-  /* Cursor customizado + magnético + hover */
+  /* Botões magnéticos (desktop) */
   if(fine){
-    document.body.classList.add('has-cursor');
-    var dot=document.getElementById('curDot'), ring=document.getElementById('curRing');
-    var mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
-    window.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
-    (function loop(){rx+=(mx-rx)*0.18;ry+=(my-ry)*0.18;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
-    document.addEventListener('mouseover',function(e){if(e.target.closest('[data-hover],a,button'))document.body.classList.add('cur-hover');});
-    document.addEventListener('mouseout',function(e){if(e.target.closest('[data-hover],a,button'))document.body.classList.remove('cur-hover');});
-    /* Magnético */
     document.addEventListener('mousemove',function(e){
       document.querySelectorAll('.magnetic').forEach(function(el){
         var r=el.getBoundingClientRect();if(r.width===0)return;var cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,d=Math.hypot(dx,dy);
         if(d<90){el.style.transform='translate('+dx*0.28+'px,'+dy*0.28+'px)';}else{el.style.transform='';}
       });
-    });
-  }
-
-  /* Unidades — imagem flutuante (desktop) */
-  var list=document.getElementById('unitsList'), float=document.getElementById('unitFloat');
-  if(list&&float&&fine){
-    var medias=float.querySelectorAll('.media');
-    list.addEventListener('mousemove',function(e){float.style.left=e.clientX+'px';float.style.top=e.clientY+'px';});
-    list.addEventListener('mouseenter',function(){float.classList.add('show');});
-    list.addEventListener('mouseleave',function(){float.classList.remove('show');});
-    list.querySelectorAll('.unit-row').forEach(function(row){
-      row.addEventListener('mouseenter',function(){var k=row.getAttribute('data-img');medias.forEach(function(m){m.classList.toggle('on',m.getAttribute('data-key')===k);});});
     });
   }
 
