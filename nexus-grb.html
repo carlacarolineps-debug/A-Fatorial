@@ -2163,10 +2163,20 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
 
           <div class="config-input-group w-full max-w-xs mb-2" x-show="empresaAtiva==='embalagem' && depto==='embalagem'">
-              <label class="text-accent-blue font-bold" style="font-size:12px;">2. Relatório de despesas de qual empresa?</label>
+              <label class="text-accent-blue font-bold" style="font-size:12px;">2. Que tipo de informação vai alimentar?</label>
+              <select x-model="tipoImportacao" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size: 14px; height: 45px;">
+                  <option value="auto">Detectar sozinho (despesa ou inventário)</option>
+                  <option value="despesa">Despesa (contas a pagar ou resumo por conta)</option>
+                  <option value="faturamento">Faturamento (receita do mês)</option>
+                  <option value="inventario">Inventário (estoque do mês)</option>
+              </select>
+          </div>
+
+          <div class="config-input-group w-full max-w-xs mb-2" x-show="empresaAtiva==='embalagem' && depto==='embalagem' && tipoImportacao!=='inventario'">
+              <label class="text-accent-blue font-bold" style="font-size:12px;">3. Relatório de qual empresa?</label>
               <select x-model="empresaRelatorio" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size: 14px; height: 45px;">
                   <template x-for="s in (empresaExtras.subempresas || [])" :key="'er'+s.nome">
-                      <option :value="s.nome" x-text="s.nome + (s.principal ? ' (indústria, alimenta os centros de custo)' : ' (alimenta a linha Despesas ' + s.nome + ')')"></option>
+                      <option :value="s.nome" x-text="s.nome + (s.principal ? ' (indústria, alimenta os centros de custo)' : ' (alimenta a linha da empresa)')"></option>
                   </template>
               </select>
           </div>
@@ -2175,7 +2185,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
              <i class="fas fa-file-excel text-3xl text-accent-green"></i>
           </div>
           <div>
-            <h3 class="font-bold text-accent-blue text-lg">3. Selecione o arquivo CSV/XLSX</h3>
+            <h3 class="font-bold text-accent-blue text-lg">4. Selecione o arquivo CSV/XLSX</h3>
           </div>
           <label class="emc-btn" style="cursor:pointer; font-size:14px; padding: 12px 32px; background:var(--accent-green); color:white; border-color:var(--accent-green);" :class="!mesImportacao ? 'opacity-50 cursor-not-allowed' : ''">
               <i class="fas fa-search mr-2"></i> Procurar Planilha...
@@ -3847,6 +3857,7 @@ function sistemaUnificado(){
     collapsedRes: [],   // linhas com Kg/Fator recolhidos no Resultado 2026 (Embalagem)
     mesImportacao: '',
     empresaRelatorio: 'Embalagem',
+    tipoImportacao: 'auto',
     fatoresMtTick: 0,
     backupEstado: null,
     pilhaEstados: [],
@@ -6116,12 +6127,24 @@ function sistemaUnificado(){
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             let json = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
 
-            // ===== RELATÓRIO DE INVENTÁRIO (identificado pela coluna "Clas. Fiscal") =====
+            // ===== TIPO DE INFORMAÇÃO (escolhido no seletor ou detectado sozinho) =====
             const abaInvNome = workbook.SheetNames.find(s => /invent/i.test(s));
             const jsonInv = (abaInvNome && abaInvNome !== workbook.SheetNames[0]) ? XLSX.utils.sheet_to_json(workbook.Sheets[abaInvNome], {header: 1}) : json;
             const ehInventario = arr => arr.slice(0, 40).some(r => (r || []).some(c => String(c || '').trim() === 'Clas. Fiscal'));
-            if (ehInventario(jsonInv)) { this.importarInventarioBruto(jsonInv, file, evt, workbook); return; }
-            if (ehInventario(json)) { this.importarInventarioBruto(json, file, evt, workbook); return; }
+            const pareceInv = ehInventario(jsonInv) || ehInventario(json);
+            const tipo = (this.empresaAtiva === 'embalagem') ? (this.tipoImportacao || 'auto') : 'auto';
+            if (tipo === 'inventario') {
+              if (!pareceInv) { alert('Este arquivo não parece um relatório de inventário: não encontrei a coluna "Clas. Fiscal".\n\nVerifique o arquivo ou escolha outro tipo de informação.'); evt.target.value = ''; return; }
+              this.importarInventarioBruto(ehInventario(jsonInv) ? jsonInv : json, file, evt, workbook); return;
+            }
+            if (tipo === 'faturamento') {
+              if (pareceInv) { alert('Este arquivo é um relatório de inventário, não de faturamento.\n\nEscolha o tipo Inventário para importar o estoque.'); evt.target.value = ''; return; }
+              this.importarFaturamentoMes(json, file, evt); return;
+            }
+            if (tipo === 'despesa' && pareceInv) {
+              if (!confirm('Este arquivo parece um relatório de INVENTÁRIO (coluna Clas. Fiscal), mas o tipo escolhido foi Despesa.\n\nImportar mesmo assim como despesa?')) { evt.target.value = ''; return; }
+            }
+            if (tipo === 'auto' && pareceInv) { this.importarInventarioBruto(ehInventario(jsonInv) ? jsonInv : json, file, evt, workbook); return; }
 
             const parsedMonth = this.mesImportacao;
 
@@ -6279,6 +6302,83 @@ function sistemaUnificado(){
       const ex = this.empresaExtras;
       if (ex.invMt && Object.keys(ex.invMt).length) { Object.keys(ex.invMt).forEach(mk => this.converterInvMt(mk)); this.dreAtual = [...this.dreAtual]; this.recalcularTudo(); }
       else this.persistirDados();
+    },
+
+    // ===== Importador de FATURAMENTO do mês =====
+    // Aceita dois formatos: (1) uma linha por empresa: Nome | Valor | Kg (opcional);
+    // (2) relatório com a coluna "Valor total" (uma linha por nota), somado para a
+    // linha da empresa escolhida no seletor. O Total Faturamento e o DRE acompanham.
+    importarFaturamentoMes(json, file, evt) {
+      const mk = this.mesImportacao;
+      const linhas = this.empresaExtras.faturamento || [];
+      if (!linhas.length) { alert('Este painel não tem linhas de faturamento por empresa.'); evt.target.value = ''; return; }
+      const r2 = x => Math.round(x * 100) / 100;
+      const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/gi, '').replace(/\s+/g, ' ').trim().toLowerCase();
+      const num = x => (typeof x === 'number') ? x : ((typeof x === 'string' && /\d/.test(x)) ? this.parseNumero(x) : NaN);
+      // Formato 1: uma linha por empresa (Nome | Valor | Kg opcional)
+      const aplicados = [];
+      json.forEach(r => {
+        if (!r || r.length < 2) return;
+        const nome = norm(r[0]);
+        if (!nome || /^total/.test(nome)) return;
+        const alvo = linhas.find(f => norm(f.tipo) === nome) || linhas.find(f => nome === norm(f.tipo) || (nome.length > 3 && (nome.includes(norm(f.tipo)) || norm(f.tipo).includes(nome))));
+        if (!alvo) return;
+        const nums = r.slice(1).map(num).filter(v => !isNaN(v));
+        if (!nums.length) return;
+        aplicados.push({ alvo, valor: r2(nums[0]), kg: nums.length > 1 ? r2(nums[1]) : null });
+      });
+      const resumo = [];
+      if (aplicados.length) {
+        const jaTem = aplicados.filter(a => a.alvo.fat && (a.alvo.fat[mk] || 0) !== 0);
+        if (jaTem.length && !confirm('O faturamento de ' + mk.toUpperCase() + ' já tem valor em: ' + jaTem.map(a => a.alvo.tipo).join(', ') + '.\n\nOK = SUBSTITUIR pelos valores desta planilha.\nCancelar = não importar.')) { evt.target.value = ''; return; }
+        this.salvarEstado('Importação de faturamento: ' + mk.toUpperCase());
+        aplicados.forEach(a => {
+          a.alvo.fat = a.alvo.fat || {}; a.alvo.fat[mk] = a.valor;
+          if (a.kg != null) { a.alvo.kg = a.alvo.kg || {}; a.alvo.kg[mk] = a.kg; }
+          resumo.push(a.alvo.tipo + ': ' + this.formatarDinheiroExato(a.valor) + (a.kg != null ? ' | ' + a.kg.toLocaleString('pt-BR') + ' kg' : ''));
+        });
+      } else {
+        // Formato 2: relatório com "Valor total" (uma linha por nota) para a empresa do seletor
+        let cabIdx = -1, cab = null;
+        for (let i = 0; i < Math.min(json.length, 8); i++) {
+          const r = json[i] || [];
+          if (r.some(c => String(c || '').trim() === 'Valor total')) { cabIdx = i; cab = r; break; }
+        }
+        if (cabIdx < 0) {
+          alert('Não reconheci o formato do faturamento.\n\nAceito:\n1) Uma linha por empresa: Nome | Valor | Kg (opcional). Nomes: ' + linhas.map(f => f.tipo).join(', ') + '.\n2) Relatório com a coluna "Valor total" (uma linha por nota): o total vai para a linha da empresa escolhida no seletor.\n\nPara importar a planilha Resultado completa (todas as linhas, kg e fator), use o Importador do Resultado logo abaixo.');
+          evt.target.value = ''; return;
+        }
+        const iV = cab.findIndex(c => String(c || '').trim() === 'Valor total');
+        let soma = 0, n = 0, totalDecl = 0;
+        json.slice(cabIdx + 1).forEach(r => {
+          if (!r) return;
+          const v = num(r[iV]);
+          if (isNaN(v) || v === 0) return;
+          const preenchidos = r.filter(x => x != null && x !== '').length;
+          // Linhas de rodapé (total e média do próprio relatório) têm poucas colunas
+          if (preenchidos <= 2) { if (v > totalDecl) totalDecl = v; return; }
+          soma += v; n++;
+        });
+        const total = r2(totalDecl || soma);
+        if (!n && !total) { alert('Nenhum valor foi encontrado na coluna "Valor total".'); evt.target.value = ''; return; }
+        const MAPA_FAT = { 'Embalagem': 'Embalagem', 'Linear': 'Linear', 'Teste': 'Teste Venda', 'Teste X': 'Teste X', 'Inter Company': 'Inter Company' };
+        const nomeLinha = MAPA_FAT[this.empresaRelatorio] || 'Embalagem';
+        const alvo = linhas.find(f => f.tipo === nomeLinha) || linhas.find(f => !f.aparas);
+        if ((alvo.fat && (alvo.fat[mk] || 0) !== 0) && !confirm('Faturamento ' + alvo.tipo + ' já tem valor em ' + mk.toUpperCase() + ' (' + this.formatarDinheiroExato(alvo.fat[mk]) + ').\n\nOK = SUBSTITUIR por ' + this.formatarDinheiroExato(total) + '.\nCancelar = não importar.')) { evt.target.value = ''; return; }
+        this.salvarEstado('Importação de faturamento: ' + mk.toUpperCase());
+        alvo.fat = alvo.fat || {}; alvo.fat[mk] = total;
+        resumo.push(alvo.tipo + ': ' + this.formatarDinheiroExato(total) + ' (' + n + ' lançamentos)');
+      }
+      // Total Faturamento (sem aparas), sub-empresas e DRE acompanham
+      this.syncFatTotalEmb();
+      this.recalcularSubEmpresas();
+      this.dreAtual = [...this.dreAtual];
+      this.registrarLog('Importou faturamento ' + file.name + ' em ' + mk.toUpperCase() + ': ' + resumo.join(' | '));
+      this.recalcularTudo();
+      alert('Faturamento de ' + mk.toUpperCase() + ' importado!\n\n' + resumo.join('\n') + '\n\nO Total Faturamento e o Resultado do mês foram recalculados. O Kg pode ser editado direto na tabela quando não vier na planilha.');
+      this.mesAtivo = mk.charAt(0).toUpperCase() + mk.slice(1);
+      this.atualizarLeituraSistema();
+      evt.target.value = '';
     },
 
     // Converte TODOS os itens em metros do mês em kg: usa o fator do item quando conhecido
