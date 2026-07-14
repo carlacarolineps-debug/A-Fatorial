@@ -2148,51 +2148,72 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
       <div x-show="abaConfig==='importador'" x-cloak class="card-dark" style="margin-bottom:0;">
         <div class="card-title text-accent-green mb-2"><i class="fas fa-cloud-upload-alt mr-2"></i> Importador Universal de Despesas</div>
-        <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Selecione o mês e envie a planilha. Aceita o resumo por conta (Rótulos de Linha), o <b>relatório de contas a pagar</b> do sistema do cliente (agregado automaticamente com conferência do total) e o <b>relatório de inventário</b>. Na Embalagem, escolha de qual empresa é o relatório: o da <b>indústria</b> alimenta os centros de custo e a linha Despesas Embalagem; o de <b>Linear, Teste, Teste X ou Inter Company</b> alimenta a linha de despesas da própria empresa no Resultado 2026, com o Total acompanhando a soma. Contas 023 vão para a tela Serviços. As linhas de despesas também podem ser digitadas direto na tabela (botão Editar valores).</p>
+        <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Envie o arquivo e o sistema faz o resto: identifica se é <b>despesa</b> (contas a pagar ou resumo por conta), <b>faturamento</b> ou <b>inventário</b>, encontra o <b>mês</b> dentro do próprio arquivo e mostra tudo preenchido para você só conferir e clicar em Importar. Dá para ajustar mês, tipo e empresa antes de confirmar: o relatório da <b>indústria</b> alimenta os centros de custo e a linha Despesas Embalagem; o de <b>Linear, Teste, Teste X ou Inter Company</b> alimenta a linha da própria empresa no Resultado 2026. Contas 023 vão para a tela Serviços. Tudo também pode ser digitado direto na tabela (botão Editar valores).</p>
         
-        <div style="display:flex; flex-direction:column; gap:16px; background:var(--color-surface2); padding:32px; border-radius:12px; border: 2px dashed rgba(13,148,136,0.4); align-items:center; text-align:center;">
-          
-          <div class="config-input-group w-full max-w-xs mb-2">
-              <label class="text-accent-blue font-bold" style="font-size:12px;">1. Qual mês deseja importar?</label>
-              <select x-model="mesImportacao" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size: 14px; height: 45px;">
-                  <option value="">-- SELECIONE O MÊS --</option>
-                  <template x-for="m in listaMeses" :key="m.chave">
-                      <option :value="m.chave.toLowerCase()" x-text="m.nome + ' (' + m.labelData + ')'"></option>
-                  </template>
-              </select>
-          </div>
+        <div style="display:flex; flex-direction:column; gap:16px; background:var(--color-surface2); padding:32px; border-radius:12px; border: 2px dashed rgba(13,148,136,0.4); align-items:center; text-align:center;"
+             @dragover.prevent @drop.prevent="receberArquivoImportacao($event)">
 
-          <div class="config-input-group w-full max-w-xs mb-2" x-show="empresaAtiva==='embalagem' && depto==='embalagem'">
-              <label class="text-accent-blue font-bold" style="font-size:12px;">2. Que tipo de informação vai alimentar?</label>
-              <select x-model="tipoImportacao" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size: 14px; height: 45px;">
-                  <option value="auto">Detectar sozinho (despesa ou inventário)</option>
-                  <option value="despesa">Despesa (contas a pagar ou resumo por conta)</option>
-                  <option value="faturamento">Faturamento (receita do mês)</option>
-                  <option value="inventario">Inventário (estoque do mês)</option>
-              </select>
-          </div>
+          <!-- Passo único: o arquivo. O sistema detecta o resto e pede confirmação. -->
+          <template x-if="!impPendente">
+            <div style="display:flex;flex-direction:column;gap:14px;align-items:center">
+              <div style="background: rgba(13,148,136,0.1); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items:center; justify-content:center;">
+                <i class="fas fa-file-excel text-3xl text-accent-green"></i>
+              </div>
+              <h3 class="font-bold text-accent-blue text-lg" style="white-space:normal">Arraste a planilha aqui, ou:</h3>
+              <label class="emc-btn" style="cursor:pointer; font-size:14px; padding: 12px 32px; background:var(--accent-green); color:white; border-color:var(--accent-green);">
+                <i class="fas fa-search mr-2"></i> Procurar Planilha...
+                <input type="file" accept=".csv, .xlsx, .xls" class="hidden" @change="receberArquivoImportacao">
+              </label>
+              <p class="text-xs" style="color:var(--color-muted);max-width:560px;line-height:1.6;white-space:normal">O sistema identifica sozinho o que a planilha alimenta (despesa, faturamento ou inventário) e o mês do arquivo. Você revisa e confirma antes de qualquer coisa entrar no sistema.</p>
+            </div>
+          </template>
 
-          <div class="config-input-group w-full max-w-xs mb-2" x-show="empresaAtiva==='embalagem' && depto==='embalagem' && tipoImportacao!=='inventario'">
-              <label class="text-accent-blue font-bold" style="font-size:12px;">3. Relatório de qual empresa?</label>
-              <select x-model="empresaRelatorio" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size: 14px; height: 45px;">
-                  <template x-for="s in (empresaExtras.subempresas || [])" :key="'er'+s.nome">
-                      <option :value="s.nome" x-text="s.nome + (s.principal ? ' (indústria, alimenta os centros de custo)' : ' (alimenta a linha da empresa)')"></option>
-                  </template>
-              </select>
-          </div>
+          <!-- Cartão de confirmação: detecção preenchida, tudo ajustável -->
+          <template x-if="impPendente">
+            <div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">
+              <div style="display:flex;align-items:center;gap:10px;background:rgba(13,148,136,.08);border:1px solid rgba(13,148,136,.3);border-radius:11px;padding:10px 18px;max-width:100%">
+                <i class="fas fa-file-circle-check" style="color:var(--accent-green);font-size:20px"></i>
+                <div style="text-align:left;min-width:0">
+                  <div class="font-bold text-accent-blue" style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="impPendente.nome"></div>
+                  <div style="font-size:11px;color:var(--color-muted);white-space:normal" x-text="impNota"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+                <div class="config-input-group" style="min-width:170px">
+                  <label class="text-accent-blue font-bold" style="font-size:11px;">Mês</label>
+                  <select x-model="mesImportacao" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size:13px;height:42px;">
+                    <option value="">-- MÊS --</option>
+                    <option value="jan">Janeiro</option><option value="fev">Fevereiro</option><option value="mar">Março</option>
+                    <option value="abr">Abril</option><option value="mai">Maio</option><option value="jun">Junho</option>
+                    <option value="jul">Julho</option><option value="ago">Agosto</option><option value="set">Setembro</option>
+                    <option value="out">Outubro</option><option value="nov">Novembro</option><option value="dez">Dezembro</option>
+                  </select>
+                </div>
+                <div class="config-input-group" style="min-width:220px" x-show="empresaAtiva==='embalagem' && depto==='embalagem'">
+                  <label class="text-accent-blue font-bold" style="font-size:11px;">Tipo de informação</label>
+                  <select x-model="tipoImportacao" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size:13px;height:42px;">
+                    <option value="despesa">Despesa</option>
+                    <option value="faturamento">Faturamento</option>
+                    <option value="inventario">Inventário</option>
+                  </select>
+                </div>
+                <div class="config-input-group" style="min-width:220px" x-show="empresaAtiva==='embalagem' && depto==='embalagem' && tipoImportacao!=='inventario'">
+                  <label class="text-accent-blue font-bold" style="font-size:11px;">Empresa do relatório</label>
+                  <select x-model="empresaRelatorio" x-effect="$el.value = empresaRelatorio" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size:13px;height:42px;">
+                    <template x-for="s in (empresaExtras.subempresas || [])" :key="'er'+s.nome">
+                      <option :value="s.nome" x-text="s.nome + (s.principal ? ' (indústria)' : '')"></option>
+                    </template>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+                <button @click="confirmarImportacaoPendente()" class="emc-btn" style="font-size:14px;padding:12px 32px;background:var(--accent-green);color:white;border-color:var(--accent-green)"><i class="fas fa-check mr-2"></i> Importar agora</button>
+                <button @click="cancelarImportacaoPendente()" class="emc-btn-secondary" style="font-size:13px;padding:12px 22px"><i class="fas fa-times mr-2"></i> Cancelar</button>
+              </div>
+            </div>
+          </template>
 
-          <div style="background: rgba(13,148,136,0.1); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items:center; justify-content:center; margin-top: 10px;">
-             <i class="fas fa-file-excel text-3xl text-accent-green"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-accent-blue text-lg">4. Selecione o arquivo CSV/XLSX</h3>
-          </div>
-          <label class="emc-btn" style="cursor:pointer; font-size:14px; padding: 12px 32px; background:var(--accent-green); color:white; border-color:var(--accent-green);" :class="!mesImportacao ? 'opacity-50 cursor-not-allowed' : ''">
-              <i class="fas fa-search mr-2"></i> Procurar Planilha...
-              <input type="file" accept=".csv, .xlsx, .xls" class="hidden" @change="simularImportacaoXLSX" :disabled="!mesImportacao">
-          </label>
-
-          <button x-show="backupEstado" @click="desfazerImportacao()" class="emc-btn emc-btn-danger mt-4" style="padding: 10px 24px;"><i class="fas fa-undo mr-2"></i> Desfazer Última Importação</button>
+          <button x-show="backupEstado && !impPendente" @click="desfazerImportacao()" class="emc-btn emc-btn-danger mt-4" style="padding: 10px 24px;"><i class="fas fa-undo mr-2"></i> Desfazer Última Importação</button>
 
         </div>
 
@@ -3858,6 +3879,8 @@ function sistemaUnificado(){
     mesImportacao: '',
     empresaRelatorio: 'Embalagem',
     tipoImportacao: 'auto',
+    impPendente: null,
+    impNota: '',
     fatoresMtTick: 0,
     backupEstado: null,
     pilhaEstados: [],
@@ -5601,6 +5624,7 @@ function sistemaUnificado(){
       sec('DESPESAS');
       (ex.subempresas || []).filter(s => !s.intercompany).forEach(s => { push('Despesas ' + s.nome, 'line', 'money', ch => despSub(s, ch)); rows[rows.length-1].edit = { t:'desp', ref:s }; });
       push('Total Despesas', 'total', 'money', ch => dre('Total de Despesas')[low(ch)] || 0);
+      rows[rows.length-1].edit = { t:'desptotal' };
       // RECEITAS (faturamento por linha, com kg e fator)
       sec('RECEITAS');
       (ex.faturamento || []).forEach(f => {
@@ -5614,12 +5638,16 @@ function sistemaUnificado(){
           rows[rows.length-1].edit = { t:'fatkg', ref:f };
           push('Fator', 'sub', 'kgrs', ch => this.fatorLinha(f, ch),
             () => { const tf = somaM(ch => (f.fat && f.fat[low(ch)]) || 0), tk = somaM(ch => (f.kg && f.kg[low(ch)]) || 0); return tk > 0 ? tf / tk : 0; });
+          rows[rows.length-1].edit = { t:'fatfator', ref:f };
         }
       });
       push('Total Faturamento', 'total', 'money', ch => this.fatColTotal(ch, 'fat', 'principal'));
+      rows[rows.length-1].edit = { t:'fattotal' };
       push('PESO', 'total', 'kg', ch => this.fatColTotal(ch, 'kg', 'all'));
+      rows[rows.length-1].edit = { t:'fatpeso' };
       push('FATOR', 'total', 'kgrs', ch => { const kg = this.fatColTotal(ch, 'kg', 'all'); return kg > 0 ? this.fatColTotal(ch, 'fat', 'principal') / kg : 0; },
         () => { const tf = somaM(ch => this.fatColTotal(ch, 'fat', 'principal')), tk = somaM(ch => this.fatColTotal(ch, 'kg', 'all')); return tk > 0 ? tf / tk : 0; });
+      rows[rows.length-1].edit = { t:'fatortotal' };
       push('Fat. (−) Despesa líq.', 'result', 'money', ch => dre('Resultado Operacional')[low(ch)] || 0);
       push('% (margem operacional)', 'pct', 'pct', ch => { const f = this.fatColTotal(ch, 'fat', 'principal'); const r = dre('Resultado Operacional')[low(ch)] || 0; return f > 0 ? r / f * 100 : 0; },
         () => { const tf = somaM(ch => this.fatColTotal(ch, 'fat', 'principal')), tr = somaM(ch => dre('Resultado Operacional')[low(ch)] || 0); return tf > 0 ? tr / tf * 100 : 0; });
@@ -5643,12 +5671,16 @@ function sistemaUnificado(){
           }
           push('Fator', 'sub', 'kgrs', ch => this.invFator(i, ch),
             () => { let v = 0; for (const ch of meses) if (this.invFator(i, ch)) v = this.invFator(i, ch); return v; });
+          rows[rows.length-1].edit = { t:'invfator', ref:i };
         }
       });
       push('Estoque', 'total', 'money', ch => this.invColTotal(ch, 'valor', 'principal'), 'last');
+      rows[rows.length-1].edit = { t:'esttotal' };
       push('Estoque kg', 'total', 'kg', ch => this.invColTotal(ch, 'kg', 'all'), 'last');
+      rows[rows.length-1].edit = { t:'estkg' };
       push('Fator Estoque', 'total', 'kgrs', ch => { const kg = this.invColTotal(ch, 'kg', 'all'); return kg > 0 ? this.invColTotal(ch, 'valor', 'principal') / kg : 0; },
         () => { let v = 0; for (const ch of meses) { const kg = this.invColTotal(ch, 'kg', 'all'); if (kg > 0) v = this.invColTotal(ch, 'valor', 'principal') / kg; } return v; });
+      rows[rows.length-1].edit = { t:'estfator' };
       push('Dif. R$ Estoque', 'line', 'money', ch => dre('Diferença de Estoque')[low(ch)] || 0);
       rows[rows.length-1].edit = { t:'dre', desc:'Diferença de Estoque' };
       push('Dif. Kg Estoque', 'line', 'kg', ch => (typeof EMB_DIF_KG !== 'undefined' ? (EMB_DIF_KG[low(ch)] || 0) : 0));
@@ -5727,10 +5759,62 @@ function sistemaUnificado(){
       else if (e.t === 'inv')   { e.ref.valor = e.ref.valor || {}; e.ref.valor[mk] = v; this.syncEstoqueEmb(); }
       else if (e.t === 'invkg') { e.ref.kg = e.ref.kg || {}; e.ref.kg[mk] = v; }
       else if (e.t === 'invmts'){ e.ref.mts = e.ref.mts || {}; e.ref.mts[mk] = v; }
+      // Fator editado: recalcula o Kg pela própria fórmula (fator = valor dividido por kg)
+      else if (e.t === 'fatfator') {
+        const fat = (e.ref.fat && e.ref.fat[mk]) || 0;
+        if (v > 0 && fat > 0) { e.ref.kg = e.ref.kg || {}; e.ref.kg[mk] = Math.round(fat / v * 100) / 100; }
+        else { alert('Para editar o Fator, lance antes o faturamento do mês nesta linha (fator = faturamento dividido por kg).'); return; }
+      }
+      else if (e.t === 'invfator') {
+        const val = (e.ref.valor && e.ref.valor[mk]) || 0;
+        if (v > 0 && val > 0) { e.ref.kg = e.ref.kg || {}; e.ref.kg[mk] = Math.round(val / v * 100) / 100; }
+        else { alert('Para editar o Fator, lance antes o valor do mês nesta categoria (fator = valor dividido por kg).'); return; }
+      }
+      // Totais editados: a diferença vai para a linha principal correspondente
+      else if (e.t === 'fattotal') {
+        const linhaP = (this.empresaExtras.faturamento || []).find(f => !f.aparas);
+        if (linhaP) { const atual = this.fatColTotal(mChave, 'fat', 'principal'); linhaP.fat = linhaP.fat || {}; linhaP.fat[mk] = Math.round((((linhaP.fat[mk] || 0)) + (v - atual)) * 100) / 100; this.syncFatTotalEmb(); }
+      }
+      else if (e.t === 'fatpeso') {
+        const linhaP = (this.empresaExtras.faturamento || []).find(f => !f.aparas);
+        if (linhaP) { const atual = this.fatColTotal(mChave, 'kg', 'all'); linhaP.kg = linhaP.kg || {}; linhaP.kg[mk] = Math.round((((linhaP.kg[mk] || 0)) + (v - atual)) * 100) / 100; }
+      }
+      else if (e.t === 'fatortotal') {
+        const tf = this.fatColTotal(mChave, 'fat', 'principal');
+        if (v > 0 && tf > 0) {
+          const linhaP = (this.empresaExtras.faturamento || []).find(f => !f.aparas);
+          const alvoPeso = tf / v, atual = this.fatColTotal(mChave, 'kg', 'all');
+          if (linhaP) { linhaP.kg = linhaP.kg || {}; linhaP.kg[mk] = Math.round((((linhaP.kg[mk] || 0)) + (alvoPeso - atual)) * 100) / 100; }
+        } else { alert('Para editar o FATOR, lance antes o faturamento do mês (fator = faturamento dividido pelo peso).'); return; }
+      }
+      else if (e.t === 'desptotal') {
+        const subP = (this.empresaExtras.subempresas || []).find(s => s.principal);
+        const tD = this.dreAtual.find(l => l.desc === 'Total de Despesas');
+        const atual = (tD && tD[mk]) || 0;
+        if (subP) subP['desp' + cap(mk)] = Math.round((((subP['desp' + cap(mk)] || 0)) + (v - atual)) * 100) / 100;
+        const rowAj = this.centrosCustoData.find(c => c.c === 'Ajustes');
+        if (rowAj) rowAj[mk] = Math.round(((rowAj[mk] || 0) + (v - atual)) * 100) / 100;
+      }
+      else if (e.t === 'esttotal') {
+        const linhaO = (this.empresaExtras.inventario || []).find(l => l.item === 'Outros Insumos');
+        if (linhaO) { const atual = this.invColTotal(mChave, 'valor', 'principal'); linhaO.valor = linhaO.valor || {}; linhaO.valor[mk] = Math.round((((linhaO.valor[mk] || 0)) + (v - atual)) * 100) / 100; this.syncEstoqueEmb(); }
+      }
+      else if (e.t === 'estkg') {
+        const linhaO = (this.empresaExtras.inventario || []).find(l => l.item === 'Outros Insumos');
+        if (linhaO) { const atual = this.invColTotal(mChave, 'kg', 'all'); linhaO.kg = linhaO.kg || {}; linhaO.kg[mk] = Math.round((((linhaO.kg[mk] || 0)) + (v - atual)) * 100) / 100; }
+      }
+      else if (e.t === 'estfator') {
+        const tv = this.invColTotal(mChave, 'valor', 'principal');
+        if (v > 0 && tv > 0) {
+          const linhaO = (this.empresaExtras.inventario || []).find(l => l.item === 'Outros Insumos');
+          const alvoKg = tv / v, atual = this.invColTotal(mChave, 'kg', 'all');
+          if (linhaO) { linhaO.kg = linhaO.kg || {}; linhaO.kg[mk] = Math.round((((linhaO.kg[mk] || 0)) + (alvoKg - atual)) * 100) / 100; }
+        } else { alert('Para editar o Fator Estoque, lance antes o valor do estoque do mês.'); return; }
+      }
       else if (e.t === 'dre')   { const l = this.dreAtual.find(x => x.desc === e.desc); if (l) l[mk] = v; }
       else if (e.t === 'difkg') { if (typeof EMB_DIF_KG !== 'undefined') EMB_DIF_KG[mk] = v; }
       else if (e.t === 'extra') { if (typeof EMB_LINHAS_EXTRAS !== 'undefined') EMB_LINHAS_EXTRAS[e.k][mk] = v; }
-      if (['desp','fat','fatkg'].includes(e.t)) this.recalcularSubEmpresas();
+      if (['desp','fat','fatkg','fatfator','fattotal','fatpeso','fatortotal','desptotal'].includes(e.t)) this.recalcularSubEmpresas();
       this.registrarLog('Editou "' + row.label + '" em ' + mChave + ': ' + (row.tipo === 'kg' ? v.toLocaleString('pt-BR') + ' kg' : this.formatarDinheiroExato(v)));
       this.recalcularTudo();
     },
@@ -6109,6 +6193,84 @@ function sistemaUnificado(){
       this.persistirDados();
     },
 
+    // ===== Fluxo novo: arquivo primeiro, o sistema detecta e o usuário só confirma =====
+    // Recebe o arquivo (input ou arrastar e soltar), lê e monta o cartão de confirmação
+    // com tipo, mês e empresa já detectados. Nada é importado antes do "Importar agora".
+    receberArquivoImportacao(evt) {
+        if (!this.exigirEdicao()) { if (evt.target) evt.target.value = ''; return; }
+        const file = (evt.dataTransfer ? evt.dataTransfer.files[0] : evt.target.files[0]);
+        if (evt.target && evt.target.value !== undefined) evt.target.value = '';
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                this.impPendente = { nome: file.name, workbook };
+                this.detectarImportacao(workbook, file.name);
+            } catch (err) { alert('Não consegui ler este arquivo: ' + err.message); this.impPendente = null; }
+        };
+        reader.readAsArrayBuffer(file);
+    },
+    // Detecção automática de tipo, mês e observações do arquivo pendente
+    detectarImportacao(workbook, nome) {
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+        const abaInvNome = workbook.SheetNames.find(s => /invent/i.test(s));
+        const jsonInv = (abaInvNome && abaInvNome !== workbook.SheetNames[0]) ? XLSX.utils.sheet_to_json(workbook.Sheets[abaInvNome], { header: 1 }) : json;
+        const ehInv = arr => arr.slice(0, 40).some(r => (r || []).some(c => String(c || '').trim() === 'Clas. Fiscal'));
+        const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
+        let tipo = 'despesa', mes = '', nota = '';
+        if (ehInv(jsonInv) || ehInv(json)) {
+            tipo = 'inventario';
+            const alvoJ = ehInv(jsonInv) ? jsonInv : json;
+            for (const r of alvoJ.slice(0, 6)) {
+                for (const c of (r || [])) { const m = String(c || '').match(/em\s+(\d{2})\/(\d{2})\/(\d{4})/i); if (m) { mes = ordem[parseInt(m[2], 10) - 1] || ''; break; } }
+                if (mes) break;
+            }
+            nota = 'Relatório de inventário (estoque por categoria)' + (mes ? ', data do título: ' + mes.toUpperCase() : '');
+        } else {
+            // Contas a pagar: cabeçalho com Valor total + Conta Contábil Número; meses pela emissão
+            let cabIdx = -1, cab = null;
+            for (let i = 0; i < Math.min(json.length, 8); i++) {
+                const r = json[i] || [];
+                if (r.some(c => String(c || '').trim() === 'Valor total') && r.some(c => String(c || '').trim() === 'Conta Contábil Número')) { cabIdx = i; cab = r; break; }
+            }
+            if (cabIdx >= 0) {
+                tipo = 'despesa';
+                const iEm = cab.findIndex(h => String(h || '').trim() === 'Emissão');
+                const mesesEm = {};
+                json.slice(cabIdx + 1).forEach(r => {
+                    if (!r) return; let d = r[iEm];
+                    if (typeof d === 'number') d = new Date(Math.round((d - 25569) * 86400 * 1000));
+                    else if (typeof d === 'string' && /\d{4}/.test(d)) d = new Date(d);
+                    if (d instanceof Date && !isNaN(d)) mesesEm[d.getUTCMonth()] = (mesesEm[d.getUTCMonth()] || 0) + 1;
+                });
+                const ms = Object.keys(mesesEm).sort((a, b) => mesesEm[b] - mesesEm[a]);
+                if (ms.length) mes = ordem[Number(ms[0])] || '';
+                nota = 'Relatório de contas a pagar, ' + (Object.keys(mesesEm).length > 1 ? Object.keys(mesesEm).length + ' meses no arquivo (cada um vai para a sua coluna)' : 'mês das emissões: ' + (mes || '?').toUpperCase());
+            } else {
+                // Faturamento simples (nomes das linhas) ou resumo por conta
+                const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/gi, '').replace(/\s+/g, ' ').trim().toLowerCase();
+                const nomesFat = (this.empresaExtras.faturamento || []).map(f => norm(f.tipo));
+                const casadas = json.filter(r => r && r.length > 1 && nomesFat.includes(norm(r[0]))).length;
+                if (this.empresaAtiva === 'embalagem' && casadas >= 2) { tipo = 'faturamento'; nota = 'Planilha de faturamento por empresa (' + casadas + ' linhas reconhecidas)'; }
+                else { tipo = 'despesa'; nota = 'Resumo de despesas por conta (Rótulos de Linha)'; }
+            }
+        }
+        this.tipoImportacao = tipo;
+        if (mes) this.mesImportacao = mes;
+        else if (!this.mesImportacao) this.mesImportacao = this.mesAtivo.toLowerCase();
+        this.impNota = nota;
+    },
+    cancelarImportacaoPendente() { this.impPendente = null; this.impNota = ''; },
+    confirmarImportacaoPendente() {
+        if (!this.impPendente) return;
+        if (!this.mesImportacao) { alert('Escolha o mês antes de importar.'); return; }
+        const wb = this.impPendente.workbook;
+        const fileLike = { name: this.impPendente.nome };
+        const evtStub = { target: { value: '' } };
+        this.impPendente = null; this.impNota = '';
+        this.processarPlanilhaImportada(wb, fileLike, evtStub);
+    },
     simularImportacaoXLSX(evt) {
         if(!this.exigirEdicao()) { evt.target.value = ''; return; }
         if(!this.mesImportacao) {
@@ -6124,6 +6286,12 @@ function sistemaUnificado(){
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
+            this.processarPlanilhaImportada(workbook, file, evt);
+        };
+        reader.readAsArrayBuffer(file);
+    },
+    // Roteia a planilha lida para o importador certo (tipo escolhido ou detectado)
+    processarPlanilhaImportada(workbook, file, evt) {
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             let json = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
 
@@ -6286,8 +6454,6 @@ function sistemaUnificado(){
             this.subAbaDespesa = parsedMonth;
             this.atualizarLeituraSistema();
             evt.target.value = '';
-        };
-        reader.readAsArrayBuffer(file);
     },
 
     // Tabela de conversão Metros para Kg (Configurações)
