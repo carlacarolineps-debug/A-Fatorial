@@ -349,6 +349,31 @@ button{font-family:inherit;}
 .menu-btn{display:none;}
 @media(max-width:1080px){#app.ready{grid-template-columns:1fr;}.side{position:fixed;left:0;top:0;width:270px;z-index:60;transform:translateX(-100%);transition:transform .3s;box-shadow:var(--sh-lg);}.side.open{transform:translateX(0);}.hero{grid-template-columns:1fr;}.hero-r{border-left:none;border-top:1px solid var(--line-soft);}.g-2{grid-template-columns:1fr;}.menu-btn{display:flex;}.form-grid{grid-template-columns:1fr;}}
 @media(max-width:900px){#login{grid-template-columns:1fr;}.lg-brand{display:none;}.lg-panel{max-width:none;padding:40px 24px;}}
+.stepper{display:flex;gap:6px;margin-bottom:22px;}
+.stepper .sp{flex:1;display:flex;flex-direction:column;gap:7px;}
+.stepper .sp .spd{height:4px;border-radius:3px;background:rgba(255,255,255,.08);transition:.2s;}
+.stepper .sp.on .spd,.stepper .sp.done .spd{background:var(--gold-grad);}
+.stepper .sp span{font-size:9px;letter-spacing:.04em;color:var(--ink-4);text-transform:uppercase;font-weight:700;}
+.stepper .sp.on span{color:var(--gold);}
+.stepper .sp.done span{color:var(--ink-2);}
+.wiz-nav{display:flex;align-items:center;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line-soft);}
+.wiz-nav .wc{flex:1;text-align:center;font-size:11.5px;color:var(--ink-3);}
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{padding:8px 13px;border-radius:var(--pill);border:1px solid var(--line-soft);background:var(--glass);color:var(--ink-2);font-size:12.5px;cursor:pointer;transition:.14s;user-select:none;}
+.chip:hover{border-color:var(--line);color:var(--ink);}
+.chip.on{background:var(--gold-grad-soft);border-color:var(--line);color:var(--gold-bright);font-weight:600;}
+.chip.on::before{content:"\2713 ";}
+.wlabel{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin:0 0 9px;font-weight:700;}
+.wgroup{margin-bottom:18px;}
+.wgroup:last-child{margin-bottom:0;}
+.wintro{font-size:12.5px;color:var(--ink-3);margin:-4px 0 16px;}
+.kvs{display:grid;grid-template-columns:1fr 1fr;gap:13px 22px;}
+.kv{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.kv .k{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-4);font-weight:700;}
+.kv .v{font-size:13px;color:var(--ink);}
+#modal.wizard .modal-f{display:none;}
+#modal.wizard .modal-card{max-width:660px;}
+@media(max-width:640px){.kvs{grid-template-columns:1fr;}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}#splash{display:none;}.tnode{opacity:1;transform:none;}}
 </style>
 <div id="splash">
@@ -620,7 +645,7 @@ function renderView(v){ var host=byId('view-'+v); if(!host)return; if(RENDER[v])
 /* ============ MODAL ============ */
 var modalSaveFn=null;
 function openModal(title,sub,body,onSave){ byId('modalTitle').textContent=title; byId('modalSub').textContent=sub||''; byId('modalBody').innerHTML=body; modalSaveFn=onSave; byId('modal').classList.add('on'); }
-function closeModal(){ byId('modal').classList.remove('on'); modalSaveFn=null; }
+function closeModal(){ byId('modal').classList.remove('on','wizard'); modalSaveFn=null; }
 function fldVal(id){ var e=byId(id); return e?e.value.trim():''; }
 function fldNum(id){ var e=byId(id); return e?(parseFloat(e.value)||0):0; }
 
@@ -693,6 +718,8 @@ RENDER.empresas=function(host){
   });
   h+='</div>';
   var e=activeEmp(); if(e){ var d=e.diag||{};
+    h+=secH('Empresa em foco','Perfil completo capturado no cadastro');
+    h+=empresaDetail(e);
     h+=secH('Diagnóstico inicial — '+esc(e.nome),'O ponto de partida capturado no cadastro');
     h+='<div class="grid g-4">'
       +statTile('Conversão inicial',d.conversao||0,'%',0)
@@ -1013,8 +1040,8 @@ document.addEventListener('click',function(ev){
   var t=ev.target.closest('[data-act]'); if(!t)return; var a=t.dataset.act, id=t.dataset.id, i=t.dataset.i;
   if(a==='goto'){ go(t.dataset.goto); return; }
   if(a==='obj-toggle'){ t.parentElement.classList.toggle('open'); return; }
-  if(a==='empresa-new'){ openModal('Nova empresa','Cadastre a empresa cliente e o diagnóstico inicial',empresaForm(),function(){saveEmpresa();}); return; }
-  if(a==='empresa-edit'){ var e=getEmp().filter(function(x){return x.id===id;})[0]; openModal('Editar empresa','',empresaForm(e),function(){saveEmpresa(id);}); return; }
+  if(a==='empresa-new'){ openEmpresaWizard(null); return; }
+  if(a==='empresa-edit'){ openEmpresaWizard(getEmp().filter(function(x){return x.id===id;})[0]); return; }
   if(a==='empresa-open'){ if(ev.target.closest('[data-act="empresa-edit"],[data-act="empresa-del"]'))return; setActiveId(id); refreshContext(); toast('Empresa selecionada'); go('dashboard'); return; }
   if(a==='empresa-select'){ setActiveId(id); refreshContext(); closeModal(); toast('Empresa selecionada'); reRender(); return; }
   if(a==='empresa-del'){ var e2=getEmp().filter(function(x){return x.id===id;})[0]; openConfirm('Excluir empresa','Excluir <b>'+esc(e2?e2.nome:'')+'</b> e todos os seus vendedores? Esta ação não pode ser desfeita.',function(){ setEmp(getEmp().filter(function(x){return x.id!==id;})); setVend(getVend().filter(function(v){return v.empresaId!==id;})); if(activeId()===id)setActiveId(getEmp()[0]?getEmp()[0].id:null); audit('excluiu empresa',e2?e2.nome:''); closeModal(); toast('Empresa excluída'); refreshContext(); reRender(); }); return; }
@@ -1033,6 +1060,97 @@ document.addEventListener('click',function(ev){
   if(a==='dep-del'){ var e5=activeEmp(); openConfirm('Excluir depoimento','Remover este depoimento?',function(){ var list=getEmp(); var ee=list.filter(function(x){return x.id===e5.id;})[0]; ee.depoimentos.splice(+i,1); setEmp(list); audit('removeu depoimento',e5.nome); closeModal(); toast('Removido'); reRender(); }); return; }
   if(a==='fase-adv'){ var e6=activeEmp(); if(e6&&(e6.fase||1)<6){ var list=getEmp(); var ee=list.filter(function(x){return x.id===e6.id;})[0]; ee.fase=(ee.fase||1)+1; setEmp(list); audit('avançou fase da jornada',e6.nome+' → Fase '+ee.fase); refreshContext(); reRender(); toast('Fase '+ee.fase); } return; }
   if(a==='perm-toggle'){ var pf=t.dataset.perfil,vw=t.dataset.view; var perm=getPerm(); perm[pf]=perm[pf]||[]; var idx=perm[pf].indexOf(vw); if(idx>=0)perm[pf].splice(idx,1); else perm[pf].push(vw); setPerm(perm); audit('alterou permissões',perfilLabel(pf)+' · '+(VIEW_LBL[vw]?VIEW_LBL[vw][1]:vw)+(idx>=0?' (removeu)':' (liberou)')); reRender(); toast('Permissões salvas'); return; }
+});
+
+/* ============ EMPRESA WIZARD ============ */
+var OPT={
+ seg:['Energia solar','Varejo / loja física','E-commerce','Saúde / planos','Odontologia','Automotivo / concessionária','Imobiliário','Construção civil','Tecnologia / SaaS','Serviços financeiros','Consórcio','Seguros','Educação / cursos','Indústria','Beleza / estética','Alimentos / food service','Telecom','Turismo','Agronegócio','Serviços B2B','Outro'],
+ porte:['MEI','Microempresa','Pequena','Média','Grande'],
+ func:['1–10','11–50','51–200','201–500','500+'],
+ uf:['Nacional (todo Brasil)','AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO','Internacional'],
+ cargo:['Sócio(a) / CEO','Diretor(a) comercial','Gerente de vendas','Coordenador(a)','RH / Gente','Outro'],
+ tipoVenda:['B2C — consumidor final','B2B — empresas','B2B2C','Misto'],
+ canais:['Loja física','Porta a porta / externo','Telefone','WhatsApp','Digital / inbound','Indicação','Eventos / feiras','Marketplace','Representantes'],
+ leads:['Tráfego pago','Indicação','Base própria','Prospecção ativa','Parcerias','Orgânico / redes','Compra de lista'],
+ crm:['Nenhum','Planilha','RD Station','HubSpot','Pipedrive','Salesforce','Agendor','Ploomes','Outro'],
+ ticket:['Até R$ 1 mil','R$ 1–5 mil','R$ 5–10 mil','R$ 10–30 mil','R$ 30–100 mil','Acima de R$ 100 mil'],
+ ciclo:['Imediato (mesmo dia)','Até 7 dias','7–30 dias','30–90 dias','Mais de 90 dias'],
+ tamTime:['1–5','6–15','16–30','31–60','61–150','150+'],
+ estrut:['Vendedores diretos','SDR + Closer','Representantes / autônomos','Franquias','Call center','Misto'],
+ remun:['Fixo','Comissão','Fixo + comissão','Premiação por meta','Bônus','Diária / ajuda de custo'],
+ objetivo:['Aumentar conversão','Aumentar ticket médio','Reduzir ciclo de venda','Padronizar o método','Escalar / multiplicar o time','Reduzir rotatividade','Melhorar previsibilidade'],
+ dores:['Falta de método','Follow-up fraco','Alta rotatividade','Discurso desalinhado','Dependência de poucos','Objeção de preço','Funil vazio','Falta de gestão à vista','Baixa motivação','Sem onboarding'],
+ prazo:['3 meses','6 meses','9 meses','12 meses','Contínuo'],
+ metaConv:['15%','20%','25%','30%','35%','40%','45%','50%'],
+ invest:['Até R$ 5 mil/mês','R$ 5–15 mil/mês','R$ 15–30 mil/mês','R$ 30–60 mil/mês','Acima de R$ 60 mil/mês'],
+ dgConv:['Menos de 5%','5–10%','10–20%','20–30%','30–40%','Mais de 40%'],
+ dgFollow:['Quase nunca (0–20%)','20–40%','40–60%','60–80%','80–100%'],
+ dgReceita:['Até R$ 50 mil','R$ 50–200 mil','R$ 200–500 mil','R$ 500 mil – 1 mi','R$ 1–5 mi','Acima de R$ 5 mi']
+};
+var MID={
+ ticket:{'Até R$ 1 mil':800,'R$ 1–5 mil':3000,'R$ 5–10 mil':7500,'R$ 10–30 mil':20000,'R$ 30–100 mil':65000,'Acima de R$ 100 mil':150000},
+ ciclo:{'Imediato (mesmo dia)':1,'Até 7 dias':4,'7–30 dias':18,'30–90 dias':60,'Mais de 90 dias':120},
+ dgConv:{'Menos de 5%':3,'5–10%':7.5,'10–20%':15,'20–30%':25,'30–40%':35,'Mais de 40%':45},
+ dgFollow:{'Quase nunca (0–20%)':10,'20–40%':30,'40–60%':50,'60–80%':70,'80–100%':90},
+ dgReceita:{'Até R$ 50 mil':30000,'R$ 50–200 mil':125000,'R$ 200–500 mil':350000,'R$ 500 mil – 1 mi':750000,'R$ 1–5 mi':3000000,'Acima de R$ 5 mi':7000000},
+ invest:{'Até R$ 5 mil/mês':4000,'R$ 5–15 mil/mês':10000,'R$ 15–30 mil/mês':22500,'R$ 30–60 mil/mês':45000,'Acima de R$ 60 mil/mês':75000}
+};
+var wiz={},wizIdx=0,wizEditId=null;
+function faseLabel(n){ n=Math.max(1,Math.min(6,n||1)); return n+' — '+FASES[n-1][0]; }
+function wsel(label,key,opts){ var v=wiz[key]||''; var o='<option value="">Selecione…</option>'+opts.map(function(op){return '<option'+(v===op?' selected':'')+'>'+esc(op)+'</option>';}).join(''); return '<div class="fld"><label>'+label+'</label><select id="w_'+key+'">'+o+'</select></div>'; }
+function winput(label,key,ph,cls){ return '<div class="fld '+(cls||'')+'"><label>'+label+'</label><input id="w_'+key+'" type="text" value="'+esc(wiz[key]||'')+'" placeholder="'+esc(ph||'')+'"></div>'; }
+function wchips(label,key,opts){ var sel=wiz[key]||[]; return '<div class="wgroup"><div class="wlabel">'+label+'</div><div class="chip-grid">'+opts.map(function(op){return '<div class="chip'+(sel.indexOf(op)>=0?' on':'')+'" data-chip="'+key+'" data-val="'+esc(op)+'">'+esc(op)+'</div>';}).join('')+'</div></div>'; }
+var WIZ_SCALARS=[
+ ['nome','cnpj','segmento','porte','func','uf','site','responsavel','cargo','contato'],
+ ['tipoVenda','crm','ticketFaixa','cicloFaixa'],
+ ['tamanho','estrutura'],
+ ['objetivo','fase','prazo','metaConv','investimento'],
+ ['dgConv','dgTicket','dgCiclo','dgFollow','dgReceita','receitaAtual']
+];
+var WIZ_STEP=[
+ function(){ return '<div class="form-grid">'+winput('Nome da empresa *','nome','Ex.: Painéis Sol Ltda','full')+wsel('Segmento','segmento',OPT.seg)+winput('CNPJ (opcional)','cnpj','00.000.000/0001-00')+wsel('Porte','porte',OPT.porte)+wsel('Nº de funcionários','func',OPT.func)+wsel('Região / estado','uf',OPT.uf)+winput('Site / Instagram','site','@ ou site.com.br','full')+'<div class="form-sec">Responsável pelo contato</div>'+winput('Nome do responsável','responsavel','Quem acompanha o programa')+wsel('Cargo','cargo',OPT.cargo)+winput('E-mail / telefone','contato','contato@empresa.com','full')+'</div>'; },
+ function(){ return '<div class="form-grid">'+wsel('Tipo de venda','tipoVenda',OPT.tipoVenda)+wsel('CRM / ferramenta','crm',OPT.crm)+wsel('Ticket médio atual','ticketFaixa',OPT.ticket)+wsel('Ciclo de venda típico','cicloFaixa',OPT.ciclo)+'</div><div style="margin-top:18px"></div>'+wchips('Canais de venda (marque todos que usam)','canais',OPT.canais)+wchips('Origem dos leads','leads',OPT.leads); },
+ function(){ return '<div class="form-grid">'+wsel('Tamanho do time comercial','tamanho',OPT.tamTime)+wsel('Estrutura do time','estrutura',OPT.estrut)+'</div><div style="margin-top:18px"></div>'+wchips('Modelo de remuneração','remuneracao',OPT.remun); },
+ function(){ var fo=[1,2,3,4,5,6].map(function(n){return faseLabel(n);}); return '<div class="form-grid">'+wsel('Objetivo principal do programa','objetivo',OPT.objetivo)+wsel('Fase atual','fase',fo)+wsel('Prazo do programa','prazo',OPT.prazo)+wsel('Meta de conversão','metaConv',OPT.metaConv)+wsel('Investimento no programa (mês)','investimento',OPT.invest)+'</div><div style="margin-top:18px"></div>'+wchips('Principais dores do time (marque as que se aplicam)','dores',OPT.dores); },
+ function(){ return '<div class="wintro">O ponto de partida do time — é só selecionar as faixas. Usamos isso para calcular o Índice de Multiplicação e o ROI.</div><div class="form-grid">'+wsel('Conversão inicial','dgConv',OPT.dgConv)+wsel('Ticket médio inicial','dgTicket',OPT.ticket)+wsel('Ciclo de venda inicial','dgCiclo',OPT.ciclo)+wsel('Follow-up inicial','dgFollow',OPT.dgFollow)+wsel('Receita mensal — início','dgReceita',OPT.dgReceita)+wsel('Receita mensal — atual','receitaAtual',OPT.dgReceita)+'</div>'; }
+];
+function readStep(idx){ (WIZ_SCALARS[idx]||[]).forEach(function(k){ var el=byId('w_'+k); if(el)wiz[k]=el.value; }); }
+function renderWizard(){ var steps=['Perfil','Comercial','Time','Programa','Diagnóstico'];
+ var sp=steps.map(function(s,i){return '<div class="sp'+(i===wizIdx?' on':i<wizIdx?' done':'')+'"><div class="spd"></div><span>'+s+'</span></div>';}).join('');
+ var nav='<div class="wiz-nav">'+(wizIdx>0?'<button class="btn" data-wiz="back">◂ Voltar</button>':'<span style="width:90px"></span>')+'<div class="wc">Etapa '+(wizIdx+1)+' de 5 · '+steps[wizIdx]+'</div>'+(wizIdx<4?'<button class="btn gold" data-wiz="next">Próximo ▸</button>':'<button class="btn gold" data-wiz="save">✓ Salvar empresa</button>')+'</div>';
+ byId('modalBody').innerHTML='<div class="stepper">'+sp+'</div>'+WIZ_STEP[wizIdx]()+nav;
+}
+function seedWizFrom(e){ if(!e)return {}; if(e.wiz)return JSON.parse(JSON.stringify(e.wiz)); return {nome:e.nome||'',segmento:e.segmento||'',responsavel:e.responsavel||'',contato:e.contato||'',fase:faseLabel(e.fase||1),metaConv:(e.metaConversao?e.metaConversao+'%':'')}; }
+function openEmpresaWizard(e){ wizEditId=e?e.id:null; wiz=seedWizFrom(e); wizIdx=0; byId('modalTitle').textContent=e?'Editar empresa':'Nova empresa'; byId('modalSub').textContent='Assistente de cadastro em 5 etapas'; byId('modal').classList.add('on','wizard'); modalSaveFn=null; renderWizard(); }
+function saveEmpresaWizard(){ if(!(wiz.nome||'').trim()){ wizIdx=0; renderWizard(); toast('Informe o nome da empresa'); return; }
+ var list=getEmp(); var e=wizEditId?list.filter(function(x){return x.id===wizEditId;})[0]:null;
+ var obj=e||{id:uid(),metodo:[],objecoes:[],depoimentos:[],criadoEm:Date.now()};
+ obj.wiz=JSON.parse(JSON.stringify(wiz));
+ obj.nome=(wiz.nome||'').trim(); obj.segmento=wiz.segmento||''; obj.responsavel=wiz.responsavel||''; obj.contato=wiz.contato||'';
+ obj.fase=parseInt(wiz.fase)||1; obj.metaConversao=parseInt(wiz.metaConv)||0;
+ obj.receitaAtual=MID.dgReceita[wiz.receitaAtual]||0;
+ obj.programa={objetivo:wiz.objetivo||'',dores:wiz.dores||[],prazo:wiz.prazo||'',investimentoFaixa:wiz.investimento||'',investimento:MID.invest[wiz.investimento]||0};
+ obj.diag={conversao:MID.dgConv[wiz.dgConv]||0,ticket:MID.ticket[wiz.dgTicket]||0,ciclo:MID.ciclo[wiz.dgCiclo]||0,followup:MID.dgFollow[wiz.dgFollow]||0,receita:MID.dgReceita[wiz.dgReceita]||0};
+ if(!e){ list.push(obj); if(!activeId())setActiveId(obj.id); } setEmp(list);
+ audit(wizEditId?'editou empresa':'cadastrou empresa',obj.nome); closeModal(); toast(wizEditId?'Empresa atualizada':'Empresa cadastrada'); refreshContext(); reRender();
+}
+function empresaDetail(e){ var w=e.wiz||{}; var pr=e.programa||{};
+ function kv(k,v){ return '<div class="kv"><div class="k">'+k+'</div><div class="v">'+(v?esc(v):'<span style="color:var(--ink-4)">—</span>')+'</div></div>'; }
+ function chips(arr){ return (arr&&arr.length)?arr.map(function(x){return '<span class="tag mute">'+esc(x)+'</span>';}).join(' '):'<span style="color:var(--ink-4);font-size:12.5px">—</span>'; }
+ var h='<div class="card pad"><div class="card-h"><div class="ct"><h3>Perfil da '+esc(e.nome)+'</h3></div>'+(canEdit()?'<button class="btn sm" data-act="empresa-edit" data-id="'+e.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>Editar</button>':'')+'</div>';
+ h+='<div class="kvs">'+kv('Segmento',w.segmento||e.segmento)+kv('Porte',w.porte)+kv('Funcionários',w.func)+kv('Região',w.uf)+kv('Tipo de venda',w.tipoVenda)+kv('CRM',w.crm)+kv('Ticket atual',w.ticketFaixa)+kv('Ciclo',w.cicloFaixa)+kv('Time',w.tamanho)+kv('Estrutura',w.estrutura)+kv('Responsável',(w.responsavel||e.responsavel)+(w.cargo?' · '+w.cargo:''))+kv('Contato',w.contato||e.contato)+'</div>';
+ h+='<div class="divider"></div><div class="wgroup"><div class="wlabel">Canais de venda</div><div class="chip-grid">'+chips(w.canais)+'</div></div>';
+ h+='<div class="wgroup"><div class="wlabel">Origem dos leads</div><div class="chip-grid">'+chips(w.leads)+'</div></div>';
+ h+='<div class="wgroup"><div class="wlabel">Remuneração</div><div class="chip-grid">'+chips(w.remuneracao)+'</div></div>';
+ h+='<div class="divider"></div><div class="kvs">'+kv('Objetivo do programa',pr.objetivo)+kv('Prazo',pr.prazo)+kv('Investimento/mês',pr.investimentoFaixa)+kv('Meta de conversão',e.metaConversao?e.metaConversao+'%':'')+'</div>';
+ h+='<div class="wgroup" style="margin-top:16px"><div class="wlabel">Principais dores</div><div class="chip-grid">'+chips(pr.dores)+'</div></div>';
+ return h+'</div>';
+}
+document.addEventListener('click',function(ev){ var c=ev.target.closest('[data-chip]'); if(!c)return; var key=c.dataset.chip,val=c.dataset.val; wiz[key]=wiz[key]||[]; var i=wiz[key].indexOf(val); if(i>=0){wiz[key].splice(i,1);c.classList.remove('on');}else{wiz[key].push(val);c.classList.add('on');} });
+document.addEventListener('click',function(ev){ var w=ev.target.closest('[data-wiz]'); if(!w)return; var a=w.dataset.wiz; readStep(wizIdx);
+ if(a==='back'){ if(wizIdx>0)wizIdx--; renderWizard(); }
+ else if(a==='next'){ if(wizIdx===0&&!(wiz.nome||'').trim()){ toast('Informe o nome da empresa'); var el=byId('w_nome'); if(el)el.classList.add('err'); return; } if(wizIdx<4)wizIdx++; renderWizard(); }
+ else if(a==='save'){ saveEmpresaWizard(); }
 });
 
 /* ============ WIRING ============ */
