@@ -363,6 +363,41 @@ button{font-family:inherit;}
 #modal.wizard .modal-f{display:none;}
 #modal.wizard .modal-card{max-width:660px;}
 @media(max-width:640px){.kvs{grid-template-columns:1fr;}}
+.star-list{display:flex;flex-direction:column;margin-top:4px;}
+.star-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line-soft);}
+.star-row:last-child{border-bottom:none;}
+.star-lbl{font-size:13px;color:var(--ink-2);}
+.stars-in{display:flex;gap:5px;}
+.star{cursor:pointer;color:var(--ink-4);font-size:19px;line-height:1;transition:.1s;user-select:none;}
+.star.on{color:var(--gold);text-shadow:0 0 10px rgba(232,200,122,.4);}
+.star:hover{transform:scale(1.18);}
+.status-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:var(--pill);text-transform:uppercase;letter-spacing:.03em;}
+.st-ganha{background:var(--good-bg);color:var(--good);}
+.st-andamento{background:var(--info-bg);color:var(--info);}
+.st-perdida{background:rgba(255,255,255,.06);color:var(--ink-3);}
+.report-actions{display:flex;justify-content:flex-end;gap:10px;margin-bottom:18px;}
+.report-paper{background:#fdfcf8;color:#1c1a15;border-radius:16px;padding:52px 56px;max-width:900px;margin:0 auto;box-shadow:var(--sh-lg);}
+.rp-cap{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #e7dfca;padding-bottom:22px;margin-bottom:12px;}
+.rp-cap .cap-l{display:flex;align-items:center;gap:14px;}
+.rp-cap .amark{width:46px;height:46px;border-radius:13px;font-size:23px;}
+.rp-cap .rc-t b{font-family:var(--f-display);font-weight:600;font-size:20px;color:#1c1a15;display:block;line-height:1.1;}
+.rp-cap .rc-t span{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:#a8842f;font-weight:700;}
+.rp-cap .rc-meta{text-align:right;font-size:12px;color:#6b6555;line-height:1.6;}
+.report-paper h2.rp-title{font-family:var(--f-display);font-weight:600;font-size:27px;color:#1c1a15;margin:8px 0 4px;}
+.report-paper .rp-sub{font-size:13px;color:#6b6555;margin-bottom:8px;}
+.rp-h{font-family:var(--f-display);font-weight:600;font-size:13px;color:#a8842f;text-transform:uppercase;letter-spacing:.09em;margin:32px 0 14px;border-bottom:1px solid #eee3c9;padding-bottom:7px;}
+.rp-big{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.rp-kpi{background:#faf6ea;border:1px solid #eee3c9;border-radius:12px;padding:16px 17px;}
+.rp-kpi .v{font-family:var(--f-display);font-weight:600;font-size:25px;color:#1c1a15;line-height:1;}
+.rp-kpi .l{font-size:11px;color:#8a8472;margin-top:6px;}
+.rp-tbl{width:100%;border-collapse:collapse;}
+.rp-tbl td,.rp-tbl th{padding:9px 8px;border-bottom:1px solid #eee3c9;font-size:12.5px;text-align:left;color:#3a362c;}
+.rp-tbl th{color:#a8842f;font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+.rp-tbl td.r,.rp-tbl th.r{text-align:right;font-variant-numeric:tabular-nums;}
+.rp-quote{background:#faf6ea;border-left:3px solid #d4af5e;border-radius:8px;padding:13px 16px;margin-bottom:10px;font-style:italic;color:#3a362c;font-size:13px;}
+.rp-quote .qa{font-style:normal;font-size:11.5px;color:#8a8472;margin-top:7px;}
+.rp-foot{margin-top:34px;padding-top:16px;border-top:1px solid #e7dfca;font-size:11px;color:#8a8472;text-align:center;}
+@media print{ body::before{display:none;} .side,.topbar,.report-actions,#splash,#login,#toast{display:none!important;} #app.ready{display:block!important;grid-template-columns:1fr;} .view{padding:0!important;max-width:none!important;} .report-paper{box-shadow:none;border-radius:0;max-width:none;margin:0;padding:20px 8px;} body{background:#fff;} }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}#splash{display:none;}.tnode{opacity:1;transform:none;}}
 </style>
 <div id="splash">
@@ -406,9 +441,11 @@ button{font-family:inherit;}
       <button class="nav-item" data-view="jornada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>Jornada do Programa</button>
       <button class="nav-item" data-view="arvore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v6M6 21v-4a3 3 0 013-3h6a3 3 0 013 3v4M12 9a3 3 0 100-6 3 3 0 000 6M6 21a2 2 0 100-4 2 2 0 000 4M18 21a2 2 0 100-4 2 2 0 000 4M12 21a2 2 0 100-4 2 2 0 000 4"/></svg>Árvore de Multiplicação</button>
       <button class="nav-item" data-view="ranking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4a2 2 0 01-2-2V5h4M18 9h2a2 2 0 002-2V5h-4M6 5h12v4a6 6 0 01-12 0zM12 15v4M8 21h8"/></svg>Ranking & Premiação</button>
+      <button class="nav-item" data-view="vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>Vendas & Pipeline</button>
       <div class="nav-group">Resultados</div>
       <button class="nav-item" data-view="resultados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M7 15l4-4 3 3 5-6M18 8h3v3"/></svg>Resultados & ROI</button>
       <button class="nav-item" data-view="depoimentos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2zM8 10h.01M12 10h.01M16 10h.01"/></svg>Depoimentos & Feedback</button>
+      <button class="nav-item" data-view="relatorio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M8 13h8M8 17h5"/></svg>Relatório Final</button>
       <div class="nav-group">Administração</div>
       <button class="nav-item" data-view="usuarios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M19 8v6M22 11h-6"/></svg>Usuários & Acessos</button>
       <button class="nav-item" data-view="permissoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4"/></svg>Permissões</button>
@@ -434,7 +471,9 @@ button{font-family:inherit;}
     <section class="view" id="view-jornada"></section>
     <section class="view" id="view-arvore"></section>
     <section class="view" id="view-ranking"></section>
+    <section class="view" id="view-vendas"></section>
     <section class="view" id="view-resultados"></section>
+    <section class="view" id="view-relatorio"></section>
     <section class="view" id="view-depoimentos"></section>
     <section class="view" id="view-usuarios"></section>
     <section class="view" id="view-permissoes"></section>
@@ -471,10 +510,10 @@ var FASES=[['Diagnóstico','Raio-X do time: mapear os melhores e os piores e qua
  ['Multiplicação','Cada mestre forma uma onda de multiplicadores, que forma a próxima.'],
  ['Consolidação','Certificação por faixas, premiação e ajuste fino do método.'],
  ['Resultados & autogestão','Relatório final de ROI e entrega do processo autogerenciável.']];
-var VIEW_LBL={portal:['Meu espaço','Portal do Vendedor'],dashboard:['Programa','Central de Comando'],empresas:['Programa','Empresas & Diagnóstico'],dna:['Método','DNA de Vendas'],metodo:['Método','Método Vivo'],vendedores:['Método','Vendedores'],jornada:['Execução','Jornada do Programa'],arvore:['Execução','Árvore de Multiplicação'],ranking:['Execução','Ranking & Premiação'],resultados:['Resultados','Resultados & ROI'],depoimentos:['Resultados','Depoimentos & Feedback'],usuarios:['Administração','Usuários & Acessos'],permissoes:['Administração','Permissões'],auditoria:['Administração','Rastreabilidade']};
+var VIEW_LBL={portal:['Meu espaço','Portal do Vendedor'],dashboard:['Programa','Central de Comando'],empresas:['Programa','Empresas & Diagnóstico'],dna:['Método','DNA de Vendas'],metodo:['Método','Método Vivo'],vendedores:['Método','Vendedores'],jornada:['Execução','Jornada do Programa'],arvore:['Execução','Árvore de Multiplicação'],ranking:['Execução','Ranking & Premiação'],vendas:['Execução','Vendas & Pipeline'],resultados:['Resultados','Resultados & ROI'],relatorio:['Resultados','Relatório Final'],depoimentos:['Resultados','Depoimentos & Feedback'],usuarios:['Administração','Usuários & Acessos'],permissoes:['Administração','Permissões'],auditoria:['Administração','Rastreabilidade']};
 var ALL_VIEWS=Object.keys(VIEW_LBL);
 var ADMIN_LOCK=['usuarios','permissoes','auditoria'];
-var DEFAULT_PERM={admin:ALL_VIEWS.filter(function(v){return v!=='portal';}),cliente:['dashboard','dna','metodo','vendedores','jornada','arvore','ranking','resultados','depoimentos'],vendedor:['portal','metodo','ranking','depoimentos']};
+var DEFAULT_PERM={admin:ALL_VIEWS.filter(function(v){return v!=='portal';}),cliente:['dashboard','dna','metodo','vendedores','jornada','arvore','ranking','resultados','relatorio','depoimentos'],vendedor:['portal','metodo','ranking','depoimentos']};
 
 function getUsers(){ return load(K.users,[]); }
 function setUsers(a){ save(K.users,a); }
@@ -490,7 +529,7 @@ function activeEmp(){ var id=activeId(); var e=getEmp(); return e.filter(functio
 function empVend(eid){ return getVend().filter(function(v){return v.empresaId===eid;}); }
 
 var currentUser=null;
-function allowedViews(u){ if(!u)return []; var base=(getPerm()[u.perfil]||[]).slice(); if(u.perfil==='admin'){ADMIN_LOCK.forEach(function(v){if(base.indexOf(v)<0)base.push(v);});} return base; }
+function allowedViews(u){ if(!u)return []; if(u.perfil==='admin') return ALL_VIEWS.filter(function(v){return v!=='portal';}); return (getPerm()[u.perfil]||[]).slice(); }
 function audit(acao,alvo){ var a=load(K.audit,[]); var u=currentUser||{nome:'Sistema',perfil:'—'}; a.unshift({ts:Date.now(),nome:u.nome,perfil:u.perfil,acao:acao,alvo:alvo||''}); if(a.length>800)a.length=800; save(K.audit,a); }
 
 /* toast */
@@ -1034,8 +1073,8 @@ document.addEventListener('click',function(ev){
   if(a==='empresa-open'){ if(ev.target.closest('[data-act="empresa-edit"],[data-act="empresa-del"]'))return; setActiveId(id); refreshContext(); toast('Empresa selecionada'); go('dashboard'); return; }
   if(a==='empresa-select'){ setActiveId(id); refreshContext(); closeModal(); toast('Empresa selecionada'); reRender(); return; }
   if(a==='empresa-del'){ var e2=getEmp().filter(function(x){return x.id===id;})[0]; openConfirm('Excluir empresa','Excluir <b>'+esc(e2?e2.nome:'')+'</b> e todos os seus vendedores? Esta ação não pode ser desfeita.',function(){ setEmp(getEmp().filter(function(x){return x.id!==id;})); setVend(getVend().filter(function(v){return v.empresaId!==id;})); if(activeId()===id)setActiveId(getEmp()[0]?getEmp()[0].id:null); audit('excluiu empresa',e2?e2.nome:''); closeModal(); toast('Empresa excluída'); refreshContext(); reRender(); }); return; }
-  if(a==='vend-new'){ openModal('Novo vendedor','Preencha os dados e as competências',vendedorForm(),function(){saveVendedor();}); return; }
-  if(a==='vend-edit'){ var v=getVend().filter(function(x){return x.id===id;})[0]; openModal('Editar vendedor','',vendedorForm(v),function(){saveVendedor(id);}); return; }
+  if(a==='vend-new'){ vendedorGuided(null); return; }
+  if(a==='vend-edit'){ vendedorGuided(getVend().filter(function(x){return x.id===id;})[0]); return; }
   if(a==='vend-del'){ var v2=getVend().filter(function(x){return x.id===id;})[0]; openConfirm('Excluir vendedor','Excluir <b>'+esc(v2?v2.nome:'')+'</b>?',function(){ setVend(getVend().filter(function(x){return x.id!==id;})); audit('excluiu vendedor',v2?v2.nome:''); closeModal(); toast('Vendedor excluído'); reRender(); }); return; }
   if(a==='user-new'){ openModal('Novo usuário','Defina o acesso e a senha',userForm(),function(){saveUser();}); return; }
   if(a==='user-edit'){ var u=getUsers().filter(function(x){return x.id===id;})[0]; openModal('Editar usuário','',userForm(u),function(){saveUser(id);}); return; }
@@ -1142,6 +1181,243 @@ document.addEventListener('click',function(ev){ var w=ev.target.closest('[data-w
  else if(a==='save'){ saveEmpresaWizard(); }
 });
 
+/* ============ VENDAS / GAMIFICAÇÃO / VENDEDOR GUIADO ============ */
+var K2={neg:'am_negocios',gamif:'am_gamif'};
+var GAMIF_DEFAULT={ptsGanha:50,ptsMil:1,premios:{p1:'Viagem + bônus em dinheiro',p2:'Bônus + troféu',p3:'Bônus + dia de folga',extra:'Prêmio "Maior evolução do trimestre"'},missoes:[{titulo:'Fechar vendas no mês',metric:'vendasMes',alvo:10,xp:200},{titulo:'Receita no mês (R$ mil)',metric:'receitaMilMes',alvo:100,xp:150},{titulo:'Manter conversão acima de (%)',metric:'conversao',alvo:30,xp:120}]};
+var METODO_TPL={
+ 'Energia solar':{modulos:[{titulo:'Abertura magnética',desc:'Primeiros 30s que quebram a defensiva e ganham permissão para diagnosticar.'},{titulo:'Diagnóstico da conta de luz',desc:'Perguntas que revelam o custo real da energia e criam urgência.'},{titulo:'Ancoragem de valor',desc:'Traduzir o investimento em economia mensal — vender liberdade da conta, não placa.'},{titulo:'Simulação de economia',desc:'Mostrar payback e economia em 25 anos com número na tela.'},{titulo:'Fechamento por assunção',desc:'Conduzir a decisão com escolhas: instalação na semana 1 ou 2?'},{titulo:'Máquina de follow-up',desc:'Cadência de 5 toques em 14 dias, sempre com novidade.'}],objecoes:[{q:'Está caro',a:'Caro é seguir pagando a conta que só sobe por 25 anos. Aqui você troca por uma parcela que acaba.'},{q:'Vou esperar a conta baixar',a:'A tarifa subiu no último ano. Esperar é apostar contra a história — cada mês é dinheiro que não volta.'},{q:'Preciso falar com meu cônjuge',a:'Faz sentido. Que tal 15 min com os dois amanhã? Tiro todas as dúvidas de uma vez.'}]},
+ 'Varejo / loja física':{modulos:[{titulo:'Recepção que conecta',desc:'Abordagem calorosa que não afugenta — ler o cliente antes de ofertar.'},{titulo:'Descoberta da necessidade',desc:'Perguntas que revelam para quê/para quem é a compra.'},{titulo:'Demonstração de valor',desc:'Mostrar o produto resolvendo a dor específica do cliente.'},{titulo:'Venda adicional (upsell)',desc:'Oferecer o complemento certo no momento certo.'},{titulo:'Fechamento e reserva',desc:'Reduzir o atrito final: reserva, condição, garantia.'},{titulo:'Pós-venda e recompra',desc:'Cadastro e cadência para trazer o cliente de volta.'}],objecoes:[{q:'Só estou olhando',a:'Perfeito! Posso te mostrar o que mais sai e deixar você à vontade — enquanto isso, é para você ou presente?'},{q:'Vou pesquisar em outro lugar',a:'Faz bem pesquisar. Só pra comparar certo: além do preço, o que mais pesa na sua decisão?'},{q:'Está fora do meu orçamento',a:'Entendo. Temos condições/versões — qual valor de parcela fica confortável pra você?'}]},
+ 'default':{modulos:[{titulo:'Abertura e conexão',desc:'Quebrar a defensiva e ganhar permissão para conversar.'},{titulo:'Diagnóstico da dor',desc:'Perguntas que revelam o problema real e o custo de não resolver.'},{titulo:'Apresentação de valor',desc:'Mostrar a solução resolvendo exatamente a dor levantada.'},{titulo:'Contorno de objeções',desc:'Respostas prontas e testadas para as objeções mais comuns.'},{titulo:'Fechamento',desc:'Conduzir a decisão com segurança, sem empurrar.'},{titulo:'Follow-up estruturado',desc:'Cadência de retorno que recupera quem disse "vou pensar".'}],objecoes:[{q:'Está caro',a:'Reenquadre para o custo de não agir: o que continuar como está custa por mês?'},{q:'Vou pensar',a:'Perfeito. Só pra te ajudar melhor: o que exatamente quer pensar — valor, timing ou confiança?'},{q:'Preciso falar com alguém',a:'Faz sentido. Vamos marcar 15 min com quem decide junto e eu tiro todas as dúvidas de uma vez.'}]}
+};
+function getNeg(){ return load(K2.neg,[]); }
+function setNeg(a){ save(K2.neg,a); }
+function negOf(vid){ return getNeg().filter(function(n){return n.vendedorId===vid;}); }
+function getGamif(){ var g=load(K2.gamif,null); if(!g)return JSON.parse(JSON.stringify(GAMIF_DEFAULT)); if(!g.premios)g.premios=GAMIF_DEFAULT.premios; if(!g.missoes)g.missoes=GAMIF_DEFAULT.missoes; return g; }
+function setGamif(g){ save(K2.gamif,g); }
+var MES_ABBR=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+function ymNow(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); }
+function ymLabel(ym){ if(!ym)return ''; var p=ym.split('-'); return MES_ABBR[(+p[1]-1)]+'/'+p[0].slice(2); }
+function lastMonths(n){ var d=new Date(),arr=[]; for(var i=n-1;i>=0;i--){ var dd=new Date(d.getFullYear(),d.getMonth()-i,1); arr.push(dd.getFullYear()+'-'+('0'+(dd.getMonth()+1)).slice(-2)); } return arr; }
+function vstat(v){ var negs=negOf(v.id),g=getGamif(); var gan=negs.filter(function(n){return n.status==='ganha';}),per=negs.filter(function(n){return n.status==='perdida';}),and=negs.filter(function(n){return n.status==='andamento';});
+ var receita=gan.reduce(function(s,n){return s+(+n.valor||0);},0),tot=gan.length+per.length,cur=ymNow(),ganMes=gan.filter(function(n){return n.mes===cur;});
+ var receitaMes=ganMes.reduce(function(s,n){return s+(+n.valor||0);},0);
+ var st={hasNeg:negs.length>0,ganhas:gan.length,perdidas:per.length,andamento:and.length,receita:receita,ticket:gan.length?Math.round(receita/gan.length):(+v.ticket||0),conversao:tot?Math.round(gan.length/tot*100):(+v.conversao||0),vendasMes:ganMes.length,receitaMes:receitaMes,receitaMilMes:Math.round(receitaMes/1000)};
+ st.pontos=negs.length?Math.round(receita/1000*g.ptsMil)+gan.length*g.ptsGanha:(+v.pontos||0);
+ return st; }
+function rankList(vs){ return vs.map(function(v){ var s=vstat(v); return {id:v.id,nome:v.nome,faixa:v.faixa,onda:v.onda,followup:+v.followup||0,comp:v.comp,metaVendas:v.metaVendas,pontos:s.pontos,conversao:s.conversao,ticket:s.ticket,receita:s.receita,vendasMes:s.vendasMes,ganhas:s.ganhas,andamento:s.andamento,hasNeg:s.hasNeg,st:s}; }).sort(function(a,b){return b.pontos-a.pontos;}); }
+function empMonthly(eid,n){ var negs=getNeg().filter(function(x){return x.empresaId===eid;}),months=lastMonths(n||6);
+ return months.map(function(m){ var gan=negs.filter(function(x){return x.mes===m&&x.status==='ganha';}),per=negs.filter(function(x){return x.mes===m&&x.status==='perdida';}),tot=gan.length+per.length; return {ym:m,label:ymLabel(m),receita:gan.reduce(function(s,x){return s+(+x.valor||0);},0),conversao:tot?Math.round(gan.length/tot*100):0,ganhas:gan.length}; }); }
+function metricVal(st,metric){ if(metric==='vendasMes')return st.vendasMes; if(metric==='receitaMilMes')return st.receitaMilMes; if(metric==='conversao')return st.conversao; if(metric==='ganhas')return st.ganhas; if(metric==='receita')return Math.round(st.receita/1000); return 0; }
+/* vendedor guided form (selects + stars) */
+var vstars={},vendEditId=null;
+function starRow(label,key){ var v=vstars[key]||0,s=''; for(var i=1;i<=5;i++)s+='<span class="star'+(i<=v?' on':'')+'" data-star="'+key+'" data-val="'+i+'">★</span>'; return '<div class="star-row"><span class="star-lbl">'+esc(label)+'</span><span class="stars-in">'+s+'</span></div>'; }
+function vendedorGuided(v){ v=v||{}; vendEditId=v.id||null; vstars={}; COMP_AX.forEach(function(a){ vstars[a[0]]=(v.comp&&v.comp[a[0]])?Math.round(v.comp[a[0]]/20):3; });
+ var body='<div class="form-grid">'
+  +F('Nome do vendedor *','gvNome','text',v.nome,'Nome completo','full')
+  +F('E-mail','gvEmail','email',v.email,'vendedor@empresa.com')
+  +FS('Faixa','gvFaixa',[['aprendiz','Aprendiz'],['praticante','Praticante'],['multiplicador','Multiplicador'],['mestre','Mestre Multiplicador']],v.faixa||'aprendiz')
+  +FS('Onda de formação','gvOnda',[[0,'Onda 0 · Mestre'],[1,'Onda 1'],[2,'Onda 2'],[3,'Onda 3']],v.onda==null?0:v.onda)
+  +FS('Follow-up típico','gvFollow',OPT.dgFollow.map(function(x){return [x,x];}),v.followupFaixa||'')
+  +FS('Meta de vendas / mês','gvMeta',[[5,'5 vendas'],[10,'10 vendas'],[15,'15 vendas'],[20,'20 vendas'],[30,'30 vendas']],v.metaVendas||10)
+  +'</div>'
+  +'<div class="form-sec">Competências (avalie de 1 a 5 estrelas)</div><div class="wintro">Alimenta o DNA de Vendas. Já deixei 3 estrelas como ponto de partida — ajuste conforme a realidade.</div><div class="star-list">'
+  +COMP_AX.map(function(a){return starRow(a[1],a[0]);}).join('')+'</div>';
+ openModal(v.id?'Editar vendedor':'Novo vendedor','Cadastro guiado',body,function(){saveVendedorGuided();});
+}
+function saveVendedorGuided(){ var nome=fldVal('gvNome'); if(!nome){var el=byId('gvNome');if(el)el.classList.add('err');toast('Informe o nome');return;} var e=activeEmp(); if(!e)return; var list=getVend(); var v=vendEditId?list.filter(function(x){return x.id===vendEditId;})[0]:null;
+ var obj=v||{id:uid(),empresaId:e.id,criadoEm:Date.now(),ativo:true};
+ obj.nome=nome; obj.email=fldVal('gvEmail'); obj.faixa=byId('gvFaixa').value; obj.onda=+byId('gvOnda').value;
+ obj.followupFaixa=byId('gvFollow').value; obj.followup=MID.dgFollow[obj.followupFaixa]||0; obj.metaVendas=+byId('gvMeta').value;
+ var comp={}; COMP_AX.forEach(function(a){ comp[a[0]]=(vstars[a[0]]||0)*20; }); obj.comp=comp;
+ if(!v)list.push(obj); setVend(list);
+ audit(vendEditId?'editou vendedor':'cadastrou vendedor',nome+' ('+e.nome+')'); closeModal(); toast(vendEditId?'Vendedor atualizado':'Vendedor cadastrado'); reRender();
+}
+/* registrar venda */
+function openVendaModal(vendId){ var e=activeEmp(); if(!e){toast('Selecione uma empresa');return;} var vs=empVend(e.id); if(!vs.length){toast('Cadastre vendedores primeiro');return;}
+ var lock=currentUser&&currentUser.perfil==='vendedor'; if(lock){ vs=vs.filter(function(v){return v.id===currentUser.vendedorId;}); vendId=currentUser.vendedorId; }
+ var vopts=vs.map(function(v){return [v.id,v.nome];}); var mopts=lastMonths(12).slice().reverse().map(function(m){return [m,ymLabel(m)];});
+ var body='<div class="form-grid">'
+  +FS('Vendedor','ndVend',vopts,vendId||vs[0].id)
+  +FS('Situação','ndStatus',[['ganha','✔ Ganha'],['andamento','◐ Em andamento'],['perdida','✕ Perdida']],'ganha')
+  +F('Valor (R$)','ndValor','number','','Ex.: 12000')
+  +FS('Mês de referência','ndMes',mopts,ymNow())
+  +F('Cliente / negócio (opcional)','ndCliente','text','','Nome do cliente','full')
+  +'</div>';
+ openModal('Registrar venda','Lançamento rápido — atualiza pontos e ranking na hora',body,function(){saveVenda();});
+}
+function saveVenda(){ var e=activeEmp(); var vid=byId('ndVend').value; var valor=fldNum('ndValor'); var status=byId('ndStatus').value; var mes=byId('ndMes').value;
+ if(status==='ganha'&&!valor){ var el=byId('ndValor');if(el)el.classList.add('err'); toast('Informe o valor da venda'); return; }
+ var neg={id:uid(),empresaId:e.id,vendedorId:vid,cliente:fldVal('ndCliente'),valor:valor,status:status,mes:mes,criadoEm:Date.now()};
+ var list=getNeg(); list.push(neg); setNeg(list);
+ var vn=(getVend().filter(function(x){return x.id===vid;})[0]||{}).nome||''; audit('registrou venda ('+status+')',vn+(valor?' · '+money(valor):'')); closeModal(); toast('Venda registrada'); reRender();
+}
+/* gamificação config */
+function openGamifModal(){ var g=getGamif();
+ var body='<div class="form-grid"><div class="form-sec">Como os pontos são calculados</div>'
+  +F('Pontos por venda ganha','gfPtsG','number',g.ptsGanha)+F('Pontos por R$ mil de receita','gfPtsM','number',g.ptsMil)
+  +'<div class="form-sec">Prêmios do ranking</div>'+F('1º lugar','gfP1','text',g.premios.p1,'','full')+F('2º lugar','gfP2','text',g.premios.p2,'','full')+F('3º lugar','gfP3','text',g.premios.p3,'','full')+F('Prêmio especial','gfPX','text',g.premios.extra,'','full')
+  +'<div class="form-sec">Missões do portal do vendedor</div>';
+ g.missoes.forEach(function(m,i){ body+=F('Missão '+(i+1),'gm_t_'+i,'text',m.titulo,'','full')+FS('Métrica','gm_m_'+i,[['vendasMes','Vendas no mês'],['receitaMilMes','Receita mês (R$ mil)'],['conversao','Conversão (%)'],['ganhas','Total ganhas']],m.metric)+F('Meta','gm_a_'+i,'number',m.alvo)+F('XP','gm_x_'+i,'number',m.xp); });
+ body+='</div>'; openModal('Regras & Premiação','Como pontuar e o que o time ganha',body,function(){saveGamif();});
+}
+function saveGamif(){ var g=getGamif(); g.ptsGanha=fldNum('gfPtsG')||0; g.ptsMil=fldNum('gfPtsM')||0; g.premios={p1:fldVal('gfP1'),p2:fldVal('gfP2'),p3:fldVal('gfP3'),extra:fldVal('gfPX')};
+ g.missoes=g.missoes.map(function(m,i){ return {titulo:fldVal('gm_t_'+i)||m.titulo,metric:byId('gm_m_'+i).value,alvo:fldNum('gm_a_'+i),xp:fldNum('gm_x_'+i)}; });
+ setGamif(g); audit('atualizou regras e premiação'); closeModal(); toast('Regras salvas'); reRender();
+}
+function loadMetodoTpl(){ var e=activeEmp(); if(!e)return; var tpl=METODO_TPL[e.segmento]||METODO_TPL['default']; var list=getEmp(); var ee=list.filter(function(x){return x.id===e.id;})[0];
+ ee.metodo=(ee.metodo||[]).concat(tpl.modulos.map(function(m){return {titulo:m.titulo,desc:m.desc,fonte:'modelo '+(METODO_TPL[e.segmento]?e.segmento:'base')};}));
+ ee.objecoes=(ee.objecoes||[]).concat(tpl.objecoes||[]); setEmp(list); audit('carregou modelo de método',e.segmento||'base'); toast('Modelo carregado'); reRender();
+}
+document.addEventListener('click',function(ev){ var s=ev.target.closest('[data-star]'); if(!s)return; var key=s.dataset.star,val=+s.dataset.val; vstars[key]=val; var row=s.parentElement; Array.prototype.forEach.call(row.querySelectorAll('[data-star]'),function(st){ st.classList.toggle('on',(+st.dataset.val)<=val); }); });
+document.addEventListener('click',function(ev){ var t=ev.target.closest('[data-act]'); if(!t)return; var a=t.dataset.act;
+ if(a==='venda-new'){ openVendaModal(t.dataset.vend||''); }
+ else if(a==='venda-del'){ var id=t.dataset.id; openConfirm('Excluir venda','Remover este registro de venda?',function(){ setNeg(getNeg().filter(function(n){return n.id!==id;})); audit('excluiu venda'); closeModal(); toast('Removido'); reRender(); }); }
+ else if(a==='gamif-config'){ openGamifModal(); }
+ else if(a==='metodo-tpl'){ loadMetodoTpl(); }
+ else if(a==='print'){ window.print(); }
+});
+/* ===== RENDER OVERRIDES (vendas-aware) ===== */
+RENDER.dashboard=function(host){ var emps=getEmp();
+ if(!emps.length){ host.innerHTML=secH('Central de Comando','Visão geral do seu programa de multiplicadores')+emptyState(iconSvg('<path d="M3 21h18M6 21V7l6-4 6 4v14"/>'),'Comece cadastrando sua primeira empresa','O sistema começa vazio. Cadastre a empresa cliente para iniciar o diagnóstico e, em seguida, os vendedores.', canEdit()?'<button class="btn gold" data-act="empresa-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Cadastrar empresa</button>':''); return; }
+ var e=activeEmp()||emps[0]; if(!activeEmp())setActiveId(e.id); var vs=empVend(e.id); var R=rankList(vs); var n=vs.length;
+ var conv=Math.round(avg(R.map(function(x){return x.conversao;}))),ticket=Math.round(avg(R.map(function(x){return x.ticket;}))),follow=Math.round(avg(R.map(function(x){return x.followup;})));
+ var prod=R.filter(function(x){return x.pontos>0;}).length, vendasMes=R.reduce(function(s,x){return s+x.vendasMes;},0);
+ var diag=e.diag||{}; var im=diag.receita>0&&e.receitaAtual>0?(e.receitaAtual/diag.receita):(diag.conversao>0&&conv>0?conv/diag.conversao:0);
+ var adoc=n?Math.round(vs.filter(function(x){return x.faixa&&x.faixa!=='aprendiz';}).length/n*100):0;
+ var ampl=diag.conversao>0?Math.round((conv-diag.conversao)/diag.conversao*100):0;
+ var metaR=e.metaConversao>0?Math.min(100,Math.round(conv/e.metaConversao*100)):0;
+ var top=R.slice(0,5); var mon=empMonthly(e.id,6); var hasMon=mon.some(function(m){return m.receita>0||m.ganhas>0;});
+ var act=canEdit()?'<button class="btn gold" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar venda</button>':'';
+ var h=secH('Central de Comando',esc(e.nome)+' · atualizado agora',act);
+ h+='<div class="hero rise"><div class="hero-l"><span class="hero-eyebrow"><span class="amark"></span> Índice de Multiplicação</span><div style="display:flex;align-items:flex-end;gap:14px;margin-top:16px"><div class="im-num">'+(im>0?'<span class="count" data-to="'+im.toFixed(1)+'" data-dec="1">0</span>':'—')+'<small>×</small></div></div><div class="im-cap">'+(im>0?('O método multiplicou por <b class="text-gold">'+im.toFixed(1).replace('.',',')+'×</b> o resultado da '+esc(e.nome)+'.'):'Cadastre o diagnóstico e a receita atual para calcular o índice.')+'</div><div class="drivers"><div class="driver"><div class="dh"><b>Alcance</b><span>'+n+' vendedores</span></div><div class="track"><i class="fill" data-w="'+Math.min(100,n*4)+'"></i></div></div><div class="driver"><div class="dh"><b>Adoção (multiplicadores)</b><span>'+adoc+'%</span></div><div class="track"><i class="fill" data-w="'+adoc+'"></i></div></div><div class="driver"><div class="dh"><b>Amplificação da conversão</b><span>'+(ampl>0?'+':'')+ampl+'%</span></div><div class="track"><i class="fill" data-w="'+Math.max(0,Math.min(100,ampl))+'"></i></div></div></div></div><div class="hero-r"><div class="ring-wrap"><svg width="240" height="240" viewBox="0 0 240 240" style="transform:rotate(-90deg)"><circle cx="120" cy="120" r="100" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="16"/><circle id="imRing" cx="120" cy="120" r="100" fill="none" stroke="url(#imGrad)" stroke-width="16" stroke-linecap="round" stroke-dasharray="628" stroke-dashoffset="628"/><defs><linearGradient id="imGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7E6B0"/><stop offset="1" stop-color="#A8842F"/></linearGradient></defs></svg><div class="ring-center"><div class="rc-v"><span class="count" data-to="'+metaR+'" data-suffix="%">0</span></div><div class="rc-l">Meta de conversão</div></div></div></div></div>';
+ h+=secH('Pulso do programa','');
+ h+='<div class="grid g-4">'+statTile('Vendedores',null,null,0,String(n))+statTile('Conversão média',null,null,0,conv+'%')+statTile('Ticket médio',null,null,0,moneyS(ticket))+statTile('Vendas no mês',null,null,0,String(vendasMes))+'</div>';
+ h+='<div class="grid g-2" style="margin-top:18px;grid-template-columns:1.4fr 1fr">';
+ if(hasMon){ h+='<div class="card pad"><div class="card-h"><div class="ct"><h3>Receita ganha por mês</h3></div><span class="tag gold">'+esc(e.nome)+'</span></div><div id="dashRev"></div></div>'; }
+ else { h+='<div class="card pad"><div class="card-h"><div class="ct"><h3>Saúde do programa</h3></div><span class="tag gold">'+esc(e.nome)+'</span></div>'+healthRow('Adoção do método',adoc,'good')+healthRow('Conversão vs. meta',metaR,'')+healthRow('Follow-up médio',follow,'')+healthRow('Vendedores produtivos',n?Math.round(prod/n*100):0,'good')+'</div>'; }
+ h+='<div class="card pad"><div class="card-h"><div class="ct"><h3>Top multiplicadores</h3></div><span class="hint">por pontos</span></div>'+((top.length&&top[0].pontos>0)?rankRows(top,false):'<p style="font-size:12.5px;color:var(--ink-3);padding:14px 0">Registre vendas para o ranking ganhar vida.</p>')+'</div></div>';
+ host.innerHTML=h;
+ if(im>0){ var ring=byId('imRing'); if(ring){ var off=628*(1-metaR/100); if(RM){ring.style.strokeDashoffset=off;}else{setTimeout(function(){ring.style.transition='stroke-dashoffset 1.6s cubic-bezier(.2,.7,.2,1)';ring.style.strokeDashoffset=off;},220);} } }
+ if(hasMon){ var mx=Math.max.apply(null,mon.map(function(m){return m.receita;}).concat([1])); areaChart(byId('dashRev'),{labels:mon.map(function(m){return m.label;}),max:mx*1.25||100,a:mon.map(function(m){return m.receita;}),fmt:moneyS,nameA:'Receita ganha'}); }
+};
+RENDER.vendedores=function(host){ var e=activeEmp();
+ if(!e){ host.innerHTML=secH('Vendedores','')+emptyState(iconSvg('<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8"/>'),'Selecione uma empresa','Cadastre ou selecione uma empresa para gerenciar os vendedores.', canEdit()?'<button class="btn gold" data-act="goto" data-goto="empresas">Ir para Empresas</button>':''); return; }
+ var vs=empVend(e.id); var R=rankList(vs);
+ var act=canEdit()?'<button class="btn" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar venda</button><button class="btn gold" data-act="vend-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Novo vendedor</button>':'';
+ var h=secH('Vendedores — '+esc(e.nome),vs.length+' cadastrados',act);
+ var cnt={aprendiz:0,praticante:0,multiplicador:0,mestre:0}; vs.forEach(function(v){if(cnt[v.faixa]!=null)cnt[v.faixa]++;});
+ h+='<div class="grid g-4">'+belt('Aprendiz',cnt.aprendiz,'rgba(255,255,255,.05)','#BAB5A6','<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0116 0v1"/>')+belt('Praticante',cnt.praticante,'var(--info-bg)','var(--info)','<path d="M12 2l2 5 5 .5-4 3.5 1.5 5L12 18l-4.5 3 1.5-5-4-3.5 5-.5z"/>')+belt('Multiplicador',cnt.multiplicador,'var(--gold-ghost)','var(--gold)','<path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.4 5.7 21 8 13.9 2 9.4h7.6z"/>')+belt('Mestre',cnt.mestre,'var(--gold-grad)','#0a0a0e','<path d="M5 16L3 5l5.5 4L12 4l3.5 5L21 5l-2 11zM5 20h14"/>')+'</div>';
+ if(!vs.length){ h+=emptyState(iconSvg('<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>'),'Nenhum vendedor cadastrado','Cadastre os vendedores — inclua os melhores (mestres) e os que precisam evoluir. Depois registre as vendas de cada um.', canEdit()?'<button class="btn gold" data-act="vend-new">Cadastrar vendedor</button>':''); host.innerHTML=h; return; }
+ h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Time comercial</h3></div><span class="hint">números vêm das vendas registradas</span></div><table class="tbl"><thead><tr><th>Vendedor</th><th>Faixa</th><th>Onda</th><th>Conv.</th><th>Ticket</th><th>Vendas/mês</th><th>Pontos</th>'+(canEdit()?'<th></th>':'')+'</tr></thead><tbody>';
+ R.forEach(function(v){ h+='<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av-init" style="width:32px;height:32px;font-size:12px">'+initials(v.nome)+'</div><div><b>'+esc(v.nome)+'</b></div></div></td><td><span class="tag mute">'+(FAIXA_LBL[v.faixa]||'—')+'</span></td><td class="mono">'+(v.onda!=null?v.onda:'—')+'</td><td class="mono">'+v.conversao+'%</td><td class="mono">'+moneyS(v.ticket)+'</td><td class="mono">'+v.vendasMes+'</td><td class="mono"><b>'+num(v.pontos)+'</b></td>'+(canEdit()?'<td style="text-align:right;white-space:nowrap"><button class="act-btn" data-act="venda-new" data-vend="'+v.id+'" title="Registrar venda">'+iconSvg('<path d="M12 5v14M5 12h14"/>')+'</button> <button class="act-btn" data-act="vend-edit" data-id="'+v.id+'" title="Editar">'+iconSvg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>')+'</button> <button class="act-btn danger" data-act="vend-del" data-id="'+v.id+'" title="Excluir">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button></td>':'')+'</tr>'; });
+ h+='</tbody></table></div>'; host.innerHTML=h;
+};
+RENDER.ranking=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=secH('Ranking & Premiação','')+emptyState(iconSvg('<path d="M6 5h12v4a6 6 0 01-12 0z"/>'),'Selecione uma empresa','Escolha uma empresa para ver o ranking.',''); return; }
+ var R=rankList(empVend(e.id)); var g=getGamif();
+ var act=canEdit()?'<button class="btn" data-act="gamif-config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1l-.4-2.6H9.6L9.2 5a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.4 2.6h4.8l.4-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg>Regras & prêmios</button><button class="btn gold" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar venda</button>':'';
+ var h=secH('Ranking & Premiação',esc(e.nome)+' · atualiza a cada venda registrada',act);
+ if(!R.length||R[0].pontos===0){ host.innerHTML=h+emptyState(iconSvg('<path d="M6 5h12v4a6 6 0 01-12 0z"/>'),'Sem ranking ainda','Registre vendas dos vendedores para o ranking ganhar vida — os pontos são calculados automaticamente.', canEdit()?'<button class="btn gold" data-act="venda-new">Registrar primeira venda</button>':''); return; }
+ var me=currentUser.perfil==='vendedor'?R.filter(function(v){return v.id===currentUser.vendedorId;})[0]:null;
+ if(R.length>=3){ h+='<div class="grid g-3" style="align-items:end;margin-bottom:6px">'+podium(R[1],2,'g2')+podium(R[0],1,'g1')+podium(R[2],3,'g3')+'</div>'; }
+ h+='<div class="grid g-2" style="margin-top:18px;grid-template-columns:1.3fr .7fr"><div class="card pad"><div class="card-h"><div class="ct"><h3>Classificação geral</h3></div><span class="hint">pontos = R$ ganho + vendas fechadas</span></div><div class="rows">';
+ var max=Math.max.apply(null,R.map(function(x){return x.pontos;}).concat([1]));
+ R.forEach(function(v,i){ var badge=i<3?'rank-badge g'+(i+1):'rank-badge'; var mine=me&&v.id===me.id; h+='<div class="row'+(mine?' me':'')+'"><div class="'+badge+'">'+(i+1)+'</div><div class="av-init">'+initials(v.nome)+'</div><div class="who"><b>'+(mine?'Você · ':'')+esc(v.nome)+'</b><span>'+(FAIXA_LBL[v.faixa]||'—')+' · '+v.ganhas+' vendas</span></div><div class="bar-mini"><i data-w="'+Math.round(v.pontos/max*100)+'"></i></div><div class="metric"><b>'+num(v.pontos)+'</b><span>pontos</span></div></div>'; });
+ h+='</div></div><div class="card pad"><div class="card-h"><div class="ct"><h3>Premiação</h3></div>'+(canEdit()?'<button class="btn sm" data-act="gamif-config">Editar</button>':'')+'</div><div style="display:flex;flex-direction:column;gap:11px">'+prizeRow('1º lugar',g.premios.p1,'var(--gold-grad)','#0a0a0e')+prizeRow('2º lugar',g.premios.p2,'rgba(215,218,226,.14)','#cfd3db')+prizeRow('3º lugar',g.premios.p3,'var(--gold-ghost)','var(--gold)')+prizeRow('Especial',g.premios.extra,'var(--info-bg)','var(--info)')+'</div></div></div>';
+ host.innerHTML=h;
+};
+function prizeRow(pos,txt,bg,fg){ if(!txt)return ''; return '<div class="belt"><div class="belt-ic" style="background:'+bg+'"><svg viewBox="0 0 24 24" fill="none" stroke="'+fg+'" stroke-width="1.7"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.4 5.7 21 8 13.9 2 9.4h7.6z"/></svg></div><div><b>'+esc(pos)+'</b><br><span>'+esc(txt)+'</span></div></div>'; }
+RENDER.portal=function(host){ var e=activeEmp(); var vend=null; if(e&&currentUser.vendedorId){ vend=empVend(e.id).filter(function(v){return v.id===currentUser.vendedorId;})[0]; }
+ if(!vend){ host.innerHTML=secH('Meu Portal','')+emptyState(iconSvg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>'),'Cadastro ainda não vinculado','Seu usuário ainda não está ligado a um cadastro de vendedor. Peça ao administrador para vincular seu perfil.',''); return; }
+ var st=vstat(vend); var R=rankList(empVend(e.id)); var pos=R.map(function(v){return v.id;}).indexOf(vend.id)+1; var g=getGamif();
+ var meta=e.metaConversao||30; var convPct=Math.min(100,Math.round((st.conversao||0)/meta*100));
+ var h='<div class="hero rise"><div class="hero-l"><span class="hero-eyebrow"><span class="amark"></span> Meu Portal · '+esc(e.nome)+'</span><h2>Bom te ver, '+esc(vend.nome.split(" ")[0])+'.</h2><div style="display:flex;align-items:center;gap:9px;margin:2px 0 22px"><span class="tag info">Faixa '+(FAIXA_LBL[vend.faixa]||"—")+'</span><span class="tag gold">#'+pos+' no ranking</span></div><div style="display:flex;gap:34px;flex-wrap:wrap"><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1"><span class="count" data-to="'+st.pontos+'">0</span></div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Meus pontos</div></div><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1"><span class="count" data-to="'+st.vendasMes+'">0</span></div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Vendas no mês</div></div><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1">'+moneyS(st.receita)+'</div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Receita gerada</div></div></div><div style="margin-top:22px"><button class="btn gold" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar minha venda</button></div></div><div class="hero-r"><div style="text-align:center"><div style="font-family:var(--f-display);font-size:14px;color:var(--gold);margin-bottom:2px">Conversão vs. meta</div><div id="xpGauge" style="display:flex;justify-content:center"></div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">meta '+meta+'%</div></div></div></div>';
+ h+='<div class="grid g-2" style="margin-top:18px;grid-template-columns:1.15fr .85fr"><div class="card pad"><div class="card-h"><div class="ct"><h3>Minhas missões</h3></div><span class="tag gold">XP em jogo</span></div>';
+ g.missoes.forEach(function(m){ var cur=metricVal(st,m.metric),pr=m.alvo?Math.min(100,Math.round(cur/m.alvo*100)):0,done=m.alvo&&cur>=m.alvo; h+='<div class="mission'+(done?' done':'')+'"><div class="mck">'+(done?'✓':'')+'</div><div class="mb"><b>'+esc(m.titulo)+' <span style="color:var(--ink-3);font-weight:500">('+cur+'/'+m.alvo+')</span></b><div class="mmeter"><i data-w="'+pr+'"></i></div></div><span class="xp">+'+m.xp+' XP</span></div>'; });
+ h+='</div><div class="card pad"><div class="card-h"><div class="ct"><h3>Minha posição</h3></div><span class="hint">ranking do time</span></div><div class="rows">';
+ var start=Math.max(0,pos-3),end=Math.min(R.length,start+5); for(var i=start;i<end;i++){ var v=R[i],mine=v.id===vend.id; h+='<div class="row'+(mine?' me':'')+'"><div class="rank-badge'+(i<3?' g'+(i+1):'')+'">'+(i+1)+'</div><div class="who"><b>'+(mine?'Você · ':'')+esc(v.nome)+'</b><span>'+(FAIXA_LBL[v.faixa]||"—")+'</span></div><div class="metric"><b>'+num(v.pontos)+'</b></div></div>'; }
+ h+='</div></div></div>';
+ h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Meu método</h3></div><button class="btn sm" data-act="goto" data-goto="metodo">Abrir Método Vivo</button></div>';
+ var mods=e.metodo||[]; if(!mods.length){ h+='<p style="font-size:12.5px;color:var(--ink-3)">O método desta empresa ainda está sendo construído.</p>'; } else { h+='<div class="grid g-3">'+mods.slice(0,6).map(function(m,i){return '<div class="mod-pill"><div class="mp-n">'+(i+1)+'</div><b>'+esc(m.titulo)+'</b></div>';}).join('')+'</div>'; }
+ h+='</div>'; host.innerHTML=h; gauge(byId('xpGauge'),convPct);
+};
+RENDER.resultados=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=selEmpMsg('Resultados & ROI'); return; }
+ var vs=empVend(e.id); var R=rankList(vs); var d=e.diag||{}; var anyNeg=R.some(function(x){return x.hasNeg;});
+ var h=secH('Resultados & ROI',esc(e.nome)+' · o que o programa entregou');
+ if(!vs.length||(!anyNeg&&!(d.conversao||d.receita))){ host.innerHTML=h+emptyState(iconSvg('<path d="M3 3v18h18M7 15l4-4 3 3 5-6"/>'),'Ainda sem base de comparação','Preencha o diagnóstico inicial da empresa e registre vendas para calcular os resultados e o ROI.', canEdit()?'<button class="btn gold" data-act="venda-new">Registrar venda</button>':''); return; }
+ var convD=Math.round(avg(R.map(function(x){return x.conversao;}))),ticketD=Math.round(avg(R.map(function(x){return x.ticket;}))),followD=Math.round(avg(R.map(function(x){return x.followup;})));
+ var roi=d.receita>0&&e.receitaAtual>0?(e.receitaAtual/d.receita):0; var receitaInc=(e.receitaAtual||0)-(d.receita||0);
+ var mon=empMonthly(e.id,6);
+ function delta(a,b){ if(!a)return ''; var p=Math.round((b-a)/a*100); return '<span class="delta '+(p>=0?'up':'down')+'">'+(p>=0?'+':'')+p+'%</span>'; }
+ h+='<div class="grid g-4">'+statTile('Receita incremental/mês',null,null,0,moneyS(Math.max(0,receitaInc)))+statTile('ROI (receita ÷ baseline)',null,null,0,roi>0?roi.toFixed(1).replace('.',',')+'×':'—')+statTile('Conversão atual',null,null,0,convD+'%')+statTile('Follow-up atual',null,null,0,followD+'%')+'</div>';
+ h+='<div class="grid g-2" style="margin-top:18px;grid-template-columns:1fr 1fr"><div class="card pad"><div class="card-h"><div class="ct"><h3>Antes & depois do método</h3></div><span class="tag gold">'+esc(e.nome)+'</span></div>';
+ h+=cmpRow('Conversão média',d.conversao?d.conversao+'%':'—',convD+'%',delta(d.conversao,convD))+cmpRow('Ticket médio',d.ticket?moneyS(d.ticket):'—',moneyS(ticketD),delta(d.ticket,ticketD))+cmpRow('Follow-up',d.followup?d.followup+'%':'—',followD+'%',delta(d.followup,followD));
+ if(d.receita)h+=cmpRow('Receita/mês',moneyS(d.receita),moneyS(e.receitaAtual||0),delta(d.receita,e.receitaAtual||0));
+ h+='</div><div class="card pad"><div class="card-h"><div class="ct"><h3>Evolução da conversão</h3></div><span class="hint">por mês</span></div><div id="resChart"></div></div></div>';
+ host.innerHTML=h;
+ lineChart(byId('resChart'),{labels:mon.map(function(m){return m.label;}),max:Math.max(40,Math.max.apply(null,mon.map(function(m){return m.conversao;}))+10),unit:'%',series:[{name:'Conversão',color:'#E8C87A',data:mon.map(function(m){return m.conversao;})}]});
+};
+RENDER.dna=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=selEmpMsg('DNA de Vendas'); return; }
+ var vs=empVend(e.id).filter(function(v){return v.comp;}); var h=secH('DNA de Vendas','O código genético do que funciona — extraído dos melhores, contrastado com os piores');
+ if(vs.length<2){ host.innerHTML=h+emptyState(iconSvg('<path d="M4 3c0 6 16 6 16 12M4 21c0-6 16-6 16-12"/>'),'Faltam dados de competências','Cadastre ao menos 2 vendedores avaliando as competências (estrelas) no formulário do vendedor.', canEdit()?'<button class="btn gold" data-act="vend-new">Cadastrar vendedor</button>':''); return; }
+ var scored=vs.map(function(v){ var s=vstat(v); var ca=avg(COMP_AX.map(function(a){return +v.comp[a[0]]||0;})); return {v:v,key:s.pontos*1000+ca}; }).sort(function(a,b){return b.key-a.key;});
+ var nn=Math.min(5,Math.floor(vs.length/2))||1; var topG=scored.slice(0,nn).map(function(x){return x.v;}),botG=scored.slice(-nn).map(function(x){return x.v;});
+ var top=COMP_AX.map(function(a){return Math.round(avg(topG.map(function(v){return +v.comp[a[0]]||0;})));}),bot=COMP_AX.map(function(a){return Math.round(avg(botG.map(function(v){return +v.comp[a[0]]||0;})));});
+ h+='<div class="grid g-2" style="grid-template-columns:1.1fr .9fr"><div class="card pad"><div class="card-h"><div class="ct"><h3>Genoma comportamental</h3></div><span class="hint">'+topG.length+' melhores × '+botG.length+' piores</span></div><div id="dnaRadar" style="display:flex;justify-content:center"></div><div class="legend" style="justify-content:center"><div class="lg"><span class="sw" style="background:var(--top)"></span>Melhores (replicar)</div><div class="lg"><span class="sw" style="background:var(--bottom)"></span>Piores (corrigir)</div></div></div><div class="card pad"><div class="card-h"><div class="ct"><h3>Onde mora a diferença</h3></div></div><div id="dnaGaps"></div></div></div>';
+ host.innerHTML=h; radar(byId('dnaRadar'),COMP_AX.map(function(a){return a[1];}),top,bot);
+ var gaps=COMP_AX.map(function(a,i){return {n:a[1],t:top[i],b:bot[i]};}).sort(function(x,y){return (y.t-y.b)-(x.t-x.b);}); var gg='';
+ gaps.forEach(function(r){ var dd=r.t-r.b; gg+='<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--ink-2)">'+r.n+'</span><span class="mono" style="color:var(--gold);font-weight:700">'+(dd>=0?"+":"")+dd+' pts</span></div><div style="position:relative;height:9px;border-radius:6px;background:rgba(255,255,255,.06)"><div style="position:absolute;left:0;top:0;height:100%;width:'+r.b+'%;background:linear-gradient(135deg,#8a97b3,#5a6683);border-radius:6px"></div><div class="fill" data-w="'+Math.max(0,r.t-r.b)+'" style="position:absolute;left:'+r.b+'%;top:0;height:100%;width:0;background:var(--gold-grad);border-radius:0 6px 6px 0"></div></div></div>'; });
+ byId('dnaGaps').innerHTML=gg;
+};
+RENDER.metodo=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=selEmpMsg('Método Vivo'); return; }
+ var mods=e.metodo||[],objs=e.objecoes||[];
+ var act=canEdit()?'<button class="btn" data-act="metodo-tpl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.4 5.7 21 8 13.9 2 9.4h7.6z"/></svg>Carregar modelo</button><button class="btn gold" data-act="mod-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Módulo</button>':'';
+ var h=secH('Método Vivo — '+esc(e.nome),'O playbook que nasce do que já funciona. Vivo porque evolui a cada venda.',act);
+ h+='<div class="grid g-2" style="grid-template-columns:1.35fr .65fr"><div class="card pad"><div class="card-h"><div class="ct"><h3>Módulos do método</h3></div><span class="hint">'+mods.length+'</span></div>';
+ if(!mods.length){ h+='<p style="font-size:12.5px;color:var(--ink-3);padding:10px 0">Nenhum módulo ainda. '+(canEdit()?'Clique em <b class="text-gold">Carregar modelo</b> para começar com um playbook do segmento, ou <b class="text-gold">Módulo</b> para criar do zero.':'')+'</p>'; }
+ mods.forEach(function(m,i){ h+='<div class="pb-item"><div class="pb-n">'+(i+1)+'</div><div class="pb-b"><b>'+esc(m.titulo)+'</b><p>'+esc(m.desc||'')+'</p>'+(m.fonte?'<span class="pb-src">★ '+esc(m.fonte)+'</span>':'')+'</div>'+(canEdit()?'<button class="act-btn danger" data-act="mod-del" data-i="'+i+'" style="align-self:flex-start">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button>':'')+'</div>'; });
+ h+='</div><div class="card pad" style="align-self:flex-start"><div class="card-h"><div class="ct"><h3>Banco de objeções</h3></div>'+(canEdit()?'<button class="btn sm" data-act="obj-new">+ Objeção</button>':'')+'</div>';
+ if(!objs.length){ h+='<p style="font-size:12.5px;color:var(--ink-3);padding:6px 0">Cadastre as objeções mais comuns e as respostas que funcionam.</p>'; }
+ objs.forEach(function(o,i){ h+='<div class="obj"><div class="obj-q" data-act="obj-toggle"><span class="qi">?</span><b>'+esc(o.q)+'</b><span class="chev">▾</span></div><div class="obj-a"><div class="inner">'+esc(o.a)+(canEdit()?' <button class="act-btn danger" data-act="obj-del" data-i="'+i+'" style="margin-top:10px">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button>':'')+'</div></div></div>'; });
+ h+='</div></div>'; host.innerHTML=h;
+};
+RENDER.vendas=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=selEmpMsg('Vendas & Pipeline'); return; }
+ var vs=empVend(e.id); var vmap={}; vs.forEach(function(v){vmap[v.id]=v.nome;});
+ var negs=getNeg().filter(function(n){return n.empresaId===e.id;}).sort(function(a,b){return b.criadoEm-a.criadoEm;});
+ var act=canEdit()?'<button class="btn gold" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar venda</button>':'';
+ var h=secH('Vendas & Pipeline',esc(e.nome)+' · cada lançamento atualiza pontos, ranking e resultados',act);
+ var gan=negs.filter(function(n){return n.status==='ganha';}),per=negs.filter(function(n){return n.status==='perdida';}),and=negs.filter(function(n){return n.status==='andamento';});
+ var receita=gan.reduce(function(s,n){return s+(+n.valor||0);},0),tot=gan.length+per.length,convG=tot?Math.round(gan.length/tot*100):0;
+ h+='<div class="grid g-4">'+statTile('Vendas ganhas',null,null,0,String(gan.length))+statTile('Receita ganha',null,null,0,moneyS(receita))+statTile('Em andamento',null,null,0,String(and.length))+statTile('Conversão geral',null,null,0,convG+'%')+'</div>';
+ if(!negs.length){ h+=emptyState(iconSvg('<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/>'),'Nenhuma venda registrada','Registre a primeira venda — o sistema calcula pontos, conversão, ranking e resultados automaticamente a partir daqui.', canEdit()?'<button class="btn gold" data-act="venda-new">Registrar venda</button>':''); host.innerHTML=h; return; }
+ var stMap={ganha:['st-ganha','Ganha'],andamento:['st-andamento','Em andamento'],perdida:['st-perdida','Perdida']};
+ h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Lançamentos</h3></div><span class="hint">'+negs.length+' registros</span></div><table class="tbl"><thead><tr><th>Registro</th><th>Vendedor</th><th>Cliente</th><th>Valor</th><th>Situação</th><th>Mês</th>'+(canEdit()?'<th></th>':'')+'</tr></thead><tbody>';
+ negs.slice(0,120).forEach(function(n){ var s=stMap[n.status]||stMap.andamento; h+='<tr><td class="tmono">'+fdate(n.criadoEm)+'</td><td><b>'+esc(vmap[n.vendedorId]||'—')+'</b></td><td>'+esc(n.cliente||'—')+'</td><td class="mono">'+(n.valor?money(n.valor):'—')+'</td><td><span class="status-tag '+s[0]+'">'+s[1]+'</span></td><td class="mono">'+ymLabel(n.mes)+'</td>'+(canEdit()?'<td style="text-align:right"><button class="act-btn danger" data-act="venda-del" data-id="'+n.id+'">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button></td>':'')+'</tr>'; });
+ h+='</tbody></table></div>'; host.innerHTML=h;
+};
+RENDER.relatorio=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=selEmpMsg('Relatório Final'); return; }
+ var vs=empVend(e.id); var R=rankList(vs); var d=e.diag||{};
+ var convD=Math.round(avg(R.map(function(x){return x.conversao;}))),ticketD=Math.round(avg(R.map(function(x){return x.ticket;})));
+ var im=d.receita>0&&e.receitaAtual>0?(e.receitaAtual/d.receita):(d.conversao>0&&convD>0?convD/d.conversao:0);
+ var roi=d.receita>0&&e.receitaAtual>0?(e.receitaAtual/d.receita):0; var receitaInc=Math.max(0,(e.receitaAtual||0)-(d.receita||0));
+ var mon=empMonthly(e.id,6); var top=R.slice(0,10); var mods=e.metodo||[]; var deps=e.depoimentos||[];
+ var dt=new Date(); var dataStr=dt.getDate()+' de '+['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][dt.getMonth()]+' de '+dt.getFullYear();
+ function rc(a,b){ if(!a)return ''; var p=Math.round((b-a)/a*100); return (p>=0?'+':'')+p+'%'; }
+ var h='<div class="report-actions"><button class="btn" data-act="goto" data-goto="resultados">‹ Voltar</button><button class="btn gold" data-act="print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-3a2 2 0 012-2h16a2 2 0 012 2v3a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Imprimir / Salvar PDF</button></div>';
+ h+='<div class="report-paper"><div class="rp-cap"><div class="cap-l"><div class="amark"></div><div class="rc-t"><b>A! Multiplicadora</b><span>Processos Autogerenciáveis</span></div></div><div class="rc-meta">'+dataStr+'<br>'+esc(e.responsavel||'')+'<br>'+esc(e.contato||'')+'</div></div>';
+ h+='<h2 class="rp-title">Relatório do Programa — '+esc(e.nome)+'</h2><div class="rp-sub">'+esc(e.segmento||'')+' · Fase '+(e.fase||1)+' · '+FASES[(e.fase||1)-1][0]+'</div>';
+ h+='<div class="rp-h">Resumo executivo</div><div class="rp-big"><div class="rp-kpi"><div class="v">'+(im>0?im.toFixed(1).replace('.',',')+'×':'—')+'</div><div class="l">Índice de Multiplicação</div></div><div class="rp-kpi"><div class="v">'+(roi>0?roi.toFixed(1).replace('.',',')+'×':'—')+'</div><div class="l">ROI (receita ÷ baseline)</div></div><div class="rp-kpi"><div class="v">'+moneyS(receitaInc)+'</div><div class="l">Receita incremental/mês</div></div><div class="rp-kpi"><div class="v">'+convD+'%</div><div class="l">Conversão atual</div></div></div>';
+ h+='<div class="rp-h">Antes & depois</div><table class="rp-tbl"><thead><tr><th>Indicador</th><th class="r">Início</th><th class="r">Atual</th><th class="r">Evolução</th></tr></thead><tbody>';
+ h+='<tr><td>Conversão média</td><td class="r">'+(d.conversao?d.conversao+'%':'—')+'</td><td class="r">'+convD+'%</td><td class="r">'+rc(d.conversao,convD)+'</td></tr>';
+ h+='<tr><td>Ticket médio</td><td class="r">'+(d.ticket?moneyS(d.ticket):'—')+'</td><td class="r">'+moneyS(ticketD)+'</td><td class="r">'+rc(d.ticket,ticketD)+'</td></tr>';
+ if(d.receita)h+='<tr><td>Receita mensal</td><td class="r">'+moneyS(d.receita)+'</td><td class="r">'+moneyS(e.receitaAtual||0)+'</td><td class="r">'+rc(d.receita,e.receitaAtual||0)+'</td></tr>';
+ h+='</tbody></table>';
+ if(mon.some(function(m){return m.receita>0||m.ganhas>0;})){ h+='<div class="rp-h">Evolução mensal</div><table class="rp-tbl"><thead><tr><th>Mês</th><th class="r">Vendas</th><th class="r">Receita</th><th class="r">Conversão</th></tr></thead><tbody>'; mon.forEach(function(m){ h+='<tr><td>'+m.label+'</td><td class="r">'+m.ganhas+'</td><td class="r">'+moneyS(m.receita)+'</td><td class="r">'+m.conversao+'%</td></tr>'; }); h+='</tbody></table>'; }
+ if(top.length&&top[0].pontos>0){ h+='<div class="rp-h">Ranking do time</div><table class="rp-tbl"><thead><tr><th>#</th><th>Vendedor</th><th>Faixa</th><th class="r">Vendas</th><th class="r">Pontos</th></tr></thead><tbody>'; top.forEach(function(v,i){ h+='<tr><td>'+(i+1)+'</td><td>'+esc(v.nome)+'</td><td>'+(FAIXA_LBL[v.faixa]||'—')+'</td><td class="r">'+v.ganhas+'</td><td class="r">'+num(v.pontos)+'</td></tr>'; }); h+='</tbody></table>'; }
+ if(mods.length){ h+='<div class="rp-h">Método construído</div><table class="rp-tbl"><tbody>'; mods.forEach(function(m,i){ h+='<tr><td style="width:30px;color:#a8842f;font-weight:700">'+(i+1)+'</td><td><b style="color:#1c1a15">'+esc(m.titulo)+'</b><br><span style="color:#6b6555">'+esc(m.desc||'')+'</span></td></tr>'; }); h+='</tbody></table>'; }
+ if(deps.length){ h+='<div class="rp-h">Depoimentos</div>'; deps.forEach(function(q){ h+='<div class="rp-quote">"'+esc(q.texto)+'"<div class="qa">— '+esc(q.nome)+(q.cargo?', '+esc(q.cargo):'')+'</div></div>'; }); }
+ h+='<div class="rp-foot">Relatório gerado pela A! Multiplicadora · '+dataStr+' · Processos Autogerenciáveis</div></div>';
+ host.innerHTML=h;
+};
 /* ============ WIRING ============ */
 byId('nav').addEventListener('click',function(e){ var b=e.target.closest('.nav-item'); if(b){ currentView=b.dataset.view; go(b.dataset.view); } });
 var origGo=go; go=function(v){ currentView=v; origGo(v); };
