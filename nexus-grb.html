@@ -759,11 +759,11 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="nav-sep" x-show="!sidebarOpen"></div>
         <button class="nav-item" @click="mudarAba('dashboard')" :class="aba==='dashboard'?'active':''" title="Visão geral"><i class="fas fa-chart-pie w-4"></i> <span class="nav-label">Visão Geral</span></button>
         <button class="nav-item" @click="mudarAba('resultado_emb')" :class="aba==='resultado_emb'?'active':''" title="Resultado 2026, igual à planilha"><i class="fas fa-file-invoice-dollar w-4"></i> <span class="nav-label">Resultado 2026</span></button>
-        <button class="nav-item" @click="mudarAba('fechamento')" :class="aba==='fechamento'?'active':''" title="Fechamento do mês: checklist e conferência automática"><i class="fas fa-clipboard-check w-4"></i> <span class="nav-label">Fechamento do Mês</span></button>
         <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por Centro de Custo"><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
         <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal Lançada"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal</span></button>
         <button class="nav-item" @click="mudarAba('servicos')" :class="aba==='servicos'?'active':''" title="Fechamento da unidade de Serviços"><i class="fas fa-user-gear w-4"></i> <span class="nav-label">Serviços</span></button>
         <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões</span></button>
+        <button class="nav-item" @click="mudarAba('fechamento')" :class="aba==='fechamento'?'active':''" title="Fechamento do mês: checklist e conferência automática"><i class="fas fa-clipboard-check w-4"></i> <span class="nav-label">Fechamento do Mês</span></button>
         <button class="nav-item" @click="mudarAba('acoes')" :class="aba==='acoes'?'active':''" title="Central de Ações, plano de ação com cartões arrastáveis"><i class="fas fa-list-check w-4"></i> <span class="nav-label">Central de Ações</span> <span x-show="kbPendentes>0 && sidebarOpen" x-text="kbPendentes" style="margin-left:auto;background:var(--accent-gold);color:#191040;font-size:10px;font-weight:900;min-width:19px;height:19px;padding:0 5px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center"></span></button>
       </div>
     </template>
@@ -1580,47 +1580,50 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
           <button x-show="permEdita && fatReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
         </div>
-        <template x-if="!fatReqMesesAtivos.length">
+        <template x-if="!(empresaExtras.fatReq && empresaExtras.fatReq.itens.length)">
           <div style="padding:26px;text-align:center;color:var(--color-muted);font-size:13px;white-space:normal">
-            Nenhum mês importado ainda. Envie o relatório <b>Contas a pagar e a receber</b> no Importador (Configurações Globais): o sistema reconhece o formato sozinho, separa as receitas por categoria e lança o faturamento do mês.
+            Nenhum mês importado ainda. Envie o relatório <b>Contas a pagar e a receber</b> no Importador (Configurações Globais): o sistema reconhece o formato sozinho, separa as receitas por categoria e lança o faturamento do mês. As colunas de janeiro a dezembro já estão prontas para receber cada mês.
           </div>
         </template>
-        <div style="overflow-x:auto" x-show="fatReqMesesAtivos.length">
+        <div style="overflow-x:auto" x-show="empresaExtras.fatReq && empresaExtras.fatReq.itens.length">
           <table class="dark-table">
             <thead><tr><th style="min-width:290px">Categoria</th>
-              <template x-for="m in fatReqMesesAtivos" :key="'fqh'+m"><th class="td-r" x-text="m"></th></template>
+              <template x-for="m in listaMeses" :key="'fqh'+m.chave"><th class="td-r" :class="fatReqMesVazio(m.chave)?'res-future-h':''" :title="fatReqMesVazio(m.chave)?'Mês ainda sem lançamento: importe o relatório do mês ou use Editar valores':''" x-text="m.labelData"></th></template>
               <th class="td-r">Acum.</th></tr></thead>
             <tbody>
               <template x-for="(r, ri) in fatReqRows" :key="'fqr'+ri">
-                <tr :style="r.grupoHdr ? 'background:rgba(25,16,64,.06);border-top:1px solid var(--color-border)' : (r.eh004 ? 'background:rgba(197,168,128,.07)' : '')">
+                <tr :class="!fatReqEdit ? 'nx-drill' : ''"
+                    @click="fatReqEdit || (r.grupoHdr ? razaoFatReqGrupo(r.grupo) : razaoFatReq(r.item))"
+                    :style="r.grupoHdr ? 'background:rgba(25,16,64,.06);border-top:1px solid var(--color-border)' : (r.eh004 ? 'background:rgba(197,168,128,.07)' : '')">
                   <template x-if="r.grupoHdr">
-                    <td class="font-bold text-accent-blue" :colspan="fatReqMesesAtivos.length + 2">
+                    <td class="font-bold text-accent-blue" :colspan="listaMeses.length + 2">
                       <i class="fas fa-layer-group mr-1" style="color:var(--accent-gold);font-size:10px"></i> <span x-text="r.grupo"></span>
                       <span x-show="r.eh004" class="res-nota">considerado por opção, desmarque para ocultar</span>
+                      <i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i>
                     </td>
                   </template>
                   <template x-if="!r.grupoHdr">
-                    <td style="padding-left:26px" x-text="r.item.cat"></td>
+                    <td style="padding-left:26px"><span x-text="r.item.cat"></span><i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i></td>
                   </template>
                   <template x-if="!r.grupoHdr">
-                    <template x-for="m in fatReqMesesAtivos" :key="'fqc'+ri+m">
-                      <td class="td-r">
-                        <template x-if="!(fatReqEdit && permEdita)"><span x-text="formatarDinheiroExato(r.item[m.toLowerCase()] || 0)"></span></template>
+                    <template x-for="m in listaMeses" :key="'fqc'+ri+m.chave">
+                      <td class="td-r" :class="fatReqMesVazio(m.chave)?'res-future':''">
+                        <template x-if="!(fatReqEdit && permEdita)"><span x-text="formatarDinheiroExato(r.item[m.chave.toLowerCase()] || 0)"></span></template>
                         <template x-if="fatReqEdit && permEdita">
-                          <input type="text" inputmode="decimal" class="res-edit-in" :value="r.item[m.toLowerCase()] ? fmtNum(r.item[m.toLowerCase()]) : ''" @focus="$event.target.select()" @change="editFatReqCell(r.item, m.toLowerCase(), $event.target.value)">
+                          <input type="text" inputmode="decimal" class="res-edit-in" @click.stop :value="r.item[m.chave.toLowerCase()] ? fmtNum(r.item[m.chave.toLowerCase()]) : ''" @focus="$event.target.select()" @change="editFatReqCell(r.item, m.chave.toLowerCase(), $event.target.value)">
                         </template>
                       </td>
                     </template>
                   </template>
                   <template x-if="!r.grupoHdr">
-                    <td class="td-r font-bold" x-text="formatarDinheiroExato(fatReqMesesAtivos.reduce((a,m)=>a+(r.item[m.toLowerCase()]||0),0))"></td>
+                    <td class="td-r font-bold" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+(r.item[m.chave.toLowerCase()]||0),0))"></td>
                   </template>
                 </tr>
               </template>
               <tr style="background:rgba(197,168,128,.12);border-top:2px solid var(--accent-gold)">
                 <td class="font-bold text-accent-blue">Total considerado <span class="res-nota" x-text="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'com 004' : 'sem 004'"></span></td>
-                <template x-for="m in fatReqMesesAtivos" :key="'fqt'+m"><td class="td-r font-bold" x-text="formatarDinheiroExato(fatReqTotal(m, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></td></template>
-                <td class="td-r font-bold" x-text="formatarDinheiroExato(fatReqMesesAtivos.reduce((a,m)=>a+fatReqTotal(m, empresaExtras.fatReq && empresaExtras.fatReq.considerar004),0))"></td>
+                <template x-for="m in listaMeses" :key="'fqt'+m.chave"><td class="td-r font-bold" :class="fatReqMesVazio(m.chave)?'res-future':''" x-text="formatarDinheiroExato(fatReqTotal(m.chave, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></td></template>
+                <td class="td-r font-bold" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+fatReqTotal(m.chave, empresaExtras.fatReq && empresaExtras.fatReq.considerar004),0))"></td>
               </tr>
             </tbody>
           </table>
@@ -6669,7 +6672,13 @@ function sistemaUnificado(){
       this.salvarEstado('Edição no Faturamento: ' + item.cat + ' · ' + mk.toUpperCase());
       item[mk] = v;
       const fr = this.empresaExtras.fatReq;
-      if (fr && !fr.meses[mk]) fr.meses[mk] = true;
+      if (fr && !fr.meses[mk]) {
+        // Mês com Faturamento oficial da planilha: o usuário decide se o Resultado passa a seguir esta tela
+        const dreFat = this.dreAtual.find(l => l.desc === 'Faturamento');
+        if (dreFat && (dreFat[mk] || 0) !== 0) {
+          if (confirm(mk.toUpperCase() + ' já tem Faturamento oficial no Resultado (' + this.formatarDinheiroExato(dreFat[mk]) + ').\n\nOK = a linha Faturamento do Resultado passa a seguir o total desta tela.\nCancelar = lançar o valor aqui sem mudar o Resultado.')) fr.meses[mk] = true;
+        } else fr.meses[mk] = true;
+      }
       this.aplicarFatReqNoDre();
       this.dreAtual = [...this.dreAtual];
       this.registrarLog('Editou faturamento "' + item.cat + '" em ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(v));
@@ -6688,6 +6697,76 @@ function sistemaUnificado(){
     get fatReqMesesAtivos() {
       const fr = this.empresaExtras.fatReq; if (!fr) return [];
       return this.listaMeses.filter(m => fr.itens.some(i => (i[m.chave.toLowerCase()] || 0) !== 0)).map(m => m.chave);
+    },
+    fatReqMesVazio(mChave) {
+      const fr = this.empresaExtras.fatReq; if (!fr) return true;
+      const mk = String(mChave).toLowerCase();
+      return !fr.itens.some(i => (i[mk] || 0) !== 0);
+    },
+    // Card lateral (razão) de uma categoria do faturamento, mesmo padrão da Embalagem
+    razaoFatReq(item) {
+      const fr = this.empresaExtras.fatReq; if (!fr || !item) return;
+      const mk = this.mesAtivo.toLowerCase();
+      const nomeMes = (this.listaMeses.find(m => m.chave.toLowerCase() === mk) || {}).labelData || mk;
+      const serie = this.listaMeses.map(m => ({ label: m.chave, val: item[m.chave.toLowerCase()] || 0 }));
+      const acum = serie.reduce((a, p) => a + p.val, 0);
+      const nMeses = serie.filter(p => p.val !== 0).length || 1;
+      const atual = item[mk] || 0;
+      const idx = this.listaMeses.findIndex(m => m.chave.toLowerCase() === mk);
+      const prev = idx > 0 ? (item[this.listaMeses[idx - 1].chave.toLowerCase()] || 0) : null;
+      const delta = (prev != null && prev !== 0) ? ((atual - prev) / Math.abs(prev) * 100) : null;
+      const totGrupo = fr.itens.filter(i => i.grupo === item.grupo).reduce((a, i) => a + (i[mk] || 0), 0);
+      const totMes = this.fatReqTotal(mk, true);
+      const eh004 = this.fatReqEh004(item);
+      const maior = serie.slice().sort((a, b) => b.val - a.val)[0];
+      this.abrirRazao({
+        tag: 'Razão · Faturamento', title: item.cat, subtitle: item.grupo + ' · ' + nomeMes,
+        color: '#191040', icone: 'fa-hand-holding-dollar',
+        hero: this.formatarDinheiroExato(atual), heroLabel: 'Recebível em ' + nomeMes, delta, serie,
+        stats: [
+          { l: 'Acumulado (ano)', v: this.formatarDinheiroExato(acum) },
+          { l: 'Média mensal', v: this.formatarDinheiroExato(acum / nMeses) },
+          { l: '% do grupo no mês', v: totGrupo ? ((atual / totGrupo) * 100).toFixed(1) + '%' : '·' },
+          { l: '% da receita do mês', v: totMes ? ((atual / totMes) * 100).toFixed(1) + '%' : '·' }
+        ],
+        rowsHead: ['Mês', 'Valor', '% do acum.'],
+        rows: serie.map(p => ({ label: (this.listaMeses.find(m => m.chave === p.label) || {}).labelData || p.label, valor: this.formatarDinheiroExato(p.val), pct: acum ? ((p.val / acum) * 100).toFixed(1) + '%' : '·' })),
+        insight: (eh004 ? 'Grupo <b>004</b>: registrado, mas <b>fora do total</b> por pedido do cliente (reversível em Considerar 004?). ' : '')
+          + 'Acumulado no ano: <b>' + this.formatarDinheiroExato(acum) + '</b> em ' + nMeses + ' mês(es)'
+          + (maior && maior.val ? ' · maior mês: ' + maior.label + ' (' + this.formatarDinheiroExato(maior.val) + ')' : '') + '.',
+        csv: [['Mes', 'Valor'], ...serie.map(p => [p.label, p.val])], csvName: 'faturamento_categoria'
+      });
+    },
+    razaoFatReqGrupo(grupo) {
+      const fr = this.empresaExtras.fatReq; if (!fr) return;
+      const mk = this.mesAtivo.toLowerCase();
+      const nomeMes = (this.listaMeses.find(m => m.chave.toLowerCase() === mk) || {}).labelData || mk;
+      const filhos = fr.itens.filter(i => i.grupo === grupo);
+      const serie = this.listaMeses.map(m => ({ label: m.chave, val: Math.round(filhos.reduce((a, i) => a + (i[m.chave.toLowerCase()] || 0), 0) * 100) / 100 }));
+      const acum = serie.reduce((a, p) => a + p.val, 0);
+      const atual = (serie.find(p => p.label.toLowerCase() === mk) || {}).val || 0;
+      const idx = this.listaMeses.findIndex(m => m.chave.toLowerCase() === mk);
+      const prev = idx > 0 ? serie[idx - 1].val : null;
+      const delta = (prev != null && prev !== 0) ? ((atual - prev) / Math.abs(prev) * 100) : null;
+      const totMes = this.fatReqTotal(mk, true);
+      const fs = filhos.map(i => ({ label: i.cat, raw: i[mk] || 0 })).filter(x => x.raw !== 0).sort((a, b) => b.raw - a.raw);
+      const eh004 = String(grupo).trim().startsWith('004');
+      this.abrirRazao({
+        tag: 'Razão · Faturamento', title: grupo, subtitle: 'Grupo de receita · ' + nomeMes,
+        color: '#191040', icone: 'fa-layer-group',
+        hero: this.formatarDinheiroExato(atual), heroLabel: 'Recebível em ' + nomeMes, delta, serie,
+        stats: [
+          { l: 'Acumulado (ano)', v: this.formatarDinheiroExato(acum) },
+          { l: 'Categorias no grupo', v: String(filhos.length) },
+          { l: '% da receita do mês', v: totMes ? ((atual / totMes) * 100).toFixed(1) + '%' : '·' },
+          { l: 'Situação', v: eh004 ? (fr.considerar004 ? 'Considerado (opção)' : 'Fora do total') : 'Considerado' }
+        ],
+        rowsHead: ['Categoria', 'Valor · ' + nomeMes, '%'],
+        rows: fs.map(x => ({ label: x.label, valor: this.formatarDinheiroExato(x.raw), pct: atual ? ((x.raw / atual) * 100).toFixed(1) + '%' : '·' })),
+        insight: (eh004 ? 'Grupo <b>004 · Outras Receitas</b>: registrado, mas fora dos totais por pedido do cliente; a chave <b>Considerar 004?</b> reverte. ' : '')
+          + (fs[0] ? ('Maior categoria em ' + nomeMes + ': <b>' + fs[0].label + '</b> (' + this.formatarDinheiroExato(fs[0].raw) + ').') : 'Sem lançamentos neste mês.'),
+        csv: [['Mes', 'Valor'], ...serie.map(p => [p.label, p.val])], csvName: 'faturamento_grupo'
+      });
     },
 
     // ===== Importador de FATURAMENTO do mês =====
