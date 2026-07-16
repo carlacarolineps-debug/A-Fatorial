@@ -640,7 +640,22 @@ function loginHtml(){ return '<h3>Acesse o Command Center</h3><div class="sub">E
   +'<div class="auth-err" id="authErr"></div>'
   +'<div class="lg-field"><label>E-mail</label><input id="liEmail" type="email" placeholder="voce@empresa.com"></div>'
   +'<div class="lg-field"><label>Senha</label><input id="liSenha" type="password" placeholder="••••••••"></div>'
-  +'<button class="btn gold lg-enter" data-auth="login">Entrar no sistema</button>'+noteHtml(); }
+  +'<button class="btn gold lg-enter" data-auth="login">Entrar no sistema</button>'
+  +'<button class="btn ghost" data-auth="showreset" style="width:100%;justify-content:center;margin-top:10px">Esqueci minha senha</button>'+noteHtml(); }
+function resetHtml(){ var us=getUsers(); if(!us.length)return setupHtml();
+ var opts=us.map(function(u){return '<option value="'+esc(u.email)+'">'+esc(u.nome)+' — '+esc(u.email)+'</option>';}).join('');
+ return '<h3>Redefinir acesso</h3><div class="sub">Escolha o usuário e defina uma nova senha. Nenhum dado cadastrado é perdido.</div>'
+ +'<div class="auth-err" id="authErr"></div>'
+ +'<div class="lg-field"><label>Usuário</label><select id="rsEmail" style="width:100%;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12.5px 15px;color:#F4F0E6;font-size:14px;font-family:inherit">'+opts+'</select></div>'
+ +'<div class="lg-field"><label>Nova senha</label><input id="rsSenha" type="password" placeholder="mínimo 4 caracteres"></div>'
+ +'<div class="lg-field"><label>Confirmar nova senha</label><input id="rsSenha2" type="password" placeholder="repita a senha"></div>'
+ +'<button class="btn gold lg-enter" data-auth="reset">Redefinir e entrar</button>'
+ +'<button class="btn ghost" data-auth="backlogin" style="width:100%;justify-content:center;margin-top:10px">Voltar</button>'
+ +'<div class="auth-note" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><span>Prefere começar do zero? <a href="#" data-auth="wipe" style="color:var(--gold)">apagar tudo e recomeçar</a> (remove empresas, vendedores e vendas).</span></div>'; }
+function doReset(){ var email=byId('rsEmail')?byId('rsEmail').value:''; var s=byId('rsSenha').value,s2=byId('rsSenha2').value; if(s.length<4){authErr('A senha precisa de ao menos 4 caracteres.');return;} if(s!==s2){authErr('As senhas não conferem.');return;}
+ var us=getUsers(); var u=us.filter(function(x){return x.email===email;})[0]; if(!u){authErr('Usuário não encontrado.');return;}
+ u.senha=hash(s); u.ativo=true; setUsers(us); currentUser=u; save(K.session,u.id); audit('redefiniu a senha de acesso'); toast('Senha redefinida'); enterApp(); }
+function wipeAll(){ if(!window.confirm('Isto apaga TODOS os dados: empresas, vendedores, vendas e usuários. Deseja continuar?'))return; [K.users,K.emp,K.vend,K.perm,K.audit,K.session,K.active,K2.neg,K2.gamif].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}}); currentUser=null; renderAuth(); }
 function renderAuth(){ byId('authPanel').innerHTML = getUsers().length===0 ? setupHtml() : loginHtml(); }
 function authErr(m){ var e=byId('authErr'); if(e){e.textContent=m;e.classList.add('on');} }
 function createAdmin(){ var nome=byId('suNome').value.trim(),email=byId('suEmail').value.trim().toLowerCase(),s=byId('suSenha').value,s2=byId('suSenha2').value;
@@ -1439,8 +1454,9 @@ byId('modalX').addEventListener('click',closeModal); byId('modalCancel').addEven
 byId('modal').addEventListener('click',function(e){ if(e.target===byId('modal'))closeModal(); });
 byId('modalSave').addEventListener('click',function(){ if(modalSaveFn)modalSaveFn(); });
 var _openModal=openModal; openModal=function(t,s,b,fn,lbl){ byId('modalSave').style.display=''; byId('modalSave').textContent=lbl||'Salvar'; byId('modalSave').style.visibility=fn?'visible':'hidden'; _openModal(t,s,b,fn); };
-byId('login').addEventListener('click',function(e){ var b=e.target.closest('[data-auth]'); if(!b)return; if(b.dataset.auth==='setup')createAdmin(); else doLogin(); });
-byId('login').addEventListener('keydown',function(e){ if(e.key==='Enter'){ var b=byId('authPanel').querySelector('[data-auth]'); if(b){ if(b.dataset.auth==='setup')createAdmin(); else doLogin(); } } });
+byId('login').addEventListener('click',function(e){ var b=e.target.closest('[data-auth]'); if(!b)return; e.preventDefault(); var a=b.dataset.auth;
+ if(a==='setup')createAdmin(); else if(a==='login')doLogin(); else if(a==='showreset')byId('authPanel').innerHTML=resetHtml(); else if(a==='reset')doReset(); else if(a==='backlogin')renderAuth(); else if(a==='wipe')wipeAll(); });
+byId('login').addEventListener('keydown',function(e){ if(e.key==='Enter'){ var b=byId('authPanel').querySelector('.lg-enter'); if(b)b.click(); } });
 
 function boot(){ setTimeout(function(){ var s=byId('splash'); if(s)s.classList.add('done'); },RM?0:1350);
   var sid=load(K.session,null); var u=sid?getUsers().filter(function(x){return x.id===sid&&x.ativo;})[0]:null;
