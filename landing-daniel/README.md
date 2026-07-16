@@ -4,8 +4,9 @@ Landing page de página única (one-page) para o Daniel, treinador de **comunica
 marca **EEEEEEEITA Protagonista**. Rolagem contínua, navegação por âncoras e conversão via WhatsApp.
 
 Direção visual: **pôster editorial ousado** (hero escuro dramático, tipografia gigante,
-metadados em monospace, marquee, imagens em duotone) fundida com o **refinamento de revista
-de luxo** (muito espaço em branco, serif elegante, grid quebrado, detalhes finos).
+marquee, imagens em duotone) com acabamento **sexy e moderno**: degradês magenta/violeta
+extraídos da logo, botões pill com brilho, cantos arredondados e tipografia display pesada
+(Archivo + Manrope), sem serifa.
 
 Entregue como **um único arquivo HTML autossuficiente**: todo o CSS, o JavaScript e a logo
 estão embutidos no próprio `index.html`. Não há build, dependências locais nem pasta de assets.
@@ -23,8 +24,8 @@ python3 -m http.server 8080     # ou: npx serve .
 E acessar `http://localhost:8080`.
 
 > Observação: a página usa recursos externos apenas para as **fontes** (Google Fonts:
-> Fraunces, Space Mono e Inter). Com internet, elas carregam automaticamente. Sem internet,
-> o navegador cai em fontes do sistema e o layout continua funcionando.
+> Archivo e Manrope). Com internet, elas carregam automaticamente. Sem internet, o navegador
+> cai em fontes do sistema e o layout continua funcionando.
 
 ## Estrutura
 
@@ -57,15 +58,16 @@ que quer mexer (por exemplo, `<!-- ===== 04 SOBRE ===== -->`).
 
 ### 1. Logo e favicon
 
-> **Importante:** a logo é um **placeholder fiel** da marca (cérebro colorido + wordmark),
-> desenhado em SVG embutido, porque o arquivo oficial não estava disponível. Substitua pelo
-> arquivo **oficial** do Daniel.
+> **Importante:** a logo foi **recriada fielmente em SVG** a partir da imagem oficial
+> (nuvem-cérebro com lóbulos em degradê rosa, laranja, amarelo, roxo e teal, com a cauda,
+> e o wordmark itálico pesado), porque o arquivo original não estava disponível. Se tiver
+> o arquivo **oficial** do Daniel, prefira substituir.
 
-- **Logo:** ela aparece em dois lugares no HTML, dentro de `<svg viewBox="0 0 300 84" ...>`
+- **Logo:** ela aparece em dois lugares no HTML, dentro de `<svg viewBox="0 0 330 92" ...>`
   (no header e no rodapé). Você pode colar o SVG oficial no lugar, ou trocar o `<svg>` por
   uma imagem: `<img src="logo.svg" alt="EEEEEEEITA Protagonista" style="height:42px">`
   (nesse caso o arquivo deixa de ser único). O wordmark usa `fill="currentColor"` para se
-  adaptar entre o fundo escuro (creme) e o claro (grafite).
+  adaptar entre o fundo escuro (off-white) e o claro (índigo).
 - **Favicon:** está no `<link rel="icon" ...>` como um SVG embutido. Para usar o ícone
   oficial, troque por `<link rel="icon" href="favicon.png">`.
 
@@ -82,7 +84,7 @@ real, adicione uma tag de imagem dentro do `figure`, com a classe `plate__img`:
 </figure>
 ~~~
 
-A imagem entra automaticamente em duotone magenta (via `mix-blend-mode`), mantendo a
+A imagem entra automaticamente em duotone rosa/violeta (via `mix-blend-mode`), mantendo a
 identidade. Se quiser a foto sem tratamento, remova o filtro da regra `.plate__img` no CSS.
 As proporções disponíveis são as classes `p45` (4:5), `p23` (2:3), `p43` (4:3) e `p11` (1:1).
 Sempre preencha o `alt` das imagens.
@@ -104,12 +106,14 @@ Mude ali e a página inteira acompanha.
 
 ~~~css
 :root{
-  --paper:#F4EEE3;    /* fundo claro (creme) */
-  --ink:#181017;      /* texto (grafite) */
-  --dark:#160D15;     /* fundos escuros (hero, faixas, rodapé) */
-  --magenta:#E4157A;  /* cor primária de marca */
-  --orange:#F0651F;   /* cor de CTA / ação */
-  --yellow:#F3C233;  --violet:#7E2E9E;  --teal:#0FA39F;
+  --paper:#FBF7F2;    /* fundo claro (off-white) */
+  --ink:#241B4A;      /* texto (índigo profundo, a cor do wordmark) */
+  --dark:#150F26;     /* fundos escuros (hero, faixas, rodapé) */
+  --magenta:#F0148E;  /* cor primária de marca */
+  --orange:#F7941D;   /* acento quente */
+  --violet:#8F2E9B;  --purple:#552383;  --yellow:#FFC20E;  --teal:#00A79D;
+  --grad:linear-gradient(94deg,var(--magenta),var(--violet));      /* CTA */
+  --grad-warm:linear-gradient(94deg,var(--magenta),var(--orange)); /* texto display */
 }
 ~~~
 
