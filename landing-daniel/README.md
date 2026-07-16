@@ -23,10 +23,11 @@ O HTML procura automaticamente um arquivo chamado **`logo.png`** na **mesma past
 `index.html` (header e rodapé, dentro de um cartão branco que protege a marca sobre o
 fundo escuro).
 
-- **Para usar a logo oficial, sem releitura:** salve o arquivo original da logo como
+- **Para usar o arquivo oficial, pixel a pixel:** salve a logo original como
   `logo.png` ao lado do `index.html`. Pronto, nada mais a editar.
-- **Se o arquivo não existir**, um desenho vetorial embutido entra no lugar apenas como
-  reserva, para a página nunca ficar sem marca.
+- **Se o arquivo não existir**, entra no lugar uma reprodução vetorial embutida da arte
+  oficial (cérebro glossy com a cauda teal, "EEEEEEEEITA" com E's azuis, "IT" rosa e "A"
+  laranja, e o subtítulo "APRENDIZADO COM PROTAGONISMO").
 - Aceita PNG com fundo branco ou transparente. Se o seu arquivo for `.jpg` ou tiver outro
   nome, troque as duas ocorrências de `logo.png` no HTML.
 
