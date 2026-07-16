@@ -1975,7 +1975,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <div class="kpi-foot"><span>Acumulado no ano</span><b x-text="kpis.despesaYTD"></b></div>
         </div>
         <div class="kpi-card green">
-          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(13,148,136,.12);color:var(--accent-green)"><i class="fas fa-coins"></i></div><div class="kpi-label flex justify-between" style="flex:1">Resultado Operacional <span class="font-bold" :class="kpis.margem < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.margem + '%'"></span></div></div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(13,148,136,.12);color:var(--accent-green)"><i class="fas fa-coins"></i></div><div class="kpi-label flex justify-between items-center" style="flex:1;gap:10px"><span>Resultado Operacional</span> <span class="font-bold" style="flex-shrink:0" :class="kpis.margem < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.margem + '%'"></span></div></div>
           <div class="kpi-val" :class="kpis.margem < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.resultado"></div>
           <div class="kpi-foot"><span>No ano (<span x-text="kpis.margemYTD+'%'"></span>)</span><b :class="kpis.margemYTD < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="kpis.resultadoYTD"></b></div>
         </div>
@@ -5968,7 +5968,8 @@ function sistemaUnificado(){
       // Critério da planilha: o Total Faturamento exclui as aparas (Teste Sucata)
       const fatMes = fatLinhas.filter(f => !f.aparas).reduce((a, f) => a + ((f.fat && f.fat[mk]) || 0), 0);
       const kgMes = fatLinhas.reduce((a, f) => a + ((f.kg && f.kg[mk]) || 0), 0);
-      const invMes = (this.empresaExtras.inventario || []).reduce((a, i) => a + ((i.valor && i.valor[mk]) || 0), 0);
+      // Critério da planilha: o valor do estoque exclui as categorias fora do estoque (Tintas)
+      const invMes = (this.empresaExtras.inventario || []).filter(i => !i.foraEstoque).reduce((a, i) => a + ((i.valor && i.valor[mk]) || 0), 0);
       const provMes = this.previsoesData.reduce((a, p) => a + (p[mk] || 0), 0);
       const servMes = this.servTotalMes(mk);
       const movsMes = this.movEmpresas.filter(m => m.mes === mk);
