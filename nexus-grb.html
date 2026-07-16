@@ -745,6 +745,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <button class="nav-item" @click="mudarAba('centro_custo')" :class="aba==='centro_custo'?'active':''" title="Despesas por C.C."><i class="fas fa-sitemap w-4"></i> <span class="nav-label">Despesas por C.C.</span></button>
         <button class="nav-item" @click="mudarAba('despesa_mensal')" :class="aba==='despesa_mensal'?'active':''" title="Despesa Mensal (Abas)"><i class="fas fa-list-alt w-4"></i> <span class="nav-label">Despesa Mensal</span></button>
         <button class="nav-item" @click="mudarAba('faturamento_req')" :class="aba==='faturamento_req'?'active':''" title="Faturamento por categoria (contas a receber)"><i class="fas fa-hand-holding-dollar w-4"></i> <span class="nav-label">Faturamento</span></button>
+        <button class="nav-item" @click="mudarAba('inventario_req')" :class="aba==='inventario_req'?'active':''" title="Inventário por tipo (posição de estoque)"><i class="fas fa-boxes-stacked w-4"></i> <span class="nav-label">Inventário</span></button>
         <button class="nav-item" @click="mudarAba('previsoes')" :class="aba==='previsoes'?'active':''" title="Provisões & Previsões"><i class="fas fa-piggy-bank w-4"></i> <span class="nav-label">Provisões</span></button>
         <button class="nav-item" @click="mudarAba('historico_comparativo')" :class="aba==='historico_comparativo'?'active':''" title="Comparativo Histórico (2017–2025)"><i class="fas fa-balance-scale w-4"></i> <span class="nav-label">Comparativo Histórico</span></button>
         <button class="nav-item" @click="mudarAba('dr_config')" :class="aba==='dr_config'?'active':''" title="Gestão de Carteiras de Capital"><i class="fas fa-wallet w-4"></i> <span class="nav-label">Carteiras de Capital</span></button>
@@ -814,7 +815,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <button @click="exportarXLSX()" title="Exportar tudo em Excel (planilha .xlsx com todas as abas do painel)" style="height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--color-border2);background:var(--color-surface2);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--accent-blue);white-space:nowrap;transition:.15s" onmouseover="this.style.borderColor='var(--accent-gold)'" onmouseout="this.style.borderColor='var(--color-border2)'"><i class="fas fa-file-excel" style="color:#0d9488;font-size:15px"></i> Excel</button>
         <button @click="imprimirA4()" title="Imprimir a tela atual em padrão A4 (ou salvar em PDF)" style="height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--color-border2);background:var(--color-surface2);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--accent-blue);white-space:nowrap;transition:.15s" onmouseover="this.style.borderColor='var(--accent-gold)'" onmouseout="this.style.borderColor='var(--color-border2)'"><i class="fas fa-print" style="color:var(--accent-gold-deep);font-size:14px"></i> A4</button>
       </div>
-      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal', 'resultado_emb', 'emb_despesa', 'emb_receita', 'emb_inventario', 'acoes', 'servicos', 'faturamento_req'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
+      <div x-show="!['hub', 'consolidado', 'faturamento', 'subempresas', 'inventario', 'projecao', 'comparador', 'simulador', 'historico_comparativo', 'configuracoes', 'despesa_mensal', 'resultado_emb', 'emb_despesa', 'emb_receita', 'emb_inventario', 'acoes', 'servicos', 'faturamento_req', 'inventario_req'].includes(aba)" style="display:flex; align-items: center; gap: 8px;">
         <label style="font-size: 11px; color: var(--color-muted); text-transform: uppercase; font-weight: 800;">Recorte Atual:</label>
         <select @change="mesAtivo = $event.target.value; subAbaDespesa = mesAtivo.toLowerCase(); atualizarLeituraSistema()" class="emc-input" style="padding: 6px 12px; font-weight: 800; color: var(--accent-blue); width: auto; background: var(--color-surface2); border-color: var(--accent-gold);">
           <template x-for="m in listaMeses" :key="m.chave"><option :value="m.chave" :selected="m.chave === mesAtivo" x-text="m.labelData"></option></template>
@@ -1629,6 +1630,69 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </table>
         </div>
         <div x-show="empresaExtras.fatReq && !empresaExtras.fatReq.considerar004 && fatReqMesesAtivos.length" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-eye-slash mr-1" style="color:var(--accent-gold)"></i> O grupo <b>004 · Outras Receitas</b> está registrado no sistema, mas oculto e fora dos totais e do Resultado, como o cliente pediu. Marque <b>Considerar 004?</b> no painel acima para exibir e somar; dá para voltar atrás quando quiser.</div>
+      </div>
+    </div></template>
+
+    <!-- ===================== REQUALIFICADORA · INVENTÁRIO (posição de estoque, só valor) ===================== -->
+    <template x-if="aba==='inventario_req'"><div x-cloak style="display:grid;gap:20px">
+      <div class="emb-hero">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:13px;background:rgba(197,168,128,.16);border:1px solid rgba(197,168,128,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-boxes-stacked" style="color:var(--accent-gold);font-size:19px"></i></div>
+          <div style="min-width:0">
+            <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">Inventário da Requalificadora · posição de estoque</div>
+            <div style="font-size:11.5px;color:#a9adc6;white-space:nowrap">Valor do estoque por tipo, mês a mês. A Requalificadora não usa peso nem fator, só o valor (CMC).</div>
+          </div>
+        </div>
+        <div class="emb-hero-grid">
+          <div class="emb-stat gold"><div class="l">Estoque do mês</div><div class="v" x-text="fmtAbrev(invReqTotal(mesAtivo))"></div><div class="s" x-text="mesAtivo + ' · valor de estoque'"></div></div>
+          <div class="emb-stat"><div class="l">Tipos de estoque</div><div class="v" x-text="String((empresaExtras.invReq && empresaExtras.invReq.itens || []).length)"></div><div class="s">classificação SPED</div></div>
+          <div class="emb-stat"><div class="l">Meses importados</div><div class="v" x-text="String(invReqMesesAtivos.length)"></div><div class="s">de janeiro a dezembro</div></div>
+          <div class="emb-stat gold"><div class="l">Última posição</div><div class="v" x-text="invReqMesesAtivos.length ? invReqMesesAtivos[invReqMesesAtivos.length-1] : '·'"></div><div class="s">mês mais recente lançado</div></div>
+        </div>
+      </div>
+
+      <div class="card-dark" style="margin-bottom:0">
+        <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:10px">
+          <div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-boxes-stacked mr-2" style="color:var(--accent-gold)"></i> Estoque por tipo</div>
+            <div class="card-sub" style="font-size:11.5px">Importado do relatório de <b>posição de estoque</b>, agrupado por tipo (SPED). Clique numa linha para ver o detalhamento por família.</div>
+          </div>
+          <button x-show="permEdita && invReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
+        </div>
+        <template x-if="!(empresaExtras.invReq && empresaExtras.invReq.itens.length)">
+          <div style="padding:26px;text-align:center;color:var(--color-muted);font-size:13px;white-space:normal">
+            Nenhum mês importado ainda. Envie o relatório <b>Posição de Estoque</b> no Importador (Configurações Globais): o sistema reconhece o formato sozinho, agrupa por tipo e lança o estoque do mês. As colunas de janeiro a dezembro já estão prontas.
+          </div>
+        </template>
+        <div style="overflow-x:auto" x-show="empresaExtras.invReq && empresaExtras.invReq.itens.length">
+          <table class="dark-table">
+            <thead><tr><th style="min-width:260px">Tipo de estoque</th>
+              <template x-for="m in listaMeses" :key="'iqh'+m.chave"><th class="td-r" :class="invReqMesVazio(m.chave)?'res-future-h':''" :title="invReqMesVazio(m.chave)?'Mês ainda sem posição de estoque: importe o relatório do mês':''" x-text="m.labelData"></th></template>
+              <th class="td-r">Atual</th></tr></thead>
+            <tbody>
+              <template x-for="(item, ri) in (empresaExtras.invReq ? empresaExtras.invReq.itens : [])" :key="'iqr'+ri">
+                <tr :class="!fatReqEdit ? 'nx-drill' : ''" @click="fatReqEdit || razaoInvReq(item)">
+                  <td><span x-text="item.categoria"></span><i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i></td>
+                  <template x-for="m in listaMeses" :key="'iqc'+ri+m.chave">
+                    <td class="td-r" :class="invReqMesVazio(m.chave)?'res-future':''">
+                      <template x-if="!(fatReqEdit && permEdita)"><span x-text="formatarDinheiroExato(item[m.chave.toLowerCase()] || 0)"></span></template>
+                      <template x-if="fatReqEdit && permEdita">
+                        <input type="text" inputmode="decimal" class="res-edit-in" @click.stop :value="item[m.chave.toLowerCase()] ? fmtNum(item[m.chave.toLowerCase()]) : ''" @focus="$event.target.select()" @change="editInvReqCell(item, m.chave.toLowerCase(), $event.target.value)">
+                      </template>
+                    </td>
+                  </template>
+                  <td class="td-r font-bold" x-text="formatarDinheiroExato(item[mesAtivo.toLowerCase()] || 0)"></td>
+                </tr>
+              </template>
+              <tr style="background:rgba(197,168,128,.12);border-top:2px solid var(--accent-gold)">
+                <td class="font-bold text-accent-blue">Estoque total</td>
+                <template x-for="m in listaMeses" :key="'iqt'+m.chave"><td class="td-r font-bold" :class="invReqMesVazio(m.chave)?'res-future':''" x-text="formatarDinheiroExato(invReqTotal(m.chave))"></td></template>
+                <td class="td-r font-bold" x-text="formatarDinheiroExato(invReqTotal(mesAtivo))"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div x-show="empresaExtras.invReq && empresaExtras.invReq.itens.length" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> O <b>estoque é uma foto</b> de cada mês (não soma ao longo do ano). A coluna <b>Atual</b> mostra a posição do mês selecionado. O total alimenta a linha <b>Estoque</b> do Resultado, que move a Diferença de Estoque.</div>
       </div>
     </div></template>
 
@@ -3699,8 +3763,9 @@ const EMPRESAS = {
     previsoes: PREVISOES_2026, cc: CC_DATA,
     estoqueBase: 1037371.61, invMode: 'diff',
     // Faturamento por categoria (contas a receber importadas); grupo 004 fica oculto e
-    // fora dos totais por pedido do cliente, com a opção "Considerar 004" para reverter
-    extras: { fatReq: { considerar004: false, itens: [], meses: {} } }
+    // fora dos totais por pedido do cliente, com a opção "Considerar 004" para reverter.
+    // Inventário por Tipo (SPED), só valor (Requalificadora não usa peso, kg ou fator).
+    extras: { fatReq: { considerar004: false, itens: [], meses: {} }, invReq: { itens: [], detalhe: {}, meses: {} } }
   },
   embalagem: {
     id:'embalagem', nome:'Rebracil Embalagens', curto:'Embalagem',
@@ -3872,7 +3937,7 @@ function nxFsSyncIcones() {
   if (fe) nxMontarBarraFS(fe);
 }
 // Barra da tela cheia: botão Sair + régua de meses (só onde o recorte por mês se aplica).
-const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','resultado_emb','emb_despesa','emb_receita','emb_inventario','acoes','servicos','faturamento_req'];
+const NX_FS_ABAS_SEM_PERIODO = ['hub','consolidado','faturamento','subempresas','inventario','projecao','comparador','simulador','historico_comparativo','configuracoes','resultado_emb','emb_despesa','emb_receita','emb_inventario','acoes','servicos','faturamento_req','inventario_req'];
 function nxMontarBarraFS(card) {
   const antiga = card.querySelector(':scope > .nx-fs-bar'); if (antiga) antiga.remove();
   const root = document.querySelector('[x-data]'); const cmp = (root && window.Alpine) ? Alpine.$data(root) : null;
@@ -4290,6 +4355,7 @@ function sistemaUnificado(){
       if (salvo.extras.fatoresMt && typeof EMB_FATORES_MT !== 'undefined') Object.assign(EMB_FATORES_MT, salvo.extras.fatoresMt);
       if (salvo.extras.invMt) emp.extras.invMt = salvo.extras.invMt;
       if (salvo.extras.fatReq && emp.extras.fatReq) emp.extras.fatReq = salvo.extras.fatReq;
+      if (salvo.extras.invReq && emp.extras.invReq) emp.extras.invReq = salvo.extras.invReq;
       if (salvo.extras.linhasExtras && typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = salvo.extras.linhasExtras.invest || {}; EMB_LINHAS_EXTRAS.prov = salvo.extras.linhasExtras.prov || {}; }
       this.garantirLinhasPlanilha(emp);
     },
@@ -4370,6 +4436,10 @@ function sistemaUnificado(){
         if (emp.extras && emp.extras.fatReq) {
           pacote.extras = pacote.extras || {};
           pacote.extras.fatReq = emp.extras.fatReq;
+        }
+        if (emp.extras && emp.extras.invReq) {
+          pacote.extras = pacote.extras || {};
+          pacote.extras.invReq = emp.extras.invReq;
         }
         localStorage.setItem('nexus_v2_dados_' + id, JSON.stringify(pacote));
         // Mantém o consolidado/hub coerente com os dados vivos da empresa ativa
@@ -5311,7 +5381,7 @@ function sistemaUnificado(){
       this.registrarLog('Exportou os logs de auditoria (CSV).');
     },
 
-    get tituloAba(){ return {'acoes':'Central de Ações · Plano Estratégico','hub':'Portal de Empresas · Grupo Rebracil','consolidado':'Central do Grupo · Consolidado','resultado_emb':'Resultado 2026 · Embalagem','emb_despesa':'Embalagem · Despesa','emb_receita':'Embalagem · Receita','emb_inventario':'Embalagem · Inventário','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Visão e Estratégia','fechamento':'Fechamento do Mês · Embalagem','servicos':'Serviços · Fechamento da Unidade','faturamento_req':'Faturamento · Requalificadora','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários','dashboard':'Visão Geral de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get tituloAba(){ return {'acoes':'Central de Ações · Plano Estratégico','hub':'Portal de Empresas · Grupo Rebracil','consolidado':'Central do Grupo · Consolidado','resultado_emb':'Resultado 2026 · Embalagem','emb_despesa':'Embalagem · Despesa','emb_receita':'Embalagem · Receita','emb_inventario':'Embalagem · Inventário','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Visão e Estratégia','fechamento':'Fechamento do Mês · Embalagem','servicos':'Serviços · Fechamento da Unidade','faturamento_req':'Faturamento · Requalificadora','inventario_req':'Inventário · Requalificadora','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários','dashboard':'Visão Geral de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
     get descAba(){ return {
       'acoes':'Quadro estratégico: arraste os cartões (ou use as setas) entre A Fazer, Em Andamento e Concluído. A Inteligência gera ações a partir dos alertas.',
       'fechamento':'Checklist do fechamento com status automático e conferência de consistência, o sistema confere o que antes era conferido na mão.',
@@ -6309,6 +6379,14 @@ function sistemaUnificado(){
         })()) {
             tipo = 'resultado';
             nota = 'Planilha "Resultado 2026" completa: receitas com Kg e Fator, inventário, despesas por empresa, devoluções e estoque; só os meses preenchidos são atualizados';
+        } else if (this.empresaAtiva === 'requalificadora' && json.slice(0, 8).some(r => (r || []).some(c => String(c || '').trim() === 'CMC Total'))) {
+            // Relatório de Posição de Estoque (inventário da Requalificadora, só valor)
+            tipo = 'invreq';
+            for (const r of json.slice(0, 8)) {
+              for (const c of (r || [])) { const m = String(c || '').match(/em\s+(\d{2})\/(\d{2})\/(\d{4})/i); if (m) { mes = ordem[parseInt(m[2], 10) - 1] || ''; break; } }
+              if (mes) break;
+            }
+            nota = 'Posição de estoque da Requalificadora: alimenta o Inventário por tipo e a linha Estoque do Resultado (sem peso ou fator)' + (mes ? ', mês: ' + mes.toUpperCase() : '');
         } else if (json.slice(0, 6).some(r => (r || []).some(c => String(c || '').trim() === 'Valor da Conta') && (r || []).some(c => String(c || '').trim() === 'Categoria'))) {
             // Contas a pagar e a receber (uma linha por título): alimenta o FATURAMENTO
             tipo = 'fatreq';
@@ -6395,6 +6473,10 @@ function sistemaUnificado(){
             const pareceInv = ehInventario(jsonInv) || ehInventario(json);
             const tipo = (this.empresaAtiva === 'embalagem') ? (this.tipoImportacao || 'auto') : 'auto';
             if (tipo === 'resultado') { this.aplicarResultadoEmb(workbook, file, evt); return; }
+            // Posição de estoque (inventário da Requalificadora): alimenta o Inventário
+            if (this.empresaAtiva === 'requalificadora' && json.slice(0, 8).some(r => (r || []).some(c => String(c || '').trim() === 'CMC Total'))) {
+              this.importarInvReq(json, file, evt); return;
+            }
             // Contas a pagar e a receber (uma linha por título): alimenta o faturamento
             if (json.slice(0, 6).some(r => (r || []).some(c => String(c || '').trim() === 'Valor da Conta') && (r || []).some(c => String(c || '').trim() === 'Categoria'))) {
               this.importarFatReq(json, file, evt); return;
@@ -6790,6 +6872,142 @@ function sistemaUnificado(){
         insight: (eh004 ? 'Grupo <b>004 · Outras Receitas</b>: registrado, mas fora dos totais por pedido do cliente; a chave <b>Considerar 004?</b> reverte. ' : '')
           + (fs[0] ? ('Maior categoria em ' + nomeMes + ': <b>' + fs[0].label + '</b> (' + this.formatarDinheiroExato(fs[0].raw) + ').') : 'Sem lançamentos neste mês.'),
         csv: [['Mes', 'Valor'], ...serie.map(p => [p.label, p.val])], csvName: 'faturamento_grupo'
+      });
+    },
+
+    // ===== INVENTÁRIO da Requalificadora (posição de estoque, só valor, sem peso/kg/fator) =====
+    // Importa o relatório "Posição de Estoque" (coluna CMC Total), agrupa por Tipo (SPED)
+    // e guarda o detalhamento por Família para o card lateral. O total alimenta a linha
+    // Estoque do DRE (que já move a Diferença de Estoque e o Resultado com Inventário).
+    importarInvReq(json, file, evt) {
+      const iv = this.empresaExtras.invReq;
+      if (!iv) { alert('Este é o relatório de posição de estoque da Requalificadora.\n\nAbra o painel Requalificadora para importá-lo.'); evt.target.value = ''; return; }
+      const r2 = x => Math.round(x * 100) / 100;
+      const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
+      let hi = -1, hr = null;
+      for (let i = 0; i < Math.min(json.length, 8); i++) {
+        const r = json[i] || [];
+        if (r.some(c => String(c || '').trim() === 'CMC Total')) { hi = i; hr = r; break; }
+      }
+      if (hi < 0) { alert('Não encontrei a coluna "CMC Total" do relatório de posição de estoque.'); evt.target.value = ''; return; }
+      const ix = n => hr.findIndex(c => String(c || '').trim() === n);
+      const iCod = 0, iTot = ix('CMC Total'), iTipo = ix('Tipo do Produto (SPED)'), iFam = ix('Família de Produto');
+      // Mês pela data do cabeçalho ("... em DD/MM/AAAA")
+      let mesArq = null;
+      for (const r of json.slice(0, hi + 1)) {
+        for (const c of (r || [])) { const m = String(c || '').match(/em\s+(\d{2})\/(\d{2})\/(\d{4})/i); if (m) { mesArq = ordem[parseInt(m[2], 10) - 1] || null; break; } }
+        if (mesArq) break;
+      }
+      const selMes = this.mesImportacao;
+      const mk = mesArq || selMes || 'jan';
+      if (mesArq && selMes && mesArq !== selMes) {
+        if (!confirm('Este inventário é de ' + mesArq.toUpperCase() + ' (data do relatório), mas você selecionou ' + selMes.toUpperCase() + '.\n\nImportar no mês do relatório, ' + mesArq.toUpperCase() + '?')) { evt.target.value = ''; return; }
+      }
+      // Acumula em precisão cheia e arredonda só no fim, para os tipos somarem exatamente ao total
+      const porTipoRaw = {}; const detalheRaw = {};
+      json.slice(hi + 1).forEach(r => {
+        if (!r || !r.length) return;
+        if (!String(r[iCod] || '').trim()) return; // ignora linhas de rodapé sem código
+        const v = typeof r[iTot] === 'number' ? r[iTot] : (typeof r[iTot] === 'string' ? this.parseNumero(r[iTot]) : NaN);
+        if (isNaN(v)) return;
+        const tipo = String(r[iTipo] || '').trim() || 'Outros';
+        const fam = (iFam >= 0 ? String(r[iFam] || '').trim() : '') || 'Sem família';
+        porTipoRaw[tipo] = (porTipoRaw[tipo] || 0) + v;
+        (detalheRaw[tipo] = detalheRaw[tipo] || {});
+        detalheRaw[tipo][fam] = (detalheRaw[tipo][fam] || 0) + v;
+      });
+      if (!Object.keys(porTipoRaw).length) { alert('Nenhum item de estoque com valor foi encontrado no relatório.'); evt.target.value = ''; return; }
+      const porTipo = {}; const detalhe = {}; let total = 0;
+      Object.entries(porTipoRaw).forEach(([tipo, val]) => { porTipo[tipo] = r2(val); total += porTipo[tipo]; });
+      total = r2(total);
+      Object.entries(detalheRaw).forEach(([tipo, fams]) => { detalhe[tipo] = {}; Object.entries(fams).forEach(([f, v]) => detalhe[tipo][f] = r2(v)); });
+      // Mês com Estoque oficial da planilha: o usuário decide substituir ou manter
+      const estLine = this.dreAtual.find(l => l.desc === 'Estoque');
+      if (estLine && (estLine[mk] || 0) !== 0 && !iv.meses[mk]) {
+        if (!confirm(mk.toUpperCase() + ' já tem Estoque oficial da planilha (' + this.formatarDinheiroExato(estLine[mk]) + ').\n\nOK = SUBSTITUIR pelo total desta posição de estoque (' + this.formatarDinheiroExato(total) + ').\nCancelar = manter o valor oficial.')) { evt.target.value = ''; return; }
+      }
+      this.salvarEstado('Importação de inventário (Requalificadora): ' + mk.toUpperCase());
+      // Zera o mês nas categorias existentes e aplica as novas
+      iv.itens.forEach(it => { it[mk] = 0; });
+      Object.entries(porTipo).forEach(([tipo, val]) => {
+        let it = iv.itens.find(x => x.categoria === tipo);
+        if (!it) { it = { categoria: tipo }; ordem.forEach(m2 => it[m2] = 0); iv.itens.push(it); }
+        it[mk] = val;
+      });
+      iv.detalhe[mk] = detalhe;
+      iv.meses[mk] = true;
+      iv.itens.sort((a, b) => a.categoria.localeCompare(b.categoria));
+      this.aplicarInvReqNoDre();
+      this.dreAtual = [...this.dreAtual];
+      this.registrarLog('Importou inventário da Requalificadora ' + file.name + ' em ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(total) + ' em ' + Object.keys(porTipo).length + ' tipos');
+      this.recalcularTudo();
+      alert('Inventário de ' + mk.toUpperCase() + ' importado!\n\nEstoque: ' + this.formatarDinheiroExato(total) + ' em ' + Object.keys(porTipo).length + ' tipos.\n\nOs valores por tipo alimentam a tela Inventário e a linha Estoque do Resultado. Clique numa linha para ver o detalhamento por família.');
+      this.mesAtivo = mk.charAt(0).toUpperCase() + mk.slice(1);
+      this.mudarAba('inventario_req');
+      this.atualizarLeituraSistema();
+      evt.target.value = '';
+    },
+    invReqTotal(mChave) {
+      const iv = this.empresaExtras.invReq; if (!iv) return 0;
+      const mk = String(mChave).toLowerCase();
+      return Math.round(iv.itens.reduce((a, i) => a + (i[mk] || 0), 0) * 100) / 100;
+    },
+    // A linha Estoque do DRE segue o inventário dos meses importados
+    aplicarInvReqNoDre() {
+      const iv = this.empresaExtras.invReq; if (!iv) return;
+      const l = this.dreAtual.find(x => x.desc === 'Estoque'); if (!l) return;
+      Object.keys(iv.meses).forEach(mk => { if (iv.meses[mk]) l[mk] = this.invReqTotal(mk); });
+    },
+    get invReqMesesAtivos() {
+      const iv = this.empresaExtras.invReq; if (!iv) return [];
+      return this.listaMeses.filter(m => iv.itens.some(i => (i[m.chave.toLowerCase()] || 0) !== 0)).map(m => m.chave);
+    },
+    invReqMesVazio(mChave) {
+      const iv = this.empresaExtras.invReq; if (!iv) return true;
+      const mk = String(mChave).toLowerCase();
+      return !iv.itens.some(i => (i[mk] || 0) !== 0);
+    },
+    editInvReqCell(item, mk, valor) {
+      if (!this.exigirEdicao()) return;
+      const v = this.parseNumero(valor);
+      this.salvarEstado('Edição no Inventário: ' + item.categoria + ' · ' + mk.toUpperCase());
+      item[mk] = v;
+      const iv = this.empresaExtras.invReq;
+      if (iv && !iv.meses[mk]) iv.meses[mk] = true;
+      this.aplicarInvReqNoDre();
+      this.dreAtual = [...this.dreAtual];
+      this.registrarLog('Editou inventário "' + item.categoria + '" em ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(v));
+      this.recalcularTudo();
+    },
+    // Card lateral (razão) de um tipo de inventário, com o detalhamento por família
+    razaoInvReq(item) {
+      const iv = this.empresaExtras.invReq; if (!iv || !item) return;
+      const mk = this.mesAtivo.toLowerCase();
+      const nomeMes = (this.listaMeses.find(m => m.chave.toLowerCase() === mk) || {}).labelData || mk;
+      const serie = this.listaMeses.map(m => ({ label: m.chave, val: item[m.chave.toLowerCase()] || 0 }));
+      const atual = item[mk] || 0;
+      const idx = this.listaMeses.findIndex(m => m.chave.toLowerCase() === mk);
+      const prev = idx > 0 ? (item[this.listaMeses[idx - 1].chave.toLowerCase()] || 0) : null;
+      const delta = (prev != null && prev !== 0) ? ((atual - prev) / Math.abs(prev) * 100) : null;
+      const totMes = this.invReqTotal(mk);
+      const det = (iv.detalhe[mk] && iv.detalhe[mk][item.categoria]) || {};
+      const fams = Object.entries(det).map(([f, v]) => ({ label: f, raw: v })).filter(x => x.raw !== 0).sort((a, b) => b.raw - a.raw);
+      this.abrirRazao({
+        tag: 'Razão · Inventário', title: item.categoria, subtitle: 'Tipo de estoque · ' + nomeMes,
+        color: '#191040', icone: 'fa-boxes-stacked',
+        hero: this.formatarDinheiroExato(atual), heroLabel: 'Estoque em ' + nomeMes, delta, serie,
+        stats: [
+          { l: 'Acumulado (foto do ano)', v: this.formatarDinheiroExato(serie.reduce((a, p) => a + p.val, 0)) },
+          { l: '% do estoque no mês', v: totMes ? ((atual / totMes) * 100).toFixed(1) + '%' : '·' },
+          { l: 'Famílias no tipo', v: String(fams.length) },
+          { l: 'Meses importados', v: String(this.invReqMesesAtivos.length) }
+        ],
+        rowsHead: fams.length ? ['Família', 'Valor · ' + nomeMes, '%'] : ['Mês', 'Valor', ''],
+        rows: fams.length
+          ? fams.map(x => ({ label: x.label, valor: this.formatarDinheiroExato(x.raw), pct: atual ? ((x.raw / atual) * 100).toFixed(1) + '%' : '·' }))
+          : serie.map(p => ({ label: (this.listaMeses.find(m => m.chave === p.label) || {}).labelData || p.label, valor: this.formatarDinheiroExato(p.val), pct: '' })),
+        insight: 'Estoque é uma <b>foto</b> do mês (não soma ao longo do ano). ' + (fams[0] ? ('Maior família em ' + nomeMes + ': <b>' + fams[0].label + '</b> (' + this.formatarDinheiroExato(fams[0].raw) + ').') : 'Sem detalhamento por família neste mês.'),
+        csv: [['Familia', 'Valor'], ...fams.map(x => [x.label, x.raw])], csvName: 'inventario_tipo'
       });
     },
 
