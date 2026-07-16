@@ -6319,7 +6319,7 @@ function sistemaUnificado(){
                 if (typeof d === 'number') { const dt = new Date(Math.round((d - 25569) * 86400 * 1000)); mesesEm2[dt.getUTCMonth()] = (mesesEm2[dt.getUTCMonth()] || 0) + 1; } });
             const ms2 = Object.keys(mesesEm2).sort((a, b) => mesesEm2[b] - mesesEm2[a]);
             if (ms2.length) mes = ordem[Number(ms2[0])] || '';
-            nota = 'Contas a pagar e a receber: lança o FATURAMENTO por categoria (receitas do grupo 004 ficam ocultas e fora do total)' + (mes ? ', mês: ' + mes.toUpperCase() : '');
+            nota = 'Contas a pagar e a receber: alimenta o FATURAMENTO (a receber, grupo 004 oculto do total) e a DESPESA por centro de custo (a pagar)' + (mes ? ', mês: ' + mes.toUpperCase() : '');
         } else {
             // Contas a pagar: cabeçalho com Valor total + Conta Contábil Número; meses pela emissão
             let cabIdx = -1, cab = null;
@@ -6585,7 +6585,7 @@ function sistemaUnificado(){
       const ix = n => hr.findIndex(c => String(c || '').trim() === n);
       const iTipo = ix('Tipo'), iGrupo = ix('Grupo'), iCat = ix('Categoria'), iEm = ix('Data de Emissão'), iVal = ix('Valor da Conta');
       const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
-      const buckets = {}; const pagarPorMes = {};
+      const buckets = {}; const despBuckets = {};
       json.slice(hi + 1).forEach(r => {
         if (!r) return;
         let v = r[iVal];
@@ -6596,30 +6596,46 @@ function sistemaUnificado(){
         if (typeof d === 'number') d = new Date(Math.round((d - 25569) * 86400 * 1000));
         else if (typeof d === 'string' && /\d{4}/.test(d)) d = new Date(d);
         if (d instanceof Date && !isNaN(d)) mk = ordem[d.getUTCMonth()] || mk;
-        const tipoL = String(r[iTipo] || '');
-        if (!/receber/i.test(tipoL)) { pagarPorMes[mk] = r2((pagarPorMes[mk] || 0) + Math.abs(v)); return; }
         const grupo = String(r[iGrupo] || '').trim() || 'SEM GRUPO';
         const cat = String(r[iCat] || '').trim() || ('SEM CATEGORIA - ' + grupo);
+        const tipoL = String(r[iTipo] || '');
+        // Lado A PAGAR: alimenta os centros de custo (Despesa), pela categoria contábil
+        if (!/receber/i.test(tipoL)) {
+          const db = despBuckets[mk] || (despBuckets[mk] = {});
+          db[cat] = r2((db[cat] || 0) + Math.abs(v));
+          return;
+        }
+        // Lado A RECEBER: alimenta o Faturamento, por categoria dentro do grupo
         const b = buckets[mk] || (buckets[mk] = {});
         const k = grupo + '||' + cat;
         b[k] = r2((b[k] || 0) + v);
       });
-      const mesesArq = Object.keys(buckets).sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
-      if (!mesesArq.length) { alert('Nenhuma conta a receber com valor foi encontrada no arquivo.'); evt.target.value = ''; return; }
+      const mesesRec = Object.keys(buckets).sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
+      const mesesDesp = Object.keys(despBuckets).sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
+      const mesesArq = [...new Set([...mesesRec, ...mesesDesp])].sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
+      if (!mesesArq.length) { alert('Nenhuma conta com valor foi encontrada no arquivo.'); evt.target.value = ''; return; }
       const selMes = this.mesImportacao;
       if (mesesArq.length === 1 && selMes && mesesArq[0] !== selMes) {
         if (!confirm('As emissões deste arquivo são de ' + mesesArq[0].toUpperCase() + ', mas você selecionou ' + selMes.toUpperCase() + '.\n\nImportar no mês do arquivo, ' + mesesArq[0].toUpperCase() + '?')) { evt.target.value = ''; return; }
       }
-      // Mês com Faturamento oficial no Resultado: o usuário decide substituir ou manter
+      // Meses com Faturamento oficial no Resultado: o usuário decide substituir ou manter
       const dreFat = this.dreAtual.find(l => l.desc === 'Faturamento');
-      const oficiais = mesesArq.filter(m => dreFat && (dreFat[m] || 0) !== 0 && !fr.meses[m]);
+      const oficiaisFat = mesesRec.filter(m => dreFat && (dreFat[m] || 0) !== 0 && !fr.meses[m]);
       let alimentaDre = true;
-      if (oficiais.length) {
-        alimentaDre = confirm('Atenção: ' + oficiais.map(m => m.toUpperCase()).join(', ') + ' já tem Faturamento oficial da planilha.\n\nOK = SUBSTITUIR pelo total das contas a receber (sem o grupo 004).\nCancelar = manter o Faturamento oficial e lançar só o detalhamento por categoria.');
+      if (oficiaisFat.length) {
+        alimentaDre = confirm('Atenção: ' + oficiaisFat.map(m => m.toUpperCase()).join(', ') + ' já tem Faturamento oficial da planilha.\n\nOK = SUBSTITUIR pelo total das contas a receber (sem o grupo 004).\nCancelar = manter o Faturamento oficial e lançar só o detalhamento por categoria.');
       }
-      this.salvarEstado('Importação de faturamento (contas a receber): ' + mesesArq.map(m => m.toUpperCase()).join(', '));
+      // Meses com Despesa oficial no Resultado: o usuário decide substituir ou manter
+      const dreDesp = this.dreAtual.find(l => l.desc === 'Total de Despesas');
+      const oficiaisDesp = mesesDesp.filter(m => dreDesp && (dreDesp[m] || 0) !== 0);
+      let substituirDesp = false;
+      if (oficiaisDesp.length) {
+        substituirDesp = confirm('Atenção: ' + oficiaisDesp.map(m => m.toUpperCase()).join(', ') + ' já tem Total de Despesas oficial da planilha.\n\nOK = SUBSTITUIR pelo total das contas a pagar deste relatório (o Resultado muda).\nCancelar = manter o valor oficial e só detalhar por centro de custo (a diferença fica em Ajustes).');
+      }
+      this.salvarEstado('Importação de contas a pagar e a receber: ' + mesesArq.map(m => m.toUpperCase()).join(', '));
       const resumo = [];
-      mesesArq.forEach(mk => {
+      // ===== FATURAMENTO (contas a receber) =====
+      mesesRec.forEach(mk => {
         fr.itens.forEach(i => { i[mk] = 0; });
         Object.entries(buckets[mk]).forEach(([k, v]) => {
           const [grupo, cat] = k.split('||');
@@ -6630,14 +6646,22 @@ function sistemaUnificado(){
         if (alimentaDre || fr.meses[mk]) fr.meses[mk] = true;
         const tot = this.fatReqTotal(mk, false);
         const oc004 = r2(this.fatReqTotal(mk, true) - tot);
-        resumo.push(mk.toUpperCase() + ': ' + this.formatarDinheiroExato(tot) + ' considerado' + (oc004 ? ' | ' + this.formatarDinheiroExato(oc004) + ' no grupo 004 (oculto)' : ''));
+        resumo.push('Faturamento ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(tot) + (oc004 ? ' (+ ' + this.formatarDinheiroExato(oc004) + ' no grupo 004, oculto)' : ''));
       });
       fr.itens.sort((a, b) => (a.grupo + '|' + a.cat).localeCompare(b.grupo + '|' + b.cat));
       this.aplicarFatReqNoDre();
+      // ===== DESPESA (contas a pagar) → centros de custo, mesmo motor do relatório de despesas =====
+      mesesDesp.forEach(mk => {
+        const contas = despBuckets[mk];
+        const totalMes = r2(Object.values(contas).reduce((a, x) => a + x, 0));
+        const jsonPivo = [['Rótulos de Linha', 'Soma de Valor total'], ...Object.entries(contas), ['Total Geral', totalMes]];
+        const res = this.aplicarDespesasMes(jsonPivo, mk, false, null, substituirDesp);
+        resumo.push('Despesa ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(res.total) + (res.oficialPreservado ? ' (Resultado oficial mantido, diferença em Ajustes)' : ''));
+      });
       this.dreAtual = [...this.dreAtual];
-      this.registrarLog('Importou contas a receber ' + file.name + ' | ' + resumo.join(' | ') + (Object.keys(pagarPorMes).length ? ' | lado contas a pagar ignorado (as despesas vêm do relatório de despesas)' : ''));
+      this.registrarLog('Importou contas a pagar e a receber ' + file.name + ' | ' + resumo.join(' | '));
       this.recalcularTudo();
-      alert('Faturamento importado!\n\n' + resumo.join('\n') + '\n\nAs receitas do grupo 004 ficam registradas, mas ocultas e fora do total, como o cliente pediu. Use "Considerar 004?" na tela Faturamento para reverter.' + (Object.keys(pagarPorMes).length ? '\n\nO lado de contas a pagar deste arquivo não foi lançado: as despesas continuam vindo do relatório de despesas.' : ''));
+      alert('Contas a pagar e a receber importadas!\n\n' + resumo.join('\n') + '\n\nO lado a receber alimentou o Faturamento (grupo 004 registrado, mas fora do total, opção "Considerar 004?"). O lado a pagar alimentou a Despesa por centro de custo.');
       const ult = mesesArq[mesesArq.length - 1];
       this.mesAtivo = ult.charAt(0).toUpperCase() + ult.slice(1);
       this.mudarAba('faturamento_req');
