@@ -674,7 +674,7 @@ function refreshContext(){ var e=activeEmp(); var chip=byId('empChipTxt'); var a
   if(e){ chip.textContent=e.nome; byId('progName').textContent=e.nome; byId('progMeta').textContent='Fase '+(e.fase||1)+' · '+FASES[(e.fase||1)-1][0]; }
   else { chip.textContent=admin?'Selecionar empresa':'—'; byId('progName').textContent='—'; byId('progMeta').textContent='Nenhuma empresa selecionada'; }
 }
-function enterApp(){ applyRole(); byId('login').classList.add('done'); byId('app').classList.add('ready'); var home=currentUser.perfil==='vendedor'?'portal':'dashboard'; go(home); }
+function enterApp(){ applyRole(); byId('login').classList.add('done'); byId('app').classList.add('ready'); var home=currentUser.perfil==='vendedor'?'portal':'dashboard'; go(home); if(currentUser.perfil==='admin'){ setTimeout(function(){ if(wizDraftHasContent(wizGetDraft())&&!byId('modal').classList.contains('on')) showResumeChoice(wizGetDraft(),'boot'); },1500); } }
 
 /* ============ NAV ============ */
 function go(v){ if(!currentUser)return; if(allowedViews(currentUser).indexOf(v)<0){ v=allowedViews(currentUser)[0]||'dashboard'; }
@@ -690,7 +690,7 @@ function renderView(v){ var host=byId('view-'+v); if(!host)return; if(RENDER[v])
 /* ============ MODAL ============ */
 var modalSaveFn=null;
 function openModal(title,sub,body,onSave){ byId('modalTitle').textContent=title; byId('modalSub').textContent=sub||''; byId('modalBody').innerHTML=body; modalSaveFn=onSave; byId('modal').classList.add('on'); }
-function closeModal(){ byId('modal').classList.remove('on','wizard'); modalSaveFn=null; }
+function closeModal(){ if(byId('modal').classList.contains('wizard')){ try{readStep(wizIdx);}catch(e){} wizSaveDraft(); } byId('modal').classList.remove('on','wizard'); modalSaveFn=null; }
 function fldVal(id){ var e=byId(id); return e?e.value.trim():''; }
 function fldNum(id){ var e=byId(id); return e?(parseFloat(e.value)||0):0; }
 
@@ -1166,7 +1166,16 @@ function renderWizard(){ var steps=['Perfil','Comercial','Time','Programa','Diag
  byId('modalBody').innerHTML='<div class="stepper">'+sp+'</div>'+WIZ_STEP[wizIdx]()+nav;
 }
 function seedWizFrom(e){ if(!e)return {}; if(e.wiz)return JSON.parse(JSON.stringify(e.wiz)); return {nome:e.nome||'',segmento:e.segmento||'',responsavel:e.responsavel||'',contato:e.contato||'',fase:faseLabel(e.fase||1),metaConv:(e.metaConversao?e.metaConversao+'%':'')}; }
-function openEmpresaWizard(e){ wizEditId=e?e.id:null; wiz=seedWizFrom(e); wizIdx=0; byId('modalTitle').textContent=e?'Editar empresa':'Nova empresa'; byId('modalSub').textContent='Assistente de cadastro em 5 etapas'; byId('modal').classList.add('on','wizard'); modalSaveFn=null; renderWizard(); }
+function wizSaveDraft(){ if(wizEditId)return; try{ save('am_wiz_draft',{wiz:wiz,idx:wizIdx,ts:Date.now()}); }catch(e){} }
+function wizGetDraft(){ return load('am_wiz_draft',null); }
+function wizClearDraft(){ try{localStorage.removeItem('am_wiz_draft');}catch(e){} }
+function wizDraftHasContent(d){ if(!d||!d.wiz)return false; return Object.keys(d.wiz).some(function(k){ var v=d.wiz[k]; return Array.isArray(v)?v.length>0:(v!=null&&v!==''); }); }
+function showResumeChoice(d,mode){ var etapa=(d.idx||0)+1; var nome=(d.wiz&&d.wiz.nome)?'<b class="text-gold">'+esc(d.wiz.nome)+'</b>':'uma empresa';
+ var b2=mode==='boot'?'<button class="btn" data-act="wiz-discard" style="flex:1;justify-content:center">Descartar</button>':'<button class="btn" data-act="wiz-restart" style="flex:1;justify-content:center">Recomeçar do zero</button>';
+ openModal('Cadastro em andamento','','<p style="font-size:13.5px;color:var(--ink-2);line-height:1.55">Você começou a cadastrar '+nome+' e parou na <b>etapa '+etapa+' de 5</b>. Tudo o que você preencheu foi guardado.</p><div style="display:flex;gap:10px;margin-top:20px"><button class="btn gold" data-act="wiz-resume" style="flex:1;justify-content:center">Continuar de onde parei</button>'+b2+'</div>',null);
+}
+function _startWizard(e,draftWiz,draftIdx){ wizEditId=e?e.id:null; wiz=draftWiz?JSON.parse(JSON.stringify(draftWiz)):seedWizFrom(e); wizIdx=draftIdx||0; byId('modalTitle').textContent=e?'Editar empresa':'Nova empresa'; byId('modalSub').textContent='Assistente de cadastro em 5 etapas'; byId('modal').classList.add('on','wizard'); modalSaveFn=null; renderWizard(); }
+function openEmpresaWizard(e){ if(!e){ var d=wizGetDraft(); if(wizDraftHasContent(d)){ showResumeChoice(d,'open'); return; } } _startWizard(e); }
 function saveEmpresaWizard(){ if(!(wiz.nome||'').trim()){ wizIdx=0; renderWizard(); toast('Informe o nome da empresa'); return; }
  var list=getEmp(); var e=wizEditId?list.filter(function(x){return x.id===wizEditId;})[0]:null;
  var obj=e||{id:uid(),metodo:[],objecoes:[],depoimentos:[],criadoEm:Date.now()};
@@ -1177,7 +1186,7 @@ function saveEmpresaWizard(){ if(!(wiz.nome||'').trim()){ wizIdx=0; renderWizard
  obj.programa={objetivo:wiz.objetivo||'',dores:wiz.dores||[],prazo:wiz.prazo||'',investimentoFaixa:wiz.investimento||'',investimento:MID.invest[wiz.investimento]||0};
  obj.diag={conversao:MID.dgConv[wiz.dgConv]||0,ticket:MID.ticket[wiz.dgTicket]||0,ciclo:MID.ciclo[wiz.dgCiclo]||0,followup:MID.dgFollow[wiz.dgFollow]||0,receita:MID.dgReceita[wiz.dgReceita]||0};
  if(!e){ list.push(obj); if(!activeId())setActiveId(obj.id); } setEmp(list);
- audit(wizEditId?'editou empresa':'cadastrou empresa',obj.nome); closeModal(); toast(wizEditId?'Empresa atualizada':'Empresa cadastrada'); refreshContext(); reRender();
+ audit(wizEditId?'editou empresa':'cadastrou empresa',obj.nome); closeModal(); wizClearDraft(); toast(wizEditId?'Empresa atualizada':'Empresa cadastrada'); refreshContext(); reRender();
 }
 function empresaDetail(e){ var w=e.wiz||{}; var pr=e.programa||{};
  function kv(k,v){ return '<div class="kv"><div class="k">'+k+'</div><div class="v">'+(v?esc(v):'<span style="color:var(--ink-4)">—</span>')+'</div></div>'; }
@@ -1191,8 +1200,8 @@ function empresaDetail(e){ var w=e.wiz||{}; var pr=e.programa||{};
  h+='<div class="wgroup" style="margin-top:16px"><div class="wlabel">Principais dores</div><div class="chip-grid">'+chips(pr.dores)+'</div></div>';
  return h+'</div>';
 }
-document.addEventListener('click',function(ev){ var c=ev.target.closest('[data-chip]'); if(!c)return; var key=c.dataset.chip,val=c.dataset.val; wiz[key]=wiz[key]||[]; var i=wiz[key].indexOf(val); if(i>=0){wiz[key].splice(i,1);c.classList.remove('on');}else{wiz[key].push(val);c.classList.add('on');} });
-document.addEventListener('click',function(ev){ var w=ev.target.closest('[data-wiz]'); if(!w)return; var a=w.dataset.wiz; readStep(wizIdx);
+document.addEventListener('click',function(ev){ var c=ev.target.closest('[data-chip]'); if(!c)return; var key=c.dataset.chip,val=c.dataset.val; wiz[key]=wiz[key]||[]; var i=wiz[key].indexOf(val); if(i>=0){wiz[key].splice(i,1);c.classList.remove('on');}else{wiz[key].push(val);c.classList.add('on');} wizSaveDraft(); });
+document.addEventListener('click',function(ev){ var w=ev.target.closest('[data-wiz]'); if(!w)return; var a=w.dataset.wiz; readStep(wizIdx); wizSaveDraft();
  if(a==='back'){ if(wizIdx>0)wizIdx--; renderWizard(); }
  else if(a==='next'){ if(wizIdx===0&&!(wiz.nome||'').trim()){ toast('Informe o nome da empresa'); var el=byId('w_nome'); if(el)el.classList.add('err'); return; } if(wizIdx<4)wizIdx++; renderWizard(); }
  else if(a==='save'){ saveEmpresaWizard(); }
@@ -1292,7 +1301,12 @@ document.addEventListener('click',function(ev){ var t=ev.target.closest('[data-a
  else if(a==='gamif-config'){ openGamifModal(); }
  else if(a==='metodo-tpl'){ loadMetodoTpl(); }
  else if(a==='print'){ window.print(); }
+ else if(a==='wiz-resume'){ var dd=wizGetDraft(); closeModal(); _startWizard(null, dd&&dd.wiz, dd&&dd.idx); }
+ else if(a==='wiz-restart'){ wizClearDraft(); closeModal(); _startWizard(null); }
+ else if(a==='wiz-discard'){ wizClearDraft(); closeModal(); toast('Rascunho descartado'); }
 });
+window.addEventListener('beforeunload',function(){ if(byId('modal').classList.contains('wizard')){ try{readStep(wizIdx);}catch(e){} wizSaveDraft(); } });
+document.addEventListener('change',function(ev){ if(byId('modal').classList.contains('wizard')&&ev.target&&ev.target.closest&&ev.target.closest('#modalBody')){ try{readStep(wizIdx);}catch(e){} wizSaveDraft(); } });
 /* ===== RENDER OVERRIDES (vendas-aware) ===== */
 RENDER.dashboard=function(host){ var emps=getEmp();
  if(!emps.length){ host.innerHTML=secH('Central de Comando','Visão geral do seu programa de multiplicadores')+emptyState(iconSvg('<path d="M3 21h18M6 21V7l6-4 6 4v14"/>'),'Comece cadastrando sua primeira empresa','O sistema começa vazio. Cadastre a empresa cliente para iniciar o diagnóstico e, em seguida, os vendedores.', canEdit()?'<button class="btn gold" data-act="empresa-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Cadastrar empresa</button>':''); return; }
