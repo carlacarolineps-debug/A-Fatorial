@@ -1404,6 +1404,42 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </table>
         </div>
       </div>
+
+      <!-- Faturamento por tipo de operação (CFOP) — visão analítica do relatório de notas -->
+      <div class="card-dark" x-show="fatOpResumo(mesAtivo)">
+        <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:8px">
+          <div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-tags mr-2" style="color:var(--accent-gold)"></i> Faturamento por tipo de operação · <span x-text="listaMeses.find(m=>m.chave===mesAtivo)?.nome"></span></div>
+            <div class="card-sub" style="font-size:11.5px">Do relatório de notas (CFOP), com <b>Valor</b>, <b>Peso</b> e <b>Fator</b> por operação. Visão analítica: <b>não</b> altera o Faturamento oficial nem o Resultado, pois a base de peso deste relatório difere da planilha oficial.</div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="dark-table">
+            <thead><tr><th style="min-width:220px">Tipo de operação</th><th class="td-r">Valor</th><th class="td-r">Peso (kg)</th><th class="td-r">Fator (R$/kg)</th><th class="td-r">Notas</th><th class="td-r">% do valor</th></tr></thead>
+            <tbody>
+              <template x-for="r in fatOpRows(mesAtivo)" :key="'fop'+r.grupo">
+                <tr>
+                  <td class="font-bold text-accent-blue"><i class="fas fa-circle" style="font-size:7px;margin-right:7px;color:var(--accent-gold)"></i> <span x-text="r.grupo"></span></td>
+                  <td class="td-r font-bold" x-text="formatarDinheiroExato(r.val)"></td>
+                  <td class="td-r" style="color:var(--color-muted)" x-text="r.peso.toLocaleString('pt-BR')+' kg'"></td>
+                  <td class="td-r text-green-strong font-bold" x-text="r.peso>0?('R$ '+r.fator.toFixed(2).replace('.',',')):'·'"></td>
+                  <td class="td-r" style="color:var(--color-muted)" x-text="r.n"></td>
+                  <td class="td-r" style="color:var(--color-muted)" x-text="(fatOpResumo(mesAtivo).val>0?(r.val/fatOpResumo(mesAtivo).val*100):0).toFixed(1)+'%'"></td>
+                </tr>
+              </template>
+              <tr style="background:rgba(197,168,128,.12);border-top:2px solid var(--accent-gold);font-weight:900">
+                <td class="text-accent-blue">Total faturado (notas)</td>
+                <td class="td-r" x-text="formatarDinheiroExato(fatOpResumo(mesAtivo).val)"></td>
+                <td class="td-r" x-text="fatOpResumo(mesAtivo).peso.toLocaleString('pt-BR')+' kg'"></td>
+                <td class="td-r text-green-strong" x-text="fatOpResumo(mesAtivo).peso>0?('R$ '+(fatOpResumo(mesAtivo).val/fatOpResumo(mesAtivo).peso).toFixed(2).replace('.',',')):'·'"></td>
+                <td class="td-r" x-text="fatOpResumo(mesAtivo).n"></td>
+                <td class="td-r">100%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> O <b>Fator</b> aqui é Valor ÷ Peso de cada operação, direto das notas. Ele difere do Fator oficial da planilha porque a base de peso do relatório de notas não é a mesma do <b>Kg Faturado</b> oficial. Use esta tela para analisar o mix por CFOP; o faturamento que entra no Resultado continua vindo da planilha oficial.</div>
+      </div>
     </div></template>
 
     <!-- ===================== EMBALAGEM · SUB-EMPRESAS & TRIBUTAÇÃO ===================== -->
@@ -3794,7 +3830,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 
 // Versão do formato dos dados salvos no navegador: quando a estrutura embutida evolui,
 // dados antigos são descartados para nunca esconderem linhas novas (ex.: ITP, Aparas).
-const NEXUS_DADOS_VERSAO = 7;
+const NEXUS_DADOS_VERSAO = 8;
 // SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
 const EMB_SERVICOS=[
  {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
@@ -4433,6 +4469,7 @@ function sistemaUnificado(){
       if (salvo.extras.difKg && typeof EMB_DIF_KG !== 'undefined') { Object.keys(EMB_DIF_KG).forEach(k=>delete EMB_DIF_KG[k]); Object.assign(EMB_DIF_KG, salvo.extras.difKg); }
       if (salvo.extras.fatoresMt && typeof EMB_FATORES_MT !== 'undefined') Object.assign(EMB_FATORES_MT, salvo.extras.fatoresMt);
       if (salvo.extras.invMt) emp.extras.invMt = salvo.extras.invMt;
+      if (salvo.extras.fatOpEmb) emp.extras.fatOpEmb = salvo.extras.fatOpEmb;
       if (salvo.extras.fatReq && emp.extras.fatReq) emp.extras.fatReq = salvo.extras.fatReq;
       if (salvo.extras.invReq && emp.extras.invReq) emp.extras.invReq = salvo.extras.invReq;
       if (salvo.extras.linhasExtras && typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = salvo.extras.linhasExtras.invest || {}; EMB_LINHAS_EXTRAS.prov = salvo.extras.linhasExtras.prov || {}; }
@@ -4509,7 +4546,8 @@ function sistemaUnificado(){
             difKg: (typeof EMB_DIF_KG !== 'undefined') ? EMB_DIF_KG : null,
             linhasExtras: (typeof EMB_LINHAS_EXTRAS !== 'undefined') ? EMB_LINHAS_EXTRAS : null,
             fatoresMt: (typeof EMB_FATORES_MT !== 'undefined') ? EMB_FATORES_MT : null,
-            invMt: emp.extras.invMt || null
+            invMt: emp.extras.invMt || null,
+            fatOpEmb: emp.extras.fatOpEmb || null
           };
         }
         if (emp.extras && emp.extras.fatReq) {
@@ -6504,7 +6542,8 @@ function sistemaUnificado(){
                 for (const c of (r || [])) { const m = String(c || '').match(/em\s+(\d{2})\/(\d{2})\/(\d{4})/i); if (m) { mes = ordem[parseInt(m[2], 10) - 1] || ''; break; } }
                 if (mes) break;
             }
-            nota = 'Relatório de inventário (estoque por categoria)' + (mes ? ', data do título: ' + mes.toUpperCase() : '');
+            if (!mes) mes = this.mesDoNomeArquivo(nome) || '';
+            nota = 'Relatório de inventário (estoque por categoria)' + (mes ? ', mês: ' + mes.toUpperCase() : ', selecione o mês (sem data no título)');
         } else if (this.empresaAtiva === 'embalagem' && (() => {
             // Planilha "Resultado 2026" completa: linha-cabeçalho com os meses por extenso
             const normR = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -6535,6 +6574,18 @@ function sistemaUnificado(){
             const ms2 = Object.keys(mesesEm2).sort((a, b) => mesesEm2[b] - mesesEm2[a]);
             if (ms2.length) mes = ordem[Number(ms2[0])] || '';
             nota = 'Contas a pagar e a receber: alimenta o FATURAMENTO (a receber, grupo 004 oculto do total) e a DESPESA por centro de custo (a pagar)' + (mes ? ', mês: ' + mes.toUpperCase() : '');
+        } else if (this.empresaAtiva === 'embalagem' && json.slice(0, 8).some(r => (r || []).some(c => String(c || '').trim() === 'Valor') && (r || []).some(c => String(c || '').trim() === 'CFOP'))) {
+            // Faturamento da Embalagem por nota (Valor, Peso, Fator, CFOP, Emissao): alimenta a
+            // linha Embalagem do faturamento (Valor→faturamento, Peso→kg, Fator=R$/kg) e o detalhe
+            // por tipo de operação (CFOP). As datas são DD/MM/AA e cada mês vai para sua coluna.
+            tipo = 'fatembnota';
+            const hiF = json.findIndex(r => (r || []).some(c => String(c || '').trim() === 'Valor') && (r || []).some(c => String(c || '').trim() === 'CFOP'));
+            const iEmF = (json[hiF] || []).findIndex(c => String(c || '').trim() === 'Emissao' || String(c || '').trim() === 'Emissão');
+            const mesesF = {};
+            json.slice(hiF + 1).forEach(r => { if (!r) return; const mm = this.mesEmissaoEmb(r[iEmF]); if (mm >= 0 && mm < 12) mesesF[mm] = (mesesF[mm] || 0) + 1; });
+            const msF = Object.keys(mesesF).sort((a, b) => Number(a) - Number(b));
+            if (msF.length) mes = ordem[Number(msF[0])] || '';
+            nota = 'Faturamento da Embalagem por nota (Valor, Peso, Fator e CFOP)' + (msF.length > 1 ? ', ' + msF.length + ' meses no arquivo (cada um na sua coluna)' : (mes ? ', mês: ' + mes.toUpperCase() : '')) + '. Gera a visão analítica por tipo de operação (não altera o faturamento oficial).';
         } else {
             // Contas a pagar: cabeçalho com Valor total + Conta Contábil Número; meses pela emissão
             let cabIdx = -1, cab = null;
@@ -6650,6 +6701,7 @@ function sistemaUnificado(){
               if (pareceInv) { alert('Este arquivo é um relatório de inventário, não de faturamento.\n\nEscolha o tipo Inventário para importar o estoque.'); evt.target.value = ''; return; }
               this.importarFaturamentoMes(json, file, evt); return;
             }
+            if (tipo === 'fatembnota') { this.importarFaturamentoBrutoEmb(json, file, evt); return; }
             if (tipo === 'despesa' && pareceInv) {
               if (!confirm('Este arquivo parece um relatório de INVENTÁRIO (coluna Clas. Fiscal), mas o tipo escolhido foi Despesa.\n\nImportar mesmo assim como despesa?')) { evt.target.value = ''; return; }
             }
@@ -7330,6 +7382,102 @@ function sistemaUnificado(){
       evt.target.value = '';
     },
 
+    // ===== Faturamento da Embalagem por NOTA (Valor, Peso, Fator, CFOP, Emissao) =====
+    // Alimenta a linha Embalagem do faturamento (Valor→faturamento, Peso→kg, Fator=R$/kg),
+    // separando por mês (datas DD/MM/AA) e guardando o detalhe por tipo de operação (CFOP).
+    // Mês (chave 'jan'..'dez') a partir do NOME do arquivo, quando o título não traz a data.
+    // Reconhece DDMMAAAA, DDMMAA e MM.AAAA (ex.: 31032026, 280226, 03.2026).
+    mesDoNomeArquivo(nome) {
+      const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
+      const s = String(nome || '');
+      let m = s.match(/(\d{2})(\d{2})(\d{4})(?!\d)/);            // DDMMAAAA
+      if (!m) { const m6 = s.match(/(?<!\d)(\d{2})(\d{2})(\d{2})(?!\d)/); if (m6) m = m6; } // DDMMAA
+      if (m) { const mm = parseInt(m[2], 10) - 1; if (mm >= 0 && mm < 12) return ordem[mm]; }
+      const mp = s.match(/(?<!\d)(\d{2})[.\-_](\d{4})(?!\d)/);   // MM.AAAA
+      if (mp) { const mm = parseInt(mp[1], 10) - 1; if (mm >= 0 && mm < 12) return ordem[mm]; }
+      return null;
+    },
+    // Mês (0-11) da coluna Emissao do relatório de notas: aceita serial do Excel (número),
+    // objeto Date ou texto DD/MM/AA. Devolve -1 quando não há data válida.
+    mesEmissaoEmb(v) {
+      if (typeof v === 'number') { const d = new Date(Math.round((v - 25569) * 86400 * 1000)); return isNaN(d) ? -1 : d.getUTCMonth(); }
+      if (v instanceof Date) return isNaN(v) ? -1 : v.getUTCMonth();
+      const m = String(v || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      return m ? (parseInt(m[2], 10) - 1) : -1;
+    },
+    cfopGrupo(cfop) {
+      const s = String(cfop || '').replace(/\D/g, '');
+      const op = s.length >= 4 ? s.slice(1, 4) : s;
+      const inn = (...a) => a.includes(op);
+      if (inn('101','102','103','104','105','106','107','109','110','111','113','114','116','119','120','122','123','124','125')) return 'Venda';
+      if (inn('201','202','208','209','210','410','411','412','413','414','415')) return 'Devolução';
+      if (inn('151','152','153','154','155','156','157','158','159')) return 'Transferência';
+      if (op && op[0] === '9') return 'Remessa / Amostra';
+      if (inn('551','552','553','910','911','912','913','914','915','916','917','918','920','949')) return 'Remessa / Amostra';
+      return 'Outras operações';
+    },
+    importarFaturamentoBrutoEmb(json, file, evt) {
+      const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
+      const r2 = x => Math.round(x * 100) / 100;
+      const num = x => (typeof x === 'number') ? x : ((typeof x === 'string' && /\d/.test(x)) ? this.parseNumero(x) : NaN);
+      let hi = -1, cab = null;
+      for (let i = 0; i < Math.min(json.length, 10); i++) { const r = json[i] || []; if (r.some(c => String(c || '').trim() === 'Valor') && r.some(c => String(c || '').trim() === 'CFOP')) { hi = i; cab = r; break; } }
+      if (hi < 0) { alert('Não reconheci o relatório de faturamento por nota (faltam as colunas Valor e CFOP).'); evt.target.value = ''; return; }
+      const ixEx = n => cab.findIndex(c => String(c || '').trim() === n);
+      const iVal = ixEx('Valor'), iPeso = ixEx('Peso'), iCFOP = ixEx('CFOP'), iEm = cab.findIndex(c => /^Emiss/i.test(String(c || '').trim()));
+      const buckets = {}; let totalDecl = 0;
+      json.slice(hi + 1).forEach(r => {
+        if (!r) return;
+        const v = num(r[iVal]); if (isNaN(v) || v === 0) return;
+        const preench = r.filter(x => x != null && x !== '').length;
+        if (preench <= 3) { if (v > totalDecl) totalDecl = v; return; } // rodapé (Total Geral / média)
+        const mesN = this.mesEmissaoEmb(r[iEm]);
+        if (mesN < 0) return; const mk = ordem[mesN]; if (!mk) return; // Emissao: serial, Date ou DD/MM/AA
+        const peso = iPeso >= 0 ? (num(r[iPeso]) || 0) : 0;
+        const pv = isNaN(peso) ? 0 : peso;
+        const cfop = String(r[iCFOP] || '').trim();
+        const b = buckets[mk] || (buckets[mk] = { val: 0, peso: 0, n: 0, grupos: {}, cfops: {} });
+        b.val = r2(b.val + v); b.peso = r2(b.peso + pv); b.n++;
+        const g = this.cfopGrupo(cfop);
+        const gg = b.grupos[g] || (b.grupos[g] = { val: 0, peso: 0, n: 0 }); gg.val = r2(gg.val + v); gg.peso = r2(gg.peso + pv); gg.n++;
+        const cc = b.cfops[cfop] || (b.cfops[cfop] = { val: 0, peso: 0, n: 0 }); cc.val = r2(cc.val + v); cc.peso = r2(cc.peso + pv); cc.n++;
+      });
+      let meses = Object.keys(buckets).sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
+      if (!meses.length) { alert('Nenhum lançamento de faturamento com valor foi encontrado.'); evt.target.value = ''; return; }
+      if (meses.length > 1) {
+        const nomes = meses.map(mk => '  ' + mk.toUpperCase() + ' (' + buckets[mk].n + ' notas)').join('\n');
+        if (!confirm('Este arquivo tem faturamento de ' + meses.length + ' meses:\n\n' + nomes + '\n\nCada mês vai para a sua coluna. Continuar?')) { evt.target.value = ''; return; }
+      }
+      // IMPORTANTE: este relatório traz o VALOR e o PESO por nota fiscal (CFOP), que NÃO
+      // batem com a linha oficial "Faturamento Emb." da planilha Resultado (base de peso e
+      // critério diferentes). Por isso ele NÃO substitui o faturamento oficial nem mexe no
+      // Resultado: alimenta apenas a visão analítica "Faturamento por tipo de operação".
+      this.salvarEstado('Faturamento por tipo de operação: ' + meses.map(m => m.toUpperCase()).join(', '));
+      const ex = this.empresaExtras; ex.fatOpEmb = ex.fatOpEmb || {};
+      const resumo = [];
+      meses.forEach(mk => {
+        const b = buckets[mk];
+        ex.fatOpEmb[mk] = { val: b.val, peso: b.peso, n: b.n, grupos: b.grupos, cfops: b.cfops, fator: b.peso > 0 ? r2(b.val / b.peso) : 0 };
+        resumo.push(mk.toUpperCase() + ': ' + this.formatarDinheiroExato(b.val) + ' | ' + b.peso.toLocaleString('pt-BR') + ' kg | ' + b.n + ' notas');
+      });
+      if (totalDecl && Math.abs(totalDecl - meses.reduce((a, mk) => a + buckets[mk].val, 0)) > 0.05) this.registrarLog('Aviso: Total Geral do relatório de faturamento (' + this.formatarDinheiroExato(totalDecl) + ') difere da soma dos meses.');
+      this.empresaExtras = { ...this.empresaExtras };
+      this.registrarLog('Importou faturamento por tipo de operação ' + file.name + ': ' + resumo.join(' | '));
+      this.recalcularTudo();
+      alert('Faturamento por tipo de operação importado (' + meses.length + ' ' + (meses.length > 1 ? 'meses' : 'mês') + ')!\n\n' + resumo.join('\n') + '\n\nEsta é uma visão analítica por CFOP (Valor, Peso e Fator por operação). NÃO altera o faturamento oficial nem o Resultado, porque a base de peso deste relatório de notas difere da planilha oficial. Veja o detalhe no fim da tela Faturamento.');
+      const ult = meses[meses.length - 1];
+      this.mesAtivo = ult.charAt(0).toUpperCase() + ult.slice(1);
+      this.atualizarLeituraSistema();
+      evt.target.value = '';
+    },
+    // Linhas do detalhamento por tipo de operação (grupos de CFOP) do mês
+    fatOpRows(mk) {
+      const d = this.empresaExtras.fatOpEmb && this.empresaExtras.fatOpEmb[String(mk).toLowerCase()];
+      if (!d || !d.grupos) return [];
+      return Object.entries(d.grupos).map(([g, x]) => ({ grupo: g, val: x.val, peso: x.peso, n: x.n, fator: x.peso > 0 ? Math.round(x.val / x.peso * 100) / 100 : 0 })).sort((a, b) => b.val - a.val);
+    },
+    fatOpResumo(mk) { return (this.empresaExtras.fatOpEmb && this.empresaExtras.fatOpEmb[String(mk).toLowerCase()]) || null; },
+
     // Converte TODOS os itens em metros do mês em kg: usa o fator do item quando conhecido
     // (coluna Peso do relatório ou tabela Metros para Kg); sem fator, estima pelo valor do
     // item dividido pelo R$/kg dos itens pesados da mesma categoria. Nada fica sem kg.
@@ -7383,9 +7531,13 @@ function sistemaUnificado(){
         }
         if (mesArq) break;
       }
-      const mk = mesArq || selMes;
-      if (mesArq && mesArq !== selMes) {
-        if (!confirm('Este relatório de inventário é de ' + mesArq.toUpperCase() + ' (pela data do título), mas você selecionou ' + selMes.toUpperCase() + '.\n\nImportar no mês do relatório, ' + mesArq.toUpperCase() + '?')) { evt.target.value = ''; return; }
+      // Sem data no título (ex.: arquivo "V2"): tenta o mês pelo nome do arquivo
+      const porNome = mesArq ? null : this.mesDoNomeArquivo(file && file.name);
+      const mesDet = mesArq || porNome;
+      const mk = mesDet || selMes;
+      if (mesDet && mesDet !== selMes) {
+        const fonte = mesArq ? 'pela data do título' : 'pelo nome do arquivo';
+        if (!confirm('Este relatório de inventário é de ' + mesDet.toUpperCase() + ' (' + fonte + '), mas você selecionou ' + selMes.toUpperCase() + '.\n\nImportar no mês do relatório, ' + mesDet.toUpperCase() + '?')) { evt.target.value = ''; return; }
       }
       // Seções do relatório nas linhas da planilha (Tintas e Aparas saem pelo nome da subseção)
       const MAPA_INV = { '01':'Matéria Prima', '02':'Outros Insumos', '03':'Produto em Processo', '04':'Produto Acabado', '06':'Produto em Processo', '07':'Outros Insumos', '10':'Outros Insumos', '99':'ITP' };
