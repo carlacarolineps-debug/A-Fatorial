@@ -2488,6 +2488,15 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
           <button @click="restaurarDadosOriginais()" class="emc-btn-secondary" style="padding:10px 16px;border-radius:11px;white-space:nowrap"><i class="fas fa-rotate-left mr-1"></i> Restaurar dados originais</button>
         </div>
+
+        <!-- Zerar o sistema (começar do zero) -->
+        <div x-show="permAdmin" style="margin-top:16px;background:rgba(220,38,38,.05);padding:20px 24px;border-radius:12px;border:1px solid rgba(220,38,38,.35);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="font-size:12.5px;font-weight:800;color:#c0392b"><i class="fas fa-triangle-exclamation mr-2"></i> Zerar o sistema e recomeçar</div>
+            <div style="font-size:11px;color:var(--color-muted);margin-top:3px;line-height:1.5">Exclui <b>todos os dados</b> de todas as empresas (faturamento, despesas, inventário, provisões) e deixa o sistema <b>em branco</b> para você subir os arquivos de novo. Usuários e login são mantidos. Não dá para desfazer.</div>
+          </div>
+          <button @click="zerarSistema()" class="emc-btn emc-btn-danger" style="padding:10px 18px;border-radius:11px;white-space:nowrap"><i class="fas fa-trash-can mr-2"></i> Excluir tudo e zerar</button>
+        </div>
       </div>
 
       <div x-show="abaConfig==='sistema'" x-cloak style="display:flex; flex-direction:column; gap:24px;">
@@ -4436,9 +4445,11 @@ function sistemaUnificado(){
         return o;
       });
       this.collapsedCCs = this.centrosCustoData.filter(c => c.ip === 1).map(c => c.c);
-      this.aplicarMesesEmbutidos(emp);
+      const zeradoAtivo = (() => { try { return localStorage.getItem('nexus_v2_zerado') === '1'; } catch(e) { return false; } })();
+      if (!zeradoAtivo) this.aplicarMesesEmbutidos(emp);
       this.garantirLinhasPlanilha(emp);
       // Persistência: se houver dados salvos neste navegador (importações/edições), eles prevalecem
+      let aplicouSalvo = false;
       try {
         const salvo = JSON.parse(localStorage.getItem('nexus_v2_dados_' + emp.id) || 'null');
         if (salvo && salvo.versao === NEXUS_DADOS_VERSAO) {
@@ -4447,10 +4458,13 @@ function sistemaUnificado(){
           if (salvo.prev) this.previsoesData = salvo.prev;
           this.hidratarExtras(emp, salvo);
           this.collapsedCCs = this.centrosCustoData.filter(c => c.ip === 1).map(c => c.c);
+          aplicouSalvo = true;
         } else if (salvo) {
           localStorage.removeItem('nexus_v2_dados_' + emp.id); // formato antigo: volta aos dados embutidos da planilha
         }
       } catch(e) {}
+      // Sistema zerado pelo cliente: sem dados salvos para esta empresa, começa tudo em branco
+      if (zeradoAtivo && !aplicouSalvo) this.zerarValoresAtual();
     },
     hidratarExtras(emp, salvo) {
       if (!salvo || !salvo.extras || !emp.extras) return;
@@ -4570,9 +4584,68 @@ function sistemaUnificado(){
     restaurarDadosOriginais() {
       if (!this.permAdmin) { alert('Apenas Administradores podem restaurar os dados originais.'); return; }
       if (!confirm('Restaurar TODOS os dados originais das planilhas embutidas? Importações e edições feitas neste navegador serão descartadas (usuários e ações do kanban são mantidos).')) return;
-      try { this.ordemEmpresas.forEach(id => localStorage.removeItem('nexus_v2_dados_' + id)); } catch(e) {}
+      try { this.ordemEmpresas.forEach(id => localStorage.removeItem('nexus_v2_dados_' + id)); localStorage.removeItem('nexus_v2_zerado'); } catch(e) {}
       this.registrarLog('Restaurou os dados originais das planilhas embutidas.');
       alert('Dados originais restaurados. A página será recarregada.');
+      location.reload();
+    },
+    // Zera qualquer objeto com colunas de meses (jan..dez) para começar em branco
+    zerarMesesObj(o) {
+      if (!o || typeof o !== 'object') return;
+      this.listaMeses.forEach(m => { const k = m.chave.toLowerCase(); if (typeof o[k] === 'number') o[k] = 0; });
+    },
+    // Deixa a empresa ativa totalmente em branco (todos os valores em zero), preservando a
+    // estrutura de linhas para receber os arquivos novos.
+    zerarValoresAtual() {
+      (this.dreAtual || []).forEach(l => this.zerarMesesObj(l));
+      (this.previsoesData || []).forEach(l => this.zerarMesesObj(l));
+      (this.centrosCustoData || []).forEach(c => this.zerarMesesObj(c));
+      const ex = this.empresaExtras || {};
+      (ex.faturamento || []).forEach(f => { f.fat = {}; f.kg = {}; f.fator = {}; });
+      (ex.inventario || []).forEach(i => { i.valor = {}; i.kg = {}; i.mts = {}; });
+      (ex.servicos || []).forEach(s => this.zerarMesesObj(s));
+      (ex.subempresas || []).forEach(s => {
+        Object.keys(s).forEach(k => { if (/^(desp|fat|kg)(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)$/.test(k) && typeof s[k] === 'number') s[k] = 0; });
+        ['fat', 'kg', 'desp', 'res'].forEach(k => { if (typeof s[k] === 'number') s[k] = 0; });
+      });
+      if (ex.itp) this.zerarMesesObj(ex.itp);
+      if (ex.fatReq) { ex.fatReq.itens = []; ex.fatReq.meses = {}; }
+      if (ex.invReq) { ex.invReq.itens = []; ex.invReq.detalhe = {}; ex.invReq.meses = {}; }
+      ex.fatOpEmb = {}; ex.invMt = {};
+      if (typeof EMB_FATORES_MT !== 'undefined') Object.keys(EMB_FATORES_MT).forEach(k => delete EMB_FATORES_MT[k]);
+      if (typeof EMB_DIF_KG !== 'undefined') Object.keys(EMB_DIF_KG).forEach(k => delete EMB_DIF_KG[k]);
+    },
+    // Zera os dados-semente (embutidos) de uma empresa, para o consolidado e as demais empresas
+    // também começarem em branco no modo zerado. Formato do cc é [c, jan, fev, mar, abr, ac, mm, ma, ip].
+    zerarSeedEmpresa(emp) {
+      if (!emp) return;
+      (emp.dre || []).forEach(l => this.zerarMesesObj(l));
+      (emp.previsoes || []).forEach(l => this.zerarMesesObj(l));
+      (emp.cc || []).forEach(row => { if (Array.isArray(row)) { for (let i = 1; i <= 7; i++) if (typeof row[i] === 'number') row[i] = 0; } });
+      const ex = emp.extras || {};
+      (ex.faturamento || []).forEach(f => { f.fat = {}; f.kg = {}; f.fator = {}; });
+      (ex.inventario || []).forEach(i => { i.valor = {}; i.kg = {}; i.mts = {}; });
+      (ex.servicos || []).forEach(s => this.zerarMesesObj(s));
+      (ex.subempresas || []).forEach(s => {
+        Object.keys(s).forEach(k => { if (/^(desp|fat|kg)(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)$/.test(k) && typeof s[k] === 'number') s[k] = 0; });
+        ['fat', 'kg', 'desp', 'res'].forEach(k => { if (typeof s[k] === 'number') s[k] = 0; });
+      });
+      if (ex.itp) this.zerarMesesObj(ex.itp);
+      if (ex.fatReq) { ex.fatReq.itens = []; ex.fatReq.meses = {}; }
+      if (ex.invReq) { ex.invReq.itens = []; ex.invReq.detalhe = {}; ex.invReq.meses = {}; }
+      ex.fatOpEmb = {}; ex.invMt = {};
+    },
+    // AÇÃO DO CLIENTE: exclui todos os dados e zera o sistema para subir os arquivos de novo
+    zerarSistema() {
+      if (!this.permAdmin) { alert('Apenas Administradores podem zerar o sistema.'); return; }
+      if (!confirm('EXCLUIR TODOS OS DADOS e zerar o sistema?\n\nTodos os valores importados e embutidos (faturamento, despesas, inventário, provisões, de todas as empresas) serão apagados e o sistema fica EM BRANCO para você subir os arquivos de novo.\n\nUsuários e login são mantidos. Esta ação não pode ser desfeita.')) return;
+      if (!confirm('Tem certeza? Isto apaga os números de TODAS as empresas e não dá para voltar (a não ser restaurando os dados originais das planilhas embutidas).')) return;
+      try {
+        this.ordemEmpresas.forEach(id => localStorage.removeItem('nexus_v2_dados_' + id));
+        localStorage.setItem('nexus_v2_zerado', '1');
+      } catch(e) {}
+      this.registrarLog('Sistema ZERADO pelo administrador: todos os dados excluídos para novo carregamento.');
+      alert('Sistema zerado! A página vai recarregar em branco.\n\nAbra o Importador e suba os arquivos (faturamento, despesas, inventário) para preencher os meses.');
       location.reload();
     },
     trocarEmpresa(id) {
@@ -8031,6 +8104,18 @@ function sistemaUnificado(){
           if (salvo && salvo.dre) EMPRESAS[id].dre = salvo.dre;
           if (salvo) this.hidratarExtras(EMPRESAS[id], salvo);
         });
+      } catch(e) {}
+      // Sistema zerado pelo cliente: começa em branco as empresas que ainda não têm dados subidos
+      try {
+        if (localStorage.getItem('nexus_v2_zerado') === '1') {
+          this.ordemEmpresas.forEach(id => {
+            const salvo = JSON.parse(localStorage.getItem('nexus_v2_dados_' + id) || 'null');
+            if (salvo && salvo.versao === NEXUS_DADOS_VERSAO) return; // dados subidos após o zero prevalecem
+            this.zerarSeedEmpresa(EMPRESAS[id]);
+          });
+          if (typeof EMB_FATORES_MT !== 'undefined') Object.keys(EMB_FATORES_MT).forEach(k => delete EMB_FATORES_MT[k]);
+          if (typeof EMB_DIF_KG !== 'undefined') Object.keys(EMB_DIF_KG).forEach(k => delete EMB_DIF_KG[k]);
+        }
       } catch(e) {}
       this.carregarEmpresa(this.empresaAtiva);
       this.registrarLog('Acesso Autorizado - Sistema NEXUS GRB Iniciado');
