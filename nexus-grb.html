@@ -1585,7 +1585,9 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               <button @click="fatReqVista='liquido'" :style="fatReqVista==='liquido'?'background:var(--accent-blue);color:#fff':'background:transparent;color:var(--color-muted)'" style="font-size:11px;font-weight:800;padding:6px 12px;border:none;cursor:pointer">Líquido</button>
               <button @click="fatReqVista='bruto'" :style="fatReqVista==='bruto'?'background:var(--accent-blue);color:#fff':'background:transparent;color:var(--color-muted)'" style="font-size:11px;font-weight:800;padding:6px 12px;border:none;cursor:pointer">Bruto</button>
             </div>
-            <button x-show="permEdita && fatReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
+            <button x-show="fatReqMesesAtivos.length" @click="fatReqExpandirTodos()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-plus-square mr-1"></i> Expandir</button>
+            <button x-show="fatReqMesesAtivos.length" @click="fatReqRecolherTodos()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-minus-square mr-1"></i> Recolher</button>
+            <button x-show="permEdita && fatReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit;if(fatReqEdit)fatReqExpandirTodos()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
           </div>
         </div>
         <template x-if="!(empresaExtras.fatReq && empresaExtras.fatReq.itens.length)">
@@ -1604,11 +1606,20 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                     @click="fatReqEdit || (r.grupoHdr ? razaoFatReqGrupo(r.grupo) : razaoFatReq(r.item))"
                     :style="r.grupoHdr ? 'background:rgba(25,16,64,.06);border-top:1px solid var(--color-border)' : (r.eh004 ? 'background:rgba(197,168,128,.07)' : '')">
                   <template x-if="r.grupoHdr">
-                    <td class="font-bold text-accent-blue" :colspan="listaMeses.length + 2">
+                    <td class="font-bold text-accent-blue">
+                      <span @click.stop="fatReqToggleGrupo(r.grupo)" style="display:inline-block;width:16px;cursor:pointer" title="Abrir/fechar categorias deste grupo"><i class="fas text-xs" style="color:var(--accent-gold)" :class="fatReqExpandidoTem(r.grupo)?'fa-chevron-down':'fa-chevron-right'"></i></span>
                       <i class="fas fa-layer-group mr-1" style="color:var(--accent-gold);font-size:10px"></i> <span x-text="r.grupo"></span>
                       <span x-show="r.eh004" class="res-nota">considerado por opção, desmarque para ocultar</span>
                       <i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i>
                     </td>
+                  </template>
+                  <template x-if="r.grupoHdr">
+                    <template x-for="m in listaMeses" :key="'fqgc'+ri+m.chave">
+                      <td class="td-r font-bold" :class="fatReqMesVazio(m.chave)?'res-future':''" style="color:var(--accent-blue)" x-text="formatarDinheiroExato(fatReqGrupoCel(r.grupo, m.chave))"></td>
+                    </template>
+                  </template>
+                  <template x-if="r.grupoHdr">
+                    <td class="td-r font-bold" style="color:var(--accent-blue)" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+fatReqGrupoCel(r.grupo, m.chave),0))"></td>
                   </template>
                   <template x-if="!r.grupoHdr">
                     <td style="padding-left:26px"><span x-text="r.item.cat"></span><i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i></td>
@@ -1637,6 +1648,27 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </table>
         </div>
         <div x-show="empresaExtras.fatReq && !empresaExtras.fatReq.considerar004 && fatReqMesesAtivos.length" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-eye-slash mr-1" style="color:var(--accent-gold)"></i> O grupo <b>004 · Outras Receitas</b> está registrado no sistema, mas oculto e fora dos totais e do Resultado, como o cliente pediu. Marque <b>Considerar 004?</b> no painel acima para exibir e somar; dá para voltar atrás quando quiser.</div>
+      </div>
+
+      <div class="ia-insight-box no-print" x-show="analiseFatReq">
+        <div class="font-bold mb-6 flex items-center text-accent-blue" style="font-size:16px;"><i class="fas fa-lightbulb mr-2 text-accent-gold"></i> Leitura &amp; Ação · Faturamento da Requalificadora</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:20px;">
+          <div class="controller-card border-t-4" style="border-top-color:var(--accent-gold);">
+            <div class="controller-title"><i class="fas fa-hand-holding-dollar text-accent-blue mr-2"></i> <span x-text="(analiseFatReq||{}).c1t"></span></div>
+            <div class="controller-item"><span class="controller-label">Diagnóstico</span><span class="controller-val" x-text="(analiseFatReq||{}).c1d"></span></div>
+            <div class="controller-action"><span class="controller-label"><i class="fas fa-arrow-right mr-1"></i> O que fazer</span><span class="controller-val" x-text="(analiseFatReq||{}).c1a"></span></div>
+          </div>
+          <div class="controller-card border-t-4" style="border-top-color:var(--accent-gold);">
+            <div class="controller-title"><i class="fas fa-trophy text-accent-blue mr-2"></i> <span x-text="(analiseFatReq||{}).c2t"></span></div>
+            <div class="controller-item"><span class="controller-label">Diagnóstico</span><span class="controller-val" x-text="(analiseFatReq||{}).c2d"></span></div>
+            <div class="controller-action"><span class="controller-label"><i class="fas fa-arrow-right mr-1"></i> O que fazer</span><span class="controller-val" x-text="(analiseFatReq||{}).c2a"></span></div>
+          </div>
+          <div class="controller-card border-t-4" style="border-top-color:var(--accent-gold);">
+            <div class="controller-title"><i class="fas fa-receipt text-accent-blue mr-2"></i> <span x-text="(analiseFatReq||{}).c3t"></span></div>
+            <div class="controller-item"><span class="controller-label">Diagnóstico</span><span class="controller-val" x-text="(analiseFatReq||{}).c3d"></span></div>
+            <div class="controller-action"><span class="controller-label"><i class="fas fa-arrow-right mr-1"></i> O que fazer</span><span class="controller-val" x-text="(analiseFatReq||{}).c3a"></span></div>
+          </div>
+        </div>
       </div>
     </div></template>
 
@@ -1716,6 +1748,27 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </table>
         </div>
         <div x-show="empresaExtras.invReq && empresaExtras.invReq.itens.length" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> O <b>estoque é uma foto</b> de cada mês (não soma ao longo do ano). A coluna <b>Atual</b> mostra a posição do mês selecionado. O total alimenta a linha <b>Estoque</b> do Resultado, que move a Diferença de Estoque.</div>
+      </div>
+
+      <div class="ia-insight-box no-print" x-show="analiseInvReq">
+        <div class="font-bold mb-6 flex items-center text-accent-blue" style="font-size:16px;"><i class="fas fa-lightbulb mr-2 text-accent-gold"></i> Leitura &amp; Ação · Inventário da Requalificadora</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:20px;">
+          <div class="controller-card border-t-4" style="border-top-color:var(--accent-gold);">
+            <div class="controller-title"><i class="fas fa-boxes-stacked text-accent-blue mr-2"></i> <span x-text="(analiseInvReq||{}).c1t"></span></div>
+            <div class="controller-item"><span class="controller-label">Diagnóstico</span><span class="controller-val" x-text="(analiseInvReq||{}).c1d"></span></div>
+            <div class="controller-action"><span class="controller-label"><i class="fas fa-arrow-right mr-1"></i> O que fazer</span><span class="controller-val" x-text="(analiseInvReq||{}).c1a"></span></div>
+          </div>
+          <div class="controller-card border-t-4" style="border-top-color:var(--accent-gold);">
+            <div class="controller-title"><i class="fas fa-crown text-accent-blue mr-2"></i> <span x-text="(analiseInvReq||{}).c2t"></span></div>
+            <div class="controller-item"><span class="controller-label">Diagnóstico</span><span class="controller-val" x-text="(analiseInvReq||{}).c2d"></span></div>
+            <div class="controller-action"><span class="controller-label"><i class="fas fa-arrow-right mr-1"></i> O que fazer</span><span class="controller-val" x-text="(analiseInvReq||{}).c2a"></span></div>
+          </div>
+          <div class="controller-card border-t-4" style="border-top-color:var(--accent-gold);">
+            <div class="controller-title"><i class="fas fa-arrow-trend-up text-accent-blue mr-2"></i> <span x-text="(analiseInvReq||{}).c3t"></span></div>
+            <div class="controller-item"><span class="controller-label">Diagnóstico</span><span class="controller-val" x-text="(analiseInvReq||{}).c3d"></span></div>
+            <div class="controller-action"><span class="controller-label"><i class="fas fa-arrow-right mr-1"></i> O que fazer</span><span class="controller-val" x-text="(analiseInvReq||{}).c3a"></span></div>
+          </div>
+        </div>
       </div>
     </div></template>
 
@@ -4036,6 +4089,7 @@ function sistemaUnificado(){
     fatReqEdit: false,
     fatReqVista: 'liquido',
     invReqExpandido: [],
+    fatReqColapsado: [],   // grupos recolhidos no Faturamento da Requalificadora (padrão: todos expandidos)
     fatoresMtTick: 0,
     backupEstado: null,
     pilhaEstados: [],
@@ -5538,6 +5592,64 @@ function sistemaUnificado(){
       };
     },
 
+    // Leitura & Ação · Faturamento da Requalificadora
+    get analiseFatReq() {
+      const fr = this.empresaExtras.fatReq; if (!fr || !fr.itens.length) return null;
+      const meses = this.fatReqMesesAtivos; if (!meses.length) return null;
+      const com004 = !!fr.considerar004;
+      const nomeMes = mk => (this.listaMeses.find(m => m.chave === mk) || {}).nome || mk;
+      const serie = meses.map(mk => ({ mk, liq: this.fatReqTotal(mk, com004), bruto: this.fatReqBrutoTotal(mk, com004) }));
+      const somaLiq = serie.reduce((a, s) => a + s.liq, 0);
+      const somaBruto = serie.reduce((a, s) => a + s.bruto, 0);
+      const retencoes = somaBruto - somaLiq;
+      const cargaRet = somaBruto > 0 ? retencoes / somaBruto * 100 : 0;
+      const ord = serie.slice().sort((a, b) => b.liq - a.liq);
+      const melhor = ord[0], pior = ord[ord.length - 1];
+      const mkAtivo = this.mesAtivo.toLowerCase();
+      const grupos = this.fatReqGrupos.map(g => ({ g, v: this.fatReqGrupoCel(g, mkAtivo) })).sort((a, b) => b.v - a.v);
+      const topGrupo = grupos[0];
+      return {
+        c1t: 'Faturamento acumulado',
+        c1d: `Líquido acumulado de ${this.formatarDinheiroExato(somaLiq)} em ${meses.length} ${meses.length === 1 ? 'mês lançado' : 'meses lançados'}, ${com004 ? 'considerando o grupo 004' : 'sem o grupo 004'}.`,
+        c1a: com004 ? 'O grupo 004 está somando ao total: desmarque Considerar 004 se ele não deve entrar no Resultado.' : 'O grupo 004 fica registrado, porém fora do total, como combinado. Marque Considerar 004 para incluí-lo.',
+        c2t: 'Melhor x pior mês',
+        c2d: meses.length > 1 ? `Maior faturamento em ${nomeMes(melhor.mk)} (${this.formatarDinheiroExato(melhor.liq)}) e menor em ${nomeMes(pior.mk)} (${this.formatarDinheiroExato(pior.liq)}).` : `Único mês lançado ate agora: ${nomeMes(melhor.mk)}, com ${this.formatarDinheiroExato(melhor.liq)}.`,
+        c2a: meses.length > 1 ? 'Confira o mix de serviços do melhor mês para repetir o que puxou a receita.' : 'Importe os demais meses para acompanhar a evolução ao longo do ano.',
+        c3t: 'Retenções sobre o bruto',
+        c3d: `As retenções somam ${this.formatarDinheiroExato(retencoes)}, ${this.fmtNum(cargaRet)}% do valor bruto (ISS, PIS, IRRF).${topGrupo && topGrupo.v ? ' Maior grupo em ' + this.mesAtivo + ': ' + topGrupo.g + '.' : ''}`,
+        c3a: cargaRet > 8 ? 'Carga de retenção elevada: confira o enquadramento fiscal e eventuais compensações.' : 'Carga de retenção dentro do esperado para serviços; siga acompanhando mês a mês.'
+      };
+    },
+
+    // Leitura & Ação · Inventário da Requalificadora
+    get analiseInvReq() {
+      const iv = this.empresaExtras.invReq; if (!iv || !iv.itens.length) return null;
+      const meses = this.invReqMesesAtivos; if (!meses.length) return null;
+      const mkAtivo = this.mesAtivo.toLowerCase();
+      const totalAtivo = this.invReqTotal(this.mesAtivo);
+      const nomeMes = mk => (this.listaMeses.find(m => m.chave === mk) || {}).nome || mk;
+      const tipos = iv.itens.map(i => ({ cat: i.categoria, v: i[mkAtivo] || 0 })).sort((a, b) => b.v - a.v);
+      const top = tipos.find(t => t.v > 0) || tipos[0] || { cat: '·', v: 0 };
+      const pctTop = totalAtivo > 0 ? top.v / totalAtivo * 100 : 0;
+      // variação do último mês lançado contra o anterior
+      const ult = meses[meses.length - 1];
+      const penult = meses.length > 1 ? meses[meses.length - 2] : null;
+      const vUlt = this.invReqTotal(ult);
+      const vPen = penult ? this.invReqTotal(penult) : null;
+      const delta = (vPen != null && vPen !== 0) ? (vUlt - vPen) / Math.abs(vPen) * 100 : null;
+      return {
+        c1t: 'Posição de estoque',
+        c1d: `Estoque de ${this.formatarDinheiroExato(totalAtivo)} em ${this.mesAtivo}, distribuído em ${iv.itens.length} ${iv.itens.length === 1 ? 'tipo' : 'tipos'} (classificação SPED).`,
+        c1a: totalAtivo > 0 ? 'O estoque é uma foto do mês e alimenta a linha Estoque do Resultado, movendo a Diferença de Estoque.' : 'Selecione um mês com posição lançada ou importe o inventário do mês.',
+        c2t: 'Tipo dominante',
+        c2d: top.v > 0 ? `${top.cat} concentra ${this.fmtNum(pctTop)}% do estoque em ${this.mesAtivo} (${this.formatarDinheiroExato(top.v)}). Abra o tipo para ver as famílias.` : 'Sem valor de estoque no mês selecionado.',
+        c2a: pctTop > 60 ? 'Concentração alta em um único tipo: acompanhe giro e validade para não imobilizar caixa.' : 'Distribuição equilibrada entre os tipos de estoque.',
+        c3t: 'Variação recente',
+        c3d: delta != null ? `De ${nomeMes(penult)} para ${nomeMes(ult)}, o estoque ${delta >= 0 ? 'subiu' : 'caiu'} ${this.fmtNum(Math.abs(delta))}% (${this.formatarDinheiroExato(vUlt - vPen)}).` : `Apenas ${nomeMes(ult)} lançado até agora; importe outros meses para comparar.`,
+        c3a: delta != null && delta > 15 ? 'Alta relevante de estoque: verifique compras e se há acúmulo sem giro.' : (delta != null && delta < -15 ? 'Queda relevante de estoque: confira consumo e se houve baixa incomum.' : 'Sem oscilação relevante de estoque no período.')
+      };
+    },
+
     formatarDinheiroExato(v) {
       if(isNaN(v) || v === null || v === undefined) return 'R$ 0,00';
       return (v<0?'- ':'')+'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -6831,6 +6943,10 @@ function sistemaUnificado(){
       const com004 = this.empresaExtras.fatReq && this.empresaExtras.fatReq.considerar004;
       return this.fatReqVista === 'bruto' ? this.fatReqBrutoTotal(mk, com004) : this.fatReqTotal(mk, com004);
     },
+    fatReqGrupoCel(grupo, mk) {
+      const fr = this.empresaExtras.fatReq; if (!fr) return 0;
+      return fr.itens.filter(i => i.grupo === grupo).reduce((a, i) => a + this.fatReqCel(i, mk), 0);
+    },
     // Leva o faturamento importado para a linha Faturamento do DRE (meses alimentados)
     aplicarFatReqNoDre() {
       const fr = this.empresaExtras.fatReq; if (!fr) return;
@@ -6865,12 +6981,27 @@ function sistemaUnificado(){
       this.recalcularTudo();
     },
     // Linhas da tela Faturamento (agrupadas; 004 aparece só quando considerado)
+    get fatReqGrupos() {
+      const fr = this.empresaExtras.fatReq; if (!fr) return [];
+      const vistos = []; const grupos = [];
+      fr.itens.filter(i => fr.considerar004 || !this.fatReqEh004(i)).forEach(i => {
+        if (!vistos.includes(i.grupo)) { vistos.push(i.grupo); grupos.push(i.grupo); }
+      });
+      return grupos;
+    },
+    fatReqExpandidoTem(grupo) { return !this.fatReqColapsado.includes(grupo); },
+    fatReqToggleGrupo(grupo) {
+      if (this.fatReqColapsado.includes(grupo)) this.fatReqColapsado = this.fatReqColapsado.filter(g => g !== grupo);
+      else this.fatReqColapsado = [...this.fatReqColapsado, grupo];
+    },
+    fatReqExpandirTodos() { this.fatReqColapsado = []; },
+    fatReqRecolherTodos() { this.fatReqColapsado = this.fatReqGrupos.slice(); },
     get fatReqRows() {
       const fr = this.empresaExtras.fatReq; if (!fr) return [];
       const rows = []; let grupoAtual = null;
       fr.itens.filter(i => fr.considerar004 || !this.fatReqEh004(i)).forEach(i => {
         if (i.grupo !== grupoAtual) { grupoAtual = i.grupo; rows.push({ grupoHdr: true, grupo: i.grupo, eh004: this.fatReqEh004(i) }); }
-        rows.push({ item: i, eh004: this.fatReqEh004(i) });
+        if (!this.fatReqColapsado.includes(i.grupo)) rows.push({ item: i, eh004: this.fatReqEh004(i) });
       });
       return rows;
     },
