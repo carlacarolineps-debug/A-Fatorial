@@ -1559,8 +1559,9 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
         </div>
         <div class="emb-hero-grid">
-          <div class="emb-stat gold"><div class="l">Faturamento do mês</div><div class="v" x-text="fmtAbrev(fatReqTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s" x-text="mesAtivo + ' · ' + (empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'com o grupo 004' : 'sem o grupo 004')"></div></div>
-          <div class="emb-stat"><div class="l">Acumulado no ano</div><div class="v" x-text="fmtAbrev(listaMeses.reduce((a,m)=>a+fatReqTotal(m.chave, empresaExtras.fatReq && empresaExtras.fatReq.considerar004),0))"></div><div class="s" x-text="fatReqMesesAtivos.length + ' mês(es) importado(s)'"></div></div>
+          <div class="emb-stat gold"><div class="l">Faturamento líquido do mês</div><div class="v" x-text="fmtAbrev(fatReqTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s" x-text="mesAtivo + ' · principal (após retenções)'"></div></div>
+          <div class="emb-stat"><div class="l">Faturamento bruto do mês</div><div class="v" x-text="fmtAbrev(fatReqBrutoTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s">Valor da Conta (antes das retenções)</div></div>
+          <div class="emb-stat red"><div class="l">Retenções (abatimentos)</div><div class="v" x-text="fmtAbrev(fatReqBrutoTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004) - fatReqTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s">bruto menos líquido (ISS, PIS, IRRF)</div></div>
           <div class="emb-stat" :class="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'green' : ''"><div class="l">Grupo 004 no mês</div><div class="v" x-text="fmtAbrev(fatReqTotal(mesAtivo, true) - fatReqTotal(mesAtivo, false))"></div><div class="s" x-text="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'sendo considerado no total' : 'registrado, oculto do total'"></div></div>
           <div class="emb-stat">
             <div class="l">Considerar 004?</div>
@@ -1576,10 +1577,16 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
       <div class="card-dark" style="margin-bottom:0">
         <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:10px">
           <div>
-            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-hand-holding-dollar mr-2" style="color:var(--accent-gold)"></i> Receitas por categoria</div>
-            <div class="card-sub" style="font-size:11.5px">Importadas do relatório de <b>contas a pagar e a receber</b> (só o lado a receber entra aqui), agrupadas pelo mês de emissão.</div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-hand-holding-dollar mr-2" style="color:var(--accent-gold)"></i> Receitas por categoria · <span x-text="fatReqVista==='bruto'?'valor bruto':'valor líquido'"></span></div>
+            <div class="card-sub" style="font-size:11.5px">Importadas do relatório de <b>contas a pagar e a receber</b> (só o lado a receber entra aqui). O <b>líquido</b> (após retenções) é o principal; o <b>bruto</b> é o Valor da Conta.</div>
           </div>
-          <button x-show="permEdita && fatReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <div style="display:inline-flex;border:1px solid var(--color-border);border-radius:9px;overflow:hidden">
+              <button @click="fatReqVista='liquido'" :style="fatReqVista==='liquido'?'background:var(--accent-blue);color:#fff':'background:transparent;color:var(--color-muted)'" style="font-size:11px;font-weight:800;padding:6px 12px;border:none;cursor:pointer">Líquido</button>
+              <button @click="fatReqVista='bruto'" :style="fatReqVista==='bruto'?'background:var(--accent-blue);color:#fff':'background:transparent;color:var(--color-muted)'" style="font-size:11px;font-weight:800;padding:6px 12px;border:none;cursor:pointer">Bruto</button>
+            </div>
+            <button x-show="permEdita && fatReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
+          </div>
         </div>
         <template x-if="!(empresaExtras.fatReq && empresaExtras.fatReq.itens.length)">
           <div style="padding:26px;text-align:center;color:var(--color-muted);font-size:13px;white-space:normal">
@@ -1609,22 +1616,22 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                   <template x-if="!r.grupoHdr">
                     <template x-for="m in listaMeses" :key="'fqc'+ri+m.chave">
                       <td class="td-r" :class="fatReqMesVazio(m.chave)?'res-future':''">
-                        <template x-if="!(fatReqEdit && permEdita)"><span x-text="formatarDinheiroExato(r.item[m.chave.toLowerCase()] || 0)"></span></template>
-                        <template x-if="fatReqEdit && permEdita">
+                        <template x-if="!(fatReqEdit && permEdita && fatReqVista==='liquido')"><span x-text="formatarDinheiroExato(fatReqCel(r.item, m.chave))"></span></template>
+                        <template x-if="fatReqEdit && permEdita && fatReqVista==='liquido'">
                           <input type="text" inputmode="decimal" class="res-edit-in" @click.stop :value="r.item[m.chave.toLowerCase()] ? fmtNum(r.item[m.chave.toLowerCase()]) : ''" @focus="$event.target.select()" @change="editFatReqCell(r.item, m.chave.toLowerCase(), $event.target.value)">
                         </template>
                       </td>
                     </template>
                   </template>
                   <template x-if="!r.grupoHdr">
-                    <td class="td-r font-bold" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+(r.item[m.chave.toLowerCase()]||0),0))"></td>
+                    <td class="td-r font-bold" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+fatReqCel(r.item, m.chave),0))"></td>
                   </template>
                 </tr>
               </template>
               <tr style="background:rgba(197,168,128,.12);border-top:2px solid var(--accent-gold)">
-                <td class="font-bold text-accent-blue">Total considerado <span class="res-nota" x-text="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'com 004' : 'sem 004'"></span></td>
-                <template x-for="m in listaMeses" :key="'fqt'+m.chave"><td class="td-r font-bold" :class="fatReqMesVazio(m.chave)?'res-future':''" x-text="formatarDinheiroExato(fatReqTotal(m.chave, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></td></template>
-                <td class="td-r font-bold" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+fatReqTotal(m.chave, empresaExtras.fatReq && empresaExtras.fatReq.considerar004),0))"></td>
+                <td class="font-bold text-accent-blue">Total <span x-text="fatReqVista==='bruto'?'bruto':'líquido'"></span> <span class="res-nota" x-text="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'com 004' : 'sem 004'"></span></td>
+                <template x-for="m in listaMeses" :key="'fqt'+m.chave"><td class="td-r font-bold" :class="fatReqMesVazio(m.chave)?'res-future':''" x-text="formatarDinheiroExato(fatReqTotalVista(m.chave))"></td></template>
+                <td class="td-r font-bold" x-text="formatarDinheiroExato(listaMeses.reduce((a,m)=>a+fatReqTotalVista(m.chave),0))"></td>
               </tr>
             </tbody>
           </table>
@@ -3718,7 +3725,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 
 // Versão do formato dos dados salvos no navegador: quando a estrutura embutida evolui,
 // dados antigos são descartados para nunca esconderem linhas novas (ex.: ITP, Aparas).
-const NEXUS_DADOS_VERSAO = 6;
+const NEXUS_DADOS_VERSAO = 7;
 // SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
 const EMB_SERVICOS=[
  {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
@@ -4011,6 +4018,7 @@ function sistemaUnificado(){
     impPendente: null,
     impNota: '',
     fatReqEdit: false,
+    fatReqVista: 'liquido',
     fatoresMtTick: 0,
     backupEstado: null,
     pilhaEstados: [],
@@ -6689,7 +6697,7 @@ function sistemaUnificado(){
       }
       if (hi < 0) { alert('Não encontrei as colunas do relatório (Valor da Conta, Categoria).'); evt.target.value = ''; return; }
       const ix = n => hr.findIndex(c => String(c || '').trim() === n);
-      const iTipo = ix('Tipo'), iGrupo = ix('Grupo'), iCat = ix('Categoria'), iEm = ix('Data de Emissão'), iVal = ix('Valor da Conta');
+      const iTipo = ix('Tipo'), iGrupo = ix('Grupo'), iCat = ix('Categoria'), iEm = ix('Data de Emissão'), iVal = ix('Valor da Conta'), iLiq = ix('Valor Líquido');
       const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
       const buckets = {}; const despBuckets = {};
       json.slice(hi + 1).forEach(r => {
@@ -6697,6 +6705,10 @@ function sistemaUnificado(){
         let v = r[iVal];
         if (typeof v === 'string') v = this.parseNumero(v);
         if (v == null || isNaN(v) || v === 0) return;
+        // Valor Líquido (após retenções) é o principal; Valor da Conta é o bruto. Sem líquido, líquido = bruto.
+        let vl = iLiq >= 0 ? r[iLiq] : null;
+        if (typeof vl === 'string') vl = this.parseNumero(vl);
+        if (vl == null || isNaN(vl)) vl = v;
         let mk = this.mesImportacao || 'jan';
         let d = r[iEm];
         if (typeof d === 'number') d = new Date(Math.round((d - 25569) * 86400 * 1000));
@@ -6705,16 +6717,18 @@ function sistemaUnificado(){
         const grupo = String(r[iGrupo] || '').trim() || 'SEM GRUPO';
         const cat = String(r[iCat] || '').trim() || ('SEM CATEGORIA - ' + grupo);
         const tipoL = String(r[iTipo] || '');
-        // Lado A PAGAR: alimenta os centros de custo (Despesa), pela categoria contábil
+        // Lado A PAGAR: alimenta os centros de custo (Despesa) pelo líquido (principal)
         if (!/receber/i.test(tipoL)) {
           const db = despBuckets[mk] || (despBuckets[mk] = {});
-          db[cat] = r2((db[cat] || 0) + Math.abs(v));
+          db[cat] = r2((db[cat] || 0) + Math.abs(vl));
           return;
         }
-        // Lado A RECEBER: alimenta o Faturamento, por categoria dentro do grupo
+        // Lado A RECEBER: alimenta o Faturamento (líquido principal, bruto de referência)
         const b = buckets[mk] || (buckets[mk] = {});
         const k = grupo + '||' + cat;
-        b[k] = r2((b[k] || 0) + v);
+        const cell = b[k] || (b[k] = { liq: 0, bruto: 0 });
+        cell.liq = r2(cell.liq + vl);
+        cell.bruto = r2(cell.bruto + v);
       });
       const mesesRec = Object.keys(buckets).sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
       const mesesDesp = Object.keys(despBuckets).sort((a, b) => ordem.indexOf(a) - ordem.indexOf(b));
@@ -6742,17 +6756,21 @@ function sistemaUnificado(){
       const resumo = [];
       // ===== FATURAMENTO (contas a receber) =====
       mesesRec.forEach(mk => {
-        fr.itens.forEach(i => { i[mk] = 0; });
-        Object.entries(buckets[mk]).forEach(([k, v]) => {
+        fr.itens.forEach(i => { i[mk] = 0; if (i.bruto) i.bruto[mk] = 0; });
+        Object.entries(buckets[mk]).forEach(([k, cell]) => {
           const [grupo, cat] = k.split('||');
           let item = fr.itens.find(i => i.cat === cat && i.grupo === grupo);
-          if (!item) { item = { grupo, cat }; ordem.forEach(m2 => item[m2] = 0); fr.itens.push(item); }
-          item[mk] = v;
+          if (!item) { item = { grupo, cat, bruto: {} }; ordem.forEach(m2 => { item[m2] = 0; item.bruto[m2] = 0; }); fr.itens.push(item); }
+          if (!item.bruto) { item.bruto = {}; ordem.forEach(m2 => item.bruto[m2] = 0); }
+          item[mk] = cell.liq;         // líquido é o principal
+          item.bruto[mk] = cell.bruto; // bruto (Valor da Conta) para referência
         });
         if (alimentaDre || fr.meses[mk]) fr.meses[mk] = true;
         const tot = this.fatReqTotal(mk, false);
+        const brutoTot = this.fatReqBrutoTotal(mk, false);
+        const abat = r2(brutoTot - tot);
         const oc004 = r2(this.fatReqTotal(mk, true) - tot);
-        resumo.push('Faturamento ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(tot) + (oc004 ? ' (+ ' + this.formatarDinheiroExato(oc004) + ' no grupo 004, oculto)' : ''));
+        resumo.push('Faturamento ' + mk.toUpperCase() + ': líquido ' + this.formatarDinheiroExato(tot) + (abat ? ' | bruto ' + this.formatarDinheiroExato(brutoTot) + ' (retenções ' + this.formatarDinheiroExato(abat) + ')' : '') + (oc004 ? ' | 004 ' + this.formatarDinheiroExato(oc004) + ' (oculto)' : ''));
       });
       fr.itens.sort((a, b) => (a.grupo + '|' + a.cat).localeCompare(b.grupo + '|' + b.cat));
       this.aplicarFatReqNoDre();
@@ -6775,11 +6793,26 @@ function sistemaUnificado(){
       evt.target.value = '';
     },
     fatReqEh004(i) { return String(i.grupo || '').trim().startsWith('004'); },
-    // Total do faturamento da Requalificadora no mês, com ou sem o grupo 004
+    // Total líquido (principal) do faturamento no mês, com ou sem o grupo 004
     fatReqTotal(mk, com004) {
       const fr = this.empresaExtras.fatReq; if (!fr) return 0;
       const k = String(mk).toLowerCase();
       return Math.round(fr.itens.reduce((a, i) => a + ((com004 || !this.fatReqEh004(i)) ? (i[k] || 0) : 0), 0) * 100) / 100;
+    },
+    // Total bruto (Valor da Conta, antes das retenções) no mês
+    fatReqBrutoTotal(mk, com004) {
+      const fr = this.empresaExtras.fatReq; if (!fr) return 0;
+      const k = String(mk).toLowerCase();
+      return Math.round(fr.itens.reduce((a, i) => a + ((com004 || !this.fatReqEh004(i)) ? ((i.bruto && i.bruto[k]) || 0) : 0), 0) * 100) / 100;
+    },
+    // Valor exibido na célula conforme a vista escolhida (líquido é o padrão/principal)
+    fatReqCel(item, mk) {
+      const k = String(mk).toLowerCase();
+      return this.fatReqVista === 'bruto' ? ((item.bruto && item.bruto[k]) || 0) : (item[k] || 0);
+    },
+    fatReqTotalVista(mk) {
+      const com004 = this.empresaExtras.fatReq && this.empresaExtras.fatReq.considerar004;
+      return this.fatReqVista === 'bruto' ? this.fatReqBrutoTotal(mk, com004) : this.fatReqTotal(mk, com004);
     },
     // Leva o faturamento importado para a linha Faturamento do DRE (meses alimentados)
     aplicarFatReqNoDre() {
@@ -6849,14 +6882,16 @@ function sistemaUnificado(){
       const totMes = this.fatReqTotal(mk, true);
       const eh004 = this.fatReqEh004(item);
       const maior = serie.slice().sort((a, b) => b.val - a.val)[0];
+      const bruto = (item.bruto && item.bruto[mk]) || atual;
+      const retencao = Math.round((bruto - atual) * 100) / 100;
       this.abrirRazao({
         tag: 'Razão · Faturamento', title: item.cat, subtitle: item.grupo + ' · ' + nomeMes,
         color: '#191040', icone: 'fa-hand-holding-dollar',
-        hero: this.formatarDinheiroExato(atual), heroLabel: 'Recebível em ' + nomeMes, delta, serie,
+        hero: this.formatarDinheiroExato(atual), heroLabel: 'Líquido em ' + nomeMes, delta, serie,
         stats: [
-          { l: 'Acumulado (ano)', v: this.formatarDinheiroExato(acum) },
-          { l: 'Média mensal', v: this.formatarDinheiroExato(acum / nMeses) },
-          { l: '% do grupo no mês', v: totGrupo ? ((atual / totGrupo) * 100).toFixed(1) + '%' : '·' },
+          { l: 'Bruto (Valor da Conta)', v: this.formatarDinheiroExato(bruto) },
+          { l: 'Retenções (abatimentos)', v: this.formatarDinheiroExato(retencao) },
+          { l: 'Acumulado líquido (ano)', v: this.formatarDinheiroExato(acum) },
           { l: '% da receita do mês', v: totMes ? ((atual / totMes) * 100).toFixed(1) + '%' : '·' }
         ],
         rowsHead: ['Mês', 'Valor', '% do acum.'],
