@@ -1662,9 +1662,13 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:10px">
           <div>
             <div class="card-title" style="margin-bottom:2px"><i class="fas fa-boxes-stacked mr-2" style="color:var(--accent-gold)"></i> Estoque por tipo</div>
-            <div class="card-sub" style="font-size:11.5px">Importado do relatório de <b>posição de estoque</b>, agrupado por tipo (SPED). Clique numa linha para ver o detalhamento por família.</div>
+            <div class="card-sub" style="font-size:11.5px">Importado do relatório de <b>posição de estoque</b>, agrupado por tipo (SPED). Abra um tipo para ver as famílias, ou clique para ver a razão completa.</div>
           </div>
-          <button x-show="permEdita && invReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button x-show="invReqMesesAtivos.length" @click="invReqExpandirTodos()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-plus-square mr-1"></i> Expandir</button>
+            <button x-show="invReqMesesAtivos.length" @click="invReqRecolherTodos()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-minus-square mr-1"></i> Recolher</button>
+            <button x-show="permEdita && invReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
+          </div>
         </div>
         <template x-if="!(empresaExtras.invReq && empresaExtras.invReq.itens.length)">
           <div style="padding:26px;text-align:center;color:var(--color-muted);font-size:13px;white-space:normal">
@@ -1677,18 +1681,30 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               <template x-for="m in listaMeses" :key="'iqh'+m.chave"><th class="td-r" :class="invReqMesVazio(m.chave)?'res-future-h':''" :title="invReqMesVazio(m.chave)?'Mês ainda sem posição de estoque: importe o relatório do mês':''" x-text="m.labelData"></th></template>
               <th class="td-r">Atual</th></tr></thead>
             <tbody>
-              <template x-for="(item, ri) in (empresaExtras.invReq ? empresaExtras.invReq.itens : [])" :key="'iqr'+ri">
-                <tr :class="!fatReqEdit ? 'nx-drill' : ''" @click="fatReqEdit || razaoInvReq(item)">
-                  <td><span x-text="item.categoria"></span><i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i></td>
-                  <template x-for="m in listaMeses" :key="'iqc'+ri+m.chave">
-                    <td class="td-r" :class="invReqMesVazio(m.chave)?'res-future':''">
-                      <template x-if="!(fatReqEdit && permEdita)"><span x-text="formatarDinheiroExato(item[m.chave.toLowerCase()] || 0)"></span></template>
-                      <template x-if="fatReqEdit && permEdita">
-                        <input type="text" inputmode="decimal" class="res-edit-in" @click.stop :value="item[m.chave.toLowerCase()] ? fmtNum(item[m.chave.toLowerCase()]) : ''" @focus="$event.target.select()" @change="editInvReqCell(item, m.chave.toLowerCase(), $event.target.value)">
-                      </template>
+              <template x-for="(r, ri) in invReqRows" :key="'iqr'+ri">
+                <tr :class="r.tipo && !fatReqEdit ? 'nx-drill' : ''"
+                    :style="r.fam ? 'background:rgba(148,163,184,.05)' : ''"
+                    @click="r.tipo && (fatReqEdit || razaoInvReq(r.item))">
+                  <template x-if="r.tipo">
+                    <td>
+                      <span @click.stop="r.item && invReqToggle(r.item.categoria)" style="display:inline-block;width:16px;cursor:pointer" title="Abrir/fechar famílias deste tipo"><i class="fas text-xs" style="color:var(--accent-gold)" :class="(r.item && invReqExpandidoTem(r.item.categoria))?'fa-chevron-down':'fa-chevron-right'"></i></span>
+                      <span class="font-bold text-accent-blue" x-text="r.item.categoria"></span>
+                      <i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i>
                     </td>
                   </template>
-                  <td class="td-r font-bold" x-text="formatarDinheiroExato(item[mesAtivo.toLowerCase()] || 0)"></td>
+                  <template x-if="r.fam">
+                    <td style="padding-left:34px;color:var(--color-muted)"><i class="fas fa-tag" style="font-size:9px;width:13px;color:var(--color-dim)"></i> <span x-text="r.nome"></span></td>
+                  </template>
+                  <template x-for="m in listaMeses" :key="'iqc'+ri+m.chave">
+                    <td class="td-r" :class="invReqMesVazio(m.chave)?'res-future':''" :style="r.fam?'color:var(--color-muted)':''">
+                      <template x-if="r.tipo && fatReqEdit && permEdita">
+                        <input type="text" inputmode="decimal" class="res-edit-in" @click.stop :value="r.item[m.chave.toLowerCase()] ? fmtNum(r.item[m.chave.toLowerCase()]) : ''" @focus="$event.target.select()" @change="editInvReqCell(r.item, m.chave.toLowerCase(), $event.target.value)">
+                      </template>
+                      <template x-if="r.tipo && !(fatReqEdit && permEdita)"><span x-text="formatarDinheiroExato(r.item[m.chave.toLowerCase()] || 0)"></span></template>
+                      <template x-if="r.fam"><span x-text="formatarDinheiroExato(invReqFamVal(r.categoria, r.nome, m.chave))"></span></template>
+                    </td>
+                  </template>
+                  <td class="td-r font-bold" x-text="formatarDinheiroExato(r.tipo ? (r.item[mesAtivo.toLowerCase()] || 0) : invReqFamVal(r.categoria, r.nome, mesAtivo))"></td>
                 </tr>
               </template>
               <tr style="background:rgba(197,168,128,.12);border-top:2px solid var(--accent-gold)">
@@ -4019,6 +4035,7 @@ function sistemaUnificado(){
     impNota: '',
     fatReqEdit: false,
     fatReqVista: 'liquido',
+    invReqExpandido: [],
     fatoresMtTick: 0,
     backupEstado: null,
     pilhaEstados: [],
@@ -7025,6 +7042,41 @@ function sistemaUnificado(){
       const iv = this.empresaExtras.invReq; if (!iv) return true;
       const mk = String(mChave).toLowerCase();
       return !iv.itens.some(i => (i[mk] || 0) !== 0);
+    },
+    // Famílias de um tipo (detalhamento importado), únicas em todos os meses
+    invReqFamilias(categoria) {
+      const iv = this.empresaExtras.invReq; if (!iv || !iv.detalhe) return [];
+      const nomes = new Set();
+      Object.values(iv.detalhe).forEach(porTipo => { const fams = porTipo && porTipo[categoria]; if (fams) Object.keys(fams).forEach(f => nomes.add(f)); });
+      const arr = [...nomes];
+      // ordena pela posição do mês ativo (maior primeiro), depois alfabético
+      const mk = this.mesAtivo.toLowerCase();
+      return arr.sort((a, b) => (this.invReqFamVal(categoria, b, mk) - this.invReqFamVal(categoria, a, mk)) || a.localeCompare(b));
+    },
+    invReqFamVal(categoria, familia, mChave) {
+      const iv = this.empresaExtras.invReq; if (!iv || !iv.detalhe) return 0;
+      const mk = String(mChave).toLowerCase();
+      const d = iv.detalhe[mk] && iv.detalhe[mk][categoria];
+      return (d && d[familia]) || 0;
+    },
+    invReqExpandidoTem(categoria) { return this.invReqExpandido.includes(categoria); },
+    invReqToggle(categoria) {
+      if (this.invReqExpandido.includes(categoria)) this.invReqExpandido = this.invReqExpandido.filter(c => c !== categoria);
+      else this.invReqExpandido = [...this.invReqExpandido, categoria];
+    },
+    invReqExpandirTodos() { this.invReqExpandido = (this.empresaExtras.invReq ? this.empresaExtras.invReq.itens : []).map(i => i.categoria); },
+    invReqRecolherTodos() { this.invReqExpandido = []; },
+    // Linhas da tabela: cada tipo, e as famílias quando o tipo está expandido
+    get invReqRows() {
+      const iv = this.empresaExtras.invReq; if (!iv) return [];
+      const rows = [];
+      iv.itens.forEach(item => {
+        rows.push({ tipo: true, item });
+        if (this.invReqExpandido.includes(item.categoria)) {
+          this.invReqFamilias(item.categoria).forEach(fam => rows.push({ fam, categoria: item.categoria, nome: fam }));
+        }
+      });
+      return rows;
     },
     editInvReqCell(item, mk, valor) {
       if (!this.exigirEdicao()) return;
