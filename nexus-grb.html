@@ -2321,14 +2321,14 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <!-- Cartão de confirmação: detecção preenchida, tudo ajustável -->
           <template x-if="impPendente">
             <div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">
-              <div style="display:flex;align-items:center;gap:10px;background:rgba(13,148,136,.08);border:1px solid rgba(13,148,136,.3);border-radius:11px;padding:10px 18px;max-width:100%">
-                <i class="fas fa-file-circle-check" style="color:var(--accent-green);font-size:20px"></i>
+              <div style="display:flex;align-items:center;gap:10px;border-radius:11px;padding:10px 18px;max-width:100%" :style="tipoImportacao==='bloqueado' ? 'background:rgba(225,29,72,.08);border:1px solid rgba(225,29,72,.35)' : 'background:rgba(13,148,136,.08);border:1px solid rgba(13,148,136,.3)'">
+                <i class="fas" :class="tipoImportacao==='bloqueado' ? 'fa-triangle-exclamation' : 'fa-file-circle-check'" :style="tipoImportacao==='bloqueado' ? 'color:#e11d48;font-size:20px' : 'color:var(--accent-green);font-size:20px'"></i>
                 <div style="text-align:left;min-width:0">
                   <div class="font-bold text-accent-blue" style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="impPendente.nome"></div>
                   <div style="font-size:11px;color:var(--color-muted);white-space:normal" x-text="impNota"></div>
                 </div>
               </div>
-              <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+              <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center" x-show="tipoImportacao!=='bloqueado'">
                 <div class="config-input-group" style="min-width:170px" x-show="tipoImportacao!=='resultado'">
                   <label class="text-accent-blue font-bold" style="font-size:11px;">Mês</label>
                   <select x-model="mesImportacao" class="emc-input border-accent-gold text-center font-bold text-accent-blue" style="font-size:13px;height:42px;">
@@ -2358,8 +2358,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                 </div>
               </div>
               <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-                <button @click="confirmarImportacaoPendente()" class="emc-btn" style="font-size:14px;padding:12px 32px;background:var(--accent-green);color:white;border-color:var(--accent-green)"><i class="fas fa-check mr-2"></i> Importar agora</button>
-                <button @click="cancelarImportacaoPendente()" class="emc-btn-secondary" style="font-size:13px;padding:12px 22px"><i class="fas fa-times mr-2"></i> Cancelar</button>
+                <button x-show="tipoImportacao!=='bloqueado'" @click="confirmarImportacaoPendente()" class="emc-btn" style="font-size:14px;padding:12px 32px;background:var(--accent-green);color:white;border-color:var(--accent-green)"><i class="fas fa-check mr-2"></i> Importar agora</button>
+                <button @click="cancelarImportacaoPendente()" class="emc-btn-secondary" style="font-size:13px;padding:12px 22px"><i class="fas fa-times mr-2"></i> <span x-text="tipoImportacao==='bloqueado' ? 'Entendi, fechar' : 'Cancelar'"></span></button>
               </div>
             </div>
           </template>
@@ -6423,7 +6423,10 @@ function sistemaUnificado(){
                 const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/gi, '').replace(/\s+/g, ' ').trim().toLowerCase();
                 const nomesFat = (this.empresaExtras.faturamento || []).map(f => norm(f.tipo));
                 const casadas = json.filter(r => r && r.length > 1 && nomesFat.includes(norm(r[0]))).length;
+                const ehResultado = json.slice(0, 25).some(r => (r || []).some(c => /^relatorio resultado|^resultado 2026/.test(norm(c)))) || json.slice(0, 25).some(r => (r || []).filter(c => /^(janeiro|fevereiro|marco|abril)$/.test(norm(c))).length >= 3);
                 if (this.empresaAtiva === 'embalagem' && casadas >= 2) { tipo = 'faturamento'; nota = 'Planilha de faturamento por empresa (' + casadas + ' linhas reconhecidas)'; }
+                else if (this.empresaAtiva === 'requalificadora' && ehResultado) { tipo = 'bloqueado'; nota = 'Planilha "Resultado 2026" (já embutida e conferida no sistema). Importe contas a pagar/receber ou posição de estoque.'; }
+                else if (this.empresaAtiva === 'requalificadora' && pareceInv) { tipo = 'bloqueado'; nota = 'Inventário no formato da Embalagem (Clas. Fiscal). A Requalificadora usa Posição de Estoque (CMC Total).'; }
                 else { tipo = 'despesa'; nota = 'Resumo de despesas por conta (Rótulos de Linha)'; }
             }
         }
@@ -6435,6 +6438,7 @@ function sistemaUnificado(){
     cancelarImportacaoPendente() { this.impPendente = null; this.impNota = ''; },
     confirmarImportacaoPendente() {
         if (!this.impPendente) return;
+        if (this.tipoImportacao === 'bloqueado') { alert('Este arquivo não é importável neste painel.\n\n' + (this.impNota || '')); this.impPendente = null; this.impNota = ''; return; }
         if (this.tipoImportacao !== 'resultado' && !this.mesImportacao) { alert('Escolha o mês antes de importar.'); return; }
         const wb = this.impPendente.workbook;
         const fileLike = { name: this.impPendente.nome };
@@ -6480,6 +6484,26 @@ function sistemaUnificado(){
             // Contas a pagar e a receber (uma linha por título): alimenta o faturamento
             if (json.slice(0, 6).some(r => (r || []).some(c => String(c || '').trim() === 'Valor da Conta') && (r || []).some(c => String(c || '').trim() === 'Categoria'))) {
               this.importarFatReq(json, file, evt); return;
+            }
+            // ===== TRAVA DA REQUALIFICADORA: só aceita os formatos dela, nunca corrompe =====
+            if (this.empresaAtiva === 'requalificadora') {
+              if (pareceInv) { // inventário no formato da Embalagem (Clas. Fiscal)
+                alert('Este é um relatório de inventário no formato da Embalagem (coluna "Clas. Fiscal", com peso e fator).\n\nA Requalificadora usa o relatório de Posição de Estoque (coluna "CMC Total"), só valor, sem peso nem fator. Importe esse arquivo.');
+                evt.target.value = ''; return;
+              }
+              const normR = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+              const temRaw = json.slice(0, 8).some(r => (r || []).some(c => String(c || '').trim() === 'Valor total') && (r || []).some(c => String(c || '').trim() === 'Conta Contábil Número'));
+              const temPivo = json.slice(0, 8).some(r => (r || []).some(c => /rotulos de linha|soma de valor total/.test(normR(c))));
+              const linhasConta = json.filter(r => r && r.length >= 2 && /^\d/.test(String(r[0] || '').trim()) && typeof r[1] === 'number').length;
+              const ehResultado = json.slice(0, 25).some(r => (r || []).some(c => /^relatorio resultado|^resultado 2026/.test(normR(c)))) || json.slice(0, 25).some(r => (r || []).filter(c => /^(janeiro|fevereiro|marco|abril)$/.test(normR(c))).length >= 3);
+              if (ehResultado) {
+                alert('Esta é a planilha "Resultado 2026" da Requalificadora, que já está embutida e conferida no sistema (DRE, centros de custo e provisões).\n\nPara os lançamentos do mês, importe:\n• Contas a pagar e a receber (Faturamento e Despesa)\n• Posição de estoque, coluna "CMC Total" (Inventário)');
+                evt.target.value = ''; return;
+              }
+              if (!temRaw && !temPivo && linhasConta < 3) {
+                alert('Não reconheci este arquivo como um relatório da Requalificadora.\n\nO importador aceita:\n• Contas a pagar e a receber (alimenta Faturamento e Despesa)\n• Posição de estoque, coluna "CMC Total" (alimenta o Inventário)\n• Relatório de despesas por conta (Conta Contábil Número, ou Rótulos de Linha)');
+                evt.target.value = ''; return;
+              }
             }
             if (tipo === 'inventario') {
               if (!pareceInv) { alert('Este arquivo não parece um relatório de inventário: não encontrei a coluna "Clas. Fiscal".\n\nVerifique o arquivo ou escolha outro tipo de informação.'); evt.target.value = ''; return; }
