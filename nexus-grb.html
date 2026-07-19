@@ -1410,7 +1410,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:8px">
           <div>
             <div class="card-title" style="margin-bottom:2px"><i class="fas fa-tags mr-2" style="color:var(--accent-gold)"></i> Faturamento por tipo de operação · <span x-text="listaMeses.find(m=>m.chave===mesAtivo)?.nome"></span></div>
-            <div class="card-sub" style="font-size:11.5px">Do relatório de notas (CFOP), com <b>Valor</b>, <b>Peso</b> e <b>Fator</b> por operação. Visão analítica: <b>não</b> altera o Faturamento oficial nem o Resultado, pois a base de peso deste relatório difere da planilha oficial.</div>
+            <div class="card-sub" style="font-size:11.5px">Do relatório de notas (CFOP), com <b>Valor</b>, <b>Peso</b> e <b>Fator</b> por operação. O total do mês alimenta o Faturamento da linha Embalagem; esta tabela mostra a composição por tipo de operação.</div>
           </div>
         </div>
         <div style="overflow-x:auto">
@@ -1438,7 +1438,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             </tbody>
           </table>
         </div>
-        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> O <b>Fator</b> aqui é Valor ÷ Peso de cada operação, direto das notas. Ele difere do Fator oficial da planilha porque a base de peso do relatório de notas não é a mesma do <b>Kg Faturado</b> oficial. Use esta tela para analisar o mix por CFOP; o faturamento que entra no Resultado continua vindo da planilha oficial.</div>
+        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> O <b>Fator</b> de cada operação é Valor ÷ Peso, direto das notas. A soma das operações é o faturamento do mês, que alimenta o Total Faturamento e o Resultado. Use esta tabela para enxergar o mix por CFOP (venda, remessa, devolução).</div>
       </div>
     </div></template>
 
@@ -6585,7 +6585,7 @@ function sistemaUnificado(){
             json.slice(hiF + 1).forEach(r => { if (!r) return; const mm = this.mesEmissaoEmb(r[iEmF]); if (mm >= 0 && mm < 12) mesesF[mm] = (mesesF[mm] || 0) + 1; });
             const msF = Object.keys(mesesF).sort((a, b) => Number(a) - Number(b));
             if (msF.length) mes = ordem[Number(msF[0])] || '';
-            nota = 'Faturamento da Embalagem por nota (Valor, Peso, Fator e CFOP)' + (msF.length > 1 ? ', ' + msF.length + ' meses no arquivo (cada um na sua coluna)' : (mes ? ', mês: ' + mes.toUpperCase() : '')) + '. Gera a visão analítica por tipo de operação (não altera o faturamento oficial).';
+            nota = 'Faturamento da Embalagem por nota (Valor, Peso, Fator e CFOP)' + (msF.length > 1 ? ', ' + msF.length + ' meses no arquivo (cada um na sua coluna)' : (mes ? ', mês: ' + mes.toUpperCase() : '')) + '. Alimenta o faturamento (Valor, kg e Fator) e o detalhe por tipo de operação.';
         } else {
             // Contas a pagar: cabeçalho com Valor total + Conta Contábil Número; meses pela emissão
             let cabIdx = -1, cab = null;
@@ -7448,23 +7448,36 @@ function sistemaUnificado(){
         const nomes = meses.map(mk => '  ' + mk.toUpperCase() + ' (' + buckets[mk].n + ' notas)').join('\n');
         if (!confirm('Este arquivo tem faturamento de ' + meses.length + ' meses:\n\n' + nomes + '\n\nCada mês vai para a sua coluna. Continuar?')) { evt.target.value = ''; return; }
       }
-      // IMPORTANTE: este relatório traz o VALOR e o PESO por nota fiscal (CFOP), que NÃO
-      // batem com a linha oficial "Faturamento Emb." da planilha Resultado (base de peso e
-      // critério diferentes). Por isso ele NÃO substitui o faturamento oficial nem mexe no
-      // Resultado: alimenta apenas a visão analítica "Faturamento por tipo de operação".
-      this.salvarEstado('Faturamento por tipo de operação: ' + meses.map(m => m.toUpperCase()).join(', '));
+      // Relatório de faturamento REAL por nota: alimenta a linha Embalagem do faturamento
+      // (Valor→faturamento, Peso→kg, Fator=R$/kg) mês a mês, e guarda o detalhe por tipo de
+      // operação (CFOP). Meses que já têm valor oficial (jan/fev) só mudam com confirmação.
+      const linhas = this.empresaExtras.faturamento || [];
+      const alvo = linhas.find(f => f.tipo === 'Embalagem') || linhas.find(f => !f.aparas);
+      if (!alvo) { alert('Não encontrei a linha de faturamento Embalagem.'); evt.target.value = ''; return; }
+      const jaTem = meses.filter(mk => alvo.fat && (alvo.fat[mk] || 0) !== 0);
+      let substituir = true;
+      if (jaTem.length) { substituir = confirm('O faturamento Embalagem já tem valor oficial em ' + jaTem.map(m => m.toUpperCase()).join(', ') + '.\n\nOK = SUBSTITUIR esses meses pelos valores deste relatório de notas.\nCancelar = manter os meses oficiais e preencher só os que estão vazios.'); }
+      this.salvarEstado('Importação de faturamento (notas): ' + meses.map(m => m.toUpperCase()).join(', '));
       const ex = this.empresaExtras; ex.fatOpEmb = ex.fatOpEmb || {};
-      const resumo = [];
+      const resumo = [], pulados = [];
       meses.forEach(mk => {
         const b = buckets[mk];
+        // Sempre guarda o detalhe por operação; o faturamento só é sobrescrito conforme a opção
         ex.fatOpEmb[mk] = { val: b.val, peso: b.peso, n: b.n, grupos: b.grupos, cfops: b.cfops, fator: b.peso > 0 ? r2(b.val / b.peso) : 0 };
-        resumo.push(mk.toUpperCase() + ': ' + this.formatarDinheiroExato(b.val) + ' | ' + b.peso.toLocaleString('pt-BR') + ' kg | ' + b.n + ' notas');
+        if (!substituir && alvo.fat && (alvo.fat[mk] || 0) !== 0) { pulados.push(mk.toUpperCase()); return; }
+        alvo.fat = alvo.fat || {}; alvo.kg = alvo.kg || {}; alvo.fator = alvo.fator || {};
+        alvo.fat[mk] = b.val; alvo.kg[mk] = b.peso; alvo.fator[mk] = b.peso > 0 ? r2(b.val / b.peso) : 0;
+        resumo.push(mk.toUpperCase() + ': ' + this.formatarDinheiroExato(b.val) + ' | ' + b.peso.toLocaleString('pt-BR') + ' kg | R$ ' + (alvo.fator[mk]).toFixed(2).replace('.', ',') + '/kg');
       });
       if (totalDecl && Math.abs(totalDecl - meses.reduce((a, mk) => a + buckets[mk].val, 0)) > 0.05) this.registrarLog('Aviso: Total Geral do relatório de faturamento (' + this.formatarDinheiroExato(totalDecl) + ') difere da soma dos meses.');
+      // Total Faturamento (sem aparas), sub-empresas e Resultado acompanham
+      this.syncFatTotalEmb();
+      this.recalcularSubEmpresas();
+      this.dreAtual = [...this.dreAtual];
       this.empresaExtras = { ...this.empresaExtras };
-      this.registrarLog('Importou faturamento por tipo de operação ' + file.name + ': ' + resumo.join(' | '));
+      this.registrarLog('Importou faturamento por nota ' + file.name + ': ' + (resumo.join(' | ') || 'nenhum mês sobrescrito') + (pulados.length ? ' | preservados: ' + pulados.join(', ') : ''));
       this.recalcularTudo();
-      alert('Faturamento por tipo de operação importado (' + meses.length + ' ' + (meses.length > 1 ? 'meses' : 'mês') + ')!\n\n' + resumo.join('\n') + '\n\nEsta é uma visão analítica por CFOP (Valor, Peso e Fator por operação). NÃO altera o faturamento oficial nem o Resultado, porque a base de peso deste relatório de notas difere da planilha oficial. Veja o detalhe no fim da tela Faturamento.');
+      alert('Faturamento importado (' + meses.length + ' ' + (meses.length > 1 ? 'meses' : 'mês') + ')!\n\n' + (resumo.length ? resumo.join('\n') : '(nenhum mês foi sobrescrito)') + (pulados.length ? '\n\nMantidos oficiais: ' + pulados.join(', ') : '') + '\n\nO faturamento, o peso (kg) e o fator (R$/kg) alimentam o Resultado. O detalhe por tipo de operação (CFOP) está no fim da tela Faturamento.');
       const ult = meses[meses.length - 1];
       this.mesAtivo = ult.charAt(0).toUpperCase() + ult.slice(1);
       this.atualizarLeituraSistema();
