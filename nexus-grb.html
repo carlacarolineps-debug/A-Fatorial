@@ -2930,7 +2930,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                     <td class="td-r" :class="[mesAtivo === m.chave ? 'highlight-col font-bold' : '', avaliarExtremoHorizontal(linha, m.chave.toLowerCase(), listaMeses.map(x=>x.chave.toLowerCase()))]">
                       
                       <template x-if="dreEditavel(linha.desc) || linha.custom">
-                         <div class="flex items-center justify-end group">
+                         <div class="flex items-center justify-end group" :title="dreCelPendente(linha, m.chave.toLowerCase()) ? dreCelPendenteDica(linha) : ''">
+                            <i x-show="dreCelPendente(linha, m.chave.toLowerCase())" class="fas fa-circle-exclamation mr-1" style="font-size:9px;color:#f59e0b" title="Aguardando importação/preenchimento"></i>
                             <span class="text-[10px] text-gray-400 mr-1">R$</span>
                             <input type="text" inputmode="decimal"
                                    :value="fmtNum(linha[m.chave.toLowerCase()])"
@@ -5333,6 +5334,22 @@ function sistemaUnificado(){
     // Linhas do DRE que são entradas manuais (as demais são calculadas pelo motor)
     dreEditavel(desc) {
       return ['Faturamento', 'Estoque', 'Relatório TF', 'Diferença Provisões'].includes(desc);
+    },
+    // Célula de origem (Estoque/Relatório TF) vazia num mês que já tem movimento (faturamento
+    // ou despesa): não é erro, é um dado que ainda não foi importado/preenchido. Sinaliza para
+    // o usuário distinguir "vazio à espera de fonte" de "vínculo quebrado".
+    dreCelPendente(linha, mk) {
+      if (!linha || !['Estoque', 'Relatório TF'].includes(linha.desc)) return false;
+      const k = String(mk).toLowerCase();
+      if ((linha[k] || 0) !== 0) return false;
+      const fat = this.dreAtual.find(l => l.desc === 'Faturamento');
+      const desp = this.dreAtual.find(l => l.desc === 'Total de Despesas');
+      return ((fat && fat[k]) || 0) !== 0 || ((desp && desp[k]) || 0) !== 0;
+    },
+    dreCelPendenteDica(linha) {
+      return linha.desc === 'Estoque'
+        ? 'Este mês tem movimento, mas o estoque ainda não foi importado. Envie a Posição de Estoque do mês (coluna CMC Total) ou clique para digitar.'
+        : 'Este mês tem movimento, mas o Relatório TF ainda não foi preenchido. Clique para digitar o valor.';
     },
 
     adicionarChave(tipo) {
