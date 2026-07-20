@@ -4490,7 +4490,7 @@ function sistemaUnificado(){
       rep(emp.extras.faturamento, salvo.extras.faturamento, 'tipo');
       rep(emp.extras.inventario, salvo.extras.inventario, 'item');
       rep(emp.extras.subempresas, salvo.extras.subempresas, 'nome');
-      rep(emp.extras.servicos, salvo.extras.servicos, 'desc');
+      rep(emp.extras.servicos, salvo.extras.servicos, 'conta');
       if (salvo.extras.difKg && typeof EMB_DIF_KG !== 'undefined') { Object.keys(EMB_DIF_KG).forEach(k=>delete EMB_DIF_KG[k]); Object.assign(EMB_DIF_KG, salvo.extras.difKg); }
       if (salvo.extras.fatoresMt && typeof EMB_FATORES_MT !== 'undefined') Object.assign(EMB_FATORES_MT, salvo.extras.fatoresMt);
       if (salvo.extras.invMt) emp.extras.invMt = salvo.extras.invMt;
@@ -6710,6 +6710,11 @@ function sistemaUnificado(){
             const msF = Object.keys(mesesF).sort((a, b) => Number(a) - Number(b));
             if (msF.length) mes = ordem[Number(msF[0])] || '';
             nota = 'Faturamento da Embalagem por nota (Valor, Peso, Fator e CFOP)' + (msF.length > 1 ? ', ' + msF.length + ' meses no arquivo (cada um na sua coluna)' : (mes ? ', mês: ' + mes.toUpperCase() : '')) + '. Alimenta o faturamento (Valor, kg e Fator) e o detalhe por tipo de operação.';
+        } else if (this.empresaAtiva === 'embalagem' && json.slice(0, 30).some(r => (r || []).some(c => /^023\.\d+\.\d+/.test(String(c || '').trim()))) && (json.slice(0, 6).some(r => (r || []).some(c => /servi[çc]o/i.test(String(c || '')))) || json.slice(0, 10).some(r => (r || []).some(c => /R[óo]tulos de Linha/i.test(String(c || '')))))) {
+            // Relatório de SERVIÇOS da Embalagem (abas "R.Serviços"): pivô por conta 023, alimenta a tela Serviços
+            tipo = 'servemb';
+            mes = this.mesDoTituloOuNome(json, nome) || mes;
+            nota = 'Fechamento da unidade de SERVIÇOS (contas 023)' + (mes ? ', mês: ' + mes.toUpperCase() : ', selecione o mês') + '. Alimenta a tela Serviços da Embalagem.';
         } else {
             // Contas a pagar: cabeçalho com Valor total + Conta Contábil Número; meses pela emissão
             let cabIdx = -1, cab = null;
@@ -6826,6 +6831,7 @@ function sistemaUnificado(){
               this.importarFaturamentoMes(json, file, evt); return;
             }
             if (tipo === 'fatembnota') { this.importarFaturamentoBrutoEmb(json, file, evt); return; }
+            if (tipo === 'servemb') { this.importarServicosEmb(json, file, evt); return; }
             if (tipo === 'despesa' && pareceInv) {
               if (!confirm('Este arquivo parece um relatório de INVENTÁRIO (coluna Clas. Fiscal), mas o tipo escolhido foi Despesa.\n\nImportar mesmo assim como despesa?')) { evt.target.value = ''; return; }
             }
@@ -7539,6 +7545,20 @@ function sistemaUnificado(){
       if (mp) { const mm = parseInt(mp[1], 10) - 1; if (mm >= 0 && mm < 12) return ordem[mm]; }
       return null;
     },
+    // Mês a partir do TÍTULO da planilha ("FECHAMENTO JANEIRO 2026", "... em DD/MM/AAAA") ou do nome do arquivo
+    mesDoTituloOuNome(json, nome) {
+      const ordem = this.listaMeses.map(m => m.chave.toLowerCase());
+      const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+      const nomesMes = { janeiro: 'jan', fevereiro: 'fev', marco: 'mar', abril: 'abr', maio: 'mai', junho: 'jun', julho: 'jul', agosto: 'ago', setembro: 'set', outubro: 'out', novembro: 'nov', dezembro: 'dez' };
+      for (const r of (json || []).slice(0, 6)) {
+        for (const c of (r || [])) {
+          const t = norm(c);
+          const m = String(c || '').match(/em\s+(\d{2})\/(\d{2})\/(\d{4})/i); if (m) return ordem[parseInt(m[2], 10) - 1] || null;
+          for (const [nm, mk] of Object.entries(nomesMes)) { if (t.includes(nm)) return mk; }
+        }
+      }
+      return this.mesDoNomeArquivo(nome);
+    },
     // Mês (0-11) da coluna Emissao do relatório de notas: aceita serial do Excel (número),
     // objeto Date ou texto DD/MM/AA. Devolve -1 quando não há data válida.
     mesEmissaoEmb(v) {
@@ -7632,6 +7652,51 @@ function sistemaUnificado(){
       return Object.entries(d.grupos).map(([g, x]) => ({ grupo: g, val: x.val, peso: x.peso, n: x.n, fator: x.peso > 0 ? Math.round(x.val / x.peso * 100) / 100 : 0 })).sort((a, b) => b.val - a.val);
     },
     fatOpResumo(mk) { return (this.empresaExtras.fatOpEmb && this.empresaExtras.fatOpEmb[String(mk).toLowerCase()]) || null; },
+
+    // ===== SERVIÇOS da Embalagem (abas "R.Serviços": pivô por conta 023) =====
+    // Preenche a tela Serviços conta a conta. A conta (023.x.y) tem o valor; a linha seguinte é a descrição.
+    importarServicosEmb(json, file, evt) {
+      const ex = this.empresaExtras;
+      const lista = ex.servicos || (ex.servicos = []);
+      const mk = this.mesImportacao;
+      if (!mk) { alert('Escolha o mês do fechamento de serviços antes de importar.'); evt.target.value = ''; return; }
+      const parseNum = v => (typeof v === 'number') ? v : this.parseNumero(v);
+      const entradas = []; let cur = null;
+      json.forEach(r => {
+        if (!r) return;
+        const c0 = String(r[0] || '').trim();
+        if (/^023\.\d+\.\d+/.test(c0)) {                 // conta folha (023.x.y): pega o valor
+          const val = parseNum(r[1]);
+          cur = { conta: c0.split(/\s/)[0].trim(), desc: '', val: isNaN(val) ? 0 : Math.round(val * 100) / 100 };
+          entradas.push(cur);
+        } else if (cur && c0 && !/^023/.test(c0) && !/total|r[óo]tulos|vazio|soma de valor/i.test(c0) && !/^\(/.test(c0)) {
+          if (!cur.desc) cur.desc = c0.slice(0, 60);      // descrição da conta (primeira linha após o código)
+        }
+      });
+      if (!entradas.length) { alert('Não encontrei contas de serviço (023.x.y) neste relatório.\n\nEnvie o relatório de Serviços (abas "R.Serviços"), com as contas 023 e a coluna de valor.'); evt.target.value = ''; return; }
+      const total = Math.round(entradas.reduce((a, e) => a + e.val, 0) * 100) / 100;
+      const jaTem = lista.some(l => (l[mk] || 0) !== 0);
+      if (jaTem && !confirm('Serviços de ' + mk.toUpperCase() + ' já tem valor.\n\nOK = SUBSTITUIR por este relatório (' + this.formatarDinheiroExato(total) + ').\nCancelar = manter o atual.')) { evt.target.value = ''; return; }
+      this.salvarEstado('Importação de Serviços: ' + mk.toUpperCase());
+      lista.forEach(l => l[mk] = 0);                     // zera o mês antes de aplicar
+      entradas.forEach(e => {
+        let li = lista.find(l => l.conta === e.conta);
+        if (!li) { li = { conta: e.conta, desc: e.desc || e.conta }; this.listaMeses.forEach(m => li[m.chave.toLowerCase()] = 0); lista.push(li); }
+        li[mk] = e.val;
+        if (e.desc && (!li.desc || li.desc === li.conta)) li.desc = e.desc;
+      });
+      lista.sort((a, b) => String(a.conta).localeCompare(String(b.conta)));
+      ex.servicos = [...lista];
+      this.empresaExtras = { ...this.empresaExtras };
+      this.registrarLog('Importou Serviços ' + file.name + ' em ' + mk.toUpperCase() + ': ' + this.formatarDinheiroExato(total) + ' em ' + entradas.length + ' contas');
+      this.persistirDados();
+      this.recalcularTudo();
+      alert('Serviços de ' + mk.toUpperCase() + ' importados!\n\nTotal: ' + this.formatarDinheiroExato(total) + ' em ' + entradas.length + ' contas 023.\n\nVeja na tela Serviços.');
+      this.mesAtivo = mk.charAt(0).toUpperCase() + mk.slice(1);
+      this.mudarAba('servicos');
+      this.atualizarLeituraSistema();
+      evt.target.value = '';
+    },
 
     // Converte TODOS os itens em metros do mês em kg: usa o fator do item quando conhecido
     // (coluna Peso do relatório ou tabela Metros para Kg); sem fator, estima pelo valor do
