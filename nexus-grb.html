@@ -3849,13 +3849,21 @@ const EMB_CC_MESES={
 };
 const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 
-// Versão do formato dos dados salvos no navegador: quando a estrutura embutida evolui,
-// dados antigos são descartados para nunca esconderem linhas novas (ex.: ITP, Aparas).
-const NEXUS_DADOS_VERSAO = 8;
-// Entrega em branco: na primeira abertura desta etiqueta, o sistema zera todas as informações
-// financeiras (mantém logins/senhas e o logo). Troque a etiqueta para forçar um novo início limpo.
+// SELO DA VERSÃO ENTREGUE: muda a cada entrega. Como um arquivo aberto por file://
+// compartilha o MESMO armazenamento do navegador entre TODAS as versões, este selo é a
+// garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
+// Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
+// qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
+const NEXUS_BUILD = '2007.3';
+// Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
+// dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
+// carregam estrutura antiga incompatível).
+const NEXUS_DADOS_VERSAO = NEXUS_BUILD;
+// Entrega em branco: na primeira abertura deste selo, o sistema zera todas as informações
+// financeiras (mantém logins/senhas e o logo). Como a etiqueta segue o selo da entrega,
+// cada versão nova recomeça limpa automaticamente.
 const NEXUS_ENTREGA_LIMPA = true;
-const NEXUS_LIMPA_TAG = 'entrega-limpa-2007';
+const NEXUS_LIMPA_TAG = 'entrega-' + NEXUS_BUILD;
 // SERVIÇOS: fechamento da unidade de serviços (abas "R.Serviços" da planilha do cliente)
 const EMB_SERVICOS=[
  {conta:'023.004.02', desc:'Softwares / Licenças / Provedores', jan:57.08,   fev:60.72},
