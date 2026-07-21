@@ -507,6 +507,68 @@
     .nx-pcard-lock { position: absolute; inset: 0; border-radius: inherit; background: rgba(9,7,24,0.62); backdrop-filter: blur(2.5px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #cbcfe8; font-size: 12px; font-weight: 700; z-index: 5; text-align: center; padding: 20px; }
     .nx-pcard-lock .lk { font-size: 22px; }
     .nx-portal-foot { text-align: center; padding: 16px; font-size: 11px; color: #8a8ca8; flex-shrink: 0; }
+
+    /* ==========================================================================
+       LINHAS CLICÁVEIS + HOVER CARD + DRAWER (COCKPIT DA FICHA)
+       ========================================================================== */
+    .main-table tbody tr.row-ficha { cursor: pointer; transition: background 0.12s; }
+    .main-table tbody tr.row-ficha:hover { background: var(--gold-soft); }
+    .acoes-cell { white-space: nowrap; text-align: center; }
+    .btn-ic { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: var(--primary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.14s; margin: 0 1px; }
+    .btn-ic:hover { border-color: var(--gold); color: var(--gold-deep); background: var(--gold-soft); }
+    .btn-ic.danger:hover { border-color: var(--danger); color: var(--danger); background: #fbebeb; }
+
+    /* Hover card flutuante (resumo rápido) */
+    .hovercard { position: fixed; z-index: 12000; pointer-events: none; background: linear-gradient(165deg,#1b1642,#12102e); color: #e8e9f5; border: 1px solid rgba(197,168,128,0.35); border-radius: 12px; padding: 13px 15px; width: 270px; box-shadow: 0 22px 44px -16px rgba(0,0,0,0.65); font-size: 12px; opacity: 0; transform: translateY(6px); transition: opacity 0.12s, transform 0.12s; }
+    .hovercard.show { opacity: 1; transform: translateY(0); }
+    .hovercard h5 { margin: 0 0 8px; font-size: 14px; color: #fff; font-family: var(--font-display); font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .hovercard .hc-row { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+    .hovercard .hc-row span { color: #9aa0b0; }
+    .hovercard .hc-row b { color: #fff; font-weight: 700; text-align: right; }
+    .hovercard .hc-hint { margin-top: 9px; font-size: 10.5px; color: var(--gold-bright); font-weight: 700; text-align: center; }
+
+    /* Drawer lateral */
+    .drawer-overlay { position: fixed; inset: 0; z-index: 13000; background: rgba(9,7,24,0.45); backdrop-filter: blur(2px); opacity: 0; visibility: hidden; transition: opacity 0.22s; }
+    .drawer-overlay.show { opacity: 1; visibility: visible; }
+    .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 450px; max-width: 93vw; background: #f4f6fa; z-index: 13001; box-shadow: -24px 0 60px -24px rgba(9,7,24,0.55); transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; }
+    .drawer.show { transform: translateX(0); }
+    .drawer-head { background: linear-gradient(160deg, var(--primary-soft), var(--primary)); color: #fff; padding: 20px 22px 18px; border-top: 3px solid var(--gold); position: relative; flex-shrink: 0; }
+    .drawer-head .cod { font-family: var(--font-display); font-size: 23px; font-weight: 800; letter-spacing: -0.5px; }
+    .drawer-head .sub { font-size: 12px; color: #b7bad0; margin-top: 3px; line-height: 1.4; }
+    .drawer-head .badge-status { margin-top: 10px; display: inline-block; }
+    .drawer-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; font-size: 13px; }
+    .drawer-close:hover { background: rgba(225,29,72,0.2); }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 18px 20px 30px; display: flex; flex-direction: column; gap: 16px; }
+    .dw-sec-t { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gold-deep); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .dw-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .dw-stat { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+    .dw-stat .l { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; }
+    .dw-stat .v { font-size: 13px; font-weight: 700; color: var(--primary); margin-top: 3px; }
+    .dw-reco { background: var(--gold-soft); border: 1px solid #ece3cf; border-left: 3px solid var(--gold); border-radius: 10px; padding: 12px 14px; }
+    .dw-reco .t { font-size: 11px; font-weight: 800; color: var(--gold-deep); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dw-reco .d { font-size: 12.5px; color: #5f4c0e; margin: 5px 0 0; line-height: 1.5; }
+    .dw-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .dw-status-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dw-chip { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-size: 11.5px; font-weight: 700; cursor: pointer; color: var(--text-main); transition: 0.14s; }
+    .dw-chip:hover { border-color: var(--gold); color: var(--gold-deep); }
+    .dw-chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .dw-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .dw-btn { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px; border-radius: 9px; border: none; cursor: pointer; font-size: 12.5px; font-weight: 700; transition: 0.15s; }
+    .dw-btn.navy { background: linear-gradient(180deg, var(--primary-soft), var(--primary)); color: #fff; }
+    .dw-btn.navy:hover { filter: brightness(1.12); }
+    .dw-btn.gold { background: var(--gold); color: #191040; }
+    .dw-btn.gold:hover { background: var(--gold-deep); }
+    .dw-btn.ghost { background: #fff; border: 1px solid var(--border); color: var(--primary); }
+    .dw-btn.ghost:hover { border-color: var(--gold); }
+    .dw-nota-in { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; font-family: var(--font-body); resize: vertical; min-height: 42px; outline: none; }
+    .dw-nota-in:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,168,128,0.2); }
+    .dw-time { list-style: none; margin: 0; padding: 0; }
+    .dw-time li { position: relative; padding: 0 0 14px 20px; border-left: 2px solid var(--border); }
+    .dw-time li:last-child { border-left-color: transparent; padding-bottom: 0; }
+    .dw-time li::before { content: ''; position: absolute; left: -6px; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--border); }
+    .dw-time .tt { font-size: 12px; font-weight: 700; color: var(--primary); }
+    .dw-time .td { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .dw-empty { font-size: 11.5px; color: #94a3b8; text-align: center; padding: 8px; }
 </style>
 
 <!-- ==========================================
@@ -1890,6 +1952,22 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     </div>
 </div>
 
+<!-- ==========================================
+     HOVER CARD (resumo rápido) + DRAWER (cockpit da ficha)
+     ========================================== -->
+<div id="hovercard" class="hovercard"></div>
+
+<div id="drawer-overlay" class="drawer-overlay" onclick="fecharDrawer()"></div>
+<div id="drawer" class="drawer">
+    <div class="drawer-head">
+        <button class="drawer-close" onclick="fecharDrawer()"><i class="fas fa-plus" style="transform:rotate(45deg);"></i></button>
+        <div class="cod" id="drawer-cod">—</div>
+        <div class="sub" id="drawer-sub"></div>
+        <span class="badge-status" id="drawer-badge"></span>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+</div>
+
 <script>
     let currentSessionUser = "Carla Caroline";
 
@@ -2118,6 +2196,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     const SESSAO_KEY = 'rb_qualidade_sessao';
     let sessaoUser = null;   // objeto do usuário logado
     let deptoAtual = null;   // 'qualidade' | null (hub)
+    let drawerFichaCod = null; // ficha aberta no drawer (cockpit)
 
     // Definição dos painéis/departamentos do grupo
     const DEPARTAMENTOS = [
@@ -2368,25 +2447,24 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         }
 
         dbFichas.forEach((f) => {
-            if(f.status === 'Aguardando Aprovação') kPendAprov++; 
-            if(f.status === 'Aprovado') kAprov++; 
+            if(f.status === 'Aguardando Aprovação') kPendAprov++;
+            if(f.status === 'Aprovado') kAprov++;
             if(f.status === 'Atrasado') kAtrasada++;
-            
+            const tipoFicha = f.setor === 'Impressão' ? 'impressao' : 'corte';
             tb.innerHTML += `
-                <tr>
+                <tr class="row-ficha" onclick="abrirDrawer('${f.cod}')" onmouseenter="hoverFicha(event,'${f.cod}')" onmousemove="hoverMove(event)" onmouseleave="hoverOut()">
                     <td style="font-weight:bold; color:#1d4ed8;">${f.cod}</td>
                     <td>${f.produto}</td><td>${f.cliente}</td><td>${f.setor}</td><td>${f.prox}</td>
                     <td><span class="badge-status ${getBadge(f.status)}">${f.status}</span></td>
                     <td>${f.responsavel}</td><td>${f.dataHora}</td>
-                    <td style="text-align:center; min-width:140px;">
-                        <button class="btn-action-sm" title="Visualizar" onclick="alert('Visualizar Documento')">👁️</button>
-                        <button class="btn-action-sm" title="Editar" onclick="abrirFicha('${f.setor === 'Impressão' ? 'impressao' : 'corte'}', '${f.cod}')">✏️</button>
-                        <button class="btn-action-sm" title="Imprimir PDF" onclick="window.print()">🖨️</button>
-                        <button class="btn-action-sm" title="Cancelar" onclick="acaoRapida('Cancelar Documento')">❌</button>
-                        <button class="btn-action-sm" title="Enviar Setor" onclick="abrirModalEnvio('${f.cod}')">🚀</button>
+                    <td class="acoes-cell" onclick="event.stopPropagation()">
+                        <button class="btn-ic" title="Abrir cockpit da ficha" onclick="abrirDrawer('${f.cod}')"><i class="fas fa-file-lines"></i></button>
+                        <button class="btn-ic" title="Editar documento" onclick="abrirFicha('${tipoFicha}', '${f.cod}')"><i class="fas fa-gear"></i></button>
+                        <button class="btn-ic" title="Enviar ao setor" onclick="abrirModalEnvio('${f.cod}')"><i class="fas fa-right-left"></i></button>
                     </td>
                 </tr>`;
         });
+        renderIcons(tb);
 
         const tbRet = document.getElementById('tb-retrabalho');
         if (tbRet) {
@@ -2402,10 +2480,214 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             });
         }
 
-        document.getElementById('kpi-total').innerText = kTotal; 
-        document.getElementById('kpi-pend').innerText = kPendAprov; 
-        document.getElementById('kpi-aprovadas').innerText = kAprov; 
+        document.getElementById('kpi-total').innerText = kTotal;
+        document.getElementById('kpi-pend').innerText = kPendAprov;
+        document.getElementById('kpi-aprovadas').innerText = kAprov;
         document.getElementById('kpi-atrasadas').innerText = kAtrasada;
+    }
+
+    // ==========================================================================
+    // COCKPIT DA FICHA — hover (resumo rápido) e drawer lateral (360° + ações)
+    // ==========================================================================
+    function badgeClass(s) {
+        if(s === 'Concluído' || s === 'Aprovado') return 'st-conc';
+        if(s === 'Em Andamento' || s === 'Salvo' || s === 'Rascunho' || (s||'').includes('Enviado')) return 'st-and';
+        if(s === 'Atrasado') return 'st-err';
+        return 'st-pend';
+    }
+    function fichaByCod(cod) { return dbFichas.find(f => f.cod === cod); }
+    const STATUS_FLUXO = ['Rascunho','Aguardando Aprovação','Aprovado','Concluído'];
+
+    // Hover card
+    function hoverFicha(ev, cod) {
+        const f = fichaByCod(cod); if(!f) return;
+        const rets = RB.retrabalhos.filter(r => r.ficha === cod).length;
+        const hc = document.getElementById('hovercard');
+        hc.innerHTML = `
+            <h5>${f.cod} <span class="badge-status ${badgeClass(f.status)}">${f.status}</span></h5>
+            <div class="hc-row"><span>Produto</span><b>${f.produto}</b></div>
+            <div class="hc-row"><span>Cliente</span><b>${f.cliente}</b></div>
+            <div class="hc-row"><span>Setor atual</span><b>${f.setor} → ${f.prox || '-'}</b></div>
+            <div class="hc-row"><span>Responsável</span><b>${f.responsavel}</b></div>
+            <div class="hc-row"><span>Atualizado</span><b>${f.dataHora}</b></div>
+            ${rets ? `<div class="hc-row"><span>Retrabalhos</span><b style="color:#ff8095;">${rets} registrado(s)</b></div>` : ''}
+            <div class="hc-hint">Clique para abrir e agir →</div>`;
+        hc.classList.add('show');
+        hoverMove(ev);
+    }
+    function hoverMove(ev) {
+        const hc = document.getElementById('hovercard');
+        if(!hc.classList.contains('show')) return;
+        let x = ev.clientX + 16, y = ev.clientY + 14;
+        const w = 270, h = hc.offsetHeight || 190;
+        if(x + w > window.innerWidth - 10) x = ev.clientX - w - 16;
+        if(y + h > window.innerHeight - 10) y = window.innerHeight - h - 10;
+        hc.style.left = x + 'px'; hc.style.top = y + 'px';
+    }
+    function hoverOut() { document.getElementById('hovercard').classList.remove('show'); }
+
+    // Próxima ação recomendada (o sistema "pensa" o próximo passo)
+    function proximaAcaoReco(f) {
+        if(f.status === 'Atrasado') return { t: '⚠ Ficha atrasada', d: 'Priorize: reavalie o prazo, envie ao próximo setor ou registre o motivo do atraso como retrabalho.' };
+        if(f.status === 'Aguardando Aprovação') return { t: 'Aguardando aprovação', d: 'Revise e aprove para liberar à produção — ou devolva ao setor para correção.' };
+        if(f.status === 'Aprovado') return { t: 'Pronta para seguir', d: `Aprovada. Envie ao próximo setor (${f.prox && f.prox !== '-' ? f.prox : 'a definir'}).` };
+        if(f.status === 'Concluído') return { t: 'Ciclo concluído', d: 'Nada pendente nesta ficha. Consulte o histórico se precisar.' };
+        if((f.status||'').includes('Enviado')) return { t: 'Enviada — aguardando setor', d: 'Acompanhe o recebimento no setor de destino e confirme quando concluído.' };
+        return { t: 'Em andamento', d: 'Atualize o status conforme a evolução ou registre uma observação.' };
+    }
+
+    function abrirDrawer(cod) {
+        const f = fichaByCod(cod); if(!f) return;
+        drawerFichaCod = cod;
+        f.notas = f.notas || [];
+        f.historico = f.historico || [];
+        const rets = RB.retrabalhos.filter(r => r.ficha === cod);
+        const ents = RB.entregas.filter(e => e.ficha === cod);
+        const reco = proximaAcaoReco(f);
+        const custoRet = rets.reduce((a,r) => a + (r.custo||0), 0);
+
+        document.getElementById('drawer-cod').innerText = f.cod;
+        document.getElementById('drawer-sub').innerText = `${f.produto} · ${f.cliente}`;
+        const badge = document.getElementById('drawer-badge');
+        badge.className = 'badge-status ' + badgeClass(f.status);
+        badge.innerText = f.status;
+
+        // Timeline de eventos
+        const eventos = [];
+        f.historico.forEach(h => eventos.push({ data: h.data, tt: h.tt, td: h.td }));
+        rets.forEach(r => eventos.push({ data: r.data, tt: 'Retrabalho: ' + (r.causa || r.motivo), td: `→ ${r.destino || '-'}${r.custo ? ' · ' + fmtBRL(r.custo) : ''} · ${r.usuario}` }));
+        ents.forEach(e => eventos.push({ data: e.data, tt: 'Entrega → ' + e.destino, td: `${e.status}${e.prazo ? ' · prazo ' + new Date(e.prazo + 'T12:00:00').toLocaleDateString('pt-BR') : ''}` }));
+        f.notas.forEach(n => eventos.push({ data: n.data, tt: 'Observação', td: `${n.texto} — ${n.usuario}` }));
+        eventos.push({ data: '0', tt: 'Ficha registrada no sistema', td: `Setor ${f.setor} · ${f.responsavel} · ${f.dataHora}` });
+        eventos.sort((a,b) => (b.data||'').localeCompare(a.data||''));
+
+        const statusChips = STATUS_FLUXO.map(s =>
+            `<button class="dw-chip ${f.status === s ? 'on' : ''}" onclick="drawerMudarStatus('${s}')">${s}</button>`).join('');
+
+        const timelineHtml = eventos.length
+            ? `<ul class="dw-time">${eventos.map(e => `<li><div class="tt">${e.tt}</div><div class="td">${e.td}</div></li>`).join('')}</ul>`
+            : '<div class="dw-empty">Sem eventos.</div>';
+
+        document.getElementById('drawer-body').innerHTML = `
+            <div class="dw-reco">
+                <div class="t"><i class="fas fa-lightbulb"></i> Próxima ação recomendada</div>
+                <div class="d"><b>${reco.t}.</b> ${reco.d}</div>
+            </div>
+
+            <div>
+                <div class="dw-sec-t"><i class="fas fa-circle-info"></i> Resumo</div>
+                <div class="dw-stats">
+                    <div class="dw-stat"><div class="l">Setor atual</div><div class="v">${f.setor}</div></div>
+                    <div class="dw-stat"><div class="l">Próximo setor</div><div class="v">${f.prox || '-'}</div></div>
+                    <div class="dw-stat"><div class="l">Responsável</div><div class="v">${f.responsavel}</div></div>
+                    <div class="dw-stat"><div class="l">Atualizado</div><div class="v">${f.dataHora}</div></div>
+                    ${rets.length ? `<div class="dw-stat" style="grid-column:1/3; border-color:#f3c9d2;"><div class="l" style="color:#b91c1c;">Retrabalhos vinculados</div><div class="v" style="color:#b91c1c;">${rets.length} ocorrência(s) · ${fmtBRL(custoRet)}</div></div>` : ''}
+                </div>
+            </div>
+
+            <div class="dw-card">
+                <div class="dw-sec-t"><i class="fas fa-clipboard-check"></i> Alterar status</div>
+                <div class="dw-status-row">${statusChips}</div>
+                <div class="dw-actions">
+                    <button class="dw-btn navy" onclick="drawerEnviarSetor()"><i class="fas fa-right-left"></i> Enviar ao setor</button>
+                    <button class="dw-btn gold" onclick="drawerAbrirRetrabalho()"><i class="fas fa-rotate"></i> Registrar retrabalho</button>
+                    <button class="dw-btn ghost" onclick="abrirFicha('${f.setor === 'Impressão' ? 'impressao' : 'corte'}','${f.cod}'); fecharDrawer();"><i class="fas fa-gear"></i> Editar documento</button>
+                    <button class="dw-btn ghost" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
+                </div>
+            </div>
+
+            <div class="dw-card" id="dw-retrabalho-box" style="display:none;">
+                <div class="dw-sec-t"><i class="fas fa-rotate"></i> Registrar retrabalho desta ficha</div>
+                <select id="dw-ret-causa" class="dw-nota-in" style="min-height:auto;">
+                    <option>Parâmetro de máquina incorreto</option>
+                    <option>Material fora do padrão</option>
+                    <option>Erro de arte / clichê</option>
+                    <option>Falha de solda</option>
+                    <option>Erro de medida / dimensão</option>
+                    <option>Falha de impressão (cor/registro)</option>
+                    <option>Erro de documentação</option>
+                    <option>Outros</option>
+                </select>
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <input id="dw-ret-destino" class="dw-nota-in" style="min-height:auto;" placeholder="Enviar para (setor)" value="${f.prox && f.prox !== '-' ? f.prox : 'Corte e Solda'}">
+                    <input id="dw-ret-custo" class="dw-nota-in" type="number" style="min-height:auto; width:120px;" placeholder="Custo R$">
+                </div>
+                <textarea id="dw-ret-obs" class="dw-nota-in" style="margin-top:8px;" placeholder="O que precisa ser corrigido?"></textarea>
+                <button class="dw-btn gold" style="margin-top:8px;" onclick="drawerSalvarRetrabalho()"><i class="fas fa-circle-check"></i> Salvar retrabalho</button>
+            </div>
+
+            <div class="dw-card">
+                <div class="dw-sec-t"><i class="fas fa-pen"></i> Observação rápida</div>
+                <textarea id="dw-nota" class="dw-nota-in" placeholder="Anote uma instrução, decisão ou pendência..."></textarea>
+                <button class="dw-btn ghost" style="margin-top:8px;" onclick="drawerAddNota()"><i class="fas fa-plus"></i> Adicionar ao histórico</button>
+            </div>
+
+            <div>
+                <div class="dw-sec-t"><i class="fas fa-clock-rotate-left"></i> Histórico e movimentações</div>
+                ${timelineHtml}
+            </div>`;
+
+        document.getElementById('drawer-overlay').classList.add('show');
+        document.getElementById('drawer').classList.add('show');
+        renderIcons(document.getElementById('drawer'));
+        hoverOut();
+    }
+
+    function fecharDrawer() {
+        document.getElementById('drawer-overlay').classList.remove('show');
+        document.getElementById('drawer').classList.remove('show');
+        drawerFichaCod = null;
+    }
+
+    function drawerMudarStatus(novo) {
+        const f = fichaByCod(drawerFichaCod); if(!f) return;
+        if(f.status === novo) return;
+        const antigo = f.status;
+        f.status = novo;
+        f.dataHora = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+        f.historico = f.historico || [];
+        f.historico.push({ data: new Date().toISOString(), tt: 'Status alterado', td: `${antigo} → ${novo} · ${currentSessionUser}` });
+        rbSave();
+        registrarAtividade(`alterou o status de ${f.cod} para ${novo}`);
+        renderDashboard();
+        abrirDrawer(f.cod);
+    }
+
+    function drawerEnviarSetor() {
+        const cod = drawerFichaCod;
+        fecharDrawer();
+        abrirModalEnvio(cod);
+    }
+
+    function drawerAbrirRetrabalho() {
+        const box = document.getElementById('dw-retrabalho-box');
+        if(box) { box.style.display = box.style.display === 'none' ? 'block' : 'none'; }
+    }
+
+    function drawerSalvarRetrabalho() {
+        const f = fichaByCod(drawerFichaCod); if(!f) return;
+        RB.retrabalhos.unshift({
+            data: new Date().toISOString(), ficha: f.cod, produto: f.produto, origem: 'Qualidade',
+            destino: document.getElementById('dw-ret-destino').value.trim() || '-',
+            causa: document.getElementById('dw-ret-causa').value,
+            qtd: 0, custo: Number(document.getElementById('dw-ret-custo').value) || 0,
+            obs: document.getElementById('dw-ret-obs').value.trim(), usuario: currentSessionUser
+        });
+        rbSave();
+        registrarAtividade(`registrou retrabalho da ficha ${f.cod}`);
+        renderDashboard();
+        abrirDrawer(f.cod);
+    }
+
+    function drawerAddNota() {
+        const f = fichaByCod(drawerFichaCod); if(!f) return;
+        const txt = document.getElementById('dw-nota').value.trim();
+        if(!txt) return;
+        f.notas = f.notas || [];
+        f.notas.push({ data: new Date().toISOString(), texto: txt, usuario: currentSessionUser });
+        rbSave();
+        registrarAtividade(`anotou na ficha ${f.cod}`);
+        abrirDrawer(f.cod);
     }
 
     function abrirFicha(tipo, codigo = '') {
@@ -2992,6 +3274,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             });
         });
     }
+
+    document.addEventListener('keydown', function(e) {
+        if(e.key === 'Escape') { fecharDrawer(); }
+    });
 
     window.onload = function() {
         renderIcons(document);   // converte todos os ícones fa-* em SVG embutido

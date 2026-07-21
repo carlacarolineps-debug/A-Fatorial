@@ -53,7 +53,26 @@ para encerrar a sessão.
 | Tela | O que faz |
 |------|-----------|
 | **Login / Hub** | Autenticação e portal de seleção de painel (departamentos do grupo, no padrão NEXUS). |
-| **Dashboard** | KPIs de fichas, alertas, atividades e histórico geral (tabela de retrabalho lê os registros reais). |
+| **Dashboard** | KPIs, alertas, atividades e o **Histórico Geral** com o *cockpit da ficha* (ver abaixo). |
+
+## Cockpit da ficha (hover + drawer)
+
+No **Histórico Geral de Fichas**, cada linha é interativa:
+
+- **Passar o mouse** mostra um *card flutuante* com o resumo da ficha (produto, cliente,
+  setor atual → próximo, responsável, atualização e retrabalhos vinculados).
+- **Clicar** abre o **drawer lateral** (cockpit) que reúne, num só lugar:
+  - **Próxima ação recomendada** — o sistema sugere o próximo passo conforme o status
+    (aprovar, enviar ao setor, priorizar se atrasada, etc.).
+  - **Resumo** e **retrabalhos vinculados** (com custo somado).
+  - **Alterar status** por um clique (Rascunho → Aguardando → Aprovado → Concluído).
+  - **Enviar ao setor**, **registrar retrabalho** direto na ficha, **editar** ou **imprimir**.
+  - **Observação rápida** que entra no histórico.
+  - **Timeline** cronológica de tudo o que aconteceu com a ficha (status, retrabalhos,
+    entregas, notas).
+
+  Fecha no X, clicando fora ou com **Esc**. Funções: `abrirDrawer`, `proximaAcaoReco`,
+  `drawerMudarStatus`, `drawerSalvarRetrabalho`, `drawerAddNota`, `hoverFicha`.
 | **Retrabalho & Entregas** | Registro rápido de retrabalho (causa raiz + custo) e de envios a outros setores; KPIs do mês e histórico. |
 | **Indicadores** | 4 gráficos SVG (sem bibliotecas): tendência mensal de retrabalho, Pareto de causas, RNC por fornecedor e entregas por setor — com leitura estratégica automática. |
 | **Relatórios** | Relatório executivo com período selecionável, KPIs, gráficos e recomendações; botão **Exportar PDF (Diretoria)**. |
