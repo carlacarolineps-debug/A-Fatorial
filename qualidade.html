@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualidade da Embalagem — Grupo Rebracil</title>
+</head>
+<body>
+<div id="app-sistema-gestao">
+<style>
+    /* ==========================================================================
+       ESTILOS GERAIS DO SISTEMA ERP E TIPOGRAFIA
+       ========================================================================== */
+    :root {
+        --primary: #0b2447;    /* Azul Escuro Rebracil (Menu) */
+        --accent: #1d4ed8;     /* Azul Destaque */
+        --gold: #c9a227;       /* Dourado Rebracil */
+        --gold-deep: #a8842f;  /* Dourado Escuro */
+        --gold-soft: #f7efd8;  /* Dourado Claro (fundos) */
+        --success: #10b981;    /* Verde Sucesso */
+        --warning: #f59e0b;    /* Laranja Alerta */
+        --danger: #ef4444;     /* Vermelho Erro */
+        --bg-light: #f4f7f9;   /* Fundo Geral */
+        --border: #e2e8f0;     /* Bordas */
+        --text-main: #334155;  /* Texto Principal */
+        --text-muted: #64748b; /* Texto Secundário */
+    }
+
+    #app-sistema-gestao { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
+    #app-sistema-gestao * { box-sizing: border-box; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* ==========================================================================
+       SIDEBAR & MENU CASCATA
+       ========================================================================== */
+    .sys-sidebar { background-color: var(--primary); color: #94a3b8; width: 250px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; overflow: visible;}
+    .sys-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: #fff; padding: 25px 20px; border-bottom: 1px solid #1e293b; background: #0b1120;}
+    
+    /* CORREÇÃO DO MENU CASCATA: overflow de volta para visible para não cortar o submenu */
+    .sys-nav-menu { padding: 15px 10px; flex-grow: 1; overflow: visible;}
+    .nav-section { font-size: 10px; text-transform: uppercase; font-weight: 700; margin: 20px 0 10px 10px; color: #475569; letter-spacing: 0.5px; }
+    
+    .sys-nav-btn { display: flex; align-items: center; width: 100%; background: none; border: none; color: #cbd5e1; padding: 10px 15px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: 0.2s; text-align: left; margin-bottom: 4px; font-weight: 500; }
+    .sys-nav-btn:hover { background-color: #1e293b; color: #fff; }
+    .sys-nav-btn.active { background-color: var(--accent); color: #fff; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.3); border-left: 3px solid var(--gold); }
+    .nav-icon { width: 24px; font-size: 15px; text-align: left; opacity: 0.9;}
+
+    .sidebar-menu-item { position: relative; width: 100%; display: block; }
+    .sidebar-submenu { display: none; position: absolute; left: 100%; top: 0; background-color: var(--primary); min-width: 210px; border-radius: 0 6px 6px 0; box-shadow: 4px 4px 15px rgba(0,0,0,0.3); padding: 5px 0; z-index: 9999; border-left: 1px solid #1e293b; }
+    .sidebar-menu-item:hover > .sidebar-submenu { display: block; }
+
+    /* ==========================================================================
+       ÁREA PRINCIPAL E HEADER
+       ========================================================================== */
+    .sys-main { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; z-index: 10;}
+    .sys-header { background: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 40; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+    .header-title-box h1 { margin: 0; font-size: 20px; color: var(--primary); font-weight: 700;}
+    .header-title-box p { margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted); }
+    
+    .header-actions { display: flex; align-items: center; gap: 15px; }
+    .user-profile { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #334155; font-size: 13px; cursor: pointer;}
+    .user-avatar { width: 32px; height: 32px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;}
+
+    .sys-btn-primary { background: var(--accent); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    .sys-btn-primary:hover { background: #1e40af; }
+    .sys-btn-success { background: var(--success); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+    .sys-btn-success:hover { background: #047857; }
+    
+    .btn-gold { background-color: var(--gold); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    .btn-gold:hover { background-color: var(--gold-deep); }
+    .btn-outline-danger { background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    .btn-outline-danger:hover { background: #fee2e2; }
+
+    .sys-menu-item { position: relative; display: inline-block; }
+    .sys-submenu { display: none; position: absolute; background-color: #fff; min-width: 200px; border-radius: 6px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; padding: 5px 0; z-index: 100;}
+    .sys-menu-item:hover > .sys-submenu { display: block; }
+    .sys-submenu-bottom-left { left: auto; right: 0; top: 100%; }
+    .sys-submenu-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: none; color: #334155; padding: 10px 20px; font-size: 13px; cursor: pointer; text-align: left; transition: 0.2s; font-weight: 500;}
+    .sys-submenu-btn:hover { background-color: #f1f5f9; color: var(--accent); }
+
+    .sys-view { display: none; padding: 25px 30px; max-width: 1400px; margin: 0 auto; width: 100%; }
+    .sys-view.active { display: block; }
+
+    /* ==========================================================================
+       MODAL DE ENVIO
+       ========================================================================== */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .modal-content { background: #fff; padding: 25px; border-radius: 10px; width: 450px; max-width: 90%; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 4px solid #c9a227;}
+    .modal-content h3 { margin: 0 0 10px 0; color: #1e293b; font-size: 18px; display: flex; align-items: center; gap: 8px;}
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+
+    /* ==========================================================================
+       DASHBOARD GESTÃO À VISTA E LISTAS DE ATIVIDADES
+       ========================================================================== */
+    .card-base { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 20px;}
+    .card-title { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
+    
+    .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
+    .kpi-card { display: flex; align-items: flex-start; justify-content: space-between; }
+    .kpi-info { display: flex; flex-direction: column; }
+    .kpi-label { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;}
+    .kpi-val { font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1;}
+    .kpi-trend { font-size: 11px; margin-top: 8px; font-weight: 600; display: flex; align-items: center; gap: 4px;}
+    .trend-up { color: var(--success); } .trend-flat { color: #3b82f6; } .trend-down { color: #ef4444; }
+    .trend-warn { color: #d97706; }
+    .kpi-icon-box { width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff;}
+    
+    .two-col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .list-unstyled { list-style: none; padding: 0; margin: 0; }
+    .list-item { padding: 12px 0; border-bottom: 1px dashed #e2e8f0; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #334155; }
+    .list-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .badge-alert { padding: 3px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; text-transform: uppercase; color: #fff; letter-spacing: 0.5px;}
+    .bg-danger { background: #ef4444; } .bg-warning { background: #f59e0b; } .bg-info { background: #3b82f6; } .bg-success { background: #10b981; }
+    .time-muted { margin-left: auto; font-size: 10px; color: #94a3b8; font-weight: 600; white-space: nowrap;}
+
+    .mid-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 20px; }
+    .donut-container { display: flex; align-items: center; gap: 20px; justify-content: center; padding: 10px 0;}
+    .donut-chart { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(#3b82f6 0% 25%, #10b981 25% 55%, #f59e0b 55% 80%, #c9a227 80% 100%); display: flex; align-items: center; justify-content: center;}
+    .donut-inner { width: 80px; height: 80px; background: #fff; border-radius: 50%; }
+    .donut-legend { font-size: 11px; color: #475569; display: flex; flex-direction: column; gap: 8px;}
+    .leg-item { display: flex; align-items: center; gap: 6px;}
+    .leg-color { width: 10px; height: 10px; border-radius: 2px;}
+
+    .bar-chart-container { display: flex; flex-direction: column; gap: 12px; padding: 10px 0;}
+    .bar-row { display: flex; align-items: center; font-size: 11px; color: #475569; font-weight: 500;}
+    .bar-lbl { width: 80px; }
+    .bar-track { flex-grow: 1; height: 14px; background: #f1f5f9; margin: 0 10px; border-radius: 2px; }
+    .bar-fill { height: 100%; border-radius: 2px; }
+
+    .sm-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .sm-table th { text-align: left; padding: 6px 0; color: #64748b; border-bottom: 1px solid #e2e8f0;}
+    .sm-table td { padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #334155;}
+
+    .main-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .main-table th { background: #f8fafc; padding: 12px 15px; color: #64748b; font-weight: 600; font-size: 11px; border-bottom: 1px solid #e2e8f0; }
+    .main-table td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 12px; vertical-align: middle; }
+    .badge-status { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .st-pend { background: #fef3c7; color: #d97706; }
+    .st-and { background: #e0e7ff; color: #4f46e5; }
+    .st-conc { background: #d1fae5; color: #059669; }
+    .st-err { background: #fee2e2; color: #b91c1c; }
+    
+    .btn-action-sm { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 5px 8px; cursor: pointer; margin-right: 2px; font-size: 12px; transition: 0.2s;}
+    .btn-action-sm:hover { background: #1d4ed8; color: white; border-color: #1d4ed8;}
+
+    .table-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .input-search { padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; min-width: 220px; transition: 0.2s;}
+    .input-search:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.1);}
+
+    /* ==========================================================================
+       CSS - FICHAS DE PRODUÇÃO / DOCUMENTOS
+       ========================================================================== */
+    .ficha-wrapper { background: #fff; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-radius: 8px; border-top: 4px solid #0b2c5c; margin-bottom: 20px;}
+    .ficha-wrapper.impr-theme { border-top-color: #3b82f6; }
+    .ficha-wrapper.nc-theme { border-top-color: #f59e0b; }
+    .ficha-wrapper.dev-theme { border-top-color: #ef4444; }
+    .ficha-wrapper.cliche-theme { border-top-color: #c9a227; } /* Novo Tema Clichê */
+
+    .ficha-header-pdf { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+    .ficha-title h2 { margin: 0; color: #0b2c5c; font-size: 20px; font-weight: 800; text-transform: uppercase;}
+    .ficha-title p { margin: 0; color: #0b2c5c; font-weight: bold; font-size: 12px; }
+    .impr-theme .ficha-title p { color: #3b82f6; }
+    .nc-theme .ficha-title p { color: #f59e0b; }
+    .dev-theme .ficha-title p { color: #ef4444; }
+    .cliche-theme .ficha-title p { color: #c9a227; }
+
+    .badge-setor { background: #0b2c5c; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 10px; text-transform: uppercase; }
+    
+    .grid-form { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1px; background: #333; border: 1px solid #333; margin-bottom: 20px; }
+    .g-col { background: #fff; padding: 5px 8px; display: flex; flex-direction: column; justify-content: center; }
+    .g-col-1{grid-column: span 1;} .g-col-2{grid-column: span 2;} .g-col-3{grid-column: span 3;} .g-col-4{grid-column: span 4;} .g-col-5{grid-column: span 5;} .g-col-6{grid-column: span 6;} .g-col-7{grid-column: span 7;} .g-col-8{grid-column: span 8;} .g-col-10{grid-column: span 10;} .g-col-12{grid-column: span 12;}
+    
+    .section-title { grid-column: span 12; background: #0b2c5c; color: #fff; font-size: 11px; font-weight: bold; text-align: center; padding: 6px; text-transform: uppercase; letter-spacing: 1px;}
+    .impr-theme .section-title { background: #3b82f6; }
+    .nc-theme .section-title { background: #f59e0b; }
+    .dev-theme .section-title { background: #ef4444; }
+    .cliche-theme .section-title { background: #c9a227; }
+    
+    .lbl { font-size: 9px; font-weight: bold; color: #555; text-transform: uppercase; margin-bottom: 3px; }
+    .inp { width: 100%; border: 1px solid transparent; background: #f8fafc; font-family: inherit; font-size: 12px; font-weight: bold; color: #111827; padding: 4px 6px; border-radius: 3px; outline: none; }
+    .inp:focus:not(.sys-readonly) { background: #fff; border: 1px solid #1063ca; box-shadow: 0 0 0 2px rgba(16,99,202,0.1); }
+    
+    .sys-readonly { background-color: #e2e8f0; color: #64748b; cursor: not-allowed; border: 1px solid #cbd5e1; }
+    select.inp { cursor: pointer; appearance: auto; }
+
+    .inner-table { width: 100%; border-collapse: collapse; margin-top: 2px; }
+    .inner-table th, .inner-table td { border: 1px solid #ccc; font-size: 9px; text-align: center; padding: 2px; }
+    .inner-table th { background: #f1f5f9; color: #334155;}
+    .inner-table input { width: 100%; text-align: center; border: none; font-size: 10px; font-weight: bold; background: transparent; outline: none; padding:4px;}
+    .inner-table textarea { width: 100%; border: none; font-size: 10px; font-weight: bold; background: transparent; outline: none; resize: vertical; min-height: 25px; padding:4px;}
+    
+    .img-upload-box { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 4px; padding: 10px; text-align: center; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; position: relative;}
+    .img-upload-box:hover { border-color: #1063ca; background: #f0f4f8; }
+    .img-upload-box.small { min-height: 60px; padding: 5px; }
+    .img-preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; width: 100%; justify-content: center; }
+    .img-thumb-wrap { position: relative; display: inline-block; }
+    .img-thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .img-delete-btn { position: absolute; top: -8px; right: -8px; background: #dc2626; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+
+    .system-control-panel { background: #f1f5f9; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-top: 20px; font-size: 12px; }
+    .system-control-panel h4 { margin: 0 0 10px 0; color: #334155; text-transform: uppercase; font-size: 11px; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px;}
+    .control-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; }
+    .control-item { display: flex; flex-direction: column; }
+    .control-item strong { color: #64748b; font-size: 10px; text-transform: uppercase; margin-bottom: 2px;}
+    .history-log { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 10px; max-height: 100px; overflow-y: auto; font-family: monospace; font-size: 11px; color: #475569; }
+
+    /* LAYOUT BARRA DE AÇÕES INFERIOR */
+    .action-bar-fixed { background: #fff; padding: 12px 30px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; bottom: 0; z-index: 50; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px; }
+    .action-group { display: flex; gap: 10px; align-items: center; }
+    .action-btn-sec { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; color: #334155; transition: 0.2s; font-size: 13px;}
+    .action-btn-sec:hover { background: #e2e8f0; }
+
+    /* ETIQUETA E IMPRESSÃO */
+    .etiqueta-print-area { display: flex; justify-content: center; margin-top: 30px; margin-bottom: 20px; padding: 20px; background: #e2e8f0; border-radius: 8px; }
+    .etiqueta-box { background: #fff; width: 100mm; min-height: 50mm; padding: 15px; border: 2px dashed #333; font-family: Arial, sans-serif; color: #000; box-sizing: border-box; }
+    .etq-head { display: flex; justify-content: space-between; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
+    .etq-logo { font-weight: 900; font-size: 16px; line-height: 1; }
+    .etq-title { font-weight: bold; font-size: 10px; text-align: right; }
+    .etq-row { display: flex; margin-bottom: 4px; font-size: 11px; }
+    .etq-lbl { font-weight: bold; margin-right: 5px; white-space: nowrap; }
+    .etq-val { flex-grow: 1; border-bottom: 1px solid #666; font-weight: bold; }
+    .etq-footer { text-align: center; font-size: 8px; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px; }
+
+    @media print {
+        .sys-sidebar, .sys-header, .action-bar-fixed, .btn-add-img, .img-delete-btn, .etiqueta-print-area, .modal-overlay, .action-btn-sec { display: none !important; }
+        .sys-main { background: #fff !important; padding: 0 !important; }
+        .sys-view { padding: 0 !important; margin: 0 !important; }
+        .ficha-wrapper { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; }
+        .grid-form, .g-col { border-color: #000 !important; }
+        body { background: #fff !important; }
+    }
+    
+    body.print-mode-etiqueta .sys-sidebar, 
+    body.print-mode-etiqueta .sys-header, 
+    body.print-mode-etiqueta .action-bar-fixed { display: none !important; }
+    body.print-mode-etiqueta .sys-main { padding: 0 !important; background: #fff !important; }
+    body.print-mode-etiqueta .sys-view { padding: 0 !important; margin: 0 !important; }
+    body.print-mode-etiqueta .sys-view:not(.active) .etiqueta-print-area { display: none !important; }
+    body.print-mode-etiqueta .ficha-wrapper { padding: 0 !important; border: none !important; box-shadow: none !important; margin: 0 !important; }
+    body.print-mode-etiqueta .grid-form, 
+    body.print-mode-etiqueta .ficha-header-pdf, 
+    body.print-mode-etiqueta .system-control-panel { display: none !important; }
+    body.print-mode-etiqueta .etiqueta-print-area { display: flex !important; background: none; padding: 0; margin: 0; }
+    body.print-mode-etiqueta .etiqueta-box { border: 1px solid #000; margin: 0; }
+
+    body.print-mode-tabela .sys-sidebar,
+    body.print-mode-tabela .sys-header,
+    body.print-mode-tabela .kpi-grid,
+    body.print-mode-tabela .two-col-grid,
+    body.print-mode-tabela .mid-grid,
+    body.print-mode-tabela .table-tools { display: none !important; }
+    body.print-mode-tabela .sys-view { padding: 0 !important; margin: 0 !important; }
+    body.print-mode-tabela .card-base { box-shadow: none !important; border: none !important; padding: 0 !important; }
+
+    /* ==========================================================================
+       CSS - CALENDÁRIO ESTRATÉGICO E FILA (NOVO)
+       ========================================================================== */
+    .cal-layout { display: flex; gap: 20px; height: calc(100vh - 150px); }
+    
+    /* Fila Lateral (Backlog) */
+    .cal-sidebar { width: 280px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); flex-shrink: 0;}
+    .cal-sidebar-head { background: #f8fafc; padding: 15px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1e293b; display: flex; justify-content: space-between; align-items: center;}
+    .badge-count { background: #1d4ed8; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px;}
+    .cal-queue { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; background: #f4f7f9;}
+    
+    /* Cards Arrastáveis (Mão na Massa) */
+    .drag-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; cursor: grab; transition: 0.2s; border-left: 4px solid #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+    .drag-card:hover { border-color: #94a3b8; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transform: translateY(-1px);}
+    .drag-card:active { cursor: grabbing; }
+    .drag-card.type-imp { border-left-color: #3b82f6; }
+    .drag-card.type-cor { border-left-color: #10b981; }
+    .drag-card.type-man { border-left-color: #f59e0b; }
+    .drag-card.type-exp { border-left-color: #ef4444; }
+    
+    .dc-head { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 5px; color: #475569;}
+    .dc-title { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 5px; line-height: 1.2;}
+    .dc-info { font-size: 10px; color: #64748b; display: flex; justify-content: space-between; align-items: center;}
+    .dc-tag { padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: bold; text-transform: uppercase;}
+    .tag-imp { background: #eff6ff; color: #2563eb; }
+    .tag-cor { background: #ecfdf5; color: #059669; }
+
+    /* Grid do Calendário */
+    .cal-main { flex-grow: 1; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
+    .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #e2e8f0;}
+    .cal-nav { display: flex; align-items: center; gap: 15px; font-size: 16px; font-weight: bold; color: #1e293b;}
+    .btn-cal-nav { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 5px 10px; cursor: pointer; transition: 0.2s; font-weight: bold;}
+    .btn-cal-nav:hover { background: #e2e8f0; }
+    
+    .cal-filters { display: flex; gap: 10px; }
+    .cal-select { padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none; background: #f8fafc;}
+
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); flex-grow: 1; background: #e2e8f0; gap: 1px;}
+    .cal-day-head { background: #f8fafc; padding: 10px; text-align: center; font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;}
+    .cal-day { background: #fff; padding: 5px; display: flex; flex-direction: column; gap: 5px; min-height: 100px;}
+    .cal-day.today { background: #f0fdf4; }
+    .cal-day-number { font-size: 12px; font-weight: bold; color: #94a3b8; text-align: right; padding: 2px 5px; margin-bottom: 5px;}
+    .cal-day.today .cal-day-number { color: #16a34a; font-size: 14px; }
+    .cal-day.out-month { background: #f8fafc; opacity: 0.6; }
+    
+    .cal-cap { font-size: 9px; text-align: right; color: #94a3b8; margin-top: -5px; margin-bottom: 5px; padding-right: 5px;}
+    .cap-high { color: #ea580c; font-weight: bold;}
+
+    /* ==========================================================================
+       BASE DO DOCUMENTO E TELAS DE INDICADORES / RELATÓRIOS
+       ========================================================================== */
+    body { margin: 0; }
+
+    .ind-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .chart-box { min-height: 260px; }
+    .chart-svg { width: 100%; height: auto; display: block; }
+    .chart-empty { color: #94a3b8; font-size: 12px; text-align: center; padding: 40px 0; }
+    .gold-chip { background: var(--gold-soft); color: var(--gold-deep); border: 1px solid #e6d9a8; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+
+    .filtro-periodo { display: flex; gap: 8px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+    .filtro-periodo select, .filtro-periodo input { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; background: #fff; outline: none; }
+
+    /* Relatório executivo */
+    .rel-wrapper { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); padding: 35px 40px; max-width: 900px; margin: 0 auto; }
+    .rel-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid var(--gold); padding-bottom: 15px; margin-bottom: 20px; }
+    .rel-header h2 { margin: 0; color: var(--primary); font-size: 22px; }
+    .rel-header .rel-sub { color: var(--gold-deep); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .rel-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .rel-kpi { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center; }
+    .rel-kpi .v { font-size: 22px; font-weight: 800; color: var(--primary); }
+    .rel-kpi .l { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 3px; }
+    .rel-section-t { background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 7px 12px; border-radius: 4px; margin: 20px 0 10px 0; border-left: 4px solid var(--gold); }
+    .rel-obs { background: var(--gold-soft); border: 1px solid #e6d9a8; border-radius: 6px; padding: 12px 15px; font-size: 12px; color: #5f4c0e; margin-top: 15px; }
+
+    body.print-mode-relatorio .sys-sidebar,
+    body.print-mode-relatorio .sys-header,
+    body.print-mode-relatorio .filtro-periodo,
+    body.print-mode-relatorio .rel-toolbar { display: none !important; }
+    body.print-mode-relatorio .sys-view { padding: 0 !important; margin: 0 !important; }
+    body.print-mode-relatorio .rel-wrapper { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: none; }
+
+    /* Formulário de registro rápido (retrabalho / entrega) */
+    .quick-form { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; margin-bottom: 12px; }
+    .quick-form .qf { display: flex; flex-direction: column; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; padding: 5px 8px; }
+</style>
+
+<!-- ==========================================
+     SIDEBAR
+     ========================================== -->
+<div class="sys-sidebar">
+    <div class="sys-logo">
+        <span style="background: var(--gold); color: #fff; padding: 2px 7px; border-radius: 4px;">R</span> REBRACIL <span style="font-size:9px; font-weight:600; color:var(--gold); letter-spacing:1px; margin-left:2px;">QUALIDADE</span>
+    </div>
+    
+    <div class="sys-nav-menu">
+        <div class="nav-section">Operação</div>
+        <button class="sys-nav-btn active" onclick="nav('dash')" id="nav-dash"><span class="nav-icon">🏠</span> Dashboard</button>
+        <button class="sys-nav-btn" onclick="nav('calendario')" id="nav-calendario"><span class="nav-icon">📅</span> Calendário Estratégico</button>
+        <button class="sys-nav-btn" onclick="nav('retrabalho')" id="nav-retrabalho"><span class="nav-icon">🔁</span> Retrabalho & Entregas</button>
+        
+        <div class="sidebar-menu-item">
+            <button class="sys-nav-btn" id="nav-form"><span class="nav-icon">📄</span> Fichas de Produção</button>
+            <div class="sidebar-submenu">
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-corte')">⚙️ Corte e Solda</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-impressao')">🖨️ Impressão</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-solicitacao-cliche')">📄 Solicitação Clichê</button>
+                
+                <div class="sidebar-menu-item">
+                    <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;">⚠️ Não Conformidade ▸</button>
+                    <div class="sidebar-submenu" style="top: 0; left: 100%;">
+                        <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="alert('Em construção')">Interna</button>
+                        <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-nc-fornecedor')">Fornecedor</button>
+                        <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="alert('Em construção')">Cliente</button>
+                    </div>
+                </div>
+                
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-devolucao')">🔄 Devolução</button>
+            </div>
+        </div>
+
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">🏭</span> Painel por Setor</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">📋</span> Fila de Produção</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">✅</span> Apontamentos</button>
+        
+        <div class="nav-section">Cadastros Base</div>
+        <button class="sys-nav-btn" onclick="nav('cad-clientes')" id="nav-cad-clientes"><span class="nav-icon">👥</span> Clientes</button>
+        <button class="sys-nav-btn" onclick="nav('cad-fornecedores')" id="nav-cad-fornecedores"><span class="nav-icon">🤝</span> Fornecedores</button>
+        <button class="sys-nav-btn" onclick="nav('cad-produtos')" id="nav-cad-produtos"><span class="nav-icon">📦</span> Produtos</button>
+        <button class="sys-nav-btn" onclick="nav('cad-cliche')" id="nav-cad-cliche"><span class="nav-icon">📄</span> Clichês</button>
+        <button class="sys-nav-btn" onclick="nav('cad-setores')" id="nav-cad-setores"><span class="nav-icon">🏢</span> Setores</button>
+
+        <div class="nav-section">Gestão & Config</div>
+        <button class="sys-nav-btn" onclick="nav('relatorios')" id="nav-relatorios"><span class="nav-icon">📈</span> Relatórios</button>
+        <button class="sys-nav-btn" onclick="nav('indicadores')" id="nav-indicadores"><span class="nav-icon">📊</span> Indicadores</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">👤</span> Usuários</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">⚙️</span> Parâmetros</button>
+    </div>
+</div>
+
+<!-- ==========================================
+     ÁREA PRINCIPAL
+     ========================================== -->
+<div class="sys-main">
+    
+    <div class="sys-header">
+        <div class="header-title-box">
+            <h1 id="header-title">Dashboard Geral</h1>
+            <p>Visão geral da produção - Atualizado em <span id="current-datetime"></span></p>
+        </div>
+        
+        <div class="header-actions">
+            <div class="sys-menu-item">
+                <button class="sys-btn-success" style="padding: 8px 16px;">➕ Nova Ficha ▾</button>
+                <div class="sys-submenu sys-submenu-bottom-left">
+                    <button class="sys-submenu-btn" onclick="abrirFicha('corte')">⚙️ Corte e Solda</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('impressao')">🖨️ Impressão</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('solicitacao-cliche')">📄 Solicitação Clichê</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('nc-fornecedor')">⚠️ NC Fornecedor</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('devolucao')">🔄 Devolução</button>
+                </div>
+            </div>
+
+            <select class="cal-select" title="Departamento (demais setores em breve)" onchange="if(this.value!=='Qualidade'){alert('Departamento em implantação. Por enquanto, apenas Qualidade.'); this.value='Qualidade';}">
+                <option value="Qualidade" selected>🏭 Depto: Qualidade</option>
+                <option>Impressão (em breve)</option>
+                <option>Corte e Solda (em breve)</option>
+                <option>Expedição (em breve)</option>
+            </select>
+            <div style="font-size: 20px; color: #64748b; margin-left:10px; cursor:pointer;" onclick="alert('Nenhuma nova notificação.')">🔔</div>
+            <div class="user-profile">
+                <div style="text-align: right; line-height: 1.2;">
+                    <div>Michel Pereira</div>
+                    <div style="font-size: 10px; color: #64748b; font-weight: normal;">Estrategista / Gestor</div>
+                </div>
+                <div class="user-avatar">👨🏻</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         TELA 1: DASHBOARD VISUAL (GESTÃO À VISTA)
+         ========================================================================== -->
+    <div id="view-dash" class="sys-view active">
+        
+        <!-- KPIs REESTRUTURADOS -->
+        <div class="kpi-grid">
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label">Fichas no Sistema</span><span class="kpi-val" id="kpi-total">0</span><span class="kpi-trend trend-up">↑ Ativas hoje</span></div>
+                <div class="kpi-icon-box" style="background: #3b82f6;">📄</div>
+            </div>
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label">Aguardando Aprovação</span><span class="kpi-val" id="kpi-pend">0</span><span class="kpi-trend trend-warn">Assinatura Pendente</span></div>
+                <div class="kpi-icon-box" style="background: #f59e0b;">⏳</div>
+            </div>
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label">Fichas Aprovadas</span><span class="kpi-val" id="kpi-aprovadas">0</span><span class="kpi-trend trend-up">Liberadas p/ Máquina</span></div>
+                <div class="kpi-icon-box" style="background: #10b981;">✔️</div>
+            </div>
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label" style="color:#b91c1c;">Fichas Atrasadas</span><span class="kpi-val" id="kpi-atrasadas" style="color:#b91c1c;">0</span><span class="kpi-trend trend-down">Requer Atenção</span></div>
+                <div class="kpi-icon-box" style="background: #ef4444;">⚠️</div>
+            </div>
+            <div class="card-base kpi-card" style="padding: 15px;">
+                <div class="kpi-info" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between;"><span class="kpi-label">Produção Hoje</span><div class="kpi-icon-box" style="background: #c9a227; width: 30px; height: 30px; font-size: 14px;">📈</div></div>
+                    <span class="kpi-val">124.500 <span style="font-size:12px; color:#64748b; font-weight:normal;">peças</span></span>
+                    <span class="kpi-label" style="font-size: 10px; margin-top:5px;">Meta: 150.000 peças (83%)</span>
+                    <div style="width:100%; height:4px; background:#e2e8f0; border-radius:2px; margin-top:5px;"><div style="width:83%; height:100%; background:#c9a227; border-radius:2px;"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALERTAS E ATIVIDADES RECENTES -->
+        <div class="two-col-grid">
+            <div class="card-base">
+                <div class="card-title" style="color: #b91c1c; margin-bottom: 5px;">🚨 Alertas e Notificações de Sistema</div>
+                <ul class="list-unstyled">
+                    <li class="list-item"><span class="badge-alert bg-danger">Atraso</span> Ficha ABC-101 (Impressão) ultrapassou o tempo estimado em 45 minutos.</li>
+                    <li class="list-item"><span class="badge-alert bg-warning">Aprovação</span> Ficha VA-7512 aguardando assinatura eletrônica do gestor de Qualidade.</li>
+                    <li class="list-item"><span class="badge-alert bg-danger">RNC</span> Material VCL-7553BL do fornecedor PHX reprovado na inspeção visual.</li>
+                    <li class="list-item"><span class="badge-alert bg-info">Aviso</span> Manutenção preventiva agendada para Máquina Corte e Solda 02 às 16h00.</li>
+                </ul>
+            </div>
+            <div class="card-base">
+                <div class="card-title" style="margin-bottom: 5px;">🕒 Atividades Recentes</div>
+                <ul class="list-unstyled" id="activity-list">
+                    <li class="list-item"><strong>Carlos Almeida</strong> concluiu a ficha ABC-900 na Expedição. <span class="time-muted">Há 2 min</span></li>
+                    <li class="list-item"><strong>Michel Pereira</strong> aprovou a Ficha VCM-75051 e liberou para Corte e Solda. <span class="time-muted">Há 15 min</span></li>
+                    <li class="list-item"><strong>João Silva</strong> gerou o registro de RNC-02.26. <span class="time-muted">Há 45 min</span></li>
+                    <li class="list-item"><strong>Sistema ERP</strong> vinculou Devolução DEV-884 à NF de origem. <span class="time-muted">Há 1h 20 min</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mid-grid">
+            <div class="card-base">
+                <div class="card-title">Produção por Setor</div>
+                <div class="donut-container">
+                    <div class="donut-chart"><div class="donut-inner"></div></div>
+                    <div class="donut-legend">
+                        <div class="leg-item"><div class="leg-color" style="background: #3b82f6;"></div> Impressão (35%)</div>
+                        <div class="leg-item"><div class="leg-color" style="background: #10b981;"></div> Corte e Solda (40%)</div>
+                        <div class="leg-item"><div class="leg-color" style="background: #f59e0b;"></div> Expedição (15%)</div>
+                        <div class="leg-item"><div class="leg-color" style="background: #c9a227;"></div> Qualidade (10%)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-base">
+                <div class="card-title">Status e OEE (Eficiência)</div>
+                <div class="bar-chart-container">
+                    <div class="bar-row"><div class="bar-lbl">OEE Geral</div><div class="bar-track"><div class="bar-fill" style="width: 78%; background:#c9a227;"></div></div> 78%</div>
+                    <div class="bar-row"><div class="bar-lbl">Tempo Prod.</div><div class="bar-track"><div class="bar-fill" style="width: 85%; background:#10b981;"></div></div> 85%</div>
+                    <div class="bar-row"><div class="bar-lbl">Setup/Ajuste</div><div class="bar-track"><div class="bar-fill" style="width: 25%; background:#f59e0b;"></div></div> 25%</div>
+                    <div class="bar-row"><div class="bar-lbl">Refugo/Perda</div><div class="bar-track"><div class="bar-fill" style="width: 8%; background:#ef4444;"></div></div> 8%</div>
+                </div>
+            </div>
+
+            <div class="card-base">
+                <div class="card-title">Próximas Etapas (Fila de Máquinas)</div>
+                <table class="sm-table">
+                    <thead><tr><th>Ficha</th><th>Produto</th><th>Próximo Setor</th><th>Prioridade</th></tr></thead>
+                    <tbody>
+                        <tr><td style="color:#3b82f6; font-weight:bold;">VCM-7510</td><td>Saco PEBD 500x700</td><td>Impressão</td><td style="color:#ef4444; font-weight:bold;">Urgente</td></tr>
+                        <tr><td style="color:#3b82f6; font-weight:bold;">ABC-900</td><td>Saco Ziper 200x300</td><td>Corte e Solda</td><td style="color:#d97706; font-weight:bold;">Alta</td></tr>
+                        <tr><td style="color:#3b82f6; font-weight:bold;">VCM-7509</td><td>Saco PEBD 300x450</td><td>Corte e Solda</td><td style="color:#10b981; font-weight:bold;">Normal</td></tr>
+                        <tr><td style="color:#3b82f6; font-weight:bold;">VCM-7508</td><td>Saco PEBD 400x600</td><td>Expedição</td><td style="color:#10b981; font-weight:bold;">Normal</td></tr>
+                        <tr><td style="color:#3b82f6; font-weight:bold;">IDL-112</td><td>Saco PP 100x150</td><td>Impressão</td><td style="color:#64748b; font-weight:bold;">Baixa</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title" style="color:#b91c1c;">Índice de Retrabalho, RNC e Ocorrências <span style="font-size:11px; background:#fee2e2; padding:3px 6px; border-radius:4px; font-weight:bold; color:#b91c1c;">ATENÇÃO</span></div>
+            <table class="sm-table">
+                <thead><tr><th>Ficha / Doc</th><th>Produto / Fornecedor</th><th>Enviado Para</th><th>Motivo</th><th>Observação / Correção Solicitada</th><th>Usuário</th></tr></thead>
+                <tbody id="tb-retrabalho">
+                    <tr><td style="color:#3b82f6; font-weight:bold;">VA-7512</td><td>Saco PEBD 500x700</td><td>Corte e Solda</td><td><span class="badge-status st-err">Correção de Parâmetros</span></td><td style="font-size:11px; color:#475569;">Temperatura do cabeçote ajustada incorretamente. Favor revisar.</td><td>Michel Pereira</td></tr>
+                    <tr><td style="color:#3b82f6; font-weight:bold;">RNC-02.26</td><td>PHX Fornecedor</td><td>Qualidade</td><td><span class="badge-status st-err">Material Fora do Padrão</span></td><td style="font-size:11px; color:#475569;">Bobinas com variação de espessura. RNC aberta e aguardando resposta.</td><td>João Silva</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title" style="margin-bottom:15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span>Histórico Geral de Fichas e Documentos</span>
+                <div class="table-tools">
+                    <input type="text" id="search-fichas" class="input-search" placeholder="🔍 Buscar por código, produto..." onkeyup="filtrarTabelaFichas()">
+                    <button class="btn-action-sm" style="color: #15803d; border-color: #15803d; font-weight: 600;" onclick="exportarExcel()" title="Exportar dados para Excel">📊 Excel</button>
+                    <button class="btn-action-sm" style="color: #b91c1c; border-color: #b91c1c; font-weight: 600;" onclick="exportarPDFTabela()" title="Imprimir Relatório em PDF">📄 PDF</button>
+                </div>
+            </div>
+            <table class="main-table">
+                <thead>
+                    <tr><th>Cód / Doc</th><th>Produto / Insumo</th><th>Cliente / Fornec.</th><th>Setor Atual</th><th>Próximo Setor</th><th>Status</th><th>Responsável</th><th>Atualizado em</th><th style="text-align:center;">Ações</th></tr>
+                </thead>
+                <tbody id="tb-dash"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         NOVA TELA 2: CALENDÁRIO ESTRATÉGICO
+         ========================================================================== -->
+    <div id="view-calendario" class="sys-view" style="max-width: 1600px; padding-bottom: 0;">
+        <div class="cal-layout">
+            
+            <!-- BACKLOG / FILA MÃO NA MASSA -->
+            <div class="cal-sidebar">
+                <div class="cal-sidebar-head">
+                    Fila de Produção <span class="badge-count">6</span>
+                </div>
+                <div class="cal-queue" id="drag-queue">
+                    <!-- Cards de Fila -->
+                    <div class="drag-card type-imp" draggable="true">
+                        <div class="dc-head"><span style="color:#2563eb;">VCM-75051</span> <span>Alta</span></div>
+                        <div class="dc-title">Bobina PEBD Batata Palito</div>
+                        <div class="dc-info"><span class="dc-tag tag-imp">Impressão</span> <span>150.000 un</span></div>
+                    </div>
+                    
+                    <div class="drag-card type-cor" draggable="true">
+                        <div class="dc-head"><span style="color:#059669;">VA-7512</span> <span>Normal</span></div>
+                        <div class="dc-title">Saco PEBD 500x700 Zíper</div>
+                        <div class="dc-info"><span class="dc-tag tag-cor">Corte/Solda</span> <span>50.000 un</span></div>
+                    </div>
+
+                    <div class="drag-card type-imp" draggable="true">
+                        <div class="dc-head"><span style="color:#2563eb;">IDL-50</span> <span>Normal</span></div>
+                        <div class="dc-title">Bobina Fundo Estrela 30x40</div>
+                        <div class="dc-info"><span class="dc-tag tag-imp">Impressão</span> <span>80.000 un</span></div>
+                    </div>
+
+                    <div class="drag-card type-cor" draggable="true">
+                        <div class="dc-head"><span style="color:#059669;">VA-9005</span> <span>Alta</span></div>
+                        <div class="dc-title">Sacola Vazada Alta Densidade</div>
+                        <div class="dc-info"><span class="dc-tag tag-cor">Corte/Solda</span> <span>100.000 un</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRADE DO CALENDÁRIO -->
+            <div class="cal-main">
+                <div class="cal-header">
+                    <div class="cal-nav">
+                        <button class="btn-cal-nav"><</button>
+                        <span>Maio 2026</span>
+                        <button class="btn-cal-nav">></button>
+                    </div>
+                    <div class="cal-filters">
+                        <button class="sys-btn-success" style="padding: 6px 12px; font-size:11px;">🔄 Recalcular Ocupação</button>
+                        <select class="cal-select">
+                            <option>Todas as Máquinas</option>
+                            <option>Impressora Gearless</option>
+                            <option>Corte e Solda 01</option>
+                        </select>
+                        <select class="cal-select">
+                            <option>Todos os Setores</option>
+                            <option>Impressão</option>
+                            <option>Corte e Solda</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <div class="cal-day-head">Dom</div><div class="cal-day-head">Seg</div><div class="cal-day-head">Ter</div>
+                    <div class="cal-day-head">Qua</div><div class="cal-day-head">Qui</div><div class="cal-day-head">Sex</div><div class="cal-day-head">Sáb</div>
+                </div>
+
+                <!-- Simulação de Grade Mensal Visão Semanal -->
+                <div class="cal-grid">
+                    <!-- Semana 1 (Dias simulados com eventos fixos p/ visualização) -->
+                    <div class="cal-day out-month"><div class="cal-day-number">26</div></div>
+                    <div class="cal-day out-month"><div class="cal-day-number">27</div></div>
+                    <div class="cal-day out-month"><div class="cal-day-number">28</div></div>
+                    <div class="cal-day out-month"><div class="cal-day-number">29</div></div>
+                    <div class="cal-day out-month"><div class="cal-day-number">30</div></div>
+                    <div class="cal-day"><div class="cal-day-number">1</div><div class="cal-cap">Feriado</div></div>
+                    <div class="cal-day"><div class="cal-day-number">2</div></div>
+                    
+                    <!-- Semana 2 (Semana Atual) -->
+                    <div class="cal-day"><div class="cal-day-number">3</div></div>
+                    <div class="cal-day today">
+                        <div class="cal-day-number">4</div>
+                        <div class="cal-cap cap-high">95% Ocupado</div>
+                        <div class="drag-card type-man" style="padding: 5px;">
+                            <div class="dc-head"><span style="color:#d97706;">MAN-01</span></div>
+                            <div class="dc-title" style="font-size:10px;">Manutenção Gearless</div>
+                        </div>
+                        <div class="drag-card type-imp" style="padding: 5px;">
+                            <div class="dc-head"><span style="color:#2563eb;">VA-8800</span></div>
+                            <div class="dc-title" style="font-size:10px;">Bobina Plástica Lisa</div>
+                        </div>
+                    </div>
+                    <div class="cal-day">
+                        <div class="cal-day-number">5</div>
+                        <div class="cal-cap">60% Ocupado</div>
+                        <div class="drag-card type-cor" style="padding: 5px;">
+                            <div class="dc-head"><span style="color:#059669;">ABC-101</span></div>
+                            <div class="dc-title" style="font-size:10px;">Saco PP Transparente</div>
+                        </div>
+                    </div>
+                    <div class="cal-day">
+                        <div class="cal-day-number">6</div>
+                        <div class="cal-cap">40% Ocupado</div>
+                    </div>
+                    <div class="cal-day">
+                        <div class="cal-day-number">7</div>
+                        <div class="cal-cap cap-high">Lim. Expedição</div>
+                        <div class="drag-card type-exp" style="padding: 5px;">
+                            <div class="dc-head"><span style="color:#dc2626;">EXP-ABC</span></div>
+                            <div class="dc-title" style="font-size:10px;">Entrega Carga ABC</div>
+                        </div>
+                    </div>
+                    <div class="cal-day"><div class="cal-day-number">8</div></div>
+                    <div class="cal-day"><div class="cal-day-number">9</div></div>
+                    
+                    <!-- Preenchendo resto da grade vazio para manter estrutura drag and drop -->
+                    <div class="cal-day"><div class="cal-day-number">10</div></div>
+                    <div class="cal-day"><div class="cal-day-number">11</div></div>
+                    <div class="cal-day"><div class="cal-day-number">12</div></div>
+                    <div class="cal-day"><div class="cal-day-number">13</div></div>
+                    <div class="cal-day"><div class="cal-day-number">14</div></div>
+                    <div class="cal-day"><div class="cal-day-number">15</div></div>
+                    <div class="cal-day"><div class="cal-day-number">16</div></div>
+                    
+                    <div class="cal-day"><div class="cal-day-number">17</div></div>
+                    <div class="cal-day"><div class="cal-day-number">18</div></div>
+                    <div class="cal-day"><div class="cal-day-number">19</div></div>
+                    <div class="cal-day"><div class="cal-day-number">20</div></div>
+                    <div class="cal-day"><div class="cal-day-number">21</div></div>
+                    <div class="cal-day"><div class="cal-day-number">22</div></div>
+                    <div class="cal-day"><div class="cal-day-number">23</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         NOVA TELA: FICHA DE SOLICITAÇÃO DE CLICHÊ
+         ========================================================================== -->
+    <div id="view-form-solicitacao-cliche" class="sys-view" style="padding-bottom: 0;">
+        <div class="ficha-wrapper cliche-theme">
+            <div class="ficha-header-pdf">
+                <div class="ficha-title">
+                    <h2>Solicitação de Confecção de Clichês <span class="badge-setor" style="background:#c9a227;">PRÉ-IMPRESSÃO</span></h2>
+                    <p>REBRACIL - EMBALAGENS FLEXÍVEIS</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">Data de Solicitação</span><br>
+                    <input type="text" class="inp" id="f_sol_data" value="22/04/2026" style="font-size: 16px; font-weight: bold; color: #111827; text-align: right; border: 1px dashed #cbd5e1; border-radius: 4px; padding: 2px 8px; width: 180px; outline: none; background: #f8fafc;">
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title" style="background:#c9a227;">DADOS DA SOLICITAÇÃO</div>
+                
+                <div class="g-col g-col-12" style="background:#fef9c3;">
+                    <span class="lbl" style="color:#854d0e;">Vincular a Clichê Existente? (Opcional)</span>
+                    <select class="inp" id="f_sol_vincular_cliche" style="border: 1px solid #fde047;">
+                        <option value="">-- Não (Criar Nova Solicitação de Clichê) --</option>
+                        <option value="7607">7607 - Bobina PEBD Batata Palito</option>
+                        <option value="8801">8801 - Saco Hamburguer Impresso</option>
+                        <option value="4502">4502 - Bobina Fundo Estrela</option>
+                    </select>
+                </div>
+
+                <div class="g-col g-col-6"><span class="lbl">Cliente</span><input class="inp" value="Rebracil"></div>
+                <div class="g-col g-col-6"><span class="lbl">Elaborado por</span><input class="inp" value="Michel Pereira"></div>
+                <div class="g-col g-col-12"><span class="lbl">Descrição do produto</span><input class="inp" value="Saco PEBD C/ fita adesiva para kit 1,2,3 e 4"></div>
+                
+                <div class="g-col g-col-12" style="display: flex; gap: 20px; align-items: center;">
+                    <span class="lbl">Materiais solicitados:</span>
+                    <label style="font-size:11px; font-weight:bold;"><input type="checkbox" checked> Print tamanho real</label>
+                    <label style="font-size:11px; font-weight:bold;"><input type="checkbox" checked> Prova digital</label>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title" style="background:#c9a227;">DIMENSÕES E SUBSTRATO</div>
+                <div class="g-col g-col-4"><span class="lbl">Medida Embalagem</span><input class="inp" value="195,00 x 340,00 + 40,00 mm"></div>
+                <div class="g-col g-col-4"><span class="lbl">Medida Impressão</span><input class="inp" value="390,00 x 300,00 mm"></div>
+                <div class="g-col g-col-4"><span class="lbl">Substrato</span><input class="inp" value="COEX PEBD Branco 720,00 mm"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title" style="background:#c9a227;">ESPECIFICAÇÕES TÉCNICAS</div>
+                <div class="g-col g-col-2"><span class="lbl">Impressão</span>
+                    <select class="inp">
+                        <option selected>Externa</option>
+                        <option>Interna</option>
+                    </select>
+                </div>
+                <div class="g-col g-col-2"><span class="lbl">Lineatura (lpc)</span><input class="inp" value="34"></div>
+                <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" value="390,00"></div>
+                <div class="g-col g-col-2"><span class="lbl">Mont. Vertical (Repetição)</span><input class="inp" value="2"></div>
+                <div class="g-col g-col-2"><span class="lbl">Mont. Horizontal (Pistas)</span><input class="inp" value="1"></div>
+                <div class="g-col g-col-2"><span class="lbl">Distorção</span>
+                    <div style="display:flex; gap:5px;">
+                        <input class="inp" style="width:50%;" value="Cameron" title="Tipo de Distorção">
+                        <input class="inp" style="width:50%;" value="395,00" title="Largura Cameron (mm)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title" style="background:#c9a227;">CORES E OBSERVAÇÕES</div>
+                <div class="g-col g-col-3"><span class="lbl">Cores da Impressão</span><input class="inp" value="Preto"></div>
+                <div class="g-col g-col-9"><span class="lbl">Observações e Solicitações</span>
+                    <textarea class="inp" style="min-height: 60px;">Apenas uma cor (preto).
+Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos conforme recorte).</textarea>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title" style="background:#c9a227;">DOCUMENTAÇÃO VISUAL</div>
+                <div class="g-col g-col-12">
+                    <span class="lbl" style="text-align: center;">CROQUI DA IMPRESSÃO / ACABAMENTO</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_sol_croqui" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_sol_croqui')">
+                        <span id="span_sol_croqui" style="font-size: 11px; color:#64748b;">Nenhum croqui anexado.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_sol_croqui').click()">📸 Inserir Croqui / Prova Visual</button>
+                        <div id="prev_sol_croqui" class="img-preview-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="system-control-panel">
+                <h4>🔒 Logs do Documento</h4>
+                <div class="history-log" id="sys_sol_cliche_log"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================================================
+         TELA 3: FICHA DE PARÂMETROS - CORTE E SOLDA
+         ========================================================================== -->
+    <div id="view-form-corte" class="sys-view" style="padding-bottom: 0;">
+        <div class="ficha-wrapper">
+            <div class="ficha-header-pdf">
+                <div class="ficha-title">
+                    <h2>Ficha de Parâmetros de Máquina <span class="badge-setor">SETOR ATUAL: CORTE E SOLDA</span></h2>
+                    <p>REBRACIL - EMBALAGENS FLEXÍVEIS</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">Cód. do Cliente / Produto</span><br>
+                    <input type="text" id="lbl-codigo-ficha" placeholder="Aguardando Seleção..." onkeyup="atualizarEtiqueta()" style="font-size: 18px; font-weight: bold; color: #111827; text-align: right; border: 1px dashed #cbd5e1; border-radius: 4px; padding: 2px 8px; width: 220px; outline: none; background: #f8fafc;">
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">IDENTIFICAÇÃO (CADASTROS BASE)</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl">Selecionar Cliente *</span>
+                    <select class="inp" id="f_cliente" onchange="carregarProdutosCliente('corte')">
+                        <option value="">-- Selecione o Cliente --</option>
+                        <option value="VIRGINIA ALIMENTOS LTDA">VIRGINIA ALIMENTOS LTDA</option>
+                        <option value="EMPRESA ABC LTDA">EMPRESA ABC LTDA</option>
+                        <option value="SUPERMERCADO IDEAL">SUPERMERCADO IDEAL</option>
+                    </select>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl">Selecionar Produto do Cliente *</span>
+                    <select class="inp" id="f_produto" onchange="setarCodigoEAtualizar('corte')">
+                        <option value="">-- Selecione primeiro o Cliente --</option>
+                    </select>
+                </div>
+                <div class="g-col g-col-4"><span class="lbl">Cód. Semi Acabado</span><input class="inp" id="f_semi"></div>
+                <div class="g-col g-col-4"><span class="lbl">Segmento</span><input class="inp" id="f_seg"></div>
+                <div class="g-col g-col-4"><span class="lbl">Máquinas Autorizadas</span><input class="inp" id="f_maq"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">PROCESSOS - CORTE E SOLDA (RECEITA)</div>
+                <div class="g-col g-col-4"><span class="lbl">Tempo de Setup</span><input class="inp" value="--:--"></div>
+                <div class="g-col g-col-4"><span class="lbl">Velocidade GP/M</span><input class="inp" value="0"></div>
+                <div class="g-col g-col-4"><span class="lbl">Vel. Esteira</span><input class="inp" value="45"></div>
+                
+                <div class="g-col g-col-3"><span class="lbl">Largura (mm)</span><input class="inp" value="700,00"></div>
+                <div class="g-col g-col-3"><span class="lbl">Espessura (mm)</span><input class="inp" value="0,060"></div>
+                <div class="g-col g-col-3"><span class="lbl">Corona</span><input class="inp" value="38"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tratamento</span><input class="inp" value="Não Aplicável"></div>
+
+                <div class="g-col g-col-3"><span class="lbl">Peso Milheiro (KG)</span><input class="inp" value="12,35"></div>
+                <div class="g-col g-col-2"><span class="lbl">Sem Zíper</span><input class="inp" value="0"></div>
+                <div class="g-col g-col-2"><span class="lbl">Com Zíper</span><input class="inp" value="0,00"></div>
+                <div class="g-col g-col-2"><span class="lbl">Sacos/Corte</span><input class="inp" value="1"></div>
+                <div class="g-col g-col-3"><span class="lbl">Peso/Pacote (KG)</span><input class="inp" value="6,175"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">CONTROLE DE SENSORES E CAMES</div>
+                <div class="g-col g-col-2" style="background:#f1f5f9; text-align:center;"><span class="lbl">FOTOCÉLULA E ULTRASSON</span></div>
+                <div class="g-col g-col-10">
+                    <table class="inner-table">
+                        <tr><th>Comprimento</th><th>Janela</th><th>N° Erros</th><th>Atividade</th><th>Disparo °C</th><th>Solda °C</th><th>Fixação</th></tr>
+                        <tr><td><input value="1"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td></tr>
+                    </table>
+                </div>
+
+                <div class="g-col g-col-12">
+                    <table class="inner-table" style="margin:0; border:none;">
+                        <tr><th colspan="2">CABEÇOTE/ZIP °C</th><th colspan="2">CAME PARADA</th><th colspan="4">CAME TRANSPORTE</th><th colspan="2">VEL. SOLDA</th><th colspan="2">CAME DISPOSITIVOS</th></tr>
+                        <tr><th>Sup.</th><th>Inf.</th><th>Início</th><th>Final</th><th>Início</th><th>Final</th><th>Início</th><th>Final</th><th>Perc%</th><th>Vel.Filme</th><th>Multip.</th><th>Tempo</th></tr>
+                        <tr>
+                            <td><input value="350°C"></td><td><input value="OFF"></td><td><input value="50"></td><td><input value="2"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="OFF"></td><td><input value="SKIP"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 1</span><input class="inp" value="Ar de Guia"></div>
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 2</span><input class="inp" value="N/A"></div>
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 3</span><input class="inp" value="N/A"></div>
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 4</span><input class="inp" value="N/A"></div>
+                
+                <div class="g-col g-col-12">
+                    <span class="lbl" style="text-align:center; display:block;">CONTRA PRESSÃO (Bar)</span>
+                    <table class="inner-table"><tr><th>Disp 1</th><th>Disp 2</th><th>Disp 3</th><th>Disp 4</th></tr><tr><td><input value="5"></td><td><input value="N/A"></td><td><input value="N/A"></td><td><input value="N/A"></td></tr></table>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">CARACTERÍSTICAS DA EMBALAGEM E ACONDICIONAMENTO</div>
+                <div class="g-col g-col-4"><span class="lbl">Largura x Comprimento</span><input class="inp" value="270 x 350 mm (+/- 10)"></div>
+                <div class="g-col g-col-4"><span class="lbl">Espessura</span><input class="inp" value="0,120 +/- 0,010"></div>
+                <div class="g-col g-col-4"><span class="lbl">Sanfona / Aba</span><input class="inp" value="N/A / N/A"></div>
+                
+                <div class="g-col g-col-12">
+                    <table class="inner-table">
+                        <tr><th colspan="2">PACOTE</th><th colspan="2">FARDO</th><th colspan="2">CAIXA / PALETE</th></tr>
+                        <tr><td>Qtde:</td><td><input value="500" id="f_qtd_pacote" onkeyup="atualizarEtiqueta()"></td> <td>Vol/Palete:</td><td><input value="N/A"></td> <td>Qtde Cx:</td><td><input value="154"></td></tr>
+                        <tr><td>-</td><td>-</td> <td>-</td><td>-</td> <td>Peças Tot:</td><td><input value="77.000"></td></tr>
+                        <tr><td>-</td><td>-</td> <td>-</td><td>-</td> <td>Peso Palete:</td><td><input value="950,95 Kg"></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DOCUMENTAÇÃO VISUAL</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">IMAGEM DA ARTE / GABARITO</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_arte" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_arte')">
+                        <span id="span_arte" style="font-size: 11px; color:#64748b;">Nenhuma imagem inserida.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_arte').click()">📸 Inserir Arte</button>
+                        <div id="prev_arte" class="img-preview-container"></div>
+                    </div>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">PADRÃO DE ACONDICIONAMENTO</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_acond" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_acond')">
+                        <span id="span_acond" style="font-size: 11px; color:#64748b;">Nenhuma imagem inserida.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_acond').click()">📸 Inserir Esquema</button>
+                        <div id="prev_acond" class="img-preview-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-control-panel">
+                <h4>🔒 Rastreabilidade e Auditoria do Sistema</h4>
+                <div class="control-row">
+                    <div class="control-item"><strong>Responsável:</strong> <span id="sys_criador">-</span></div>
+                    <div class="control-item"><strong>Data e Hora:</strong> <span id="sys_data_criacao">-</span></div>
+                </div>
+                <div class="history-log" id="sys_log"></div>
+            </div>
+
+            <!-- ETIQUETA CORTE E SOLDA -->
+            <div class="etiqueta-print-area">
+                <div class="etiqueta-box">
+                    <div class="etq-head">
+                        <div class="etq-logo">REBRACIL <span style="font-size:9px; font-weight:normal; display:block;">Embalagens Flexíveis</span></div>
+                        <div style="text-align:right;">
+                            <div class="etq-title">IDENTIFICAÇÃO DE PRODUTO</div>
+                            <div style="font-size:9px; margin-top:2px;" id="etq_data">DATA: --/--/----</div>
+                        </div>
+                    </div>
+                    <div class="etq-row"><div class="etq-lbl">CLIENTE:</div><div class="etq-val" id="etq_cliente"></div></div>
+                    <div class="etq-row">
+                        <div style="display:flex; width:60%;"><div class="etq-lbl">PRODUTO:</div><div class="etq-val" id="etq_produto"></div></div>
+                        <div style="display:flex; width:40%; padding-left:10px;"><div class="etq-lbl">CÓDIGO:</div><div class="etq-val" id="etq_codigo">-</div></div>
+                    </div>
+                    <div class="etq-row"><div class="etq-lbl">DESCRIÇÃO:</div><div class="etq-val">Conforme padrão aprovado.</div></div>
+                    <div class="etq-row">
+                        <div style="display:flex; width:50%;"><div class="etq-lbl">QUANTIDADE:</div><div class="etq-val" id="etq_qtd">500 PCS</div></div>
+                        <div style="display:flex; width:50%; padding-left:10px;"><div class="etq-lbl">OPERADOR:</div><div class="etq-val"></div></div>
+                    </div>
+                    <div class="etq-footer">Rebracil indústria de embalagens e requalificadora LTDA.<br>AV. Santa Monica, 434 Mauá São Paulo (11) 4161-8000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         TELA 4: FICHA DE PARÂMETROS - IMPRESSÃO
+         ========================================================================== -->
+    <div id="view-form-impressao" class="sys-view" style="padding-bottom: 0;">
+        <div class="ficha-wrapper impr-theme">
+            <div class="ficha-header-pdf">
+                <div class="ficha-title">
+                    <h2>Ficha de Parâmetros de Processos <span class="badge-setor" style="background:#3b82f6;">SETOR ATUAL: IMPRESSÃO</span></h2>
+                    <p>REBRACIL - EMBALAGENS FLEXÍVEIS</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">CÓDIGO DE PRODUÇÃO</span><br>
+                    <input type="text" id="lbl-codigo-imp-ficha" value="VCM-75051" onkeyup="atualizarEtiqueta()" style="font-size: 18px; font-weight: bold; color: #111827; text-align: right; border: 1px dashed #cbd5e1; border-radius: 4px; padding: 2px 8px; width: 220px; outline: none; background: #f8fafc;">
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">IDENTIFICAÇÃO (CADASTROS BASE)</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl">Selecionar Cliente *</span>
+                    <select class="inp" id="f_imp_cliente" onchange="carregarProdutosCliente('impressao')">
+                        <option value="">-- Selecione o Cliente --</option>
+                        <option value="VIRGINIA ALIMENTOS LTDA" selected>VIRGINIA ALIMENTOS LTDA</option>
+                        <option value="EMPRESA ABC LTDA">EMPRESA ABC LTDA</option>
+                        <option value="SUPERMERCADO IDEAL">SUPERMERCADO IDEAL</option>
+                    </select>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl">Selecionar Produto / Descrição *</span>
+                    <select class="inp" id="f_imp_produto" onchange="setarCodigoEAtualizar('impressao')">
+                        <option value="BOBINA PEBD IMPRESSO SUL DE MINAS BRASIL BATATA PALITO 1,05 KG x 0,060 mm (55,3 g/m²)">BOBINA PEBD IMPRESSO SUL DE MINAS BRASIL BATATA PALITO 1,05 KG x 0,060 mm (55,3 g/m²)</option>
+                    </select>
+                </div>
+                <div class="g-col g-col-4"><span class="lbl">Máquina</span><input class="inp" value="Gearless"></div>
+                <div class="g-col g-col-4"><span class="lbl">Segmento de Atuação</span><input class="inp" value="ALIMENTÍCIO"></div>
+                <div class="g-col g-col-4"><span class="lbl">Fluxo de Processos</span><input class="inp" value="RECEBIMENTO -> IMPRESSÃO -> CORTE E SOLDA"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">MATÉRIA PRIMA E BOBINA BASE</div>
+                <div class="g-col g-col-12">
+                    <table class="inner-table" style="margin:0; border:none;">
+                        <tr><th>CÓDIGO MP</th><th>DESCRIÇÃO MATÉRIA PRIMA</th><th>LARGURA mm</th><th>ESPESSURA mm</th><th>CORONA</th></tr>
+                        <tr>
+                            <td><input value="VCL-7553BL"></td>
+                            <td><input value="BOBINA PEBD TRANSPARENTE C/ TRATAMENTO"></td>
+                            <td><input value="700,00"></td>
+                            <td><input value="0,060"></td>
+                            <td><input value="38"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">CONFIGURAÇÃO DE CLICHÊ E MÁQUINA</div>
+                <div class="g-col g-col-2"><span class="lbl">Nº Clichê</span><input class="inp" value="7607"></div>
+                <div class="g-col g-col-2"><span class="lbl">Tipo de Impressão</span><input class="inp" value="EXTERNO"></div>
+                <div class="g-col g-col-2"><span class="lbl">Nº Pistas</span><input class="inp" value="1"></div>
+                <div class="g-col g-col-2"><span class="lbl">Repetições</span><input class="inp" value="1"></div>
+                <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" value="540,00"></div>
+                <div class="g-col g-col-2"><span class="lbl">Passo</span><input class="inp" value="535,00"></div>
+                
+                <div class="g-col g-col-6"><span class="lbl">Tempo de Setup</span><input class="inp" value="--:--"></div>
+                <div class="g-col g-col-6"><span class="lbl">Velocidade M/MIN</span><input class="inp" value="--"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">RECEITA (TEMPERATURAS E TENSÕES)</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align:center; display:block;">CONTROLE DE TEMPERATURA °C</span>
+                    <table class="inner-table">
+                        <tr><th>REBOBINADOR</th><th>CALANDRA</th><th>ENTRE CORES °C</th><th>FINAL °C</th></tr>
+                        <tr><td><input value=""></td><td><input value=""></td><td><input value=""></td><td><input value=""></td></tr>
+                    </table>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align:center; display:block;">TENSÃO DO FILME</span>
+                    <table class="inner-table">
+                        <tr><th>BALANCIM</th><th>TENSÃO kgf</th><th>CON. PRESSÃO Bar</th><th>VELOCIDADE Bar</th></tr>
+                        <tr><td><input value=""></td><td><input value=""></td><td><input value=""></td><td><input value=""></td></tr>
+                    </table>
+                </div>
+                <div class="g-col g-col-4"><span class="lbl">Contra Pressão Tambor Bar</span><input class="inp" value=""></div>
+                <div class="g-col g-col-4"><span class="lbl">Frenagem kgf</span><input class="inp" value=""></div>
+                <div class="g-col g-col-4"><span class="lbl">Pressão Compactador Bar</span><input class="inp" value=""></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">CONFIGURAÇÕES DAS ESTAÇÕES, TINTAS E DUPLA FACES</div>
+                <div class="g-col g-col-12">
+                    <table class="inner-table" style="margin:0; border:none;">
+                        <tr><th>ESTAÇÕES</th><th>TINTAS</th><th>VISC (Zahn 2)</th><th>SECAGEM (Bird 40 micras)</th><th>LPC ANILOX</th><th>BCM</th><th>DUPLA FACE</th></tr>
+                        <tr><td>1</td><td><input value="BRANCO GELADEIRA"></td><td><input value="25"></td><td><input value="01:00"></td><td><input value="160"></td><td><input value=""></td><td><input value="ALTA"></td></tr>
+                        <tr><td>2</td><td><input value="AMARELO GELADEIRA"></td><td><input value="22"></td><td><input value="03:00"></td><td><input value="S"></td><td><input value="3.2"></td><td><input value="BAIXA"></td></tr>
+                        <tr><td>3</td><td><input value="MAGENTA GELADEIRA"></td><td><input value="22"></td><td><input value="03:30"></td><td><input value="S"></td><td><input value="3.2"></td><td><input value="BAIXA"></td></tr>
+                        <tr><td>4</td><td><input value="CYAN GELADEIRA"></td><td><input value="22"></td><td><input value="04:00"></td><td><input value="XS"></td><td><input value="2.6"></td><td><input value="BAIXA"></td></tr>
+                        <tr><td>5</td><td><input value=""></td><td><input value=""></td><td><input value=""></td><td><input value=""></td><td><input value=""></td><td><input value=""></td></tr>
+                        <tr><td>6</td><td><input value="PRETO GELADEIRA"></td><td><input value="22"></td><td><input value="04:30"></td><td><input value="M1"></td><td><input value="4.5"></td><td><input value="MEDIA BAIXA"></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">CARACTERÍSTICAS DA BOBINA (AUTO CONTROLE IMPRESSÃO)</div>
+                <div class="g-col g-col-4"><span class="lbl">Largura</span><input class="inp" value="700,00 +/- 10,00 mm"></div>
+                <div class="g-col g-col-4"><span class="lbl">Espessura</span><input class="inp" value="0,060 +/- 5,00 mm"></div>
+                <div class="g-col g-col-4"><span class="lbl">Tratamento</span><input class="inp" value="Somente um lado"></div>
+                
+                <div class="g-col g-col-4"><span class="lbl">Aspecto Visual</span><input class="inp" value="De acordo amostra padrão"></div>
+                <div class="g-col g-col-4"><span class="lbl">Tubete</span><input class="inp" value='3" polegadas'></div>
+                <div class="g-col g-col-4"><span class="lbl">Aderência</span><input class="inp" value="38 +/- 2 Dynas"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DOCUMENTAÇÃO VISUAL</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">IMAGEM DA ARTE / REFERÊNCIA</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_imp_arte" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_imp_arte')">
+                        <span id="span_imp_arte" style="font-size: 11px; color:#64748b;">Nenhuma imagem inserida.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_imp_arte').click()">📸 Inserir Arte</button>
+                        <div id="prev_imp_arte" class="img-preview-container"></div>
+                    </div>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">SENTIDO DESBOBINAMENTO</span>
+                    <div class="g-col-12" style="text-align:center; margin-bottom:10px;">
+                        <input class="inp" value="Cabeça" style="text-align:center; width:50%; margin: 0 auto; display:block;">
+                    </div>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_imp_desb" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_imp_desb')">
+                        <span id="span_imp_desb" style="font-size: 11px; color:#64748b;">Nenhuma imagem inserida.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_imp_desb').click()">📸 Inserir Direção</button>
+                        <div id="prev_imp_desb" class="img-preview-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-control-panel">
+                <h4>🔒 Rastreabilidade e Auditoria do Sistema</h4>
+                <div class="control-row">
+                    <div class="control-item"><strong>Responsável:</strong> <span id="sys_imp_criador">-</span></div>
+                    <div class="control-item"><strong>Data e Hora:</strong> <span id="sys_imp_data_criacao">-</span></div>
+                </div>
+                <div class="history-log" id="sys_imp_log"></div>
+            </div>
+
+            <!-- ETIQUETA IMPRESSÃO -->
+            <div class="etiqueta-print-area">
+                <div class="etiqueta-box">
+                    <div class="etq-head">
+                        <div class="etq-logo">REBRACIL <span style="font-size:9px; font-weight:normal; display:block;">Embalagens Flexíveis</span></div>
+                        <div style="text-align:right;">
+                            <div class="etq-title">IDENTIFICAÇÃO DE BOBINA (IMPRESSÃO)</div>
+                            <div style="font-size:9px; margin-top:2px;" id="etq_imp_data">DATA: --/--/----</div>
+                        </div>
+                    </div>
+                    <div class="etq-row"><div class="etq-lbl">CLIENTE:</div><div class="etq-val" id="etq_imp_cliente">VIRGINIA ALIMENTOS LTDA</div></div>
+                    <div class="etq-row">
+                        <div style="display:flex; width:60%;"><div class="etq-lbl">PRODUTO:</div><div class="etq-val" id="etq_imp_produto">BOBINA PEBD IMPRESSO</div></div>
+                        <div style="display:flex; width:40%; padding-left:10px;"><div class="etq-lbl">CÓDIGO:</div><div class="etq-val" id="etq_imp_codigo">VCM-75051</div></div>
+                    </div>
+                    <div class="etq-row"><div class="etq-lbl">DESCRIÇÃO:</div><div class="etq-val">Amostra retirada deve ser aprovada.</div></div>
+                    <div class="etq-row">
+                        <div style="display:flex; width:50%;"><div class="etq-lbl">PESO/QTD:</div><div class="etq-val" id="etq_imp_qtd">BOBINA</div></div>
+                        <div style="display:flex; width:50%; padding-left:10px;"><div class="etq-lbl">OPERADOR:</div><div class="etq-val"></div></div>
+                    </div>
+                    <div class="etq-footer">Rebracil indústria de embalagens e requalificadora LTDA.<br>AV. Santa Monica, 434 Mauá São Paulo (11) 4161-8000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================================================
+         TELA 5: FICHA DE NÃO CONFORMIDADE - FORNECEDOR
+         ========================================================================== -->
+    <div id="view-form-nc-fornecedor" class="sys-view" style="padding-bottom: 0;">
+        <div class="ficha-wrapper nc-theme">
+            <div class="ficha-header-pdf">
+                <div class="ficha-title">
+                    <h2>Ficha de Não Conformidade <span class="badge-setor" style="background:#f59e0b;">FORNECEDOR</span></h2>
+                    <p>REBRACIL - EMBALAGENS FLEXÍVEIS</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">Nº RNC</span><br>
+                    <input type="text" id="lbl-codigo-nc-ficha" value="02.26" style="font-size: 18px; font-weight: bold; color: #111827; text-align: right; border: 1px dashed #cbd5e1; border-radius: 4px; padding: 2px 8px; width: 150px; outline: none; background: #f8fafc;">
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">IDENTIFICAÇÃO DO REGISTRO</div>
+                <div class="g-col g-col-3"><span class="lbl">Data do Registro</span><input type="date" class="inp" id="f_nc_data"></div>
+                <div class="g-col g-col-5"><span class="lbl">Fornecedor</span><input class="inp" placeholder="Ex: PHX"></div>
+                <div class="g-col g-col-4"><span class="lbl">Tipo de Insumo/Serviço</span><input class="inp" placeholder="Ex: Bobinas"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DADOS DE RECEBIMENTO / NOTA FISCAL</div>
+                <div class="g-col g-col-2"><span class="lbl">Nota Fiscal</span><input class="inp"></div>
+                <div class="g-col g-col-2"><span class="lbl">Pedido</span><input class="inp"></div>
+                <div class="g-col g-col-3"><span class="lbl">Código MP</span><input class="inp"></div>
+                <div class="g-col g-col-2"><span class="lbl">Data Recebimento</span><input type="date" class="inp"></div>
+                <div class="g-col g-col-2"><span class="lbl">Quantidade Recebida</span><input type="number" class="inp"></div>
+                <div class="g-col g-col-1"><span class="lbl">Unidade</span><input class="inp" placeholder="KG"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DETALHES DA OCORRÊNCIA</div>
+                <div class="g-col g-col-12"><span class="lbl">Descrição dos Problemas Encontrados</span>
+                    <textarea class="inp" style="min-height: 50px;"></textarea>
+                </div>
+                <div class="g-col g-col-12"><span class="lbl">Ação Imediata</span>
+                    <textarea class="inp" style="min-height: 50px;"></textarea>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DOCUMENTAÇÃO VISUAL DA OCORRÊNCIA</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD FOTO DO MATERIAL</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_nc_mat" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_nc_mat')">
+                        <span id="span_nc_mat" style="font-size: 11px; color:#64748b;">Nenhuma imagem.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_nc_mat').click()">📸 Inserir Foto</button>
+                        <div id="prev_nc_mat" class="img-preview-container"></div>
+                    </div>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD FOTO DA ETIQUETA</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_nc_etq" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_nc_etq')">
+                        <span id="span_nc_etq" style="font-size: 11px; color:#64748b;">Nenhuma imagem.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_nc_etq').click()">📸 Inserir Etiqueta</button>
+                        <div id="prev_nc_etq" class="img-preview-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">PLANO DE AÇÃO</div>
+                <div class="g-col g-col-12">
+                    <table class="inner-table">
+                        <tr><th>Nº</th><th>DESCRIÇÃO DA AÇÃO</th><th>RESPONSÁVEL</th><th>PRAZO</th></tr>
+                        <tr><td>1</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>2</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>3</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>4</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>5</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">ANEXOS DE EVIDÊNCIA E AVALIAÇÃO DO FORNECEDOR</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD EVIDÊNCIAS 1 A 6</span>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+                        <div class="img-upload-box small"><input type="file" id="ev1" accept="image/*" style="display:none;" onchange="previewImg(this,'pev1')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev1').click()">Evidência 1</button><div id="pev1" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev2" accept="image/*" style="display:none;" onchange="previewImg(this,'pev2')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev2').click()">Evidência 2</button><div id="pev2" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev3" accept="image/*" style="display:none;" onchange="previewImg(this,'pev3')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev3').click()">Evidência 3</button><div id="pev3" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev4" accept="image/*" style="display:none;" onchange="previewImg(this,'pev4')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev4').click()">Evidência 4</button><div id="pev4" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev5" accept="image/*" style="display:none;" onchange="previewImg(this,'pev5')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev5').click()">Evidência 5</button><div id="pev5" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev6" accept="image/*" style="display:none;" onchange="previewImg(this,'pev6')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev6').click()">Evidência 6</button><div id="pev6" class="img-preview-container"></div></div>
+                    </div>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD RESPOSTA RNC (Fornecedor)</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_nc_resp" accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="previewImg(this, 'prev_nc_resp')">
+                        <span id="span_nc_resp" style="font-size: 11px; color:#64748b;">Nenhuma resposta anexada.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_nc_resp').click()">📎 Anexar Resposta</button>
+                        <div id="prev_nc_resp" class="img-preview-container"></div>
+                    </div>
+                </div>
+                <div class="g-col g-col-6"><span class="lbl">Respondido Por (Fornecedor)</span><input class="inp"></div>
+                <div class="g-col g-col-6"><span class="lbl">Área Representada</span><input class="inp"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">FECHAMENTO</div>
+                <div class="g-col g-col-4"><span class="lbl">Data de Fechamento</span><input type="date" class="inp"></div>
+                <div class="g-col g-col-4"><span class="lbl">Responsável (Rebracil)</span><input class="inp"></div>
+                <div class="g-col g-col-4"><span class="lbl">Status</span>
+                    <select class="inp">
+                        <option>Aberto</option>
+                        <option>Em Andamento</option>
+                        <option>Concluído</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="system-control-panel">
+                <h4>🔒 Rastreabilidade e Auditoria do Sistema</h4>
+                <div class="control-row">
+                    <div class="control-item"><strong>Responsável:</strong> <span id="sys_nc_criador">-</span></div>
+                    <div class="control-item"><strong>Data e Hora:</strong> <span id="sys_nc_data_criacao">-</span></div>
+                </div>
+                <div class="history-log" id="sys_nc_log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         TELA 6: FICHA DE DEVOLUÇÃO
+         ========================================================================== -->
+    <div id="view-form-devolucao" class="sys-view" style="padding-bottom: 0;">
+        <div class="ficha-wrapper dev-theme">
+            <div class="ficha-header-pdf">
+                <div class="ficha-title">
+                    <h2>Registro de Devolução <span class="badge-setor" style="background:#ef4444;">LOGÍSTICA</span></h2>
+                    <p>REBRACIL - EMBALAGENS FLEXÍVEIS</p>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">IDENTIFICAÇÃO E DADOS GERAIS</div>
+                <div class="g-col g-col-6"><span class="lbl">Tipo de Devolução</span>
+                    <select class="inp">
+                        <option>Fornecedor</option>
+                        <option>Cliente</option>
+                    </select>
+                </div>
+                <div class="g-col g-col-6"><span class="lbl">Unidade</span><input class="inp" value="Embalagem"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DADOS DO FORNECEDOR / CLIENTE</div>
+                <div class="g-col g-col-4"><span class="lbl">Razão Social</span><input class="inp"></div>
+                <div class="g-col g-col-3"><span class="lbl">Contato</span><input class="inp"></div>
+                <div class="g-col g-col-3"><span class="lbl">E-mail</span><input class="inp"></div>
+                <div class="g-col g-col-2"><span class="lbl">Telefone</span><input class="inp"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">INFORMAÇÕES DA OCORRÊNCIA ORIGEM</div>
+                <div class="g-col g-col-3"><span class="lbl">NF de Referência</span><input class="inp" style="background:#fef9c3;" title="Campo vinculado a RNC prévia"></div>
+                <div class="g-col g-col-3"><span class="lbl">Data de Emissão da NF</span><input type="date" class="inp" style="background:#fef9c3;"></div>
+                <div class="g-col g-col-3"><span class="lbl">Data de Vencimento</span><input type="date" class="inp" style="background:#fef9c3;"></div>
+                <div class="g-col g-col-3"><span class="lbl">Nº do Pedido</span><input class="inp" style="background:#fef9c3;"></div>
+                
+                <div class="g-col g-col-12"><span class="lbl">Descrição da Ocorrência</span>
+                    <textarea class="inp" style="min-height: 50px; background:#fef9c3;"></textarea>
+                </div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DADOS FISCAIS E TRANSPORTE DA DEVOLUÇÃO</div>
+                <div class="g-col g-col-3"><span class="lbl">Nº NF de Devolução</span><input class="inp"></div>
+                <div class="g-col g-col-3"><span class="lbl">Data de Emissão</span><input type="date" class="inp"></div>
+                <div class="g-col g-col-3"><span class="lbl">Valor Devolução (R$)</span><input class="inp"></div>
+                <div class="g-col g-col-3"><span class="lbl">Nº CTE</span><input class="inp"></div>
+                <div class="g-col g-col-12"><span class="lbl">Transportadora</span><input class="inp"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">TRATATIVA</div>
+                <div class="g-col g-col-12"><span class="lbl">Tratativa</span><textarea class="inp" style="min-height: 40px;"></textarea></div>
+                <div class="g-col g-col-12"><span class="lbl">Observação da Tratativa</span><textarea class="inp" style="min-height: 40px;"></textarea></div>
+            </div>
+
+            <div class="grid-form" style="background:#f1f5f9; border: 1px solid #cbd5e1;">
+                <div class="section-title" style="background:#64748b;">CONTROLE E APROVAÇÃO (RASTREABILIDADE DO SISTEMA)</div>
+                <div class="g-col g-col-6" style="background:transparent;"><span class="lbl">Data do Registro</span><input class="inp sys-readonly" id="f_dev_data_reg" readonly></div>
+                <div class="g-col g-col-6" style="background:transparent;"><span class="lbl">Responsável (Abertura)</span><input class="inp sys-readonly" id="f_dev_resp_abert" readonly></div>
+                
+                <div class="g-col g-col-3" style="background:transparent; border-top:1px solid #cbd5e1; padding-top:10px;"><span class="lbl">Emitido Por</span><input class="inp sys-readonly" id="f_dev_emit_por" readonly></div>
+                <div class="g-col g-col-3" style="background:transparent; border-top:1px solid #cbd5e1; padding-top:10px;"><span class="lbl">Data/Hora de Emissão</span><input class="inp sys-readonly" id="f_dev_data_emit" readonly></div>
+                <div class="g-col g-col-3" style="background:transparent; border-top:1px solid #cbd5e1; padding-top:10px;"><span class="lbl">Aprovado Por</span><input class="inp sys-readonly" id="f_dev_aprov_por" readonly placeholder="Aguardando Aprovação..."></div>
+                <div class="g-col g-col-3" style="background:transparent; border-top:1px solid #cbd5e1; padding-top:10px;"><span class="lbl">Data/Hora de Aprovação</span><input class="inp sys-readonly" id="f_dev_data_aprov" readonly placeholder="--/--/----"></div>
+            </div>
+            
+            <div class="system-control-panel">
+                <h4>🔒 Logs do Documento</h4>
+                <div class="history-log" id="sys_dev_log"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================================================
+         NOVA TELA 7: CADASTRO DE CLIENTES
+         ========================================================================== -->
+    <div id="view-cad-clientes" class="sys-view">
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title">Novo Cliente</div>
+            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
+                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Razão Social *</span><input class="inp" placeholder="Ex: VIRGINIA ALIMENTOS LTDA"></div>
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">CNPJ *</span><input class="inp" placeholder="00.000.000/0000-00"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Contato (Responsável)</span><input class="inp" placeholder="Nome do comprador"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Telefone</span><input class="inp" placeholder="(00) 00000-0000"></div>
+                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">E-mail Comercial</span><input class="inp" placeholder="contato@empresa.com"></div>
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status</span>
+                    <select class="inp"><option>Ativo</option><option>Inativo</option></select>
+                </div>
+            </div>
+            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
+                <button class="action-btn-sec" style="display:inline-block; margin-right:10px;" onclick="alert('Campos limpos.')">Limpar</button>
+                <button class="sys-btn-success" onclick="alert('Cliente salvo com sucesso!')">💾 Salvar Cliente</button>
+            </div>
+        </div>
+        
+        <div class="card-base">
+            <div class="card-title">Clientes Cadastrados
+                <input type="text" class="input-search" placeholder="🔍 Buscar cliente..." style="font-weight:normal;">
+            </div>
+            <table class="main-table">
+                <thead><tr><th>Razão Social</th><th>CNPJ</th><th>Contato</th><th>Telefone</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody>
+                    <tr><td style="font-weight:bold; color:#1d4ed8;">VIRGINIA ALIMENTOS LTDA</td><td>12.345.678/0001-90</td><td>Carlos Souza</td><td>(11) 9999-8888</td><td><span class="badge-status st-conc">Ativo</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold; color:#1d4ed8;">EMPRESA ABC LTDA</td><td>98.765.432/0001-10</td><td>Ana Lima</td><td>(11) 8888-7777</td><td><span class="badge-status st-conc">Ativo</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold; color:#1d4ed8;">SUPERMERCADO IDEAL</td><td>45.678.901/0001-23</td><td>João Pedro</td><td>(11) 7777-6666</td><td><span class="badge-status st-err">Inativo</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         NOVA TELA 8: CADASTRO DE FORNECEDORES (ADICIONADA)
+         ========================================================================== -->
+    <div id="view-cad-fornecedores" class="sys-view">
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title">Novo Fornecedor</div>
+            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
+                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Razão Social *</span><input class="inp" placeholder="Ex: PHX PLÁSTICOS LTDA"></div>
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">CNPJ *</span><input class="inp" placeholder="00.000.000/0000-00"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Contato (Vendas)</span><input class="inp" placeholder="Nome do vendedor"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Telefone</span><input class="inp" placeholder="(00) 00000-0000"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">E-mail</span><input class="inp" placeholder="vendas@fornecedor.com"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Tipo de Fornecimento</span><input class="inp" placeholder="Ex: Bobinas, Tintas, Embalagem"></div>
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status</span>
+                    <select class="inp"><option>Homologado</option><option>Em Avaliação</option><option>Bloqueado</option></select>
+                </div>
+            </div>
+            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
+                <button class="action-btn-sec" style="display:inline-block; margin-right:10px;" onclick="alert('Campos limpos.')">Limpar</button>
+                <button class="sys-btn-success" onclick="alert('Fornecedor salvo com sucesso!')">💾 Salvar Fornecedor</button>
+            </div>
+        </div>
+        
+        <div class="card-base">
+            <div class="card-title">Fornecedores Homologados
+                <input type="text" class="input-search" placeholder="🔍 Buscar fornecedor..." style="font-weight:normal;">
+            </div>
+            <table class="main-table">
+                <thead><tr><th>Razão Social</th><th>CNPJ</th><th>Contato</th><th>Tipo de Fornecimento</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody>
+                    <tr><td style="font-weight:bold; color:#1d4ed8;">PHX PLÁSTICOS LTDA</td><td>11.222.333/0001-44</td><td>Marcos</td><td>Bobinas Base</td><td><span class="badge-status st-conc">Homologado</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold; color:#1d4ed8;">TINTAS BRASIL S/A</td><td>55.666.777/0001-88</td><td>Juliana</td><td>Tintas / Solventes</td><td><span class="badge-status st-conc">Homologado</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold; color:#1d4ed8;">ZETA EMBALAGENS</td><td>99.888.777/0001-22</td><td>Fernando</td><td>Caixas Papelão</td><td><span class="badge-status st-err">Bloqueado</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         NOVA TELA 9: CADASTRO DE PRODUTOS
+         ========================================================================== -->
+    <div id="view-cad-produtos" class="sys-view">
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title">Novo Produto / Semi-Acabado</div>
+            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Código Interno *</span><input class="inp" placeholder="Ex: VCM-75051"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Vincular Cliente *</span>
+                    <select class="inp">
+                        <option>VIRGINIA ALIMENTOS LTDA</option><option>EMPRESA ABC LTDA</option><option>SUPERMERCADO IDEAL</option>
+                    </select>
+                </div>
+                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Descrição do Produto *</span><input class="inp" placeholder="Ex: Bobina PEBD Impresso Batata"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Segmento</span><input class="inp" placeholder="Ex: Alimentício"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Máquina Padrão</span><input class="inp" placeholder="Ex: Gearless / CS-01"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status</span>
+                    <select class="inp"><option>Ativo (Em Linha)</option><option>Descontinuado</option></select>
+                </div>
+            </div>
+            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
+                <button class="sys-btn-success" onclick="alert('Produto salvo com sucesso!')">💾 Salvar Produto</button>
+            </div>
+        </div>
+        
+        <div class="card-base">
+            <div class="card-title">Catálogo de Produtos</div>
+            <table class="main-table">
+                <thead><tr><th>Código</th><th>Cliente Vinculado</th><th>Descrição</th><th>Segmento</th><th>Máquina Padrão</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody>
+                    <tr><td style="font-weight:bold;">VCM-75051</td><td>VIRGINIA ALIMENTOS</td><td>Bobina PEBD Batata Palito</td><td>Alimentício</td><td>Gearless</td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold;">VA-7512</td><td>VIRGINIA ALIMENTOS</td><td>Saco PEBD 500x700 Zíper</td><td>Alimentício</td><td>Corte e Solda 01</td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold;">ABC-101</td><td>EMPRESA ABC LTDA</td><td>Saco PP Transparente 100x150</td><td>Geral</td><td>Corte e Solda 02</td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         NOVA TELA 10: CADASTRO DE CLICHÊS
+         ========================================================================== -->
+    <div id="view-cad-cliche" class="sys-view">
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title">Novo Clichê</div>
+            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Nº do Clichê *</span><input class="inp" placeholder="Ex: 7607"></div>
+                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Produto Vinculado (Arte)</span><input class="inp" placeholder="Ex: Bobina PEBD Batata Palito"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status de Uso</span>
+                    <select class="inp"><option>Novo / Ativo</option><option>Gasto (Requer Troca)</option><option>Obsoleto</option></select>
+                </div>
+                
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Cilindro</span><input class="inp" placeholder="Ex: 540,00"></div>
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Passo</span><input class="inp" placeholder="Ex: 535,00"></div>
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Repetições</span><input type="number" class="inp" placeholder="1"></div>
+                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Nº de Pistas</span><input type="number" class="inp" placeholder="1"></div>
+            </div>
+            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
+                <button class="sys-btn-success" onclick="alert('Clichê salvo no sistema!')">💾 Salvar Clichê</button>
+            </div>
+        </div>
+        
+        <div class="card-base">
+            <div class="card-title">Inventário de Clichês</div>
+            <table class="main-table">
+                <thead><tr><th>Nº Clichê</th><th>Produto Vinculado</th><th>Cilindro / Passo</th><th>Repetições / Pistas</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody>
+                    <tr><td style="font-weight:bold; color:#c9a227;">7607</td><td>Bobina PEBD Batata Palito</td><td>540,00 / 535,00</td><td>1 / 1</td><td><span class="badge-status st-conc">Ativo</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button></td></tr>
+                    <tr><td style="font-weight:bold; color:#c9a227;">8801</td><td>Saco Hamburguer Impresso</td><td>400,00 / 390,00</td><td>2 / 1</td><td><span class="badge-status st-pend">Gasto</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button></td></tr>
+                    <tr><td style="font-weight:bold; color:#c9a227;">4502</td><td>Bobina Fundo Estrela</td><td>600,00 / 595,00</td><td>1 / 2</td><td><span class="badge-status st-err">Obsoleto</span></td><td style="text-align:center;"><button class="btn-action-sm">✏️</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         NOVA TELA 11: CADASTRO DE SETORES
+         ========================================================================== -->
+    <div id="view-cad-setores" class="sys-view">
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title">Novo Setor / Área</div>
+            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Nome do Setor *</span><input class="inp" placeholder="Ex: Corte e Solda"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Líder / Responsável</span><input class="inp" placeholder="Nome do encarregado"></div>
+                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Centro de Custo</span><input class="inp" placeholder="Ex: CC-02"></div>
+            </div>
+            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
+                <button class="sys-btn-success" onclick="alert('Setor registrado!')">💾 Salvar Setor</button>
+            </div>
+        </div>
+        
+        <div class="card-base">
+            <div class="card-title">Estrutura de Setores</div>
+            <table class="main-table">
+                <thead><tr><th>Setor</th><th>Responsável</th><th>Centro de Custo</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody>
+                    <tr><td style="font-weight:bold;">Impressão</td><td>Carlos Silva</td><td>CC-01</td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold;">Corte e Solda</td><td>Roberto Alves</td><td>CC-02</td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold;">Qualidade (Laboratório)</td><td>Ana Martins</td><td>CC-03</td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                    <tr><td style="font-weight:bold;">Expedição / Logística</td><td>Fábio Marques</td><td>CC-04</td><td style="text-align:center;"><button class="btn-action-sm">✏️</button><button class="btn-action-sm">❌</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- ==========================================================================
+         TELA: RETRABALHO & ENTREGAS (REGISTRO OPERACIONAL DA QUALIDADE)
+         ========================================================================== -->
+    <div id="view-retrabalho" class="sys-view">
+        <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label">Retrabalhos no Mês</span><span class="kpi-val" id="kpi-ret-mes">0</span><span class="kpi-trend trend-down" id="kpi-ret-var">—</span></div>
+                <div class="kpi-icon-box" style="background: #ef4444;">🔁</div>
+            </div>
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label">Custo Estimado (Mês)</span><span class="kpi-val" id="kpi-ret-custo">R$ 0</span><span class="kpi-trend trend-warn">Horas + material</span></div>
+                <div class="kpi-icon-box" style="background: var(--gold);">💰</div>
+            </div>
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label">Entregas no Prazo</span><span class="kpi-val" id="kpi-ent-otif">—</span><span class="kpi-trend trend-up">OTIF do setor</span></div>
+                <div class="kpi-icon-box" style="background: #10b981;">🚚</div>
+            </div>
+            <div class="card-base kpi-card">
+                <div class="kpi-info"><span class="kpi-label">Entregas Pendentes</span><span class="kpi-val" id="kpi-ent-pend">0</span><span class="kpi-trend trend-flat">Aguardando aceite</span></div>
+                <div class="kpi-icon-box" style="background: #3b82f6;">📬</div>
+            </div>
+        </div>
+
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title" style="color:#b91c1c;">🔁 Registrar Retrabalho</div>
+            <div class="quick-form">
+                <div class="qf g-col-2"><span class="lbl">Ficha / Doc *</span><input class="inp" id="ret_ficha" placeholder="Ex: VA-7512"></div>
+                <div class="qf g-col-3"><span class="lbl">Produto / Fornecedor</span><input class="inp" id="ret_produto" placeholder="Produto (ou fornecedor, se origem = Fornecedor)"></div>
+                <div class="qf g-col-2"><span class="lbl">Setor de Origem</span>
+                    <select class="inp" id="ret_origem"><option>Qualidade</option><option>Impressão</option><option>Corte e Solda</option><option>Expedição</option><option>Fornecedor</option></select>
+                </div>
+                <div class="qf g-col-2"><span class="lbl">Enviado Para</span>
+                    <select class="inp" id="ret_destino"><option>Corte e Solda</option><option>Impressão</option><option>Qualidade</option><option>Expedição</option><option>Compras</option></select>
+                </div>
+                <div class="qf g-col-3"><span class="lbl">Causa Raiz *</span>
+                    <select class="inp" id="ret_causa">
+                        <option>Parâmetro de máquina incorreto</option>
+                        <option>Material fora do padrão</option>
+                        <option>Erro de arte / clichê</option>
+                        <option>Falha de solda</option>
+                        <option>Erro de medida / dimensão</option>
+                        <option>Falha de impressão (cor/registro)</option>
+                        <option>Erro de documentação</option>
+                        <option>Outros</option>
+                    </select>
+                </div>
+                <div class="qf g-col-2"><span class="lbl">Qtde Afetada</span><input class="inp" id="ret_qtd" type="number" placeholder="0"></div>
+                <div class="qf g-col-2"><span class="lbl">Custo Estimado (R$)</span><input class="inp" id="ret_custo" type="number" step="0.01" placeholder="0,00"></div>
+                <div class="qf g-col-8"><span class="lbl">Observação / Correção Solicitada</span><input class="inp" id="ret_obs" placeholder="Descreva o problema e a correção necessária"></div>
+            </div>
+            <div style="text-align:right;">
+                <button class="sys-btn-primary" onclick="registrarRetrabalho()">💾 Registrar Retrabalho</button>
+            </div>
+        </div>
+
+        <div class="card-base" style="margin-bottom: 20px;">
+            <div class="card-title">🚚 Registrar Entrega para Outro Setor</div>
+            <div class="quick-form">
+                <div class="qf g-col-2"><span class="lbl">Ficha / Doc *</span><input class="inp" id="ent_ficha" placeholder="Ex: VCM-75051"></div>
+                <div class="qf g-col-3"><span class="lbl">Produto</span><input class="inp" id="ent_produto" placeholder="Ex: Bobina PEBD"></div>
+                <div class="qf g-col-2"><span class="lbl">Setor Destino</span>
+                    <select class="inp" id="ent_destino"><option>Impressão</option><option>Corte e Solda</option><option>Expedição</option><option>Compras</option></select>
+                </div>
+                <div class="qf g-col-2"><span class="lbl">Prazo Combinado</span><input class="inp" id="ent_prazo" type="date"></div>
+                <div class="qf g-col-3"><span class="lbl">Observação</span><input class="inp" id="ent_obs" placeholder="Instruções para o setor"></div>
+            </div>
+            <div style="text-align:right;">
+                <button class="sys-btn-success" onclick="registrarEntrega()">🚀 Registrar Envio</button>
+            </div>
+        </div>
+
+        <div class="two-col-grid">
+            <div class="card-base">
+                <div class="card-title" style="color:#b91c1c;">Histórico de Retrabalho <span class="gold-chip" id="ret-total-chip">0 registros</span></div>
+                <div style="overflow-x:auto;">
+                <table class="main-table">
+                    <thead><tr><th>Data</th><th>Ficha</th><th>Causa</th><th>Destino</th><th>Custo</th><th></th></tr></thead>
+                    <tbody id="tb-ret-hist"></tbody>
+                </table>
+                </div>
+            </div>
+            <div class="card-base">
+                <div class="card-title">Entregas do Setor Qualidade <span class="gold-chip" id="ent-total-chip">0 registros</span></div>
+                <div style="overflow-x:auto;">
+                <table class="main-table">
+                    <thead><tr><th>Enviado</th><th>Ficha</th><th>Destino</th><th>Prazo</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="tb-ent-hist"></tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         TELA: INDICADORES ESTRATÉGICOS (GRÁFICOS)
+         ========================================================================== -->
+    <div id="view-indicadores" class="sys-view" style="max-width: 1500px;">
+        <div class="filtro-periodo">
+            <span class="lbl" style="margin:0;">Período:</span>
+            <select id="ind_periodo" onchange="renderIndicadores()">
+                <option value="3">Últimos 3 meses</option>
+                <option value="6" selected>Últimos 6 meses</option>
+                <option value="12">Últimos 12 meses</option>
+            </select>
+            <span class="gold-chip">Setor: Qualidade</span>
+            <button class="btn-action-sm" style="margin-left:auto;" onclick="renderIndicadores()">🔄 Atualizar</button>
+        </div>
+
+        <div class="ind-grid">
+            <div class="card-base chart-box">
+                <div class="card-title">📉 Tendência de Retrabalho (mensal)</div>
+                <div id="chart-ret-tendencia"></div>
+            </div>
+            <div class="card-base chart-box">
+                <div class="card-title">📊 Pareto de Causas de Retrabalho</div>
+                <div id="chart-ret-pareto"></div>
+            </div>
+            <div class="card-base chart-box">
+                <div class="card-title">⚠️ RNC por Fornecedor</div>
+                <div id="chart-rnc-fornecedor"></div>
+            </div>
+            <div class="card-base chart-box">
+                <div class="card-title">🚚 Entregas por Setor Destino</div>
+                <div id="chart-entregas-setor"></div>
+            </div>
+        </div>
+
+        <div class="card-base">
+            <div class="card-title">💡 Leitura Estratégica Automática</div>
+            <div id="ind-insights" style="font-size:13px; color:#334155; line-height:1.7;"></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         TELA: RELATÓRIO EXECUTIVO (DIRETORIA)
+         ========================================================================== -->
+    <div id="view-relatorios" class="sys-view">
+        <div class="filtro-periodo rel-toolbar">
+            <select id="rel_periodo" onchange="renderRelatorio()">
+                <option value="1">Mês atual</option>
+                <option value="3" selected>Últimos 3 meses</option>
+                <option value="6">Últimos 6 meses</option>
+            </select>
+            <button class="sys-btn-primary" onclick="renderRelatorio()">🔄 Gerar Relatório</button>
+            <button class="btn-gold" onclick="imprimirRelatorio()">📄 Exportar PDF (Diretoria)</button>
+        </div>
+        <div class="rel-wrapper" id="rel-conteudo"></div>
+    </div>
+
+    <!-- BOTÕES DE AÇÃO INFERIOR DA FICHA (Mantido para formulários) -->
+    <div id="action-bar" class="action-bar-fixed" style="display: none;">
+        <div class="action-group">
+            <button class="btn-outline-danger" onclick="acaoRapida('Cancelar Documento')">❌ Cancelar Ficha</button>
+        </div>
+        <div class="action-group" style="flex-grow: 1; justify-content: center;">
+            <button class="action-btn-sec" onclick="salvarFichaSistema('Rascunho')">💾 Salvar Rascunho</button>
+            <button class="action-btn-sec" onclick="salvarFichaSistema('Aguardando Aprovação')">👁️ Solicitar Aprovação</button>
+            <button class="sys-btn-success" onclick="salvarFichaSistema('Aprovado')">✔️ Aprovar Ficha</button>
+            <button class="btn-gold" onclick="abrirModalEnvio()">🚀 Enviar ao Setor</button>
+        </div>
+        <div class="action-group" style="border-left: 1px solid #e5e7eb; padding-left: 15px;">
+            <button class="action-btn-sec" onclick="window.print()">🖨️ PDF</button>
+            <button class="action-btn-sec" style="color: #0b2c5c; border-color: #cbd5e1;" onclick="imprimirEtiqueta()">🏷️ Etiqueta</button>
+            <button class="sys-btn-primary" onclick="salvarFichaSistema('Salvo')">💾 Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MODAL DE ENVIO DE SETOR E RETRABALHO
+     ========================================== -->
+<div id="modal-enviar-setor" class="modal-overlay">
+    <div class="modal-content">
+        <h3>🚀 Enviar Ficha ao Setor</h3>
+        <p style="margin:0; font-size:11px; color:#64748b; margin-bottom:10px;">Defina o próximo fluxo ou reporte uma não conformidade.</p>
+        <input type="hidden" id="mdl-codigo-ficha">
+        
+        <div class="g-col-12"><span class="lbl">Próximo Setor (Destino) *</span>
+            <select id="mdl-setor" class="inp" style="border: 1px solid #cbd5e1; width: 100%; padding: 8px;">
+                <option value="Impressão">Impressão</option>
+                <option value="Corte e Solda">Corte e Solda</option>
+                <option value="Qualidade (Análise)">Qualidade (Análise)</option>
+                <option value="Expedição">Expedição</option>
+            </select>
+        </div>
+        
+        <div class="g-col-12" style="margin-top: 10px;"><span class="lbl">Motivo do Envio / Ação *</span>
+            <select id="mdl-motivo" class="inp" style="border: 1px solid #cbd5e1; width: 100%; padding: 8px;">
+                <option value="Fluxo Normal / Aprovação">Aprovação Inicial (Fluxo Normal)</option>
+                <option value="Início de Produção">Início de Produção</option>
+                <option value="Correção de Arte / Clichê">Correção de Arte / Clichê</option>
+                <option value="Retrabalho Técnico">Retrabalho Técnico (Ajuste de Máquina)</option>
+                <option value="Correção de Parâmetros">Correção de Parâmetros (Documento)</option>
+                <option value="Finalização">Finalização de Lote</option>
+            </select>
+        </div>
+        
+        <div class="g-col-12" style="margin-top: 10px;"><span class="lbl">Observação para o próximo setor</span>
+            <textarea id="mdl-obs" class="inp" placeholder="Ex: Necessário correção. Campo xxx está incorreto." style="border: 1px solid #cbd5e1; width: 100%; min-height: 60px; font-family: inherit; font-size: 12px; padding: 6px;"></textarea>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="sys-btn-primary" style="background: #f1f5f9; color:#334155;" onclick="fecharModal()">Cancelar</button>
+            <button class="sys-btn-success" onclick="confirmarEnvioSetor()">Confirmar Envio</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentSessionUser = "Michel Pereira";
+    
+    function updateClock() { 
+        if(document.getElementById('current-datetime')){
+            document.getElementById('current-datetime').innerText = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); 
+        }
+    }
+    setInterval(updateClock, 60000); updateClock();
+
+    const catalogoProdutos = {
+        "VIRGINIA ALIMENTOS LTDA": [
+            { nome: "SACO PEBD IMPRESSO 1,05kg 270x350", codCliente: "VA-7512" },
+            { nome: "BOBINA PEBD IMPRESSO SUL DE MINAS BRASIL BATATA PALITO 1,05 KG x 0,060 mm (55,3 g/m²)", codCliente: "VCM-75051" },
+            { nome: "BOBINA PLASTICA LISA 500MM", codCliente: "VA-8800" },
+            { nome: "SACOLA VAZADA ALTA DENSIDADE", codCliente: "VA-9005" }
+        ],
+        "EMPRESA ABC LTDA": [
+            { nome: "SACO PP TRANSPARENTE 100x150", codCliente: "ABC-101" },
+            { nome: "SACO COM ZIPER ALIMENTÍCIO", codCliente: "ABC-202" },
+            { nome: "SACO ZÍPER 200x300", codCliente: "ABC-900" }
+        ],
+        "SUPERMERCADO IDEAL": [
+            { nome: "BOBINA FUNDO ESTRELA 30x40", codCliente: "IDL-50" },
+            { nome: "SACO HAMBURGUER IMPRESSO", codCliente: "IDL-55" },
+            { nome: "SACO PP 100x150", codCliente: "IDL-112" }
+        ]
+    };
+
+    function carregarProdutosCliente(tipo = 'corte') {
+        const prefix = tipo === 'corte' ? 'f_' : 'f_imp_';
+        const labelId = tipo === 'corte' ? 'lbl-codigo-ficha' : 'lbl-codigo-imp-ficha';
+
+        const clienteSelecionado = document.getElementById(prefix + 'cliente').value;
+        const selectProduto = document.getElementById(prefix + 'produto');
+        const inputCodigo = document.getElementById(labelId);
+        
+        selectProduto.innerHTML = '<option value="">-- Selecione o Produto --</option>';
+        if (inputCodigo) inputCodigo.value = ''; 
+
+        if (clienteSelecionado && catalogoProdutos[clienteSelecionado]) {
+            catalogoProdutos[clienteSelecionado].forEach(prod => {
+                let option = document.createElement('option');
+                option.value = prod.nome;
+                option.setAttribute('data-cod', prod.codCliente); 
+                option.innerText = prod.nome;
+                selectProduto.appendChild(option);
+            });
+        } else if (!clienteSelecionado) {
+            selectProduto.innerHTML = '<option value="">-- Selecione primeiro o Cliente --</option>';
+        }
+
+        atualizarEtiqueta();
+    }
+
+    function setarCodigoEAtualizar(tipo = 'corte') {
+        const prefix = tipo === 'corte' ? 'f_' : 'f_imp_';
+        const labelId = tipo === 'corte' ? 'lbl-codigo-ficha' : 'lbl-codigo-imp-ficha';
+
+        const selectProduto = document.getElementById(prefix + 'produto');
+        const inputCodigo = document.getElementById(labelId);
+        const indexSelecionado = selectProduto.selectedIndex;
+        
+        if (indexSelecionado > 0) {
+            const codigoVinculado = selectProduto.options[indexSelecionado].getAttribute('data-cod');
+            if (inputCodigo) inputCodigo.value = codigoVinculado;
+        } else {
+            if (inputCodigo) inputCodigo.value = '';
+        }
+        
+        atualizarEtiqueta();
+    }
+
+    // ==========================================================================
+    // PERSISTÊNCIA (localStorage) — nada se perde ao recarregar a página
+    // ==========================================================================
+    const RB_KEY = 'rb_qualidade_v1';
+    function rbLoad() {
+        try { return JSON.parse(localStorage.getItem(RB_KEY)) || null; } catch(e) { return null; }
+    }
+    function rbSave() {
+        RB.fichas = dbFichas;
+        localStorage.setItem(RB_KEY, JSON.stringify(RB));
+    }
+    function rbSeedRetrabalhos() {
+        // Amostra histórica (marcada como demo) para os indicadores nascerem com leitura
+        const causas = ['Parâmetro de máquina incorreto','Material fora do padrão','Erro de arte / clichê','Falha de solda','Erro de medida / dimensão','Falha de impressão (cor/registro)'];
+        const fichas = ['VA-7512','ABC-101','VCM-75051','IDL-50','ABC-900','VA-9005'];
+        const dest = ['Corte e Solda','Impressão','Qualidade','Compras'];
+        const qt = [6,5,4,4,3,2]; // tendência de queda mês a mês
+        const out = [];
+        const hoje = new Date();
+        const fornecedores = ['PHX Plásticos', 'Tintas Brasil', 'PHX Plásticos', 'Zeta Embalagens', 'PHX Plásticos', 'Tintas Brasil'];
+        for (let m = 5; m >= 0; m--) {
+            out.push({
+                data: new Date(hoje.getFullYear(), hoje.getMonth() - m, 10).toISOString(),
+                ficha: 'RNC-' + String(m + 1).padStart(2, '0') + '.26', produto: fornecedores[m],
+                origem: 'Fornecedor', destino: 'Compras', causa: 'Material fora do padrão',
+                qtd: 0, custo: 420 + m * 60, obs: 'Registro histórico (demonstração)', usuario: 'Sistema', demo: true
+            });
+            const n = qt[5 - m];
+            for (let i = 0; i < n; i++) {
+                const d = new Date(hoje.getFullYear(), hoje.getMonth() - m, 3 + i * 4);
+                out.push({
+                    data: d.toISOString(), ficha: fichas[(i + m) % fichas.length],
+                    produto: 'Amostra histórica', origem: 'Qualidade',
+                    destino: dest[(i + m) % dest.length],
+                    causa: causas[(i * 2 + m) % causas.length],
+                    qtd: 500 * (i + 1), custo: 180 + i * 95 + m * 20,
+                    obs: 'Registro histórico (demonstração)', usuario: 'Sistema', demo: true
+                });
+            }
+        }
+        return out;
+    }
+    function rbSeedEntregas() {
+        const dest = ['Impressão','Corte e Solda','Expedição','Impressão','Corte e Solda','Expedição','Compras','Impressão'];
+        const out = [];
+        const hoje = new Date();
+        for (let i = 0; i < 14; i++) {
+            const env = new Date(hoje.getFullYear(), hoje.getMonth() - (i % 4), 2 + i * 2);
+            const prazo = new Date(env); prazo.setDate(prazo.getDate() + 2);
+            const entregue = new Date(env); entregue.setDate(entregue.getDate() + (i % 5 === 0 ? 4 : 1));
+            out.push({
+                data: env.toISOString(), ficha: 'ENT-' + (100 + i), produto: 'Amostra histórica',
+                destino: dest[i % dest.length], prazo: prazo.toISOString().slice(0,10),
+                status: i < 2 ? 'Pendente' : 'Entregue',
+                dataEntrega: i < 2 ? null : entregue.toISOString(),
+                obs: '', usuario: 'Sistema', demo: true
+            });
+        }
+        return out;
+    }
+
+    const dbFichasSeed = [
+        { cod: 'VA-7512', produto: 'Saco PEBD 500x700', cliente: 'VIRGINIA ALIMENTOS LTDA', setor: 'Qualidade', prox: 'Impressão', status: 'Aguardando Aprovação', dataHora: '24/05/2026 10:30', responsavel: 'Michel Pereira' },
+        { cod: 'VCM-75051', produto: 'Bobina PEBD Batata Palito', cliente: 'VIRGINIA ALIMENTOS LTDA', setor: 'Corte e Solda', prox: 'Expedição', status: 'Aprovado', dataHora: '24/05/2026 11:15', responsavel: 'Michel Pereira' },
+        { cod: 'ABC-101', produto: 'Saco PEBD 300x450', cliente: 'EMPRESA ABC LTDA', setor: 'Impressão', prox: 'Corte e Solda', status: 'Atrasado', dataHora: '23/05/2026 09:45', responsavel: 'João Silva' },
+        { cod: 'ABC-900', produto: 'Saco Zíper 200x300', cliente: 'EMPRESA ABC LTDA', setor: 'Expedição', prox: '-', status: 'Concluído', dataHora: '24/05/2026 13:20', responsavel: 'Carlos Almeida' },
+        { cod: 'IDL-50', produto: 'Bobina Fundo Estrela 30x40', cliente: 'SUPERMERCADO IDEAL', setor: 'Qualidade', prox: 'Impressão', status: 'Aguardando Aprovação', dataHora: '22/05/2026 16:40', responsavel: 'Fábio Marques' },
+        { cod: 'VA-9005', produto: 'Sacola Vazada Alta Densidade', cliente: 'VIRGINIA ALIMENTOS LTDA', setor: 'Corte e Solda', prox: 'Qualidade', status: 'Aprovado', dataHora: '24/05/2026 08:10', responsavel: 'Ana Souza' },
+        { cod: 'RNC-02.26', produto: 'Bobinas com variação', cliente: 'PHX Fornecedor', setor: 'Qualidade', prox: 'Compras', status: 'Atrasado', dataHora: '24/05/2026 09:00', responsavel: 'João Silva' },
+        { cod: 'DEV-884', produto: 'Devolução de Material', cliente: 'EMPRESA ABC LTDA', setor: 'Logística', prox: '-', status: 'Em Andamento', dataHora: '24/05/2026 10:15', responsavel: 'Michel Pereira' }
+    ];
+
+    let RB = rbLoad();
+    if (!RB) {
+        RB = { fichas: dbFichasSeed, retrabalhos: rbSeedRetrabalhos(), entregas: rbSeedEntregas(), atividades: [] };
+        localStorage.setItem(RB_KEY, JSON.stringify(RB));
+    }
+    if (!RB.retrabalhos) RB.retrabalhos = [];
+    if (!RB.entregas) RB.entregas = [];
+    if (!RB.atividades) RB.atividades = [];
+    let dbFichas = RB.fichas || dbFichasSeed;
+
+    function registrarAtividade(texto) {
+        RB.atividades.unshift({ data: new Date().toISOString(), texto: texto });
+        RB.atividades = RB.atividades.slice(0, 30);
+        rbSave();
+        const timeList = document.getElementById('activity-list');
+        if (timeList) {
+            const li = document.createElement('li');
+            li.className = 'list-item';
+            li.innerHTML = `<strong>${currentSessionUser}</strong> ${texto} <span class="time-muted">Agora</span>`;
+            timeList.insertBefore(li, timeList.firstChild);
+        }
+    }
+
+    function nav(tela) {
+        document.querySelectorAll('.sys-view').forEach(e => e.classList.remove('active'));
+        document.querySelectorAll('.sys-nav-btn').forEach(e => e.classList.remove('active'));
+        
+        if(document.getElementById('nav-'+tela)) document.getElementById('nav-'+tela).classList.add('active');
+        if(tela.startsWith('form-')) document.getElementById('nav-form').classList.add('active');
+        
+        document.getElementById('view-'+tela).classList.add('active');
+        
+        let headerTitle = 'Ficha de Produção';
+        if(tela === 'dash') headerTitle = 'Dashboard Geral';
+        else if(tela === 'calendario') headerTitle = 'Calendário Estratégico de Produção';
+        else if(tela === 'form-nc-fornecedor') headerTitle = 'Ficha de Não Conformidade';
+        else if(tela === 'form-devolucao') headerTitle = 'Registro de Devolução';
+        else if(tela === 'form-solicitacao-cliche') headerTitle = 'Solicitação de Confecção de Clichês';
+        else if(tela === 'cad-clientes') headerTitle = 'Cadastro de Clientes';
+        else if(tela === 'cad-fornecedores') headerTitle = 'Cadastro de Fornecedores';
+        else if(tela === 'cad-produtos') headerTitle = 'Cadastro de Produtos';
+        else if(tela === 'cad-cliche') headerTitle = 'Cadastro de Clichês';
+        else if(tela === 'cad-setores') headerTitle = 'Cadastro de Setores';
+        else if(tela === 'retrabalho') headerTitle = 'Retrabalho & Entregas — Setor Qualidade';
+        else if(tela === 'indicadores') headerTitle = 'Indicadores Estratégicos da Qualidade';
+        else if(tela === 'relatorios') headerTitle = 'Relatório Executivo — Diretoria';
+        
+        document.getElementById('header-title').innerText = headerTitle;
+        // Oculta a barra de ação inferior (salvar rascunho, assinar) se não for formulário
+        document.getElementById('action-bar').style.display = tela.startsWith('form-') ? 'flex' : 'none';
+
+        if(tela === 'dash') renderDashboard();
+        if(tela === 'retrabalho') renderRetrabalhoView();
+        if(tela === 'indicadores') renderIndicadores();
+        if(tela === 'relatorios') renderRelatorio();
+    }
+
+    function renderDashboard() {
+        const tb = document.getElementById('tb-dash'); tb.innerHTML = '';
+        let kTotal = dbFichas.length, kPendAprov = 0, kAprov = 0, kAtrasada = 0;
+
+        function getBadge(s) {
+            if(s === 'Concluído' || s === 'Aprovado') return 'st-conc';
+            if(s === 'Em Andamento' || s === 'Salvo' || s === 'Rascunho' || s.includes('Enviado')) return 'st-and';
+            if(s === 'Atrasado') return 'st-err';
+            return 'st-pend';
+        }
+
+        dbFichas.forEach((f) => {
+            if(f.status === 'Aguardando Aprovação') kPendAprov++; 
+            if(f.status === 'Aprovado') kAprov++; 
+            if(f.status === 'Atrasado') kAtrasada++;
+            
+            tb.innerHTML += `
+                <tr>
+                    <td style="font-weight:bold; color:#1d4ed8;">${f.cod}</td>
+                    <td>${f.produto}</td><td>${f.cliente}</td><td>${f.setor}</td><td>${f.prox}</td>
+                    <td><span class="badge-status ${getBadge(f.status)}">${f.status}</span></td>
+                    <td>${f.responsavel}</td><td>${f.dataHora}</td>
+                    <td style="text-align:center; min-width:140px;">
+                        <button class="btn-action-sm" title="Visualizar" onclick="alert('Visualizar Documento')">👁️</button>
+                        <button class="btn-action-sm" title="Editar" onclick="abrirFicha('${f.setor === 'Impressão' ? 'impressao' : 'corte'}', '${f.cod}')">✏️</button>
+                        <button class="btn-action-sm" title="Imprimir PDF" onclick="window.print()">🖨️</button>
+                        <button class="btn-action-sm" title="Cancelar" onclick="acaoRapida('Cancelar Documento')">❌</button>
+                        <button class="btn-action-sm" title="Enviar Setor" onclick="abrirModalEnvio('${f.cod}')">🚀</button>
+                    </td>
+                </tr>`;
+        });
+
+        const tbRet = document.getElementById('tb-retrabalho');
+        if (tbRet) {
+            tbRet.innerHTML = '';
+            const recentes = RB.retrabalhos.slice().sort((a,b) => (b.data||'').localeCompare(a.data||'')).slice(0, 6);
+            if (recentes.length === 0) {
+                tbRet.innerHTML = '<tr><td colspan="6" style="color:#94a3b8; text-align:center;">Nenhum retrabalho registrado. 🎉</td></tr>';
+            }
+            recentes.forEach((r) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td style="color:#3b82f6; font-weight:bold;">${r.ficha}</td><td>${r.produto || '-'}</td><td>${r.destino || r.setorDestino || '-'}</td><td><span class="badge-status st-err">${r.causa || r.motivo}</span></td><td style="font-size:11px; color:#475569;">${r.obs || '-'}</td><td>${r.usuario}</td>`;
+                tbRet.appendChild(tr);
+            });
+        }
+
+        document.getElementById('kpi-total').innerText = kTotal; 
+        document.getElementById('kpi-pend').innerText = kPendAprov; 
+        document.getElementById('kpi-aprovadas').innerText = kAprov; 
+        document.getElementById('kpi-atrasadas').innerText = kAtrasada;
+    }
+
+    function abrirFicha(tipo, codigo = '') {
+        const prefix = tipo === 'corte' ? 'f_' : tipo === 'impressao' ? 'f_imp_' : tipo === 'nc-fornecedor' ? 'f_nc_' : tipo === 'solicitacao-cliche' ? 'f_sol_' : 'f_dev_';
+        
+        let labelId = null;
+        if(tipo === 'corte') labelId = 'lbl-codigo-ficha';
+        else if(tipo === 'impressao') labelId = 'lbl-codigo-imp-ficha';
+        else if(tipo === 'nc-fornecedor') labelId = 'lbl-codigo-nc-ficha';
+
+        let criadorId = 'sys_criador', dataId = 'sys_data_criacao', logId = 'sys_log';
+        if(tipo === 'impressao') { criadorId = 'sys_imp_criador'; dataId = 'sys_imp_data_criacao'; logId = 'sys_imp_log'; }
+        else if(tipo === 'nc-fornecedor') { criadorId = 'sys_nc_criador'; dataId = 'sys_nc_data_criacao'; logId = 'sys_nc_log'; }
+        else if(tipo === 'devolucao') { criadorId = 'sys_dev_criador'; dataId = 'sys_dev_data_criacao'; logId = 'sys_dev_log'; }
+        else if(tipo === 'solicitacao-cliche') { logId = 'sys_sol_cliche_log'; }
+
+        if(!codigo) {
+            if(document.getElementById(prefix + 'cliente')) document.getElementById(prefix + 'cliente').value = '';
+            
+            if(tipo === 'corte' || tipo === 'impressao') carregarProdutosCliente(tipo); 
+            
+            if(tipo === 'corte') {
+                document.getElementById('prev_arte').innerHTML = ''; document.getElementById('span_arte').style.display = 'block';
+                document.getElementById('prev_acond').innerHTML = ''; document.getElementById('span_acond').style.display = 'block';
+            } else if(tipo === 'impressao') {
+                document.getElementById('prev_imp_arte').innerHTML = ''; document.getElementById('span_imp_arte').style.display = 'block';
+                document.getElementById('prev_imp_desb').innerHTML = ''; document.getElementById('span_imp_desb').style.display = 'block';
+            } else if(tipo === 'nc-fornecedor') {
+                document.getElementById('prev_nc_mat').innerHTML = ''; document.getElementById('span_nc_mat').style.display = 'block';
+                document.getElementById('prev_nc_etq').innerHTML = ''; document.getElementById('span_nc_etq').style.display = 'block';
+                document.getElementById('prev_nc_resp').innerHTML = ''; document.getElementById('span_nc_resp').style.display = 'block';
+            } else if(tipo === 'solicitacao-cliche') {
+                document.getElementById('prev_sol_croqui').innerHTML = ''; document.getElementById('span_sol_croqui').style.display = 'block';
+            }
+            
+            if(labelId && document.getElementById(labelId)) document.getElementById(labelId).value = "";
+
+            const now = new Date();
+            const dataStr = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR');
+            if(document.getElementById(criadorId)) document.getElementById(criadorId).innerText = currentSessionUser;
+            if(document.getElementById(dataId)) document.getElementById(dataId).innerText = dataStr;
+            if(document.getElementById(logId)) document.getElementById(logId).innerHTML = `[${dataStr}] Documento gerado em branco por ${currentSessionUser}.<br>`;
+            
+            if(tipo === 'nc-fornecedor' && document.getElementById('f_nc_data')) {
+                document.getElementById('f_nc_data').valueAsDate = now;
+            }
+            if(tipo === 'devolucao') {
+                const dataFormatada = now.toLocaleDateString('pt-BR');
+                document.getElementById('f_dev_data_reg').value = dataFormatada;
+                document.getElementById('f_dev_resp_abert').value = currentSessionUser;
+                document.getElementById('f_dev_emit_por').value = currentSessionUser;
+                document.getElementById('f_dev_data_emit').value = dataStr;
+                document.getElementById('f_dev_aprov_por').value = "";
+                document.getElementById('f_dev_data_aprov').value = "";
+            }
+        } else {
+            if(labelId && document.getElementById(labelId)) document.getElementById(labelId).value = codigo;
+        }
+        
+        atualizarEtiqueta();
+        nav('form-' + tipo);
+    }
+
+    function salvarFichaSistema(statusClicado) {
+        let cod = "SEM-CODIGO";
+        let setor = "Qualidade";
+        
+        if (document.getElementById('view-form-corte').classList.contains('active')) {
+            cod = document.getElementById('lbl-codigo-ficha').value || "SEM-CODIGO";
+            setor = 'Corte e Solda';
+        } else if (document.getElementById('view-form-impressao').classList.contains('active')) {
+            cod = document.getElementById('lbl-codigo-imp-ficha').value || "SEM-CODIGO";
+            setor = 'Impressão';
+        } else if (document.getElementById('view-form-solicitacao-cliche').classList.contains('active')) {
+            cod = "CLIC-" + Math.floor(Math.random() * 1000);
+            setor = 'Pré-Impressão';
+        } else if (document.getElementById('view-form-nc-fornecedor').classList.contains('active')) {
+            cod = "RNC-" + (document.getElementById('lbl-codigo-nc-ficha').value || "00");
+            setor = 'Não Conformidade';
+        } else if (document.getElementById('view-form-devolucao').classList.contains('active')) {
+            cod = "DEV-" + Math.floor(Math.random() * 1000);
+            setor = 'Logística';
+            
+            if(statusClicado === 'Aprovado' || statusClicado === 'Concluído') {
+                const now = new Date();
+                document.getElementById('f_dev_aprov_por').value = currentSessionUser;
+                document.getElementById('f_dev_data_aprov').value = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR');
+            }
+        }
+        
+        const now = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
+        let idx = dbFichas.findIndex(f => f.cod === cod);
+        if(idx > -1) {
+            dbFichas[idx].status = statusClicado;
+        } else {
+            dbFichas.unshift({ cod: cod, produto: "A Definir", cliente: "-", setor: setor, prox: '-', status: statusClicado, dataHora: now, responsavel: currentSessionUser });
+        }
+        
+        // Adiciona na timeline de Atividades Recentes
+        let acaoText = "salvou o rascunho de";
+        if(statusClicado === 'Aguardando Aprovação') acaoText = "solicitou aprovação para";
+        if(statusClicado === 'Aprovado') acaoText = "aprovou a ficha";
+        
+        let timeList = document.getElementById('activity-list');
+        if(timeList) {
+            let tr = document.createElement('li');
+            tr.className = 'list-item';
+            tr.innerHTML = `<strong>${currentSessionUser}</strong> ${acaoText} ${cod} <span class="time-muted">Agora mesmo</span>`;
+            timeList.insertBefore(tr, timeList.firstChild);
+        }
+
+        rbSave();
+        alert(`Ação registrada com sucesso: ${statusClicado}`);
+        if(document.getElementById('search-fichas')) document.getElementById('search-fichas').value = ''; 
+        nav('dash');
+    }
+
+    function acaoRapida(acao) {
+        let conf = confirm(`Deseja realmente prosseguir com a ação: ${acao}?`);
+        if(conf) { alert('Ação concluída com sucesso.'); if(acao==='Cancelar Documento') nav('dash'); }
+    }
+
+    // CONTROLE DO MODAL DE ENVIO DE SETOR
+    function abrirModalEnvio(codigoOpcional = null) {
+        let cod = codigoOpcional;
+        if(typeof cod !== 'string') {
+            if (document.getElementById('view-form-corte').classList.contains('active')) cod = document.getElementById('lbl-codigo-ficha').value;
+            else if (document.getElementById('view-form-impressao').classList.contains('active')) cod = document.getElementById('lbl-codigo-imp-ficha').value;
+            else cod = "DOC-ATUAL";
+        }
+
+        document.getElementById('mdl-codigo-ficha').value = cod;
+        document.getElementById('modal-enviar-setor').style.display = 'flex';
+    }
+
+    function fecharModal() {
+        document.getElementById('modal-enviar-setor').style.display = 'none';
+        document.getElementById('mdl-obs').value = '';
+    }
+
+    function confirmarEnvioSetor() {
+        const setorDestino = document.getElementById('mdl-setor').value;
+        const motivo = document.getElementById('mdl-motivo').value;
+        const obs = document.getElementById('mdl-obs').value;
+        const cod = document.getElementById('mdl-codigo-ficha').value;
+        
+        const fichaRef = dbFichas.find(f => f.cod === cod);
+        const prod = fichaRef ? fichaRef.produto : "-";
+        if(motivo.includes('Correção') || motivo.includes('Retrabalho')) {
+            RB.retrabalhos.unshift({ data: new Date().toISOString(), ficha: cod, produto: prod, origem: 'Qualidade', destino: setorDestino, causa: motivo, qtd: 0, custo: 0, obs: obs || "Nenhuma observação detalhada.", usuario: currentSessionUser });
+            registrarAtividade(`registrou retrabalho da ficha ${cod} (${motivo})`);
+        } else {
+            const prazo = new Date(); prazo.setDate(prazo.getDate() + 2);
+            RB.entregas.unshift({ data: new Date().toISOString(), ficha: cod, produto: prod, destino: setorDestino, prazo: prazo.toISOString().slice(0,10), status: 'Pendente', dataEntrega: null, obs: obs || '', usuario: currentSessionUser });
+            registrarAtividade(`enviou a ficha ${cod} para ${setorDestino}`);
+        }
+        rbSave();
+
+        alert(`Documento/Lote ${cod} enviado com sucesso para o setor: ${setorDestino}.\nMotivo: ${motivo}`);
+        
+        let idx = dbFichas.findIndex(f => f.cod === cod);
+        if(idx > -1) {
+            dbFichas[idx].status = `Enviado: ${setorDestino}`;
+            dbFichas[idx].setor = setorDestino;
+            dbFichas[idx].prox = '-';
+            rbSave();
+        } else {
+            salvarFichaSistema(`Enviado: ${setorDestino}`);
+            return; 
+        }
+
+        fecharModal();
+        nav('dash');
+    }
+
+    function filtrarTabelaFichas() {
+        let input = document.getElementById("search-fichas").value.toUpperCase();
+        let tr = document.getElementById("tb-dash").getElementsByTagName("tr");
+        for (let i = 0; i < tr.length; i++) {
+            let rowText = tr[i].innerText.toUpperCase();
+            if (rowText.indexOf(input) > -1) { tr[i].style.display = ""; } else { tr[i].style.display = "none"; }
+        }
+    }
+
+    function exportarExcel() { alert('Apenas ilustrativo no protótipo.'); }
+    function exportarPDFTabela() {
+        document.body.classList.add('print-mode-tabela');
+        window.print();
+        document.body.classList.remove('print-mode-tabela');
+    }
+
+    function previewImg(input, containerId) {
+        const container = document.getElementById(containerId);
+        const txtBox = container.previousElementSibling.previousElementSibling;
+        if (input.files && input.files[0]) {
+            txtBox.style.display = 'none'; container.innerHTML = ''; 
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let wrap = document.createElement('div'); wrap.className = 'img-thumb-wrap';
+                
+                if(input.id === 'file_nc_resp' && !input.files[0].type.startsWith('image/')) {
+                    wrap.innerHTML = `<div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; border:1px solid #ccc; border-radius:4px; font-size:10px; font-weight:bold; background:#e2e8f0; word-break:break-all; text-align:center; padding:5px;">${input.files[0].name}</div>`;
+                } else {
+                    let img = document.createElement('img'); img.src = e.target.result; img.className = 'img-thumb';
+                    wrap.appendChild(img);
+                }
+                
+                let delBtn = document.createElement('button'); delBtn.className = 'img-delete-btn'; delBtn.innerHTML = 'X';
+                delBtn.onclick = function() { wrap.remove(); input.value = ''; txtBox.style.display = 'block'; };
+                wrap.appendChild(delBtn); container.appendChild(wrap);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function atualizarEtiqueta() {
+        if (document.getElementById('view-form-corte').classList.contains('active')) {
+            if(document.getElementById('etq_cliente')) document.getElementById('etq_cliente').innerText = document.getElementById('f_cliente').value || "-";
+            if(document.getElementById('etq_produto')) document.getElementById('etq_produto').innerText = document.getElementById('f_produto').value || "-";
+            if(document.getElementById('etq_codigo')) document.getElementById('etq_codigo').innerText = document.getElementById('lbl-codigo-ficha').value || "-";
+            let qtdVal = document.getElementById('f_qtd_pacote') ? document.getElementById('f_qtd_pacote').value : "500";
+            if(document.getElementById('etq_qtd')) document.getElementById('etq_qtd').innerText = qtdVal + " PCS";
+        } else if (document.getElementById('view-form-impressao').classList.contains('active')) {
+            if(document.getElementById('etq_imp_cliente')) document.getElementById('etq_imp_cliente').innerText = document.getElementById('f_imp_cliente').value || "-";
+            if(document.getElementById('etq_imp_produto')) document.getElementById('etq_imp_produto').innerText = document.getElementById('f_imp_produto').value || "-";
+            if(document.getElementById('etq_imp_codigo')) document.getElementById('etq_imp_codigo').innerText = document.getElementById('lbl-codigo-imp-ficha').value || "-";
+            if(document.getElementById('etq_imp_qtd')) document.getElementById('etq_imp_qtd').innerText = "BOBINA";
+        }
+    }
+
+    function imprimirEtiqueta() {
+        document.body.classList.add('print-mode-etiqueta');
+        window.print();
+        document.body.classList.remove('print-mode-etiqueta');
+    }
+
+
+    // ==========================================================================
+    // RETRABALHO & ENTREGAS — REGISTRO E PAINEL
+    // ==========================================================================
+    const fmtBRL = v => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    const fmtData = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '-';
+    const mesLabel = d => ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][d.getMonth()] + '/' + String(d.getFullYear()).slice(2);
+    const mesKey = iso => iso.slice(0, 7);
+
+    function registrarRetrabalho() {
+        const ficha = document.getElementById('ret_ficha').value.trim();
+        if (!ficha) { alert('Informe a ficha ou documento.'); return; }
+        RB.retrabalhos.unshift({
+            data: new Date().toISOString(), ficha: ficha,
+            produto: document.getElementById('ret_produto').value.trim() || '-',
+            origem: document.getElementById('ret_origem').value,
+            destino: document.getElementById('ret_destino').value,
+            causa: document.getElementById('ret_causa').value,
+            qtd: Number(document.getElementById('ret_qtd').value) || 0,
+            custo: Number(document.getElementById('ret_custo').value) || 0,
+            obs: document.getElementById('ret_obs').value.trim(),
+            usuario: currentSessionUser
+        });
+        registrarAtividade(`registrou retrabalho da ficha ${ficha}`);
+        rbSave();
+        ['ret_ficha','ret_produto','ret_qtd','ret_custo','ret_obs'].forEach(id => document.getElementById(id).value = '');
+        renderRetrabalhoView();
+    }
+
+    function registrarEntrega() {
+        const ficha = document.getElementById('ent_ficha').value.trim();
+        if (!ficha) { alert('Informe a ficha ou documento.'); return; }
+        RB.entregas.unshift({
+            data: new Date().toISOString(), ficha: ficha,
+            produto: document.getElementById('ent_produto').value.trim() || '-',
+            destino: document.getElementById('ent_destino').value,
+            prazo: document.getElementById('ent_prazo').value || null,
+            status: 'Pendente', dataEntrega: null,
+            obs: document.getElementById('ent_obs').value.trim(),
+            usuario: currentSessionUser
+        });
+        registrarAtividade(`enviou a ficha ${ficha} para ${document.getElementById('ent_destino').value}`);
+        rbSave();
+        ['ent_ficha','ent_produto','ent_prazo','ent_obs'].forEach(id => document.getElementById(id).value = '');
+        renderRetrabalhoView();
+    }
+
+    function entregaConcluir(i) {
+        RB.entregas[i].status = 'Entregue';
+        RB.entregas[i].dataEntrega = new Date().toISOString();
+        rbSave(); renderRetrabalhoView();
+    }
+    function entregaExcluir(i) { if(confirm('Excluir este registro de entrega?')) { RB.entregas.splice(i,1); rbSave(); renderRetrabalhoView(); } }
+    function retrabalhoExcluir(i) { if(confirm('Excluir este registro de retrabalho?')) { RB.retrabalhos.splice(i,1); rbSave(); renderRetrabalhoView(); } }
+
+    function entregueNoPrazo(e) {
+        if (e.status !== 'Entregue' || !e.prazo || !e.dataEntrega) return null;
+        return e.dataEntrega.slice(0,10) <= e.prazo;
+    }
+
+    function renderRetrabalhoView() {
+        const agora = new Date();
+        const kAtual = mesKey(agora.toISOString());
+        const mesPassado = new Date(agora.getFullYear(), agora.getMonth() - 1, 15);
+        const kAnt = mesKey(mesPassado.toISOString());
+
+        const retMes = RB.retrabalhos.filter(r => mesKey(r.data) === kAtual);
+        const retAnt = RB.retrabalhos.filter(r => mesKey(r.data) === kAnt);
+        document.getElementById('kpi-ret-mes').innerText = retMes.length;
+        const varEl = document.getElementById('kpi-ret-var');
+        if (retAnt.length > 0) {
+            const diff = retMes.length - retAnt.length;
+            varEl.innerText = (diff <= 0 ? '↓ ' : '↑ ') + Math.abs(diff) + ' vs mês anterior';
+            varEl.className = 'kpi-trend ' + (diff <= 0 ? 'trend-up' : 'trend-down');
+        } else { varEl.innerText = '— sem base anterior'; }
+        document.getElementById('kpi-ret-custo').innerText = fmtBRL(retMes.reduce((a,r) => a + (r.custo||0), 0));
+
+        const concluidas = RB.entregas.filter(e => entregueNoPrazo(e) !== null);
+        const noPrazo = concluidas.filter(e => entregueNoPrazo(e)).length;
+        document.getElementById('kpi-ent-otif').innerText = concluidas.length ? Math.round(100 * noPrazo / concluidas.length) + '%' : '—';
+        document.getElementById('kpi-ent-pend').innerText = RB.entregas.filter(e => e.status === 'Pendente').length;
+
+        const tbR = document.getElementById('tb-ret-hist'); tbR.innerHTML = '';
+        RB.retrabalhos.slice(0, 15).forEach((r) => {
+            const i = RB.retrabalhos.indexOf(r);
+            tbR.innerHTML += `<tr><td>${fmtData(r.data)}</td><td style="font-weight:bold; color:#1d4ed8;">${r.ficha}</td><td style="font-size:11px;">${r.causa}</td><td>${r.destino}</td><td>${r.custo ? fmtBRL(r.custo) : '-'}</td><td><button class="btn-action-sm" title="Excluir" onclick="retrabalhoExcluir(${i})">🗑️</button></td></tr>`;
+        });
+        document.getElementById('ret-total-chip').innerText = RB.retrabalhos.length + ' registros';
+
+        const tbE = document.getElementById('tb-ent-hist'); tbE.innerHTML = '';
+        RB.entregas.slice(0, 15).forEach((e) => {
+            const i = RB.entregas.indexOf(e);
+            const prazoOk = entregueNoPrazo(e);
+            const st = e.status === 'Pendente'
+                ? '<span class="badge-status st-pend">Pendente</span>'
+                : (prazoOk === false ? '<span class="badge-status st-err">Atrasada</span>' : '<span class="badge-status st-conc">No prazo</span>');
+            const btn = e.status === 'Pendente' ? `<button class="btn-action-sm" title="Marcar entregue" onclick="entregaConcluir(${i})">✔️</button>` : '';
+            tbE.innerHTML += `<tr><td>${fmtData(e.data)}</td><td style="font-weight:bold; color:#1d4ed8;">${e.ficha}</td><td>${e.destino}</td><td>${e.prazo ? new Date(e.prazo + 'T12:00:00').toLocaleDateString('pt-BR') : '-'}</td><td>${st}</td><td>${btn}<button class="btn-action-sm" title="Excluir" onclick="entregaExcluir(${i})">🗑️</button></td></tr>`;
+        });
+        document.getElementById('ent-total-chip').innerText = RB.entregas.length + ' registros';
+    }
+
+
+    // ==========================================================================
+    // GRÁFICOS SVG (SEM BIBLIOTECAS EXTERNAS) E INDICADORES
+    // ==========================================================================
+    const CORES = { azul: '#1d4ed8', azulClaro: '#3b82f6', dourado: '#c9a227', douradoEscuro: '#a8842f', vermelho: '#ef4444', verde: '#10b981', cinza: '#94a3b8' };
+
+    function svgBarrasV(dados, corBarra, formato) {
+        // dados: [{label, valor}] — barras verticais com valor no topo
+        if (!dados.length) return '<div class="chart-empty">Sem dados no período.</div>';
+        const W = 560, H = 230, padB = 28, padT = 22, padL = 8;
+        const max = Math.max(...dados.map(d => d.valor), 1);
+        const bw = (W - padL * 2) / dados.length;
+        let out = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}">`;
+        dados.forEach((d, i) => {
+            const h = (H - padB - padT) * d.valor / max;
+            const x = padL + i * bw + bw * 0.15, y = H - padB - h;
+            out += `<rect x="${x}" y="${y}" width="${bw * 0.7}" height="${Math.max(h,2)}" rx="4" fill="${corBarra}"></rect>`;
+            out += `<text x="${x + bw*0.35}" y="${y - 6}" text-anchor="middle" font-size="11" font-weight="bold" fill="#334155">${formato ? formato(d.valor) : d.valor}</text>`;
+            out += `<text x="${x + bw*0.35}" y="${H - 10}" text-anchor="middle" font-size="10" fill="#64748b">${d.label}</text>`;
+        });
+        return out + '</svg>';
+    }
+
+    function svgBarrasH(dados, corBarra, formato) {
+        // dados: [{label, valor}] — barras horizontais
+        if (!dados.length) return '<div class="chart-empty">Sem dados no período.</div>';
+        const W = 560, rowH = 34, padL = 150, padR = 60;
+        const H = dados.length * rowH + 10;
+        const max = Math.max(...dados.map(d => d.valor), 1);
+        let out = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}">`;
+        dados.forEach((d, i) => {
+            const y = 8 + i * rowH;
+            const w = (W - padL - padR) * d.valor / max;
+            out += `<text x="${padL - 8}" y="${y + 16}" text-anchor="end" font-size="11" fill="#475569">${d.label.length > 22 ? d.label.slice(0,21) + '…' : d.label}</text>`;
+            out += `<rect x="${padL}" y="${y}" width="${Math.max(w,2)}" height="22" rx="4" fill="${corBarra}"></rect>`;
+            out += `<text x="${padL + Math.max(w,2) + 6}" y="${y + 16}" font-size="11" font-weight="bold" fill="#334155">${formato ? formato(d.valor) : d.valor}</text>`;
+        });
+        return out + '</svg>';
+    }
+
+    function svgPareto(dados) {
+        // dados: [{label, valor}] ordenado desc — barras + linha acumulada (dourada)
+        if (!dados.length) return '<div class="chart-empty">Sem dados no período.</div>';
+        const W = 560, H = 250, padB = 62, padT = 22, padL = 10, padR = 40;
+        const total = dados.reduce((a,d) => a + d.valor, 0) || 1;
+        const max = Math.max(...dados.map(d => d.valor), 1);
+        const bw = (W - padL - padR) / dados.length;
+        let out = `<svg class="chart-svg" viewBox="0 0 ${W} ${H}">`;
+        let acum = 0; const pontos = [];
+        dados.forEach((d, i) => {
+            const h = (H - padB - padT) * d.valor / max;
+            const x = padL + i * bw + bw * 0.12, y = H - padB - h;
+            out += `<rect x="${x}" y="${y}" width="${bw * 0.76}" height="${Math.max(h,2)}" rx="3" fill="${CORES.azulClaro}"></rect>`;
+            out += `<text x="${x + bw*0.38}" y="${y - 5}" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">${d.valor}</text>`;
+            const palavras = d.label.split(' ');
+            const l1 = palavras.slice(0, 2).join(' ').slice(0, 14), l2 = palavras.slice(2).join(' ').slice(0, 14);
+            out += `<text x="${x + bw*0.38}" y="${H - padB + 14}" text-anchor="middle" font-size="8.5" fill="#64748b">${l1}</text>`;
+            if (l2) out += `<text x="${x + bw*0.38}" y="${H - padB + 24}" text-anchor="middle" font-size="8.5" fill="#64748b">${l2}</text>`;
+            acum += d.valor;
+            pontos.push({ x: padL + i * bw + bw * 0.5, y: padT + (H - padB - padT) * (1 - acum / total), pct: Math.round(100 * acum / total) });
+        });
+        out += `<polyline points="${pontos.map(pt => pt.x + ',' + pt.y).join(' ')}" fill="none" stroke="${CORES.dourado}" stroke-width="2.5"></polyline>`;
+        pontos.forEach(pt => {
+            out += `<circle cx="${pt.x}" cy="${pt.y}" r="3.5" fill="${CORES.douradoEscuro}"></circle>`;
+            out += `<text x="${pt.x}" y="${pt.y - 8}" text-anchor="middle" font-size="9" font-weight="bold" fill="${CORES.douradoEscuro}">${pt.pct}%</text>`;
+        });
+        return out + '</svg>';
+    }
+
+    function dadosPeriodo(lista, meses) {
+        const corte = new Date(); corte.setMonth(corte.getMonth() - meses); 
+        const iso = corte.toISOString();
+        return lista.filter(x => (x.data || '') >= iso);
+    }
+
+    function agruparPorMes(lista, meses) {
+        const out = [];
+        const hoje = new Date();
+        for (let m = meses - 1; m >= 0; m--) {
+            const d = new Date(hoje.getFullYear(), hoje.getMonth() - m, 15);
+            const k = d.toISOString().slice(0, 7);
+            out.push({ label: mesLabel(d), valor: lista.filter(x => mesKey(x.data) === k).length });
+        }
+        return out;
+    }
+
+    function contarPor(lista, campo) {
+        const mapa = {};
+        lista.forEach(x => { const k = x[campo] || 'Não informado'; mapa[k] = (mapa[k] || 0) + 1; });
+        return Object.entries(mapa).map(([label, valor]) => ({ label, valor })).sort((a,b) => b.valor - a.valor);
+    }
+
+    function renderIndicadores() {
+        const meses = Number(document.getElementById('ind_periodo').value);
+        const rets = dadosPeriodo(RB.retrabalhos, meses);
+        const ents = dadosPeriodo(RB.entregas, meses);
+
+        document.getElementById('chart-ret-tendencia').innerHTML = svgBarrasV(agruparPorMes(RB.retrabalhos, meses), CORES.azul);
+        document.getElementById('chart-ret-pareto').innerHTML = svgPareto(contarPor(rets, 'causa').slice(0, 6));
+
+        const porFornecedor = contarPor(rets.filter(r => r.origem === 'Fornecedor'), 'produto');
+        document.getElementById('chart-rnc-fornecedor').innerHTML = porFornecedor.length
+            ? svgBarrasH(porFornecedor.slice(0, 6), CORES.vermelho)
+            : '<div class="chart-empty">Nenhuma ocorrência de fornecedor no período.<br>Registre em Retrabalho & Entregas com origem "Fornecedor".</div>';
+
+        document.getElementById('chart-entregas-setor').innerHTML = svgBarrasH(contarPor(ents, 'destino'), CORES.dourado);
+
+        // Leitura estratégica automática
+        const causas = contarPor(rets, 'causa');
+        const serie = agruparPorMes(RB.retrabalhos, meses);
+        const primeiro = serie[0] ? serie[0].valor : 0, ultimo = serie[serie.length-1] ? serie[serie.length-1].valor : 0;
+        const custoTotal = rets.reduce((a,r) => a + (r.custo||0), 0);
+        const concl = ents.filter(e => entregueNoPrazo(e) !== null);
+        const otif = concl.length ? Math.round(100 * concl.filter(e => entregueNoPrazo(e)).length / concl.length) : null;
+
+        let insights = [];
+        if (causas.length) {
+            const top = causas[0];
+            const pct = Math.round(100 * top.valor / rets.length);
+            insights.push(`🎯 <strong>${pct}% dos retrabalhos</strong> do período vêm de uma única causa: <strong>${top.label}</strong>. Atacar essa causa é a maior alavanca de redução.`);
+        }
+        if (serie.length >= 2) {
+            insights.push(ultimo <= primeiro
+                ? `📉 Tendência de <strong>queda</strong>: de ${primeiro} para ${ultimo} retrabalhos/mês no período. Manter as ações atuais.`
+                : `📈 Tendência de <strong>alta</strong>: de ${primeiro} para ${ultimo} retrabalhos/mês. Recomenda-se reunião de análise crítica.`);
+        }
+        insights.push(`💰 Custo estimado de retrabalho no período: <strong>${fmtBRL(custoTotal)}</strong> — este é o valor recuperável ao eliminar as causas do Pareto.`);
+        if (otif !== null) {
+            insights.push(otif >= 90
+                ? `🚚 Entregas para outros setores com <strong>${otif}% no prazo</strong> — nível saudável.`
+                : `🚚 Apenas <strong>${otif}% das entregas no prazo</strong> — priorizar fila de envio para não travar os setores seguintes.`);
+        }
+        document.getElementById('ind-insights').innerHTML = insights.map(i => `<div style="margin-bottom:8px;">${i}</div>`).join('');
+    }
+
+
+    // ==========================================================================
+    // RELATÓRIO EXECUTIVO PARA A DIRETORIA (IMPRIMÍVEL EM PDF)
+    // ==========================================================================
+    function renderRelatorio() {
+        const meses = Number(document.getElementById('rel_periodo').value);
+        const rets = dadosPeriodo(RB.retrabalhos, meses);
+        const ents = dadosPeriodo(RB.entregas, meses);
+        const custoTotal = rets.reduce((a,r) => a + (r.custo||0), 0);
+        const concl = ents.filter(e => entregueNoPrazo(e) !== null);
+        const otif = concl.length ? Math.round(100 * concl.filter(e => entregueNoPrazo(e)).length / concl.length) : null;
+        const causas = contarPor(rets, 'causa');
+        const destinos = contarPor(ents, 'destino');
+        const serie = agruparPorMes(RB.retrabalhos, Math.max(meses, 3));
+        const rncAbertas = dbFichas.filter(f => (f.cod||'').startsWith('RNC') && f.status !== 'Concluído').length;
+
+        const periodoTxt = meses === 1 ? 'Mês atual' : `Últimos ${meses} meses`;
+        const hoje = new Date().toLocaleDateString('pt-BR');
+
+        let recomendacoes = [];
+        if (causas[0]) recomendacoes.push(`Plano de ação focado na causa principal (<strong>${causas[0].label}</strong> — ${causas[0].valor} ocorrências): treinamento e padronização de setup.`);
+        if (otif !== null && otif < 90) recomendacoes.push(`Elevar o índice de entregas no prazo (${otif}%) para a meta de 90%, priorizando a fila de envio aos setores.`);
+        if (rncAbertas > 0) recomendacoes.push(`${rncAbertas} RNC de fornecedor em aberto — cobrar resposta formal e avaliar impacto na homologação.`);
+        recomendacoes.push(`Potencial de economia: <strong>${fmtBRL(custoTotal)}</strong> no período, recuperável com a eliminação das duas maiores causas do Pareto.`);
+
+        document.getElementById('rel-conteudo').innerHTML = `
+            <div class="rel-header">
+                <div>
+                    <div class="rel-sub">Grupo Rebracil — Embalagens Flexíveis</div>
+                    <h2>Relatório Executivo da Qualidade</h2>
+                    <div style="font-size:12px; color:#64748b; margin-top:4px;">Período: ${periodoTxt} · Emitido em ${hoje} por ${currentSessionUser}</div>
+                </div>
+                <div style="text-align:right;">
+                    <span style="background: var(--gold); color:#fff; padding: 4px 10px; border-radius: 4px; font-weight:800; font-size:14px;">R</span>
+                </div>
+            </div>
+
+            <div class="rel-kpis">
+                <div class="rel-kpi"><div class="v" style="color:#b91c1c;">${rets.length}</div><div class="l">Retrabalhos</div></div>
+                <div class="rel-kpi"><div class="v" style="color:var(--gold-deep);">${fmtBRL(custoTotal)}</div><div class="l">Custo do Retrabalho</div></div>
+                <div class="rel-kpi"><div class="v" style="color:${otif !== null && otif >= 90 ? '#059669' : '#d97706'};">${otif !== null ? otif + '%' : '—'}</div><div class="l">Entregas no Prazo</div></div>
+                <div class="rel-kpi"><div class="v">${rncAbertas}</div><div class="l">RNC em Aberto</div></div>
+            </div>
+
+            <div class="rel-section-t">1. Evolução do Retrabalho</div>
+            ${svgBarrasV(serie, CORES.azul)}
+
+            <div class="rel-section-t">2. Principais Causas (Pareto)</div>
+            ${svgPareto(causas.slice(0, 6))}
+
+            <div class="rel-section-t">3. Entregas da Qualidade por Setor</div>
+            ${svgBarrasH(destinos, CORES.dourado)}
+
+            <div class="rel-section-t">4. Recomendações para Decisão</div>
+            <ol style="font-size:13px; color:#334155; line-height:1.8; padding-left:20px; margin:5px 0;">
+                ${recomendacoes.map(r => `<li>${r}</li>`).join('')}
+            </ol>
+
+            <div class="rel-obs">📌 <strong>Nota metodológica:</strong> custos de retrabalho são estimativas informadas no registro de cada ocorrência (horas + material). O índice de entregas considera apenas envios com prazo combinado e confirmação de recebimento.</div>
+        `;
+    }
+
+    function imprimirRelatorio() {
+        document.body.classList.add('print-mode-relatorio');
+        window.print();
+        document.body.classList.remove('print-mode-relatorio');
+    }
+
+    // Inicialização do Drag and Drop
+    function initDragAndDrop() {
+        const cards = document.querySelectorAll('.drag-card');
+        const days = document.querySelectorAll('.cal-day');
+
+        cards.forEach(card => {
+            card.addEventListener('dragstart', () => {
+                card.classList.add('dragging');
+            });
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                // Ajuste visual ao soltar
+                card.style.padding = '5px';
+                card.querySelector('.dc-title').style.fontSize = '10px';
+                if(card.querySelector('.dc-info')) card.querySelector('.dc-info').style.display = 'none';
+            });
+        });
+
+        days.forEach(day => {
+            day.addEventListener('dragover', e => {
+                e.preventDefault(); 
+                day.style.backgroundColor = '#f1f5f9'; 
+            });
+            day.addEventListener('dragleave', () => {
+                day.style.backgroundColor = '';
+            });
+            day.addEventListener('drop', () => {
+                day.style.backgroundColor = '';
+                const draggable = document.querySelector('.dragging');
+                if(draggable) {
+                    day.appendChild(draggable);
+                    // Atualiza contador da fila lateral
+                    const countBadge = document.querySelector('.badge-count');
+                    if(countBadge) {
+                        const remaining = document.querySelectorAll('#drag-queue .drag-card').length;
+                        countBadge.innerText = remaining;
+                    }
+                }
+            });
+        });
+    }
+
+    window.onload = function() { 
+        renderDashboard(); 
+        initDragAndDrop();
+    };
+</script>
+
+</body>
+</html>
