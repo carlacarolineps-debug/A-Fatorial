@@ -1,4 +1,24 @@
-# A! Fatorial — Sistema de Gestão (Arquitetura de Lucro)
+# A! Fatorial — Ecossistema Operação Blindada + Sistema de Gestão
+
+Quatro aplicações de página única (sem build, JavaScript puro). Abra cada arquivo
+no navegador para usar.
+
+| Arquivo | O que é | Para quem |
+|---------|---------|-----------|
+| `vendas.html` | **Página de vendas da Operação Blindada** — oferta 12× R$ 397 (turma fundadora, 21 vagas), módulos do método, Kit Padrão de Gestão, encontros híbridos, checkout TMB (configure `PAY.checkoutUrl`), contador de vagas (`VAGAS.vendidas`) e porta de entrada do evento mensal R$ 37 | Leads |
+| `portal.html` | **Portal do mentoreado** (v19) — 19 trilhas, ferramentas, testes, plano 30d, gamificação **+ novo módulo 🛡️ Padrão de Gestão Blindada**: Painel de Indicadores com farol automático, RSG semanal, PTM mensal (com validação das 7 regras de ouro), Cartões de Alçada, método dos 5 Dedos, fluxo "posso decidir sozinho?", diário de decisões e implantação guiada de 90 dias — tudo editável, com impressão A4 timbrada e importação/exportação de progresso | Alunos |
+| `estrategia.html` | **Playbook estratégico confidencial** — a oferta em números (meta 21 = R$ 100 mil/ano), escada de valor (R$ 0 → 37 → 297 → 4.764 → renovação → consultoria), matemática do funil, calendário das 48 semanas, semana operacional da mentora, onboarding, painel de KPIs da própria mentoria, riscos e checklist de lançamento com progresso salvo | Mentora e time |
+| `index.html` | Sistema de gestão interno (Arquitetura de Lucro) — detalhado abaixo | Empresa |
+
+O módulo **Padrão de Gestão Blindada** do portal transforma o kit de consultoria
+(Report Semanal de Gestão, Parecer Técnico Mensal, escala de farol, cartões de
+alçada por área, 5 Dedos e fluxograma de decisão em 4 níveis) em aplicações que
+o aluno preenche com os dados do próprio negócio, salva, acumula histórico e
+imprime em folha timbrada.
+
+---
+
+# Sistema de Gestão (Arquitetura de Lucro)
 
 Aplicação de página única (um arquivo `index.html`, sem build, JavaScript puro).
 Abra o arquivo no navegador para usar.

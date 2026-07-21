@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operação Blindada · Playbook Estratégico 2026/27 — Confidencial</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090b; --panel:#131519; --panel-2:#171a1f;
+  --line:#2a3037; --line-soft:#1c2127;
+  --star:#f4f6f9; --steel:#c8cfd7; --mute:#8b939d; --mute-2:#5e6871;
+  --gold:#f4c150; --gold-2:#d4a340; --gold-deep:#b98a2c;
+  --sage:#5fd0a6; --coral:#ff7a6b; --violet:#9b8cff;
+  --serif:'Playfair Display',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  --gold-grad:linear-gradient(135deg,#ffe6a0,#f4c150 42%,#b98a2c);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--star);font-family:var(--sans);font-size:15.5px;line-height:1.65;
+  background-image:
+    repeating-linear-gradient(48deg,rgba(255,255,255,.010) 0 1px,transparent 1px 6px),
+    radial-gradient(1100px 620px at 82% -8%,rgba(244,193,80,.09),transparent 60%);
+  background-attachment:fixed;padding-bottom:80px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--serif);line-height:1.1;letter-spacing:-.01em}
+h2{font-size:clamp(24px,3.4vw,34px);margin:0 0 8px}
+.mono{font-family:var(--mono)}
+.gold{color:var(--gold)}
+.grad-txt{background:linear-gradient(105deg,#ffe6a0,#f4c150 55%,#d4a340);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-2)}
+.sec{padding:52px 0;border-bottom:1px solid var(--line-soft)}
+.lead{color:var(--steel);max-width:720px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:16px;padding:22px}
+.card h3{font-family:var(--sans);font-weight:700;font-size:16px;margin-bottom:6px}
+.card p{color:var(--mute);font-size:14px}
+.kpi .n{font-family:var(--serif);font-weight:900;font-size:clamp(28px,4vw,42px);background:linear-gradient(180deg,#ffe6a0,#d4a340);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.05}
+.kpi .l{color:var(--mute);font-size:12.5px;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-2);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line-soft);color:var(--steel);vertical-align:top}
+td b{color:var(--star)}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--mute)}
+.tag.on{border-color:var(--gold-deep);color:var(--gold)}
+.step-lad{display:flex;flex-direction:column;gap:0}
+.rung{display:flex;gap:16px;align-items:flex-start;padding:16px 18px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:linear-gradient(180deg,var(--panel),var(--panel-2));position:relative}
+.rung .price{font-family:var(--serif);font-weight:800;color:var(--gold);font-size:20px;min-width:110px}
+.rung b{display:block}
+.rung span{color:var(--mute);font-size:13.5px}
+.check{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line-soft);cursor:pointer}
+.check input{margin-top:4px;accent-color:var(--gold);width:16px;height:16px;flex:none}
+.check.done span{color:var(--mute-2);text-decoration:line-through}
+.check span{color:var(--steel);font-size:14px}
+.bar{height:8px;border-radius:99px;background:rgba(0,0,0,.4);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold-grad);transition:width .6s ease;box-shadow:0 0 12px rgba(244,193,80,.5)}
+.note{border-left:3px solid var(--gold-deep);background:rgba(244,193,80,.05);padding:14px 16px;border-radius:0 12px 12px 0;color:var(--steel);font-size:14px;margin-top:14px}
+.warn{border-left-color:var(--coral);background:rgba(255,122,107,.05)}
+.okay{border-left-color:var(--sage);background:rgba(95,208,166,.05)}
+header{padding:64px 0 44px;text-align:center;border-bottom:1px solid var(--line-soft)}
+.shield{width:60px;height:66px;margin:0 auto 18px;background:linear-gradient(160deg,#20242b,#0e1013);border:1px solid var(--gold-deep);border-radius:6px 6px 10px 10px;clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);display:flex;align-items:center;justify-content:center}
+.shield::after{content:'';width:14px;height:14px;border:3px solid var(--gold);border-radius:3px;box-shadow:0 0 12px rgba(244,193,80,.55)}
+@media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr}.rung{flex-direction:column;gap:6px}}
+@media print{
+  body{background:#fff;color:#111;font-size:12px;padding:0}
+  .card,.rung{border-color:#ddd;background:#fff}
+  .kpi .n,.grad-txt{-webkit-text-fill-color:#b6862c;color:#b6862c}
+  td,th{color:#333}.check span,.lead,.card p,.rung span{color:#444}
+}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="shield"></div>
+  <p class="eyebrow">Documento interno · Confidencial · A! Fatorial</p>
+  <h1 style="font-size:clamp(30px,5vw,52px);margin:12px 0 6px">Playbook Estratégico <span class="grad-txt">Operação Blindada</span></h1>
+  <p class="mono" style="color:var(--mute);font-size:12px;letter-spacing:.2em">ESTRATÉGIA · MENTALIDADE · COMPORTAMENTO — CICLO 2026/27</p>
+  <p class="lead" style="margin:18px auto 0">Este é o mapa da operação: a oferta, a matemática da meta, o calendário do ano, os rituais e o checklist de lançamento. Os checklists salvam o progresso neste navegador. Imprima com Ctrl+P quando quiser levar para a mesa.</p>
+</div></header>
+
+<!-- ============ 1. A OFERTA EM NÚMEROS ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">01 · A oferta em números</p>
+  <h2>A conta que sustenta tudo.</h2>
+  <div class="grid g4" style="margin-top:22px">
+    <div class="card kpi"><div class="n">12× 397</div><div class="l">investimento anual do aluno — total R$ 4.764</div></div>
+    <div class="card kpi"><div class="n">21</div><div class="l">vagas da turma fundadora (escassez real, não teatro)</div></div>
+    <div class="card kpi"><div class="n">R$ 100 mil</div><div class="l">receita anual com a turma cheia (21 × R$ 4.764 = R$ 100.044)</div></div>
+    <div class="card kpi"><div class="n">R$ 8.337</div><div class="l">receita média mensal recorrente da mentoria</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card">
+      <h3>💰 Receitas satélites (por cima da mentoria)</h3>
+      <table>
+        <tr><th>Fonte</th><th>Preço</th><th>Potencial/ano</th></tr>
+        <tr><td>Encontro presencial mensal (membros)</td><td><b>R$ 297</b></td><td>12 × ~15 presentes ≈ <b>R$ 53 mil</b></td></tr>
+        <tr><td>Encontro online mensal (curiosos/leads)</td><td><b>R$ 37</b></td><td>12 × ~30 ingressos ≈ <b>R$ 13 mil</b></td></tr>
+        <tr><td>Bump: Diagnóstico de Blindagem 1:1</td><td><b>R$ 197</b></td><td>~50% dos alunos ≈ <b>R$ 2 mil</b></td></tr>
+        <tr><td>Consultoria in-company (padrão Horus)</td><td><b>sob proposta</b></td><td>2–4 projetos/ano — ticket alto</td></tr>
+      </table>
+      <p class="note okay" style="margin-top:12px">Cenário realista com tudo rodando: <b>R$ 150–170 mil/ano</b> na esteira Operação Blindada — antes da consultoria.</p>
+    </div>
+    <div class="card">
+      <h3>⚖️ Por que 12× R$ 397 é o preço certo</h3>
+      <p style="margin-bottom:10px">R$ 397/mês fica <b>abaixo da barreira psicológica dos R$ 500</b> e cabe no cartão corporativo de qualquer PME — mas o contrato é <b>anual</b>: você vende transformação de 12 meses, não assinatura cancelável.</p>
+      <p style="margin-bottom:10px">Âncora de valor na página: <b>uma consultoria tradicional cobra R$ 4–8 mil POR MÊS</b> e entrega relatório. A mentoria custa isso <b>por ano</b> e entrega execução + ferramentas.</p>
+      <p><b>Nunca dê desconto no preço.</b> Negocie com bônus (sessão 1:1, ingresso presencial cortesia). Desconto ensina o mercado a esperar promoção; bônus aumenta valor percebido.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ 2. ESCADA DE VALOR ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">02 · Escada de valor</p>
+  <h2>Cada degrau financia o próximo.</h2>
+  <p class="lead" style="margin-bottom:22px">Ninguém compra mentoria de R$ 4.764 de um perfil que conheceu ontem. A escada aquece o lead com micro-compromissos até a vaga — e continua depois dela.</p>
+  <div class="step-lad">
+    <div class="rung"><div class="price">R$ 0</div><div><b>Conteúdo no Instagram + comunidade aberta</b><span>Autoridade diária. Todo post aponta para o evento do mês ou para a fila da mentoria. Meta: 3 conteúdos/semana reaproveitados das aulas gravadas (gravou a aula → corta 3 reels).</span></div></div>
+    <div class="rung"><div class="price">R$ 37</div><div><b>Encontro online mensal — “o curioso paga pouco, mas paga”</b><span>Quem paga R$ 37 não é seguidor, é lead qualificado com cartão na mão. Ao vivo, sem replay. No final: pitch de 10 minutos da mentoria + condição válida por 48h (bônus, não desconto).</span></div></div>
+    <div class="rung"><div class="price">R$ 297</div><div><b>Encontro presencial mensal — a vitrine da comunidade</b><span>Membro ativo paga 297 e leva networking real. Convidado especial pode ser levado por membro (1 por ciclo). É aqui que o lead “vê a turma” e a vaga vira desejo.</span></div></div>
+    <div class="rung" style="border-color:rgba(244,193,80,.5)"><div class="price gold">12× R$ 397</div><div><b>OPERAÇÃO BLINDADA — a mentoria anual · 21 vagas</b><span>Encontro semanal ao vivo + 2 aulas/semana + portal + Kit Padrão de Gestão + Telegram + comunidade + eventos. O produto central. Tudo acima alimenta; tudo abaixo deriva.</span></div></div>
+    <div class="rung"><div class="price">renova</div><div><b>Renovação antecipada — condição de fundador</b><span>A partir do mês 9: quem renova antes do fim mantém preço e vaga; quem não renova entra a fila. Meta: ≥70% de renovação (é aqui que o negócio fica blindado de verdade).</span></div></div>
+    <div class="rung"><div class="price">alto ticket</div><div><b>Consultoria in-company — padrão Horus</b><span>O Kit Padrão de Gestão aplicado por você dentro da empresa do cliente (diagnóstico + implantação 90 dias). Oferta natural para o aluno que quer velocidade — e prova viva para os cases.</span></div></div>
+  </div>
+</div></section>
+
+<!-- ============ 3. MATEMÁTICA DA META ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">03 · A matemática das 21 vagas</p>
+  <h2>Meta não é desejo. É funil.</h2>
+  <div class="grid g4" style="margin-top:22px">
+    <div class="card kpi"><div class="n">21</div><div class="l">vagas a fechar</div></div>
+    <div class="card kpi"><div class="n">~70</div><div class="l">conversas 1:1 de diagnóstico (fechamento ~30%)</div></div>
+    <div class="card kpi"><div class="n">~210</div><div class="l">leads quentes no ano (eventos R$ 37 + indicações + direct)</div></div>
+    <div class="card kpi"><div class="n">18/mês</div><div class="l">leads novos por mês — 4 a 5 por semana. Só isso.</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card">
+      <h3>🎯 De onde saem os leads (mix alvo)</h3>
+      <table>
+        <tr><th>Canal</th><th>Meta/mês</th><th>Custo</th></tr>
+        <tr><td>Evento online R$ 37</td><td><b>25–30 ingressos</b></td><td>se paga sozinho</td></tr>
+        <tr><td>Indicação de aluno (dá bônus no portal)</td><td><b>3–5</b></td><td>zero</td></tr>
+        <tr><td>Direct/WhatsApp vindo de conteúdo</td><td><b>5–8</b></td><td>zero</td></tr>
+        <tr><td>Tráfego pago para o evento (não para a mentoria)</td><td><b>o resto</b></td><td>R$ 500–1.500/mês</td></tr>
+      </table>
+      <p class="note" style="margin-top:12px">Anuncie o degrau de R$ 37, nunca o de R$ 4.764. Vender evento barato no frio e mentoria cara no quente é o que faz o CAC caber.</p>
+    </div>
+    <div class="card">
+      <h3>📞 O fechamento é 1:1 — sempre</h3>
+      <p style="margin-bottom:10px">Vaga de R$ 4.764 fecha em <b>conversa de diagnóstico</b> (30–40 min), não em checkout frio. Use o próprio método: os 5 Dedos ao contrário — faça o lead dizer situação, número e o que já tentou. A dor dita o pitch.</p>
+      <p style="margin-bottom:10px"><b>Regra da agenda:</b> máximo 5 diagnósticos/semana, agendados após o evento mensal e pelos directs. Escassez de agenda também é posicionamento.</p>
+      <p><b>Follow-up:</b> proposta vale 48h com bônus fundador. Sem resposta → 1 follow no dia seguinte → fila de espera. Quem some não recebe segunda oferta no mesmo ciclo.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ 4. O ANO BLINDADO ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">04 · O ano da mentoria</p>
+  <h2>48 semanas de método, mapeadas.</h2>
+  <p class="lead" style="margin-bottom:20px">2 vídeos por semana = <b>aula do método + aula prática da ferramenta</b>. O aluno nunca aprende sem aplicar. Os módulos espelham o portal e a vitrine da Cakto.</p>
+  <table>
+    <tr><th>Fase</th><th>Semanas</th><th>Módulo</th><th>Entregável do aluno (ferramenta)</th></tr>
+    <tr><td><b>Choque</b></td><td>1–2</td><td>Onboarding + Ebook “Seu Negócio à Prova de Falhas”</td><td>Autodiagnóstico de maturidade (antes/depois)</td></tr>
+    <tr><td><b>Verdade</b></td><td>3–10</td><td><b>M1 · Raio-X Empresarial</b></td><td>Posicionamento, Matriz de Decisão, mapa de papéis e sobreposições</td></tr>
+    <tr><td><b>Alívio</b></td><td>11–18</td><td><b>M2 · Descompressão Operacional</b></td><td>Ficha de Cargo, Cartões de Alçada, fluxo “posso decidir?”</td></tr>
+    <tr><td><b>Comando</b></td><td>19–27</td><td><b>M3 · Liderança Sob Controle</b></td><td>DISC do time, roteiro de feedback, 5 Dedos, clima e cultura</td></tr>
+    <tr><td><b>Máquina</b></td><td>28–37</td><td><b>M4 · Engenharia de Processos</b></td><td>Painel de Indicadores com farol, RSG semanal, PTM mensal</td></tr>
+    <tr><td><b>Cofre</b></td><td>38–46</td><td><b>M5 · Blindagem Financeira</b></td><td>Ponto de equilíbrio, capital de giro, plano orçamentário</td></tr>
+    <tr><td><b>Virada</b></td><td>47–48</td><td>Encerramento + certificação + renovação</td><td>PTM anual do próprio negócio + plano do próximo ciclo</td></tr>
+  </table>
+  <div class="note okay">A partir da semana 28 o aluno passa a te enviar o <b>RSG do negócio dele</b> — e os encontros semanais viram análise de casos reais com o farol na tela. É a mentoria praticando o que prega, ao vivo.</div>
+</div></section>
+
+<!-- ============ 5. A SEMANA DA MENTORA ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">05 · Cadência operacional</p>
+  <h2>A semana que roda a operação.</h2>
+  <div class="grid g3" style="margin-top:22px">
+    <div class="card"><h3>SEG · Bastidor</h3><p><b>Manhã:</b> gravação dos 2 vídeos da semana (bloco único de 2h).<br><b>Tarde:</b> time publica vídeo 1 no portal + corta 3 reels para a semana.</p></div>
+    <div class="card"><h3>TER · Palco</h3><p><b>Encontro ao vivo semanal</b> (19h30–21h). Roteiro fixo: 15 min conteúdo quente · 30 min hot-seat de 2 alunos · 15 min compromissos da semana.</p></div>
+    <div class="card"><h3>QUA · Comunidade</h3><p>Office hour assíncrono no Telegram (respostas em bloco, 40 min). Vídeo 2 vai ao ar. Time monitora engajamento do portal (quem sumiu 7 dias recebe contato).</p></div>
+    <div class="card"><h3>QUI · Aquisição</h3><p>Conteúdo de autoridade no Instagram + convite para o evento do mês. 2–3 diagnósticos 1:1 agendados.</p></div>
+    <div class="card"><h3>SEX · Gestão</h3><p>RSG da própria mentoria (painel abaixo): vendas, presença, engajamento, NPS. 1h de melhoria no produto (uma ferramenta, uma aula, um processo).</p></div>
+    <div class="card"><h3>MENSAL</h3><p><b>3ª quinta:</b> encontro híbrido (presencial R$ 297 / online R$ 37).<br><b>Última sexta:</b> PTM da operação + leitura dos números com o time.</p></div>
+  </div>
+  <div class="note warn"><b>Blindagem da agenda:</b> gravação em bloco único e office hour com horário fechado existem para a mentoria nunca virar plantão de WhatsApp. O método vale para a mentora também: quem não protege a agenda vira o gargalo do próprio produto.</div>
+</div></section>
+
+<!-- ============ 6. ONBOARDING ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">06 · Onboarding · primeiros 7 dias do aluno</p>
+  <h2>A primeira semana decide a renovação.</h2>
+  <div class="grid g2" style="margin-top:20px">
+    <div class="card">
+      <h3>🗓️ Linha do tempo (executada pelo time)</h3>
+      <table>
+        <tr><th>Quando</th><th>Ação</th></tr>
+        <tr><td><b>0h</b></td><td>Pagamento aprovado → acesso automático + e-mail/WhatsApp com link</td></tr>
+        <tr><td><b>Até 24h</b></td><td>Boas-vindas por áudio/vídeo do time + entrada no Telegram + convite do encontro da semana</td></tr>
+        <tr><td><b>Dia 2–3</b></td><td>Call de alinhamento (20 min): expectativa, ritmo, como funciona — e agendamento do 1º compromisso</td></tr>
+        <tr><td><b>Dia 4–7</b></td><td>Primeira aplicação prática concluída no portal (autodiagnóstico + 1ª ferramenta)</td></tr>
+        <tr><td><b>Dia 7</b></td><td>Check do time: aplicou? participou do ao vivo? Se não → contato pessoal</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>🗣️ Roteiro da call de alinhamento</h3>
+      <p style="margin-bottom:8px"><b>1.</b> “O que precisa ser verdade daqui a 12 meses para essa mentoria ter valido MUITO a pena?” (anote — é a régua da renovação)</p>
+      <p style="margin-bottom:8px"><b>2.</b> Alinhe o contrato de comportamento: presença no ao vivo, ferramenta preenchida por semana, sem sumir do Telegram.</p>
+      <p style="margin-bottom:8px"><b>3.</b> Mostre o portal em tela: trilha, ferramenta, Padrão de Gestão. Deixe a 1ª tarefa agendada com data.</p>
+      <p><b>4.</b> Registre tudo num CRM simples (planilha ou o sistema interno): data de entrada, objetivo declarado, status do onboarding. Esse registro é o insumo da renovação no mês 9.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ 7. PAINEL DA MENTORIA ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">07 · O painel da própria operação</p>
+  <h2>Pratique o que prega: seu farol.</h2>
+  <p class="lead" style="margin-bottom:18px">Monte este painel no seu sistema interno (Centro Financeiro) ou no próprio portal (aba Padrão de Gestão) e feche seu RSG toda sexta.</p>
+  <table>
+    <tr><th>Indicador</th><th>Meta</th><th>Frequência</th><th>Farol dispara o quê</th></tr>
+    <tr><td><b>Vagas vendidas (acumulado)</b></td><td>21 até o fim da janela</td><td>semanal</td><td>vermelho → intensificar diagnósticos e evento extra</td></tr>
+    <tr><td><b>Parcelas em dia (inadimplência)</b></td><td>&lt; 5%</td><td>semanal</td><td>amarelo → régua de cobrança TMB + contato humano</td></tr>
+    <tr><td><b>Presença no encontro ao vivo</b></td><td>≥ 60% da turma</td><td>semanal</td><td>vermelho → mudar horário/formato, ouvir a turma</td></tr>
+    <tr><td><b>Aluno ativo no portal (7 dias)</b></td><td>≥ 70%</td><td>semanal</td><td>amarelo → time aciona quem sumiu (anti-churn)</td></tr>
+    <tr><td><b>Ingressos do evento do mês</b></td><td>25 online / 12 presencial</td><td>mensal</td><td>vermelho → reforço de conteúdo + convite dos alunos</td></tr>
+    <tr><td><b>NPS da mentoria</b></td><td>≥ 70</td><td>trimestral</td><td>qualquer queda → ouvir detratores em 1:1</td></tr>
+    <tr><td><b>Renovação antecipada</b></td><td>≥ 70% da turma</td><td>a partir do mês 9</td><td>é O indicador do negócio — tudo acima serve a ele</td></tr>
+  </table>
+</div></section>
+
+<!-- ============ 8. RISCOS ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">08 · Blindagem da própria operação</p>
+  <h2>O que pode dar errado — e o antídoto.</h2>
+  <div class="grid g2" style="margin-top:20px">
+    <div class="card"><h3>🔻 Turma não fecha em 21</h3><p><b>Antídoto:</b> a mentoria começa com 8+ confirmados (quórum de energia). Vagas restantes continuam à venda com entrada retroativa gravada + call de nivelamento. Nunca adie o início — adiar mata a confiança de quem pagou.</p></div>
+    <div class="card"><h3>🔻 Inadimplência de parcelas</h3><p><b>Antídoto:</b> régua automática da TMB + contato humano no 1º atraso (o time, não a mentora). Acesso suspende no 2º mês em aberto — regra dita no contrato e no onboarding, sem constrangimento.</p></div>
+    <div class="card"><h3>🔻 Tudo depende da mentora</h3><p><b>Antídoto:</b> o mesmo remédio do método — alçada. Time cuida de onboarding, comunidade e cobrança com cartão de alçada próprio. Aulas gravadas viram biblioteca: a partir do ciclo 2, 70% do conteúdo já existe.</p></div>
+    <div class="card"><h3>🔻 Aluno some e não renova</h3><p><b>Antídoto:</b> o farol de engajamento acima. Churn silencioso se combate na semana em que começa, não no mês 12. Quem o time resgatou vira o melhor case de renovação.</p></div>
+  </div>
+</div></section>
+
+<!-- ============ 9. CHECKLIST DE LANÇAMENTO ============ -->
+<section class="sec"><div class="wrap">
+  <p class="eyebrow">09 · Checklist de lançamento</p>
+  <h2>Do zero à primeira turma. <span class="mono" style="font-size:15px;color:var(--mute)" id="ckPct"></span></h2>
+  <div class="bar" style="max-width:420px;margin:14px 0 26px"><i id="ckBar" style="width:0%"></i></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>🏗️ Infraestrutura</h3>
+      <div id="ck-infra"></div>
+    </div>
+    <div class="card">
+      <h3>📣 Aquisição & venda</h3>
+      <div id="ck-venda"></div>
+    </div>
+    <div class="card">
+      <h3>🎥 Conteúdo & produto</h3>
+      <div id="ck-conteudo"></div>
+    </div>
+    <div class="card">
+      <h3>🤝 Time & rituais</h3>
+      <div id="ck-time"></div>
+    </div>
+  </div>
+</div></section>
+
+<footer style="padding:40px 0;text-align:center;color:var(--mute-2);font-size:12.5px">
+  <div class="wrap">OPERAÇÃO BLINDADA · Estrutura que protege. Estratégia que escala.<br>Playbook interno — Grupo A! Fatorial Soluções Inteligentes · @pscarlacaroline</div>
+</footer>
+
+<script>
+const CK = {
+  infra: [
+    'Criar o produto na TMB (12× R$ 397) e colar a URL em PAY.checkoutUrl na vendas.html',
+    'Criar checkout do evento online (R$ 37) e do presencial (R$ 297) na TMB',
+    'Hospedar vendas.html e portal.html no domínio oficial',
+    'Configurar webhook TMB → liberação de acesso do portal (Supabase)',
+    'Subir módulos e capas na vitrine da Cakto (Ebook + M1–M5)',
+    'Testar a jornada completa: pagar → receber acesso → entrar no portal',
+  ],
+  venda: [
+    'Definir a data-limite da turma fundadora (janela de venda com início e fim)',
+    'Listar 30 potenciais alunos quentes (ex-clientes, seguidores engajados, indicações)',
+    'Agendar o 1º encontro online R$ 37 (data, tema, checkout, página)',
+    'Preparar o roteiro do diagnóstico 1:1 (5 Dedos ao contrário)',
+    'Escrever a régua de follow-up (proposta 48h + bônus fundador)',
+    'Atualizar contador de vagas na página a cada venda (VAGAS.vendidas)',
+  ],
+  conteudo: [
+    'Gravar o encontro de abertura + 4 primeiras aulas (2 semanas de folga de conteúdo)',
+    'Revisar o Ebook “Seu Negócio à Prova de Falhas” como isca/entrega inicial',
+    'Definir calendário dos 6 módulos nas 48 semanas (tabela da seção 04)',
+    'Testar as ferramentas do portal com 1 aluno beta (incl. Padrão de Gestão)',
+    'Criar 10 conteúdos de autoridade a partir das aulas já gravadas',
+  ],
+  time: [
+    'Escrever o cartão de alçada do time (o que resolvem sem a mentora)',
+    'Treinar o roteiro de onboarding (boas-vindas 24h + call de alinhamento)',
+    'Criar grupo do Telegram com regras fixadas',
+    'Definir o ritual de sexta: RSG da mentoria com o painel da seção 07',
+    'Agendar o 1º encontro híbrido do ciclo (local, data, ingressos)',
+  ],
+};
+const KEY='ob_playbook_ck';
+let state={};
+try{ state=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ state={}; }
+function renderCk(){
+  let done=0, tot=0;
+  Object.entries(CK).forEach(([grp,itens])=>{
+    const box=document.getElementById('ck-'+grp);
+    box.innerHTML=itens.map((it,i)=>{
+      const k=grp+'-'+i, on=!!state[k]; tot++; if(on) done++;
+      return `<label class="check ${on?'done':''}"><input type="checkbox" ${on?'checked':''} onchange="tick('${k}')"><span>${it}</span></label>`;
+    }).join('');
+  });
+  const pct=tot?Math.round(done/tot*100):0;
+  document.getElementById('ckBar').style.width=pct+'%';
+  document.getElementById('ckPct').textContent=done+' de '+tot+' · '+pct+'%';
+}
+function tick(k){ state[k]=!state[k]; localStorage.setItem(KEY,JSON.stringify(state)); renderCk(); }
+renderCk();
+</script>
+</body>
+</html>
