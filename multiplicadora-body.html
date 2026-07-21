@@ -73,6 +73,7 @@ button{font-family:inherit;}
 .nav-item.active svg{opacity:1;color:var(--gold);}
 .nav-badge{margin-left:auto;font-size:10px;font-weight:700;background:var(--gold-ghost);color:var(--gold);padding:2px 8px;border-radius:var(--pill);}
 .side-foot{padding:14px;border-top:1px solid var(--line-soft);}
+.ver-stamp{text-align:center;font-size:9px;letter-spacing:.12em;color:var(--ink-4);margin-top:12px;text-transform:uppercase;}
 .prog-card{background:var(--glass);border:1px solid var(--line-soft);border-radius:14px;padding:13px;}
 .prog-card .pc-top{display:flex;align-items:center;gap:9px;}
 .prog-card .pc-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px var(--good-bg);}
@@ -423,7 +424,7 @@ select option:checked,select option:hover{background:#20222E!important;color:#F7
       <div class="pf"><b>ROI</b><span>comprovado</span></div>
     </div>
   </div>
-  <div class="lg-panel"><div id="authPanel"></div></div>
+  <div class="lg-panel"><div id="authPanel"></div><div class="ver-stamp" id="verStampLg"></div></div>
 </div>
 
 <div id="app">
@@ -453,7 +454,7 @@ select option:checked,select option:hover{background:#20222E!important;color:#F7
       <button class="nav-item" data-view="permissoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4"/></svg>Permissões</button>
       <button class="nav-item" data-view="auditoria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9M12 8H7M9 12H7M11 16H7"/></svg>Rastreabilidade</button>
     </nav>
-    <div class="side-foot"><div class="prog-card" id="progCard"><div class="pc-top"><span class="pc-dot"></span><span class="pc-lbl">Contexto ativo</span></div><b id="progName">—</b><div class="pc-meta" id="progMeta">Nenhuma empresa selecionada</div></div></div>
+    <div class="side-foot"><div class="prog-card" id="progCard"><div class="pc-top"><span class="pc-dot"></span><span class="pc-lbl">Contexto ativo</span></div><b id="progName">—</b><div class="pc-meta" id="progMeta">Nenhuma empresa selecionada</div></div><div class="ver-stamp" id="verStamp"></div></div>
   </aside>
   <div class="main">
     <header class="topbar">
@@ -1462,7 +1463,9 @@ byId('login').addEventListener('click',function(e){ var b=e.target.closest('[dat
  if(a==='setup')createAdmin(); else if(a==='login')doLogin(); else if(a==='showreset')byId('authPanel').innerHTML=resetHtml(); else if(a==='reset')doReset(); else if(a==='backlogin')renderAuth(); else if(a==='wipe')wipeAll(); });
 byId('login').addEventListener('keydown',function(e){ if(e.key==='Enter'){ var b=byId('authPanel').querySelector('.lg-enter'); if(b)b.click(); } });
 
-function boot(){ setTimeout(function(){ var s=byId('splash'); if(s)s.classList.add('done'); },RM?0:1350);
+var APP_VERSION='Multiplicadora 2107.01';
+function boot(){ var vs=byId('verStamp'); if(vs)vs.textContent=APP_VERSION; var vl=byId('verStampLg'); if(vl)vl.textContent=APP_VERSION;
+  setTimeout(function(){ var s=byId('splash'); if(s)s.classList.add('done'); },RM?0:1350);
   var sid=load(K.session,null); var u=sid?getUsers().filter(function(x){return x.id===sid&&x.ativo;})[0]:null;
   if(u){ currentUser=u; setTimeout(enterApp,RM?0:250); } else { renderAuth(); }
 }
