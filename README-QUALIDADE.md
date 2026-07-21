@@ -84,6 +84,27 @@ Funções: `renderComando`, `computarDecisoes`, `comandoAprovar`, `comandoConclu
 > máquinas** (dados reais, multiusuário, tempo real) — a lógica de decisão criada aqui é a
 > mesma que rodaria lá.
 
+## Motor de Qualidade — Inspeção & Liberação de Setup (POP-QUA-001)
+
+O sistema **decide sozinho** o que hoje ocupa o inspetor. Baseado no procedimento oficial
+(POP-QUA-001), replica a tríade de cada etapa: *Ficha de Parâmetros → Liberação de Setup →
+Registro de Inspeção*.
+
+- **Parâmetros de Qualidade** — os critérios/tolerâncias por etapa (Recebimento MP, Impressão,
+  Laminação, Rebobinadeira, Narita, Corte e Solda), com a **chave de aprovação automática** e a
+  **margem de atenção** (borderline). Seeds vindos do POP e das fichas (`RB.criterios`, `RB.configQ`).
+- **Inspeção & Setup** — escolhe a etapa e informa medidas/observações. O motor compara com o
+  padrão e decide na hora:
+  - **Tudo conforme** → *libera o setup / aprova a inspeção automaticamente* (sem humano).
+  - **No limite** → escala para conferência na Central de Comando.
+  - **Fora do padrão** → *abre RNC automaticamente* e escala.
+  Cada registro fica em `RB.inspecoes`, com indicador de **% resolvido pelo sistema**.
+- **Central de Comando** mostra quanto o sistema resolveu sozinho e traz as exceções (conferir)
+  como decisões de 1 clique.
+
+Funções: `renderInspecaoView`, `avaliarNum`, `vereditoGeral`, `registrarInspecao`,
+`renderParametros`, `computarDecisoes` (exceções), `comandoConferirInspecao`.
+
 ## Cockpit da ficha (hover + drawer)
 
 No **Histórico Geral de Fichas**, cada linha é interativa:

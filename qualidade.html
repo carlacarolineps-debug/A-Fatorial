@@ -672,6 +672,46 @@
 
     /* Formulários de cadastro / fichas — inputs mais suaves (cores de impressão preservadas) */
     .card-title { font-family: var(--font-display); }
+
+    /* ==========================================================================
+       MOTOR DE INSPEÇÃO & LIBERAÇÃO DE SETUP (POP-QUA-001)
+       ========================================================================== */
+    .insp-top { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 4px; }
+    .insp-field { display: flex; flex-direction: column; gap: 5px; }
+    .insp-field label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+    .insp-field select, .insp-field input { padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-weight: 600; outline: none; background: #fff; font-family: var(--font-body); }
+    .insp-field select:focus, .insp-field input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,168,128,0.2); }
+
+    .insp-row { display: grid; grid-template-columns: 1fr 150px 120px; gap: 12px; align-items: center; padding: 11px 14px; border: 1px solid var(--border); border-radius: 11px; margin-bottom: 8px; background: #fff; transition: 0.14s; }
+    .insp-row.st-dentro { border-left: 4px solid var(--success); }
+    .insp-row.st-atencao { border-left: 4px solid var(--warning); }
+    .insp-row.st-fora { border-left: 4px solid var(--danger); }
+    .insp-row.st-vazio { border-left: 4px solid var(--border); }
+    .insp-item-nome { font-size: 13px; font-weight: 600; color: var(--primary); }
+    .insp-item-spec { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .insp-crit { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #b91c1c; background: #fbe3e8; padding: 1px 6px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; }
+    .insp-input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; outline: none; text-align: center; font-family: var(--font-body); }
+    .insp-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,168,128,0.2); }
+    .insp-verdict { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; padding: 6px; border-radius: 8px; }
+    .v-dentro { background: #e7f5ee; color: #0f766e; } .v-atencao { background: #fef3c7; color: #b45309; } .v-fora { background: #fbe3e8; color: #b91c1c; } .v-vazio { background: #f1f4f9; color: #94a3b8; }
+
+    .insp-banner { border-radius: 14px; padding: 18px 22px; margin: 16px 0; color: #fff; display: flex; align-items: center; gap: 16px; }
+    .insp-banner .bic { width: 48px; height: 48px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,0.18); flex-shrink: 0; }
+    .insp-banner .bt { font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+    .insp-banner .bd { font-size: 12.5px; opacity: 0.92; margin-top: 3px; }
+    .banner-aprovado { background: linear-gradient(120deg, #0f766e, #0d9488); }
+    .banner-conferir { background: linear-gradient(120deg, #b45309, #f59e0b); }
+    .banner-reprovado { background: linear-gradient(120deg, #9f1239, #e11d48); }
+    .banner-vazio { background: linear-gradient(120deg, var(--primary-soft), var(--primary)); }
+
+    /* Parâmetros */
+    .param-etapa-t { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--primary); margin: 18px 0 8px; display: flex; align-items: center; gap: 8px; }
+    .param-etapa-t .svgic { color: var(--gold-deep); }
+    .cfg-switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; font-size: 13px; color: var(--primary); }
+    .cfg-track { width: 44px; height: 24px; border-radius: 999px; background: #cbd5e1; position: relative; transition: 0.2s; flex-shrink: 0; }
+    .cfg-track.on { background: var(--success); }
+    .cfg-knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .cfg-track.on .cfg-knob { left: 23px; }
 </style>
 
 <!-- ==========================================
@@ -688,6 +728,7 @@
         <button class="sys-nav-btn active" onclick="nav('comando')" id="nav-comando"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Central de Comando</button>
         <button class="sys-nav-btn" onclick="nav('dash')" id="nav-dash"><span class="nav-icon"><i class="fas fa-gauge-high"></i></span> Dashboard</button>
         <button class="sys-nav-btn" onclick="nav('calendario')" id="nav-calendario"><span class="nav-icon"><i class="fas fa-calendar-days"></i></span> Produção (Fila & Calendário)</button>
+        <button class="sys-nav-btn" onclick="nav('inspecao')" id="nav-inspecao"><span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Inspeção & Setup</button>
         <button class="sys-nav-btn" onclick="nav('retrabalho')" id="nav-retrabalho"><span class="nav-icon"><i class="fas fa-rotate"></i></span> Retrabalho & Entregas</button>
         
         <div class="sidebar-menu-item">
@@ -723,7 +764,7 @@
         <button class="sys-nav-btn" onclick="nav('relatorios')" id="nav-relatorios"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Relatórios</button>
         <button class="sys-nav-btn" onclick="nav('indicadores')" id="nav-indicadores"><span class="nav-icon"><i class="fas fa-chart-column"></i></span> Indicadores</button>
         <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-user-gear"></i></span> Usuários</button>
-        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-gear"></i></span> Parâmetros</button>
+        <button class="sys-nav-btn" onclick="nav('parametros')" id="nav-parametros"><span class="nav-icon"><i class="fas fa-gear"></i></span> Parâmetros de Qualidade</button>
     </div>
 </div>
 
@@ -797,6 +838,77 @@
                     <ul class="list-unstyled" id="cmd-atividades" style="margin-top:8px;"></ul>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         INSPEÇÃO & LIBERAÇÃO DE SETUP — o motor de qualidade (POP-QUA-001)
+         ========================================================================== -->
+    <div id="view-inspecao" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="cmd-panel-t"><i class="fas fa-clipboard-check" style="color:var(--gold-deep);"></i> Nova inspeção / liberação de setup</div>
+            <div class="cmd-panel-sub">Escolha a etapa e informe as medidas e observações. O sistema compara com o padrão (Ficha de Parâmetros) e <b>libera o setup ou aprova a inspeção sozinho quando tudo está conforme</b> — escalando só as exceções.</div>
+            <div class="insp-top">
+                <div class="insp-field"><label>Etapa do processo</label>
+                    <select id="insp-etapa" onchange="renderInspecaoItens()" style="min-width:190px;"></select>
+                </div>
+                <div class="insp-field"><label>Tipo de registro</label>
+                    <select id="insp-tipo" style="min-width:200px;">
+                        <option value="setup">Liberação de Setup (preventiva)</option>
+                        <option value="processo">Registro de Inspeção (durante produção)</option>
+                    </select>
+                </div>
+                <div class="insp-field"><label>Ficha / Produto</label>
+                    <input id="insp-ficha" placeholder="Ex: VCM-75051" style="min-width:170px;">
+                </div>
+                <div class="insp-field"><label>&nbsp;</label>
+                    <button class="sys-btn-primary" onclick="registrarInspecao()"><i class="fas fa-circle-check"></i> Avaliar e registrar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="insp-banner-wrap"></div>
+
+        <div class="card-base">
+            <div class="cmd-panel-t"><i class="fas fa-list-check" style="color:var(--gold-deep);"></i> Itens de inspeção da etapa</div>
+            <div class="cmd-panel-sub">Numéricos: informe o valor medido. Visuais: compare com a amostra-padrão e classifique.</div>
+            <div id="insp-itens"></div>
+        </div>
+
+        <div class="card-base" style="margin-top:16px;">
+            <div class="cmd-panel-t"><i class="fas fa-clock-rotate-left" style="color:var(--gold-deep);"></i> Inspeções recentes <span class="gold-chip" id="insp-auto-chip">—</span></div>
+            <div style="overflow-x:auto;">
+            <table class="main-table">
+                <thead><tr><th>Data</th><th>Etapa</th><th>Tipo</th><th>Ficha</th><th>Resultado</th><th>Decisão</th></tr></thead>
+                <tbody id="insp-hist"></tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         PARÂMETROS DE QUALIDADE — critérios e tolerâncias por etapa
+         ========================================================================== -->
+    <div id="view-parametros" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="cmd-panel-t"><i class="fas fa-gear" style="color:var(--gold-deep);"></i> Motor de aprovação automática</div>
+            <div class="cmd-panel-sub">Quando ligado, o sistema <b>libera o setup e aprova inspeções automaticamente</b> se todos os itens estiverem dentro do padrão. Itens no limite viram "conferir"; fora do padrão abrem RNC e escalam à Central de Comando.</div>
+            <div style="display:flex; gap:26px; align-items:center; flex-wrap:wrap; margin-top:8px;">
+                <div class="cfg-switch" onclick="toggleAutoLiberar()">
+                    <span class="cfg-track" id="cfg-track"><span class="cfg-knob"></span></span>
+                    <span id="cfg-label">Aprovação automática</span>
+                </div>
+                <div class="insp-field" style="flex-direction:row; align-items:center; gap:10px;">
+                    <label style="margin:0;">Margem de atenção</label>
+                    <input type="number" id="cfg-margem" min="0" max="50" style="width:80px;" onchange="setMargem(this.value)"> <span style="font-size:12px; color:var(--text-muted);">% da faixa (borderline vira "conferir")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-base">
+            <div class="cmd-panel-t"><i class="fas fa-list-check" style="color:var(--gold-deep);"></i> Critérios de inspeção por etapa <span class="gold-chip">POP-QUA-001</span></div>
+            <div class="cmd-panel-sub">Tolerâncias e características que o motor usa para decidir. Baseado no procedimento oficial da Qualidade.</div>
+            <div id="param-lista"></div>
         </div>
     </div>
 
@@ -2336,6 +2448,44 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     let dbFichas = RB.fichas || dbFichasSeed;
 
     // ==========================================================================
+    // MOTOR DE QUALIDADE (baseado no POP-QUA-001) — critérios por etapa,
+    // liberação de setup e registro de inspeção com decisão automática
+    // ==========================================================================
+    const ETAPAS_QUALIDADE = ['Recebimento MP', 'Impressão', 'Laminação', 'Rebobinadeira', 'Narita', 'Corte e Solda'];
+    const criteriosSeed = [
+        // Recebimento de MP (POP 6.3 / Inspeção de MP)
+        { etapa: 'Recebimento MP', item: 'Largura da bobina', tipo: 'num', min: 690, max: 710, un: 'mm', critico: true },
+        { etapa: 'Recebimento MP', item: 'Espessura', tipo: 'num', min: 0.055, max: 0.065, un: 'mm', critico: true },
+        { etapa: 'Recebimento MP', item: 'Tratamento / aderência', tipo: 'num', min: 36, max: 40, un: 'dyn', critico: false },
+        { etapa: 'Recebimento MP', item: 'Aspecto visual (sem manchas, dobras ou amassados)', tipo: 'visual', critico: true },
+        { etapa: 'Recebimento MP', item: 'Tinta conforme especificação', tipo: 'visual', critico: false },
+        // Impressão (POP 6.5.1 — a cada 1h: cor, viscosidade, aparência)
+        { etapa: 'Impressão', item: 'Cor conforme amostra-padrão', tipo: 'visual', critico: true },
+        { etapa: 'Impressão', item: 'Viscosidade (Zahn 2)', tipo: 'num', min: 20, max: 26, un: 's', critico: false },
+        { etapa: 'Impressão', item: 'Aparência (sem borrões/marcações/defeitos)', tipo: 'visual', critico: true },
+        { etapa: 'Impressão', item: 'Registro / alinhamento da arte', tipo: 'visual', critico: true },
+        // Laminação (POP 6.5.2)
+        { etapa: 'Laminação', item: 'Aderência da cola (teste prático)', tipo: 'visual', critico: true },
+        { etapa: 'Laminação', item: 'Espessura da bobina', tipo: 'num', min: 0.05, max: 0.13, un: 'mm', critico: false },
+        { etapa: 'Laminação', item: 'Acondicionamento correto', tipo: 'visual', critico: false },
+        // Rebobinadeira (POP 6.5.3)
+        { etapa: 'Rebobinadeira', item: 'Alinhamento da bobina', tipo: 'visual', critico: true },
+        { etapa: 'Rebobinadeira', item: 'Espessura do tubete', tipo: 'num', min: 70, max: 80, un: 'mm', critico: false },
+        { etapa: 'Rebobinadeira', item: 'Qualidade das etapas anteriores', tipo: 'visual', critico: false },
+        // Narita (POP 6.5.4)
+        { etapa: 'Narita', item: 'Espaçamento do picote', tipo: 'visual', critico: true },
+        { etapa: 'Narita', item: 'Alinhamento da bobina', tipo: 'visual', critico: false },
+        // Corte e Solda (POP 6.5.5)
+        { etapa: 'Corte e Solda', item: 'Integridade da solda (sem abrir/mastigar)', tipo: 'visual', critico: true },
+        { etapa: 'Corte e Solda', item: 'Temperatura do cabeçote', tipo: 'num', min: 340, max: 360, un: '°C', critico: true },
+        { etapa: 'Corte e Solda', item: 'Medida (L x C)', tipo: 'visual', critico: true },
+        { etapa: 'Corte e Solda', item: 'Posição do zíper / fita', tipo: 'visual', critico: false }
+    ];
+    if (!RB.criterios || !RB.criterios.length) RB.criterios = criteriosSeed;
+    if (!RB.configQ) RB.configQ = { autoLiberar: true, margemAtencao: 20 };
+    if (!RB.inspecoes) RB.inspecoes = [];
+
+    // ==========================================================================
     // SESSÃO, LOGIN E HUB DE PAINÉIS
     // ==========================================================================
     const SESSAO_KEY = 'rb_qualidade_sessao';
@@ -2557,6 +2707,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         
         let headerTitle = 'Ficha de Produção';
         if(tela === 'comando') headerTitle = 'Central de Comando';
+        else if(tela === 'inspecao') headerTitle = 'Inspeção & Liberação de Setup';
+        else if(tela === 'parametros') headerTitle = 'Parâmetros de Qualidade';
         else if(tela === 'dash') headerTitle = 'Dashboard Geral';
         else if(tela === 'calendario') headerTitle = 'Produção — Fila e Calendário';
         else if(tela === 'form-nc-fornecedor') headerTitle = 'Ficha de Não Conformidade';
@@ -2576,6 +2728,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.getElementById('action-bar').style.display = tela.startsWith('form-') ? 'flex' : 'none';
 
         if(tela === 'comando') renderComando();
+        if(tela === 'inspecao') renderInspecaoView();
+        if(tela === 'parametros') renderParametros();
         if(tela === 'dash') renderDashboard();
         if(tela === 'retrabalho') renderRetrabalhoView();
         if(tela === 'indicadores') renderIndicadores();
@@ -2666,7 +2820,22 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     acoes: [{ txt: 'Concluir', ic: 'circle-check', cls: 'primary', fn: `comandoConcluirEntrega(${i})` }, { txt: 'Reagendar', ic: 'calendar-days', cls: 'ghost', fn: `comandoReagendarEntrega(${i})` }] });
             }
         });
+        // Inspeções que o motor escalou para conferência humana (exceções)
+        RB.inspecoes.forEach((x, i) => {
+            if (x.resultado === 'conferir' && !x.resolvido) {
+                dec.push({ urg: 2, cor: '#f59e0b', icone: 'clipboard-check', tit: `Inspeção de ${x.etapa} para conferir`, ctx: `${x.ficha} · item no limite de tolerância`,
+                    acoes: [{ txt: 'Confirmar', ic: 'thumbs-up', cls: 'primary', fn: `comandoConferirInspecao(${i})` }] });
+            }
+        });
         return dec.sort((a, b) => b.urg - a.urg);
+    }
+    function comandoConferirInspecao(i) {
+        if (!RB.inspecoes[i]) return;
+        RB.inspecoes[i].resolvido = true;
+        RB.inspecoes[i].decisao = 'Conferida e liberada por ' + currentSessionUser;
+        rbSave();
+        registrarAtividade(`conferiu a inspeção de ${RB.inspecoes[i].etapa} (${RB.inspecoes[i].ficha})`);
+        renderComando();
     }
 
     function renderComando() {
@@ -2686,13 +2855,19 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             <div class="cmd-mini" style="--c:var(--gold)"><div class="l">Custo retrabalho (mês)</div><div class="v">${fmtBRL(custoMes)}</div><div class="s">${retMes.length} ocorrência(s)</div></div>
             <div class="cmd-mini" style="--c:#0d9488"><div class="l">Entregas no prazo</div><div class="v">${otif !== null ? otif + '%' : '—'}</div><div class="s">OTIF do setor</div></div>`;
 
+        // Quanto o sistema resolveu sozinho (mês)
+        const kMes = mesKey(agora.toISOString());
+        const inspMes = RB.inspecoes.filter(x => mesKey(x.data) === kMes);
+        const autoMes = inspMes.filter(x => x.auto).length;
+        const fraseAuto = autoMes ? ` O sistema <b>liberou/aprovou sozinho ${autoMes}</b> ${autoMes === 1 ? 'inspeção' : 'inspeções'} este mês.` : '';
+
         // Frase de situação + foco
         const focoEl = document.getElementById('cmd-foco');
         if (dec.length === 0) {
-            document.getElementById('cmd-frase').innerHTML = `Tudo sob controle, <b>${primeiro}</b>. Nenhuma decisão pendente e nenhuma ficha atrasada — bom momento para análise estratégica e prevenção.`;
+            document.getElementById('cmd-frase').innerHTML = `Tudo sob controle, <b>${primeiro}</b>. Nenhuma decisão pendente e nenhuma ficha atrasada — bom momento para análise estratégica e prevenção.${fraseAuto}`;
             focoEl.style.display = 'none';
         } else {
-            document.getElementById('cmd-frase').innerHTML = `<b>${primeiro}</b>, há <b>${dec.length} decisão(ões)</b> aguardando você${atrasadas ? `, sendo <b>${atrasadas} atrasada(s)</b>` : ''}. Custo de retrabalho no mês: <b>${fmtBRL(custoMes)}</b>.`;
+            document.getElementById('cmd-frase').innerHTML = `<b>${primeiro}</b>, há <b>${dec.length} decisão(ões)</b> aguardando você${atrasadas ? `, sendo <b>${atrasadas} atrasada(s)</b>` : ''}. Custo de retrabalho no mês: <b>${fmtBRL(custoMes)}</b>.${fraseAuto}`;
             focoEl.style.display = 'inline-flex';
             focoEl.innerHTML = `<i class="fas fa-bolt"></i> Comece por: ${dec[0].tit}`;
             focoEl.setAttribute('onclick', dec[0].acoes[0].fn);
@@ -2770,6 +2945,197 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         registrarAtividade(`reagendou a entrega de ${RB.entregas[i].ficha} para ${nova}`);
         renderComando();
     }
+
+    // ==========================================================================
+    // MOTOR DE INSPEÇÃO & LIBERAÇÃO DE SETUP (POP-QUA-001)
+    // ==========================================================================
+    function criteriosDaEtapa(etapa) { return RB.criterios.filter(c => c.etapa === etapa); }
+
+    // Avalia um valor numérico contra a faixa → 'dentro' | 'atencao' | 'fora'
+    function avaliarNum(c, v) {
+        if (v === '' || v === null || isNaN(v)) return 'vazio';
+        v = Number(v);
+        if (v < c.min || v > c.max) return 'fora';
+        const faixa = c.max - c.min;
+        const margem = faixa * (RB.configQ.margemAtencao || 0) / 100;
+        if (v - c.min < margem || c.max - v < margem) return 'atencao';
+        return 'dentro';
+    }
+    // map visual select → veredito
+    function vVisual(val) { return val === 'ok' ? 'dentro' : val === 'atencao' ? 'atencao' : val === 'nc' ? 'fora' : 'vazio'; }
+
+    function renderInspecaoView() {
+        const sel = document.getElementById('insp-etapa');
+        sel.innerHTML = ETAPAS_QUALIDADE.map(e => `<option>${e}</option>`).join('');
+        renderInspecaoItens();
+        renderInspecaoHist();
+    }
+
+    function renderInspecaoItens() {
+        const etapa = document.getElementById('insp-etapa').value;
+        const crits = criteriosDaEtapa(etapa);
+        const cont = document.getElementById('insp-itens');
+        cont.innerHTML = crits.map((c, i) => {
+            const spec = c.tipo === 'num' ? `Faixa: ${c.min} – ${c.max} ${c.un}` : 'Comparar com a amostra-padrão';
+            const input = c.tipo === 'num'
+                ? `<input class="insp-input" id="insp-in-${i}" inputmode="decimal" placeholder="medido" oninput="avaliarLinha(${i})">`
+                : `<select class="insp-input" id="insp-in-${i}" onchange="avaliarLinha(${i})">
+                       <option value="">—</option><option value="ok">Conforme</option><option value="atencao">Atenção</option><option value="nc">Não conforme</option>
+                   </select>`;
+            return `<div class="insp-row st-vazio" id="insp-row-${i}" data-tipo="${c.tipo}" ${c.tipo==='num'?`data-min="${c.min}" data-max="${c.max}"`:''}>
+                <div><div class="insp-item-nome">${c.item}${c.critico?'<span class="insp-crit">crítico</span>':''}</div><div class="insp-item-spec">${spec}</div></div>
+                ${input}
+                <div class="insp-verdict v-vazio" id="insp-v-${i}">—</div>
+            </div>`;
+        }).join('');
+        document.getElementById('insp-banner-wrap').innerHTML = '';
+        atualizarBannerInspecao();
+    }
+
+    function vereditoLinha(i) {
+        const etapa = document.getElementById('insp-etapa').value;
+        const c = criteriosDaEtapa(etapa)[i];
+        const el = document.getElementById('insp-in-' + i);
+        if (!c || !el) return 'vazio';
+        return c.tipo === 'num' ? avaliarNum(c, el.value) : vVisual(el.value);
+    }
+    function avaliarLinha(i) {
+        const v = vereditoLinha(i);
+        const row = document.getElementById('insp-row-' + i);
+        const vd = document.getElementById('insp-v-' + i);
+        row.className = 'insp-row st-' + v;
+        const txt = { dentro: 'Dentro', atencao: 'Atenção', fora: 'Fora', vazio: '—' }[v];
+        vd.className = 'insp-verdict v-' + v;
+        vd.innerText = txt;
+        atualizarBannerInspecao();
+    }
+
+    function vereditoGeral() {
+        const etapa = document.getElementById('insp-etapa').value;
+        const crits = criteriosDaEtapa(etapa);
+        let preenchidos = 0, fora = false, atencao = false, foraCritico = false;
+        crits.forEach((c, i) => {
+            const v = vereditoLinha(i);
+            if (v !== 'vazio') preenchidos++;
+            if (v === 'fora') { fora = true; if (c.critico) foraCritico = true; }
+            if (v === 'atencao') atencao = true;
+        });
+        return { total: crits.length, preenchidos, fora, atencao, foraCritico,
+                 resultado: preenchidos === 0 ? 'vazio' : fora ? 'reprovado' : atencao ? 'conferir' : 'aprovado' };
+    }
+
+    function atualizarBannerInspecao() {
+        const g = vereditoGeral();
+        const tipo = document.getElementById('insp-tipo').value;
+        const acaoNome = tipo === 'setup' ? 'Liberação de Setup' : 'Registro de Inspeção';
+        const wrap = document.getElementById('insp-banner-wrap');
+        if (g.preenchidos === 0) { wrap.innerHTML = ''; return; }
+        let cls, ic, t, d;
+        if (g.resultado === 'aprovado') {
+            cls = 'banner-aprovado'; ic = 'circle-check';
+            t = RB.configQ.autoLiberar ? `${acaoNome} pronta para liberação automática` : `${acaoNome} conforme`;
+            d = `Todos os ${g.preenchidos} itens dentro do padrão. ${RB.configQ.autoLiberar ? 'Ao registrar, o sistema libera sozinho — sem intervenção.' : 'Ligue a aprovação automática em Parâmetros para o sistema liberar sozinho.'}`;
+        } else if (g.resultado === 'conferir') {
+            cls = 'banner-conferir'; ic = 'triangle-exclamation';
+            t = 'Requer conferência humana';
+            d = 'Há item(ns) no limite de tolerância. Ao registrar, entra na Central de Comando para um humano confirmar.';
+        } else {
+            cls = 'banner-reprovado'; ic = 'flag';
+            t = 'Reprovado — não conformidade';
+            d = `${g.foraCritico ? 'Item crítico fora do padrão. ' : ''}Ao registrar, o sistema abre uma RNC automaticamente e escala à Central de Comando.`;
+        }
+        wrap.innerHTML = `<div class="insp-banner ${cls}"><div class="bic"><i class="fas fa-${ic}"></i></div><div><div class="bt">${t}</div><div class="bd">${d}</div></div></div>`;
+        renderIcons(wrap);
+    }
+
+    function registrarInspecao() {
+        const etapa = document.getElementById('insp-etapa').value;
+        const tipo = document.getElementById('insp-tipo').value;
+        const ficha = document.getElementById('insp-ficha').value.trim() || '—';
+        const crits = criteriosDaEtapa(etapa);
+        const g = vereditoGeral();
+        if (g.preenchidos === 0) { alert('Informe ao menos um item para avaliar.'); return; }
+        const itens = crits.map((c, i) => ({ item: c.item, valor: (document.getElementById('insp-in-' + i) || {}).value || '', veredito: vereditoLinha(i) }));
+        const acaoNome = tipo === 'setup' ? 'Setup liberado' : 'Inspeção aprovada';
+
+        let decisao, auto = false;
+        if (g.resultado === 'aprovado' && RB.configQ.autoLiberar) {
+            decisao = `${acaoNome} automaticamente pelo sistema`; auto = true;
+        } else if (g.resultado === 'aprovado') {
+            decisao = `${acaoNome} (conferência manual)`;
+        } else if (g.resultado === 'conferir') {
+            decisao = 'Escalado para conferência humana';
+        } else {
+            decisao = 'Reprovado — RNC aberta automaticamente';
+            // abre RNC interna vinculada
+            const foraItens = itens.filter(x => x.veredito === 'fora').map(x => x.item).join('; ');
+            RB.retrabalhos.unshift({ data: new Date().toISOString(), ficha: ficha, produto: `Etapa ${etapa}`, origem: 'Qualidade', destino: etapa,
+                causa: etapa === 'Recebimento MP' ? 'Material fora do padrão' : 'Falha de ' + etapa, qtd: 0, custo: 0,
+                obs: 'RNC automática — fora do padrão: ' + foraItens, usuario: currentSessionUser });
+        }
+
+        RB.inspecoes.unshift({ data: new Date().toISOString(), etapa, tipo, ficha, itens, resultado: g.resultado, decisao, auto, usuario: currentSessionUser });
+        registrarAtividade(`${tipo === 'setup' ? 'liberação de setup' : 'inspeção'} (${etapa}) — ${g.resultado}${auto ? ' [automático]' : ''}`);
+        rbSave();
+
+        const resumoMsg = {
+            aprovado: auto ? `✓ ${acaoNome} AUTOMATICAMENTE. Nenhuma ação humana foi necessária.` : `✓ ${acaoNome}.`,
+            conferir: '⚠ Enviado para conferência humana na Central de Comando.',
+            reprovado: '✗ Reprovado. RNC aberta automaticamente e escalada à Central de Comando.'
+        }[g.resultado];
+        alert(`${etapa} · ${ficha}\n${resumoMsg}`);
+
+        // limpa entradas
+        crits.forEach((c, i) => { const el = document.getElementById('insp-in-' + i); if (el) el.value = ''; avaliarLinha(i); });
+        document.getElementById('insp-ficha').value = '';
+        renderInspecaoHist();
+        comandoRefreshSeAtivo();
+    }
+
+    function renderInspecaoHist() {
+        const tb = document.getElementById('insp-hist');
+        if (!tb) return;
+        const badge = { aprovado: 'st-conc', conferir: 'st-pend', reprovado: 'st-err' };
+        const rotulo = { aprovado: 'Aprovado', conferir: 'Conferir', reprovado: 'Reprovado' };
+        tb.innerHTML = RB.inspecoes.slice(0, 12).map(x => `
+            <tr>
+                <td>${new Date(x.data).toLocaleDateString('pt-BR')} ${new Date(x.data).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</td>
+                <td>${x.etapa}</td>
+                <td>${x.tipo === 'setup' ? 'Lib. Setup' : 'Inspeção'}</td>
+                <td style="font-weight:bold; color:#1d4ed8;">${x.ficha}</td>
+                <td><span class="badge-status ${badge[x.resultado]}">${rotulo[x.resultado]}</span></td>
+                <td style="font-size:11px;">${x.auto ? '<b style="color:#0f766e;">⚙ Automático</b> · ' : ''}${x.decisao}</td>
+            </tr>`).join('') || '<tr><td colspan="6" style="color:#94a3b8; text-align:center;">Nenhuma inspeção registrada.</td></tr>';
+        // KPI de automação
+        const mesKeyAtual = mesKey(new Date().toISOString());
+        const doMes = RB.inspecoes.filter(x => mesKey(x.data) === mesKeyAtual);
+        const autos = doMes.filter(x => x.auto).length;
+        const chip = document.getElementById('insp-auto-chip');
+        if (chip) chip.innerText = doMes.length ? `${Math.round(100*autos/doMes.length)}% resolvido pelo sistema` : 'sem inspeções no mês';
+    }
+
+    // ---- Parâmetros ----
+    function renderParametros() {
+        document.getElementById('cfg-track').className = 'cfg-track' + (RB.configQ.autoLiberar ? ' on' : '');
+        document.getElementById('cfg-label').innerText = RB.configQ.autoLiberar ? 'Aprovação automática LIGADA' : 'Aprovação automática DESLIGADA';
+        document.getElementById('cfg-margem').value = RB.configQ.margemAtencao;
+        const cont = document.getElementById('param-lista');
+        const icone = { 'Recebimento MP': 'box', 'Impressão': 'print', 'Laminação': 'layer-group', 'Rebobinadeira': 'rotate', 'Narita': 'scissors', 'Corte e Solda': 'scissors' };
+        cont.innerHTML = ETAPAS_QUALIDADE.map(etapa => {
+            const crits = criteriosDaEtapa(etapa);
+            const linhas = crits.map(c => `
+                <tr>
+                    <td>${c.item}${c.critico ? '<span class="insp-crit">crítico</span>' : ''}</td>
+                    <td>${c.tipo === 'num' ? 'Numérico' : 'Visual'}</td>
+                    <td>${c.tipo === 'num' ? `${c.min} – ${c.max} ${c.un}` : 'vs amostra-padrão'}</td>
+                </tr>`).join('');
+            return `<div class="param-etapa-t"><i class="fas fa-${icone[etapa]||'list-check'}"></i> ${etapa}</div>
+                <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Característica</th><th>Tipo</th><th>Tolerância / Critério</th></tr></thead><tbody>${linhas}</tbody></table></div>`;
+        }).join('');
+        renderIcons(document.getElementById('view-parametros'));
+    }
+    function toggleAutoLiberar() { RB.configQ.autoLiberar = !RB.configQ.autoLiberar; rbSave(); renderParametros(); }
+    function setMargem(v) { let n = Number(v); if (isNaN(n) || n < 0) n = 0; if (n > 50) n = 50; RB.configQ.margemAtencao = n; rbSave(); }
 
     // ==========================================================================
     // COCKPIT DA FICHA — hover (resumo rápido) e drawer lateral (360° + ações)
