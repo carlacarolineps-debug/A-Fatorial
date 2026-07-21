@@ -1302,8 +1302,7 @@ document.addEventListener('click',function(ev){ var t=ev.target.closest('[data-a
  else if(a==='metodo-tpl'){ loadMetodoTpl(); }
  else if(a==='print'){ window.print(); }
  else if(a==='wiz-resume'){ var dd=wizGetDraft(); closeModal(); _startWizard(null, dd&&dd.wiz, dd&&dd.idx); }
- else if(a==='wiz-restart'){ wizClearDraft(); closeModal(); _startWizard(null); }
- else if(a==='wiz-discard'){ wizClearDraft(); closeModal(); toast('Rascunho descartado'); }
+ else if(a==='wiz-restart'||a==='wiz-discard'){ if(t.dataset.armed!=='1'){ t.dataset.armed='1'; t.textContent='Tem certeza? Clique de novo'; t.style.background='var(--bad-bg)'; t.style.color='var(--bad)'; t.style.borderColor='rgba(229,103,92,.4)'; return; } wizClearDraft(); closeModal(); if(a==='wiz-restart')_startWizard(null); else toast('Rascunho descartado'); }
 });
 window.addEventListener('beforeunload',function(){ if(byId('modal').classList.contains('wizard')){ try{readStep(wizIdx);}catch(e){} wizSaveDraft(); } });
 document.addEventListener('change',function(ev){ if(byId('modal').classList.contains('wizard')&&ev.target&&ev.target.closest&&ev.target.closest('#modalBody')){ try{readStep(wizIdx);}catch(e){} wizSaveDraft(); } });
