@@ -57,8 +57,32 @@ para encerrar a sessão.
 | Tela | O que faz |
 |------|-----------|
 | **Login / Hub** | Autenticação e portal de seleção de painel (departamentos do grupo, no padrão NEXUS). |
+| **Central de Comando** | Tela inicial. O sistema lê tudo e entrega **decisões ranqueadas com ação de um clique** (ver abaixo). |
 | **Dashboard** | KPIs, alertas, atividades, **donut Produção por Setor** e o **Histórico Geral** com o *cockpit da ficha*. |
 | **Produção (Fila & Calendário)** | Fila e calendário juntos. Clicar num card abre ações: **Imprimir OP, Reagendar, Liberar Setup, Interromper Setup**. |
+
+## Central de Comando (o cérebro operacional)
+
+Tela inicial do sistema. Em vez de só *mostrar* dados, ela **decide e conduz**:
+
+- **Frase de situação** — o sistema lê a operação e escreve, em português, o estado atual
+  e por onde começar ("Comece por: …").
+- **Fila de decisões** — tudo que exige o gestor, **ordenado por urgência/impacto**, cada
+  item com **ação de um clique**: aprovar ficha, priorizar atrasada, tratar RNC, enviar ao
+  setor, concluir/reagendar entrega vencida. Resolver uma decisão encadeia a próxima.
+- **Riscos & leitura estratégica** — causa recorrente (Pareto), tendência, potencial de
+  economia e OTIF, calculados automaticamente.
+- **Últimas ações** — trilha do que foi feito.
+
+Funções: `renderComando`, `computarDecisoes`, `comandoAprovar`, `comandoConcluirEntrega`,
+`comandoReagendarEntrega`. Reaproveita o cockpit e o fluxo de envio.
+
+> **Nota sobre "substituir o quadro":** esta versão é um **protótipo de navegador**
+> (um arquivo, dados no `localStorage`). Ele demonstra a inteligência e o fluxo que
+> automatizam o trabalho manual de monitorar, priorizar, analisar e rotear. Para de fato
+> reduzir mão de obra em produção, o próximo passo é ligar a um **backend/ERP e às
+> máquinas** (dados reais, multiusuário, tempo real) — a lógica de decisão criada aqui é a
+> mesma que rodaria lá.
 
 ## Cockpit da ficha (hover + drawer)
 
