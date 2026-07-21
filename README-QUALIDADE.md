@@ -12,13 +12,23 @@ painel, no estilo do NEXUS): cada setor do grupo é um card. Hoje só o card **Q
 está ativo (com KPIs ao vivo); Impressão, Corte e Solda, Expedição e Grupo/Consolidado
 aparecem bloqueados ("em breve"), prontos para quando os demais setores forem englobados.
 
-**Usuários de demonstração** (em `localStorage`, chave `rb_qualidade_v1` → `usuarios`):
+**Usuários** (login pelo primeiro nome ou nome completo; definidos em `usuariosSeed`):
 
-| Usuário | Senha | Papel | Painéis |
-|---------|-------|-------|---------|
-| `michel` | `rebracil` | Admin | todos |
-| `ana` | `qualidade` | Operador | Qualidade |
-| `diretoria` | `diretoria` | Leitura | Qualidade, Grupo |
+| Usuário | Senha | Papel |
+|---------|-------|-------|
+| `carla` (Carla Caroline) | `admin` | Admin |
+| `michel` (Michel Pereira) | `admin26` | Admin |
+| `andreia` (Andreia Pereira) | `admin123` | Admin |
+
+Os logins são configuração fixa: ao atualizar o arquivo, eles são sempre re-sincronizados
+(não ficam presos ao que estava salvo no navegador).
+
+## Padronização visual
+
+Todo o sistema segue **uma só identidade** — azul-marinho `#191040`, dourado `#c5a880`,
+branco e as cores semânticas (azul-royal, teal, âmbar, rose). **Exceção:** as **fichas/
+documentos** (Corte e Solda, Impressão, NC, Devolução, Clichê) mantêm suas **cores próprias
+de impressão** (azul, âmbar, vermelho, etc.), que identificam cada tipo de documento no papel.
 
 A sessão é lembrada (chave `rb_qualidade_sessao`), então recarregar a página não força
 novo login. Use **Trocar Painel** (no topo) para voltar ao Hub e **Sair** (menu do perfil)
