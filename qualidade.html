@@ -4,29 +4,98 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Qualidade da Embalagem — Grupo Rebracil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div id="app-sistema-gestao">
+
+<!-- ==========================================
+     TELA DE LOGIN
+     ========================================== -->
+<div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+        <div class="login-head">
+            <div class="login-logo">R</div>
+            <h1>Rebracil Qualidade</h1>
+            <div class="sub">Gestão da Qualidade</div>
+        </div>
+        <div class="login-body">
+            <div class="login-group">
+                <label>Usuário</label>
+                <div class="login-input-wrap"><span class="ic">👤</span>
+                    <input type="text" id="login-user" class="login-input" placeholder="Seu usuário" autocomplete="off" onkeydown="if(event.key==='Enter')fazerLogin()">
+                </div>
+            </div>
+            <div class="login-group">
+                <label>Senha</label>
+                <div class="login-input-wrap"><span class="ic">🔒</span>
+                    <input type="password" id="login-pass" class="login-input" placeholder="••••••••" style="padding-right:42px;" onkeydown="if(event.key==='Enter')fazerLogin()">
+                    <button type="button" class="login-eye" onclick="toggleSenhaLogin()" title="Mostrar/ocultar senha">👁️</button>
+                </div>
+            </div>
+            <div class="login-erro" id="login-erro"></div>
+            <button class="login-btn" onclick="fazerLogin()">➜ Entrar no Sistema</button>
+            <div class="login-hint">Demonstração — usuário <b>michel</b> · senha <b>rebracil</b></div>
+            <div class="login-foot">Acesso restrito · <b style="color:var(--primary)">GRUPO REBRACIL</b></div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     HUB / PORTAL DE SELEÇÃO DE PAINEL
+     ========================================== -->
+<div id="hub-portal" class="nx-portal">
+    <div class="nx-portal-top">
+        <div class="nx-portal-brand">
+            <div class="logo">R</div>
+            <div><div class="nome">REBRACIL</div><div class="tag">Grupo Rebracil</div></div>
+        </div>
+        <div class="nx-portal-user">
+            <div class="info"><div class="n" id="hub-user-nome"></div><div class="c" id="hub-user-cargo"></div></div>
+            <div class="av" id="hub-user-av">👤</div>
+            <button class="nx-portal-logout" onclick="logout()" title="Sair">⏻</button>
+        </div>
+    </div>
+    <div class="nx-portal-body">
+        <div class="nx-portal-hello">
+            <div class="oi">Bem-vindo(a), <span id="hub-hello-nome"></span></div>
+            <div class="big">Selecione o painel que deseja acessar</div>
+            <div class="desc">Cada painel é um setor independente, com suas próprias informações. Por ora, o setor de <b style="color:var(--gold-bright)">Qualidade</b> está ativo; os demais entram em breve com o dashboard que separa os departamentos.</div>
+        </div>
+        <div class="nx-portal-cards" id="hub-cards"></div>
+    </div>
+    <div class="nx-portal-foot">Desenvolvido para o <b style="color:var(--gold)">GRUPO REBRACIL</b> · Qualidade da Embalagem</div>
+</div>
+
+<div id="app-sistema-gestao" class="app-hidden">
 <style>
+    .app-hidden { display: none !important; }
     /* ==========================================================================
        ESTILOS GERAIS DO SISTEMA ERP E TIPOGRAFIA
        ========================================================================== */
     :root {
-        --primary: #0b2447;    /* Azul Escuro Rebracil (Menu) */
-        --accent: #1d4ed8;     /* Azul Destaque */
-        --gold: #c9a227;       /* Dourado Rebracil */
-        --gold-deep: #a8842f;  /* Dourado Escuro */
-        --gold-soft: #f7efd8;  /* Dourado Claro (fundos) */
-        --success: #10b981;    /* Verde Sucesso */
-        --warning: #f59e0b;    /* Laranja Alerta */
-        --danger: #ef4444;     /* Vermelho Erro */
-        --bg-light: #f4f7f9;   /* Fundo Geral */
-        --border: #e2e8f0;     /* Bordas */
-        --text-main: #334155;  /* Texto Principal */
-        --text-muted: #64748b; /* Texto Secundário */
+        --primary: #191040;      /* Azul-marinho NEXUS (Menu / cabeçalhos) */
+        --primary-soft: #2a1d63; /* Azul-marinho claro (gradientes) */
+        --accent: #1d4ed8;       /* Azul Destaque (interativo) */
+        --gold: #c5a880;         /* Dourado NEXUS */
+        --gold-deep: #ab8e62;    /* Dourado Escuro */
+        --gold-bright: #e8cf9a;  /* Dourado Claro (texto sobre escuro) */
+        --gold-soft: #f6f0e6;    /* Dourado Claro (fundos) */
+        --success: #0d9488;      /* Verde (teal NEXUS) */
+        --warning: #f59e0b;      /* Laranja Alerta */
+        --danger: #e11d48;       /* Vermelho (rose NEXUS) */
+        --bg-light: #f4f6fa;     /* Fundo Geral */
+        --border: #e6eaf0;       /* Bordas */
+        --text-main: #131a2b;    /* Texto Principal */
+        --text-muted: #64748b;   /* Texto Secundário */
+        --paper-tint: #fbfaf7;   /* Tom papel (gradiente de cards) */
+        --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+        --font-body: 'Inter', 'Segoe UI', Tahoma, system-ui, sans-serif;
     }
 
-    #app-sistema-gestao { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
+    #app-sistema-gestao { font-family: var(--font-body); background-color: var(--bg-light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
+    #app-sistema-gestao .kpi-val, #app-sistema-gestao .card-title, #app-sistema-gestao h1, #app-sistema-gestao h2, #app-sistema-gestao .rel-header h2, #app-sistema-gestao .header-title-box h1 { font-family: var(--font-display); }
     #app-sistema-gestao * { box-sizing: border-box; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -100,14 +169,18 @@
     /* ==========================================================================
        DASHBOARD GESTÃO À VISTA E LISTAS DE ATIVIDADES
        ========================================================================== */
-    .card-base { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 20px;}
-    .card-title { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
-    
+    .card-base { background: #fff; border-radius: 14px; box-shadow: 0 2px 6px rgba(16,24,40,0.05), 0 1px 2px rgba(16,24,40,0.04); border: 1px solid var(--border); padding: 20px; transition: box-shadow 0.3s ease, border-color 0.3s ease;}
+    .card-base:hover { box-shadow: 0 10px 24px -8px rgba(25,16,64,0.12), 0 2px 6px rgba(16,24,40,0.04); }
+    .card-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
+
     .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
-    .kpi-card { display: flex; align-items: flex-start; justify-content: space-between; }
+    /* Card KPI — assinatura NEXUS: barra de acento à esquerda + elevação no hover */
+    .kpi-card { display: flex; align-items: flex-start; justify-content: space-between; position: relative; overflow: hidden; background: linear-gradient(180deg, #ffffff 0%, var(--paper-tint) 160%);}
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); border-radius: 14px 0 0 14px; }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px -8px rgba(25,16,64,0.14); }
     .kpi-info { display: flex; flex-direction: column; }
-    .kpi-label { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 5px;}
-    .kpi-val { font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1;}
+    .kpi-label { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
+    .kpi-val { font-size: 24px; font-weight: 800; color: var(--primary); line-height: 1; letter-spacing: -0.5px;}
     .kpi-trend { font-size: 11px; margin-top: 8px; font-weight: 600; display: flex; align-items: center; gap: 4px;}
     .trend-up { color: var(--success); } .trend-flat { color: #3b82f6; } .trend-down { color: #ef4444; }
     .trend-warn { color: #d97706; }
@@ -358,7 +431,76 @@
         .two-col-grid, .mid-grid, .ind-grid { grid-template-columns: 1fr; }
         .sys-view { padding: 20px 18px; }
         .sys-header { padding: 12px 18px; }
+        .nx-portal-cards { grid-template-columns: 1fr; }
     }
+
+    /* ==========================================================================
+       TELA DE LOGIN
+       ========================================================================== */
+    .login-overlay { position: fixed; inset: 0; z-index: 20000; display: flex; align-items: center; justify-content: center; padding: 20px;
+        background: radial-gradient(1200px 720px at 50% -15%, var(--primary-soft), var(--primary) 58%, #120c2e); font-family: var(--font-body); }
+    .login-card { width: 100%; max-width: 380px; background: #fff; border-radius: 18px; box-shadow: 0 22px 48px -16px rgba(25,16,64,0.55); border: 1px solid rgba(197,168,128,0.25); overflow: hidden; }
+    .login-head { padding: 34px 32px 22px; text-align: center; border-bottom: 1px solid var(--border); }
+    .login-logo { width: 62px; height: 62px; margin: 0 auto 14px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; color: #fff; background: linear-gradient(160deg, var(--primary-soft), var(--primary)); border: 1px solid rgba(197,168,128,0.4); box-shadow: 0 8px 20px -8px rgba(25,16,64,0.6); }
+    .login-head h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; margin: 0; }
+    .login-head .sub { font-size: 10px; color: var(--gold-deep); text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; margin-top: 4px; }
+    .login-body { padding: 26px 32px 30px; }
+    .login-group { margin-bottom: 16px; }
+    .login-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .login-input-wrap { position: relative; display: flex; align-items: center; }
+    .login-input-wrap .ic { position: absolute; left: 13px; font-size: 14px; opacity: 0.6; }
+    .login-input { width: 100%; padding: 11px 14px 11px 38px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; transition: border-color .18s, box-shadow .18s; font-family: var(--font-body); }
+    .login-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,168,128,0.22); }
+    .login-eye { position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 14px; opacity: 0.6; padding: 4px; }
+    .login-btn { width: 100%; height: 46px; margin-top: 8px; border: 1px solid var(--primary); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; color: #fff; background: linear-gradient(180deg, var(--primary-soft), var(--primary)); transition: 0.18s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .login-btn:hover { background: linear-gradient(180deg, #34267a, var(--primary-soft)); transform: translateY(-1px); box-shadow: 0 8px 18px -6px rgba(25,16,64,0.4); }
+    .login-erro { color: var(--danger); font-size: 12px; font-weight: 700; text-align: center; margin: 4px 0 8px; display: none; }
+    .login-foot { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 18px; }
+    .login-hint { text-align: center; font-size: 10.5px; color: #94a3b8; margin-top: 14px; background: var(--gold-soft); border: 1px solid #ece3cf; border-radius: 8px; padding: 8px 10px; }
+
+    /* ==========================================================================
+       HUB / PORTAL DE SELEÇÃO DE PAINEL
+       ========================================================================== */
+    .nx-portal { position: fixed; inset: 0; z-index: 15000; display: none; flex-direction: column; overflow-y: auto; font-family: var(--font-body);
+        background: radial-gradient(1300px 780px at 50% -12%, var(--primary-soft), var(--primary) 52%, #0c0a20 100%); color: #fff; }
+    .nx-portal.show { display: flex; }
+    .nx-portal-top { display: flex; justify-content: space-between; align-items: center; padding: 22px 34px; flex-shrink: 0; }
+    .nx-portal-brand { display: flex; align-items: center; gap: 12px; }
+    .nx-portal-brand .logo { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: var(--gold); background: linear-gradient(160deg, var(--primary-soft), var(--primary)); border: 1px solid rgba(197,168,128,0.35); }
+    .nx-portal-brand .nome { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 16px; letter-spacing: 0.3px; }
+    .nx-portal-brand .tag { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+    .nx-portal-user { display: flex; align-items: center; gap: 14px; }
+    .nx-portal-user .info { text-align: right; }
+    .nx-portal-user .info .n { font-size: 13px; font-weight: 800; color: #fff; }
+    .nx-portal-user .info .c { font-size: 10px; color: #9aa0b0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .nx-portal-user .av { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(255,255,255,0.08); }
+    .nx-portal-logout { width: 40px; height: 40px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: #e6e7f0; cursor: pointer; font-size: 15px; }
+    .nx-portal-logout:hover { background: rgba(225,29,72,0.15); border-color: rgba(225,29,72,0.4); }
+    .nx-portal-body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 24px 40px; max-width: 1160px; margin: 0 auto; width: 100%; }
+    .nx-portal-hello { text-align: center; margin-bottom: 34px; }
+    .nx-portal-hello .oi { font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); font-weight: 800; }
+    .nx-portal-hello .big { font-family: var(--font-display); font-size: 30px; font-weight: 900; margin-top: 8px; line-height: 1.15;
+        background: linear-gradient(90deg, #fff, var(--gold-bright)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .nx-portal-hello .desc { font-size: 13.5px; color: #b7bad0; margin-top: 10px; max-width: 560px; margin-left: auto; margin-right: auto; }
+    .nx-portal-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; width: 100%; }
+    .nx-pcard { position: relative; text-align: left; cursor: pointer; padding: 24px; border-radius: 20px; overflow: hidden; color: #fff;
+        background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.12); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+    .nx-pcard:hover { transform: translateY(-6px); border-color: rgba(197,168,128,0.55); box-shadow: 0 30px 60px -24px rgba(0,0,0,0.6); }
+    .nx-pcard-bar { position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--pc, var(--gold)), transparent 85%); }
+    .nx-pcard-top { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .nx-pcard-ic { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background: var(--pc, var(--primary-soft)); }
+    .nx-pcard-nome { font-family: var(--font-display); font-size: 17px; font-weight: 900; color: #fff; }
+    .nx-pcard-setor { font-size: 11px; color: #a9adc6; }
+    .nx-pchip { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 999px; background: rgba(197,168,128,0.18); color: var(--gold); flex-shrink: 0; margin-left: auto; }
+    .nx-pkpis { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 16px 0; border-top: 1px solid rgba(255,255,255,0.10); border-bottom: 1px solid rgba(255,255,255,0.10); }
+    .nx-pkpis > div { display: flex; flex-direction: column; gap: 3px; }
+    .nx-pkpis span { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.05em; color: #9498b6; font-weight: 700; }
+    .nx-pkpis b { font-size: 14px; font-weight: 800; color: #fff; }
+    .nx-pcta { margin-top: 16px; font-size: 12.5px; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: 8px; }
+    .nx-pcard:hover .nx-pcta { gap: 12px; }
+    .nx-pcard-lock { position: absolute; inset: 0; border-radius: inherit; background: rgba(9,7,24,0.62); backdrop-filter: blur(2.5px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #cbcfe8; font-size: 12px; font-weight: 700; z-index: 5; text-align: center; padding: 20px; }
+    .nx-pcard-lock .lk { font-size: 22px; }
+    .nx-portal-foot { text-align: center; padding: 16px; font-size: 11px; color: #8a8ca8; flex-shrink: 0; }
 </style>
 
 <!-- ==========================================
@@ -437,19 +579,20 @@
                 </div>
             </div>
 
-            <select class="cal-select" title="Departamento (demais setores em breve)" onchange="if(this.value!=='Qualidade'){alert('Departamento em implantação. Por enquanto, apenas Qualidade.'); this.value='Qualidade';}">
-                <option value="Qualidade" selected>🏭 Depto: Qualidade</option>
-                <option>Impressão (em breve)</option>
-                <option>Corte e Solda (em breve)</option>
-                <option>Expedição (em breve)</option>
-            </select>
-            <div style="font-size: 20px; color: #64748b; margin-left:10px; cursor:pointer;" onclick="alert('Nenhuma nova notificação.')">🔔</div>
-            <div class="user-profile">
-                <div style="text-align: right; line-height: 1.2;">
-                    <div>Michel Pereira</div>
-                    <div style="font-size: 10px; color: #64748b; font-weight: normal;">Estrategista / Gestor</div>
+            <button class="action-btn-sec" style="gap:6px;" onclick="irParaHub()" title="Voltar ao portal de painéis">⇄ Trocar Painel</button>
+            <div style="font-size: 20px; color: #64748b; margin-left:4px; cursor:pointer;" onclick="alert('Nenhuma nova notificação.')">🔔</div>
+            <div class="sys-menu-item">
+                <div class="user-profile">
+                    <div style="text-align: right; line-height: 1.2;">
+                        <div id="hdr-user-nome">Michel Pereira</div>
+                        <div id="hdr-user-cargo" style="font-size: 10px; color: #64748b; font-weight: normal;">Estrategista / Gestor</div>
+                    </div>
+                    <div class="user-avatar" id="hdr-user-av">👤</div>
                 </div>
-                <div class="user-avatar">👨🏻</div>
+                <div class="sys-submenu sys-submenu-bottom-left">
+                    <button class="sys-submenu-btn" onclick="irParaHub()">⇄ Trocar de Painel</button>
+                    <button class="sys-submenu-btn" style="color:var(--danger);" onclick="logout()">⏻ Sair do Sistema</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1741,9 +1884,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 </div>
 
 <script>
-    const currentSessionUser = "Michel Pereira";
-    
-    function updateClock() { 
+    let currentSessionUser = "Michel Pereira";
+
+    function updateClock() {
         if(document.getElementById('current-datetime')){
             document.getElementById('current-datetime').innerText = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); 
         }
@@ -1885,15 +2028,205 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { cod: 'DEV-884', produto: 'Devolução de Material', cliente: 'EMPRESA ABC LTDA', setor: 'Logística', prox: '-', status: 'Em Andamento', dataHora: '24/05/2026 10:15', responsavel: 'Michel Pereira' }
     ];
 
+    // Usuários do sistema (demo). Em produção, isto vai para o backend.
+    const usuariosSeed = [
+        { id: 1, usuario: 'michel', nome: 'Michel Pereira', cargo: 'Estrategista / Gestor', papel: 'Admin', avatar: '👨🏻', senha: 'rebracil', paineis: ['qualidade','impressao','corteesolda','expedicao','grupo'] },
+        { id: 2, usuario: 'ana', nome: 'Ana Martins', cargo: 'Analista de Qualidade', papel: 'Operador', avatar: '👩🏻', senha: 'qualidade', paineis: ['qualidade'] },
+        { id: 3, usuario: 'diretoria', nome: 'Diretoria', cargo: 'Conselho / Diretoria', papel: 'Leitura', avatar: '👔', senha: 'diretoria', paineis: ['qualidade','grupo'] }
+    ];
+
     let RB = rbLoad();
     if (!RB) {
-        RB = { fichas: dbFichasSeed, retrabalhos: rbSeedRetrabalhos(), entregas: rbSeedEntregas(), atividades: [] };
+        RB = { fichas: dbFichasSeed, retrabalhos: rbSeedRetrabalhos(), entregas: rbSeedEntregas(), atividades: [], usuarios: usuariosSeed };
         localStorage.setItem(RB_KEY, JSON.stringify(RB));
     }
     if (!RB.retrabalhos) RB.retrabalhos = [];
     if (!RB.entregas) RB.entregas = [];
     if (!RB.atividades) RB.atividades = [];
+    if (!RB.usuarios || !RB.usuarios.length) RB.usuarios = usuariosSeed;
     let dbFichas = RB.fichas || dbFichasSeed;
+
+    // ==========================================================================
+    // SESSÃO, LOGIN E HUB DE PAINÉIS
+    // ==========================================================================
+    const SESSAO_KEY = 'rb_qualidade_sessao';
+    let sessaoUser = null;   // objeto do usuário logado
+    let deptoAtual = null;   // 'qualidade' | null (hub)
+
+    // Definição dos painéis/departamentos do grupo
+    const DEPARTAMENTOS = [
+        { id: 'qualidade',   nome: 'Qualidade',      setor: 'Controle & Laboratório', icone: '🔬', cor: '#c5a880', ativo: true },
+        { id: 'impressao',   nome: 'Impressão',      setor: 'Flexografia',            icone: '🖨️', cor: '#1d4ed8', ativo: false },
+        { id: 'corteesolda', nome: 'Corte e Solda',  setor: 'Conversão',              icone: '⚙️', cor: '#0d9488', ativo: false },
+        { id: 'expedicao',   nome: 'Expedição',      setor: 'Logística',              icone: '🚚', cor: '#f59e0b', ativo: false },
+        { id: 'grupo',       nome: 'Grupo · Consolidado', setor: 'Todos os setores juntos', icone: '📊', cor: '#c5a880', ativo: false }
+    ];
+
+    function podePainel(id) {
+        if (!sessaoUser) return false;
+        if (sessaoUser.papel === 'Admin') return true;
+        if (!sessaoUser.paineis) return true;
+        return sessaoUser.paineis.includes(id);
+    }
+
+    function toggleSenhaLogin() {
+        const inp = document.getElementById('login-pass');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    function fazerLogin() {
+        const u = (document.getElementById('login-user').value || '').trim().toLowerCase();
+        const s = document.getElementById('login-pass').value || '';
+        const erro = document.getElementById('login-erro');
+        if (!u || !s) { erro.innerText = 'Informe usuário e senha.'; erro.style.display = 'block'; return; }
+        const user = RB.usuarios.find(x => (x.usuario || '').toLowerCase() === u && String(x.senha) === String(s));
+        if (!user) { erro.innerText = 'Usuário ou senha inválidos.'; erro.style.display = 'block'; return; }
+        erro.style.display = 'none';
+        document.getElementById('login-pass').value = '';
+        aplicarSessao(user);
+        registrarAtividade('acessou o sistema');
+        irParaHub();
+    }
+
+    function aplicarSessao(user) {
+        sessaoUser = user;
+        currentSessionUser = user.nome;
+        try { localStorage.setItem(SESSAO_KEY, JSON.stringify({ id: user.id, depto: deptoAtual })); } catch(e) {}
+        // Reflete o usuário no cabeçalho do painel
+        const setTxt = (id, t) => { const el = document.getElementById(id); if (el) el.innerText = t; };
+        setTxt('hdr-user-nome', user.nome);
+        setTxt('hdr-user-cargo', user.cargo);
+        setTxt('hdr-user-av', user.avatar || '👤');
+    }
+
+    function logout() {
+        registrarAtividade('encerrou a sessão');
+        sessaoUser = null; deptoAtual = null;
+        try { localStorage.removeItem(SESSAO_KEY); } catch(e) {}
+        document.getElementById('hub-portal').classList.remove('show');
+        document.getElementById('app-sistema-gestao').classList.add('app-hidden');
+        document.getElementById('login-overlay').style.display = 'flex';
+        document.getElementById('login-user').value = '';
+        document.getElementById('login-pass').value = '';
+    }
+
+    function irParaHub() {
+        deptoAtual = null;
+        persistirSessaoDepto();
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app-sistema-gestao').classList.add('app-hidden');
+        renderHub();
+        document.getElementById('hub-portal').classList.add('show');
+    }
+
+    function persistirSessaoDepto() {
+        if (!sessaoUser) return;
+        try { localStorage.setItem(SESSAO_KEY, JSON.stringify({ id: sessaoUser.id, depto: deptoAtual })); } catch(e) {}
+    }
+
+    function entrarDepto(id) {
+        if (!DEPARTAMENTOS.find(d => d.id === id)?.ativo) {
+            alert('Painel em implantação. Por enquanto, apenas o setor de Qualidade está ativo.');
+            return;
+        }
+        if (!podePainel(id)) {
+            alert('Acesso não liberado: seu usuário não tem permissão para este painel. Fale com um Administrador.');
+            return;
+        }
+        deptoAtual = id;
+        persistirSessaoDepto();
+        document.getElementById('hub-portal').classList.remove('show');
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app-sistema-gestao').classList.remove('app-hidden');
+        renderDashboard();
+        nav('dash');
+    }
+
+    function renderHub() {
+        // Cabeçalho do usuário
+        if (sessaoUser) {
+            const primeiro = sessaoUser.nome.split(' ')[0];
+            const setTxt = (id, t) => { const el = document.getElementById(id); if (el) el.innerText = t; };
+            setTxt('hub-user-nome', sessaoUser.nome);
+            setTxt('hub-user-cargo', sessaoUser.cargo);
+            setTxt('hub-hello-nome', primeiro);
+            const av = document.getElementById('hub-user-av'); if (av) av.innerText = sessaoUser.avatar || '👤';
+        }
+        // KPIs vivos da Qualidade
+        const agora = new Date();
+        const kAtual = mesKey(agora.toISOString());
+        const retMes = RB.retrabalhos.filter(r => mesKey(r.data) === kAtual).length;
+        const custoMes = RB.retrabalhos.filter(r => mesKey(r.data) === kAtual).reduce((a,r) => a + (r.custo||0), 0);
+        const concl = RB.entregas.filter(e => entregueNoPrazo(e) !== null);
+        const otif = concl.length ? Math.round(100 * concl.filter(e => entregueNoPrazo(e)).length / concl.length) + '%' : '—';
+
+        const cont = document.getElementById('hub-cards');
+        cont.innerHTML = '';
+        DEPARTAMENTOS.forEach(d => {
+            const liberado = d.ativo && podePainel(d.id);
+            let kpisHtml, ctaHtml, lockHtml = '';
+            if (d.id === 'qualidade') {
+                kpisHtml = `<div><span>Retrab. mês</span><b>${retMes}</b></div>
+                            <div><span>Custo mês</span><b>${fmtBRL(custoMes)}</b></div>
+                            <div><span>Entrega OTIF</span><b>${otif}</b></div>`;
+                ctaHtml = 'Entrar no painel →';
+            } else if (d.id === 'grupo') {
+                kpisHtml = `<div><span>Setores</span><b>4</b></div>
+                            <div><span>Ativos</span><b>1</b></div>
+                            <div><span>Status</span><b>Em breve</b></div>`;
+                ctaHtml = 'Consolidado do grupo';
+            } else {
+                kpisHtml = `<div><span>Status</span><b>Em breve</b></div>
+                            <div><span>Setor</span><b>${d.setor}</b></div>
+                            <div><span>Dados</span><b>—</b></div>`;
+                ctaHtml = 'Em implantação';
+            }
+            if (!liberado) {
+                lockHtml = `<span class="nx-pcard-lock"><span class="lk">🔒</span> ${d.ativo ? 'Acesso não liberado para o seu usuário' : 'Painel em implantação · em breve'}</span>`;
+            }
+            const chip = d.id === 'grupo' ? 'consolidado' : (d.ativo ? 'ativo' : 'em breve');
+            const card = document.createElement('button');
+            card.className = 'nx-pcard';
+            card.style.setProperty('--pc', d.cor);
+            card.onclick = () => entrarDepto(d.id);
+            card.innerHTML = `
+                ${lockHtml}
+                <div class="nx-pcard-bar"></div>
+                <div class="nx-pcard-top">
+                    <div class="nx-pcard-ic">${d.icone}</div>
+                    <div style="min-width:0;">
+                        <div class="nx-pcard-nome">${d.nome}</div>
+                        <div class="nx-pcard-setor">${d.setor}</div>
+                    </div>
+                    <span class="nx-pchip">${chip}</span>
+                </div>
+                <div class="nx-pkpis">${kpisHtml}</div>
+                <div class="nx-pcta">${ctaHtml}</div>`;
+            cont.appendChild(card);
+        });
+    }
+
+    function iniciarSessao() {
+        // Restaura sessão salva (se houver) — reload não força novo login
+        let saved = null;
+        try { saved = JSON.parse(localStorage.getItem(SESSAO_KEY)); } catch(e) {}
+        if (saved && saved.id) {
+            const user = RB.usuarios.find(u => u.id === saved.id);
+            if (user) {
+                aplicarSessao(user);
+                if (saved.depto && DEPARTAMENTOS.find(d => d.id === saved.depto)?.ativo && podePainel(saved.depto)) {
+                    entrarDepto(saved.depto);
+                } else {
+                    irParaHub();
+                }
+                return;
+            }
+        }
+        // Sem sessão: mostra login
+        document.getElementById('login-overlay').style.display = 'flex';
+        document.getElementById('hub-portal').classList.remove('show');
+        document.getElementById('app-sistema-gestao').classList.add('app-hidden');
+    }
 
     function registrarAtividade(texto) {
         RB.atividades.unshift({ data: new Date().toISOString(), texto: texto });
@@ -2590,9 +2923,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         });
     }
 
-    window.onload = function() { 
-        renderDashboard(); 
+    window.onload = function() {
         initDragAndDrop();
+        iniciarSessao();   // decide entre login, hub ou painel conforme a sessão salva
     };
 </script>
 
