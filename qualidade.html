@@ -35,11 +35,13 @@
     /* ==========================================================================
        SIDEBAR & MENU CASCATA
        ========================================================================== */
-    .sys-sidebar { background-color: var(--primary); color: #94a3b8; width: 250px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; overflow: visible;}
-    .sys-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: #fff; padding: 25px 20px; border-bottom: 1px solid #1e293b; background: #0b1120;}
-    
-    /* CORREÇÃO DO MENU CASCATA: overflow de volta para visible para não cortar o submenu */
-    .sys-nav-menu { padding: 15px 10px; flex-grow: 1; overflow: visible;}
+    .sys-sidebar { background-color: var(--primary); color: #94a3b8; width: 250px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; overflow: hidden; height: 100vh;}
+    .sys-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: #fff; padding: 25px 20px; border-bottom: 1px solid #1e293b; background: #0b1120; flex-shrink: 0;}
+
+    /* Menu rolável até o fim (acordeão inline, sem flyout que corte a rolagem) */
+    .sys-nav-menu { padding: 15px 10px 25px; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;}
+    .sys-nav-menu::-webkit-scrollbar { width: 6px; }
+    .sys-nav-menu::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     .nav-section { font-size: 10px; text-transform: uppercase; font-weight: 700; margin: 20px 0 10px 10px; color: #475569; letter-spacing: 0.5px; }
     
     .sys-nav-btn { display: flex; align-items: center; width: 100%; background: none; border: none; color: #cbd5e1; padding: 10px 15px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: 0.2s; text-align: left; margin-bottom: 4px; font-weight: 500; }
@@ -48,8 +50,12 @@
     .nav-icon { width: 24px; font-size: 15px; text-align: left; opacity: 0.9;}
 
     .sidebar-menu-item { position: relative; width: 100%; display: block; }
-    .sidebar-submenu { display: none; position: absolute; left: 100%; top: 0; background-color: var(--primary); min-width: 210px; border-radius: 0 6px 6px 0; box-shadow: 4px 4px 15px rgba(0,0,0,0.3); padding: 5px 0; z-index: 9999; border-left: 1px solid #1e293b; }
-    .sidebar-menu-item:hover > .sidebar-submenu { display: block; }
+    /* Submenu inline (acordeão): expande dentro da área rolável, sem cortar nada */
+    .sidebar-submenu { display: none; margin: 2px 0 6px 14px; padding-left: 6px; border-left: 2px solid #1e293b; }
+    .sidebar-menu-item.open > .sidebar-submenu { display: block; }
+    .nav-caret { margin-left: auto; font-size: 10px; opacity: 0.7; transition: transform 0.2s; }
+    .sidebar-menu-item.open > .sys-nav-btn > .nav-caret { transform: rotate(90deg); }
+    .sidebar-menu-item.open > .sys-nav-btn { background-color: #1e293b; color: #fff; }
 
     /* ==========================================================================
        ÁREA PRINCIPAL E HEADER
@@ -338,6 +344,21 @@
     /* Formulário de registro rápido (retrabalho / entrega) */
     .quick-form { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; margin-bottom: 12px; }
     .quick-form .qf { display: flex; flex-direction: column; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; padding: 5px 8px; }
+
+    /* ==========================================================================
+       RESPONSIVIDADE (evita quebra de layout em telas menores)
+       ========================================================================== */
+    @media (max-width: 1250px) {
+        .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+        .mid-grid { grid-template-columns: 1fr 1fr; }
+        .rel-kpis { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 960px) {
+        .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        .two-col-grid, .mid-grid, .ind-grid { grid-template-columns: 1fr; }
+        .sys-view { padding: 20px 18px; }
+        .sys-header { padding: 12px 18px; }
+    }
 </style>
 
 <!-- ==========================================
@@ -355,21 +376,21 @@
         <button class="sys-nav-btn" onclick="nav('retrabalho')" id="nav-retrabalho"><span class="nav-icon">🔁</span> Retrabalho & Entregas</button>
         
         <div class="sidebar-menu-item">
-            <button class="sys-nav-btn" id="nav-form"><span class="nav-icon">📄</span> Fichas de Produção</button>
+            <button class="sys-nav-btn" id="nav-form" onclick="toggleSubmenu(this)"><span class="nav-icon">📄</span> Fichas de Produção <span class="nav-caret">▸</span></button>
             <div class="sidebar-submenu">
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-corte')">⚙️ Corte e Solda</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-impressao')">🖨️ Impressão</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-solicitacao-cliche')">📄 Solicitação Clichê</button>
-                
+
                 <div class="sidebar-menu-item">
-                    <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;">⚠️ Não Conformidade ▸</button>
-                    <div class="sidebar-submenu" style="top: 0; left: 100%;">
+                    <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="toggleSubmenu(this)">⚠️ Não Conformidade <span class="nav-caret">▸</span></button>
+                    <div class="sidebar-submenu">
                         <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="alert('Em construção')">Interna</button>
                         <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-nc-fornecedor')">Fornecedor</button>
                         <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="alert('Em construção')">Cliente</button>
                     </div>
                 </div>
-                
+
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-devolucao')">🔄 Devolução</button>
             </div>
         </div>
@@ -1887,13 +1908,24 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         }
     }
 
+    // Acordeão do menu lateral (expande/recolhe submenu inline)
+    function toggleSubmenu(btn) {
+        const item = btn.closest('.sidebar-menu-item');
+        if(item) item.classList.toggle('open');
+    }
+
     function nav(tela) {
         document.querySelectorAll('.sys-view').forEach(e => e.classList.remove('active'));
         document.querySelectorAll('.sys-nav-btn').forEach(e => e.classList.remove('active'));
         
         if(document.getElementById('nav-'+tela)) document.getElementById('nav-'+tela).classList.add('active');
-        if(tela.startsWith('form-')) document.getElementById('nav-form').classList.add('active');
-        
+        if(tela.startsWith('form-')) {
+            const nf = document.getElementById('nav-form');
+            nf.classList.add('active');
+            const item = nf.closest('.sidebar-menu-item');
+            if(item) item.classList.add('open'); // abre o acordeão para mostrar o formulário ativo
+        }
+
         document.getElementById('view-'+tela).classList.add('active');
         
         let headerTitle = 'Ficha de Produção';
@@ -2165,9 +2197,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     function previewImg(input, containerId) {
         const container = document.getElementById(containerId);
-        const txtBox = container.previousElementSibling.previousElementSibling;
+        // Localiza o texto-placeholder de forma robusta (caixas grandes têm <span>; as pequenas de evidência não têm)
+        const box = input.closest('.img-upload-box');
+        const txtBox = box ? box.querySelector('span') : null;
         if (input.files && input.files[0]) {
-            txtBox.style.display = 'none'; container.innerHTML = ''; 
+            if (txtBox) txtBox.style.display = 'none';
+            container.innerHTML = '';
             let reader = new FileReader();
             reader.onload = function(e) {
                 let wrap = document.createElement('div'); wrap.className = 'img-thumb-wrap';
@@ -2180,7 +2215,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 }
                 
                 let delBtn = document.createElement('button'); delBtn.className = 'img-delete-btn'; delBtn.innerHTML = 'X';
-                delBtn.onclick = function() { wrap.remove(); input.value = ''; txtBox.style.display = 'block'; };
+                delBtn.onclick = function() { wrap.remove(); input.value = ''; if (txtBox) txtBox.style.display = 'block'; };
                 wrap.appendChild(delBtn); container.appendChild(wrap);
             }
             reader.readAsDataURL(input.files[0]);
