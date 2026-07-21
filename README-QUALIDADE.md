@@ -14,11 +14,11 @@ aparecem bloqueados ("em breve"), prontos para quando os demais setores forem en
 
 **Usuários** (login pelo primeiro nome ou nome completo; definidos em `usuariosSeed`):
 
-| Usuário | Senha | Papel |
+| Usuário | Senha | Cargo |
 |---------|-------|-------|
-| `carla` (Carla Caroline) | `admin` | Admin |
-| `michel` (Michel Pereira) | `admin26` | Admin |
-| `andreia` (Andreia Pereira) | `admin123` | Admin |
+| `carla` (Carla Caroline) | `admin` | Desenvolvedora |
+| `michel` (Michel Pereira) | `admin26` | Coordenador da Qualidade |
+| `andreia` (Andreia Pereira) | `admin123` | Gerente |
 
 Os logins são configuração fixa: ao atualizar o arquivo, eles são sempre re-sincronizados
 (não ficam presos ao que estava salvo no navegador).
@@ -33,6 +33,10 @@ dourado `#c5a880`, branco e as cores semânticas (azul-royal, teal, âmbar, rose
 **Ícones:** são **SVG embutidos** (renderizados a partir de classes `fa-*` pelo `renderIcons`),
 então funcionam **offline**, sem depender de CDN. Para trocar/adicionar um ícone, edite o mapa
 `ICONS` no script.
+
+**Gráficos:** módulo SVG próprio (sem bibliotecas), com eixos, gridlines, uma cor por série,
+tooltips no hover e paleta categórica validada (CVD-safe). Formas: `svgLinhaArea` (tendência),
+`svgPareto` (causas), `svgBarrasH` (RNC/entregas), `svgColunas`, `svgDonut`. Cores em `COR`/`CAT`.
 
 **Exceção proposital:** as **fichas/documentos** (Corte e Solda, Impressão, NC, Devolução,
 Clichê) mantêm suas **cores próprias de impressão** (azul, âmbar, vermelho, etc.), que
@@ -53,7 +57,8 @@ para encerrar a sessão.
 | Tela | O que faz |
 |------|-----------|
 | **Login / Hub** | Autenticação e portal de seleção de painel (departamentos do grupo, no padrão NEXUS). |
-| **Dashboard** | KPIs, alertas, atividades e o **Histórico Geral** com o *cockpit da ficha* (ver abaixo). |
+| **Dashboard** | KPIs, alertas, atividades, **donut Produção por Setor** e o **Histórico Geral** com o *cockpit da ficha*. |
+| **Produção (Fila & Calendário)** | Fila e calendário juntos. Clicar num card abre ações: **Imprimir OP, Reagendar, Liberar Setup, Interromper Setup**. |
 
 ## Cockpit da ficha (hover + drawer)
 
