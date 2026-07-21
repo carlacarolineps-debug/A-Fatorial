@@ -23,19 +23,19 @@
         <div class="login-body">
             <div class="login-group">
                 <label>Usuário</label>
-                <div class="login-input-wrap"><span class="ic">👤</span>
+                <div class="login-input-wrap"><span class="ic"><i class="fas fa-user"></i></span>
                     <input type="text" id="login-user" class="login-input" placeholder="Seu usuário" autocomplete="off" onkeydown="if(event.key==='Enter')fazerLogin()">
                 </div>
             </div>
             <div class="login-group">
                 <label>Senha</label>
-                <div class="login-input-wrap"><span class="ic">🔒</span>
+                <div class="login-input-wrap"><span class="ic"><i class="fas fa-lock"></i></span>
                     <input type="password" id="login-pass" class="login-input" placeholder="••••••••" style="padding-right:42px;" onkeydown="if(event.key==='Enter')fazerLogin()">
-                    <button type="button" class="login-eye" onclick="toggleSenhaLogin()" title="Mostrar/ocultar senha">👁️</button>
+                    <button type="button" class="login-eye" onclick="toggleSenhaLogin()" title="Mostrar/ocultar senha"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
             <div class="login-erro" id="login-erro"></div>
-            <button class="login-btn" onclick="fazerLogin()">➜ Entrar no Sistema</button>
+            <button class="login-btn" onclick="fazerLogin()"><i class="fas fa-right-to-bracket"></i> Entrar no Sistema</button>
             <div class="login-hint">Use seu primeiro nome como usuário (ex.: <b>carla</b>) e a sua senha.</div>
             <div class="login-foot">Acesso restrito · <b style="color:var(--primary)">GRUPO REBRACIL</b></div>
         </div>
@@ -54,7 +54,7 @@
         <div class="nx-portal-user">
             <div class="info"><div class="n" id="hub-user-nome"></div><div class="c" id="hub-user-cargo"></div></div>
             <div class="av" id="hub-user-av">👤</div>
-            <button class="nx-portal-logout" onclick="logout()" title="Sair">⏻</button>
+            <button class="nx-portal-logout" onclick="logout()" title="Sair"><i class="fas fa-arrow-right-from-bracket"></i></button>
         </div>
     </div>
     <div class="nx-portal-body">
@@ -104,33 +104,39 @@
     /* ==========================================================================
        SIDEBAR & MENU CASCATA
        ========================================================================== */
-    .sys-sidebar { background-color: var(--primary); color: #94a3b8; width: 250px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; overflow: hidden; height: 100vh;}
-    .sys-logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: #fff; padding: 25px 20px; border-bottom: 1px solid #1e293b; background: #120c2e; flex-shrink: 0;}
+    .sys-sidebar { position: relative; background: linear-gradient(185deg, #1b1642 0%, #14112f 52%, #0e0b24 100%); color: #c4c6db; width: 256px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; overflow: hidden; height: 100vh; border-right: 1px solid rgba(255,255,255,0.07); box-shadow: 6px 0 34px -14px rgba(8,6,26,0.55);}
+    .sys-sidebar::before { content: ''; position: absolute; top: -40px; left: -40px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(197,168,128,0.22), transparent 66%); pointer-events: none; filter: blur(6px); }
+    .sys-logo { position: relative; display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 800; color: #fff; padding: 22px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; letter-spacing: 0.3px;}
 
     /* Menu rolável até o fim (acordeão inline, sem flyout que corte a rolagem) */
     .sys-nav-menu { padding: 15px 10px 25px; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;}
     .sys-nav-menu::-webkit-scrollbar { width: 6px; }
     .sys-nav-menu::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    .nav-section { font-size: 10px; text-transform: uppercase; font-weight: 700; margin: 20px 0 10px 10px; color: #475569; letter-spacing: 0.5px; }
-    
-    .sys-nav-btn { display: flex; align-items: center; width: 100%; background: none; border: none; color: #cbd5e1; padding: 10px 15px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: 0.2s; text-align: left; margin-bottom: 4px; font-weight: 500; }
-    .sys-nav-btn:hover { background-color: #1e293b; color: #fff; }
-    .sys-nav-btn.active { background-color: var(--accent); color: #fff; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.3); border-left: 3px solid var(--gold); }
-    .nav-icon { width: 24px; font-size: 15px; text-align: left; opacity: 0.9;}
+    .nav-section { font-size: 9.5px; text-transform: uppercase; font-weight: 800; margin: 16px 0 6px 8px; color: rgba(232,207,154,0.72); letter-spacing: 1.4px; }
+
+    .sys-nav-btn { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; color: #c3c5db; padding: 10px 12px; border-radius: 11px; font-size: 13px; cursor: pointer; transition: 0.16s; text-align: left; margin-bottom: 2px; font-weight: 600; }
+    .sys-nav-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .sys-nav-btn:hover .nav-icon { color: #c9ccec; }
+    .sys-nav-btn.active { background: linear-gradient(100deg, rgba(29,78,216,0.30), rgba(197,168,128,0.16)); color: #fff; font-weight: 700; }
+    .sys-nav-btn.active .nav-icon { color: var(--gold-bright); }
+    .nav-icon { width: 18px; font-size: 14px; text-align: center; color: #9599bd; flex-shrink: 0; transition: color 0.15s; display: inline-flex; align-items: center; justify-content: center;}
+    /* Ícones SVG embutidos (renderizados a partir das classes fa-*, sem depender de CDN) */
+    .svgic { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
+    .svgic svg { width: 1em; height: 1em; display: block; }
 
     .sidebar-menu-item { position: relative; width: 100%; display: block; }
     /* Submenu inline (acordeão): expande dentro da área rolável, sem cortar nada */
-    .sidebar-submenu { display: none; margin: 2px 0 6px 14px; padding-left: 6px; border-left: 2px solid #1e293b; }
+    .sidebar-submenu { display: none; margin: 2px 0 6px 16px; padding-left: 6px; border-left: 2px solid rgba(255,255,255,0.10); }
     .sidebar-menu-item.open > .sidebar-submenu { display: block; }
-    .nav-caret { margin-left: auto; font-size: 10px; opacity: 0.7; transition: transform 0.2s; }
+    .nav-caret { margin-left: auto; font-size: 9px; opacity: 0.6; transition: transform 0.2s; }
     .sidebar-menu-item.open > .sys-nav-btn > .nav-caret { transform: rotate(90deg); }
-    .sidebar-menu-item.open > .sys-nav-btn { background-color: #1e293b; color: #fff; }
+    .sidebar-menu-item.open > .sys-nav-btn { background: rgba(255,255,255,0.05); color: #fff; }
 
     /* ==========================================================================
        ÁREA PRINCIPAL E HEADER
        ========================================================================== */
     .sys-main { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; z-index: 10;}
-    .sys-header { background: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 40; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+    .sys-header { background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,248,253,0.90)); backdrop-filter: blur(10px); padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 40; border-top: 2px solid var(--gold); border-bottom: 1px solid var(--border); box-shadow: 0 6px 20px -14px rgba(16,16,45,0.30);}
     .header-title-box h1 { margin: 0; font-size: 20px; color: var(--primary); font-weight: 700;}
     .header-title-box p { margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted); }
     
@@ -508,24 +514,25 @@
      ========================================== -->
 <div class="sys-sidebar">
     <div class="sys-logo">
-        <span style="background: var(--gold); color: #fff; padding: 2px 7px; border-radius: 4px;">R</span> REBRACIL <span style="font-size:9px; font-weight:600; color:var(--gold); letter-spacing:1px; margin-left:2px;">QUALIDADE</span>
+        <span style="width:30px; height:30px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; background: linear-gradient(160deg, var(--gold-bright), var(--gold)); color:#191040; font-weight:900; flex-shrink:0;">R</span>
+        <div style="line-height:1.1;"><div>REBRACIL</div><div style="font-size:9px; font-weight:700; color:var(--gold); letter-spacing:2px;">QUALIDADE</div></div>
     </div>
     
     <div class="sys-nav-menu">
         <div class="nav-section">Operação</div>
-        <button class="sys-nav-btn active" onclick="nav('dash')" id="nav-dash"><span class="nav-icon">🏠</span> Dashboard</button>
-        <button class="sys-nav-btn" onclick="nav('calendario')" id="nav-calendario"><span class="nav-icon">📅</span> Calendário Estratégico</button>
-        <button class="sys-nav-btn" onclick="nav('retrabalho')" id="nav-retrabalho"><span class="nav-icon">🔁</span> Retrabalho & Entregas</button>
+        <button class="sys-nav-btn active" onclick="nav('dash')" id="nav-dash"><span class="nav-icon"><i class="fas fa-gauge-high"></i></span> Dashboard</button>
+        <button class="sys-nav-btn" onclick="nav('calendario')" id="nav-calendario"><span class="nav-icon"><i class="fas fa-calendar-days"></i></span> Calendário Estratégico</button>
+        <button class="sys-nav-btn" onclick="nav('retrabalho')" id="nav-retrabalho"><span class="nav-icon"><i class="fas fa-rotate"></i></span> Retrabalho & Entregas</button>
         
         <div class="sidebar-menu-item">
-            <button class="sys-nav-btn" id="nav-form" onclick="toggleSubmenu(this)"><span class="nav-icon">📄</span> Fichas de Produção <span class="nav-caret">▸</span></button>
+            <button class="sys-nav-btn" id="nav-form" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-file-lines"></i></span> Fichas de Produção <span class="nav-caret">▸</span></button>
             <div class="sidebar-submenu">
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-corte')">⚙️ Corte e Solda</button>
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-impressao')">🖨️ Impressão</button>
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-solicitacao-cliche')">📄 Solicitação Clichê</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-corte')"><i class="fas fa-scissors" style="width:16px;"></i> Corte e Solda</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-impressao')"><i class="fas fa-print" style="width:16px;"></i> Impressão</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-solicitacao-cliche')"><i class="fas fa-stamp" style="width:16px;"></i> Solicitação Clichê</button>
 
                 <div class="sidebar-menu-item">
-                    <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="toggleSubmenu(this)">⚠️ Não Conformidade <span class="nav-caret">▸</span></button>
+                    <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="toggleSubmenu(this)"><i class="fas fa-triangle-exclamation" style="width:16px;"></i> Não Conformidade <span class="nav-caret">▸</span></button>
                     <div class="sidebar-submenu">
                         <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="alert('Em construção')">Interna</button>
                         <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-nc-fornecedor')">Fornecedor</button>
@@ -533,26 +540,26 @@
                     </div>
                 </div>
 
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-devolucao')">🔄 Devolução</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-devolucao')"><i class="fas fa-arrow-rotate-left" style="width:16px;"></i> Devolução</button>
             </div>
         </div>
 
-        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">🏭</span> Painel por Setor</button>
-        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">📋</span> Fila de Produção</button>
-        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">✅</span> Apontamentos</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-industry"></i></span> Painel por Setor</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-list-check"></i></span> Fila de Produção</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Apontamentos</button>
         
         <div class="nav-section">Cadastros Base</div>
-        <button class="sys-nav-btn" onclick="nav('cad-clientes')" id="nav-cad-clientes"><span class="nav-icon">👥</span> Clientes</button>
-        <button class="sys-nav-btn" onclick="nav('cad-fornecedores')" id="nav-cad-fornecedores"><span class="nav-icon">🤝</span> Fornecedores</button>
-        <button class="sys-nav-btn" onclick="nav('cad-produtos')" id="nav-cad-produtos"><span class="nav-icon">📦</span> Produtos</button>
-        <button class="sys-nav-btn" onclick="nav('cad-cliche')" id="nav-cad-cliche"><span class="nav-icon">📄</span> Clichês</button>
-        <button class="sys-nav-btn" onclick="nav('cad-setores')" id="nav-cad-setores"><span class="nav-icon">🏢</span> Setores</button>
+        <button class="sys-nav-btn" onclick="nav('cad-clientes')" id="nav-cad-clientes"><span class="nav-icon"><i class="fas fa-users"></i></span> Clientes</button>
+        <button class="sys-nav-btn" onclick="nav('cad-fornecedores')" id="nav-cad-fornecedores"><span class="nav-icon"><i class="fas fa-handshake"></i></span> Fornecedores</button>
+        <button class="sys-nav-btn" onclick="nav('cad-produtos')" id="nav-cad-produtos"><span class="nav-icon"><i class="fas fa-box"></i></span> Produtos</button>
+        <button class="sys-nav-btn" onclick="nav('cad-cliche')" id="nav-cad-cliche"><span class="nav-icon"><i class="fas fa-stamp"></i></span> Clichês</button>
+        <button class="sys-nav-btn" onclick="nav('cad-setores')" id="nav-cad-setores"><span class="nav-icon"><i class="fas fa-building"></i></span> Setores</button>
 
         <div class="nav-section">Gestão & Config</div>
-        <button class="sys-nav-btn" onclick="nav('relatorios')" id="nav-relatorios"><span class="nav-icon">📈</span> Relatórios</button>
-        <button class="sys-nav-btn" onclick="nav('indicadores')" id="nav-indicadores"><span class="nav-icon">📊</span> Indicadores</button>
-        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">👤</span> Usuários</button>
-        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon">⚙️</span> Parâmetros</button>
+        <button class="sys-nav-btn" onclick="nav('relatorios')" id="nav-relatorios"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Relatórios</button>
+        <button class="sys-nav-btn" onclick="nav('indicadores')" id="nav-indicadores"><span class="nav-icon"><i class="fas fa-chart-column"></i></span> Indicadores</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-user-gear"></i></span> Usuários</button>
+        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-gear"></i></span> Parâmetros</button>
     </div>
 </div>
 
@@ -569,18 +576,18 @@
         
         <div class="header-actions">
             <div class="sys-menu-item">
-                <button class="sys-btn-success" style="padding: 8px 16px;">➕ Nova Ficha ▾</button>
+                <button class="sys-btn-success" style="padding: 8px 16px;"><i class="fas fa-plus"></i> Nova Ficha <i class="fas fa-caret-down"></i></button>
                 <div class="sys-submenu sys-submenu-bottom-left">
-                    <button class="sys-submenu-btn" onclick="abrirFicha('corte')">⚙️ Corte e Solda</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('impressao')">🖨️ Impressão</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('solicitacao-cliche')">📄 Solicitação Clichê</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('nc-fornecedor')">⚠️ NC Fornecedor</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('devolucao')">🔄 Devolução</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('corte')"><i class="fas fa-scissors" style="width:16px;"></i> Corte e Solda</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('impressao')"><i class="fas fa-print" style="width:16px;"></i> Impressão</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('solicitacao-cliche')"><i class="fas fa-stamp" style="width:16px;"></i> Solicitação Clichê</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('nc-fornecedor')"><i class="fas fa-triangle-exclamation" style="width:16px;"></i> NC Fornecedor</button>
+                    <button class="sys-submenu-btn" onclick="abrirFicha('devolucao')"><i class="fas fa-arrow-rotate-left" style="width:16px;"></i> Devolução</button>
                 </div>
             </div>
 
-            <button class="action-btn-sec" style="gap:6px;" onclick="irParaHub()" title="Voltar ao portal de painéis">⇄ Trocar Painel</button>
-            <div style="font-size: 20px; color: #64748b; margin-left:4px; cursor:pointer;" onclick="alert('Nenhuma nova notificação.')">🔔</div>
+            <button class="action-btn-sec" style="gap:6px;" onclick="irParaHub()" title="Voltar ao portal de painéis"><i class="fas fa-right-left"></i> Trocar Painel</button>
+            <div style="font-size: 17px; color: #64748b; margin-left:4px; cursor:pointer;" onclick="alert('Nenhuma nova notificação.')"><i class="fas fa-bell"></i></div>
             <div class="sys-menu-item">
                 <div class="user-profile">
                     <div style="text-align: right; line-height: 1.2;">
@@ -590,8 +597,8 @@
                     <div class="user-avatar" id="hdr-user-av">👤</div>
                 </div>
                 <div class="sys-submenu sys-submenu-bottom-left">
-                    <button class="sys-submenu-btn" onclick="irParaHub()">⇄ Trocar de Painel</button>
-                    <button class="sys-submenu-btn" style="color:var(--danger);" onclick="logout()">⏻ Sair do Sistema</button>
+                    <button class="sys-submenu-btn" onclick="irParaHub()"><i class="fas fa-right-left" style="width:16px;"></i> Trocar de Painel</button>
+                    <button class="sys-submenu-btn" style="color:var(--danger);" onclick="logout()"><i class="fas fa-arrow-right-from-bracket" style="width:16px;"></i> Sair do Sistema</button>
                 </div>
             </div>
         </div>
@@ -606,23 +613,23 @@
         <div class="kpi-grid">
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label">Fichas no Sistema</span><span class="kpi-val" id="kpi-total">0</span><span class="kpi-trend trend-up">↑ Ativas hoje</span></div>
-                <div class="kpi-icon-box" style="background: #1d4ed8;">📄</div>
+                <div class="kpi-icon-box" style="background: #1d4ed8;"><i class="fas fa-file-lines"></i></div>
             </div>
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label">Aguardando Aprovação</span><span class="kpi-val" id="kpi-pend">0</span><span class="kpi-trend trend-warn">Assinatura Pendente</span></div>
-                <div class="kpi-icon-box" style="background: #f59e0b;">⏳</div>
+                <div class="kpi-icon-box" style="background: #f59e0b;"><i class="fas fa-hourglass-half"></i></div>
             </div>
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label">Fichas Aprovadas</span><span class="kpi-val" id="kpi-aprovadas">0</span><span class="kpi-trend trend-up">Liberadas p/ Máquina</span></div>
-                <div class="kpi-icon-box" style="background: #0d9488;">✔️</div>
+                <div class="kpi-icon-box" style="background: #0d9488;"><i class="fas fa-circle-check"></i></div>
             </div>
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label" style="color:#b91c1c;">Fichas Atrasadas</span><span class="kpi-val" id="kpi-atrasadas" style="color:#b91c1c;">0</span><span class="kpi-trend trend-down">Requer Atenção</span></div>
-                <div class="kpi-icon-box" style="background: #e11d48;">⚠️</div>
+                <div class="kpi-icon-box" style="background: #e11d48;"><i class="fas fa-triangle-exclamation"></i></div>
             </div>
             <div class="card-base kpi-card" style="padding: 15px;">
                 <div class="kpi-info" style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between;"><span class="kpi-label">Produção Hoje</span><div class="kpi-icon-box" style="background: #c5a880; width: 30px; height: 30px; font-size: 14px;">📈</div></div>
+                    <div style="display: flex; justify-content: space-between;"><span class="kpi-label">Produção Hoje</span><div class="kpi-icon-box" style="background: #c5a880; width: 30px; height: 30px; font-size: 14px;"><i class="fas fa-arrow-trend-up"></i></div></div>
                     <span class="kpi-val">124.500 <span style="font-size:12px; color:#64748b; font-weight:normal;">peças</span></span>
                     <span class="kpi-label" style="font-size: 10px; margin-top:5px;">Meta: 150.000 peças (83%)</span>
                     <div style="width:100%; height:4px; background:#e2e8f0; border-radius:2px; margin-top:5px;"><div style="width:83%; height:100%; background:#c5a880; border-radius:2px;"></div></div>
@@ -1682,19 +1689,19 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label">Retrabalhos no Mês</span><span class="kpi-val" id="kpi-ret-mes">0</span><span class="kpi-trend trend-down" id="kpi-ret-var">—</span></div>
-                <div class="kpi-icon-box" style="background: #e11d48;">🔁</div>
+                <div class="kpi-icon-box" style="background: #e11d48;"><i class="fas fa-rotate"></i></div>
             </div>
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label">Custo Estimado (Mês)</span><span class="kpi-val" id="kpi-ret-custo">R$ 0</span><span class="kpi-trend trend-warn">Horas + material</span></div>
-                <div class="kpi-icon-box" style="background: var(--gold);">💰</div>
+                <div class="kpi-icon-box" style="background: var(--gold);"><i class="fas fa-chart-line"></i></div>
             </div>
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label">Entregas no Prazo</span><span class="kpi-val" id="kpi-ent-otif">—</span><span class="kpi-trend trend-up">OTIF do setor</span></div>
-                <div class="kpi-icon-box" style="background: #0d9488;">🚚</div>
+                <div class="kpi-icon-box" style="background: #0d9488;"><i class="fas fa-truck"></i></div>
             </div>
             <div class="card-base kpi-card">
                 <div class="kpi-info"><span class="kpi-label">Entregas Pendentes</span><span class="kpi-val" id="kpi-ent-pend">0</span><span class="kpi-trend trend-flat">Aguardando aceite</span></div>
-                <div class="kpi-icon-box" style="background: #1d4ed8;">📬</div>
+                <div class="kpi-icon-box" style="background: #1d4ed8;"><i class="fas fa-clipboard-check"></i></div>
             </div>
         </div>
 
@@ -1893,6 +1900,64 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
     setInterval(updateClock, 60000); updateClock();
 
+    // ==========================================================================
+    // SISTEMA DE ÍCONES SVG (offline) — renderiza <i class="fas fa-nome"> como SVG de linha
+    // ==========================================================================
+    const ICONS = {
+        'gauge-high': '<path d="M12 14l3-3"/><path d="M3.5 14a9 9 0 1 1 17 0"/><circle cx="12" cy="14" r="1.4"/>',
+        'calendar-days': '<rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2M14.5 17h2"/>',
+        'rotate': '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3.5v5h-5"/>',
+        'file-lines': '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 16.5h6"/>',
+        'industry': '<path d="M3 21h18"/><path d="M4 21V10l6 4V10l6 4V6l4 2v11"/>',
+        'list-check': '<path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 6l1.2 1.2L7.5 5M4 12l1.2 1.2L7.5 11M4 18l1.2 1.2L7.5 17"/>',
+        'clipboard-check': '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 13l2 2 4-4"/>',
+        'users': '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M18.5 20a5.5 5.5 0 0 0-3-4.9"/>',
+        'handshake': '<rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M8 7.5V5.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>',
+        'box': '<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
+        'stamp': '<path d="M9 3.5h6a2 2 0 0 1 2 2c0 2.2-1.2 3-1.2 5H8.2C8.2 8.5 7 7.7 7 5.5a2 2 0 0 1 2-2z"/><rect x="5" y="15" width="14" height="3.2" rx="1"/><path d="M4 21h16"/>',
+        'building': '<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/><path d="M10.5 21v-3h3v3"/>',
+        'chart-line': '<path d="M4 4v16h16"/><path d="M6.5 15l4-4 3 3 5-6"/>',
+        'chart-column': '<path d="M4 4v16h16"/><path d="M8 17v-4M12.5 17v-7M17 17v-5"/>',
+        'user-gear': '<circle cx="10" cy="8" r="3.2"/><path d="M4 20a6 6 0 0 1 10.5-4"/><circle cx="18" cy="17" r="2.2"/><path d="M18 13.6v1M18 20.4v-1M14.8 17h1M21.2 17h-1"/>',
+        'gear': '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>',
+        'scissors': '<circle cx="6" cy="6.5" r="2.4"/><circle cx="6" cy="17.5" r="2.4"/><path d="M8 7.7l12 8.6M8 16.3L20 7.7"/>',
+        'print': '<path d="M6.5 9V3.5h11V9"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><rect x="7" y="14.5" width="10" height="6"/><path d="M16.5 12h.5"/>',
+        'triangle-exclamation': '<path d="M12 3.5l9 15.5H3z"/><path d="M12 9.5v4.5M12 17.2v.3"/>',
+        'arrow-rotate-left': '<path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3.5v5h5"/>',
+        'plus': '<path d="M12 5v14M5 12h14"/>',
+        'caret-down': '<path d="M6 9.5l6 6 6-6"/>',
+        'right-left': '<path d="M7 4L3 8l4 4"/><path d="M3 8h13"/><path d="M17 20l4-4-4-4"/><path d="M21 16H8"/>',
+        'bell': '<path d="M6 9a6 6 0 0 1 12 0c0 4.5 2 6.5 2 6.5H4S6 13.5 6 9z"/><path d="M10 19.5a2 2 0 0 0 4 0"/>',
+        'arrow-right-from-bracket': '<path d="M14 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M4 12h11"/><path d="M11 8.5l3.5 3.5-3.5 3.5"/>',
+        'right-to-bracket': '<path d="M14 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M4 12h11"/><path d="M8 8.5l3.5 3.5L8 15.5"/>',
+        'flask-vial': '<path d="M9 3h6M10 3v6l-4.5 8.4A2 2 0 0 0 7.3 20.5h9.4a2 2 0 0 0 1.8-3.1L14 9V3"/><path d="M7.5 15h9"/>',
+        'truck': '<rect x="1.5" y="6.5" width="12.5" height="9.5" rx="1"/><path d="M14 9.5h3.8l3.2 3.2V16H14z"/><circle cx="6" cy="18" r="1.7"/><circle cx="18" cy="18" r="1.7"/>',
+        'layer-group': '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+        'lock': '<rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+        'user': '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+        'eye': '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+        'eye-slash': '<path d="M2 12s3.5-7 10-7c2 0 3.7.6 5.2 1.5M22 12s-3.5 7-10 7c-2 0-3.7-.6-5.2-1.5"/><path d="M3 3l18 18"/><path d="M9.6 9.6a3 3 0 0 0 4.2 4.2"/>',
+        'hourglass-half': '<path d="M7 3h10M7 21h10"/><path d="M7 3c0 4 5 5 5 9s-5 5-5 9M17 3c0 4-5 5-5 9s5 5 5 9"/><path d="M9 7.5h6"/>',
+        'circle-check': '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+        'arrow-trend-up': '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>'
+    };
+    function svgDe(nome) {
+        const d = ICONS[nome] || ICONS['circle-check'];
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+    }
+    function renderIcons(root) {
+        (root || document).querySelectorAll('i.fas, i.far, i.fa-solid').forEach(el => {
+            const nome = [...el.classList].map(c => c.match(/^fa-(.+)/)).filter(Boolean).map(m => m[1])
+                .find(n => !['solid','regular','fw','lg','sm'].includes(n));
+            if (!nome) return;
+            const span = document.createElement('span');
+            span.className = 'svgic';
+            if (el.getAttribute('style')) span.setAttribute('style', el.getAttribute('style'));
+            span.innerHTML = svgDe(nome);
+            el.replaceWith(span);
+        });
+    }
+
     const catalogoProdutos = {
         "VIRGINIA ALIMENTOS LTDA": [
             { nome: "SACO PEBD IMPRESSO 1,05kg 270x350", codCliente: "VA-7512" },
@@ -2056,11 +2121,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     // Definição dos painéis/departamentos do grupo
     const DEPARTAMENTOS = [
-        { id: 'qualidade',   nome: 'Qualidade',      setor: 'Controle & Laboratório', icone: '🔬', cor: '#c5a880', ativo: true },
-        { id: 'impressao',   nome: 'Impressão',      setor: 'Flexografia',            icone: '🖨️', cor: '#1d4ed8', ativo: false },
-        { id: 'corteesolda', nome: 'Corte e Solda',  setor: 'Conversão',              icone: '⚙️', cor: '#0d9488', ativo: false },
-        { id: 'expedicao',   nome: 'Expedição',      setor: 'Logística',              icone: '🚚', cor: '#f59e0b', ativo: false },
-        { id: 'grupo',       nome: 'Grupo · Consolidado', setor: 'Todos os setores juntos', icone: '📊', cor: '#c5a880', ativo: false }
+        { id: 'qualidade',   nome: 'Qualidade',      setor: 'Controle & Laboratório', icone: '<i class="fas fa-flask-vial"></i>', cor: '#c5a880', ativo: true },
+        { id: 'impressao',   nome: 'Impressão',      setor: 'Flexografia',            icone: '<i class="fas fa-print"></i>', cor: '#1d4ed8', ativo: false },
+        { id: 'corteesolda', nome: 'Corte e Solda',  setor: 'Conversão',              icone: '<i class="fas fa-scissors"></i>', cor: '#0d9488', ativo: false },
+        { id: 'expedicao',   nome: 'Expedição',      setor: 'Logística',              icone: '<i class="fas fa-truck"></i>', cor: '#f59e0b', ativo: false },
+        { id: 'grupo',       nome: 'Grupo · Consolidado', setor: 'Todos os setores juntos', icone: '<i class="fas fa-layer-group"></i>', cor: '#c5a880', ativo: false }
     ];
 
     function podePainel(id) {
@@ -2072,7 +2137,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     function toggleSenhaLogin() {
         const inp = document.getElementById('login-pass');
-        inp.type = inp.type === 'password' ? 'text' : 'password';
+        const mostrar = inp.type === 'password';
+        inp.type = mostrar ? 'text' : 'password';
+        const btn = document.querySelector('.login-eye');
+        if (btn) { btn.innerHTML = '<i class="fas fa-eye' + (mostrar ? '-slash' : '') + '"></i>'; renderIcons(btn); }
     }
 
     function fazerLogin() {
@@ -2183,7 +2251,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 ctaHtml = 'Em implantação';
             }
             if (!liberado) {
-                lockHtml = `<span class="nx-pcard-lock"><span class="lk">🔒</span> ${d.ativo ? 'Acesso não liberado para o seu usuário' : 'Painel em implantação · em breve'}</span>`;
+                lockHtml = `<span class="nx-pcard-lock"><span class="lk"><i class="fas fa-lock"></i></span> ${d.ativo ? 'Acesso não liberado para o seu usuário' : 'Painel em implantação · em breve'}</span>`;
             }
             const chip = d.id === 'grupo' ? 'consolidado' : (d.ativo ? 'ativo' : 'em breve');
             const card = document.createElement('button');
@@ -2205,6 +2273,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="nx-pcta">${ctaHtml}</div>`;
             cont.appendChild(card);
         });
+        renderIcons(cont);
     }
 
     function iniciarSessao() {
@@ -2925,6 +2994,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
 
     window.onload = function() {
+        renderIcons(document);   // converte todos os ícones fa-* em SVG embutido
         initDragAndDrop();
         iniciarSessao();   // decide entre login, hub ou painel conforme a sessão salva
     };

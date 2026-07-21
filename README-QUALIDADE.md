@@ -23,12 +23,20 @@ aparecem bloqueados ("em breve"), prontos para quando os demais setores forem en
 Os logins são configuração fixa: ao atualizar o arquivo, eles são sempre re-sincronizados
 (não ficam presos ao que estava salvo no navegador).
 
-## Padronização visual
+## Padronização visual (padrão NEXUS)
 
-Todo o sistema segue **uma só identidade** — azul-marinho `#191040`, dourado `#c5a880`,
-branco e as cores semânticas (azul-royal, teal, âmbar, rose). **Exceção:** as **fichas/
-documentos** (Corte e Solda, Impressão, NC, Devolução, Clichê) mantêm suas **cores próprias
-de impressão** (azul, âmbar, vermelho, etc.), que identificam cada tipo de documento no papel.
+O sistema segue o mesmo padrão do **NEXUS GRB** (financeiro): sidebar escuro com gradiente
+e brilho, seções em dourado, item ativo com realce sutil, **header com fio dourado no topo**,
+cards com barra de acento e ícones de **linha**. Identidade única — azul-marinho `#191040`,
+dourado `#c5a880`, branco e as cores semânticas (azul-royal, teal, âmbar, rose).
+
+**Ícones:** são **SVG embutidos** (renderizados a partir de classes `fa-*` pelo `renderIcons`),
+então funcionam **offline**, sem depender de CDN. Para trocar/adicionar um ícone, edite o mapa
+`ICONS` no script.
+
+**Exceção proposital:** as **fichas/documentos** (Corte e Solda, Impressão, NC, Devolução,
+Clichê) mantêm suas **cores próprias de impressão** (azul, âmbar, vermelho, etc.), que
+identificam cada tipo de documento no papel.
 
 A sessão é lembrada (chave `rb_qualidade_sessao`), então recarregar a página não força
 novo login. Use **Trocar Painel** (no topo) para voltar ao Hub e **Sair** (menu do perfil)
