@@ -797,17 +797,36 @@
         <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Apontamentos</button>
         
         <div class="nav-section">Cadastros Base</div>
-        <button class="sys-nav-btn" onclick="nav('cad-clientes')" id="nav-cad-clientes"><span class="nav-icon"><i class="fas fa-users"></i></span> Clientes</button>
-        <button class="sys-nav-btn" onclick="nav('cad-fornecedores')" id="nav-cad-fornecedores"><span class="nav-icon"><i class="fas fa-handshake"></i></span> Fornecedores</button>
-        <button class="sys-nav-btn" onclick="nav('cad-produtos')" id="nav-cad-produtos"><span class="nav-icon"><i class="fas fa-box"></i></span> Produtos</button>
-        <button class="sys-nav-btn" onclick="nav('cad-cliche')" id="nav-cad-cliche"><span class="nav-icon"><i class="fas fa-stamp"></i></span> Clichês</button>
-        <button class="sys-nav-btn" onclick="nav('cad-setores')" id="nav-cad-setores"><span class="nav-icon"><i class="fas fa-building"></i></span> Setores</button>
+        <div class="sidebar-menu-item">
+            <button class="sys-nav-btn" id="nav-cadastros" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-box"></i></span> Cadastros Base <span class="nav-caret">▸</span></button>
+            <div class="sidebar-submenu">
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('cad-clientes')" id="nav-cad-clientes"><i class="fas fa-users" style="width:16px;"></i> Clientes</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('cad-fornecedores')" id="nav-cad-fornecedores"><i class="fas fa-handshake" style="width:16px;"></i> Fornecedores</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('cad-produtos')" id="nav-cad-produtos"><i class="fas fa-box" style="width:16px;"></i> Produtos</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('cad-cliche')" id="nav-cad-cliche"><i class="fas fa-stamp" style="width:16px;"></i> Clichês</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('cad-setores')" id="nav-cad-setores"><i class="fas fa-building" style="width:16px;"></i> Setores</button>
+            </div>
+        </div>
 
-        <div class="nav-section">Gestão & Config</div>
-        <button class="sys-nav-btn" onclick="nav('relatorios')" id="nav-relatorios"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Relatórios</button>
-        <button class="sys-nav-btn" onclick="nav('indicadores')" id="nav-indicadores"><span class="nav-icon"><i class="fas fa-chart-column"></i></span> Indicadores</button>
-        <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-user-gear"></i></span> Usuários</button>
-        <button class="sys-nav-btn" onclick="nav('parametros')" id="nav-parametros"><span class="nav-icon"><i class="fas fa-gear"></i></span> Parâmetros de Qualidade</button>
+        <div class="nav-section">Gestão</div>
+        <div class="sidebar-menu-item">
+            <button class="sys-nav-btn" id="nav-gestao" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Gestão <span class="nav-caret">▸</span></button>
+            <div class="sidebar-submenu">
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('relatorios')" id="nav-relatorios"><i class="fas fa-chart-line" style="width:16px;"></i> Relatórios</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('indicadores')" id="nav-indicadores"><i class="fas fa-chart-column" style="width:16px;"></i> Indicadores</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('auditoria')" id="nav-auditoria"><i class="fas fa-clock-rotate-left" style="width:16px;"></i> Auditoria / Rastreabilidade</button>
+            </div>
+        </div>
+
+        <div class="nav-section">Configuração</div>
+        <div class="sidebar-menu-item">
+            <button class="sys-nav-btn" id="nav-config" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-gear"></i></span> Configuração <span class="nav-caret">▸</span></button>
+            <div class="sidebar-submenu">
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('parametros')" id="nav-parametros"><i class="fas fa-gear" style="width:16px;"></i> Parâmetros de Qualidade</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('usuarios')" id="nav-usuarios"><i class="fas fa-user-gear" style="width:16px;"></i> Usuários e Acessos</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('importar')" id="nav-importar"><i class="fas fa-download" style="width:16px;"></i> Importar dados</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1323,16 +1342,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="section-title">IDENTIFICAÇÃO (CADASTROS BASE)</div>
                 <div class="g-col g-col-6">
                     <span class="lbl">Selecionar Cliente *</span>
-                    <select class="inp" id="f_cliente" onchange="carregarProdutosCliente('corte')">
-                        <option value="">-- Selecione o Cliente --</option>
-                        <option value="VIRGINIA ALIMENTOS LTDA">VIRGINIA ALIMENTOS LTDA</option>
-                        <option value="EMPRESA ABC LTDA">EMPRESA ABC LTDA</option>
-                        <option value="SUPERMERCADO IDEAL">SUPERMERCADO IDEAL</option>
-                    </select>
+                    <select class="inp" id="f_cliente" onchange="fichaClienteChange('corte')"></select>
                 </div>
                 <div class="g-col g-col-6">
                     <span class="lbl">Selecionar Produto do Cliente *</span>
-                    <select class="inp" id="f_produto" onchange="setarCodigoEAtualizar('corte')">
+                    <select class="inp" id="f_produto" onchange="fichaProdutoChange('corte')">
                         <option value="">-- Selecione primeiro o Cliente --</option>
                     </select>
                 </div>
@@ -1483,18 +1497,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="section-title">IDENTIFICAÇÃO (CADASTROS BASE)</div>
                 <div class="g-col g-col-6">
                     <span class="lbl">Selecionar Cliente *</span>
-                    <select class="inp" id="f_imp_cliente" onchange="carregarProdutosCliente('impressao')">
-                        <option value="">-- Selecione o Cliente --</option>
-                        <option value="VIRGINIA ALIMENTOS LTDA" selected>VIRGINIA ALIMENTOS LTDA</option>
-                        <option value="EMPRESA ABC LTDA">EMPRESA ABC LTDA</option>
-                        <option value="SUPERMERCADO IDEAL">SUPERMERCADO IDEAL</option>
-                    </select>
+                    <select class="inp" id="f_imp_cliente" onchange="fichaClienteChange('impressao')"></select>
                 </div>
                 <div class="g-col g-col-6">
                     <span class="lbl">Selecionar Produto / Descrição *</span>
-                    <select class="inp" id="f_imp_produto" onchange="setarCodigoEAtualizar('impressao')">
-                        <option value="BOBINA PEBD IMPRESSO SUL DE MINAS BRASIL BATATA PALITO 1,05 KG x 0,060 mm (55,3 g/m²)">BOBINA PEBD IMPRESSO SUL DE MINAS BRASIL BATATA PALITO 1,05 KG x 0,060 mm (55,3 g/m²)</option>
-                    </select>
+                    <select class="inp" id="f_imp_produto" onchange="fichaProdutoChange('impressao')"></select>
                 </div>
                 <div class="g-col g-col-4"><span class="lbl">Máquina</span><input class="inp" value="Gearless"></div>
                 <div class="g-col g-col-4"><span class="lbl">Segmento de Atuação</span><input class="inp" value="ALIMENTÍCIO"></div>
@@ -1845,185 +1852,183 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
 
     <!-- ==========================================================================
-         NOVA TELA 7: CADASTRO DE CLIENTES
+         CADASTROS BASE — dinâmicos (gravam direto no banco)
          ========================================================================== -->
     <div id="view-cad-clientes" class="sys-view">
-        <div class="card-base" style="margin-bottom: 20px;">
-            <div class="card-title">Novo Cliente</div>
-            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
-                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Razão Social *</span><input class="inp" placeholder="Ex: VIRGINIA ALIMENTOS LTDA"></div>
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">CNPJ *</span><input class="inp" placeholder="00.000.000/0000-00"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Contato (Responsável)</span><input class="inp" placeholder="Nome do comprador"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Telefone</span><input class="inp" placeholder="(00) 00000-0000"></div>
-                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">E-mail Comercial</span><input class="inp" placeholder="contato@empresa.com"></div>
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status</span>
-                    <select class="inp"><option>Ativo</option><option>Inativo</option></select>
-                </div>
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="cad-cli-titulo">Novo Cliente</div>
+            <div class="quick-form">
+                <div class="qf g-col-5"><span class="lbl">Razão Social *</span><input class="inp" id="cli-razao" placeholder="Ex: VIRGINIA ALIMENTOS LTDA"></div>
+                <div class="qf g-col-3"><span class="lbl">CNPJ</span><input class="inp" id="cli-cnpj" placeholder="00.000.000/0000-00"></div>
+                <div class="qf g-col-4"><span class="lbl">Contato</span><input class="inp" id="cli-contato" placeholder="Nome do comprador"></div>
+                <div class="qf g-col-4"><span class="lbl">Telefone</span><input class="inp" id="cli-telefone" placeholder="(00) 00000-0000"></div>
+                <div class="qf g-col-5"><span class="lbl">E-mail</span><input class="inp" id="cli-email" placeholder="contato@empresa.com"></div>
+                <div class="qf g-col-3"><span class="lbl">Status</span><select class="inp" id="cli-status"><option>Ativo</option><option>Inativo</option></select></div>
             </div>
-            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
-                <button class="action-btn-sec" style="display:inline-block; margin-right:10px;" onclick="alert('Campos limpos.')">Limpar</button>
-                <button class="sys-btn-success" onclick="alert('Cliente salvo com sucesso!')"><i class="fas fa-floppy-disk"></i> Salvar Cliente</button>
+            <div style="text-align:right;"><input type="hidden" id="cli-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="cadLimpar('clientes')">Limpar</button>
+                <button class="sys-btn-success" onclick="salvarCliente()"><i class="fas fa-floppy-disk"></i> Salvar Cliente</button>
             </div>
         </div>
-        
         <div class="card-base">
-            <div class="card-title">Clientes Cadastrados
-                <input type="text" class="input-search" placeholder="Buscar cliente..." style="font-weight:normal;">
-            </div>
-            <table class="main-table">
-                <thead><tr><th>Razão Social</th><th>CNPJ</th><th>Contato</th><th>Telefone</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
-                <tbody>
-                    <tr><td style="font-weight:bold; color:#1d4ed8;">VIRGINIA ALIMENTOS LTDA</td><td>12.345.678/0001-90</td><td>Carlos Souza</td><td>(11) 9999-8888</td><td><span class="badge-status st-conc">Ativo</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold; color:#1d4ed8;">EMPRESA ABC LTDA</td><td>98.765.432/0001-10</td><td>Ana Lima</td><td>(11) 8888-7777</td><td><span class="badge-status st-conc">Ativo</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold; color:#1d4ed8;">SUPERMERCADO IDEAL</td><td>45.678.901/0001-23</td><td>João Pedro</td><td>(11) 7777-6666</td><td><span class="badge-status st-err">Inativo</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                </tbody>
-            </table>
+            <div class="card-title">Clientes cadastrados <input class="input-search" id="busca-clientes" placeholder="Buscar..." onkeyup="renderCadClientes()" style="font-weight:normal;"></div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Razão Social</th><th>CNPJ</th><th>Contato</th><th>Telefone</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-cad-clientes"></tbody></table></div>
         </div>
     </div>
 
-    <!-- ==========================================================================
-         NOVA TELA 8: CADASTRO DE FORNECEDORES (ADICIONADA)
-         ========================================================================== -->
     <div id="view-cad-fornecedores" class="sys-view">
-        <div class="card-base" style="margin-bottom: 20px;">
-            <div class="card-title">Novo Fornecedor</div>
-            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
-                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Razão Social *</span><input class="inp" placeholder="Ex: PHX PLÁSTICOS LTDA"></div>
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">CNPJ *</span><input class="inp" placeholder="00.000.000/0000-00"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Contato (Vendas)</span><input class="inp" placeholder="Nome do vendedor"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Telefone</span><input class="inp" placeholder="(00) 00000-0000"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">E-mail</span><input class="inp" placeholder="vendas@fornecedor.com"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Tipo de Fornecimento</span><input class="inp" placeholder="Ex: Bobinas, Tintas, Embalagem"></div>
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status</span>
-                    <select class="inp"><option>Homologado</option><option>Em Avaliação</option><option>Bloqueado</option></select>
-                </div>
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="cad-for-titulo">Novo Fornecedor</div>
+            <div class="quick-form">
+                <div class="qf g-col-5"><span class="lbl">Razão Social *</span><input class="inp" id="for-razao" placeholder="Ex: PHX PLÁSTICOS LTDA"></div>
+                <div class="qf g-col-4"><span class="lbl">Nome Fantasia</span><input class="inp" id="for-nome"></div>
+                <div class="qf g-col-3"><span class="lbl">CNPJ</span><input class="inp" id="for-cnpj" placeholder="00.000.000/0000-00"></div>
+                <div class="qf g-col-3"><span class="lbl">Inscr. Estadual</span><input class="inp" id="for-ie"></div>
+                <div class="qf g-col-3"><span class="lbl">Cidade</span><input class="inp" id="for-cidade"></div>
+                <div class="qf g-col-1"><span class="lbl">UF</span><input class="inp" id="for-uf" maxlength="2"></div>
+                <div class="qf g-col-2"><span class="lbl">Tipo</span><input class="inp" id="for-tipo" placeholder="Ex: Bobinas"></div>
+                <div class="qf g-col-3"><span class="lbl">Status</span><select class="inp" id="for-status"><option>Homologado</option><option>Em Avaliação</option><option>Bloqueado</option></select></div>
             </div>
-            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
-                <button class="action-btn-sec" style="display:inline-block; margin-right:10px;" onclick="alert('Campos limpos.')">Limpar</button>
-                <button class="sys-btn-success" onclick="alert('Fornecedor salvo com sucesso!')"><i class="fas fa-floppy-disk"></i> Salvar Fornecedor</button>
+            <div style="text-align:right;"><input type="hidden" id="for-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="cadLimpar('fornecedores')">Limpar</button>
+                <button class="sys-btn-success" onclick="salvarFornecedor()"><i class="fas fa-floppy-disk"></i> Salvar Fornecedor</button>
             </div>
         </div>
-        
         <div class="card-base">
-            <div class="card-title">Fornecedores Homologados
-                <input type="text" class="input-search" placeholder="Buscar fornecedor..." style="font-weight:normal;">
+            <div class="card-title">Fornecedores cadastrados <input class="input-search" id="busca-fornecedores" placeholder="Buscar..." onkeyup="renderCadFornecedores()" style="font-weight:normal;"></div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Razão Social</th><th>CNPJ</th><th>Cidade/UF</th><th>Tipo</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-cad-fornecedores"></tbody></table></div>
+        </div>
+    </div>
+
+    <div id="view-cad-produtos" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="cad-prod-titulo">Novo Produto</div>
+            <div class="quick-form">
+                <div class="qf g-col-3"><span class="lbl">Código *</span><input class="inp" id="prod-codigo" placeholder="Ex: VAL-0026"></div>
+                <div class="qf g-col-6"><span class="lbl">Descrição *</span><input class="inp" id="prod-descricao" placeholder="Ex: Bobina PEBD Impresso"></div>
+                <div class="qf g-col-3"><span class="lbl">Tipo</span><select class="inp" id="prod-tipo"><option>Produto Acabado</option><option>Matéria prima</option><option>Produto em Processo</option><option>Revenda</option></select></div>
+                <div class="qf g-col-4"><span class="lbl">Cliente vinculado</span><select class="inp" id="prod-cliente"></select></div>
+                <div class="qf g-col-2"><span class="lbl">NCM</span><input class="inp" id="prod-ncm"></div>
+                <div class="qf g-col-2"><span class="lbl">Unidade</span><input class="inp" id="prod-unidade" placeholder="KG"></div>
+                <div class="qf g-col-2"><span class="lbl">Segmento</span><input class="inp" id="prod-segmento"></div>
+                <div class="qf g-col-2"><span class="lbl">Status</span><select class="inp" id="prod-status"><option>Ativo</option><option>Descontinuado</option></select></div>
             </div>
-            <table class="main-table">
-                <thead><tr><th>Razão Social</th><th>CNPJ</th><th>Contato</th><th>Tipo de Fornecimento</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
-                <tbody>
-                    <tr><td style="font-weight:bold; color:#1d4ed8;">PHX PLÁSTICOS LTDA</td><td>11.222.333/0001-44</td><td>Marcos</td><td>Bobinas Base</td><td><span class="badge-status st-conc">Homologado</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold; color:#1d4ed8;">TINTAS BRASIL S/A</td><td>55.666.777/0001-88</td><td>Juliana</td><td>Tintas / Solventes</td><td><span class="badge-status st-conc">Homologado</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold; color:#1d4ed8;">ZETA EMBALAGENS</td><td>99.888.777/0001-22</td><td>Fernando</td><td>Caixas Papelão</td><td><span class="badge-status st-err">Bloqueado</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                </tbody>
-            </table>
+            <div style="text-align:right;"><input type="hidden" id="prod-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="cadLimpar('produtos')">Limpar</button>
+                <button class="sys-btn-success" onclick="salvarProduto()"><i class="fas fa-floppy-disk"></i> Salvar Produto</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Catálogo de produtos <input class="input-search" id="busca-produtos" placeholder="Buscar..." onkeyup="renderCadProdutos()" style="font-weight:normal;"></div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Código</th><th>Descrição</th><th>Tipo</th><th>Cliente</th><th>Unid.</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-cad-produtos"></tbody></table></div>
+        </div>
+    </div>
+
+    <div id="view-cad-cliche" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="cad-cli2-titulo">Novo Clichê</div>
+            <div class="quick-form">
+                <div class="qf g-col-3"><span class="lbl">Nº do Clichê *</span><input class="inp" id="clc-numero" placeholder="Ex: 7607"></div>
+                <div class="qf g-col-5"><span class="lbl">Produto vinculado</span><input class="inp" id="clc-produto"></div>
+                <div class="qf g-col-2"><span class="lbl">Cilindro</span><input class="inp" id="clc-cilindro"></div>
+                <div class="qf g-col-2"><span class="lbl">Passo</span><input class="inp" id="clc-passo"></div>
+                <div class="qf g-col-2"><span class="lbl">Repetições</span><input class="inp" id="clc-rep" type="number"></div>
+                <div class="qf g-col-2"><span class="lbl">Pistas</span><input class="inp" id="clc-pistas" type="number"></div>
+                <div class="qf g-col-3"><span class="lbl">Status</span><select class="inp" id="clc-status"><option>Novo / Ativo</option><option>Gasto (Requer Troca)</option><option>Obsoleto</option></select></div>
+            </div>
+            <div style="text-align:right;"><input type="hidden" id="clc-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="cadLimpar('cliches')">Limpar</button>
+                <button class="sys-btn-success" onclick="salvarCliche()"><i class="fas fa-floppy-disk"></i> Salvar Clichê</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Inventário de clichês <input class="input-search" id="busca-cliches" placeholder="Buscar..." onkeyup="renderCadCliches()" style="font-weight:normal;"></div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Nº</th><th>Produto</th><th>Cilindro/Passo</th><th>Rep./Pistas</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-cad-cliches"></tbody></table></div>
+        </div>
+    </div>
+
+    <div id="view-cad-setores" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="cad-set-titulo">Novo Setor / Área</div>
+            <div class="quick-form">
+                <div class="qf g-col-5"><span class="lbl">Nome do Setor *</span><input class="inp" id="set-nome" placeholder="Ex: Corte e Solda"></div>
+                <div class="qf g-col-4"><span class="lbl">Líder / Responsável</span><input class="inp" id="set-resp"></div>
+                <div class="qf g-col-3"><span class="lbl">Centro de Custo</span><input class="inp" id="set-cc"></div>
+            </div>
+            <div style="text-align:right;"><input type="hidden" id="set-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="cadLimpar('setores')">Limpar</button>
+                <button class="sys-btn-success" onclick="salvarSetor()"><i class="fas fa-floppy-disk"></i> Salvar Setor</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Estrutura de setores</div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Setor</th><th>Responsável</th><th>Centro de Custo</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-cad-setores"></tbody></table></div>
         </div>
     </div>
 
     <!-- ==========================================================================
-         NOVA TELA 9: CADASTRO DE PRODUTOS
+         CONFIGURAÇÃO: IMPORTAR / AUDITORIA / USUÁRIOS
          ========================================================================== -->
-    <div id="view-cad-produtos" class="sys-view">
-        <div class="card-base" style="margin-bottom: 20px;">
-            <div class="card-title">Novo Produto / Semi-Acabado</div>
-            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Código Interno *</span><input class="inp" placeholder="Ex: VCM-75051"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Vincular Cliente *</span>
-                    <select class="inp">
-                        <option>VIRGINIA ALIMENTOS LTDA</option><option>EMPRESA ABC LTDA</option><option>SUPERMERCADO IDEAL</option>
+    <div id="view-importar" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="cmd-panel-t"><i class="fas fa-download" style="color:var(--gold-deep);"></i> Importar base de outro sistema</div>
+            <div class="cmd-panel-sub">Suba a planilha (CSV sempre; XLSX/XLS com internet) de <b>clientes, fornecedores ou produtos</b>. O sistema reconhece as colunas dos seus arquivos e distribui automaticamente. Nada grava até você confirmar a prévia.</div>
+            <div class="insp-top">
+                <div class="insp-field"><label>O que está importando</label>
+                    <select id="imp-tipo" style="min-width:190px;">
+                        <option value="fornecedores">Fornecedores</option>
+                        <option value="produtos">Produtos</option>
+                        <option value="clientes">Clientes</option>
                     </select>
                 </div>
-                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Descrição do Produto *</span><input class="inp" placeholder="Ex: Bobina PEBD Impresso Batata"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Segmento</span><input class="inp" placeholder="Ex: Alimentício"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Máquina Padrão</span><input class="inp" placeholder="Ex: Gearless / CS-01"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status</span>
-                    <select class="inp"><option>Ativo (Em Linha)</option><option>Descontinuado</option></select>
+                <div class="insp-field"><label>Arquivo (.csv / .xlsx / .xls)</label>
+                    <input type="file" id="imp-file" accept=".csv,.xlsx,.xls" onchange="importLerArquivo(event)">
                 </div>
-            </div>
-            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
-                <button class="sys-btn-success" onclick="alert('Produto salvo com sucesso!')"><i class="fas fa-floppy-disk"></i> Salvar Produto</button>
-            </div>
-        </div>
-        
-        <div class="card-base">
-            <div class="card-title">Catálogo de Produtos</div>
-            <table class="main-table">
-                <thead><tr><th>Código</th><th>Cliente Vinculado</th><th>Descrição</th><th>Segmento</th><th>Máquina Padrão</th><th style="text-align:center;">Ações</th></tr></thead>
-                <tbody>
-                    <tr><td style="font-weight:bold;">VCM-75051</td><td>VIRGINIA ALIMENTOS</td><td>Bobina PEBD Batata Palito</td><td>Alimentício</td><td>Gearless</td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold;">VA-7512</td><td>VIRGINIA ALIMENTOS</td><td>Saco PEBD 500x700 Zíper</td><td>Alimentício</td><td>Corte e Solda 01</td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold;">ABC-101</td><td>EMPRESA ABC LTDA</td><td>Saco PP Transparente 100x150</td><td>Geral</td><td>Corte e Solda 02</td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ==========================================================================
-         NOVA TELA 10: CADASTRO DE CLICHÊS
-         ========================================================================== -->
-    <div id="view-cad-cliche" class="sys-view">
-        <div class="card-base" style="margin-bottom: 20px;">
-            <div class="card-title">Novo Clichê</div>
-            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Nº do Clichê *</span><input class="inp" placeholder="Ex: 7607"></div>
-                <div class="g-col g-col-5" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Produto Vinculado (Arte)</span><input class="inp" placeholder="Ex: Bobina PEBD Batata Palito"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Status de Uso</span>
-                    <select class="inp"><option>Novo / Ativo</option><option>Gasto (Requer Troca)</option><option>Obsoleto</option></select>
+                <div class="insp-field"><label>ou cole o conteúdo (CSV)</label>
+                    <textarea id="imp-cola" placeholder="Cole aqui (separado por ; ou ,)" style="min-height:38px; min-width:220px; border:1px solid var(--border); border-radius:9px; padding:8px; font-family:var(--font-body);"></textarea>
                 </div>
-                
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Cilindro</span><input class="inp" placeholder="Ex: 540,00"></div>
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Passo</span><input class="inp" placeholder="Ex: 535,00"></div>
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Repetições</span><input type="number" class="inp" placeholder="1"></div>
-                <div class="g-col g-col-3" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Nº de Pistas</span><input type="number" class="inp" placeholder="1"></div>
-            </div>
-            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
-                <button class="sys-btn-success" onclick="alert('Clichê salvo no sistema!')"><i class="fas fa-floppy-disk"></i> Salvar Clichê</button>
+                <div class="insp-field"><label>&nbsp;</label><button class="sys-btn-primary" onclick="importProcessarCola()"><i class="fas fa-table"></i> Ler colado</button></div>
             </div>
         </div>
-        
-        <div class="card-base">
-            <div class="card-title">Inventário de Clichês</div>
-            <table class="main-table">
-                <thead><tr><th>Nº Clichê</th><th>Produto Vinculado</th><th>Cilindro / Passo</th><th>Repetições / Pistas</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
-                <tbody>
-                    <tr><td style="font-weight:bold; color:#c5a880;">7607</td><td>Bobina PEBD Batata Palito</td><td>540,00 / 535,00</td><td>1 / 1</td><td><span class="badge-status st-conc">Ativo</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button></td></tr>
-                    <tr><td style="font-weight:bold; color:#c5a880;">8801</td><td>Saco Hamburguer Impresso</td><td>400,00 / 390,00</td><td>2 / 1</td><td><span class="badge-status st-pend">Gasto</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button></td></tr>
-                    <tr><td style="font-weight:bold; color:#c5a880;">4502</td><td>Bobina Fundo Estrela</td><td>600,00 / 595,00</td><td>1 / 2</td><td><span class="badge-status st-err">Obsoleto</span></td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button></td></tr>
-                </tbody>
-            </table>
+        <div id="imp-preview"></div>
+        <div class="card-base" style="margin-top:16px; border-color:#f3c9d2;">
+            <div class="cmd-panel-t" style="color:#b91c1c;"><i class="fas fa-triangle-exclamation"></i> Zerar base de dados</div>
+            <div class="cmd-panel-sub">Apaga todos os dados e deixa o sistema em branco (usuários são mantidos). Use antes de subir sua base definitiva.</div>
+            <button class="btn-outline-danger" onclick="zerarBase()"><i class="fas fa-xmark"></i> Zerar toda a base</button>
         </div>
     </div>
 
-    <!-- ==========================================================================
-         NOVA TELA 11: CADASTRO DE SETORES
-         ========================================================================== -->
-    <div id="view-cad-setores" class="sys-view">
-        <div class="card-base" style="margin-bottom: 20px;">
-            <div class="card-title">Novo Setor / Área</div>
-            <div class="grid-form" style="background:transparent; border:none; gap:10px; margin-bottom:0;">
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Nome do Setor *</span><input class="inp" placeholder="Ex: Corte e Solda"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Líder / Responsável</span><input class="inp" placeholder="Nome do encarregado"></div>
-                <div class="g-col g-col-4" style="border:1px solid #cbd5e1; border-radius:4px;"><span class="lbl">Centro de Custo</span><input class="inp" placeholder="Ex: CC-02"></div>
-            </div>
-            <div style="text-align:right; margin-top:15px; padding-top:15px; border-top:1px solid #f1f5f9;">
-                <button class="sys-btn-success" onclick="alert('Setor registrado!')"><i class="fas fa-floppy-disk"></i> Salvar Setor</button>
-            </div>
-        </div>
-        
+    <div id="view-auditoria" class="sys-view">
         <div class="card-base">
-            <div class="card-title">Estrutura de Setores</div>
-            <table class="main-table">
-                <thead><tr><th>Setor</th><th>Responsável</th><th>Centro de Custo</th><th style="text-align:center;">Ações</th></tr></thead>
-                <tbody>
-                    <tr><td style="font-weight:bold;">Impressão</td><td>Carlos Silva</td><td>CC-01</td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold;">Corte e Solda</td><td>Roberto Alves</td><td>CC-02</td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold;">Qualidade (Laboratório)</td><td>Ana Martins</td><td>CC-03</td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                    <tr><td style="font-weight:bold;">Expedição / Logística</td><td>Fábio Marques</td><td>CC-04</td><td style="text-align:center;"><button class="btn-ic" title="Editar"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Remover"><i class="fas fa-xmark"></i></button></td></tr>
-                </tbody>
-            </table>
+            <div class="cmd-panel-t"><i class="fas fa-clock-rotate-left" style="color:var(--gold-deep);"></i> Auditoria e Rastreabilidade <span class="gold-chip" id="aud-chip">0</span></div>
+            <div class="cmd-panel-sub">Todo cadastro, edição, exclusão e importação fica registrado com <b>usuário, data/hora, dispositivo e fuso</b>. Ações reversíveis podem ser desfeitas. (IP real e geolocalização precisa vêm do backend em produção.)</div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Data / Hora</th><th>Usuário</th><th>Ação</th><th>Item</th><th>Dispositivo / Fuso</th><th style="text-align:center;">Desfazer</th></tr></thead><tbody id="tb-auditoria"></tbody></table></div>
         </div>
     </div>
 
-
+    <div id="view-usuarios" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="cad-usr-titulo">Novo usuário</div>
+            <div class="quick-form">
+                <div class="qf g-col-4"><span class="lbl">Nome completo *</span><input class="inp" id="usr-nome"></div>
+                <div class="qf g-col-3"><span class="lbl">Usuário (login) *</span><input class="inp" id="usr-usuario"></div>
+                <div class="qf g-col-3"><span class="lbl">Cargo</span><input class="inp" id="usr-cargo"></div>
+                <div class="qf g-col-2"><span class="lbl">Papel</span><select class="inp" id="usr-papel"><option>Admin</option><option>Operador</option><option>Leitura</option></select></div>
+                <div class="qf g-col-3"><span class="lbl">Senha</span><input class="inp" id="usr-senha" placeholder="(em branco = mantém)"></div>
+                <div class="qf g-col-2"><span class="lbl">Status</span><select class="inp" id="usr-status"><option>Ativo</option><option>Inativo</option></select></div>
+                <div class="qf g-col-7"><span class="lbl">Painéis liberados</span><div id="usr-paineis" style="display:flex; gap:14px; flex-wrap:wrap; padding-top:6px; font-size:12px; font-weight:600;"></div></div>
+            </div>
+            <div style="text-align:right;"><input type="hidden" id="usr-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="usrLimpar()">Limpar</button>
+                <button class="sys-btn-success" onclick="salvarUsuario()"><i class="fas fa-floppy-disk"></i> Salvar Usuário</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Usuários do sistema</div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>Papel</th><th>Painéis</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-usuarios"></tbody></table></div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:10px;"><i class="fas fa-circle-info" style="color:var(--gold-deep);"></i> Quando o setor de <b>RH</b> entrar no HUB, o cadastro de pessoas dele alimentará esta tela (nome, cargo, setor) — restando aqui só o login e as permissões de acesso.</div>
+        </div>
+    </div>
 
     <!-- ==========================================================================
          TELA: RETRABALHO & ENTREGAS (REGISTRO OPERACIONAL DA QUALIDADE)
@@ -2234,6 +2239,21 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 </div>
 
 <!-- ==========================================
+     MODAL DE CADASTRO RÁPIDO (na própria ficha, grava na hora)
+     ========================================== -->
+<div id="modal-quickcad" class="modal-overlay">
+    <div class="modal-content" style="border-top-color: var(--gold);">
+        <h3 id="qc-titulo"><i class="fas fa-plus"></i> Novo cadastro</h3>
+        <p style="margin:0; font-size:11px; color:#64748b;">Cadastra e grava no banco na hora — sem sair da ficha.</p>
+        <div id="qc-campos"></div>
+        <div class="modal-actions">
+            <button class="sys-btn-primary" style="background:#f1f5f9; color:#334155;" onclick="fecharQuickCad()">Cancelar</button>
+            <button class="sys-btn-success" onclick="salvarQuickCad()"><i class="fas fa-floppy-disk"></i> Salvar e usar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
      HOVER CARD (resumo rápido) + DRAWER (cockpit da ficha)
      ========================================== -->
 <div id="hovercard" class="hovercard"></div>
@@ -2359,26 +2379,68 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const prefix = tipo === 'corte' ? 'f_' : 'f_imp_';
         const labelId = tipo === 'corte' ? 'lbl-codigo-ficha' : 'lbl-codigo-imp-ficha';
 
-        const clienteSelecionado = document.getElementById(prefix + 'cliente').value;
+        const clienteSel = document.getElementById(prefix + 'cliente').value;
         const selectProduto = document.getElementById(prefix + 'produto');
         const inputCodigo = document.getElementById(labelId);
-        
-        selectProduto.innerHTML = '<option value="">-- Selecione o Produto --</option>';
-        if (inputCodigo) inputCodigo.value = ''; 
+        if (inputCodigo) inputCodigo.value = '';
 
-        if (clienteSelecionado && catalogoProdutos[clienteSelecionado]) {
-            catalogoProdutos[clienteSelecionado].forEach(prod => {
-                let option = document.createElement('option');
-                option.value = prod.nome;
-                option.setAttribute('data-cod', prod.codCliente); 
-                option.innerText = prod.nome;
-                selectProduto.appendChild(option);
-            });
-        } else if (!clienteSelecionado) {
-            selectProduto.innerHTML = '<option value="">-- Selecione primeiro o Cliente --</option>';
-        }
-
+        // Lê o catálogo do banco (RB.produtos), filtrando pelo cliente quando informado
+        const lista = RB.produtos.filter(p => !clienteSel || !p.cliente || p.cliente === clienteSel);
+        let ops = '<option value="">-- Selecione o Produto --</option>';
+        ops += lista.map(p => `<option value="${(p.descricao||'').replace(/"/g,'&quot;')}" data-cod="${(p.codigo||'').replace(/"/g,'&quot;')}">${p.codigo ? p.codigo + ' · ' : ''}${p.descricao}</option>`).join('');
+        ops += '<option value="__novo__">➕ Cadastrar novo produto…</option>';
+        selectProduto.innerHTML = ops;
         atualizarEtiqueta();
+    }
+
+    // Selects da ficha com opção "cadastrar novo" (grava na hora, sem sair da tela)
+    function fichaClienteChange(tipo) {
+        const id = tipo === 'corte' ? 'f_cliente' : 'f_imp_cliente';
+        const el = document.getElementById(id);
+        if (el.value === '__novo__') {
+            el.value = '';
+            abrirQuickCad('clientes', o => { renderClienteSelects(); el.value = o.razao; carregarProdutosCliente(tipo); atualizarEtiqueta(); });
+            return;
+        }
+        carregarProdutosCliente(tipo);
+    }
+    function fichaProdutoChange(tipo) {
+        const id = tipo === 'corte' ? 'f_produto' : 'f_imp_produto';
+        const el = document.getElementById(id);
+        if (el.value === '__novo__') {
+            const clienteAtual = document.getElementById(tipo === 'corte' ? 'f_cliente' : 'f_imp_cliente').value;
+            abrirQuickCad('produtos', o => { if (clienteAtual && clienteAtual !== '__novo__' && !o.cliente) { o.cliente = clienteAtual; cadSalvar('produtos', o, true); } carregarProdutosCliente(tipo); el.value = o.descricao; setarCodigoEAtualizar(tipo); });
+            el.value = '';
+            return;
+        }
+        setarCodigoEAtualizar(tipo);
+    }
+
+    // ---- Modal de cadastro rápido (na ficha) ----
+    let _qcTipo = null, _qcCb = null;
+    function abrirQuickCad(tipo, cb) {
+        _qcTipo = tipo; _qcCb = cb;
+        const campos = {
+            clientes: [['qc-razao', 'Razão Social *'], ['qc-cnpj', 'CNPJ'], ['qc-contato', 'Contato'], ['qc-telefone', 'Telefone']],
+            produtos: [['qc-codigo', 'Código *'], ['qc-descricao', 'Descrição *'], ['qc-unidade', 'Unidade (ex: KG)']],
+            fornecedores: [['qc-razao', 'Razão Social *'], ['qc-cnpj', 'CNPJ'], ['qc-cidade', 'Cidade'], ['qc-uf', 'UF']]
+        }[tipo];
+        document.getElementById('qc-titulo').innerHTML = '<i class="fas fa-plus"></i> Novo ' + { clientes: 'cliente', produtos: 'produto', fornecedores: 'fornecedor' }[tipo];
+        document.getElementById('qc-campos').innerHTML = campos.map(c => `<div style="margin-top:10px;"><span class="lbl">${c[1]}</span><input class="inp" id="${c[0]}" style="border:1px solid #cbd5e1; width:100%; padding:8px;"></div>`).join('');
+        document.getElementById('modal-quickcad').style.display = 'flex';
+        renderIcons(document.getElementById('modal-quickcad'));
+        setTimeout(() => { const f = document.getElementById(campos[0][0]); if (f) f.focus(); }, 60);
+    }
+    function fecharQuickCad() { document.getElementById('modal-quickcad').style.display = 'none'; _qcCb = null; }
+    function salvarQuickCad() {
+        let obj;
+        if (_qcTipo === 'clientes') { if (!val('qc-razao').trim()) { alert('Informe a razão social.'); return; } obj = { id: 0, razao: val('qc-razao').trim(), cnpj: val('qc-cnpj').trim(), contato: val('qc-contato').trim(), telefone: val('qc-telefone').trim(), email: '', status: 'Ativo' }; }
+        else if (_qcTipo === 'produtos') { if (!val('qc-codigo').trim() || !val('qc-descricao').trim()) { alert('Informe código e descrição.'); return; } obj = { id: 0, codigo: val('qc-codigo').trim(), descricao: val('qc-descricao').trim(), tipo: 'Produto Acabado', cliente: '', ncm: '', unidade: val('qc-unidade').trim() || 'KG', segmento: '', status: 'Ativo' }; }
+        else { if (!val('qc-razao').trim()) { alert('Informe a razão social.'); return; } obj = { id: 0, razao: val('qc-razao').trim(), nome: '', cnpj: val('qc-cnpj').trim(), ie: '', cidade: val('qc-cidade').trim(), uf: val('qc-uf').trim().toUpperCase(), tipo: '', status: 'Homologado' }; }
+        const salvo = cadSalvar(_qcTipo, obj, true);
+        registrarAtividade('cadastrou ' + { clientes: 'cliente', produtos: 'produto', fornecedores: 'fornecedor' }[_qcTipo] + ' pela ficha: ' + resumoCad(_qcTipo, salvo));
+        const cb = _qcCb; fecharQuickCad();
+        if (cb) cb(salvo);
     }
 
     function setarCodigoEAtualizar(tipo = 'corte') {
@@ -2402,7 +2464,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     // ==========================================================================
     // PERSISTÊNCIA (localStorage) — nada se perde ao recarregar a página
     // ==========================================================================
-    const RB_KEY = 'rb_qualidade_v1';
+    const RB_KEY = 'rb_qualidade_v2';   // v2: base zerada (sem dados de demonstração)
     function rbLoad() {
         try { return JSON.parse(localStorage.getItem(RB_KEY)) || null; } catch(e) { return null; }
     }
@@ -2479,16 +2541,44 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { id: 3, usuario: 'andreia', nome: 'Andreia Pereira', cargo: 'Gerente',                  papel: 'Admin', avatar: '👩🏻',    senha: 'admin123', paineis: ['qualidade','impressao','corteesolda','expedicao','grupo'] }
     ];
 
-    let RB = rbLoad();
-    if (!RB) {
-        RB = { fichas: dbFichasSeed, retrabalhos: rbSeedRetrabalhos(), entregas: rbSeedEntregas(), atividades: [], usuarios: usuariosSeed };
-        localStorage.setItem(RB_KEY, JSON.stringify(RB));
+    function baseVazia() {
+        // Sistema começa ZERADO de informação (sem dados de demonstração)
+        return { fichas: [], retrabalhos: [], entregas: [], inspecoes: [], atividades: [],
+                 clientes: [], fornecedores: [], produtos: [], cliches: [], setores: [], auditoria: [],
+                 usuarios: usuariosSeed };
     }
-    if (!RB.retrabalhos) RB.retrabalhos = [];
-    if (!RB.entregas) RB.entregas = [];
-    if (!RB.atividades) RB.atividades = [];
-    RB.usuarios = usuariosSeed; // logins são configuração fixa — sempre sincroniza com o arquivo
-    let dbFichas = RB.fichas || dbFichasSeed;
+    let RB = rbLoad();
+    if (!RB) { RB = baseVazia(); localStorage.setItem(RB_KEY, JSON.stringify(RB)); }
+    // Garante todas as coleções (migração suave)
+    ['fichas','retrabalhos','entregas','inspecoes','atividades','clientes','fornecedores','produtos','cliches','setores','auditoria']
+        .forEach(k => { if (!RB[k]) RB[k] = []; });
+    if (!RB.usuarios || !RB.usuarios.length) RB.usuarios = usuariosSeed; // seed inicial; depois é gerenciado na tela de Usuários
+    let dbFichas = RB.fichas;
+    let _seqId = 1000; // ids acima dos seeds de usuários (1..3)
+    RB.clientes.concat(RB.fornecedores, RB.produtos, RB.cliches, RB.setores, RB.usuarios).forEach(x => { if (x.id >= _seqId) _seqId = x.id + 1; });
+    function novoId() { return _seqId++; }
+
+    // ==========================================================================
+    // RASTREABILIDADE / AUDITORIA — quem, quando, o quê, com opção de desfazer
+    // ==========================================================================
+    function contexto() {
+        let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e) {}
+        const ua = navigator.userAgent || '';
+        let disp = 'Desconhecido';
+        if (/Windows/.test(ua)) disp = 'Windows'; else if (/Mac/.test(ua)) disp = 'macOS';
+        else if (/Android/.test(ua)) disp = 'Android'; else if (/iPhone|iPad/.test(ua)) disp = 'iOS'; else if (/Linux/.test(ua)) disp = 'Linux';
+        return { tz, disp };
+    }
+    // ip: em protótipo de navegador o IP real vem do backend. Guardamos o que dá para capturar.
+    function registrarAuditoria(acao, entidade, detalhe, undo) {
+        const c = contexto();
+        RB.auditoria.unshift({
+            data: new Date().toISOString(), usuario: currentSessionUser,
+            usuarioId: sessaoUser ? sessaoUser.id : null, acao, entidade, detalhe,
+            dispositivo: c.disp, fuso: c.tz, ip: '(via backend)', undo: undo || null
+        });
+        RB.auditoria = RB.auditoria.slice(0, 400);
+    }
 
     // ==========================================================================
     // MOTOR DE QUALIDADE (baseado no POP-QUA-001) — critérios por etapa,
@@ -2739,11 +2829,15 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.querySelectorAll('.sys-nav-btn').forEach(e => e.classList.remove('active'));
         
         if(document.getElementById('nav-'+tela)) document.getElementById('nav-'+tela).classList.add('active');
-        if(tela.startsWith('form-')) {
-            const nf = document.getElementById('nav-form');
-            nf.classList.add('active');
-            const item = nf.closest('.sidebar-menu-item');
-            if(item) item.classList.add('open'); // abre o acordeão para mostrar o formulário ativo
+        // Abre o acordeão-pai correspondente à tela
+        const paiPorTela = t => t.startsWith('form-') ? 'nav-form'
+            : t.startsWith('cad-') ? 'nav-cadastros'
+            : ['relatorios','indicadores','auditoria'].includes(t) ? 'nav-gestao'
+            : ['parametros','usuarios','importar'].includes(t) ? 'nav-config' : null;
+        const paiId = paiPorTela(tela);
+        if(paiId) {
+            const nf = document.getElementById(paiId);
+            if(nf) { nf.classList.add('active'); const item = nf.closest('.sidebar-menu-item'); if(item) item.classList.add('open'); }
         }
 
         document.getElementById('view-'+tela).classList.add('active');
@@ -2752,6 +2846,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') headerTitle = 'Central de Comando';
         else if(tela === 'inspecao') headerTitle = 'Inspeção & Liberação de Setup';
         else if(tela === 'parametros') headerTitle = 'Parâmetros de Qualidade';
+        else if(tela === 'importar') headerTitle = 'Configuração — Importar dados';
+        else if(tela === 'auditoria') headerTitle = 'Auditoria e Rastreabilidade';
+        else if(tela === 'usuarios') headerTitle = 'Usuários e Acessos';
         else if(tela === 'dash') headerTitle = 'Dashboard Geral';
         else if(tela === 'calendario') headerTitle = 'Produção — Fila e Calendário';
         else if(tela === 'form-nc-fornecedor') headerTitle = 'Ficha de Não Conformidade';
@@ -2773,6 +2870,14 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') renderComando();
         if(tela === 'inspecao') renderInspecaoView();
         if(tela === 'parametros') renderParametros();
+        if(tela === 'cad-clientes') renderCadClientes();
+        if(tela === 'cad-fornecedores') renderCadFornecedores();
+        if(tela === 'cad-produtos') { renderClienteSelects(); renderCadProdutos(); }
+        if(tela === 'cad-cliche') renderCadCliches();
+        if(tela === 'cad-setores') renderCadSetores();
+        if(tela === 'importar') renderImportar();
+        if(tela === 'auditoria') renderAuditoria();
+        if(tela === 'usuarios') renderUsuarios();
         if(tela === 'dash') renderDashboard();
         if(tela === 'retrabalho') renderRetrabalhoView();
         if(tela === 'indicadores') renderIndicadores();
@@ -3181,6 +3286,341 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function setMargem(v) { let n = Number(v); if (isNaN(n) || n < 0) n = 0; if (n > 50) n = 50; RB.configQ.margemAtencao = n; rbSave(); }
 
     // ==========================================================================
+    // CADASTROS BASE — CRUD dinâmico (grava direto no banco + auditoria + desfazer)
+    // ==========================================================================
+    function resumoCad(tipo, o) {
+        if (tipo === 'clientes' || tipo === 'fornecedores') return o.razao || o.nome || '';
+        if (tipo === 'produtos') return (o.codigo || '') + ' · ' + (o.descricao || '');
+        if (tipo === 'cliches') return 'Clichê ' + (o.numero || '');
+        if (tipo === 'setores') return o.nome || '';
+        return '';
+    }
+    function cadSalvar(tipo, obj, silencioso) {
+        const arr = RB[tipo];
+        if (obj.id) {
+            const i = arr.findIndex(x => x.id === obj.id);
+            const antigo = i >= 0 ? Object.assign({}, arr[i]) : null;
+            if (i >= 0) arr[i] = obj;
+            if (!silencioso) registrarAuditoria('editou', tipo, resumoCad(tipo, obj), { tipo: 'editar', colecao: tipo, dados: antigo });
+        } else {
+            obj.id = novoId();
+            arr.unshift(obj);
+            registrarAuditoria(silencioso ? 'cadastrou (na ficha)' : 'cadastrou', tipo, resumoCad(tipo, obj), { tipo: 'excluir', colecao: tipo, id: obj.id });
+        }
+        rbSave();
+        return obj;
+    }
+    function cadExcluir(tipo, id) {
+        const arr = RB[tipo]; const i = arr.findIndex(x => x.id === id);
+        if (i < 0) return;
+        const removido = arr[i];
+        if (!confirm('Excluir "' + resumoCad(tipo, removido) + '"? Você pode desfazer na Auditoria.')) return;
+        arr.splice(i, 1);
+        registrarAuditoria('excluiu', tipo, resumoCad(tipo, removido), { tipo: 'restaurar', colecao: tipo, dados: removido });
+        rbSave();
+        renderCadTela(tipo);
+    }
+    function cadLimpar(tipo) {
+        const pref = { clientes: 'cli', fornecedores: 'for', produtos: 'prod', cliches: 'clc', setores: 'set' }[tipo];
+        document.querySelectorAll('#view-cad-' + (tipo === 'cliches' ? 'cliche' : tipo === 'clientes' ? 'clientes' : tipo) + ' .inp').forEach(el => { if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; });
+        const idEl = document.getElementById(pref + '-id'); if (idEl) idEl.value = '';
+        const tit = { clientes: 'cad-cli-titulo', fornecedores: 'cad-for-titulo', produtos: 'cad-prod-titulo', cliches: 'cad-cli2-titulo', setores: 'cad-set-titulo' }[tipo];
+        const te = document.getElementById(tit); if (te) te.innerText = 'Novo ' + { clientes: 'Cliente', fornecedores: 'Fornecedor', produtos: 'Produto', cliches: 'Clichê', setores: 'Setor / Área' }[tipo];
+    }
+    const val = id => (document.getElementById(id) || {}).value || '';
+    function salvarCliente() {
+        if (!val('cli-razao').trim()) { alert('Informe a Razão Social.'); return; }
+        cadSalvar('clientes', { id: +val('cli-id') || 0, razao: val('cli-razao').trim(), cnpj: val('cli-cnpj').trim(), contato: val('cli-contato').trim(), telefone: val('cli-telefone').trim(), email: val('cli-email').trim(), status: val('cli-status') });
+        cadLimpar('clientes'); renderCadClientes();
+    }
+    function salvarFornecedor() {
+        if (!val('for-razao').trim()) { alert('Informe a Razão Social.'); return; }
+        cadSalvar('fornecedores', { id: +val('for-id') || 0, razao: val('for-razao').trim(), nome: val('for-nome').trim(), cnpj: val('for-cnpj').trim(), ie: val('for-ie').trim(), cidade: val('for-cidade').trim(), uf: val('for-uf').trim().toUpperCase(), tipo: val('for-tipo').trim(), status: val('for-status') });
+        cadLimpar('fornecedores'); renderCadFornecedores();
+    }
+    function salvarProduto() {
+        if (!val('prod-codigo').trim() || !val('prod-descricao').trim()) { alert('Informe código e descrição.'); return; }
+        cadSalvar('produtos', { id: +val('prod-id') || 0, codigo: val('prod-codigo').trim(), descricao: val('prod-descricao').trim(), tipo: val('prod-tipo'), cliente: val('prod-cliente'), ncm: val('prod-ncm').trim(), unidade: val('prod-unidade').trim(), segmento: val('prod-segmento').trim(), status: val('prod-status') });
+        cadLimpar('produtos'); renderCadProdutos();
+    }
+    function salvarCliche() {
+        if (!val('clc-numero').trim()) { alert('Informe o Nº do clichê.'); return; }
+        cadSalvar('cliches', { id: +val('clc-id') || 0, numero: val('clc-numero').trim(), produto: val('clc-produto').trim(), cilindro: val('clc-cilindro').trim(), passo: val('clc-passo').trim(), rep: val('clc-rep'), pistas: val('clc-pistas'), status: val('clc-status') });
+        cadLimpar('cliches'); renderCadCliches();
+    }
+    function salvarSetor() {
+        if (!val('set-nome').trim()) { alert('Informe o nome do setor.'); return; }
+        cadSalvar('setores', { id: +val('set-id') || 0, nome: val('set-nome').trim(), resp: val('set-resp').trim(), cc: val('set-cc').trim() });
+        cadLimpar('setores'); renderCadSetores();
+    }
+    function cadEditar(tipo, id) {
+        const o = RB[tipo].find(x => x.id === id); if (!o) return;
+        const set = (f, v) => { const e = document.getElementById(f); if (e) e.value = v == null ? '' : v; };
+        if (tipo === 'clientes') { ['id','razao','cnpj','contato','telefone','email','status'].forEach(k => set('cli-' + (k==='id'?'id':k), o[k])); document.getElementById('cad-cli-titulo').innerText = 'Editar: ' + o.razao; }
+        if (tipo === 'fornecedores') { ['id','razao','nome','cnpj','ie','cidade','uf','tipo','status'].forEach(k => set('for-' + k, o[k])); document.getElementById('cad-for-titulo').innerText = 'Editar: ' + o.razao; }
+        if (tipo === 'produtos') { renderClienteSelects(); ['id','codigo','descricao','tipo','cliente','ncm','unidade','segmento','status'].forEach(k => set('prod-' + k, o[k])); document.getElementById('cad-prod-titulo').innerText = 'Editar: ' + o.codigo; }
+        if (tipo === 'cliches') { set('clc-id',o.id); set('clc-numero',o.numero); set('clc-produto',o.produto); set('clc-cilindro',o.cilindro); set('clc-passo',o.passo); set('clc-rep',o.rep); set('clc-pistas',o.pistas); set('clc-status',o.status); document.getElementById('cad-cli2-titulo').innerText = 'Editar clichê ' + o.numero; }
+        if (tipo === 'setores') { set('set-id',o.id); set('set-nome',o.nome); set('set-resp',o.resp); set('set-cc',o.cc); document.getElementById('cad-set-titulo').innerText = 'Editar: ' + o.nome; }
+        const v = tipo === 'cliches' ? 'cad-cliche' : 'cad-' + tipo;
+        document.getElementById('view-' + v).scrollTo({ top: 0 });
+    }
+    const acoesCad = (tipo, id) => `<button class="btn-ic" title="Editar" onclick="cadEditar('${tipo}',${id})"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Excluir" onclick="cadExcluir('${tipo}',${id})"><i class="fas fa-xmark"></i></button>`;
+    const filtra = (arr, q) => { q = (q||'').toLowerCase(); return q ? arr.filter(o => JSON.stringify(o).toLowerCase().includes(q)) : arr; };
+    const vazioTb = (n, msg) => `<tr><td colspan="${n}" style="text-align:center; color:#94a3b8; padding:22px;">${msg}</td></tr>`;
+
+    function renderCadClientes() {
+        const tb = document.getElementById('tb-cad-clientes'); if (!tb) return;
+        const arr = filtra(RB.clientes, val('busca-clientes'));
+        tb.innerHTML = arr.length ? arr.map(o => `<tr><td style="font-weight:bold; color:#1d4ed8;">${o.razao}</td><td>${o.cnpj||'-'}</td><td>${o.contato||'-'}</td><td>${o.telefone||'-'}</td><td><span class="badge-status ${o.status==='Ativo'?'st-conc':'st-err'}">${o.status}</span></td><td style="text-align:center;">${acoesCad('clientes',o.id)}</td></tr>`).join('') : vazioTb(6, RB.clientes.length ? 'Nada encontrado.' : 'Nenhum cliente. Cadastre acima ou importe em Configuração.');
+        renderIcons(tb);
+    }
+    function renderCadFornecedores() {
+        const tb = document.getElementById('tb-cad-fornecedores'); if (!tb) return;
+        const arr = filtra(RB.fornecedores, val('busca-fornecedores'));
+        const stcls = st => st==='Homologado'?'st-conc':st==='Bloqueado'?'st-err':'st-pend';
+        tb.innerHTML = arr.length ? arr.slice(0,300).map(o => `<tr><td style="font-weight:bold; color:#1d4ed8;">${o.razao}</td><td>${o.cnpj||'-'}</td><td>${(o.cidade||'-')}${o.uf?'/'+o.uf:''}</td><td>${o.tipo||'-'}</td><td><span class="badge-status ${stcls(o.status)}">${o.status||'-'}</span></td><td style="text-align:center;">${acoesCad('fornecedores',o.id)}</td></tr>`).join('') : vazioTb(6, RB.fornecedores.length ? 'Nada encontrado.' : 'Nenhum fornecedor. Cadastre acima ou importe em Configuração.');
+        renderIcons(tb);
+    }
+    function renderCadProdutos() {
+        const tb = document.getElementById('tb-cad-produtos'); if (!tb) return;
+        const arr = filtra(RB.produtos, val('busca-produtos'));
+        tb.innerHTML = arr.length ? arr.slice(0,300).map(o => `<tr><td style="font-weight:bold;">${o.codigo}</td><td>${o.descricao}</td><td style="font-size:11px;">${o.tipo||'-'}</td><td>${o.cliente||'-'}</td><td>${o.unidade||'-'}</td><td><span class="badge-status ${o.status==='Ativo'?'st-conc':'st-pend'}">${o.status||'-'}</span></td><td style="text-align:center;">${acoesCad('produtos',o.id)}</td></tr>`).join('') : vazioTb(7, RB.produtos.length ? 'Nada encontrado.' : 'Nenhum produto. Cadastre acima ou importe em Configuração.');
+        renderIcons(tb);
+    }
+    function renderCadCliches() {
+        const tb = document.getElementById('tb-cad-cliches'); if (!tb) return;
+        const arr = filtra(RB.cliches, val('busca-cliches'));
+        tb.innerHTML = arr.length ? arr.map(o => `<tr><td style="font-weight:bold; color:#c5a880;">${o.numero}</td><td>${o.produto||'-'}</td><td>${o.cilindro||'-'} / ${o.passo||'-'}</td><td>${o.rep||'-'} / ${o.pistas||'-'}</td><td><span class="badge-status ${o.status&&o.status.includes('Ativo')?'st-conc':o.status==='Obsoleto'?'st-err':'st-pend'}">${o.status||'-'}</span></td><td style="text-align:center;">${acoesCad('cliches',o.id)}</td></tr>`).join('') : vazioTb(6, 'Nenhum clichê cadastrado.');
+        renderIcons(tb);
+    }
+    function renderCadSetores() {
+        const tb = document.getElementById('tb-cad-setores'); if (!tb) return;
+        tb.innerHTML = RB.setores.length ? RB.setores.map(o => `<tr><td style="font-weight:bold;">${o.nome}</td><td>${o.resp||'-'}</td><td>${o.cc||'-'}</td><td style="text-align:center;">${acoesCad('setores',o.id)}</td></tr>`).join('') : vazioTb(4, 'Nenhum setor cadastrado.');
+        renderIcons(tb);
+    }
+    function renderCadTela(tipo) {
+        ({ clientes: renderCadClientes, fornecedores: renderCadFornecedores, produtos: renderCadProdutos, cliches: renderCadCliches, setores: renderCadSetores }[tipo] || (()=>{}))();
+    }
+    // Popula os <select> de cliente (cadastro de produto + fichas) a partir do banco
+    function renderClienteSelects() {
+        const ops = '<option value="">-- Selecione --</option>' + RB.clientes.map(c => `<option value="${c.razao.replace(/"/g,'&quot;')}">${c.razao}</option>`).join('') + '<option value="__novo__">➕ Cadastrar novo cliente…</option>';
+        ['prod-cliente', 'f_cliente', 'f_imp_cliente'].forEach(id => {
+            const el = document.getElementById(id); if (!el) return;
+            const atual = el.value;
+            el.innerHTML = ops;
+            if (atual && atual !== '__novo__') el.value = atual;
+        });
+    }
+
+    // ==========================================================================
+    // AUDITORIA — render + desfazer
+    // ==========================================================================
+    function fmtDataHora(iso) { const d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}); }
+    function renderAuditoria() {
+        const tb = document.getElementById('tb-auditoria'); if (!tb) return;
+        document.getElementById('aud-chip').innerText = RB.auditoria.length + ' registros';
+        tb.innerHTML = RB.auditoria.length ? RB.auditoria.slice(0, 200).map((a, i) => {
+            const podeDesfazer = a.undo && !a.desfeito;
+            const btn = podeDesfazer ? `<button class="btn-ic" title="Desfazer" onclick="desfazerAcao(${i})"><i class="fas fa-rotate"></i></button>` : (a.desfeito ? '<span style="font-size:10px; color:#94a3b8;">desfeita</span>' : '—');
+            return `<tr><td style="white-space:nowrap;">${fmtDataHora(a.data)}</td><td>${a.usuario}</td><td><b>${a.acao}</b> ${a.entidade||''}</td><td style="font-size:11px;">${a.detalhe||'-'}</td><td style="font-size:11px; color:var(--text-muted);">${a.dispositivo||'-'} · ${a.fuso||'-'}</td><td style="text-align:center;">${btn}</td></tr>`;
+        }).join('') : vazioTb(6, 'Nenhuma ação registrada ainda.');
+        renderIcons(tb);
+    }
+    function desfazerAcao(i) {
+        const log = RB.auditoria[i]; if (!log || !log.undo || log.desfeito) return;
+        const u = log.undo;
+        if (u.tipo === 'excluir') { const a = RB[u.colecao]; const j = a.findIndex(x => x.id === u.id); if (j >= 0) a.splice(j, 1); }
+        else if (u.tipo === 'restaurar') { RB[u.colecao].unshift(u.dados); }
+        else if (u.tipo === 'editar') { const a = RB[u.colecao]; const j = a.findIndex(x => x.id === u.dados.id); if (j >= 0) a[j] = u.dados; }
+        else if (u.tipo === 'remover-lote') { RB[u.colecao] = RB[u.colecao].filter(x => !u.ids.includes(x.id)); }
+        log.desfeito = true;
+        registrarAuditoria('desfez', log.entidade, 'revertido: ' + log.acao + ' ' + (log.detalhe||''));
+        rbSave();
+        renderAuditoria();
+    }
+
+    // ==========================================================================
+    // IMPORTAR — CSV nativo (offline) + XLSX/XLS via SheetJS sob demanda
+    // ==========================================================================
+    const normHead = h => String(h||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+    const MAPA_IMPORT = {
+        fornecedores: { razao:['razaosocial','razao'], nome:['nome','fantasia','nomefantasia'], cnpj:['cnpj','cnpjcpf'], ie:['ie','inscricaoestadual'], cidade:['cidade','municipio'], uf:['uf','estado'], tipo:['tipo'] },
+        produtos: { codigo:['codigo','cod'], descricao:['descricao','produto'], tipo:['tipo'], ncm:['ncm'], unidade:['unidade','un'], segmento:['linhaprodutodescricao','linhaproduto','segmento','linha'], status:['ativo','status'] },
+        clientes: { razao:['razaosocial','razao','nome','cliente'], cnpj:['cnpj'], contato:['contato','responsavel'], telefone:['telefone','fone'], email:['email','emailcomercial'], cidade:['cidade'], uf:['uf'] }
+    };
+    let _impDados = null; // {tipo, registros:[]}
+
+    function parseCSV(texto) {
+        const linhas = texto.split(/\r?\n/).filter(l => l.trim() !== '');
+        if (!linhas.length) return [];
+        const delim = (linhas[0].match(/;/g)||[]).length >= (linhas[0].match(/,/g)||[]).length ? ';' : (linhas[0].includes('\t') ? '\t' : ',');
+        const split = l => { const out=[]; let cur='', q=false; for (let i=0;i<l.length;i++){ const c=l[i]; if(c==='"'){ if(q&&l[i+1]==='"'){cur+='"';i++;} else q=!q; } else if(c===delim&&!q){ out.push(cur); cur=''; } else cur+=c; } out.push(cur); return out.map(x=>x.trim()); };
+        return linhas.map(split);
+    }
+    function mapearLinhas(matriz, tipo) {
+        if (matriz.length < 2) return [];
+        const heads = matriz[0].map(normHead);
+        const mapa = MAPA_IMPORT[tipo];
+        const idx = {};
+        Object.keys(mapa).forEach(campo => { for (const alias of mapa[campo]) { const i = heads.indexOf(alias); if (i >= 0) { idx[campo] = i; break; } } });
+        const limpaTipo = v => String(v||'').replace(/^\d+\s*/, '').trim();
+        return matriz.slice(1).map(row => {
+            const g = c => idx[c] != null ? (row[idx[c]] || '').trim() : '';
+            if (tipo === 'fornecedores') return { id:0, razao:g('razao')||g('nome'), nome:g('nome'), cnpj:g('cnpj'), ie:g('ie'), cidade:g('cidade'), uf:g('uf'), tipo:limpaTipo(g('tipo')), status:'Homologado' };
+            if (tipo === 'produtos') { const at=g('status'); return { id:0, codigo:g('codigo'), descricao:g('descricao'), tipo:limpaTipo(g('tipo'))||'Produto Acabado', ncm:g('ncm'), unidade:g('unidade')||'UN', segmento:g('segmento'), cliente:'', status:/sim|ativo|1/i.test(at)?'Ativo':(at?'Descontinuado':'Ativo') }; }
+            return { id:0, razao:g('razao'), cnpj:g('cnpj'), contato:g('contato'), telefone:g('telefone'), email:g('email'), status:'Ativo' };
+        }).filter(o => (o.razao || o.codigo || o.descricao));
+    }
+    function importPreview(matriz, tipo) {
+        const regs = mapearLinhas(matriz, tipo);
+        _impDados = { tipo, registros: regs };
+        const cols = { fornecedores:['razao','cnpj','cidade','uf','tipo'], produtos:['codigo','descricao','tipo','unidade','status'], clientes:['razao','cnpj','contato','telefone'] }[tipo];
+        const wrap = document.getElementById('imp-preview');
+        if (!regs.length) { wrap.innerHTML = '<div class="card-base"><div class="chart-empty">Não foi possível reconhecer colunas. Confira se a 1ª linha tem os títulos (ex.: Razão social, CNPJ, Cidade, UF).</div></div>'; return; }
+        const head = cols.map(c => `<th>${c}</th>`).join('');
+        const linhas = regs.slice(0, 8).map(r => `<tr>${cols.map(c => `<td>${(r[c]||'').toString().slice(0,40)}</td>`).join('')}</tr>`).join('');
+        wrap.innerHTML = `<div class="card-base">
+            <div class="cmd-panel-t"><i class="fas fa-table" style="color:var(--gold-deep);"></i> Prévia — ${regs.length} ${tipo} reconhecidos</div>
+            <div class="cmd-panel-sub">Confira a distribuição das colunas. Mostrando as 8 primeiras linhas.</div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr>${head}</tr></thead><tbody>${linhas}</tbody></table></div>
+            <div style="text-align:right; margin-top:14px;">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="document.getElementById('imp-preview').innerHTML=''; _impDados=null;">Cancelar</button>
+                <button class="sys-btn-success" onclick="importConfirmar()"><i class="fas fa-circle-check"></i> Importar ${regs.length} registros</button>
+            </div></div>`;
+        renderIcons(wrap);
+    }
+    function importConfirmar() {
+        if (!_impDados) return;
+        const { tipo, registros } = _impDados;
+        const ids = [];
+        registros.forEach(r => { r.id = novoId(); ids.push(r.id); RB[tipo].push(r); });
+        registrarAuditoria('importou', tipo, registros.length + ' registros', { tipo: 'remover-lote', colecao: tipo, ids });
+        registrarAtividade(`importou ${registros.length} ${tipo}`);
+        rbSave();
+        alert(`${registros.length} ${tipo} importados com sucesso.`);
+        _impDados = null;
+        renderImportar();
+        renderCadTela(tipo);
+    }
+    function importProcessarCola() {
+        const txt = document.getElementById('imp-cola').value;
+        if (!txt.trim()) { alert('Cole o conteúdo CSV primeiro.'); return; }
+        importPreview(parseCSV(txt), document.getElementById('imp-tipo').value);
+    }
+    function importLerArquivo(ev) {
+        const file = ev.target.files[0]; if (!file) return;
+        const tipo = document.getElementById('imp-tipo').value;
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'csv') {
+            const r = new FileReader();
+            r.onload = e => importPreview(parseCSV(e.target.result), tipo);
+            r.readAsText(file, 'utf-8');
+        } else {
+            carregarSheetJS(() => {
+                const r = new FileReader();
+                r.onload = e => {
+                    try {
+                        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                        const ws = wb.Sheets[wb.SheetNames[0]];
+                        const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                        importPreview(matriz.map(r => r.map(c => String(c))), tipo);
+                    } catch (err) { alert('Erro ao ler a planilha. Tente exportar como CSV.'); }
+                };
+                r.readAsArrayBuffer(file);
+            });
+        }
+    }
+    let _sheetjsCarregando = false;
+    function carregarSheetJS(cb) {
+        if (window.XLSX) { cb(); return; }
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload = () => cb();
+        s.onerror = () => alert('Não foi possível carregar o leitor de XLSX (precisa de internet). Exporte a planilha como CSV e importe assim — funciona offline.');
+        document.head.appendChild(s);
+    }
+    function renderImportar() {
+        document.getElementById('imp-preview').innerHTML = '';
+        const cola = document.getElementById('imp-cola'); if (cola) cola.value = '';
+        const f = document.getElementById('imp-file'); if (f) f.value = '';
+    }
+    function zerarBase() {
+        if (!confirm('Isto apaga TODOS os dados (fichas, cadastros, retrabalhos, inspeções, auditoria) e deixa o sistema em branco. Usuários são mantidos. Não dá para desfazer. Continuar?')) return;
+        const us = RB.usuarios;
+        RB = baseVazia(); RB.usuarios = us; dbFichas = RB.fichas;
+        localStorage.setItem(RB_KEY, JSON.stringify(RB));
+        alert('Base zerada. O sistema está em branco.');
+        nav('comando');
+    }
+
+    // ==========================================================================
+    // USUÁRIOS — CRUD completo (preparado para o RH futuro alimentar as pessoas)
+    // ==========================================================================
+    const PAINEIS_DEF = [['qualidade','Qualidade'],['impressao','Impressão'],['corteesolda','Corte e Solda'],['expedicao','Expedição'],['grupo','Grupo/Consolidado']];
+    function renderUsuarios() {
+        // checkboxes de painéis
+        const box = document.getElementById('usr-paineis');
+        if (box && !box.dataset.pronto) {
+            box.innerHTML = PAINEIS_DEF.map(p => `<label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" value="${p[0]}"> ${p[1]}</label>`).join('');
+            box.dataset.pronto = '1';
+        }
+        const tb = document.getElementById('tb-usuarios'); if (!tb) return;
+        tb.innerHTML = RB.usuarios.map(u => {
+            const paineis = (u.paineis||[]).map(p => (PAINEIS_DEF.find(x=>x[0]===p)||[,p])[1]).join(', ') || '—';
+            const eu = sessaoUser && sessaoUser.id === u.id;
+            return `<tr><td style="font-weight:bold;">${u.nome}${eu?' <span class="gold-chip">você</span>':''}</td><td>${u.usuario}</td><td>${u.cargo||'-'}</td><td>${u.papel}</td><td style="font-size:11px;">${paineis}</td><td><span class="badge-status ${(u.status||'Ativo')==='Ativo'?'st-conc':'st-err'}">${u.status||'Ativo'}</span></td><td style="text-align:center; white-space:nowrap;"><button class="btn-ic" title="Editar" onclick="usrEditar(${u.id})"><i class="fas fa-pen"></i></button>${eu?'':`<button class="btn-ic danger" title="Excluir" onclick="usrExcluir(${u.id})"><i class="fas fa-xmark"></i></button>`}</td></tr>`;
+        }).join('');
+        renderIcons(tb);
+    }
+    function usrLimpar() {
+        ['usr-nome','usr-usuario','usr-cargo','usr-senha','usr-id'].forEach(id=>{const e=document.getElementById(id); if(e)e.value='';});
+        document.getElementById('usr-papel').selectedIndex = 0; document.getElementById('usr-status').selectedIndex = 0;
+        document.querySelectorAll('#usr-paineis input').forEach(c => c.checked = false);
+        document.getElementById('cad-usr-titulo').innerText = 'Novo usuário';
+    }
+    function usrEditar(id) {
+        const u = RB.usuarios.find(x => x.id === id); if (!u) return;
+        document.getElementById('usr-id').value = u.id;
+        document.getElementById('usr-nome').value = u.nome;
+        document.getElementById('usr-usuario').value = u.usuario;
+        document.getElementById('usr-cargo').value = u.cargo || '';
+        document.getElementById('usr-papel').value = u.papel;
+        document.getElementById('usr-status').value = u.status || 'Ativo';
+        document.getElementById('usr-senha').value = '';
+        document.querySelectorAll('#usr-paineis input').forEach(c => c.checked = (u.paineis||[]).includes(c.value));
+        document.getElementById('cad-usr-titulo').innerText = 'Editar: ' + u.nome;
+        document.getElementById('view-usuarios').scrollTo({ top: 0 });
+    }
+    function salvarUsuario() {
+        const nome = val('usr-nome').trim(), usuario = val('usr-usuario').trim().toLowerCase();
+        if (!nome || !usuario) { alert('Informe nome e usuário.'); return; }
+        const id = +val('usr-id') || 0;
+        if (RB.usuarios.some(u => u.usuario === usuario && u.id !== id)) { alert('Já existe um usuário com esse login.'); return; }
+        const paineis = [...document.querySelectorAll('#usr-paineis input:checked')].map(c => c.value);
+        let u = RB.usuarios.find(x => x.id === id);
+        if (u) {
+            const antigo = Object.assign({}, u);
+            u.nome = nome; u.usuario = usuario; u.cargo = val('usr-cargo').trim(); u.papel = val('usr-papel'); u.status = val('usr-status'); u.paineis = paineis;
+            if (val('usr-senha')) u.senha = val('usr-senha');
+            registrarAuditoria('editou', 'usuário', nome, { tipo: 'editar', colecao: 'usuarios', dados: antigo });
+        } else {
+            u = { id: novoId(), usuario, nome, cargo: val('usr-cargo').trim(), papel: val('usr-papel'), status: val('usr-status'), senha: val('usr-senha') || '1234', avatar: '👤', paineis };
+            RB.usuarios.unshift(u);
+            registrarAuditoria('cadastrou', 'usuário', nome, { tipo: 'excluir', colecao: 'usuarios', id: u.id });
+        }
+        rbSave();
+        usrLimpar(); renderUsuarios();
+    }
+    function usrExcluir(id) {
+        const u = RB.usuarios.find(x => x.id === id); if (!u) return;
+        if (sessaoUser && sessaoUser.id === id) { alert('Você não pode excluir o próprio usuário logado.'); return; }
+        if (!confirm('Excluir o usuário "' + u.nome + '"?')) return;
+        RB.usuarios = RB.usuarios.filter(x => x.id !== id);
+        registrarAuditoria('excluiu', 'usuário', u.nome, { tipo: 'restaurar', colecao: 'usuarios', dados: u });
+        rbSave(); renderUsuarios();
+    }
+
+    // ==========================================================================
     // COCKPIT DA FICHA — hover (resumo rápido) e drawer lateral (360° + ações)
     // ==========================================================================
     function badgeClass(s) {
@@ -3401,7 +3841,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(!codigo) {
             if(document.getElementById(prefix + 'cliente')) document.getElementById(prefix + 'cliente').value = '';
             
-            if(tipo === 'corte' || tipo === 'impressao') carregarProdutosCliente(tipo); 
+            if(tipo === 'corte' || tipo === 'impressao') { renderClienteSelects(); carregarProdutosCliente(tipo); }
             
             if(tipo === 'corte') {
                 document.getElementById('prev_arte').innerHTML = ''; document.getElementById('span_arte').style.display = 'block';

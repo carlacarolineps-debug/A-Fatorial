@@ -155,3 +155,28 @@ Retrabalho & Entregas).
 - **Indicadores / insights**: `renderIndicadores`.
 - **Relatório da diretoria**: `renderRelatorio`, `imprimirRelatorio` (classe `print-mode-relatorio`).
 - **Paleta**: variáveis CSS `--primary` (azul), `--gold` / `--gold-deep` / `--gold-soft` (dourado).
+
+## Cadastros, importação, rastreabilidade e usuários (v2 — base zerada)
+
+O sistema inicia **zerado** (chave `rb_qualidade_v2`). Todas as coleções são geridas no
+navegador e podem ser povoadas por cadastro ou importação.
+
+- **Cadastro inline na ficha** — nos selects de Cliente/Produto da ficha há a opção
+  **“➕ Cadastrar novo…”**: abre um modal, grava **na hora** no banco e já seleciona o item,
+  sem sair da ficha. Funções: `abrirQuickCad`, `salvarQuickCad`, `fichaClienteChange`,
+  `fichaProdutoChange`, `renderClienteSelects`.
+- **Cadastros Base dinâmicos** (Clientes, Fornecedores, Produtos, Clichês, Setores) —
+  CRUD completo com busca; cada ação gera auditoria. `cadSalvar`, `cadExcluir`, `cadEditar`.
+- **Configuração → Importar** — sobe base de outro sistema. **CSV** funciona offline;
+  **XLSX/XLS** via leitor carregado sob demanda (precisa de internet). Reconhece as colunas
+  dos arquivos oficiais (Fornecedores: Razão social, CNPJ, IE, Cidade, UF; Produtos: Código,
+  Descrição, Tipo, NCM, Unidade, Ativo) e mostra **prévia antes de gravar**. Botão **Zerar base**.
+  Funções: `parseCSV`, `mapearLinhas`, `importPreview`, `importConfirmar`, `zerarBase`.
+- **Auditoria / Rastreabilidade** (Gestão → Auditoria) — registra usuário, data/hora,
+  dispositivo e fuso de cada cadastro/edição/exclusão/importação, com **Desfazer**.
+  IP real e geolocalização virão do backend em produção. `registrarAuditoria`, `desfazerAcao`.
+- **Usuários e Acessos** (Configuração) — CRUD de usuários com papel, senha, status e
+  **painéis liberados**; preparado para o RH futuro alimentar as pessoas. `renderUsuarios`,
+  `salvarUsuario`, `usrEditar`, `usrExcluir`.
+- **Menu em cascata** — Cadastros Base, Gestão e Configuração agora são acordeões (como
+  Fichas de Produção).
