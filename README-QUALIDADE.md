@@ -180,3 +180,20 @@ navegador e podem ser povoadas por cadastro ou importação.
   `salvarUsuario`, `usrEditar`, `usrExcluir`.
 - **Menu em cascata** — Cadastros Base, Gestão e Configuração agora são acordeões (como
   Fichas de Produção).
+
+## HUB multi-setor — Comercial e RH (encadeamento entre setores)
+
+O portal (HUB) agora abre **3 painéis ativos**, cada um com sua navegação:
+
+- **Comercial** — *Pedidos & Propostas*. Usa os cadastros compartilhados (clientes/produtos,
+  com “➕ novo” inline). O botão **Enviar à Qualidade** cria a ficha na fila da Qualidade
+  (o passo 6.1 do POP — Recebimento e Análise do Pedido) e ela aparece na Central de Comando
+  da Qualidade como decisão. Funções: `renderComercialPedidos`, `salvarPedido`, `enviarPedidoQualidade`.
+- **Qualidade** — o painel completo já existente.
+- **RH** — *Colaboradores*. Cadastro de pessoas; o botão **Gerar acesso** cria o usuário e as
+  permissões no sistema (login, senha, papel e painel conforme o setor) — fechando o ciclo
+  RH → Usuários/Acessos. Funções: `renderRHColaboradores`, `salvarColaborador`, `gerarAcesso`.
+
+Navegação por departamento: `mostrarNavDepto` troca o menu lateral (blocos `navd-*`) e o rótulo
+do logo conforme o painel; `entrarDepto` aterrissa na tela-home de cada setor. Os dados fluem
+entre setores pelo mesmo banco (`RB`), demonstrando a arquitetura integrada do grupo.

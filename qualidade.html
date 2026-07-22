@@ -61,7 +61,7 @@
         <div class="nx-portal-hello">
             <div class="oi">Bem-vindo(a), <span id="hub-hello-nome"></span></div>
             <div class="big">Selecione o painel que deseja acessar</div>
-            <div class="desc">Cada painel é um setor independente, com suas próprias informações. Por ora, o setor de <b style="color:var(--gold-bright)">Qualidade</b> está ativo; os demais entram em breve com o dashboard que separa os departamentos.</div>
+            <div class="desc">Cada painel é um setor independente que conversa com os outros: o <b style="color:var(--gold-bright)">Comercial</b> alimenta a <b style="color:var(--gold-bright)">Qualidade</b>, e o <b style="color:var(--gold-bright)">RH</b> gera os acessos. Os cadastros de clientes, fornecedores e produtos são compartilhados. Os demais setores entram em breve.</div>
         </div>
         <div class="nx-portal-cards" id="hub-cards"></div>
     </div>
@@ -763,10 +763,30 @@
 <div class="sys-sidebar">
     <div class="sys-logo">
         <span style="width:30px; height:30px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; background: linear-gradient(160deg, var(--gold-bright), var(--gold)); color:#191040; font-weight:900; flex-shrink:0;">R</span>
-        <div style="line-height:1.1;"><div>REBRACIL</div><div style="font-size:9px; font-weight:700; color:var(--gold); letter-spacing:2px;">QUALIDADE</div></div>
+        <div style="line-height:1.1;"><div>REBRACIL</div><div id="logo-depto" style="font-size:9px; font-weight:700; color:var(--gold); letter-spacing:2px;">QUALIDADE</div></div>
     </div>
     
     <div class="sys-nav-menu">
+      <!-- MENU DO DEPARTAMENTO COMERCIAL -->
+      <div id="navd-comercial" class="navd" style="display:none;">
+        <div class="nav-section">Comercial</div>
+        <button class="sys-nav-btn" onclick="nav('comercial-pedidos')" id="nav-comercial-pedidos"><span class="nav-icon"><i class="fas fa-file-lines"></i></span> Pedidos & Propostas</button>
+        <div class="nav-section">Cadastros</div>
+        <button class="sys-nav-btn" onclick="nav('cad-clientes')"><span class="nav-icon"><i class="fas fa-users"></i></span> Clientes</button>
+        <button class="sys-nav-btn" onclick="nav('cad-produtos')"><span class="nav-icon"><i class="fas fa-box"></i></span> Produtos</button>
+      </div>
+
+      <!-- MENU DO DEPARTAMENTO RH -->
+      <div id="navd-rh" class="navd" style="display:none;">
+        <div class="nav-section">Recursos Humanos</div>
+        <button class="sys-nav-btn" onclick="nav('rh-colaboradores')" id="nav-rh-colaboradores"><span class="nav-icon"><i class="fas fa-users"></i></span> Colaboradores</button>
+        <button class="sys-nav-btn" onclick="nav('usuarios')"><span class="nav-icon"><i class="fas fa-user-gear"></i></span> Acessos ao Sistema</button>
+        <div class="nav-section">Gestão</div>
+        <button class="sys-nav-btn" onclick="nav('auditoria')"><span class="nav-icon"><i class="fas fa-clock-rotate-left"></i></span> Auditoria</button>
+      </div>
+
+      <!-- MENU DO DEPARTAMENTO QUALIDADE -->
+      <div id="navd-qualidade" class="navd">
         <div class="nav-section">Operação</div>
         <button class="sys-nav-btn active" onclick="nav('comando')" id="nav-comando"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Central de Comando</button>
         <button class="sys-nav-btn" onclick="nav('dash')" id="nav-dash"><span class="nav-icon"><i class="fas fa-gauge-high"></i></span> Dashboard</button>
@@ -827,6 +847,7 @@
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('importar')" id="nav-importar"><i class="fas fa-download" style="width:16px;"></i> Importar dados</button>
             </div>
         </div>
+      </div><!-- /navd-qualidade -->
     </div>
 </div>
 
@@ -842,7 +863,7 @@
         </div>
         
         <div class="header-actions">
-            <div class="sys-menu-item">
+            <div class="sys-menu-item" id="hdr-nova-ficha">
                 <button class="sys-btn-success" style="padding: 8px 16px;"><i class="fas fa-plus"></i> Nova Ficha <i class="fas fa-caret-down"></i></button>
                 <div class="sys-submenu sys-submenu-bottom-left">
                     <button class="sys-submenu-btn" onclick="abrirFicha('corte')"><i class="fas fa-scissors" style="width:16px;"></i> Corte e Solda</button>
@@ -1967,6 +1988,62 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     </div>
 
     <!-- ==========================================================================
+         DEPARTAMENTO COMERCIAL — Pedidos & Propostas (alimenta a Qualidade, POP 6.1)
+         ========================================================================== -->
+    <div id="view-comercial-pedidos" class="sys-view">
+        <div class="cmd-strip" id="com-strip" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="com-titulo">Novo Pedido / Proposta</div>
+            <div class="cmd-panel-sub">Usa os cadastros compartilhados (clientes e produtos). Ao enviar, cria o registro na fila da Qualidade — o passo 6.1 do POP (Recebimento e Análise do Pedido).</div>
+            <div class="quick-form">
+                <div class="qf g-col-3"><span class="lbl">Nº Pedido</span><input class="inp" id="ped-numero" placeholder="Ex: PV-1024"></div>
+                <div class="qf g-col-5"><span class="lbl">Cliente *</span><select class="inp" id="ped-cliente"></select></div>
+                <div class="qf g-col-4"><span class="lbl">Prazo de entrega</span><input class="inp" id="ped-prazo" type="date"></div>
+                <div class="qf g-col-6"><span class="lbl">Produto *</span><select class="inp" id="ped-produto"></select></div>
+                <div class="qf g-col-3"><span class="lbl">Quantidade</span><input class="inp" id="ped-qtd" type="number" placeholder="un/kg"></div>
+                <div class="qf g-col-3"><span class="lbl">Tem impressão?</span><select class="inp" id="ped-impressao"><option>Sim</option><option>Não</option></select></div>
+                <div class="qf g-col-12"><span class="lbl">Especificações / observações</span><input class="inp" id="ped-espec" placeholder="Medidas, material, cores, laminação..."></div>
+            </div>
+            <div style="text-align:right;"><input type="hidden" id="ped-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="pedLimpar()">Limpar</button>
+                <button class="sys-btn-primary" onclick="salvarPedido()"><i class="fas fa-floppy-disk"></i> Salvar Pedido</button>
+                <button class="sys-btn-success" onclick="salvarPedido(true)"><i class="fas fa-paper-plane"></i> Salvar e enviar à Qualidade</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Pedidos <input class="input-search" id="busca-pedidos" placeholder="Buscar..." onkeyup="renderComercialPedidos()" style="font-weight:normal;"></div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Nº</th><th>Cliente</th><th>Produto</th><th>Qtd</th><th>Prazo</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-pedidos"></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         DEPARTAMENTO RH — Colaboradores (gera acessos/permissões)
+         ========================================================================== -->
+    <div id="view-rh-colaboradores" class="sys-view">
+        <div class="cmd-strip" id="rh-strip" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title" id="rh-titulo">Novo Colaborador</div>
+            <div class="cmd-panel-sub">O cadastro de pessoas do RH é a fonte dos acessos: um clique em <b>Gerar acesso</b> cria o usuário e as permissões no sistema.</div>
+            <div class="quick-form">
+                <div class="qf g-col-4"><span class="lbl">Nome completo *</span><input class="inp" id="col-nome"></div>
+                <div class="qf g-col-3"><span class="lbl">CPF</span><input class="inp" id="col-cpf"></div>
+                <div class="qf g-col-3"><span class="lbl">Cargo</span><input class="inp" id="col-cargo"></div>
+                <div class="qf g-col-2"><span class="lbl">Admissão</span><input class="inp" id="col-admissao" type="date"></div>
+                <div class="qf g-col-4"><span class="lbl">Setor</span><select class="inp" id="col-setor"><option>Qualidade</option><option>Comercial</option><option>RH</option><option>Impressão</option><option>Corte e Solda</option><option>Expedição</option><option>PCP</option><option>Compras</option></select></div>
+                <div class="qf g-col-3"><span class="lbl">Status</span><select class="inp" id="col-status"><option>Ativo</option><option>Afastado</option><option>Desligado</option></select></div>
+            </div>
+            <div style="text-align:right;"><input type="hidden" id="col-id">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="colLimpar()">Limpar</button>
+                <button class="sys-btn-success" onclick="salvarColaborador()"><i class="fas fa-floppy-disk"></i> Salvar Colaborador</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Quadro de colaboradores <input class="input-search" id="busca-colab" placeholder="Buscar..." onkeyup="renderRHColaboradores()" style="font-weight:normal;"></div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Nome</th><th>Cargo</th><th>Setor</th><th>Admissão</th><th>Status</th><th>Acesso</th><th style="text-align:center;">Ações</th></tr></thead><tbody id="tb-colaboradores"></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
          CONFIGURAÇÃO: IMPORTAR / AUDITORIA / USUÁRIOS
          ========================================================================== -->
     <div id="view-importar" class="sys-view">
@@ -2545,12 +2622,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         // Sistema começa ZERADO de informação (sem dados de demonstração)
         return { fichas: [], retrabalhos: [], entregas: [], inspecoes: [], atividades: [],
                  clientes: [], fornecedores: [], produtos: [], cliches: [], setores: [], auditoria: [],
-                 usuarios: usuariosSeed };
+                 colaboradores: [], pedidos: [], usuarios: usuariosSeed };
     }
     let RB = rbLoad();
     if (!RB) { RB = baseVazia(); localStorage.setItem(RB_KEY, JSON.stringify(RB)); }
     // Garante todas as coleções (migração suave)
-    ['fichas','retrabalhos','entregas','inspecoes','atividades','clientes','fornecedores','produtos','cliches','setores','auditoria']
+    ['fichas','retrabalhos','entregas','inspecoes','atividades','clientes','fornecedores','produtos','cliches','setores','auditoria','colaboradores','pedidos']
         .forEach(k => { if (!RB[k]) RB[k] = []; });
     if (!RB.usuarios || !RB.usuarios.length) RB.usuarios = usuariosSeed; // seed inicial; depois é gerenciado na tela de Usuários
     let dbFichas = RB.fichas;
@@ -2628,9 +2705,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     // Definição dos painéis/departamentos do grupo
     const DEPARTAMENTOS = [
+        { id: 'comercial',   nome: 'Comercial',      setor: 'Pedidos & Propostas',    icone: '<i class="fas fa-handshake"></i>', cor: '#1d4ed8', ativo: true },
         { id: 'qualidade',   nome: 'Qualidade',      setor: 'Controle & Laboratório', icone: '<i class="fas fa-flask-vial"></i>', cor: '#c5a880', ativo: true },
-        { id: 'impressao',   nome: 'Impressão',      setor: 'Flexografia',            icone: '<i class="fas fa-print"></i>', cor: '#1d4ed8', ativo: false },
-        { id: 'corteesolda', nome: 'Corte e Solda',  setor: 'Conversão',              icone: '<i class="fas fa-scissors"></i>', cor: '#0d9488', ativo: false },
+        { id: 'rh',          nome: 'RH',             setor: 'Pessoas & Acessos',      icone: '<i class="fas fa-users"></i>', cor: '#0d9488', ativo: true },
+        { id: 'impressao',   nome: 'Impressão',      setor: 'Flexografia',            icone: '<i class="fas fa-print"></i>', cor: '#7c3aed', ativo: false },
+        { id: 'corteesolda', nome: 'Corte e Solda',  setor: 'Conversão',              icone: '<i class="fas fa-scissors"></i>', cor: '#0f766e', ativo: false },
         { id: 'expedicao',   nome: 'Expedição',      setor: 'Logística',              icone: '<i class="fas fa-truck"></i>', cor: '#f59e0b', ativo: false },
         { id: 'grupo',       nome: 'Grupo · Consolidado', setor: 'Todos os setores juntos', icone: '<i class="fas fa-layer-group"></i>', cor: '#c5a880', ativo: false }
     ];
@@ -2714,8 +2793,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.getElementById('hub-portal').classList.remove('show');
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('app-sistema-gestao').classList.remove('app-hidden');
-        renderDashboard();
-        nav('comando');   // aterrissa na Central de Comando (o que fazer agora)
+        mostrarNavDepto(id);
+        if (id === 'comercial') { nav('comercial-pedidos'); }
+        else if (id === 'rh') { nav('rh-colaboradores'); }
+        else { renderDashboard(); nav('comando'); }   // Qualidade aterrissa na Central de Comando
     }
 
     function renderHub() {
@@ -2745,6 +2826,18 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 kpisHtml = `<div><span>Retrab. mês</span><b>${retMes}</b></div>
                             <div><span>Custo mês</span><b>${fmtBRL(custoMes)}</b></div>
                             <div><span>Entrega OTIF</span><b>${otif}</b></div>`;
+                ctaHtml = 'Entrar no painel →';
+            } else if (d.id === 'comercial') {
+                const abertos = RB.pedidos.filter(p => p.status !== 'Enviado à Qualidade').length;
+                kpisHtml = `<div><span>Pedidos</span><b>${RB.pedidos.length}</b></div>
+                            <div><span>Em aberto</span><b>${abertos}</b></div>
+                            <div><span>Clientes</span><b>${RB.clientes.length}</b></div>`;
+                ctaHtml = 'Entrar no painel →';
+            } else if (d.id === 'rh') {
+                const ativos = RB.colaboradores.filter(c => (c.status||'Ativo') === 'Ativo').length;
+                kpisHtml = `<div><span>Colaborad.</span><b>${RB.colaboradores.length}</b></div>
+                            <div><span>Ativos</span><b>${ativos}</b></div>
+                            <div><span>Com acesso</span><b>${RB.colaboradores.filter(c=>c.temAcesso).length}</b></div>`;
                 ctaHtml = 'Entrar no painel →';
             } else if (d.id === 'grupo') {
                 kpisHtml = `<div><span>Setores</span><b>4</b></div>
@@ -2849,6 +2942,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tela === 'importar') headerTitle = 'Configuração — Importar dados';
         else if(tela === 'auditoria') headerTitle = 'Auditoria e Rastreabilidade';
         else if(tela === 'usuarios') headerTitle = 'Usuários e Acessos';
+        else if(tela === 'comercial-pedidos') headerTitle = 'Comercial — Pedidos & Propostas';
+        else if(tela === 'rh-colaboradores') headerTitle = 'RH — Colaboradores';
         else if(tela === 'dash') headerTitle = 'Dashboard Geral';
         else if(tela === 'calendario') headerTitle = 'Produção — Fila e Calendário';
         else if(tela === 'form-nc-fornecedor') headerTitle = 'Ficha de Não Conformidade';
@@ -2878,6 +2973,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'importar') renderImportar();
         if(tela === 'auditoria') renderAuditoria();
         if(tela === 'usuarios') renderUsuarios();
+        if(tela === 'comercial-pedidos') renderComercialPedidos();
+        if(tela === 'rh-colaboradores') renderRHColaboradores();
         if(tela === 'dash') renderDashboard();
         if(tela === 'retrabalho') renderRetrabalhoView();
         if(tela === 'indicadores') renderIndicadores();
@@ -3618,6 +3715,114 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         RB.usuarios = RB.usuarios.filter(x => x.id !== id);
         registrarAuditoria('excluiu', 'usuário', u.nome, { tipo: 'restaurar', colecao: 'usuarios', dados: u });
         rbSave(); renderUsuarios();
+    }
+
+    // ==========================================================================
+    // NAVEGAÇÃO POR DEPARTAMENTO (HUB → painel de cada setor)
+    // ==========================================================================
+    function mostrarNavDepto(dep) {
+        document.querySelectorAll('.navd').forEach(el => el.style.display = 'none');
+        const nd = document.getElementById('navd-' + dep); if (nd) nd.style.display = 'block';
+        const lg = document.getElementById('logo-depto'); if (lg) lg.innerText = { qualidade: 'QUALIDADE', comercial: 'COMERCIAL', rh: 'RECURSOS HUMANOS' }[dep] || 'REBRACIL';
+        const nf = document.getElementById('hdr-nova-ficha'); if (nf) nf.style.display = dep === 'qualidade' ? '' : 'none';
+    }
+
+    // ==========================================================================
+    // DEPARTAMENTO COMERCIAL — pedidos que alimentam a Qualidade (POP 6.1)
+    // ==========================================================================
+    function renderPedidoSelects() {
+        const cli = document.getElementById('ped-cliente');
+        if (cli) { const a = cli.value; cli.innerHTML = '<option value="">-- Selecione --</option>' + RB.clientes.map(c => `<option>${c.razao}</option>`).join('') + '<option value="__novo__">➕ Novo cliente…</option>'; if (a && a !== '__novo__') cli.value = a;
+            cli.onchange = () => { if (cli.value === '__novo__') { cli.value = ''; abrirQuickCad('clientes', o => { renderPedidoSelects(); cli.value = o.razao; }); } }; }
+        const prod = document.getElementById('ped-produto');
+        if (prod) { const a = prod.value; prod.innerHTML = '<option value="">-- Selecione --</option>' + RB.produtos.slice(0, 500).map(p => `<option value="${(p.descricao||'').replace(/"/g,'&quot;')}">${p.codigo ? p.codigo + ' · ' : ''}${p.descricao}</option>`).join('') + '<option value="__novo__">➕ Novo produto…</option>'; if (a && a !== '__novo__') prod.value = a;
+            prod.onchange = () => { if (prod.value === '__novo__') { prod.value = ''; abrirQuickCad('produtos', o => { renderPedidoSelects(); prod.value = o.descricao; }); } }; }
+    }
+    function pedLimpar() { ['ped-numero','ped-cliente','ped-prazo','ped-produto','ped-qtd','ped-espec','ped-id'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; }); document.getElementById('ped-impressao').selectedIndex = 0; document.getElementById('com-titulo').innerText = 'Novo Pedido / Proposta'; }
+    function salvarPedido(enviar) {
+        const cliente = val('ped-cliente'), produto = val('ped-produto');
+        if (!cliente || cliente === '__novo__') { alert('Selecione o cliente.'); return; }
+        if (!produto || produto === '__novo__') { alert('Selecione o produto.'); return; }
+        const id = +val('ped-id') || 0;
+        let p = RB.pedidos.find(x => x.id === id);
+        const dados = { numero: val('ped-numero').trim() || ('PV-' + (RB.pedidos.length + 1001)), cliente, produto, qtd: val('ped-qtd'), prazo: val('ped-prazo'), impressao: val('ped-impressao'), espec: val('ped-espec').trim() };
+        if (p) { Object.assign(p, dados); registrarAuditoria('editou', 'pedido', p.numero); }
+        else { p = Object.assign({ id: novoId(), data: new Date().toISOString(), status: 'Aberto' }, dados); RB.pedidos.unshift(p); registrarAuditoria('cadastrou', 'pedido', p.numero, { tipo: 'excluir', colecao: 'pedidos', id: p.id }); }
+        if (enviar) enviarPedidoQualidade(p);
+        rbSave(); pedLimpar(); renderComercialPedidos();
+    }
+    function enviarPedidoQualidade(p) {
+        p.status = 'Enviado à Qualidade';
+        const cod = p.numero;
+        if (!dbFichas.some(f => f.cod === cod)) {
+            dbFichas.unshift({ cod, produto: p.produto, cliente: p.cliente, setor: 'Qualidade', prox: p.impressao === 'Sim' ? 'Pré-Impressão' : 'Corte e Solda', status: 'Aguardando Aprovação', dataHora: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}), responsavel: currentSessionUser, origem: 'Comercial', notas: [{ data: new Date().toISOString(), texto: 'Pedido recebido do Comercial. ' + (p.espec || ''), usuario: currentSessionUser }], historico: [] });
+        }
+        registrarAtividade(`enviou o pedido ${cod} para a Qualidade`);
+        registrarAuditoria('enviou à Qualidade', 'pedido', cod);
+        rbSave();
+        alert(`Pedido ${cod} enviado à Qualidade.\nEle já aparece na Central de Comando da Qualidade como decisão (Recebimento e Análise do Pedido — POP 6.1).`);
+    }
+    function enviarPedidoPorId(id) { const p = RB.pedidos.find(x => x.id === id); if (p) { enviarPedidoQualidade(p); renderComercialPedidos(); } }
+    function pedEditar(id) { const p = RB.pedidos.find(x => x.id === id); if (!p) return; renderPedidoSelects(); const set = (f, v) => { const e = document.getElementById(f); if (e) e.value = v == null ? '' : v; }; set('ped-id', p.id); set('ped-numero', p.numero); set('ped-cliente', p.cliente); set('ped-prazo', p.prazo); set('ped-produto', p.produto); set('ped-qtd', p.qtd); set('ped-impressao', p.impressao); set('ped-espec', p.espec); document.getElementById('com-titulo').innerText = 'Editar pedido ' + p.numero; }
+    function renderComercialPedidos() {
+        renderPedidoSelects();
+        const enviados = RB.pedidos.filter(p => p.status === 'Enviado à Qualidade').length;
+        const strip = document.getElementById('com-strip');
+        if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#1d4ed8"><div class="l">Pedidos</div><div class="v">${RB.pedidos.length}</div></div><div class="cmd-mini" style="--c:#f59e0b"><div class="l">Em aberto</div><div class="v">${RB.pedidos.length - enviados}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Enviados à Qualidade</div><div class="v">${enviados}</div></div>`;
+        const tb = document.getElementById('tb-pedidos'); if (!tb) return;
+        const arr = filtra(RB.pedidos, val('busca-pedidos'));
+        tb.innerHTML = arr.length ? arr.map(p => {
+            const st = p.status === 'Enviado à Qualidade' ? 'st-conc' : 'st-pend';
+            const btn = p.status === 'Enviado à Qualidade' ? '' : `<button class="btn-ic" title="Enviar à Qualidade" onclick="enviarPedidoPorId(${p.id})"><i class="fas fa-paper-plane"></i></button>`;
+            return `<tr><td style="font-weight:bold; color:#1d4ed8;">${p.numero}</td><td>${p.cliente}</td><td style="font-size:12px;">${p.produto}</td><td>${p.qtd || '-'}</td><td>${p.prazo ? new Date(p.prazo + 'T12:00:00').toLocaleDateString('pt-BR') : '-'}</td><td><span class="badge-status ${st}">${p.status}</span></td><td style="text-align:center; white-space:nowrap;">${btn}<button class="btn-ic" title="Editar" onclick="pedEditar(${p.id})"><i class="fas fa-pen"></i></button></td></tr>`;
+        }).join('') : vazioTb(7, 'Nenhum pedido. Cadastre acima.');
+        renderIcons(tb);
+    }
+
+    // ==========================================================================
+    // DEPARTAMENTO RH — colaboradores geram acessos/permissões
+    // ==========================================================================
+    const SETOR_PAINEL = { 'Qualidade':'qualidade','Comercial':'comercial','RH':'rh','Impressão':'impressao','Corte e Solda':'corteesolda','Expedição':'expedicao' };
+    function colLimpar() { ['col-nome','col-cpf','col-cargo','col-admissao','col-id'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; }); document.getElementById('col-setor').selectedIndex = 0; document.getElementById('col-status').selectedIndex = 0; document.getElementById('rh-titulo').innerText = 'Novo Colaborador'; }
+    function salvarColaborador() {
+        const nome = val('col-nome').trim(); if (!nome) { alert('Informe o nome.'); return; }
+        const id = +val('col-id') || 0;
+        let c = RB.colaboradores.find(x => x.id === id);
+        const dados = { nome, cpf: val('col-cpf').trim(), cargo: val('col-cargo').trim(), setor: val('col-setor'), admissao: val('col-admissao'), status: val('col-status') };
+        if (c) { const antigo = Object.assign({}, c); Object.assign(c, dados); registrarAuditoria('editou', 'colaborador', nome, { tipo: 'editar', colecao: 'colaboradores', dados: antigo }); }
+        else { c = Object.assign({ id: novoId(), temAcesso: false, usuarioId: null }, dados); RB.colaboradores.unshift(c); registrarAuditoria('cadastrou', 'colaborador', nome, { tipo: 'excluir', colecao: 'colaboradores', id: c.id }); }
+        rbSave(); colLimpar(); renderRHColaboradores();
+    }
+    function gerarAcesso(id) {
+        const c = RB.colaboradores.find(x => x.id === id); if (!c) return;
+        if (c.temAcesso) { alert('Este colaborador já tem acesso.'); return; }
+        let base = c.nome.trim().split(' ')[0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '') || 'user';
+        let login = base, n = 1; while (RB.usuarios.some(u => u.usuario === login)) { login = base + (++n); }
+        const painel = SETOR_PAINEL[c.setor] || 'qualidade';
+        const papel = /gerente|coorden|diretor|admin|supervis/i.test(c.cargo || '') ? 'Admin' : 'Operador';
+        const senha = 'rebracil' + (1000 + (c.id % 9000));
+        const u = { id: novoId(), usuario: login, nome: c.nome, cargo: c.cargo || c.setor, papel, status: 'Ativo', senha, avatar: '👤', paineis: [painel] };
+        RB.usuarios.unshift(u);
+        c.temAcesso = true; c.usuarioId = u.id;
+        registrarAuditoria('gerou acesso', 'usuário', c.nome + ' (' + login + ')', { tipo: 'excluir', colecao: 'usuarios', id: u.id });
+        registrarAtividade(`gerou acesso para ${c.nome} (login ${login})`);
+        rbSave(); renderRHColaboradores();
+        alert(`Acesso criado para ${c.nome}.\n\nLogin: ${login}\nSenha: ${senha}\nPapel: ${papel} · Painel: ${c.setor}\n\nJá aparece em Usuários e Acessos — o RH alimentou o controle de acesso.`);
+    }
+    function colEditar(id) { const c = RB.colaboradores.find(x => x.id === id); if (!c) return; const set = (f, v) => { const e = document.getElementById(f); if (e) e.value = v == null ? '' : v; }; set('col-id', c.id); set('col-nome', c.nome); set('col-cpf', c.cpf); set('col-cargo', c.cargo); set('col-setor', c.setor); set('col-admissao', c.admissao); set('col-status', c.status); document.getElementById('rh-titulo').innerText = 'Editar: ' + c.nome; }
+    function colExcluir(id) { const c = RB.colaboradores.find(x => x.id === id); if (!c) return; if (!confirm('Excluir "' + c.nome + '"?')) return; RB.colaboradores = RB.colaboradores.filter(x => x.id !== id); registrarAuditoria('excluiu', 'colaborador', c.nome, { tipo: 'restaurar', colecao: 'colaboradores', dados: c }); rbSave(); renderRHColaboradores(); }
+    function renderRHColaboradores() {
+        const strip = document.getElementById('rh-strip');
+        const ativos = RB.colaboradores.filter(c => (c.status || 'Ativo') === 'Ativo').length;
+        if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#0d9488"><div class="l">Colaboradores</div><div class="v">${RB.colaboradores.length}</div></div><div class="cmd-mini" style="--c:#1d4ed8"><div class="l">Ativos</div><div class="v">${ativos}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Com acesso</div><div class="v">${RB.colaboradores.filter(c => c.temAcesso).length}</div></div>`;
+        const tb = document.getElementById('tb-colaboradores'); if (!tb) return;
+        const arr = filtra(RB.colaboradores, val('busca-colab'));
+        tb.innerHTML = arr.length ? arr.map(c => {
+            const stcls = c.status === 'Ativo' ? 'st-conc' : c.status === 'Desligado' ? 'st-err' : 'st-pend';
+            const acesso = c.temAcesso ? '<span class="badge-status st-conc">Com acesso</span>' : `<button class="dec-btn ghost" style="padding:5px 10px;" onclick="gerarAcesso(${c.id})"><i class="fas fa-user-gear"></i> Gerar acesso</button>`;
+            return `<tr><td style="font-weight:bold;">${c.nome}</td><td>${c.cargo || '-'}</td><td>${c.setor || '-'}</td><td>${c.admissao ? new Date(c.admissao + 'T12:00:00').toLocaleDateString('pt-BR') : '-'}</td><td><span class="badge-status ${stcls}">${c.status || 'Ativo'}</span></td><td>${acesso}</td><td style="text-align:center; white-space:nowrap;"><button class="btn-ic" title="Editar" onclick="colEditar(${c.id})"><i class="fas fa-pen"></i></button><button class="btn-ic danger" title="Excluir" onclick="colExcluir(${c.id})"><i class="fas fa-xmark"></i></button></td></tr>`;
+        }).join('') : vazioTb(7, 'Nenhum colaborador. Cadastre acima.');
+        renderIcons(tb);
     }
 
     // ==========================================================================
