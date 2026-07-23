@@ -70,6 +70,12 @@ Tela inicial do sistema. Em vez de só *mostrar* dados, ela **decide e conduz**:
 - **Fila de decisões** — tudo que exige o gestor, **ordenado por urgência/impacto**, cada
   item com **ação de um clique**: aprovar ficha, priorizar atrasada, tratar RNC, enviar ao
   setor, concluir/reagendar entrega vencida. Resolver uma decisão encadeia a próxima.
+- **Modo Coordenação** — quando **não há pendências de correção**, a Central não fica só
+  dizendo "tudo certo": ela vira uma **agenda proativa** que direciona o Coordenador a
+  **coordenar a área e implantar melhorias** — revisar parâmetros/tolerâncias do POP,
+  abrir plano de melhoria para a maior causa de retrabalho (ou treinar a equipe, quando não
+  há retrabalho), coordenar a fila/entregas da semana, homologar fornecedores, enriquecer a
+  base cadastral e auditar rastreabilidade/acessos. Cada frente tem atalho de um clique.
 - **Riscos & leitura estratégica** — causa recorrente (Pareto), tendência, potencial de
   economia e OTIF, calculados automaticamente.
 - **Últimas ações** — trilha do que foi feito.
@@ -126,7 +132,7 @@ No **Histórico Geral de Fichas**, cada linha é interativa:
 | **Retrabalho & Entregas** | Registro rápido de retrabalho (causa raiz + custo) e de envios a outros setores; KPIs do mês e histórico. |
 | **Indicadores** | 4 gráficos SVG (sem bibliotecas): tendência mensal de retrabalho, Pareto de causas, RNC por fornecedor e entregas por setor — com leitura estratégica automática. |
 | **Relatórios** | Relatório executivo com período selecionável, KPIs, gráficos e recomendações; botão **Exportar PDF (Diretoria)**. |
-| **Fichas de Produção** | Corte e Solda, Impressão, Solicitação de Clichê, NC Fornecedor e Devolução (com etiqueta e impressão). |
+| **Ficha de Parâmetro** | Acordeão na ordem **Solicitação de Clichê → Impressão → Laminação → Corte & Solda → Rebobinadeira → Não Conformidade → Devolução**. O cliente é um **campo de digitação com autocomplete** da base: se já existe, aparece para selecionar; se não existe, o sistema **cadastra na hora** e segue, sem prender o usuário na tela de cadastro. |
 | **Cadastros Base** | Clientes, Fornecedores, Produtos, Clichês e Setores. |
 
 ## Persistência
@@ -178,8 +184,8 @@ navegador e podem ser povoadas por cadastro ou importação.
 - **Usuários e Acessos** (Configuração) — CRUD de usuários com papel, senha, status e
   **painéis liberados**; preparado para o RH futuro alimentar as pessoas. `renderUsuarios`,
   `salvarUsuario`, `usrEditar`, `usrExcluir`.
-- **Menu em cascata** — Cadastros Base, Gestão e Configuração agora são acordeões (como
-  Fichas de Produção).
+- **Menu em cascata** — Cadastros Base, Gestão e Configuração são acordeões (como
+  Ficha de Parâmetro).
 
 ## HUB multi-setor — Comercial e RH (encadeamento entre setores)
 
