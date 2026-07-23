@@ -376,7 +376,14 @@
         body.print-mode-fu .fup-meta th,
         body.print-mode-fu .fup-params td.l,
         body.print-mode-fu .fup-params td.grp,
+        body.print-mode-fu .section-title,
+        body.print-mode-fu .g-col,
+        body.print-mode-fu .grid-form,
+        body.print-mode-fu .fpg-val,
+        body.print-mode-fu .inner-table th,
         body.print-mode-fu .fup-fluxo .fx.now { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body.print-mode-fu .fu-page .grid-form { page-break-inside: auto; }
+        body.print-mode-fu .fu-page .g-col, body.print-mode-fu .fu-page .inner-table tr { page-break-inside: avoid; }
     }
 
     .fu-page { font-family: 'Inter', Arial, sans-serif; color: #111; padding: 8mm 6mm; page-break-after: always; background: #fff; box-sizing: border-box; max-width: 190mm; margin: 0 auto; }
@@ -406,6 +413,15 @@
     .fup-sign .s { flex: 1; text-align: center; font-size: 9px; color: #444; }
     .fup-sign .s .line { border-top: 1px solid #111; margin-bottom: 4px; padding-top: 4px; font-weight: 700; font-size: 10px; color: #111; }
     .fup-foot { margin-top: 14px; border-top: 1px solid #999; padding-top: 6px; font-size: 8.5px; color: #555; display: flex; justify-content: space-between; }
+
+    /* Seção clonada na impressão: mesma grade de caixas da tela, compactada p/ A4 */
+    .fu-page .grid-form { margin: 3mm 0 0; }
+    .fu-page .g-col { padding: 3px 6px; }
+    .fu-page .lbl { font-size: 7.5px; margin-bottom: 1px; }
+    .fu-page .section-title { font-size: 10px; padding: 5px 9px; }
+    .fu-page .fpg-val { font-size: 10px; font-weight: 700; color: #111827; background: #f8fafc; padding: 2px 5px; border-radius: 2px; min-height: 13px; word-wrap: break-word; overflow-wrap: break-word; }
+    .fu-page .inner-table th, .fu-page .inner-table td { font-size: 8px; padding: 2px 3px; }
+    .fu-page .inner-table .fpg-val { font-size: 9px; padding: 1px 3px; }
 
     /* ---- Anexos da Ficha Única (documentação visual) ---- */
     .fu-anexos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 12px; }
@@ -4165,10 +4181,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         let blocoParams = '';
         if (f && f.tipo === 'unica' && f.dados && fuKey && document.getElementById('fu-sec-' + fuKey)) {
             const entradas = fuCamposDaSecao(fuKey, f.dados);
-            if (entradas.some(e => e.v && e.v !== '—')) {
-                const linhas = fuLinhasImpressao(entradas, corEt, true);
-                blocoParams = `<div class="fup-sec-title" style="background:${corEt};">Parâmetros da etapa — Ficha Única ${insp.ficha}</div><table class="fup-params">${linhas}</table>`;
-            }
+            // Mesma grade de caixas da tela, com os valores registrados na Ficha Única
+            if (entradas.some(e => e.v && e.v !== '—')) blocoParams = fuSecaoHTML(fuKey, f.dados, codEt);
         }
 
         const fluxoHtml = (f && f.etapas)
@@ -5363,6 +5377,36 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         return out;
     }
 
+    // Reproduz a seção da etapa NA IMPRESSÃO exatamente como na tela: a mesma
+    // grade de caixas (12 colunas), mesma ordem, mesmos grupos e tabelas — com os
+    // campos substituídos pelos valores preenchidos. `dados` = ficha salva.
+    function fuSecaoHTML(key, dados, codEt) {
+        const sec = document.getElementById('fu-sec-' + key);
+        if (!sec) return '';
+        const clone = sec.cloneNode(true);
+        clone.classList.add('on');
+        clone.removeAttribute('id');
+        clone.querySelectorAll('[id]').forEach(el => { if (el.tagName !== 'INPUT' && el.tagName !== 'SELECT' && el.tagName !== 'TEXTAREA') el.removeAttribute('id'); });
+        clone.querySelectorAll('.fu-prog').forEach(el => el.remove());
+        clone.querySelectorAll('.fu-cod-et').forEach(el => { el.textContent = codEt || ''; el.removeAttribute('id'); });
+        clone.querySelectorAll('.lbl span, .lbl small').forEach(el => el.remove());
+        clone.querySelectorAll('datalist').forEach(el => el.remove());
+        // Campos → valores preenchidos (da tela ou da ficha salva)
+        clone.querySelectorAll('input, textarea, select').forEach(inp => {
+            if (inp.type === 'checkbox' || inp.type === 'radio' || inp.type === 'file') { inp.remove(); return; }
+            const id = inp.id;
+            const v = (id && id.startsWith('fu_')) ? (dados ? (dados[id] || '') : ((document.getElementById(id) || {}).value || '')) : '';
+            const div = document.createElement('div');
+            div.className = 'fpg-val';
+            div.textContent = (v || '').trim() || '—';
+            inp.replaceWith(div);
+        });
+        // Checklist de materiais: o valor composto já aparece; os chips saem
+        clone.querySelectorAll('.chips-fluxo').forEach(el => el.remove());
+        clone.querySelectorAll('button').forEach(el => el.remove());
+        return clone.outerHTML;
+    }
+
     // Monta as linhas da tabela impressa respeitando a ordem e os grupos do layout
     function fuLinhasImpressao(entradas, cor, filtrarVazios) {
         let linhas = '', par = [];
@@ -5397,8 +5441,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const paginas = selecionadas.map((et, pIdx) => {
             const codEt = codigoEtapa(cod, fuKeyEfetiva(et.key)) || cod; // código com sufixo da etapa (regra vigente)
             const cor = FU_COR[et.key] || '#191040';
-            // Linhas na MESMA ordem do layout de preenchimento, com os grupos coloridos
-            const linhas = fuLinhasImpressao(fuCamposDaSecao(et.key), cor, false);
             const cadeia = fluxoSel.map(e => `<span class="fx${e.key === et.key ? ' now' : ''}"${e.key === et.key ? ` style="background:${cor}; border-color:${cor};"` : ''}>${e.label}</span>`).join('<span class="fx-sep">→</span>');
             return `
             <div class="fu-page-cap">Folha ${pIdx + 1} de ${selecionadas.length} · ${et.label} · ${codEt} — Operador de ${et.setor}</div>
@@ -5418,8 +5460,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <tr><td>${g('fu_semi')}</td><td>${g('fu_segmento')}</td><td>${g('fu_unidade')}</td><td>${emitido}</td></tr>
                 </table>
                 <div class="fup-fluxo"><b style="margin-right:4px; font-size:9px; text-transform:uppercase; color:#444;">Fluxo do produto:</b>${cadeia}</div>
-                <div class="fup-sec-title" style="background:${cor};">Parâmetros da etapa — ${et.label}</div>
-                <table class="fup-params">${linhas}</table>
+                ${fuSecaoHTML(et.key, null, codEt)}
                 <div class="fup-sec-title" style="background:#444;">Observações gerais da ficha</div>
                 <div class="fup-obs">${obsGeral || 'Sem observações.'}</div>
                 <div class="fup-sign">
