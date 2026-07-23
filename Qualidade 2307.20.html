@@ -1650,8 +1650,31 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
                 <div class="g-col g-col-3"><span class="lbl">Cód. Semi Acabado</span><input class="inp" id="fu_semi"></div>
                 <div class="g-col g-col-3"><span class="lbl">Segmento</span><input class="inp" id="fu_segmento" list="dl_segmentos"><datalist id="dl_segmentos"><option value="ALIMENTÍCIO"></option><option value="HIGIENE E LIMPEZA"></option><option value="AGRÍCOLA"></option><option value="INDUSTRIAL"></option><option value="PET"></option></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Unidade</span><input class="inp" id="fu_unidade" value="KG"></div>
+                <div class="g-col g-col-3"><span class="lbl">Unidade</span><input class="inp" id="fu_unidade" value="KG" list="dl_unidade"></div>
                 <div class="g-col g-col-3"><span class="lbl">Prioridade</span><select class="inp" id="fu_prioridade"><option>Normal</option><option>Alta</option><option>Urgente</option><option>Baixa</option></select></div>
+
+                <!-- Listas compartilhadas: campos de preenchimento + seleção em toda a ficha -->
+                <datalist id="dl_unidade"><option value="KG"></option><option value="UN"></option><option value="MIL"></option><option value="M"></option></datalist>
+                <datalist id="dl_onoff"><option value="OFF"></option><option value="ON"></option></datalist>
+                <datalist id="dl_na"><option value="N/A"></option></datalist>
+                <datalist id="dl_corona"><option value="38"></option><option value="40"></option><option value="42"></option></datalist>
+                <datalist id="dl_tratamento"><option value="Somente um lado"></option><option value="Ambos os lados"></option><option value="Não Aplicável"></option></datalist>
+                <datalist id="dl_sentido"><option value="Externo"></option><option value="Interno"></option><option value="Cabeça"></option><option value="Pé"></option></datalist>
+                <datalist id="dl_tintas"><option value="BRANCO"></option><option value="AMARELO"></option><option value="MAGENTA"></option><option value="CYAN"></option><option value="PRETO"></option><option value="VERDE"></option><option value="LARANJA"></option><option value="VERNIZ"></option></datalist>
+                <datalist id="dl_duplaface"><option value="ALTA"></option><option value="MÉDIA"></option><option value="MÉDIA BAIXA"></option><option value="BAIXA"></option></datalist>
+                <datalist id="dl_anilox"><option value="160"></option><option value="S"></option><option value="XS"></option><option value="M1"></option><option value="M2"></option></datalist>
+                <datalist id="dl_1a4"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option></datalist>
+                <datalist id="dl_tubete"><option value="76"></option><option value="152"></option><option value='3" polegadas'></option><option value='6" polegadas'></option></datalist>
+                <datalist id="dl_emenda"><option value="Não"></option><option value="Sinalizada"></option><option value="Máx. 1 por bobina"></option></datalist>
+                <datalist id="dl_adesivo"><option value="Poliuretano base solvente"></option><option value="Poliuretano sem solvente"></option><option value="Base água"></option></datalist>
+                <datalist id="dl_estrutura"><option value="BOPP 20 + PE 50"></option><option value="PET 12 + PE 60"></option><option value="BOPP 20 + BOPP 20"></option><option value="PE + PE"></option></datalist>
+                <datalist id="dl_lineatura"><option value="26"></option><option value="34"></option><option value="40"></option><option value="48"></option></datalist>
+                <datalist id="dl_cores_imp"><option value="Preto (1 cor)"></option><option value="2 cores"></option><option value="4 cores (CMYK)"></option><option value="6 cores"></option></datalist>
+                <datalist id="dl_substrato"><option value="COEX PEBD Branco"></option><option value="PEBD Transparente c/ tratamento"></option><option value="BOPP Transparente"></option><option value="BOPP Perolado"></option></datalist>
+                <datalist id="dl_dispositivo"><option value="Ar de Guia"></option><option value="Zíper"></option><option value="Furador"></option><option value="N/A"></option></datalist>
+                <datalist id="dl_distorcao"><option value="Cameron / 395,00"></option><option value="Sem distorção"></option></datalist>
+                <datalist id="dl_conforme"><option value="Conforme padrão"></option><option value="Conforme amostra padrão"></option><option value="Sem defeitos"></option><option value="OK"></option></datalist>
+                <datalist id="dl_tipo_imp"><option value="EXTERNO"></option><option value="INTERNO"></option></datalist>
             </div>
 
             <!-- Barra de etapas CONGELADA: fica visível enquanto você rola a ficha -->
@@ -1674,17 +1697,25 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             <div class="grid-form fu-sec" id="fu-sec-cliche">
                 <div class="section-title" style="background:#c9a227;">ETAPA · SOLICITAÇÃO DE CLICHÊ <span class="fu-cod-et" id="fu-cod-cliche"></span> <span class="fu-prog" data-sec="cliche">0/0</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Vincular a Clichê Existente</span><input class="inp" id="fu_cli_vinculo" list="dl_cliches" placeholder="Nº do clichê (opcional)"><datalist id="dl_cliches"></datalist></div>
-                <div class="g-col g-col-4"><span class="lbl">Materiais Solicitados</span><input class="inp" id="fu_cli_materiais" value="Print tamanho real · Prova digital"></div>
-                <div class="g-col g-col-4"><span class="lbl">Cores da Impressão</span><input class="inp" id="fu_cli_cores" placeholder="Ex.: Preto · 4 cores CMYK"></div>
+                <div class="g-col g-col-8">
+                    <span class="lbl">Materiais Solicitados à Clicheria <span style="font-weight:400; color:#94a3b8; font-size:10px;">(marque o que está sendo solicitado)</span></span>
+                    <input type="hidden" id="fu_cli_materiais" value="Print tamanho real · Prova digital - GMG">
+                    <div class="chips-fluxo" id="fu-cli-mats" style="margin-top:5px;">
+                        <label class="chip-et"><input type="checkbox" value="Print tamanho real" checked onchange="fuMateriaisSync()"><span>Print tamanho real</span></label>
+                        <label class="chip-et"><input type="checkbox" value="Prova digital - GMG" checked onchange="fuMateriaisSync()"><span>Prova digital - GMG</span></label>
+                        <label class="chip-et"><input type="checkbox" value="Prova Impressa" onchange="fuMateriaisSync()"><span>Prova Impressa</span></label>
+                    </div>
+                </div>
+                <div class="g-col g-col-4"><span class="lbl">Cores da Impressão</span><input class="inp" id="fu_cli_cores" list="dl_cores_imp" placeholder="Digite ou selecione"></div>
                 <div class="g-col g-col-4"><span class="lbl">Medida Embalagem</span><input class="inp" id="fu_cli_medida_emb" placeholder="Ex.: 195,00 x 340,00 + 40,00 mm"></div>
                 <div class="g-col g-col-4"><span class="lbl">Medida Impressão</span><input class="inp" id="fu_cli_medida_imp" placeholder="Ex.: 390,00 x 300,00 mm"></div>
-                <div class="g-col g-col-4"><span class="lbl">Substrato</span><input class="inp" id="fu_cli_substrato" placeholder="Ex.: COEX PEBD Branco 720 mm"></div>
+                <div class="g-col g-col-4"><span class="lbl">Substrato</span><input class="inp" id="fu_cli_substrato" list="dl_substrato" placeholder="Digite ou selecione"></div>
                 <div class="g-col g-col-2"><span class="lbl">Impressão</span><select class="inp" id="fu_cli_impressao"><option>Externa</option><option>Interna</option></select></div>
-                <div class="g-col g-col-2"><span class="lbl">Lineatura (lpc)</span><input class="inp" id="fu_cli_lineatura" value="34"></div>
+                <div class="g-col g-col-2"><span class="lbl">Lineatura (lpc)</span><input class="inp" id="fu_cli_lineatura" value="34" list="dl_lineatura"></div>
                 <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" id="fu_cli_cilindro" value="390,00"></div>
-                <div class="g-col g-col-2"><span class="lbl">Mont. Vertical (Repetição)</span><input class="inp" id="fu_cli_mont_v" value="2"></div>
-                <div class="g-col g-col-2"><span class="lbl">Mont. Horizontal (Pistas)</span><input class="inp" id="fu_cli_mont_h" value="1"></div>
-                <div class="g-col g-col-2"><span class="lbl">Distorção (tipo / mm)</span><input class="inp" id="fu_cli_distorcao" value="Cameron / 395,00"></div>
+                <div class="g-col g-col-2"><span class="lbl">Mont. Vertical (Repetição)</span><input class="inp" id="fu_cli_mont_v" value="2" list="dl_1a4"></div>
+                <div class="g-col g-col-2"><span class="lbl">Mont. Horizontal (Pistas)</span><input class="inp" id="fu_cli_mont_h" value="1" list="dl_1a4"></div>
+                <div class="g-col g-col-2"><span class="lbl">Distorção (tipo / mm)</span><input class="inp" id="fu_cli_distorcao" value="Cameron / 395,00" list="dl_distorcao"></div>
                 <div class="g-col g-col-12"><span class="lbl">Observações e Solicitações do Clichê</span><textarea class="inp" id="fu_cli_obs" rows="2" style="resize:vertical;"></textarea></div>
             </div>
 
@@ -1694,20 +1725,20 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Máquina</span><input class="inp" id="fu_imp_maquina" list="dl_maquinas" value="Gearless"><datalist id="dl_maquinas"><option value="Gearless"></option><option value="Impressora Flexo 01"></option><option value="Impressora Flexo 02"></option></datalist></div>
                 <div class="g-col g-col-3"><span class="lbl">Tempo de Setup</span><input class="inp" id="fu_imp_setup" placeholder="--:--"></div>
                 <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_imp_velocidade" value="220"></div>
-                <div class="g-col g-col-3"><span class="lbl">Sentido Desbobinamento</span><input class="inp" id="fu_imp_sentido" value="Cabeça"></div>
+                <div class="g-col g-col-3"><span class="lbl">Sentido Desbobinamento</span><input class="inp" id="fu_imp_sentido" value="Cabeça" list="dl_sentido"></div>
 
                 <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">MATÉRIA PRIMA E BOBINA BASE</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Código MP</span><input class="inp" id="fu_imp_mp_codigo" placeholder="Ex.: VCL-7553BL"></div>
                 <div class="g-col g-col-3"><span class="lbl">Descrição Matéria Prima</span><input class="inp" id="fu_imp_mp_descricao" placeholder="Ex.: Bobina PEBD transparente c/ tratamento"></div>
                 <div class="g-col g-col-2"><span class="lbl">Largura MP (mm)</span><input class="inp" id="fu_imp_mp_largura" value="700,00"></div>
                 <div class="g-col g-col-2"><span class="lbl">Espessura MP (mm)</span><input class="inp" id="fu_imp_mp_espessura" value="0,060"></div>
-                <div class="g-col g-col-2"><span class="lbl">Corona MP</span><input class="inp" id="fu_imp_mp_corona" value="38"></div>
+                <div class="g-col g-col-2"><span class="lbl">Corona MP</span><input class="inp" id="fu_imp_mp_corona" value="38" list="dl_corona"></div>
 
                 <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">CONFIGURAÇÃO DE CLICHÊ E MÁQUINA</span></div>
-                <div class="g-col g-col-2"><span class="lbl">Nº Clichê</span><input class="inp" id="fu_imp_cliche" placeholder="Ex.: 7607"></div>
-                <div class="g-col g-col-2"><span class="lbl">Tipo de Impressão</span><input class="inp" id="fu_imp_tipo" value="EXTERNO"></div>
-                <div class="g-col g-col-2"><span class="lbl">Nº Pistas</span><input class="inp" id="fu_imp_pistas" value="1"></div>
-                <div class="g-col g-col-2"><span class="lbl">Repetições</span><input class="inp" id="fu_imp_repeticoes" value="1"></div>
+                <div class="g-col g-col-2"><span class="lbl">Nº Clichê</span><input class="inp" id="fu_imp_cliche" list="dl_cliches" placeholder="Ex.: 7607"></div>
+                <div class="g-col g-col-2"><span class="lbl">Tipo de Impressão</span><input class="inp" id="fu_imp_tipo" value="EXTERNO" list="dl_tipo_imp"></div>
+                <div class="g-col g-col-2"><span class="lbl">Nº Pistas</span><input class="inp" id="fu_imp_pistas" value="1" list="dl_1a4"></div>
+                <div class="g-col g-col-2"><span class="lbl">Repetições</span><input class="inp" id="fu_imp_repeticoes" value="1" list="dl_1a4"></div>
                 <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" id="fu_imp_cilindro" value="540,00"></div>
                 <div class="g-col g-col-2"><span class="lbl">Passo</span><input class="inp" id="fu_imp_passo" value="535,00"></div>
 
@@ -1728,29 +1759,29 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-12">
                     <table class="inner-table" style="margin:0; border:none;">
                         <tr><th style="width:34px;">EST.</th><th>TINTA</th><th>VISC (Zahn 2)</th><th>SECAGEM</th><th>LPC ANILOX</th><th>BCM</th><th>DUPLA FACE</th></tr>
-                        <tr><td>1</td><td><input id="fu_imp_e1_tinta" data-l="Est. 1 · Tinta" value="BRANCO"></td><td><input id="fu_imp_e1_visc" data-l="Est. 1 · Visc" value="25"></td><td><input id="fu_imp_e1_sec" data-l="Est. 1 · Secagem" value="01:00"></td><td><input id="fu_imp_e1_anilox" data-l="Est. 1 · Anilox" value="160"></td><td><input id="fu_imp_e1_bcm" data-l="Est. 1 · BCM"></td><td><input id="fu_imp_e1_df" data-l="Est. 1 · Dupla face" value="ALTA"></td></tr>
-                        <tr><td>2</td><td><input id="fu_imp_e2_tinta" data-l="Est. 2 · Tinta"></td><td><input id="fu_imp_e2_visc" data-l="Est. 2 · Visc"></td><td><input id="fu_imp_e2_sec" data-l="Est. 2 · Secagem"></td><td><input id="fu_imp_e2_anilox" data-l="Est. 2 · Anilox"></td><td><input id="fu_imp_e2_bcm" data-l="Est. 2 · BCM"></td><td><input id="fu_imp_e2_df" data-l="Est. 2 · Dupla face"></td></tr>
-                        <tr><td>3</td><td><input id="fu_imp_e3_tinta" data-l="Est. 3 · Tinta"></td><td><input id="fu_imp_e3_visc" data-l="Est. 3 · Visc"></td><td><input id="fu_imp_e3_sec" data-l="Est. 3 · Secagem"></td><td><input id="fu_imp_e3_anilox" data-l="Est. 3 · Anilox"></td><td><input id="fu_imp_e3_bcm" data-l="Est. 3 · BCM"></td><td><input id="fu_imp_e3_df" data-l="Est. 3 · Dupla face"></td></tr>
-                        <tr><td>4</td><td><input id="fu_imp_e4_tinta" data-l="Est. 4 · Tinta"></td><td><input id="fu_imp_e4_visc" data-l="Est. 4 · Visc"></td><td><input id="fu_imp_e4_sec" data-l="Est. 4 · Secagem"></td><td><input id="fu_imp_e4_anilox" data-l="Est. 4 · Anilox"></td><td><input id="fu_imp_e4_bcm" data-l="Est. 4 · BCM"></td><td><input id="fu_imp_e4_df" data-l="Est. 4 · Dupla face"></td></tr>
-                        <tr><td>5</td><td><input id="fu_imp_e5_tinta" data-l="Est. 5 · Tinta"></td><td><input id="fu_imp_e5_visc" data-l="Est. 5 · Visc"></td><td><input id="fu_imp_e5_sec" data-l="Est. 5 · Secagem"></td><td><input id="fu_imp_e5_anilox" data-l="Est. 5 · Anilox"></td><td><input id="fu_imp_e5_bcm" data-l="Est. 5 · BCM"></td><td><input id="fu_imp_e5_df" data-l="Est. 5 · Dupla face"></td></tr>
-                        <tr><td>6</td><td><input id="fu_imp_e6_tinta" data-l="Est. 6 · Tinta"></td><td><input id="fu_imp_e6_visc" data-l="Est. 6 · Visc"></td><td><input id="fu_imp_e6_sec" data-l="Est. 6 · Secagem"></td><td><input id="fu_imp_e6_anilox" data-l="Est. 6 · Anilox"></td><td><input id="fu_imp_e6_bcm" data-l="Est. 6 · BCM"></td><td><input id="fu_imp_e6_df" data-l="Est. 6 · Dupla face"></td></tr>
+                        <tr><td>1</td><td><input id="fu_imp_e1_tinta" data-l="Est. 1 · Tinta" value="BRANCO" list="dl_tintas"></td><td><input id="fu_imp_e1_visc" data-l="Est. 1 · Visc" value="25"></td><td><input id="fu_imp_e1_sec" data-l="Est. 1 · Secagem" value="01:00"></td><td><input id="fu_imp_e1_anilox" data-l="Est. 1 · Anilox" value="160" list="dl_anilox"></td><td><input id="fu_imp_e1_bcm" data-l="Est. 1 · BCM"></td><td><input id="fu_imp_e1_df" data-l="Est. 1 · Dupla face" value="ALTA" list="dl_duplaface"></td></tr>
+                        <tr><td>2</td><td><input id="fu_imp_e2_tinta" data-l="Est. 2 · Tinta" list="dl_tintas"></td><td><input id="fu_imp_e2_visc" data-l="Est. 2 · Visc"></td><td><input id="fu_imp_e2_sec" data-l="Est. 2 · Secagem"></td><td><input id="fu_imp_e2_anilox" data-l="Est. 2 · Anilox" list="dl_anilox"></td><td><input id="fu_imp_e2_bcm" data-l="Est. 2 · BCM"></td><td><input id="fu_imp_e2_df" data-l="Est. 2 · Dupla face" list="dl_duplaface"></td></tr>
+                        <tr><td>3</td><td><input id="fu_imp_e3_tinta" data-l="Est. 3 · Tinta" list="dl_tintas"></td><td><input id="fu_imp_e3_visc" data-l="Est. 3 · Visc"></td><td><input id="fu_imp_e3_sec" data-l="Est. 3 · Secagem"></td><td><input id="fu_imp_e3_anilox" data-l="Est. 3 · Anilox" list="dl_anilox"></td><td><input id="fu_imp_e3_bcm" data-l="Est. 3 · BCM"></td><td><input id="fu_imp_e3_df" data-l="Est. 3 · Dupla face" list="dl_duplaface"></td></tr>
+                        <tr><td>4</td><td><input id="fu_imp_e4_tinta" data-l="Est. 4 · Tinta" list="dl_tintas"></td><td><input id="fu_imp_e4_visc" data-l="Est. 4 · Visc"></td><td><input id="fu_imp_e4_sec" data-l="Est. 4 · Secagem"></td><td><input id="fu_imp_e4_anilox" data-l="Est. 4 · Anilox" list="dl_anilox"></td><td><input id="fu_imp_e4_bcm" data-l="Est. 4 · BCM"></td><td><input id="fu_imp_e4_df" data-l="Est. 4 · Dupla face" list="dl_duplaface"></td></tr>
+                        <tr><td>5</td><td><input id="fu_imp_e5_tinta" data-l="Est. 5 · Tinta" list="dl_tintas"></td><td><input id="fu_imp_e5_visc" data-l="Est. 5 · Visc"></td><td><input id="fu_imp_e5_sec" data-l="Est. 5 · Secagem"></td><td><input id="fu_imp_e5_anilox" data-l="Est. 5 · Anilox" list="dl_anilox"></td><td><input id="fu_imp_e5_bcm" data-l="Est. 5 · BCM"></td><td><input id="fu_imp_e5_df" data-l="Est. 5 · Dupla face" list="dl_duplaface"></td></tr>
+                        <tr><td>6</td><td><input id="fu_imp_e6_tinta" data-l="Est. 6 · Tinta" list="dl_tintas"></td><td><input id="fu_imp_e6_visc" data-l="Est. 6 · Visc"></td><td><input id="fu_imp_e6_sec" data-l="Est. 6 · Secagem"></td><td><input id="fu_imp_e6_anilox" data-l="Est. 6 · Anilox" list="dl_anilox"></td><td><input id="fu_imp_e6_bcm" data-l="Est. 6 · BCM"></td><td><input id="fu_imp_e6_df" data-l="Est. 6 · Dupla face" list="dl_duplaface"></td></tr>
                     </table>
                 </div>
 
                 <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">CARACTERÍSTICAS DA BOBINA (AUTO CONTROLE)</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Largura</span><input class="inp" id="fu_imp_ac_largura" value="700,00 +/- 10,00 mm"></div>
                 <div class="g-col g-col-2"><span class="lbl">Espessura</span><input class="inp" id="fu_imp_ac_espessura" value="0,060 +/- 5,00 mm"></div>
-                <div class="g-col g-col-2"><span class="lbl">Tratamento</span><input class="inp" id="fu_imp_ac_tratamento" value="Somente um lado"></div>
-                <div class="g-col g-col-2"><span class="lbl">Aspecto Visual</span><input class="inp" id="fu_imp_ac_aspecto" value="Conforme amostra padrão"></div>
-                <div class="g-col g-col-2"><span class="lbl">Tubete</span><input class="inp" id="fu_imp_ac_tubete" value='3" polegadas'></div>
+                <div class="g-col g-col-2"><span class="lbl">Tratamento</span><input class="inp" id="fu_imp_ac_tratamento" value="Somente um lado" list="dl_tratamento"></div>
+                <div class="g-col g-col-2"><span class="lbl">Aspecto Visual</span><input class="inp" id="fu_imp_ac_aspecto" value="Conforme amostra padrão" list="dl_conforme"></div>
+                <div class="g-col g-col-2"><span class="lbl">Tubete</span><input class="inp" id="fu_imp_ac_tubete" value='3" polegadas' list="dl_tubete"></div>
                 <div class="g-col g-col-2"><span class="lbl">Aderência</span><input class="inp" id="fu_imp_ac_aderencia" value="38 +/- 2 Dynas"></div>
             </div>
 
             <!-- SEÇÃO: LAMINAÇÃO (todos os campos da ficha individual) -->
             <div class="grid-form fu-sec" id="fu-sec-laminacao">
                 <div class="section-title" style="background:#7c3aed;">ETAPA · LAMINAÇÃO <span class="fu-cod-et" id="fu-cod-laminacao"></span> <span class="fu-prog" data-sec="laminacao">0/0</span></div>
-                <div class="g-col g-col-4"><span class="lbl">Estrutura Laminada (ex: BOPP+PE)</span><input class="inp" id="fu_lam_estrutura" placeholder="Ex.: BOPP 20 + PE 50"></div>
-                <div class="g-col g-col-4"><span class="lbl">Tipo de Adesivo</span><input class="inp" id="fu_lam_adesivo" value="Poliuretano base solvente"></div>
+                <div class="g-col g-col-4"><span class="lbl">Estrutura Laminada (ex: BOPP+PE)</span><input class="inp" id="fu_lam_estrutura" placeholder="Ex.: BOPP 20 + PE 50" list="dl_estrutura"></div>
+                <div class="g-col g-col-4"><span class="lbl">Tipo de Adesivo</span><input class="inp" id="fu_lam_adesivo" value="Poliuretano base solvente" list="dl_adesivo"></div>
                 <div class="g-col g-col-2"><span class="lbl">Gramatura Adesivo (g/m²)</span><input class="inp" id="fu_lam_gramatura" value="2,5"></div>
                 <div class="g-col g-col-2"><span class="lbl">Relação Mistura (A:B)</span><input class="inp" id="fu_lam_mistura" value="100:12"></div>
                 <div class="g-col g-col-3"><span class="lbl">Vida Útil da Mistura (h)</span><input class="inp" id="fu_lam_vida_util"></div>
@@ -1762,8 +1793,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Tensão Desbobinador</span><input class="inp" id="fu_lam_t_desb"></div>
                 <div class="g-col g-col-3"><span class="lbl">Tensão Rebobinador</span><input class="inp" id="fu_lam_t_reb"></div>
                 <div class="g-col g-col-3"><span class="lbl">Tempo de Cura (h)</span><input class="inp" id="fu_lam_cura" value="48"></div>
-                <div class="g-col g-col-4"><span class="lbl">Ancoragem / Delaminação</span><input class="inp" id="fu_lam_ancoragem" value="Sem delaminação"></div>
-                <div class="g-col g-col-4"><span class="lbl">Aspecto (túnel / bolhas)</span><input class="inp" id="fu_lam_aspecto" value="Sem túnel, sem bolhas"></div>
+                <div class="g-col g-col-4"><span class="lbl">Ancoragem / Delaminação</span><input class="inp" id="fu_lam_ancoragem" value="Sem delaminação" list="dl_conforme"></div>
+                <div class="g-col g-col-4"><span class="lbl">Aspecto (túnel / bolhas)</span><input class="inp" id="fu_lam_aspecto" value="Sem túnel, sem bolhas" list="dl_conforme"></div>
                 <div class="g-col g-col-4"><span class="lbl">Bobina Final (mm)</span><input class="inp" id="fu_lam_bobina_final"></div>
             </div>
 
@@ -1773,18 +1804,18 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Largura Acabada (mm)</span><input class="inp" id="fu_reb_largura"></div>
                 <div class="g-col g-col-3"><span class="lbl">Tolerância Largura (± mm)</span><input class="inp" id="fu_reb_tolerancia" value="0,5"></div>
                 <div class="g-col g-col-3"><span class="lbl">Diâmetro Bobina (mm)</span><input class="inp" id="fu_reb_diametro"></div>
-                <div class="g-col g-col-3"><span class="lbl">Diâmetro Tubete (mm)</span><input class="inp" id="fu_reb_tubete" value="76"></div>
+                <div class="g-col g-col-3"><span class="lbl">Diâmetro Tubete (mm)</span><input class="inp" id="fu_reb_tubete" value="76" list="dl_tubete"></div>
                 <div class="g-col g-col-3"><span class="lbl">Metragem/Bobina (m)</span><input class="inp" id="fu_reb_metragem"></div>
                 <div class="g-col g-col-3"><span class="lbl">Nº Cortes / Facas</span><input class="inp" id="fu_reb_cortes"></div>
                 <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_reb_velocidade"></div>
                 <div class="g-col g-col-3"><span class="lbl">Tensão de Rebobinagem</span><input class="inp" id="fu_reb_tensao"></div>
-                <div class="g-col g-col-3"><span class="lbl">Sentido Desbobinamento</span><input class="inp" id="fu_reb_sentido" value="Externo"></div>
-                <div class="g-col g-col-3"><span class="lbl">Emenda Permitida?</span><input class="inp" id="fu_reb_emenda" value="Não"></div>
+                <div class="g-col g-col-3"><span class="lbl">Sentido Desbobinamento</span><input class="inp" id="fu_reb_sentido" value="Externo" list="dl_sentido"></div>
+                <div class="g-col g-col-3"><span class="lbl">Emenda Permitida?</span><input class="inp" id="fu_reb_emenda" value="Não" list="dl_emenda"></div>
                 <div class="g-col g-col-3"><span class="lbl">Peso/Bobina (kg)</span><input class="inp" id="fu_reb_peso"></div>
                 <div class="g-col g-col-3"><span class="lbl">Bobinas / Palete</span><input class="inp" id="fu_reb_bob_palete"></div>
-                <div class="g-col g-col-4"><span class="lbl">Alinhamento / Telescopagem</span><input class="inp" id="fu_reb_alinhamento" value="Conforme padrão"></div>
-                <div class="g-col g-col-4"><span class="lbl">Aspecto (rugas / enrugamento)</span><input class="inp" id="fu_reb_aspecto" value="Sem defeitos"></div>
-                <div class="g-col g-col-4"><span class="lbl">Identificação / Etiqueta</span><input class="inp" id="fu_reb_etiqueta" value="OK"></div>
+                <div class="g-col g-col-4"><span class="lbl">Alinhamento / Telescopagem</span><input class="inp" id="fu_reb_alinhamento" value="Conforme padrão" list="dl_conforme"></div>
+                <div class="g-col g-col-4"><span class="lbl">Aspecto (rugas / enrugamento)</span><input class="inp" id="fu_reb_aspecto" value="Sem defeitos" list="dl_conforme"></div>
+                <div class="g-col g-col-4"><span class="lbl">Identificação / Etiqueta</span><input class="inp" id="fu_reb_etiqueta" value="OK" list="dl_conforme"></div>
             </div>
 
             <!-- SEÇÃO: CORTE & SOLDA (todos os campos da ficha individual) -->
@@ -1799,35 +1830,35 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#0d9488;">BOBINA DE ENTRADA (RECEITA)</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Largura (mm)</span><input class="inp" id="fu_cor_b_largura" value="700,00"></div>
                 <div class="g-col g-col-3"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_b_espessura" value="0,060"></div>
-                <div class="g-col g-col-3"><span class="lbl">Corona</span><input class="inp" id="fu_cor_b_corona" value="38"></div>
-                <div class="g-col g-col-3"><span class="lbl">Tratamento</span><input class="inp" id="fu_cor_b_tratamento" value="Não Aplicável"></div>
+                <div class="g-col g-col-3"><span class="lbl">Corona</span><input class="inp" id="fu_cor_b_corona" value="38" list="dl_corona"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tratamento</span><input class="inp" id="fu_cor_b_tratamento" value="Não Aplicável" list="dl_tratamento"></div>
 
                 <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#0d9488;">SOLDA, SENSORES E CAMES</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Temp. Solda Sup. (°C)</span><input class="inp" id="fu_cor_temp_sup" value="350"></div>
-                <div class="g-col g-col-2"><span class="lbl">Temp. Solda Inf. (°C)</span><input class="inp" id="fu_cor_temp_inf" value="OFF"></div>
+                <div class="g-col g-col-2"><span class="lbl">Temp. Solda Inf. (°C)</span><input class="inp" id="fu_cor_temp_inf" value="OFF" list="dl_onoff"></div>
                 <div class="g-col g-col-2"><span class="lbl">Fotocélula: Comprimento</span><input class="inp" id="fu_cor_f_comp" value="1"></div>
-                <div class="g-col g-col-2"><span class="lbl">Fotocélula: Janela</span><input class="inp" id="fu_cor_f_janela" value="OFF"></div>
-                <div class="g-col g-col-2"><span class="lbl">Fotocélula: Nº Erros</span><input class="inp" id="fu_cor_f_erros" value="OFF"></div>
-                <div class="g-col g-col-2"><span class="lbl">Disparo (°C)</span><input class="inp" id="fu_cor_f_disparo" value="OFF"></div>
+                <div class="g-col g-col-2"><span class="lbl">Fotocélula: Janela</span><input class="inp" id="fu_cor_f_janela" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-2"><span class="lbl">Fotocélula: Nº Erros</span><input class="inp" id="fu_cor_f_erros" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-2"><span class="lbl">Disparo (°C)</span><input class="inp" id="fu_cor_f_disparo" value="OFF" list="dl_onoff"></div>
                 <div class="g-col g-col-2"><span class="lbl">Came Parada (início)</span><input class="inp" id="fu_cor_cp_ini" value="50"></div>
                 <div class="g-col g-col-2"><span class="lbl">Came Parada (final)</span><input class="inp" id="fu_cor_cp_fim" value="2"></div>
-                <div class="g-col g-col-2"><span class="lbl">Came Transporte (início)</span><input class="inp" id="fu_cor_ct_ini" value="OFF"></div>
-                <div class="g-col g-col-2"><span class="lbl">Came Transporte (final)</span><input class="inp" id="fu_cor_ct_fim" value="OFF"></div>
-                <div class="g-col g-col-2"><span class="lbl">Vel. Solda (% / filme)</span><input class="inp" id="fu_cor_v_solda" value="OFF"></div>
+                <div class="g-col g-col-2"><span class="lbl">Came Transporte (início)</span><input class="inp" id="fu_cor_ct_ini" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-2"><span class="lbl">Came Transporte (final)</span><input class="inp" id="fu_cor_ct_fim" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-2"><span class="lbl">Vel. Solda (% / filme)</span><input class="inp" id="fu_cor_v_solda" value="OFF" list="dl_onoff"></div>
                 <div class="g-col g-col-2"><span class="lbl">Came Dispositivos</span><input class="inp" id="fu_cor_c_disp" value="OFF / SKIP"></div>
-                <div class="g-col g-col-3"><span class="lbl">Dispositivo 1</span><input class="inp" id="fu_cor_disp1" value="Ar de Guia"></div>
-                <div class="g-col g-col-3"><span class="lbl">Dispositivo 2</span><input class="inp" id="fu_cor_disp2" value="N/A"></div>
-                <div class="g-col g-col-3"><span class="lbl">Dispositivo 3</span><input class="inp" id="fu_cor_disp3" value="N/A"></div>
-                <div class="g-col g-col-3"><span class="lbl">Dispositivo 4</span><input class="inp" id="fu_cor_disp4" value="N/A"></div>
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 1</span><input class="inp" id="fu_cor_disp1" value="Ar de Guia" list="dl_dispositivo"></div>
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 2</span><input class="inp" id="fu_cor_disp2" value="N/A" list="dl_dispositivo"></div>
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 3</span><input class="inp" id="fu_cor_disp3" value="N/A" list="dl_dispositivo"></div>
+                <div class="g-col g-col-3"><span class="lbl">Dispositivo 4</span><input class="inp" id="fu_cor_disp4" value="N/A" list="dl_dispositivo"></div>
                 <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 1 (Bar)</span><input class="inp" id="fu_cor_cp1" value="5"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 2 (Bar)</span><input class="inp" id="fu_cor_cp2" value="N/A"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 3 (Bar)</span><input class="inp" id="fu_cor_cp3" value="N/A"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 4 (Bar)</span><input class="inp" id="fu_cor_cp4" value="N/A"></div>
+                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 2 (Bar)</span><input class="inp" id="fu_cor_cp2" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 3 (Bar)</span><input class="inp" id="fu_cor_cp3" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 4 (Bar)</span><input class="inp" id="fu_cor_cp4" value="N/A" list="dl_na"></div>
 
                 <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#0d9488;">CARACTERÍSTICAS DA EMBALAGEM</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Largura x Comprimento</span><input class="inp" id="fu_cor_medida" value="270 x 350 mm (+/- 10)"></div>
                 <div class="g-col g-col-3"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_espessura" value="0,120 +/- 0,010"></div>
-                <div class="g-col g-col-2"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" value="N/A / N/A"></div>
+                <div class="g-col g-col-2"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" value="N/A / N/A" list="dl_na"></div>
                 <div class="g-col g-col-2"><span class="lbl">Peso Milheiro (kg)</span><input class="inp" id="fu_cor_milheiro" value="12,35"></div>
                 <div class="g-col g-col-2"><span class="lbl">Peso/Pacote (kg)</span><input class="inp" id="fu_cor_p_pacote" value="6,175"></div>
                 <div class="g-col g-col-3"><span class="lbl">Sem Zíper</span><input class="inp" id="fu_cor_sem_ziper" value="0"></div>
@@ -1840,7 +1871,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="section-title" style="background:#be123c;">ETAPA · EXPEDIÇÃO &amp; ACONDICIONAMENTO <span class="fu-cod-et" id="fu-cod-expedicao"></span> <span class="fu-prog" data-sec="expedicao">0/0</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Qtde por Pacote</span><input class="inp" id="fu_exp_pacote" value="500"></div>
                 <div class="g-col g-col-2"><span class="lbl">Pacotes por Caixa</span><input class="inp" id="fu_exp_caixa"></div>
-                <div class="g-col g-col-2"><span class="lbl">Fardo (vol/palete)</span><input class="inp" id="fu_exp_fardo" value="N/A"></div>
+                <div class="g-col g-col-2"><span class="lbl">Fardo (vol/palete)</span><input class="inp" id="fu_exp_fardo" value="N/A" list="dl_na"></div>
                 <div class="g-col g-col-2"><span class="lbl">Caixas por Palete</span><input class="inp" id="fu_exp_palete" value="154"></div>
                 <div class="g-col g-col-2"><span class="lbl">Peças Totais</span><input class="inp" id="fu_exp_pecas" value="77.000"></div>
                 <div class="g-col g-col-2"><span class="lbl">Peso do Palete (kg)</span><input class="inp" id="fu_exp_peso" value="950,95"></div>
@@ -4941,6 +4972,17 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         fuAtualizarResumo();
     }
 
+    // ---- Checklist "Materiais Solicitados à Clicheria" (grava no campo oculto fu_cli_materiais) ----
+    function fuMateriaisSync() {
+        const v = [...document.querySelectorAll('#fu-cli-mats input:checked')].map(c => c.value).join(' · ');
+        document.getElementById('fu_cli_materiais').value = v;
+        fuAtualizarResumo();
+    }
+    function fuMateriaisRestaurar() {
+        const v = document.getElementById('fu_cli_materiais').value || '';
+        document.querySelectorAll('#fu-cli-mats input').forEach(c => { c.checked = v.includes(c.value); });
+    }
+
     // ---- Anexos da Ficha Única (documentação visual) ----
     let fuAnexos = [];
     function fuAnexar(input) {
@@ -5069,6 +5111,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.getElementById('lbl-codigo-fu-ficha').value = '';
         document.getElementById('fu-reuse').style.display = 'none';
         fuAnexos = []; fuRenderAnexos();
+        fuMateriaisRestaurar();
         fuAtualizarResumo();
     }
 
@@ -5083,6 +5126,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.querySelectorAll('#fu-fluxo input').forEach(c => { c.checked = (f.etapas || []).includes(c.value); fuToggleEtapa(c); });
         document.getElementById('lbl-codigo-fu-ficha').value = reaproveitar ? codAtual : f.cod;
         fuAnexos = JSON.parse(JSON.stringify(f.anexos || [])); fuRenderAnexos();
+        fuMateriaisRestaurar();
         fuAtualizarResumo();
     }
 
