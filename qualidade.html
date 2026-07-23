@@ -292,7 +292,10 @@
     .history-log { background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 10px; max-height: 100px; overflow-y: auto; font-family: monospace; font-size: 11px; color: #475569; }
 
     /* LAYOUT BARRA DE AÇÕES INFERIOR */
-    .action-bar-fixed { background: #fff; padding: 12px 30px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; bottom: 0; z-index: 50; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px; }
+    .action-bar-fixed { background: #fff; padding: 10px 22px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; position: sticky; bottom: 0; z-index: 50; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 8px; }
+    .action-bar-fixed .ab-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+    .action-bar-fixed .ab-btn { padding: 8px 13px !important; font-size: 12px !important; white-space: nowrap; }
+    .action-bar-fixed .ab-sep { width: 1px; height: 26px; background: #e5e7eb; margin: 0 4px; flex: none; }
     .action-group { display: flex; gap: 10px; align-items: center; }
     .action-btn-sec { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; color: #334155; transition: 0.2s; font-size: 13px;}
     .action-btn-sec:hover { background: #e2e8f0; }
@@ -372,6 +375,7 @@
         body.print-mode-fu .fup-sec-title,
         body.print-mode-fu .fup-meta th,
         body.print-mode-fu .fup-params td.l,
+        body.print-mode-fu .fup-params td.grp,
         body.print-mode-fu .fup-fluxo .fx.now { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 
@@ -402,6 +406,25 @@
     .fup-sign .s { flex: 1; text-align: center; font-size: 9px; color: #444; }
     .fup-sign .s .line { border-top: 1px solid #111; margin-bottom: 4px; padding-top: 4px; font-weight: 700; font-size: 10px; color: #111; }
     .fup-foot { margin-top: 14px; border-top: 1px solid #999; padding-top: 6px; font-size: 8.5px; color: #555; display: flex; justify-content: space-between; }
+
+    /* ---- Anexos da Ficha Única (documentação visual) ---- */
+    .fu-anexos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 12px; }
+    .fu-anexo-card { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; position: relative; }
+    .fu-anexo-card.principal { border-color: #c5a880; box-shadow: 0 0 0 2px #c5a88055; }
+    .fu-anexo-card img { width: 100%; height: 110px; object-fit: cover; display: block; background: #f1f5f9; }
+    .fu-anexo-card .fa-body { padding: 8px; }
+    .fu-anexo-card .fa-rotulo { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; font-size: 11px; }
+    .fu-anexo-card .fa-acoes { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; font-size: 10.5px; color: #64748b; }
+    .fu-anexo-card .fa-main-tag { position: absolute; top: 6px; left: 6px; background: #c5a880; color: #191040; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 999px; letter-spacing: .04em; }
+    /* Folha de anexos na impressão */
+    .fua-main { border: 1.5px solid #999; padding: 4mm; margin-top: 3mm; page-break-inside: avoid; }
+    .fua-main img { width: 100%; max-height: 130mm; object-fit: contain; display: block; }
+    .fua-cap { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #191040; margin-bottom: 2mm; display: flex; align-items: center; gap: 8px; }
+    .fua-cap .tag { background: #c5a880; color: #191040; font-size: 8.5px; padding: 1px 8px; border-radius: 999px; }
+    .fua-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin-top: 5mm; }
+    .fua-item { border: 1px solid #999; padding: 3mm; page-break-inside: avoid; }
+    .fua-item img { width: 100%; max-height: 70mm; object-fit: contain; display: block; }
+    .fua-item .c { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #444; margin-bottom: 2mm; }
 
     /* ---- Pré-visualização de impressão (confira antes de imprimir) ---- */
     .fu-preview-overlay { display: none; position: fixed; inset: 0; z-index: 6000; background: rgba(15, 23, 42, .72); flex-direction: column; }
@@ -762,8 +785,11 @@
     .chip-et input { accent-color:#191040; width:14px; height:14px; cursor:pointer; }
     .chip-et:has(input:checked) { background:#191040; border-color:#191040; color:#fff; box-shadow:0 2px 8px rgba(25,16,64,.25); }
     .chip-et:has(input:checked) input { accent-color:#c5a880; }
-    .fu-sec { display:none; }
+    .fu-sec { display:none; scroll-margin-top: 200px; }
     .fu-sec.on { display:grid; }
+    /* Barra de etapas congelada: acompanha a rolagem logo abaixo do header */
+    .fu-fluxo-sticky { position: sticky; top: 64px; z-index: 30; background: #fff; box-shadow: 0 12px 26px -14px rgba(16,16,45,.30); }
+    .fu-fluxo-sticky .chip-et span { cursor: pointer; }
     .fu-prog { margin-left:auto; font-size:10px; font-weight:700; background:rgba(255,255,255,.25); color:#fff; padding:2px 8px; border-radius:999px; letter-spacing:.03em; }
     .fu-cod-et { font-size:10px; font-weight:800; background:#fff; color:#191040; padding:2px 8px; border-radius:5px; margin-left:10px; letter-spacing:.04em; }
     .fu-cod-et:empty { display:none; }
@@ -1628,18 +1654,19 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Prioridade</span><select class="inp" id="fu_prioridade"><option>Normal</option><option>Alta</option><option>Urgente</option><option>Baixa</option></select></div>
             </div>
 
-            <div class="grid-form">
-                <div class="section-title" style="background:#191040;">2 · FLUXO DE PROCESSOS — MARQUE AS ETAPAS INCLUSAS</div>
-                <div class="g-col g-col-12">
+            <!-- Barra de etapas CONGELADA: fica visível enquanto você rola a ficha -->
+            <div class="grid-form fu-fluxo-sticky" id="fu-fluxo-card">
+                <div class="section-title" style="background:#191040;">2 · FLUXO DE PROCESSOS — MARQUE AS ETAPAS INCLUSAS <span style="float:right; font-weight:400; font-size:9px; opacity:.8;">barra fixa — acompanha a rolagem</span></div>
+                <div class="g-col g-col-12" style="padding-bottom:8px;">
                     <div class="chips-fluxo" id="fu-fluxo">
-                        <label class="chip-et"><input type="checkbox" value="cliche" onchange="fuToggleEtapa(this)"><span>Solicitação de Clichê</span></label>
-                        <label class="chip-et"><input type="checkbox" value="impressao" onchange="fuToggleEtapa(this)"><span>Impressão</span></label>
-                        <label class="chip-et"><input type="checkbox" value="laminacao" onchange="fuToggleEtapa(this)"><span>Laminação</span></label>
-                        <label class="chip-et"><input type="checkbox" value="rebobinadeira" onchange="fuToggleEtapa(this)"><span>Rebobinadeira</span></label>
-                        <label class="chip-et"><input type="checkbox" value="corte" onchange="fuToggleEtapa(this)"><span>Corte &amp; Solda</span></label>
-                        <label class="chip-et"><input type="checkbox" value="expedicao" onchange="fuToggleEtapa(this)"><span>Expedição</span></label>
+                        <label class="chip-et"><input type="checkbox" value="cliche" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Solicitação de Clichê</span></label>
+                        <label class="chip-et"><input type="checkbox" value="impressao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Impressão</span></label>
+                        <label class="chip-et"><input type="checkbox" value="laminacao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Laminação</span></label>
+                        <label class="chip-et"><input type="checkbox" value="rebobinadeira" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Rebobinadeira</span></label>
+                        <label class="chip-et"><input type="checkbox" value="corte" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Corte &amp; Solda</span></label>
+                        <label class="chip-et"><input type="checkbox" value="expedicao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Expedição</span></label>
                     </div>
-                    <p style="font-size:11px; color:#94a3b8; margin-top:8px;">Só as etapas marcadas abrem seção de parâmetros abaixo — você preenche apenas o que o produto realmente passa. As etapas definem o fluxo da ficha na fábrica, na ordem do POP.</p>
+                    <p style="font-size:11px; color:#94a3b8; margin-top:6px; margin-bottom:0;">Marque a caixinha para incluir/excluir a etapa. <b>Clique no nome</b> para pular direto para a seção de preenchimento.</p>
                 </div>
             </div>
 
@@ -1818,11 +1845,24 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-2"><span class="lbl">Peças Totais</span><input class="inp" id="fu_exp_pecas" value="77.000"></div>
                 <div class="g-col g-col-2"><span class="lbl">Peso do Palete (kg)</span><input class="inp" id="fu_exp_peso" value="950,95"></div>
                 <div class="g-col g-col-12"><span class="lbl">Padrão de acondicionamento / observações de entrega</span><input class="inp" id="fu_exp_obs"></div>
-            </div>
+            </div><!-- fim seções etapas -->
 
             <div class="grid-form">
                 <div class="section-title">OBSERVAÇÕES GERAIS</div>
                 <div class="g-col g-col-12"><textarea class="inp" id="fu_obs" rows="2" style="resize:vertical;" placeholder="Qualquer informação que não pode se perder: particularidades do cliente, cuidados especiais, histórico…"></textarea></div>
+            </div>
+
+            <!-- DOCUMENTAÇÃO VISUAL — anexos com destaque principal e folha própria na impressão -->
+            <div class="grid-form">
+                <div class="section-title" style="background:#475569;">DOCUMENTAÇÃO VISUAL — ANEXOS <span class="fu-prog" id="fu-anexos-chip" style="margin-left:10px;">0 anexo(s)</span></div>
+                <div class="g-col g-col-12">
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                        <input type="file" id="fu-anexo-file" accept="image/*" multiple style="display:none;" onchange="fuAnexar(this)">
+                        <button class="action-btn-sec" onclick="document.getElementById('fu-anexo-file').click()"><i class="fas fa-camera"></i> Anexar arquivo (arte, acondicionamento, croqui…)</button>
+                        <span style="font-size:11px; color:#94a3b8;">Marque uma imagem como <b>PRINCIPAL</b> — ela sai em destaque na <b>folha de anexos</b> que acompanha a impressão.</span>
+                    </div>
+                    <div id="fu-anexos-grid" class="fu-anexos-grid"></div>
+                </div>
             </div>
 
             <!-- RESUMO VIVO -->
@@ -2785,20 +2825,19 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     </div>
 
     <!-- BOTÕES DE AÇÃO INFERIOR DA FICHA (Mantido para formulários) -->
+    <!-- Barra de ações organizada por fluxo: [cancelar] · [documentos] · [salvar → aprovar → enviar] -->
     <div id="action-bar" class="action-bar-fixed" style="display: none;">
         <div class="action-group">
-            <button class="btn-outline-danger" onclick="acaoRapida('Cancelar Documento')"><i class="fas fa-xmark"></i> Cancelar Ficha</button>
+            <button class="btn-outline-danger ab-btn" onclick="acaoRapida('Cancelar Documento')"><i class="fas fa-xmark"></i> Cancelar</button>
         </div>
-        <div class="action-group" style="flex-grow: 1; justify-content: center;">
-            <button class="action-btn-sec" onclick="salvarFichaSistema('Rascunho')"><i class="fas fa-floppy-disk"></i> Salvar Rascunho</button>
-            <button class="action-btn-sec" onclick="salvarFichaSistema('Aguardando Aprovação')"><i class="fas fa-eye"></i> Solicitar Aprovação</button>
-            <button class="sys-btn-success" onclick="salvarFichaSistema('Aprovado')"><i class="fas fa-thumbs-up"></i> Aprovar Ficha</button>
-            <button class="btn-gold" onclick="abrirModalEnvio()"><i class="fas fa-paper-plane"></i> Enviar ao Setor</button>
-        </div>
-        <div class="action-group" style="border-left: 1px solid #e5e7eb; padding-left: 15px;">
-            <button class="action-btn-sec" onclick="imprimirDocumento()"><i class="fas fa-print"></i> PDF</button>
-            <button class="action-btn-sec" style="color: #0b2c5c; border-color: #cbd5e1;" onclick="imprimirEtiqueta()"><i class="fas fa-tag"></i> Etiqueta</button>
-            <button class="sys-btn-primary" onclick="salvarFichaSistema('Salvo')"><i class="fas fa-floppy-disk"></i> Salvar</button>
+        <div class="action-group ab-right">
+            <button class="action-btn-sec ab-btn" onclick="imprimirDocumento()" title="Visualizar e imprimir o documento"><i class="fas fa-print"></i> Imprimir / PDF</button>
+            <button class="action-btn-sec ab-btn" onclick="imprimirEtiqueta()" title="Visualizar e imprimir a etiqueta"><i class="fas fa-tag"></i> Etiqueta</button>
+            <span class="ab-sep"></span>
+            <button class="sys-btn-primary ab-btn" onclick="salvarFichaSistema('Rascunho')" title="Grava a ficha para continuar depois"><i class="fas fa-floppy-disk"></i> Salvar</button>
+            <button class="action-btn-sec ab-btn" onclick="salvarFichaSistema('Aguardando Aprovação')" title="Envia para o gestor aprovar"><i class="fas fa-eye"></i> Solicitar Aprovação</button>
+            <button class="sys-btn-success ab-btn" onclick="salvarFichaSistema('Aprovado')"><i class="fas fa-thumbs-up"></i> Aprovar</button>
+            <button class="btn-gold ab-btn" onclick="abrirModalEnvio()"><i class="fas fa-paper-plane"></i> Enviar ao Setor</button>
         </div>
     </div>
 </div>
@@ -3096,7 +3135,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
     function rbSave() {
         RB.fichas = dbFichas;
-        localStorage.setItem(RB_KEY, JSON.stringify(RB));
+        try {
+            localStorage.setItem(RB_KEY, JSON.stringify(RB));
+        } catch (e) {
+            alert('Armazenamento local cheio — não foi possível gravar. Remova anexos de fichas antigas ou exporte os dados para liberar espaço.');
+        }
     }
     function rbSeedRetrabalhos() {
         // Amostra histórica (marcada como demo) para os indicadores nascerem com leitura
@@ -4042,17 +4085,15 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const linhasItens = insp.itens.filter(x => x.veredito !== 'vazio').map(x => `
             <tr><td class="l">${x.item}</td><td class="v">${x.valor || '—'}</td><td class="l">Especificado</td><td class="v">${espec(x.item)} · ${vTxt[x.veredito] || x.veredito}</td></tr>`).join('');
 
-        // Parâmetros da etapa registrados pela Qualidade na Ficha Única (quando houver)
+        // Parâmetros da etapa registrados pela Qualidade na Ficha Única (quando houver),
+        // na ordem do layout de preenchimento e com a cor da etapa
+        const corEt = (fuKey && FU_COR[fuKey]) || '#191040';
         let blocoParams = '';
         if (f && f.tipo === 'unica' && f.dados && fuKey && document.getElementById('fu-sec-' + fuKey)) {
-            const campos = fuCamposDaSecao(fuKey, f.dados).filter(c => c.v !== '—');
-            if (campos.length) {
-                let linhas = '';
-                for (let i = 0; i < campos.length; i += 2) {
-                    const a = campos[i], b = campos[i + 1];
-                    linhas += `<tr><td class="l">${a.l}</td><td class="v">${a.v}</td>${b ? `<td class="l">${b.l}</td><td class="v">${b.v}</td>` : '<td class="l"></td><td class="v"></td>'}</tr>`;
-                }
-                blocoParams = `<div class="fup-sec-title">Parâmetros da etapa — Ficha Única ${insp.ficha}</div><table class="fup-params">${linhas}</table>`;
+            const entradas = fuCamposDaSecao(fuKey, f.dados);
+            if (entradas.some(e => e.v && e.v !== '—')) {
+                const linhas = fuLinhasImpressao(entradas, corEt, true);
+                blocoParams = `<div class="fup-sec-title" style="background:${corEt};">Parâmetros da etapa — Ficha Única ${insp.ficha}</div><table class="fup-params">${linhas}</table>`;
             }
         }
 
@@ -4066,10 +4107,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const html = `
             <div class="fu-page-cap">Liberação de Setup · ${insp.etapa} · ${codEt}</div>
             <div class="fu-page">
-                <div class="fup-head">
+                <div class="fup-head" style="border-bottom-color:${corEt};">
                     <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
                     <div class="fup-doc">
-                        <div class="t">Liberação de Setup</div>
+                        <div class="t" style="color:${corEt};">Liberação de Setup</div>
                         <div class="e">${insp.etapa.toUpperCase()} · ${codEt}</div>
                         <div class="c">${insp.lib || ''} · POP-QUA-001 · Fase 2 da tríade da qualidade</div>
                     </div>
@@ -4900,6 +4941,66 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         fuAtualizarResumo();
     }
 
+    // ---- Anexos da Ficha Única (documentação visual) ----
+    let fuAnexos = [];
+    function fuAnexar(input) {
+        const files = [...input.files];
+        input.value = '';
+        files.forEach(file => {
+            const fr = new FileReader();
+            fr.onload = () => {
+                const img = new Image();
+                img.onload = () => {
+                    // Reduz para caber no armazenamento local sem perder legibilidade
+                    const max = 1000, s = Math.min(1, max / Math.max(img.width, img.height));
+                    const c = document.createElement('canvas');
+                    c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                    fuAnexos.push({ id: novoId(), rotulo: file.name.replace(/\.[^.]+$/, ''), img: c.toDataURL('image/jpeg', 0.8), principal: fuAnexos.length === 0 });
+                    fuRenderAnexos();
+                };
+                img.src = fr.result;
+            };
+            fr.readAsDataURL(file);
+        });
+    }
+    function fuRenderAnexos() {
+        const grid = document.getElementById('fu-anexos-grid');
+        const chip = document.getElementById('fu-anexos-chip');
+        if (chip) chip.innerText = fuAnexos.length + ' anexo(s)';
+        if (!grid) return;
+        grid.innerHTML = fuAnexos.map(a => `
+            <div class="fu-anexo-card ${a.principal ? 'principal' : ''}">
+                ${a.principal ? '<span class="fa-main-tag">★ PRINCIPAL</span>' : ''}
+                <img src="${a.img}" alt="">
+                <div class="fa-body">
+                    <input class="fa-rotulo" value="${(a.rotulo || '').replace(/"/g, '&quot;')}" placeholder="Rótulo (ex.: Arte final)" onchange="fuAnexoRotulo(${a.id}, this.value)">
+                    <div class="fa-acoes">
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="radio" name="fu-anexo-main" ${a.principal ? 'checked' : ''} onchange="fuAnexoPrincipal(${a.id})"> Principal</label>
+                        <button class="btn-ic" title="Remover anexo" onclick="fuAnexoRemover(${a.id})"><i class="fas fa-xmark"></i></button>
+                    </div>
+                </div>
+            </div>`).join('');
+        renderIcons(grid);
+    }
+    function fuAnexoPrincipal(id) { fuAnexos.forEach(a => a.principal = a.id === id); fuRenderAnexos(); }
+    function fuAnexoRotulo(id, v) { const a = fuAnexos.find(x => x.id === id); if (a) a.rotulo = v.trim(); }
+    function fuAnexoRemover(id) {
+        const a = fuAnexos.find(x => x.id === id);
+        fuAnexos = fuAnexos.filter(x => x.id !== id);
+        if (a && a.principal && fuAnexos.length) fuAnexos[0].principal = true;
+        fuRenderAnexos();
+    }
+
+    // Clique no NOME da etapa (na barra congelada): garante a etapa ligada e pula para a seção
+    function fuIrEtapa(ev, span) {
+        ev.preventDefault();
+        const cb = span.parentElement.querySelector('input');
+        if (!cb.checked) { cb.checked = true; fuToggleEtapa(cb); }
+        const sec = document.getElementById('fu-sec-' + cb.value);
+        if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function fuAtualizarResumo() {
         const sel = fuEtapasSelecionadas();
         document.getElementById('fu-res-etapas').innerText = sel.length;
@@ -4907,7 +5008,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
         // Progresso por seção + geral (só conta o que está visível/aplicável)
         let tot = 0, fill = 0;
-        document.querySelectorAll('#view-form-ficha-unica .fu-prog').forEach(badge => {
+        document.querySelectorAll('#view-form-ficha-unica .fu-prog[data-sec]').forEach(badge => {
             const secEl = document.getElementById('fu-sec-' + badge.dataset.sec);
             const inputs = [...secEl.querySelectorAll('input[id^="fu_"], textarea[id^="fu_"], select[id^="fu_"]')];
             const cheios = inputs.filter(i => i.value.trim()).length;
@@ -4967,6 +5068,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.querySelectorAll('#fu-fluxo input').forEach(c => { c.checked = false; fuToggleEtapa(c); });
         document.getElementById('lbl-codigo-fu-ficha').value = '';
         document.getElementById('fu-reuse').style.display = 'none';
+        fuAnexos = []; fuRenderAnexos();
         fuAtualizarResumo();
     }
 
@@ -4980,6 +5082,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         Object.entries(f.dados || {}).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
         document.querySelectorAll('#fu-fluxo input').forEach(c => { c.checked = (f.etapas || []).includes(c.value); fuToggleEtapa(c); });
         document.getElementById('lbl-codigo-fu-ficha').value = reaproveitar ? codAtual : f.cod;
+        fuAnexos = JSON.parse(JSON.stringify(f.anexos || [])); fuRenderAnexos();
         fuAtualizarResumo();
     }
 
@@ -5009,7 +5112,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             setor: etapas[0].setor, prox: etapas[1] ? etapas[1].setor : '-',
             status: statusClicado, dataHora: now, responsavel: currentSessionUser,
             etapas: etapas.map(e => e.key), fluxo: etapas.map(e => e.label).join(' → '),
-            prioridade: document.getElementById('fu_prioridade').value, dados
+            prioridade: document.getElementById('fu_prioridade').value, dados,
+            anexos: JSON.parse(JSON.stringify(fuAnexos))
         };
         if (idx > -1) {
             const hist = dbFichas[idx].historico || [];
@@ -5131,29 +5235,53 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         renderIcons(document.getElementById('modal-fu-print'));
     }
 
-    // Lê rótulo+valor de TODOS os campos da seção (grade e tabelas), na ordem do formulário.
-    // Rótulo vem do .lbl da célula ou do atributo data-l (campos de tabela, ex.: tintas).
-    // Com `dados` (ficha salva), os valores vêm da ficha em vez do formulário na tela.
+    // Cores de cada etapa (mesmas das seções na tela) — controle visual na impressão
+    const FU_COR = { cliche: '#c9a227', impressao: '#1d4ed8', laminacao: '#7c3aed', rebobinadeira: '#0891b2', corte: '#0d9488', expedicao: '#be123c' };
+
+    // Lê a seção na MESMA ORDEM do layout de preenchimento, incluindo os subtítulos
+    // de grupo (MP e bobina base, receita, estações/tintas…). Rótulo vem do .lbl da
+    // célula ou do data-l (campos de tabela). Com `dados`, valores vêm da ficha salva.
     function fuCamposDaSecao(key, dados) {
         const sec = document.getElementById('fu-sec-' + key);
         if (!sec) return [];
-        const campos = [];
-        sec.querySelectorAll('input[id^="fu_"], textarea[id^="fu_"], select[id^="fu_"]').forEach(inp => {
-            let label = inp.getAttribute('data-l');
-            if (!label) {
-                const col = inp.closest('.g-col');
-                const lblEl = col ? col.querySelector('.lbl') : null;
-                if (lblEl) {
-                    const clone = lblEl.cloneNode(true);
-                    clone.querySelectorAll('span, small').forEach(s => s.remove());
-                    label = clone.textContent.trim();
-                }
+        const out = [];
+        const limpaLbl = lblEl => { const c = lblEl.cloneNode(true); c.querySelectorAll('span, small').forEach(s => s.remove()); return c.textContent.trim(); };
+        sec.querySelectorAll('.g-col').forEach(col => {
+            const tableInputs = col.querySelectorAll('input[data-l]');
+            if (tableInputs.length) { // tabela interna (ex.: tintas por estação)
+                tableInputs.forEach(inp => {
+                    const v = dados ? (dados[inp.id] || '') : (inp.value || '');
+                    out.push({ l: inp.getAttribute('data-l'), v: v.trim() || '—' });
+                });
+                return;
             }
-            if (!label) return;
-            const v = dados ? (dados[inp.id] || '') : (inp.value || '');
-            campos.push({ l: label, v: v.trim() || '—' });
+            const field = col.querySelector('input[id^="fu_"], textarea[id^="fu_"], select[id^="fu_"]');
+            const lblEl = col.querySelector('.lbl');
+            if (!field && lblEl) { out.push({ grupo: limpaLbl(lblEl) }); return; } // subtítulo de grupo
+            if (field && lblEl) {
+                const v = dados ? (dados[field.id] || '') : (field.value || '');
+                out.push({ l: limpaLbl(lblEl), v: v.trim() || '—' });
+            }
         });
-        return campos;
+        return out;
+    }
+
+    // Monta as linhas da tabela impressa respeitando a ordem e os grupos do layout
+    function fuLinhasImpressao(entradas, cor, filtrarVazios) {
+        let linhas = '', par = [];
+        const flush = () => {
+            if (!par.length) return;
+            const a = par[0], b = par[1];
+            linhas += `<tr><td class="l">${a.l}</td><td class="v">${a.v}</td>${b ? `<td class="l">${b.l}</td><td class="v">${b.v}</td>` : '<td class="l"></td><td class="v"></td>'}</tr>`;
+            par = [];
+        };
+        entradas.forEach(e => {
+            if (e.grupo) { flush(); linhas += `<tr><td colspan="4" class="grp" style="background:${cor}14; color:${cor}; border:1px solid #999; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:5px 8px;">${e.grupo}</td></tr>`; return; }
+            if (filtrarVazios && e.v === '—') return;
+            par.push(e); if (par.length === 2) flush();
+        });
+        flush();
+        return linhas;
     }
 
     function fuImprimir() {
@@ -5171,21 +5299,17 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const selecionadas = fluxoSel.filter(e => keys.includes(e.key));
         const paginas = selecionadas.map((et, pIdx) => {
             const codEt = codigoEtapa(cod, et.key) || cod; // código com sufixo da etapa (regra vigente)
-            const campos = fuCamposDaSecao(et.key);
-            // Linhas da tabela: 2 pares rótulo/valor por linha
-            let linhas = '';
-            for (let i = 0; i < campos.length; i += 2) {
-                const a = campos[i], b = campos[i + 1];
-                linhas += `<tr><td class="l">${a.l}</td><td class="v">${a.v}</td>${b ? `<td class="l">${b.l}</td><td class="v">${b.v}</td>` : '<td class="l"></td><td class="v"></td>'}</tr>`;
-            }
-            const cadeia = fluxoSel.map(e => `<span class="fx${e.key === et.key ? ' now' : ''}">${e.label}</span>`).join('<span class="fx-sep">→</span>');
+            const cor = FU_COR[et.key] || '#191040';
+            // Linhas na MESMA ordem do layout de preenchimento, com os grupos coloridos
+            const linhas = fuLinhasImpressao(fuCamposDaSecao(et.key), cor, false);
+            const cadeia = fluxoSel.map(e => `<span class="fx${e.key === et.key ? ' now' : ''}"${e.key === et.key ? ` style="background:${cor}; border-color:${cor};"` : ''}>${e.label}</span>`).join('<span class="fx-sep">→</span>');
             return `
             <div class="fu-page-cap">Folha ${pIdx + 1} de ${selecionadas.length} · ${et.label} · ${codEt} — Operador de ${et.setor}</div>
             <div class="fu-page">
-                <div class="fup-head">
+                <div class="fup-head" style="border-bottom-color:${cor};">
                     <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
                     <div class="fup-doc">
-                        <div class="t">Instrução de Trabalho</div>
+                        <div class="t" style="color:${cor};">Instrução de Trabalho</div>
                         <div class="e">${et.label.toUpperCase()} · ${codEt}</div>
                         <div class="c">Ficha Única ${cod} · POP-QUA-001</div>
                     </div>
@@ -5197,7 +5321,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <tr><td>${g('fu_semi')}</td><td>${g('fu_segmento')}</td><td>${g('fu_unidade')}</td><td>${emitido}</td></tr>
                 </table>
                 <div class="fup-fluxo"><b style="margin-right:4px; font-size:9px; text-transform:uppercase; color:#444;">Fluxo do produto:</b>${cadeia}</div>
-                <div class="fup-sec-title">Parâmetros da etapa — ${et.label}</div>
+                <div class="fup-sec-title" style="background:${cor};">Parâmetros da etapa — ${et.label}</div>
                 <table class="fup-params">${linhas}</table>
                 <div class="fup-sec-title" style="background:#444;">Observações gerais da ficha</div>
                 <div class="fup-obs">${obsGeral || 'Sem observações.'}</div>
@@ -5213,11 +5337,45 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             </div>`;
         }).join('');
 
+        // Folha de anexos: quando há documentação visual, sai uma folha organizada
+        // com a imagem PRINCIPAL em destaque e as demais em grade
+        let folhaAnexos = '';
+        if (fuAnexos.length) {
+            const principal = fuAnexos.find(a => a.principal) || fuAnexos[0];
+            const demais = fuAnexos.filter(a => a !== principal);
+            folhaAnexos = `
+            <div class="fu-page-cap">Folha de Anexos · ${fuAnexos.length} imagem(ns) · ${cod}</div>
+            <div class="fu-page">
+                <div class="fup-head">
+                    <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
+                    <div class="fup-doc">
+                        <div class="t">Documentação Visual — Anexos</div>
+                        <div class="e">${cod}</div>
+                        <div class="c">Ficha Única ${cod} · acompanha as Instruções de Trabalho</div>
+                    </div>
+                </div>
+                <table class="fup-meta">
+                    <tr><th>Cliente</th><th>Produto</th><th>Código</th><th>Emissão</th></tr>
+                    <tr><td>${g('fu_cliente')}</td><td>${g('fu_produto')}</td><td>${cod}</td><td>${emitido}</td></tr>
+                </table>
+                <div class="fua-main">
+                    <div class="fua-cap"><span class="tag">★ PRINCIPAL</span> ${principal.rotulo || 'Imagem principal'}</div>
+                    <img src="${principal.img}" alt="">
+                </div>
+                ${demais.length ? `<div class="fua-grid">${demais.map(a => `<div class="fua-item"><div class="c">${a.rotulo || 'Anexo'}</div><img src="${a.img}" alt=""></div>`).join('')}</div>` : ''}
+                <div class="fup-foot">
+                    <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
+                    <span>Emitido por ${currentSessionUser} em ${emitido}</span>
+                </div>
+            </div>`;
+        }
+
+        const totalFolhas = keys.length + (folhaAnexos ? 1 : 0);
         // Pré-visualização: confere as folhas na tela antes de mandar para a impressora
-        abrirPreviewDoc(paginas, 'Pré-visualização — Instruções de Trabalho',
-            `${keys.length} folha(s) A4 · Ficha ${cod} · Confira antes de imprimir — nada foi enviado à impressora ainda.`,
+        abrirPreviewDoc(paginas + folhaAnexos, 'Pré-visualização — Instruções de Trabalho',
+            `${totalFolhas} folha(s) A4 · Ficha ${cod}${folhaAnexos ? ' · inclui folha de anexos' : ''} · Confira antes de imprimir — nada foi enviado à impressora ainda.`,
             () => {
-                registrarAtividade(`imprimiu ${keys.length} instrução(ões) de trabalho da ficha ${cod}`);
+                registrarAtividade(`imprimiu ${totalFolhas} folha(s) de instrução de trabalho da ficha ${cod}`);
                 document.body.classList.add('print-mode-fu');
                 window.print();
                 document.body.classList.remove('print-mode-fu');
