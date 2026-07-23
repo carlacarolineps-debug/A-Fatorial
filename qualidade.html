@@ -674,6 +674,23 @@
     .dec-btn.primary:hover { filter: brightness(1.12); }
     .dec-btn.ghost { background: #fff; border: 1px solid var(--border); color: var(--primary); }
     .dec-btn.ghost:hover { border-color: var(--gold); color: var(--gold-deep); }
+    /* ---- Fluxo de processos ticável + Ficha Única ---- */
+    .chips-fluxo { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+    .chip-et { display:inline-flex; align-items:center; gap:7px; padding:7px 13px; border:1.5px solid #cbd5e1; border-radius:999px; font-size:12px; font-weight:600; color:#475569; cursor:pointer; user-select:none; background:#fff; transition:.15s; }
+    .chip-et:hover { border-color:#94a3b8; }
+    .chip-et input { accent-color:#191040; width:14px; height:14px; cursor:pointer; }
+    .chip-et:has(input:checked) { background:#191040; border-color:#191040; color:#fff; box-shadow:0 2px 8px rgba(25,16,64,.25); }
+    .chip-et:has(input:checked) input { accent-color:#c5a880; }
+    .fu-sec { display:none; }
+    .fu-sec.on { display:grid; }
+    .fu-prog { margin-left:auto; font-size:10px; font-weight:700; background:rgba(255,255,255,.25); color:#fff; padding:2px 8px; border-radius:999px; letter-spacing:.03em; }
+    .fu-prog.ok { background:#0d9488; }
+    .fu-reuse { display:none; align-items:center; gap:10px; background:#fef9c3; border:1px solid #fde047; color:#854d0e; font-size:12px; padding:9px 14px; border-radius:10px; margin:10px 0; }
+    .fu-reuse b { font-weight:700; }
+    .fu-reuse button { margin-left:auto; }
+    .fu-resumo { display:flex; flex-wrap:wrap; gap:18px; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 18px; margin-top:14px; font-size:12px; color:#475569; }
+    .fu-resumo b { color:#191040; }
+    .fu-resumo .fr-item { display:flex; align-items:center; gap:6px; }
     .cmd-coord-head { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#0f766e; background:#e7f5ee; border:1px solid #b6e2cf; padding:8px 12px; border-radius:10px; margin-bottom:12px; }
     .cmd-coord-head svg { width:15px; height:15px; }
     .cmd-zero { text-align: center; padding: 30px 16px; color: var(--text-muted); }
@@ -796,6 +813,7 @@
         <div class="sidebar-menu-item">
             <button class="sys-nav-btn" id="nav-form" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-file-lines"></i></span> Ficha de Parâmetro <span class="nav-caret">▸</span></button>
             <div class="sidebar-submenu">
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px; color:#c5a880; font-weight:700;" onclick="abrirFicha('ficha-unica')"><i class="fas fa-bolt" style="width:16px;"></i> Ficha Única (todas as etapas)</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-solicitacao-cliche')"><i class="fas fa-stamp" style="width:16px;"></i> Solicitação de Clichê</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-impressao')"><i class="fas fa-print" style="width:16px;"></i> Impressão</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-laminacao')"><i class="fas fa-layer-group" style="width:16px;"></i> Laminação</button>
@@ -870,6 +888,7 @@
             <div class="sys-menu-item" id="hdr-nova-ficha">
                 <button class="sys-btn-success" style="padding: 8px 16px;"><i class="fas fa-plus"></i> Nova Ficha <i class="fas fa-caret-down"></i></button>
                 <div class="sys-submenu sys-submenu-bottom-left">
+                    <button class="sys-submenu-btn" style="color:#c5a880; font-weight:700;" onclick="abrirFicha('ficha-unica')"><i class="fas fa-bolt" style="width:16px;"></i> Ficha Única (todas as etapas)</button>
                     <button class="sys-submenu-btn" onclick="abrirFicha('solicitacao-cliche')"><i class="fas fa-stamp" style="width:16px;"></i> Solicitação de Clichê</button>
                     <button class="sys-submenu-btn" onclick="abrirFicha('impressao')"><i class="fas fa-print" style="width:16px;"></i> Impressão</button>
                     <button class="sys-submenu-btn" onclick="abrirFicha('laminacao')"><i class="fas fa-layer-group" style="width:16px;"></i> Laminação</button>
@@ -1257,9 +1276,6 @@
                     <span class="lbl" style="color:#854d0e;">Vincular a Clichê Existente? (Opcional)</span>
                     <select class="inp" id="f_sol_vincular_cliche" style="border: 1px solid #fde047;">
                         <option value="">-- Não (Criar Nova Solicitação de Clichê) --</option>
-                        <option value="7607">7607 - Bobina PEBD Batata Palito</option>
-                        <option value="8801">8801 - Saco Hamburguer Impresso</option>
-                        <option value="4502">4502 - Bobina Fundo Estrela</option>
                     </select>
                 </div>
 
@@ -1355,10 +1371,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <datalist id="dl_clientes"></datalist>
                 </div>
                 <div class="g-col g-col-6">
-                    <span class="lbl">Selecionar Produto do Cliente *</span>
-                    <select class="inp" id="f_produto" onchange="fichaProdutoChange('corte')">
-                        <option value="">-- Selecione primeiro o Cliente --</option>
-                    </select>
+                    <span class="lbl">Produto * <span style="font-weight:400; color:#94a3b8; font-size:10px;">(digite para buscar ou cadastrar)</span></span>
+                    <input class="inp" id="f_produto" list="dl_produtos" autocomplete="off" placeholder="Digite a descrição do produto…" onchange="fichaProdutoChange('corte')">
+                    <datalist id="dl_produtos"></datalist>
                 </div>
                 <div class="g-col g-col-4"><span class="lbl">Cód. Semi Acabado</span><input class="inp" id="f_semi"></div>
                 <div class="g-col g-col-4"><span class="lbl">Segmento</span><input class="inp" id="f_seg"></div>
@@ -1488,6 +1503,159 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     </div>
 
     <!-- ==========================================================================
+         FICHA ÚNICA DE PARÂMETROS — TODAS AS ETAPAS EM UM DOCUMENTO (TESTE)
+         ========================================================================== -->
+    <div id="view-form-ficha-unica" class="sys-view" style="padding-bottom: 0;">
+        <div class="ficha-wrapper">
+            <div class="ficha-header-pdf">
+                <div class="ficha-title">
+                    <h2>Ficha Única de Parâmetros <span class="badge-setor" style="background:#c5a880; color:#191040;">TODAS AS ETAPAS · TESTE</span></h2>
+                    <p>REBRACIL - EMBALAGENS FLEXÍVEIS · Um documento, todo o processo do produto</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">Cód. do Cliente / Produto</span><br>
+                    <input type="text" id="lbl-codigo-fu-ficha" placeholder="Aguardando Seleção..." onkeyup="fuAtualizarResumo()" style="font-size: 18px; font-weight: bold; color: #111827; text-align: right; border: 1px dashed #cbd5e1; border-radius: 4px; padding: 2px 8px; width: 220px; outline: none; background: #f8fafc;">
+                </div>
+            </div>
+
+            <!-- Barra de reaproveitamento inteligente -->
+            <div class="fu-reuse" id="fu-reuse">
+                <i class="fas fa-lightbulb"></i>
+                <span>Já existe uma Ficha Única para <b id="fu-reuse-prod">este produto</b>. Quer carregar os parâmetros da última versão e só ajustar o que mudou?</span>
+                <button class="action-btn-sec" style="padding:5px 12px; font-size:11px;" onclick="fuCarregarAnterior()"><i class="fas fa-rotate"></i> Carregar parâmetros</button>
+                <button class="btn-ic" title="Dispensar" onclick="document.getElementById('fu-reuse').style.display='none'"><i class="fas fa-xmark"></i></button>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">1 · IDENTIFICAÇÃO (CADASTROS BASE)</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl">Cliente * <span style="font-weight:400; color:#94a3b8; font-size:10px;">(digite para buscar ou cadastrar)</span></span>
+                    <input class="inp" id="fu_cliente" list="dl_clientes" autocomplete="off" placeholder="Digite o nome do cliente…" onchange="fichaClienteChange('ficha-unica')">
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl">Produto * <span style="font-weight:400; color:#94a3b8; font-size:10px;">(digite para buscar ou cadastrar)</span></span>
+                    <input class="inp" id="fu_produto" list="dl_produtos" autocomplete="off" placeholder="Digite a descrição do produto…" onchange="fichaProdutoChange('ficha-unica'); fuChecarAnterior();">
+                </div>
+                <div class="g-col g-col-3"><span class="lbl">Cód. Semi Acabado</span><input class="inp" id="fu_semi"></div>
+                <div class="g-col g-col-3"><span class="lbl">Segmento</span><input class="inp" id="fu_segmento" list="dl_segmentos"><datalist id="dl_segmentos"><option value="ALIMENTÍCIO"></option><option value="HIGIENE E LIMPEZA"></option><option value="AGRÍCOLA"></option><option value="INDUSTRIAL"></option><option value="PET"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Unidade</span><input class="inp" id="fu_unidade" value="KG"></div>
+                <div class="g-col g-col-3"><span class="lbl">Prioridade</span><select class="inp" id="fu_prioridade"><option>Normal</option><option>Alta</option><option>Urgente</option><option>Baixa</option></select></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title" style="background:#191040;">2 · FLUXO DE PROCESSOS — MARQUE AS ETAPAS INCLUSAS</div>
+                <div class="g-col g-col-12">
+                    <div class="chips-fluxo" id="fu-fluxo">
+                        <label class="chip-et"><input type="checkbox" value="cliche" onchange="fuToggleEtapa(this)"><span>Solicitação de Clichê</span></label>
+                        <label class="chip-et"><input type="checkbox" value="impressao" onchange="fuToggleEtapa(this)"><span>Impressão</span></label>
+                        <label class="chip-et"><input type="checkbox" value="laminacao" onchange="fuToggleEtapa(this)"><span>Laminação</span></label>
+                        <label class="chip-et"><input type="checkbox" value="rebobinadeira" onchange="fuToggleEtapa(this)"><span>Rebobinadeira</span></label>
+                        <label class="chip-et"><input type="checkbox" value="corte" onchange="fuToggleEtapa(this)"><span>Corte &amp; Solda</span></label>
+                        <label class="chip-et"><input type="checkbox" value="expedicao" onchange="fuToggleEtapa(this)"><span>Expedição</span></label>
+                    </div>
+                    <p style="font-size:11px; color:#94a3b8; margin-top:8px;">Só as etapas marcadas abrem seção de parâmetros abaixo — você preenche apenas o que o produto realmente passa. As etapas definem o fluxo da ficha na fábrica, na ordem do POP.</p>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: SOLICITAÇÃO DE CLICHÊ -->
+            <div class="grid-form fu-sec" id="fu-sec-cliche">
+                <div class="section-title" style="background:#c9a227;">ETAPA · SOLICITAÇÃO DE CLICHÊ <span class="fu-prog" data-sec="cliche">0/7</span></div>
+                <div class="g-col g-col-4"><span class="lbl">Medida Embalagem</span><input class="inp" id="fu_cli_medida_emb" placeholder="Ex.: 195,00 x 340,00 + 40,00 mm"></div>
+                <div class="g-col g-col-4"><span class="lbl">Medida Impressão</span><input class="inp" id="fu_cli_medida_imp"></div>
+                <div class="g-col g-col-4"><span class="lbl">Substrato</span><input class="inp" id="fu_cli_substrato" placeholder="Ex.: COEX PEBD Branco 720 mm"></div>
+                <div class="g-col g-col-3"><span class="lbl">Nº de Cores</span><input class="inp" id="fu_cli_cores"></div>
+                <div class="g-col g-col-3"><span class="lbl">Lineatura (lpc)</span><input class="inp" id="fu_cli_lineatura"></div>
+                <div class="g-col g-col-3"><span class="lbl">Cilindro</span><input class="inp" id="fu_cli_cilindro"></div>
+                <div class="g-col g-col-3"><span class="lbl">Vincular a Clichê Existente</span><input class="inp" id="fu_cli_vinculo" list="dl_cliches" placeholder="Nº do clichê (opcional)"><datalist id="dl_cliches"></datalist></div>
+            </div>
+
+            <!-- SEÇÃO: IMPRESSÃO -->
+            <div class="grid-form fu-sec" id="fu-sec-impressao">
+                <div class="section-title" style="background:#1d4ed8;">ETAPA · IMPRESSÃO <span class="fu-prog" data-sec="impressao">0/8</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Máquina</span><input class="inp" id="fu_imp_maquina" list="dl_maquinas" placeholder="Ex.: Gearless"><datalist id="dl_maquinas"><option value="Gearless"></option><option value="Impressora Flexo 01"></option><option value="Impressora Flexo 02"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Nº de Cores</span><input class="inp" id="fu_imp_cores"></div>
+                <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_imp_velocidade"></div>
+                <div class="g-col g-col-3"><span class="lbl">Corona / Tratamento</span><input class="inp" id="fu_imp_corona" placeholder="Ex.: 38 dinas"></div>
+                <div class="g-col g-col-3"><span class="lbl">Viscosidade Tintas (s)</span><input class="inp" id="fu_imp_viscosidade"></div>
+                <div class="g-col g-col-3"><span class="lbl">Anilox / BCM</span><input class="inp" id="fu_imp_anilox"></div>
+                <div class="g-col g-col-3"><span class="lbl">Largura MP (mm)</span><input class="inp" id="fu_imp_mp_largura"></div>
+                <div class="g-col g-col-3"><span class="lbl">Espessura MP (mm)</span><input class="inp" id="fu_imp_mp_espessura"></div>
+            </div>
+
+            <!-- SEÇÃO: LAMINAÇÃO -->
+            <div class="grid-form fu-sec" id="fu-sec-laminacao">
+                <div class="section-title" style="background:#7c3aed;">ETAPA · LAMINAÇÃO <span class="fu-prog" data-sec="laminacao">0/8</span></div>
+                <div class="g-col g-col-4"><span class="lbl">Estrutura (ex: BOPP+PE)</span><input class="inp" id="fu_lam_estrutura"></div>
+                <div class="g-col g-col-4"><span class="lbl">Tipo de Adesivo</span><input class="inp" id="fu_lam_adesivo"></div>
+                <div class="g-col g-col-4"><span class="lbl">Gramatura Adesivo (g/m²)</span><input class="inp" id="fu_lam_gramatura"></div>
+                <div class="g-col g-col-3"><span class="lbl">Relação Mistura (A:B)</span><input class="inp" id="fu_lam_mistura"></div>
+                <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_lam_velocidade"></div>
+                <div class="g-col g-col-3"><span class="lbl">Temp. Estufas (°C)</span><input class="inp" id="fu_lam_temp" placeholder="Ex.: 60 / 70"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tempo de Cura (h)</span><input class="inp" id="fu_lam_cura"></div>
+                <div class="g-col g-col-12"><span class="lbl">Controle: ancoragem / aspecto</span><input class="inp" id="fu_lam_controle" placeholder="Ex.: sem delaminação, sem túnel, sem bolhas"></div>
+            </div>
+
+            <!-- SEÇÃO: REBOBINADEIRA -->
+            <div class="grid-form fu-sec" id="fu-sec-rebobinadeira">
+                <div class="section-title" style="background:#0891b2;">ETAPA · REBOBINADEIRA <span class="fu-prog" data-sec="rebobinadeira">0/8</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Largura Acabada (mm)</span><input class="inp" id="fu_reb_largura"></div>
+                <div class="g-col g-col-3"><span class="lbl">Diâmetro Bobina (mm)</span><input class="inp" id="fu_reb_diametro"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tubete (mm)</span><input class="inp" id="fu_reb_tubete" placeholder="Ex.: 76"></div>
+                <div class="g-col g-col-3"><span class="lbl">Metragem/Bobina (m)</span><input class="inp" id="fu_reb_metragem"></div>
+                <div class="g-col g-col-3"><span class="lbl">Nº Cortes / Facas</span><input class="inp" id="fu_reb_cortes"></div>
+                <div class="g-col g-col-3"><span class="lbl">Sentido Desbob.</span><input class="inp" id="fu_reb_sentido" placeholder="Externo / Interno"></div>
+                <div class="g-col g-col-3"><span class="lbl">Emenda Permitida?</span><input class="inp" id="fu_reb_emenda" placeholder="Não / Sinalizada"></div>
+                <div class="g-col g-col-3"><span class="lbl">Peso/Bobina (kg)</span><input class="inp" id="fu_reb_peso"></div>
+            </div>
+
+            <!-- SEÇÃO: CORTE & SOLDA -->
+            <div class="grid-form fu-sec" id="fu-sec-corte">
+                <div class="section-title" style="background:#0d9488;">ETAPA · CORTE &amp; SOLDA <span class="fu-prog" data-sec="corte">0/9</span></div>
+                <div class="g-col g-col-4"><span class="lbl">Largura x Comprimento</span><input class="inp" id="fu_cor_medida" placeholder="Ex.: 270 x 350 mm (+/- 10)"></div>
+                <div class="g-col g-col-4"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_espessura"></div>
+                <div class="g-col g-col-4"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" placeholder="N/A / N/A"></div>
+                <div class="g-col g-col-3"><span class="lbl">Temp. Solda Sup. (°C)</span><input class="inp" id="fu_cor_temp_sup"></div>
+                <div class="g-col g-col-3"><span class="lbl">Temp. Solda Inf. (°C)</span><input class="inp" id="fu_cor_temp_inf"></div>
+                <div class="g-col g-col-3"><span class="lbl">Velocidade GP/M</span><input class="inp" id="fu_cor_velocidade"></div>
+                <div class="g-col g-col-3"><span class="lbl">Sacos por Corte</span><input class="inp" id="fu_cor_sacos"></div>
+                <div class="g-col g-col-4"><span class="lbl">Peso Milheiro (kg)</span><input class="inp" id="fu_cor_milheiro"></div>
+                <div class="g-col g-col-4"><span class="lbl">Zíper / Dispositivos</span><input class="inp" id="fu_cor_dispositivos" placeholder="Ex.: sem zíper, ar de guia"></div>
+            </div>
+
+            <!-- SEÇÃO: EXPEDIÇÃO / ACONDICIONAMENTO -->
+            <div class="grid-form fu-sec" id="fu-sec-expedicao">
+                <div class="section-title" style="background:#be123c;">ETAPA · EXPEDIÇÃO &amp; ACONDICIONAMENTO <span class="fu-prog" data-sec="expedicao">0/5</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Qtde por Pacote</span><input class="inp" id="fu_exp_pacote"></div>
+                <div class="g-col g-col-3"><span class="lbl">Pacotes por Caixa</span><input class="inp" id="fu_exp_caixa"></div>
+                <div class="g-col g-col-3"><span class="lbl">Caixas por Palete</span><input class="inp" id="fu_exp_palete"></div>
+                <div class="g-col g-col-3"><span class="lbl">Peso do Palete (kg)</span><input class="inp" id="fu_exp_peso"></div>
+                <div class="g-col g-col-12"><span class="lbl">Padrão de acondicionamento / observações de entrega</span><input class="inp" id="fu_exp_obs"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">OBSERVAÇÕES GERAIS</div>
+                <div class="g-col g-col-12"><textarea class="inp" id="fu_obs" rows="2" style="resize:vertical;" placeholder="Qualquer informação que não pode se perder: particularidades do cliente, cuidados especiais, histórico…"></textarea></div>
+            </div>
+
+            <!-- RESUMO VIVO -->
+            <div class="fu-resumo" id="fu-resumo">
+                <div class="fr-item"><i class="fas fa-file-lines"></i> <span>Etapas: <b id="fu-res-etapas">0</b></span></div>
+                <div class="fr-item"><i class="fas fa-circle-check"></i> <span>Preenchimento: <b id="fu-res-pct">0%</b></span></div>
+                <div class="fr-item"><i class="fas fa-right-left"></i> <span>Fluxo: <b id="fu-res-fluxo">—</b></span></div>
+            </div>
+
+            <div class="system-control-panel">
+                <h4>🔒 Rastreabilidade e Auditoria do Sistema</h4>
+                <div class="control-row">
+                    <div class="control-item"><strong>Responsável:</strong> <span id="sys_fu_criador">-</span></div>
+                    <div class="control-item"><strong>Data e Hora:</strong> <span id="sys_fu_data_criacao">-</span></div>
+                </div>
+                <div class="history-log" id="sys_fu_log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
          FICHA DE PARÂMETROS - LAMINAÇÃO
          ========================================================================== -->
     <div id="view-form-laminacao" class="sys-view" style="padding-bottom: 0;">
@@ -1510,10 +1678,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <input class="inp" id="f_lam_cliente" list="dl_clientes" autocomplete="off" placeholder="Digite o nome do cliente…" onchange="fichaClienteChange('laminacao')">
                 </div>
                 <div class="g-col g-col-6">
-                    <span class="lbl">Selecionar Produto do Cliente *</span>
-                    <select class="inp" id="f_lam_produto" onchange="fichaProdutoChange('laminacao')">
-                        <option value="">-- Selecione primeiro o Cliente --</option>
-                    </select>
+                    <span class="lbl">Produto * <span style="font-weight:400; color:#94a3b8; font-size:10px;">(digite para buscar ou cadastrar)</span></span>
+                    <input class="inp" id="f_lam_produto" list="dl_produtos" autocomplete="off" placeholder="Digite a descrição do produto…" onchange="fichaProdutoChange('laminacao')">
                 </div>
                 <div class="g-col g-col-6"><span class="lbl">Estrutura Laminada (ex: BOPP+PE)</span><input class="inp" id="f_lam_estrutura" placeholder="Ex.: BOPP 20 + PE 50"></div>
                 <div class="g-col g-col-3"><span class="lbl">Segmento</span><input class="inp" id="f_lam_seg"></div>
@@ -1579,10 +1745,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <input class="inp" id="f_reb_cliente" list="dl_clientes" autocomplete="off" placeholder="Digite o nome do cliente…" onchange="fichaClienteChange('rebobinadeira')">
                 </div>
                 <div class="g-col g-col-6">
-                    <span class="lbl">Selecionar Produto do Cliente *</span>
-                    <select class="inp" id="f_reb_produto" onchange="fichaProdutoChange('rebobinadeira')">
-                        <option value="">-- Selecione primeiro o Cliente --</option>
-                    </select>
+                    <span class="lbl">Produto * <span style="font-weight:400; color:#94a3b8; font-size:10px;">(digite para buscar ou cadastrar)</span></span>
+                    <input class="inp" id="f_reb_produto" list="dl_produtos" autocomplete="off" placeholder="Digite a descrição do produto…" onchange="fichaProdutoChange('rebobinadeira')">
                 </div>
                 <div class="g-col g-col-6"><span class="lbl">Cód. Semi Acabado</span><input class="inp" id="f_reb_semi"></div>
                 <div class="g-col g-col-3"><span class="lbl">Segmento</span><input class="inp" id="f_reb_seg"></div>
@@ -1648,12 +1812,22 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <input class="inp" id="f_imp_cliente" list="dl_clientes" autocomplete="off" placeholder="Digite o nome do cliente…" onchange="fichaClienteChange('impressao')">
                 </div>
                 <div class="g-col g-col-6">
-                    <span class="lbl">Selecionar Produto / Descrição *</span>
-                    <select class="inp" id="f_imp_produto" onchange="fichaProdutoChange('impressao')"></select>
+                    <span class="lbl">Produto / Descrição * <span style="font-weight:400; color:#94a3b8; font-size:10px;">(digite para buscar ou cadastrar)</span></span>
+                    <input class="inp" id="f_imp_produto" list="dl_produtos" autocomplete="off" placeholder="Digite a descrição do produto…" onchange="fichaProdutoChange('impressao')">
                 </div>
                 <div class="g-col g-col-4"><span class="lbl">Máquina</span><input class="inp" value="Gearless"></div>
                 <div class="g-col g-col-4"><span class="lbl">Segmento de Atuação</span><input class="inp" value="ALIMENTÍCIO"></div>
-                <div class="g-col g-col-4"><span class="lbl">Fluxo de Processos</span><input class="inp" value="RECEBIMENTO -> IMPRESSÃO -> CORTE E SOLDA"></div>
+                <div class="g-col g-col-12">
+                    <span class="lbl">Fluxo de Processos <span style="font-weight:400; color:#94a3b8; font-size:10px;">(marque as etapas inclusas)</span></span>
+                    <div class="chips-fluxo">
+                        <label class="chip-et"><input type="checkbox" value="Recebimento MP" checked><span>Recebimento MP</span></label>
+                        <label class="chip-et"><input type="checkbox" value="Impressão" checked><span>Impressão</span></label>
+                        <label class="chip-et"><input type="checkbox" value="Laminação"><span>Laminação</span></label>
+                        <label class="chip-et"><input type="checkbox" value="Rebobinadeira"><span>Rebobinadeira</span></label>
+                        <label class="chip-et"><input type="checkbox" value="Corte e Solda" checked><span>Corte &amp; Solda</span></label>
+                        <label class="chip-et"><input type="checkbox" value="Expedição"><span>Expedição</span></label>
+                    </div>
+                </div>
             </div>
 
             <div class="grid-form">
@@ -2581,24 +2755,18 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     };
 
     // Mapas de prefixos/labels por tipo de ficha de parâmetro
-    const FICHA_PREFIX = { corte: 'f_', impressao: 'f_imp_', laminacao: 'f_lam_', rebobinadeira: 'f_reb_' };
-    const FICHA_LABEL = { corte: 'lbl-codigo-ficha', impressao: 'lbl-codigo-imp-ficha', laminacao: 'lbl-codigo-lam-ficha', rebobinadeira: 'lbl-codigo-reb-ficha' };
+    const FICHA_PREFIX = { corte: 'f_', impressao: 'f_imp_', laminacao: 'f_lam_', rebobinadeira: 'f_reb_', 'ficha-unica': 'fu_' };
+    const FICHA_LABEL = { corte: 'lbl-codigo-ficha', impressao: 'lbl-codigo-imp-ficha', laminacao: 'lbl-codigo-lam-ficha', rebobinadeira: 'lbl-codigo-reb-ficha', 'ficha-unica': 'lbl-codigo-fu-ficha' };
 
     function carregarProdutosCliente(tipo = 'corte') {
         const prefix = FICHA_PREFIX[tipo] || 'f_';
-        const labelId = FICHA_LABEL[tipo] || 'lbl-codigo-ficha';
+        const clienteEl = document.getElementById(prefix + 'cliente');
+        const clienteSel = clienteEl ? clienteEl.value : '';
 
-        const clienteSel = document.getElementById(prefix + 'cliente').value;
-        const selectProduto = document.getElementById(prefix + 'produto');
-        const inputCodigo = document.getElementById(labelId);
-        if (inputCodigo) inputCodigo.value = '';
-
-        // Lê o catálogo do banco (RB.produtos), filtrando pelo cliente quando informado
+        // Datalist compartilhado: produtos do cliente (ou todos, se cliente vazio)
         const lista = RB.produtos.filter(p => !clienteSel || !p.cliente || p.cliente === clienteSel);
-        let ops = '<option value="">-- Selecione o Produto --</option>';
-        ops += lista.map(p => `<option value="${(p.descricao||'').replace(/"/g,'&quot;')}" data-cod="${(p.codigo||'').replace(/"/g,'&quot;')}">${p.codigo ? p.codigo + ' · ' : ''}${p.descricao}</option>`).join('');
-        ops += '<option value="__novo__">➕ Cadastrar novo produto…</option>';
-        selectProduto.innerHTML = ops;
+        const dl = document.getElementById('dl_produtos');
+        if (dl) dl.innerHTML = lista.map(p => `<option value="${(p.descricao||'').replace(/"/g,'&quot;')}">${p.codigo || ''}</option>`).join('');
         atualizarEtiqueta();
     }
 
@@ -2622,17 +2790,31 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         }
         carregarProdutosCliente(tipo);
     }
+    // Campo de produto por digitação (autocomplete via datalist).
+    // Produto não cadastrado? Cadastra na hora, vinculado ao cliente da ficha, e segue.
     function fichaProdutoChange(tipo) {
         const pref = FICHA_PREFIX[tipo] || 'f_';
-        const id = pref + 'produto';
-        const el = document.getElementById(id);
-        if (el.value === '__novo__') {
-            const clienteAtual = document.getElementById(pref + 'cliente').value;
-            abrirQuickCad('produtos', o => { if (clienteAtual && clienteAtual !== '__novo__' && !o.cliente) { o.cliente = clienteAtual; cadSalvar('produtos', o, true); } carregarProdutosCliente(tipo); el.value = o.descricao; setarCodigoEAtualizar(tipo); });
-            el.value = '';
-            return;
+        const el = document.getElementById(pref + 'produto');
+        const inputCodigo = document.getElementById(FICHA_LABEL[tipo] || 'lbl-codigo-ficha');
+        const nome = (el.value || '').trim();
+        if (!nome) { atualizarEtiqueta(); return; }
+
+        const clienteAtual = (document.getElementById(pref + 'cliente') || {}).value || '';
+        const existe = RB.produtos.find(p => (p.descricao || '').toLowerCase() === nome.toLowerCase());
+        if (existe) {
+            el.value = existe.descricao; // normaliza a grafia
+            if (inputCodigo && existe.codigo) inputCodigo.value = existe.codigo;
+            // Produto sem cliente vinculado ganha o cliente da ficha
+            if (clienteAtual && !existe.cliente) { existe.cliente = clienteAtual; rbSave(); }
+        } else {
+            // Cadastro imediato: usa o código já digitado no cabeçalho, se houver
+            const codigoAtual = inputCodigo ? inputCodigo.value.trim() : '';
+            const salvo = cadSalvar('produtos', { id: 0, codigo: codigoAtual, descricao: nome, tipo: 'Produto Acabado', cliente: clienteAtual, ncm: '', unidade: 'KG', segmento: '', status: 'Ativo' }, true);
+            carregarProdutosCliente(tipo);
+            el.value = salvo.descricao;
+            toast('Produto "' + nome + '" cadastrado na base' + (clienteAtual ? ' para ' + clienteAtual : '') + '.');
         }
-        setarCodigoEAtualizar(tipo);
+        atualizarEtiqueta();
     }
 
     // ---- Modal de cadastro rápido (na ficha) ----
@@ -2662,23 +2844,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if (cb) cb(salvo);
     }
 
-    function setarCodigoEAtualizar(tipo = 'corte') {
-        const prefix = FICHA_PREFIX[tipo] || 'f_';
-        const labelId = FICHA_LABEL[tipo] || 'lbl-codigo-ficha';
-
-        const selectProduto = document.getElementById(prefix + 'produto');
-        const inputCodigo = document.getElementById(labelId);
-        const indexSelecionado = selectProduto.selectedIndex;
-        
-        if (indexSelecionado > 0) {
-            const codigoVinculado = selectProduto.options[indexSelecionado].getAttribute('data-cod');
-            if (inputCodigo) inputCodigo.value = codigoVinculado;
-        } else {
-            if (inputCodigo) inputCodigo.value = '';
-        }
-        
-        atualizarEtiqueta();
-    }
 
     // ==========================================================================
     // PERSISTÊNCIA (localStorage) — nada se perde ao recarregar a página
@@ -3104,6 +3269,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tela === 'rh-colaboradores') headerTitle = 'RH — Colaboradores';
         else if(tela === 'dash') headerTitle = 'Dashboard Geral';
         else if(tela === 'calendario') headerTitle = 'Produção — Fila e Calendário';
+        else if(tela === 'form-ficha-unica') headerTitle = 'Ficha Única de Parâmetros — Todas as Etapas';
         else if(tela === 'form-corte') headerTitle = 'Ficha de Parâmetro — Corte & Solda';
         else if(tela === 'form-impressao') headerTitle = 'Ficha de Parâmetro — Impressão';
         else if(tela === 'form-laminacao') headerTitle = 'Ficha de Parâmetro — Laminação';
@@ -3142,10 +3308,22 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'indicadores') renderIndicadores();
         if(tela === 'relatorios') renderRelatorio();
         // Fichas de parâmetro abertas direto pelo menu: prepara autocomplete de cliente/produto
-        if(['form-corte','form-impressao','form-laminacao','form-rebobinadeira'].includes(tela)) {
+        if(['form-corte','form-impressao','form-laminacao','form-rebobinadeira','form-ficha-unica'].includes(tela)) {
             const tp = tela.replace('form-', '');
             renderClienteSelects();
             if(document.getElementById(FICHA_PREFIX[tp] + 'produto')) carregarProdutosCliente(tp);
+        }
+        // Solicitação de clichê: popula vínculo com clichês reais da base
+        if(tela === 'form-solicitacao-cliche') {
+            const sel = document.getElementById('f_sol_vincular_cliche');
+            if (sel) sel.innerHTML = '<option value="">-- Não (Criar Nova Solicitação de Clichê) --</option>' +
+                RB.cliches.map(c => `<option value="${c.numero}">${c.numero}${c.produto ? ' - ' + c.produto : ''}</option>`).join('');
+        }
+        // Ficha Única: datalist de clichês + resumo/progresso ao vivo
+        if(tela === 'form-ficha-unica') {
+            const dlc = document.getElementById('dl_cliches');
+            if (dlc) dlc.innerHTML = RB.cliches.map(c => `<option value="${c.numero}">${c.produto || ''}</option>`).join('');
+            fuAtualizarResumo();
         }
     }
 
@@ -3164,7 +3342,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             if(f.status === 'Aguardando Aprovação') kPendAprov++;
             if(f.status === 'Aprovado') kAprov++;
             if(f.status === 'Atrasado') kAtrasada++;
-            const tipoFicha = f.setor === 'Impressão' ? 'impressao' : 'corte';
+            const tipoFicha = f.tipo === 'unica' ? 'ficha-unica' : f.setor === 'Impressão' ? 'impressao' : 'corte';
             tb.innerHTML += `
                 <tr class="row-ficha" onclick="abrirDrawer('${f.cod}')" onmouseenter="hoverFicha(event,'${f.cod}')" onmousemove="hoverMove(event)" onmouseleave="hoverOut()">
                     <td style="font-weight:bold; color:#1d4ed8;">${f.cod}</td>
@@ -4200,7 +4378,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="dw-actions">
                     <button class="dw-btn navy" onclick="drawerEnviarSetor()"><i class="fas fa-right-left"></i> Enviar ao setor</button>
                     <button class="dw-btn gold" onclick="drawerAbrirRetrabalho()"><i class="fas fa-rotate"></i> Registrar retrabalho</button>
-                    <button class="dw-btn ghost" onclick="abrirFicha('${f.setor === 'Impressão' ? 'impressao' : 'corte'}','${f.cod}'); fecharDrawer();"><i class="fas fa-gear"></i> Editar documento</button>
+                    <button class="dw-btn ghost" onclick="abrirFicha('${f.tipo === 'unica' ? 'ficha-unica' : f.setor === 'Impressão' ? 'impressao' : 'corte'}','${f.cod}'); fecharDrawer();"><i class="fas fa-gear"></i> Editar documento</button>
                     <button class="dw-btn ghost" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
                 </div>
             </div>
@@ -4299,6 +4477,137 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         abrirDrawer(f.cod);
     }
 
+    // ==========================================================================
+    // FICHA ÚNICA — todas as etapas num documento só
+    // ==========================================================================
+    const FU_ETAPAS = [
+        { key: 'cliche',        label: 'Solicitação de Clichê', setor: 'Pré-Impressão' },
+        { key: 'impressao',     label: 'Impressão',             setor: 'Impressão' },
+        { key: 'laminacao',     label: 'Laminação',             setor: 'Laminação' },
+        { key: 'rebobinadeira', label: 'Rebobinadeira',         setor: 'Rebobinadeira' },
+        { key: 'corte',         label: 'Corte & Solda',         setor: 'Corte e Solda' },
+        { key: 'expedicao',     label: 'Expedição',             setor: 'Expedição' }
+    ];
+
+    function fuEtapasSelecionadas() {
+        const marcadas = [...document.querySelectorAll('#fu-fluxo input:checked')].map(c => c.value);
+        return FU_ETAPAS.filter(e => marcadas.includes(e.key)); // sempre na ordem do POP
+    }
+
+    function fuToggleEtapa(cb) {
+        const sec = document.getElementById('fu-sec-' + cb.value);
+        if (sec) sec.classList.toggle('on', cb.checked);
+        fuAtualizarResumo();
+    }
+
+    function fuAtualizarResumo() {
+        const sel = fuEtapasSelecionadas();
+        document.getElementById('fu-res-etapas').innerText = sel.length;
+        document.getElementById('fu-res-fluxo').innerText = sel.length ? sel.map(e => e.label).join(' → ') : '—';
+
+        // Progresso por seção + geral (só conta o que está visível/aplicável)
+        let tot = 0, fill = 0;
+        document.querySelectorAll('#view-form-ficha-unica .fu-prog').forEach(badge => {
+            const secEl = document.getElementById('fu-sec-' + badge.dataset.sec);
+            const inputs = [...secEl.querySelectorAll('input[id^="fu_"]')];
+            const cheios = inputs.filter(i => i.value.trim()).length;
+            badge.innerText = cheios + '/' + inputs.length;
+            badge.classList.toggle('ok', cheios === inputs.length && inputs.length > 0);
+            if (secEl.classList.contains('on')) { tot += inputs.length; fill += cheios; }
+        });
+        // Identificação sempre conta
+        ['fu_cliente', 'fu_produto', 'fu_semi', 'fu_segmento', 'fu_unidade'].forEach(id => {
+            const el = document.getElementById(id); if (!el) return;
+            tot++; if (el.value.trim()) fill++;
+        });
+        document.getElementById('fu-res-pct').innerText = tot ? Math.round(100 * fill / tot) + '%' : '0%';
+    }
+
+    // Sugere reaproveitar a última Ficha Única do mesmo produto
+    function fuChecarAnterior() {
+        const prod = (document.getElementById('fu_produto').value || '').trim().toLowerCase();
+        const ant = prod ? dbFichas.find(f => f.tipo === 'unica' && (f.produto || '').toLowerCase() === prod) : null;
+        const bar = document.getElementById('fu-reuse');
+        if (ant) {
+            document.getElementById('fu-reuse-prod').innerText = ant.produto + ' (' + ant.cod + ')';
+            bar.style.display = 'flex';
+            bar.dataset.cod = ant.cod;
+        } else { bar.style.display = 'none'; }
+    }
+    function fuCarregarAnterior() {
+        const cod = document.getElementById('fu-reuse').dataset.cod;
+        if (cod) { fuCarregarFicha(cod, true); toast('Parâmetros carregados da ficha ' + cod + '. Ajuste só o que mudou.'); }
+        document.getElementById('fu-reuse').style.display = 'none';
+    }
+
+    function fuLimpar() {
+        document.querySelectorAll('#view-form-ficha-unica [id^="fu_"]').forEach(el => {
+            if (el.tagName === 'SELECT') el.selectedIndex = 0;
+            else el.value = el.id === 'fu_unidade' ? 'KG' : '';
+        });
+        document.querySelectorAll('#fu-fluxo input').forEach(c => { c.checked = false; fuToggleEtapa(c); });
+        document.getElementById('lbl-codigo-fu-ficha').value = '';
+        document.getElementById('fu-reuse').style.display = 'none';
+        fuAtualizarResumo();
+    }
+
+    // Carrega uma Ficha Única salva (manterCod=false ao reaproveitar p/ novo doc)
+    function fuCarregarFicha(cod, reaproveitar = false) {
+        const f = dbFichas.find(x => x.cod === cod && x.tipo === 'unica');
+        if (!f) return;
+        Object.entries(f.dados || {}).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
+        document.querySelectorAll('#fu-fluxo input').forEach(c => { c.checked = (f.etapas || []).includes(c.value); fuToggleEtapa(c); });
+        if (!reaproveitar) document.getElementById('lbl-codigo-fu-ficha').value = f.cod;
+        fuAtualizarResumo();
+    }
+
+    function salvarFichaUnica(statusClicado) {
+        const cliente = document.getElementById('fu_cliente').value.trim();
+        const produto = document.getElementById('fu_produto').value.trim();
+        const etapas = fuEtapasSelecionadas();
+        if (!cliente || !produto) { alert('Informe cliente e produto — o resto pode ser completado depois.'); return; }
+        if (!etapas.length) { alert('Marque pelo menos uma etapa no Fluxo de Processos.'); return; }
+
+        let cod = document.getElementById('lbl-codigo-fu-ficha').value.trim();
+        if (!cod) {
+            // usa o código do produto cadastrado, ou gera um sequencial
+            const p = RB.produtos.find(x => (x.descricao || '').toLowerCase() === produto.toLowerCase());
+            cod = (p && p.codigo) ? p.codigo : 'FU-' + String(novoId()).padStart(4, '0');
+            document.getElementById('lbl-codigo-fu-ficha').value = cod;
+        }
+
+        // Serializa TODOS os campos fu_ — nenhuma informação se perde
+        const dados = {};
+        document.querySelectorAll('#view-form-ficha-unica [id^="fu_"]').forEach(el => { if (el.value.trim()) dados[el.id] = el.value; });
+
+        const now = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+        const idx = dbFichas.findIndex(f => f.cod === cod);
+        const base = {
+            cod, produto, cliente, tipo: 'unica',
+            setor: etapas[0].setor, prox: etapas[1] ? etapas[1].setor : '-',
+            status: statusClicado, dataHora: now, responsavel: currentSessionUser,
+            etapas: etapas.map(e => e.key), fluxo: etapas.map(e => e.label).join(' → '),
+            prioridade: document.getElementById('fu_prioridade').value, dados
+        };
+        if (idx > -1) {
+            const hist = dbFichas[idx].historico || [];
+            hist.push({ data: new Date().toISOString(), tt: 'Ficha atualizada', td: `${statusClicado} · ${currentSessionUser}` });
+            dbFichas[idx] = Object.assign(dbFichas[idx], base, { historico: hist });
+        } else {
+            base.historico = [{ data: new Date().toISOString(), tt: 'Ficha Única criada', td: `${statusClicado} · ${currentSessionUser}` }];
+            dbFichas.unshift(base);
+        }
+
+        let acaoText = 'salvou a Ficha Única';
+        if (statusClicado === 'Aguardando Aprovação') acaoText = 'solicitou aprovação da Ficha Única';
+        if (statusClicado === 'Aprovado') acaoText = 'aprovou a Ficha Única';
+        registrarAtividade(`${acaoText} ${cod} (${etapas.length} etapa(s): ${base.fluxo})`);
+        registrarAuditoria('salvou ficha única', 'fichas', cod + ' · ' + produto, null);
+        rbSave();
+        toast(`Ficha Única ${cod} — ${statusClicado}. Fluxo: ${base.fluxo}`);
+        nav('dash');
+    }
+
     function abrirFicha(tipo, codigo = '') {
         const prefix = FICHA_PREFIX[tipo] || (tipo === 'nc-fornecedor' ? 'f_nc_' : tipo === 'solicitacao-cliche' ? 'f_sol_' : 'f_dev_');
 
@@ -4307,17 +4616,20 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tipo === 'impressao') labelId = 'lbl-codigo-imp-ficha';
         else if(tipo === 'laminacao') labelId = 'lbl-codigo-lam-ficha';
         else if(tipo === 'rebobinadeira') labelId = 'lbl-codigo-reb-ficha';
+        else if(tipo === 'ficha-unica') labelId = 'lbl-codigo-fu-ficha';
         else if(tipo === 'nc-fornecedor') labelId = 'lbl-codigo-nc-ficha';
 
         let criadorId = 'sys_criador', dataId = 'sys_data_criacao', logId = 'sys_log';
         if(tipo === 'impressao') { criadorId = 'sys_imp_criador'; dataId = 'sys_imp_data_criacao'; logId = 'sys_imp_log'; }
         else if(tipo === 'laminacao') { criadorId = 'sys_lam_criador'; dataId = 'sys_lam_data_criacao'; logId = 'sys_lam_log'; }
         else if(tipo === 'rebobinadeira') { criadorId = 'sys_reb_criador'; dataId = 'sys_reb_data_criacao'; logId = 'sys_reb_log'; }
+        else if(tipo === 'ficha-unica') { criadorId = 'sys_fu_criador'; dataId = 'sys_fu_data_criacao'; logId = 'sys_fu_log'; }
         else if(tipo === 'nc-fornecedor') { criadorId = 'sys_nc_criador'; dataId = 'sys_nc_data_criacao'; logId = 'sys_nc_log'; }
         else if(tipo === 'devolucao') { criadorId = 'sys_dev_criador'; dataId = 'sys_dev_data_criacao'; logId = 'sys_dev_log'; }
         else if(tipo === 'solicitacao-cliche') { logId = 'sys_sol_cliche_log'; }
 
         if(!codigo) {
+            if(tipo === 'ficha-unica') fuLimpar();
             if(document.getElementById(prefix + 'cliente')) document.getElementById(prefix + 'cliente').value = '';
 
             if(FICHA_PREFIX[tipo]) { renderClienteSelects(); carregarProdutosCliente(tipo); }
@@ -4358,16 +4670,20 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             }
         } else {
             if(labelId && document.getElementById(labelId)) document.getElementById(labelId).value = codigo;
+            if(tipo === 'ficha-unica') { renderClienteSelects(); carregarProdutosCliente(tipo); fuCarregarFicha(codigo); }
         }
-        
+
         atualizarEtiqueta();
         nav('form-' + tipo);
     }
 
     function salvarFichaSistema(statusClicado) {
+        // Ficha Única tem fluxo próprio (serializa todos os campos e etapas)
+        if (document.getElementById('view-form-ficha-unica').classList.contains('active')) { salvarFichaUnica(statusClicado); return; }
+
         let cod = "SEM-CODIGO";
         let setor = "Qualidade";
-        
+
         if (document.getElementById('view-form-corte').classList.contains('active')) {
             cod = document.getElementById('lbl-codigo-ficha').value || "SEM-CODIGO";
             setor = 'Corte e Solda';
@@ -4429,6 +4745,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(typeof cod !== 'string') {
             if (document.getElementById('view-form-corte').classList.contains('active')) cod = document.getElementById('lbl-codigo-ficha').value;
             else if (document.getElementById('view-form-impressao').classList.contains('active')) cod = document.getElementById('lbl-codigo-imp-ficha').value;
+            else if (document.getElementById('view-form-ficha-unica').classList.contains('active')) cod = document.getElementById('lbl-codigo-fu-ficha').value;
             else cod = "DOC-ATUAL";
         }
 
@@ -5114,6 +5431,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         renderIcons(document);   // converte todos os ícones fa-* em SVG embutido
         initDragAndDrop();
         iniciarSessao();   // decide entre login, hub ou painel conforme a sessão salva
+        // Ficha Única: progresso e resumo atualizam enquanto digita
+        const fuView = document.getElementById('view-form-ficha-unica');
+        if (fuView) fuView.addEventListener('input', () => fuAtualizarResumo());
     };
 </script>
 
