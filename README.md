@@ -201,6 +201,21 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       mensal realizada (anualizada). `finBudgetSugerir`/`finBudgetMediaMensal`.
     - **Comparar decisões**: o histórico recalcula o impacto em 1/5/10 anos e
       mostra um gráfico de qual decisão rende mais. `decImpacto`.
+25. **Uso no celular + acessibilidade (UI/UX)** — a mesma plataforma agora é
+    confortável de usar no telefone e mais amigável para navegação por teclado
+    e leitores de tela, **sem mudar o visual no desktop**:
+    - **Menu em gaveta no mobile**: em telas ≤ 860px a barra lateral vira uma
+      gaveta deslizante acionada por um botão ☰ na barra de topo, com fundo
+      escurecido; fecha ao navegar, ao tocar fora ou com a tecla **Esc**.
+      Funções: `toggleMenu`, `openMenu`, `closeMenu` (classe `body.nav-open`).
+    - **Barra de topo, painel de notificações e telas responsivos**: os
+      controles se reorganizam sem estourar a tela; KPIs e formulários empilham
+      em 1–2 colunas; tabelas largas ganham rolagem horizontal.
+    - **Acessibilidade**: contorno de **foco visível** para teclado
+      (`:focus-visible`), respeito a **"reduzir movimento"**
+      (`prefers-reduced-motion`), link **"Pular para o conteúdo"** e rótulos
+      `aria`/`role` no menu e na navegação. Bloco CSS `UX · ACESSIBILIDADE E
+      RESPONSIVIDADE`.
 
 ## CNAEs registrados (base para Nota Fiscal)
 
