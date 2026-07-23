@@ -309,7 +309,7 @@
     .etq-footer { text-align: center; font-size: 8px; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px; }
 
     @media print {
-        .sys-sidebar, .sys-header, .action-bar-fixed, .btn-add-img, .img-delete-btn, .etiqueta-print-area, .modal-overlay, .action-btn-sec { display: none !important; }
+        .sys-sidebar, .sys-header, .action-bar-fixed, .btn-add-img, .img-delete-btn, .etiqueta-print-area, .modal-overlay, .action-btn-sec, #rb-toast, .fu-reuse, .fu-resumo button { display: none !important; }
         .sys-main { background: #fff !important; padding: 0 !important; }
         .sys-view { padding: 0 !important; margin: 0 !important; }
         .ficha-wrapper { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; }
@@ -338,6 +338,50 @@
     body.print-mode-tabela .table-tools { display: none !important; }
     body.print-mode-tabela .sys-view { padding: 0 !important; margin: 0 !important; }
     body.print-mode-tabela .card-base { box-shadow: none !important; border: none !important; padding: 0 !important; }
+
+    /* ==========================================================================
+       IMPRESSÃO DA FICHA ÚNICA — uma Instrução de Trabalho por etapa/operador
+       ========================================================================== */
+    #fu-print-area { display: none; }
+    body.print-mode-fu .sys-sidebar,
+    body.print-mode-fu .sys-header,
+    body.print-mode-fu .sys-main,
+    body.print-mode-fu .action-bar-fixed,
+    body.print-mode-fu .modal-overlay,
+    body.print-mode-fu .drawer,
+    body.print-mode-fu .drawer-overlay,
+    body.print-mode-fu .hovercard,
+    body.print-mode-fu #rb-toast,
+    body.print-mode-fu .login-overlay { display: none !important; }
+    body.print-mode-fu #fu-print-area { display: block !important; }
+    body.print-mode-fu { background: #fff !important; }
+
+    .fu-page { font-family: 'Inter', Arial, sans-serif; color: #111; padding: 8mm 6mm; page-break-after: always; background: #fff; }
+    .fu-page:last-child { page-break-after: auto; }
+    .fup-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #191040; padding-bottom: 8px; }
+    .fup-brand { font-size: 20px; font-weight: 800; color: #191040; letter-spacing: .02em; }
+    .fup-brand small { display: block; font-size: 9px; font-weight: 600; color: #555; letter-spacing: .12em; }
+    .fup-doc { text-align: right; }
+    .fup-doc .t { font-size: 13px; font-weight: 800; text-transform: uppercase; color: #191040; }
+    .fup-doc .e { font-size: 17px; font-weight: 800; color: #111; }
+    .fup-doc .c { font-size: 10px; color: #555; margin-top: 2px; }
+    .fup-meta { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10.5px; }
+    .fup-meta th { text-align: left; background: #f1f1f4; border: 1px solid #999; padding: 4px 7px; font-size: 8.5px; text-transform: uppercase; letter-spacing: .04em; color: #444; }
+    .fup-meta td { border: 1px solid #999; padding: 5px 7px; font-weight: 700; }
+    .fup-fluxo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 12px 0 4px; font-size: 10px; }
+    .fup-fluxo .fx { border: 1px solid #999; border-radius: 999px; padding: 3px 10px; color: #444; }
+    .fup-fluxo .fx.now { background: #191040; border-color: #191040; color: #fff; font-weight: 800; }
+    .fup-fluxo .fx-sep { color: #999; font-weight: 700; }
+    .fup-sec-title { background: #191040; color: #fff; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 6px 10px; margin-top: 12px; }
+    .fup-params { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .fup-params td { border: 1px solid #999; padding: 6px 8px; }
+    .fup-params td.l { width: 28%; background: #f7f7f9; font-size: 9px; text-transform: uppercase; letter-spacing: .03em; color: #444; font-weight: 700; }
+    .fup-params td.v { width: 22%; font-weight: 700; }
+    .fup-obs { border: 1px solid #999; padding: 8px 10px; font-size: 11px; margin-top: 0; min-height: 34px; }
+    .fup-sign { display: flex; gap: 24px; margin-top: 26px; }
+    .fup-sign .s { flex: 1; text-align: center; font-size: 9px; color: #444; }
+    .fup-sign .s .line { border-top: 1px solid #111; margin-bottom: 4px; padding-top: 4px; font-weight: 700; font-size: 10px; color: #111; }
+    .fup-foot { margin-top: 14px; border-top: 1px solid #999; padding-top: 6px; font-size: 8.5px; color: #555; display: flex; justify-content: space-between; }
 
     /* ==========================================================================
        CSS - CALENDÁRIO ESTRATÉGICO E FILA (NOVO)
@@ -684,6 +728,8 @@
     .fu-sec { display:none; }
     .fu-sec.on { display:grid; }
     .fu-prog { margin-left:auto; font-size:10px; font-weight:700; background:rgba(255,255,255,.25); color:#fff; padding:2px 8px; border-radius:999px; letter-spacing:.03em; }
+    .fu-cod-et { font-size:10px; font-weight:800; background:#fff; color:#191040; padding:2px 8px; border-radius:5px; margin-left:10px; letter-spacing:.04em; }
+    .fu-cod-et:empty { display:none; }
     .fu-prog.ok { background:#0d9488; }
     .fu-reuse { display:none; align-items:center; gap:10px; background:#fef9c3; border:1px solid #fde047; color:#854d0e; font-size:12px; padding:9px 14px; border-radius:10px; margin:10px 0; }
     .fu-reuse b { font-weight:700; }
@@ -865,6 +911,7 @@
             <button class="sys-nav-btn" id="nav-config" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-gear"></i></span> Configuração <span class="nav-caret">▸</span></button>
             <div class="sidebar-submenu">
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('parametros')" id="nav-parametros"><i class="fas fa-gear" style="width:16px;"></i> Parâmetros de Qualidade</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('regras-codigo')" id="nav-regras-codigo"><i class="fas fa-stamp" style="width:16px;"></i> Regras de Código (sufixos)</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('usuarios')" id="nav-usuarios"><i class="fas fa-user-gear" style="width:16px;"></i> Usuários e Acessos</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('importar')" id="nav-importar"><i class="fas fa-download" style="width:16px;"></i> Importar dados</button>
             </div>
@@ -1557,78 +1604,78 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
             </div>
 
-            <!-- SEÇÃO: SOLICITAÇÃO DE CLICHÊ -->
+            <!-- SEÇÃO: SOLICITAÇÃO DE CLICHÊ (pré-carregada com a receita modelo) -->
             <div class="grid-form fu-sec" id="fu-sec-cliche">
-                <div class="section-title" style="background:#c9a227;">ETAPA · SOLICITAÇÃO DE CLICHÊ <span class="fu-prog" data-sec="cliche">0/7</span></div>
+                <div class="section-title" style="background:#c9a227;">ETAPA · SOLICITAÇÃO DE CLICHÊ <span class="fu-cod-et" id="fu-cod-cliche"></span> <span class="fu-prog" data-sec="cliche">0/7</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Medida Embalagem</span><input class="inp" id="fu_cli_medida_emb" placeholder="Ex.: 195,00 x 340,00 + 40,00 mm"></div>
                 <div class="g-col g-col-4"><span class="lbl">Medida Impressão</span><input class="inp" id="fu_cli_medida_imp"></div>
                 <div class="g-col g-col-4"><span class="lbl">Substrato</span><input class="inp" id="fu_cli_substrato" placeholder="Ex.: COEX PEBD Branco 720 mm"></div>
                 <div class="g-col g-col-3"><span class="lbl">Nº de Cores</span><input class="inp" id="fu_cli_cores"></div>
-                <div class="g-col g-col-3"><span class="lbl">Lineatura (lpc)</span><input class="inp" id="fu_cli_lineatura"></div>
-                <div class="g-col g-col-3"><span class="lbl">Cilindro</span><input class="inp" id="fu_cli_cilindro"></div>
+                <div class="g-col g-col-3"><span class="lbl">Lineatura (lpc)</span><input class="inp" id="fu_cli_lineatura" value="34"></div>
+                <div class="g-col g-col-3"><span class="lbl">Cilindro</span><input class="inp" id="fu_cli_cilindro" value="390,00"></div>
                 <div class="g-col g-col-3"><span class="lbl">Vincular a Clichê Existente</span><input class="inp" id="fu_cli_vinculo" list="dl_cliches" placeholder="Nº do clichê (opcional)"><datalist id="dl_cliches"></datalist></div>
             </div>
 
-            <!-- SEÇÃO: IMPRESSÃO -->
+            <!-- SEÇÃO: IMPRESSÃO (pré-carregada com a receita modelo) -->
             <div class="grid-form fu-sec" id="fu-sec-impressao">
-                <div class="section-title" style="background:#1d4ed8;">ETAPA · IMPRESSÃO <span class="fu-prog" data-sec="impressao">0/8</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Máquina</span><input class="inp" id="fu_imp_maquina" list="dl_maquinas" placeholder="Ex.: Gearless"><datalist id="dl_maquinas"><option value="Gearless"></option><option value="Impressora Flexo 01"></option><option value="Impressora Flexo 02"></option></datalist></div>
+                <div class="section-title" style="background:#1d4ed8;">ETAPA · IMPRESSÃO <span class="fu-cod-et" id="fu-cod-impressao"></span> <span class="fu-prog" data-sec="impressao">0/8</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Máquina</span><input class="inp" id="fu_imp_maquina" list="dl_maquinas" value="Gearless"><datalist id="dl_maquinas"><option value="Gearless"></option><option value="Impressora Flexo 01"></option><option value="Impressora Flexo 02"></option></datalist></div>
                 <div class="g-col g-col-3"><span class="lbl">Nº de Cores</span><input class="inp" id="fu_imp_cores"></div>
-                <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_imp_velocidade"></div>
-                <div class="g-col g-col-3"><span class="lbl">Corona / Tratamento</span><input class="inp" id="fu_imp_corona" placeholder="Ex.: 38 dinas"></div>
-                <div class="g-col g-col-3"><span class="lbl">Viscosidade Tintas (s)</span><input class="inp" id="fu_imp_viscosidade"></div>
+                <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_imp_velocidade" value="220"></div>
+                <div class="g-col g-col-3"><span class="lbl">Corona / Tratamento</span><input class="inp" id="fu_imp_corona" value="38 dinas"></div>
+                <div class="g-col g-col-3"><span class="lbl">Viscosidade Tintas (s)</span><input class="inp" id="fu_imp_viscosidade" value="22"></div>
                 <div class="g-col g-col-3"><span class="lbl">Anilox / BCM</span><input class="inp" id="fu_imp_anilox"></div>
-                <div class="g-col g-col-3"><span class="lbl">Largura MP (mm)</span><input class="inp" id="fu_imp_mp_largura"></div>
-                <div class="g-col g-col-3"><span class="lbl">Espessura MP (mm)</span><input class="inp" id="fu_imp_mp_espessura"></div>
+                <div class="g-col g-col-3"><span class="lbl">Largura MP (mm)</span><input class="inp" id="fu_imp_mp_largura" value="700,00"></div>
+                <div class="g-col g-col-3"><span class="lbl">Espessura MP (mm)</span><input class="inp" id="fu_imp_mp_espessura" value="0,060"></div>
             </div>
 
-            <!-- SEÇÃO: LAMINAÇÃO -->
+            <!-- SEÇÃO: LAMINAÇÃO (pré-carregada com a receita modelo) -->
             <div class="grid-form fu-sec" id="fu-sec-laminacao">
-                <div class="section-title" style="background:#7c3aed;">ETAPA · LAMINAÇÃO <span class="fu-prog" data-sec="laminacao">0/8</span></div>
+                <div class="section-title" style="background:#7c3aed;">ETAPA · LAMINAÇÃO <span class="fu-cod-et" id="fu-cod-laminacao"></span> <span class="fu-prog" data-sec="laminacao">0/8</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Estrutura (ex: BOPP+PE)</span><input class="inp" id="fu_lam_estrutura"></div>
-                <div class="g-col g-col-4"><span class="lbl">Tipo de Adesivo</span><input class="inp" id="fu_lam_adesivo"></div>
-                <div class="g-col g-col-4"><span class="lbl">Gramatura Adesivo (g/m²)</span><input class="inp" id="fu_lam_gramatura"></div>
-                <div class="g-col g-col-3"><span class="lbl">Relação Mistura (A:B)</span><input class="inp" id="fu_lam_mistura"></div>
-                <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_lam_velocidade"></div>
-                <div class="g-col g-col-3"><span class="lbl">Temp. Estufas (°C)</span><input class="inp" id="fu_lam_temp" placeholder="Ex.: 60 / 70"></div>
-                <div class="g-col g-col-3"><span class="lbl">Tempo de Cura (h)</span><input class="inp" id="fu_lam_cura"></div>
-                <div class="g-col g-col-12"><span class="lbl">Controle: ancoragem / aspecto</span><input class="inp" id="fu_lam_controle" placeholder="Ex.: sem delaminação, sem túnel, sem bolhas"></div>
+                <div class="g-col g-col-4"><span class="lbl">Tipo de Adesivo</span><input class="inp" id="fu_lam_adesivo" value="Poliuretano base solvente"></div>
+                <div class="g-col g-col-4"><span class="lbl">Gramatura Adesivo (g/m²)</span><input class="inp" id="fu_lam_gramatura" value="2,5"></div>
+                <div class="g-col g-col-3"><span class="lbl">Relação Mistura (A:B)</span><input class="inp" id="fu_lam_mistura" value="100:12"></div>
+                <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_lam_velocidade" value="180"></div>
+                <div class="g-col g-col-3"><span class="lbl">Temp. Estufas (°C)</span><input class="inp" id="fu_lam_temp" value="60 / 70"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tempo de Cura (h)</span><input class="inp" id="fu_lam_cura" value="48"></div>
+                <div class="g-col g-col-12"><span class="lbl">Controle: ancoragem / aspecto</span><input class="inp" id="fu_lam_controle" value="Sem delaminação, sem túnel, sem bolhas"></div>
             </div>
 
-            <!-- SEÇÃO: REBOBINADEIRA -->
+            <!-- SEÇÃO: REBOBINADEIRA (pré-carregada com a receita modelo) -->
             <div class="grid-form fu-sec" id="fu-sec-rebobinadeira">
-                <div class="section-title" style="background:#0891b2;">ETAPA · REBOBINADEIRA <span class="fu-prog" data-sec="rebobinadeira">0/8</span></div>
+                <div class="section-title" style="background:#0891b2;">ETAPA · REBOBINADEIRA <span class="fu-cod-et" id="fu-cod-rebobinadeira"></span> <span class="fu-prog" data-sec="rebobinadeira">0/8</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Largura Acabada (mm)</span><input class="inp" id="fu_reb_largura"></div>
                 <div class="g-col g-col-3"><span class="lbl">Diâmetro Bobina (mm)</span><input class="inp" id="fu_reb_diametro"></div>
-                <div class="g-col g-col-3"><span class="lbl">Tubete (mm)</span><input class="inp" id="fu_reb_tubete" placeholder="Ex.: 76"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tubete (mm)</span><input class="inp" id="fu_reb_tubete" value="76"></div>
                 <div class="g-col g-col-3"><span class="lbl">Metragem/Bobina (m)</span><input class="inp" id="fu_reb_metragem"></div>
                 <div class="g-col g-col-3"><span class="lbl">Nº Cortes / Facas</span><input class="inp" id="fu_reb_cortes"></div>
-                <div class="g-col g-col-3"><span class="lbl">Sentido Desbob.</span><input class="inp" id="fu_reb_sentido" placeholder="Externo / Interno"></div>
-                <div class="g-col g-col-3"><span class="lbl">Emenda Permitida?</span><input class="inp" id="fu_reb_emenda" placeholder="Não / Sinalizada"></div>
+                <div class="g-col g-col-3"><span class="lbl">Sentido Desbob.</span><input class="inp" id="fu_reb_sentido" value="Externo"></div>
+                <div class="g-col g-col-3"><span class="lbl">Emenda Permitida?</span><input class="inp" id="fu_reb_emenda" value="Não"></div>
                 <div class="g-col g-col-3"><span class="lbl">Peso/Bobina (kg)</span><input class="inp" id="fu_reb_peso"></div>
             </div>
 
-            <!-- SEÇÃO: CORTE & SOLDA -->
+            <!-- SEÇÃO: CORTE & SOLDA (pré-carregada com a receita modelo) -->
             <div class="grid-form fu-sec" id="fu-sec-corte">
-                <div class="section-title" style="background:#0d9488;">ETAPA · CORTE &amp; SOLDA <span class="fu-prog" data-sec="corte">0/9</span></div>
-                <div class="g-col g-col-4"><span class="lbl">Largura x Comprimento</span><input class="inp" id="fu_cor_medida" placeholder="Ex.: 270 x 350 mm (+/- 10)"></div>
-                <div class="g-col g-col-4"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_espessura"></div>
-                <div class="g-col g-col-4"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" placeholder="N/A / N/A"></div>
-                <div class="g-col g-col-3"><span class="lbl">Temp. Solda Sup. (°C)</span><input class="inp" id="fu_cor_temp_sup"></div>
-                <div class="g-col g-col-3"><span class="lbl">Temp. Solda Inf. (°C)</span><input class="inp" id="fu_cor_temp_inf"></div>
-                <div class="g-col g-col-3"><span class="lbl">Velocidade GP/M</span><input class="inp" id="fu_cor_velocidade"></div>
-                <div class="g-col g-col-3"><span class="lbl">Sacos por Corte</span><input class="inp" id="fu_cor_sacos"></div>
-                <div class="g-col g-col-4"><span class="lbl">Peso Milheiro (kg)</span><input class="inp" id="fu_cor_milheiro"></div>
-                <div class="g-col g-col-4"><span class="lbl">Zíper / Dispositivos</span><input class="inp" id="fu_cor_dispositivos" placeholder="Ex.: sem zíper, ar de guia"></div>
+                <div class="section-title" style="background:#0d9488;">ETAPA · CORTE &amp; SOLDA <span class="fu-cod-et" id="fu-cod-corte"></span> <span class="fu-prog" data-sec="corte">0/9</span></div>
+                <div class="g-col g-col-4"><span class="lbl">Largura x Comprimento</span><input class="inp" id="fu_cor_medida" value="270 x 350 mm (+/- 10)"></div>
+                <div class="g-col g-col-4"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_espessura" value="0,120 +/- 0,010"></div>
+                <div class="g-col g-col-4"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" value="N/A / N/A"></div>
+                <div class="g-col g-col-3"><span class="lbl">Temp. Solda Sup. (°C)</span><input class="inp" id="fu_cor_temp_sup" value="350"></div>
+                <div class="g-col g-col-3"><span class="lbl">Temp. Solda Inf. (°C)</span><input class="inp" id="fu_cor_temp_inf" value="OFF"></div>
+                <div class="g-col g-col-3"><span class="lbl">Velocidade GP/M</span><input class="inp" id="fu_cor_velocidade" value="45"></div>
+                <div class="g-col g-col-3"><span class="lbl">Sacos por Corte</span><input class="inp" id="fu_cor_sacos" value="1"></div>
+                <div class="g-col g-col-4"><span class="lbl">Peso Milheiro (kg)</span><input class="inp" id="fu_cor_milheiro" value="12,35"></div>
+                <div class="g-col g-col-4"><span class="lbl">Zíper / Dispositivos</span><input class="inp" id="fu_cor_dispositivos" value="Sem zíper · Ar de guia"></div>
             </div>
 
-            <!-- SEÇÃO: EXPEDIÇÃO / ACONDICIONAMENTO -->
+            <!-- SEÇÃO: EXPEDIÇÃO / ACONDICIONAMENTO (pré-carregada com a receita modelo) -->
             <div class="grid-form fu-sec" id="fu-sec-expedicao">
-                <div class="section-title" style="background:#be123c;">ETAPA · EXPEDIÇÃO &amp; ACONDICIONAMENTO <span class="fu-prog" data-sec="expedicao">0/5</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Qtde por Pacote</span><input class="inp" id="fu_exp_pacote"></div>
+                <div class="section-title" style="background:#be123c;">ETAPA · EXPEDIÇÃO &amp; ACONDICIONAMENTO <span class="fu-cod-et" id="fu-cod-expedicao"></span> <span class="fu-prog" data-sec="expedicao">0/5</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Qtde por Pacote</span><input class="inp" id="fu_exp_pacote" value="500"></div>
                 <div class="g-col g-col-3"><span class="lbl">Pacotes por Caixa</span><input class="inp" id="fu_exp_caixa"></div>
-                <div class="g-col g-col-3"><span class="lbl">Caixas por Palete</span><input class="inp" id="fu_exp_palete"></div>
-                <div class="g-col g-col-3"><span class="lbl">Peso do Palete (kg)</span><input class="inp" id="fu_exp_peso"></div>
+                <div class="g-col g-col-3"><span class="lbl">Caixas por Palete</span><input class="inp" id="fu_exp_palete" value="154"></div>
+                <div class="g-col g-col-3"><span class="lbl">Peso do Palete (kg)</span><input class="inp" id="fu_exp_peso" value="950,95"></div>
                 <div class="g-col g-col-12"><span class="lbl">Padrão de acondicionamento / observações de entrega</span><input class="inp" id="fu_exp_obs"></div>
             </div>
 
@@ -1642,6 +1689,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="fr-item"><i class="fas fa-file-lines"></i> <span>Etapas: <b id="fu-res-etapas">0</b></span></div>
                 <div class="fr-item"><i class="fas fa-circle-check"></i> <span>Preenchimento: <b id="fu-res-pct">0%</b></span></div>
                 <div class="fr-item"><i class="fas fa-right-left"></i> <span>Fluxo: <b id="fu-res-fluxo">—</b></span></div>
+                <button class="btn-gold" style="margin-left:auto; padding:7px 14px; font-size:12px;" onclick="fuAbrirPrint()"><i class="fas fa-print"></i> Imprimir Instruções de Trabalho</button>
             </div>
 
             <div class="system-control-panel">
@@ -2376,6 +2424,44 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         </div>
     </div>
 
+    <!-- ==========================================================================
+         CONFIGURAÇÃO: REGRAS DE CÓDIGO POR ETAPA (sufixos com vigência programável)
+         ========================================================================== -->
+    <div id="view-regras-codigo" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="cmd-panel-t"><i class="fas fa-stamp" style="color:var(--gold-deep);"></i> Regras de Código por Etapa</div>
+            <div class="cmd-panel-sub">A cada etapa do processo, o código do cliente ganha um <b>sufixo</b> — ex.: <b>VCM-7505L</b> (Laminação), <b>VCM-7505I</b> (Impressão), <b>VCM-7505MP</b> (Recebimento). Defina o sufixo e <b>a partir de quando ele vale</b>: regras com data futura ficam <b>programadas</b> e entram em vigor sozinhas no dia marcado.</div>
+            <div class="insp-top" style="margin-top:8px;">
+                <input type="hidden" id="rc-id">
+                <div class="insp-field"><label>Etapa *</label>
+                    <select id="rc-etapa" style="min-width:200px;"></select>
+                </div>
+                <div class="insp-field"><label>Sufixo * (letras/números)</label>
+                    <input id="rc-sufixo" maxlength="4" placeholder="Ex.: L, I, CS, MP" style="width:130px; text-transform:uppercase; border:1px solid var(--border); border-radius:9px; padding:8px;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,''); rcPreview();">
+                </div>
+                <div class="insp-field"><label>Vale a partir de *</label>
+                    <input type="date" id="rc-vigencia" style="border:1px solid var(--border); border-radius:9px; padding:8px;">
+                </div>
+                <div class="insp-field"><label>Prévia</label>
+                    <div id="rc-preview" style="font-weight:800; color:var(--navy); padding:8px 0; min-width:120px;">—</div>
+                </div>
+                <div class="insp-field"><label>&nbsp;</label>
+                    <div style="display:flex; gap:8px;">
+                        <button class="sys-btn-success" onclick="salvarRegraCodigo()"><i class="fas fa-floppy-disk"></i> Salvar regra</button>
+                        <button class="action-btn-sec" onclick="rcLimparForm()">Limpar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title" style="margin-bottom:10px;">Regras cadastradas <span class="gold-chip" id="rc-chip">0</span></div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Etapa</th><th>Sufixo</th><th>Exemplo</th><th>Vale a partir de</th><th>Situação</th><th>Criada por</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-regras-codigo"></tbody>
+            </table></div>
+        </div>
+    </div>
+
     <div id="view-auditoria" class="sys-view">
         <div class="card-base">
             <div class="cmd-panel-t"><i class="fas fa-clock-rotate-left" style="color:var(--gold-deep);"></i> Auditoria e Rastreabilidade <span class="gold-chip" id="aud-chip">0</span></div>
@@ -2569,7 +2655,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             <button class="btn-gold" onclick="abrirModalEnvio()"><i class="fas fa-paper-plane"></i> Enviar ao Setor</button>
         </div>
         <div class="action-group" style="border-left: 1px solid #e5e7eb; padding-left: 15px;">
-            <button class="action-btn-sec" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
+            <button class="action-btn-sec" onclick="imprimirDocumento()"><i class="fas fa-print"></i> PDF</button>
             <button class="action-btn-sec" style="color: #0b2c5c; border-color: #cbd5e1;" onclick="imprimirEtiqueta()"><i class="fas fa-tag"></i> Etiqueta</button>
             <button class="sys-btn-primary" onclick="salvarFichaSistema('Salvo')"><i class="fas fa-floppy-disk"></i> Salvar</button>
         </div>
@@ -2627,6 +2713,21 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         <div class="modal-actions">
             <button class="sys-btn-primary" style="background:#f1f5f9; color:#334155;" onclick="fecharQuickCad()">Cancelar</button>
             <button class="sys-btn-success" onclick="salvarQuickCad()"><i class="fas fa-floppy-disk"></i> Salvar e usar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MODAL: IMPRIMIR INSTRUÇÕES DE TRABALHO (Ficha Única → 1 doc por etapa)
+     ========================================== -->
+<div id="modal-fu-print" class="modal-overlay">
+    <div class="modal-content" style="border-top-color: var(--gold);">
+        <h3><i class="fas fa-print"></i> Imprimir Instruções de Trabalho</h3>
+        <p style="margin:0; font-size:11px; color:#64748b;">Cada etapa sai como um documento separado — instrução de trabalho para o operador daquele setor. Escolha o que imprimir:</p>
+        <div id="fu-print-lista" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+        <div class="modal-actions">
+            <button class="sys-btn-primary" style="background:#f1f5f9; color:#334155;" onclick="document.getElementById('modal-fu-print').style.display='none'">Cancelar</button>
+            <button class="sys-btn-success" onclick="fuImprimir()"><i class="fas fa-print"></i> Imprimir selecionadas</button>
         </div>
     </div>
 </div>
@@ -2925,17 +3026,33 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { id: 3, usuario: 'andreia', nome: 'Andreia Pereira', cargo: 'Gerente',                  papel: 'Admin', avatar: '👩🏻',    senha: 'admin123', paineis: ['qualidade','impressao','corteesolda','expedicao','grupo'] }
     ];
 
+    // Regras de sufixo do código por etapa (configuração inicial — editável em
+    // Configuração → Regras de Código). Vigência permite programar mudanças futuras.
+    const regrasCodigoSeed = () => {
+        const hoje = new Date().toISOString().slice(0, 10);
+        return [
+            { id: 11, etapa: 'recebimento',   sufixo: 'MP', vigencia: hoje },
+            { id: 12, etapa: 'cliche',        sufixo: 'C',  vigencia: hoje },
+            { id: 13, etapa: 'impressao',     sufixo: 'I',  vigencia: hoje },
+            { id: 14, etapa: 'laminacao',     sufixo: 'L',  vigencia: hoje },
+            { id: 15, etapa: 'rebobinadeira', sufixo: 'R',  vigencia: hoje },
+            { id: 16, etapa: 'corte',         sufixo: 'CS', vigencia: hoje },
+            { id: 17, etapa: 'expedicao',     sufixo: 'E',  vigencia: hoje }
+        ];
+    };
+
     function baseVazia() {
         // Sistema começa ZERADO de informação (sem dados de demonstração)
         return { fichas: [], retrabalhos: [], entregas: [], inspecoes: [], atividades: [],
                  clientes: [], fornecedores: [], produtos: [], cliches: [], setores: [], auditoria: [],
-                 colaboradores: [], pedidos: [], usuarios: usuariosSeed };
+                 colaboradores: [], pedidos: [], usuarios: usuariosSeed, regrasCodigo: regrasCodigoSeed() };
     }
     let RB = rbLoad();
     if (!RB) { RB = baseVazia(); localStorage.setItem(RB_KEY, JSON.stringify(RB)); }
     // Garante todas as coleções (migração suave)
     ['fichas','retrabalhos','entregas','inspecoes','atividades','clientes','fornecedores','produtos','cliches','setores','auditoria','colaboradores','pedidos']
         .forEach(k => { if (!RB[k]) RB[k] = []; });
+    if (!RB.regrasCodigo) RB.regrasCodigo = regrasCodigoSeed();
     if (!RB.usuarios || !RB.usuarios.length) RB.usuarios = usuariosSeed; // seed inicial; depois é gerenciado na tela de Usuários
     let dbFichas = RB.fichas;
     let _seqId = 1000; // ids acima dos seeds de usuários (1..3)
@@ -3249,7 +3366,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const paiPorTela = t => t.startsWith('form-') ? 'nav-form'
             : t.startsWith('cad-') ? 'nav-cadastros'
             : ['relatorios','indicadores','auditoria'].includes(t) ? 'nav-gestao'
-            : ['parametros','usuarios','importar'].includes(t) ? 'nav-config' : null;
+            : ['parametros','usuarios','importar','regras-codigo'].includes(t) ? 'nav-config' : null;
         const paiId = paiPorTela(tela);
         if(paiId) {
             const nf = document.getElementById(paiId);
@@ -3262,6 +3379,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') headerTitle = 'Central de Comando';
         else if(tela === 'inspecao') headerTitle = 'Inspeção & Liberação de Setup';
         else if(tela === 'parametros') headerTitle = 'Parâmetros de Qualidade';
+        else if(tela === 'regras-codigo') headerTitle = 'Configuração — Regras de Código por Etapa';
         else if(tela === 'importar') headerTitle = 'Configuração — Importar dados';
         else if(tela === 'auditoria') headerTitle = 'Auditoria e Rastreabilidade';
         else if(tela === 'usuarios') headerTitle = 'Usuários e Acessos';
@@ -3293,6 +3411,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') renderComando();
         if(tela === 'inspecao') renderInspecaoView();
         if(tela === 'parametros') renderParametros();
+        if(tela === 'regras-codigo') renderRegrasCodigo();
         if(tela === 'cad-clientes') renderCadClientes();
         if(tela === 'cad-fornecedores') renderCadFornecedores();
         if(tela === 'cad-produtos') { renderClienteSelects(); renderCadProdutos(); }
@@ -4489,6 +4608,23 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { key: 'expedicao',     label: 'Expedição',             setor: 'Expedição' }
     ];
 
+    // Etapas que podem receber regra de sufixo (inclui Recebimento MP, do POP)
+    const ETAPAS_REGRA = [{ key: 'recebimento', label: 'Recebimento MP' }].concat(FU_ETAPAS.map(e => ({ key: e.key, label: e.label })));
+
+    // Sufixo vigente para a etapa na data de referência: vale a regra com a
+    // vigência mais recente que já começou (permite programar mudanças futuras)
+    function sufixoEtapa(key, dataRef) {
+        const d = dataRef || new Date().toISOString().slice(0, 10);
+        const aplicaveis = (RB.regrasCodigo || []).filter(r => r.etapa === key && r.vigencia <= d);
+        if (!aplicaveis.length) return '';
+        aplicaveis.sort((a, b) => b.vigencia.localeCompare(a.vigencia) || b.id - a.id);
+        return aplicaveis[0].sufixo || '';
+    }
+    function codigoEtapa(base, key, dataRef) {
+        const s = sufixoEtapa(key, dataRef);
+        return base ? (s ? base + s : base) : '';
+    }
+
     function fuEtapasSelecionadas() {
         const marcadas = [...document.querySelectorAll('#fu-fluxo input:checked')].map(c => c.value);
         return FU_ETAPAS.filter(e => marcadas.includes(e.key)); // sempre na ordem do POP
@@ -4521,6 +4657,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             tot++; if (el.value.trim()) fill++;
         });
         document.getElementById('fu-res-pct').innerText = tot ? Math.round(100 * fill / tot) + '%' : '0%';
+
+        // Código por etapa (regra de sufixo vigente) nos títulos das seções
+        const baseCod = document.getElementById('lbl-codigo-fu-ficha').value.trim();
+        FU_ETAPAS.forEach(e => {
+            const el = document.getElementById('fu-cod-' + e.key);
+            if (el) el.innerText = baseCod ? codigoEtapa(baseCod, e.key) : '';
+        });
     }
 
     // Sugere reaproveitar a última Ficha Única do mesmo produto
@@ -4540,24 +4683,39 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.getElementById('fu-reuse').style.display = 'none';
     }
 
+    // A receita modelo vem dos values do HTML; o snapshot permite restaurá-la
+    let FU_DEFAULTS = null;
+    function fuSnapshotDefaults() {
+        if (FU_DEFAULTS) return;
+        FU_DEFAULTS = {};
+        document.querySelectorAll('#view-form-ficha-unica [id^="fu_"]').forEach(el => { FU_DEFAULTS[el.id] = el.value; });
+    }
+
     function fuLimpar() {
+        fuSnapshotDefaults();
+        // Restaura a RECEITA MODELO (não campos vazios) — você só ajusta o que muda
         document.querySelectorAll('#view-form-ficha-unica [id^="fu_"]').forEach(el => {
             if (el.tagName === 'SELECT') el.selectedIndex = 0;
-            else el.value = el.id === 'fu_unidade' ? 'KG' : '';
+            else el.value = FU_DEFAULTS[el.id] || '';
         });
+        // Identificação sempre começa em branco (é o que muda a cada ficha)
+        ['fu_cliente', 'fu_produto', 'fu_semi', 'fu_obs'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         document.querySelectorAll('#fu-fluxo input').forEach(c => { c.checked = false; fuToggleEtapa(c); });
         document.getElementById('lbl-codigo-fu-ficha').value = '';
         document.getElementById('fu-reuse').style.display = 'none';
         fuAtualizarResumo();
     }
 
-    // Carrega uma Ficha Única salva (manterCod=false ao reaproveitar p/ novo doc)
+    // Carrega uma Ficha Única salva (reaproveitar=true mantém o código digitado)
     function fuCarregarFicha(cod, reaproveitar = false) {
         const f = dbFichas.find(x => x.cod === cod && x.tipo === 'unica');
         if (!f) return;
+        fuSnapshotDefaults();
+        const codAtual = document.getElementById('lbl-codigo-fu-ficha').value;
+        fuLimpar();
         Object.entries(f.dados || {}).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
         document.querySelectorAll('#fu-fluxo input').forEach(c => { c.checked = (f.etapas || []).includes(c.value); fuToggleEtapa(c); });
-        if (!reaproveitar) document.getElementById('lbl-codigo-fu-ficha').value = f.cod;
+        document.getElementById('lbl-codigo-fu-ficha').value = reaproveitar ? codAtual : f.cod;
         fuAtualizarResumo();
     }
 
@@ -4606,6 +4764,189 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         rbSave();
         toast(`Ficha Única ${cod} — ${statusClicado}. Fluxo: ${base.fluxo}`);
         nav('dash');
+    }
+
+    // ==========================================================================
+    // REGRAS DE CÓDIGO POR ETAPA — CRUD com vigência programável
+    // ==========================================================================
+    function rcEtapaLabel(key) { const e = ETAPAS_REGRA.find(x => x.key === key); return e ? e.label : key; }
+    function rcPreview() {
+        const suf = (document.getElementById('rc-sufixo') || {}).value || '';
+        document.getElementById('rc-preview').innerText = suf ? 'VCM-7505' + suf : '—';
+    }
+    function rcLimparForm() {
+        document.getElementById('rc-id').value = '';
+        document.getElementById('rc-sufixo').value = '';
+        document.getElementById('rc-vigencia').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('rc-etapa').selectedIndex = 0;
+        rcPreview();
+    }
+    function renderRegrasCodigo() {
+        const sel = document.getElementById('rc-etapa');
+        if (sel && !sel.options.length) sel.innerHTML = ETAPAS_REGRA.map(e => `<option value="${e.key}">${e.label}</option>`).join('');
+        if (!document.getElementById('rc-vigencia').value) document.getElementById('rc-vigencia').value = new Date().toISOString().slice(0, 10);
+
+        const hoje = new Date().toISOString().slice(0, 10);
+        const regras = (RB.regrasCodigo || []).slice().sort((a, b) => a.etapa.localeCompare(b.etapa) || b.vigencia.localeCompare(a.vigencia));
+        document.getElementById('rc-chip').innerText = regras.length + ' regra(s)';
+
+        // regra ativa por etapa = maior vigência que já começou
+        const ativas = {};
+        ETAPAS_REGRA.forEach(e => {
+            const apl = regras.filter(r => r.etapa === e.key && r.vigencia <= hoje).sort((a, b) => b.vigencia.localeCompare(a.vigencia) || b.id - a.id);
+            if (apl.length) ativas[e.key] = apl[0].id;
+        });
+
+        document.getElementById('tb-regras-codigo').innerHTML = regras.length ? regras.map(r => {
+            const st = r.vigencia > hoje
+                ? '<span class="badge-status st-pend">Programada</span>'
+                : (ativas[r.etapa] === r.id ? '<span class="badge-status st-conc">Ativa</span>' : '<span class="badge-status st-and">Substituída</span>');
+            return `<tr>
+                <td style="font-weight:700;">${rcEtapaLabel(r.etapa)}</td>
+                <td style="font-weight:800; color:var(--navy);">${r.sufixo}</td>
+                <td style="color:#64748b;">VCM-7505<b style="color:var(--navy);">${r.sufixo}</b></td>
+                <td>${r.vigencia.split('-').reverse().join('/')}</td>
+                <td>${st}</td>
+                <td style="font-size:11px;">${r.usuario || '—'}</td>
+                <td class="acoes-cell" style="text-align:center;">
+                    <button class="btn-ic" title="Editar" onclick="rcEditar(${r.id})"><i class="fas fa-gear"></i></button>
+                    <button class="btn-ic" title="Excluir" onclick="rcExcluir(${r.id})"><i class="fas fa-xmark"></i></button>
+                </td>
+            </tr>`;
+        }).join('') : '<tr><td colspan="7" style="color:#94a3b8; text-align:center;">Nenhuma regra cadastrada — os códigos saem sem sufixo.</td></tr>';
+        renderIcons(document.getElementById('tb-regras-codigo'));
+        rcPreview();
+    }
+    function salvarRegraCodigo() {
+        const id = +document.getElementById('rc-id').value || 0;
+        const etapa = document.getElementById('rc-etapa').value;
+        const sufixo = document.getElementById('rc-sufixo').value.trim().toUpperCase();
+        const vigencia = document.getElementById('rc-vigencia').value;
+        if (!sufixo || !vigencia) { alert('Informe o sufixo e a data de início de vigência.'); return; }
+        if (id) {
+            const r = RB.regrasCodigo.find(x => x.id === id);
+            if (r) { const antigo = Object.assign({}, r); Object.assign(r, { etapa, sufixo, vigencia, usuario: currentSessionUser });
+                registrarAuditoria('editou', 'regrasCodigo', `${rcEtapaLabel(etapa)} → ${sufixo} (a partir de ${vigencia})`, { tipo: 'editar', colecao: 'regrasCodigo', dados: antigo }); }
+        } else {
+            const nova = { id: novoId(), etapa, sufixo, vigencia, usuario: currentSessionUser };
+            RB.regrasCodigo.push(nova);
+            registrarAuditoria('cadastrou', 'regrasCodigo', `${rcEtapaLabel(etapa)} → ${sufixo} (a partir de ${vigencia})`, { tipo: 'excluir', colecao: 'regrasCodigo', id: nova.id });
+        }
+        rbSave();
+        toast(`Regra salva: ${rcEtapaLabel(etapa)} → sufixo ${sufixo}${vigencia > new Date().toISOString().slice(0,10) ? ' (programada para ' + vigencia.split('-').reverse().join('/') + ')' : ''}`);
+        rcLimparForm(); renderRegrasCodigo(); fuAtualizarResumo();
+    }
+    function rcEditar(id) {
+        const r = RB.regrasCodigo.find(x => x.id === id); if (!r) return;
+        document.getElementById('rc-id').value = r.id;
+        document.getElementById('rc-etapa').value = r.etapa;
+        document.getElementById('rc-sufixo').value = r.sufixo;
+        document.getElementById('rc-vigencia').value = r.vigencia;
+        rcPreview();
+    }
+    function rcExcluir(id) {
+        const r = RB.regrasCodigo.find(x => x.id === id); if (!r) return;
+        if (!confirm(`Excluir a regra "${rcEtapaLabel(r.etapa)} → ${r.sufixo}"?`)) return;
+        RB.regrasCodigo = RB.regrasCodigo.filter(x => x.id !== id);
+        registrarAuditoria('excluiu', 'regrasCodigo', `${rcEtapaLabel(r.etapa)} → ${r.sufixo}`, { tipo: 'restaurar', colecao: 'regrasCodigo', dados: r });
+        rbSave(); renderRegrasCodigo(); fuAtualizarResumo();
+    }
+
+    // ==========================================================================
+    // IMPRESSÃO DA FICHA ÚNICA — 1 Instrução de Trabalho por etapa/operador
+    // ==========================================================================
+    function fuAbrirPrint() {
+        const sel = fuEtapasSelecionadas();
+        if (!sel.length) { alert('Marque pelo menos uma etapa no Fluxo de Processos antes de imprimir.'); return; }
+        document.getElementById('fu-print-lista').innerHTML = sel.map(e => `
+            <label class="chip-et" style="width:100%; border-radius:10px;">
+                <input type="checkbox" value="${e.key}" checked>
+                <span>${e.label} <small style="font-weight:400; opacity:.75;">— operador de ${e.setor}</small></span>
+            </label>`).join('');
+        document.getElementById('modal-fu-print').style.display = 'flex';
+        renderIcons(document.getElementById('modal-fu-print'));
+    }
+
+    // Lê rótulo+valor de cada campo da seção da etapa (sempre em sincronia com o formulário)
+    function fuCamposDaSecao(key) {
+        const sec = document.getElementById('fu-sec-' + key);
+        const campos = [];
+        sec.querySelectorAll('.g-col').forEach(col => {
+            const lblEl = col.querySelector('.lbl'); const inp = col.querySelector('input, textarea, select');
+            if (!lblEl || !inp) return;
+            const clone = lblEl.cloneNode(true);
+            clone.querySelectorAll('span, small').forEach(s => s.remove());
+            campos.push({ l: clone.textContent.trim(), v: (inp.value || '').trim() || '—' });
+        });
+        return campos;
+    }
+
+    function fuImprimir() {
+        const keys = [...document.querySelectorAll('#fu-print-lista input:checked')].map(c => c.value);
+        if (!keys.length) { alert('Selecione pelo menos uma etapa.'); return; }
+        document.getElementById('modal-fu-print').style.display = 'none';
+
+        const fluxoSel = fuEtapasSelecionadas();
+        const cod = document.getElementById('lbl-codigo-fu-ficha').value.trim() || 'SEM CÓDIGO';
+        const g = id => (document.getElementById(id) || {}).value || '—';
+        const agora = new Date();
+        const emitido = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const obsGeral = (document.getElementById('fu_obs').value || '').trim();
+
+        const paginas = fluxoSel.filter(e => keys.includes(e.key)).map(et => {
+            const codEt = codigoEtapa(cod, et.key) || cod; // código com sufixo da etapa (regra vigente)
+            const campos = fuCamposDaSecao(et.key);
+            // Linhas da tabela: 2 pares rótulo/valor por linha
+            let linhas = '';
+            for (let i = 0; i < campos.length; i += 2) {
+                const a = campos[i], b = campos[i + 1];
+                linhas += `<tr><td class="l">${a.l}</td><td class="v">${a.v}</td>${b ? `<td class="l">${b.l}</td><td class="v">${b.v}</td>` : '<td class="l"></td><td class="v"></td>'}</tr>`;
+            }
+            const cadeia = fluxoSel.map(e => `<span class="fx${e.key === et.key ? ' now' : ''}">${e.label}</span>`).join('<span class="fx-sep">→</span>');
+            return `
+            <div class="fu-page">
+                <div class="fup-head">
+                    <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
+                    <div class="fup-doc">
+                        <div class="t">Instrução de Trabalho</div>
+                        <div class="e">${et.label.toUpperCase()} · ${codEt}</div>
+                        <div class="c">Ficha Única ${cod} · POP-QUA-001</div>
+                    </div>
+                </div>
+                <table class="fup-meta">
+                    <tr><th>Cliente</th><th>Produto</th><th>Código da Etapa</th><th>Prioridade</th></tr>
+                    <tr><td>${g('fu_cliente')}</td><td>${g('fu_produto')}</td><td>${codEt}</td><td>${g('fu_prioridade')}</td></tr>
+                    <tr><th>Cód. Semi Acabado</th><th>Segmento</th><th>Unidade</th><th>Emissão</th></tr>
+                    <tr><td>${g('fu_semi')}</td><td>${g('fu_segmento')}</td><td>${g('fu_unidade')}</td><td>${emitido}</td></tr>
+                </table>
+                <div class="fup-fluxo"><b style="margin-right:4px; font-size:9px; text-transform:uppercase; color:#444;">Fluxo do produto:</b>${cadeia}</div>
+                <div class="fup-sec-title">Parâmetros da etapa — ${et.label}</div>
+                <table class="fup-params">${linhas}</table>
+                <div class="fup-sec-title" style="background:#444;">Observações gerais da ficha</div>
+                <div class="fup-obs">${obsGeral || 'Sem observações.'}</div>
+                <div class="fup-sign">
+                    <div class="s"><div class="line">&nbsp;</div>Operador — ${et.setor}</div>
+                    <div class="s"><div class="line">&nbsp;</div>Liberação de Setup — Qualidade</div>
+                    <div class="s"><div class="line">&nbsp;</div>Data / Hora</div>
+                </div>
+                <div class="fup-foot">
+                    <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
+                    <span>Emitido por ${currentSessionUser} em ${emitido}</span>
+                </div>
+            </div>`;
+        }).join('');
+
+        document.getElementById('fu-print-area').innerHTML = paginas;
+        registrarAtividade(`imprimiu ${keys.length} instrução(ões) de trabalho da ficha ${cod}`);
+        document.body.classList.add('print-mode-fu');
+        window.print();
+        document.body.classList.remove('print-mode-fu');
+    }
+
+    // Botão PDF da barra de ações: na Ficha Única imprime por etapa; nas demais, imprime a tela
+    function imprimirDocumento() {
+        if (document.getElementById('view-form-ficha-unica').classList.contains('active')) fuAbrirPrint();
+        else window.print();
     }
 
     function abrirFicha(tipo, codigo = '') {
@@ -5436,6 +5777,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if (fuView) fuView.addEventListener('input', () => fuAtualizarResumo());
     };
 </script>
+
+<!-- Área de impressão da Ficha Única: gerada na hora, 1 página por etapa -->
+<div id="fu-print-area"></div>
 
 </body>
 </html>
