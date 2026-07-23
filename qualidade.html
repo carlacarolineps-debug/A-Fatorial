@@ -1050,13 +1050,15 @@
                         <option value="processo">Registro de Inspeção (durante produção)</option>
                     </select>
                 </div>
-                <div class="insp-field"><label>Ficha / Produto</label>
-                    <input id="insp-ficha" placeholder="Ex: VCM-75051" style="min-width:170px;">
+                <div class="insp-field"><label>Ficha da fila de produção <span style="font-weight:400; color:#94a3b8;">(digite ou selecione)</span></label>
+                    <input id="insp-ficha" list="dl_fila" autocomplete="off" placeholder="Ex: VCM-75051" style="min-width:190px;" onchange="inspFichaChange()">
+                    <datalist id="dl_fila"></datalist>
                 </div>
                 <div class="insp-field"><label>&nbsp;</label>
-                    <button class="sys-btn-primary" onclick="registrarInspecao()"><i class="fas fa-circle-check"></i> Avaliar e registrar</button>
+                    <button class="sys-btn-primary" onclick="registrarInspecao()"><i class="fas fa-circle-check"></i> Avaliar, registrar e liberar</button>
                 </div>
             </div>
+            <div id="insp-ficha-ctx" style="display:none; margin-top:10px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:12px; color:#475569;"></div>
         </div>
 
         <div id="insp-banner-wrap"></div>
@@ -3912,11 +3914,32 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     // map visual select → veredito
     function vVisual(val) { return val === 'ok' ? 'dentro' : val === 'atencao' ? 'atencao' : val === 'nc' ? 'fora' : 'vazio'; }
 
+    // Mapeia a etapa de inspeção ↔ chave da Ficha Única (parâmetros + regra de sufixo)
+    const ETAPA_FU_KEY = { 'Recebimento MP': 'recebimento', 'Impressão': 'impressao', 'Laminação': 'laminacao', 'Rebobinadeira': 'rebobinadeira', 'Corte e Solda': 'corte' };
+
     function renderInspecaoView() {
         const sel = document.getElementById('insp-etapa');
         sel.innerHTML = ETAPAS_QUALIDADE.map(e => `<option>${e}</option>`).join('');
+        // Fila de produção (fichas em aberto, inclusive as vindas do Comercial/PCP)
+        const dl = document.getElementById('dl_fila');
+        if (dl) dl.innerHTML = dbFichas.filter(f => f.status !== 'Concluído')
+            .map(f => `<option value="${f.cod}">${(f.produto||'')} · ${(f.cliente||'')} · ${f.setor}</option>`).join('');
         renderInspecaoItens();
         renderInspecaoHist();
+    }
+
+    // Ao escolher a ficha da fila: puxa etapa, produto e contexto automaticamente
+    function inspFichaChange() {
+        const cod = document.getElementById('insp-ficha').value.trim();
+        const f = dbFichas.find(x => x.cod === cod);
+        const ctx = document.getElementById('insp-ficha-ctx');
+        if (!f) { ctx.style.display = 'none'; return; }
+        // Etapa da inspeção acompanha o setor atual da ficha na fila
+        const sel = document.getElementById('insp-etapa');
+        if (ETAPAS_QUALIDADE.includes(f.setor)) { sel.value = f.setor; renderInspecaoItens(); }
+        const etFU = f.etapas ? ` · Fluxo: <b>${f.fluxo || f.etapas.join(' → ')}</b>` : '';
+        ctx.style.display = 'block';
+        ctx.innerHTML = `<b style="color:var(--navy);">${f.cod}</b> — ${f.produto || '-'} · Cliente: <b>${f.cliente || '-'}</b> · Setor atual: <b>${f.setor}</b>${f.prox && f.prox !== '-' ? ` · Próximo: <b>${f.prox}</b>` : ''} · Status: <b>${f.status}</b>${f.prioridade ? ` · Prioridade: <b>${f.prioridade}</b>` : ''}${etFU}${f.tipo === 'unica' ? ' · <span style="color:#0f766e; font-weight:700;">✓ Parâmetros da Ficha Única serão anexados à liberação</span>' : ''}`;
     }
 
     function renderInspecaoItens() {
@@ -3996,6 +4019,97 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         renderIcons(wrap);
     }
 
+    // ==========================================================================
+    // FORMULÁRIO DE LIBERAÇÃO DE SETUP — imprimível, com validação técnica vinculada
+    // ==========================================================================
+    function coordenadorQualidade() {
+        const u = (RB.usuarios || []).find(x => /coordenador/i.test(x.cargo || '') && /qualidade/i.test(x.cargo || ''));
+        return u ? u.nome : currentSessionUser;
+    }
+
+    function gerarLiberacaoSetup(insp) {
+        const f = dbFichas.find(x => x.cod === insp.ficha);
+        const fuKey = ETAPA_FU_KEY[insp.etapa];
+        const codEt = fuKey ? (codigoEtapa(insp.ficha, fuKey, insp.data.slice(0,10)) || insp.ficha) : insp.ficha;
+        const coord = coordenadorQualidade();
+        const dt = new Date(insp.data);
+        const emitido = dt.toLocaleDateString('pt-BR') + ' às ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const crits = criteriosDaEtapa(insp.etapa);
+        const espec = item => { const c = crits.find(x => x.item === item); return c ? (c.tipo === 'num' ? `${c.min} – ${c.max} ${c.un}` : 'Amostra-padrão') : '—'; };
+        const vTxt = { dentro: '✓ Dentro', atencao: '△ Atenção', fora: '✗ Fora', vazio: '—' };
+
+        // Itens verificados na inspeção (registrados pela Qualidade)
+        const linhasItens = insp.itens.filter(x => x.veredito !== 'vazio').map(x => `
+            <tr><td class="l">${x.item}</td><td class="v">${x.valor || '—'}</td><td class="l">Especificado</td><td class="v">${espec(x.item)} · ${vTxt[x.veredito] || x.veredito}</td></tr>`).join('');
+
+        // Parâmetros da etapa registrados pela Qualidade na Ficha Única (quando houver)
+        let blocoParams = '';
+        if (f && f.tipo === 'unica' && f.dados && fuKey && document.getElementById('fu-sec-' + fuKey)) {
+            const campos = fuCamposDaSecao(fuKey, f.dados).filter(c => c.v !== '—');
+            if (campos.length) {
+                let linhas = '';
+                for (let i = 0; i < campos.length; i += 2) {
+                    const a = campos[i], b = campos[i + 1];
+                    linhas += `<tr><td class="l">${a.l}</td><td class="v">${a.v}</td>${b ? `<td class="l">${b.l}</td><td class="v">${b.v}</td>` : '<td class="l"></td><td class="v"></td>'}</tr>`;
+                }
+                blocoParams = `<div class="fup-sec-title">Parâmetros da etapa — Ficha Única ${insp.ficha}</div><table class="fup-params">${linhas}</table>`;
+            }
+        }
+
+        const fluxoHtml = (f && f.etapas)
+            ? `<div class="fup-fluxo"><b style="margin-right:4px; font-size:9px; text-transform:uppercase; color:#444;">Fluxo do produto:</b>${FU_ETAPAS.filter(e => f.etapas.includes(e.key)).map(e => `<span class="fx${e.key === fuKey ? ' now' : ''}">${e.label}</span>`).join('<span class="fx-sep">→</span>')}</div>` : '';
+
+        const validacao = insp.auto
+            ? `Setup avaliado e <b>liberado automaticamente pelo Motor de Qualidade</b> (parâmetros e tolerâncias do POP-QUA-001), sob responsabilidade técnica do Coordenador da Qualidade.`
+            : `Setup avaliado e liberado mediante <b>conferência da Qualidade</b>, conforme parâmetros e tolerâncias do POP-QUA-001.`;
+
+        const html = `
+            <div class="fu-page-cap">Liberação de Setup · ${insp.etapa} · ${codEt}</div>
+            <div class="fu-page">
+                <div class="fup-head">
+                    <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
+                    <div class="fup-doc">
+                        <div class="t">Liberação de Setup</div>
+                        <div class="e">${insp.etapa.toUpperCase()} · ${codEt}</div>
+                        <div class="c">${insp.lib || ''} · POP-QUA-001 · Fase 2 da tríade da qualidade</div>
+                    </div>
+                </div>
+                <table class="fup-meta">
+                    <tr><th>Cliente</th><th>Produto</th><th>Código da Etapa</th><th>Prioridade</th></tr>
+                    <tr><td>${f ? (f.cliente || '—') : '—'}</td><td>${f ? (f.produto || '—') : insp.ficha}</td><td>${codEt}</td><td>${(f && f.prioridade) || 'Normal'}</td></tr>
+                    <tr><th>Ficha</th><th>Etapa liberada</th><th>Resultado</th><th>Data / Hora</th></tr>
+                    <tr><td>${insp.ficha}</td><td>${insp.etapa}</td><td>${insp.auto ? 'APROVADO · AUTOMÁTICO' : 'APROVADO'}</td><td>${emitido}</td></tr>
+                </table>
+                ${fluxoHtml}
+                <div class="fup-sec-title">Itens verificados na liberação (registro da Qualidade)</div>
+                <table class="fup-params">${linhasItens || '<tr><td class="l">—</td><td class="v">—</td><td class="l"></td><td class="v"></td></tr>'}</table>
+                ${blocoParams}
+                <div class="fup-sec-title" style="background:#0d9488;">Aprovação e validação técnica</div>
+                <div class="fup-obs" style="min-height:auto;">${validacao}<br>
+                    <b>Registrado por:</b> ${insp.usuario} &nbsp;·&nbsp; <b>Validação técnica:</b> ${coord} — Coordenador da Qualidade &nbsp;·&nbsp; <b>Em:</b> ${emitido}
+                </div>
+                <div class="fup-sign">
+                    <div class="s"><div class="line">&nbsp;</div>Operador — ${insp.etapa}</div>
+                    <div class="s"><div class="line">${coord}</div>Coordenador da Qualidade — Validação Técnica</div>
+                    <div class="s"><div class="line">&nbsp;</div>Data / Hora</div>
+                </div>
+                <div class="fup-foot">
+                    <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
+                    <span>${insp.lib || ''} · Emitido por ${currentSessionUser} em ${emitido}</span>
+                </div>
+            </div>`;
+
+        abrirPreviewDoc(html, 'Pré-visualização — Liberação de Setup',
+            `Formulário ${insp.lib || ''} · ${insp.etapa} · ${codEt} — confira antes de imprimir.`,
+            () => {
+                registrarAtividade(`imprimiu a liberação de setup ${insp.lib || ''} (${insp.etapa} · ${insp.ficha})`);
+                document.body.classList.add('print-mode-fu');
+                window.print();
+                document.body.classList.remove('print-mode-fu');
+            });
+    }
+    function reimprimirLiberacao(idx) { const insp = RB.inspecoes[idx]; if (insp) gerarLiberacaoSetup(insp); }
+
     function registrarInspecao() {
         const etapa = document.getElementById('insp-etapa').value;
         const tipo = document.getElementById('insp-tipo').value;
@@ -4022,22 +4136,32 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 obs: 'RNC automática — fora do padrão: ' + foraItens, usuario: currentSessionUser });
         }
 
-        RB.inspecoes.unshift({ data: new Date().toISOString(), etapa, tipo, ficha, itens, resultado: g.resultado, decisao, auto, usuario: currentSessionUser });
+        const insp = { data: new Date().toISOString(), etapa, tipo, ficha, itens, resultado: g.resultado, decisao, auto, usuario: currentSessionUser };
+        // Liberação de setup aprovada ganha número de formulário e sai para impressão
+        if (tipo === 'setup' && g.resultado === 'aprovado') insp.lib = 'LIB-' + String(novoId()).padStart(4, '0');
+        RB.inspecoes.unshift(insp);
         registrarAtividade(`${tipo === 'setup' ? 'liberação de setup' : 'inspeção'} (${etapa}) — ${g.resultado}${auto ? ' [automático]' : ''}`);
         rbSave();
-
-        const resumoMsg = {
-            aprovado: auto ? `✓ ${acaoNome} AUTOMATICAMENTE. Nenhuma ação humana foi necessária.` : `✓ ${acaoNome}.`,
-            conferir: '⚠ Enviado para conferência humana na Central de Comando.',
-            reprovado: '✗ Reprovado. RNC aberta automaticamente e escalada à Central de Comando.'
-        }[g.resultado];
-        alert(`${etapa} · ${ficha}\n${resumoMsg}`);
 
         // limpa entradas
         crits.forEach((c, i) => { const el = document.getElementById('insp-in-' + i); if (el) el.value = ''; avaliarLinha(i); });
         document.getElementById('insp-ficha').value = '';
+        document.getElementById('insp-ficha-ctx').style.display = 'none';
         renderInspecaoHist();
         comandoRefreshSeAtivo();
+
+        if (insp.lib) {
+            // Fluxo otimizado: aprovou → já abre o formulário de liberação para conferir e imprimir
+            toast(`✓ ${acaoNome}${auto ? ' automaticamente' : ''}. Formulário ${insp.lib} gerado.`);
+            gerarLiberacaoSetup(insp);
+        } else {
+            const resumoMsg = {
+                aprovado: `✓ ${acaoNome}.`,
+                conferir: '⚠ Enviado para conferência humana na Central de Comando.',
+                reprovado: '✗ Reprovado. RNC aberta automaticamente e escalada à Central de Comando.'
+            }[g.resultado];
+            alert(`${etapa} · ${ficha}\n${resumoMsg}`);
+        }
     }
 
     function renderInspecaoHist() {
@@ -4045,15 +4169,16 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if (!tb) return;
         const badge = { aprovado: 'st-conc', conferir: 'st-pend', reprovado: 'st-err' };
         const rotulo = { aprovado: 'Aprovado', conferir: 'Conferir', reprovado: 'Reprovado' };
-        tb.innerHTML = RB.inspecoes.slice(0, 12).map(x => `
+        tb.innerHTML = RB.inspecoes.slice(0, 12).map((x, i) => `
             <tr>
                 <td>${new Date(x.data).toLocaleDateString('pt-BR')} ${new Date(x.data).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</td>
                 <td>${x.etapa}</td>
                 <td>${x.tipo === 'setup' ? 'Lib. Setup' : 'Inspeção'}</td>
-                <td style="font-weight:bold; color:#1d4ed8;">${x.ficha}</td>
+                <td style="font-weight:bold; color:#1d4ed8;">${x.ficha}${x.lib ? `<div style="font-size:10px; color:#0f766e; font-weight:600;">${x.lib}</div>` : ''}</td>
                 <td><span class="badge-status ${badge[x.resultado]}">${rotulo[x.resultado]}</span></td>
-                <td style="font-size:11px;">${x.auto ? '<b style="color:#0f766e;">⚙ Automático</b> · ' : ''}${x.decisao}</td>
+                <td style="font-size:11px;">${x.auto ? '<b style="color:#0f766e;">⚙ Automático</b> · ' : ''}${x.decisao}${x.lib ? ` <button class="btn-ic" title="Imprimir formulário de liberação" onclick="reimprimirLiberacao(${i})" style="margin-left:6px;"><i class="fas fa-print"></i></button>` : ''}</td>
             </tr>`).join('') || '<tr><td colspan="6" style="color:#94a3b8; text-align:center;">Nenhuma inspeção registrada.</td></tr>';
+        renderIcons(tb);
         // KPI de automação
         const mesKeyAtual = mesKey(new Date().toISOString());
         const doMes = RB.inspecoes.filter(x => mesKey(x.data) === mesKeyAtual);
@@ -5008,8 +5133,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     // Lê rótulo+valor de TODOS os campos da seção (grade e tabelas), na ordem do formulário.
     // Rótulo vem do .lbl da célula ou do atributo data-l (campos de tabela, ex.: tintas).
-    function fuCamposDaSecao(key) {
+    // Com `dados` (ficha salva), os valores vêm da ficha em vez do formulário na tela.
+    function fuCamposDaSecao(key, dados) {
         const sec = document.getElementById('fu-sec-' + key);
+        if (!sec) return [];
         const campos = [];
         sec.querySelectorAll('input[id^="fu_"], textarea[id^="fu_"], select[id^="fu_"]').forEach(inp => {
             let label = inp.getAttribute('data-l');
@@ -5023,7 +5150,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 }
             }
             if (!label) return;
-            campos.push({ l: label, v: (inp.value || '').trim() || '—' });
+            const v = dados ? (dados[inp.id] || '') : (inp.value || '');
+            campos.push({ l: label, v: v.trim() || '—' });
         });
         return campos;
     }
@@ -5085,21 +5213,34 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             </div>`;
         }).join('');
 
-        document.getElementById('fu-print-area').innerHTML = paginas;
-
         // Pré-visualização: confere as folhas na tela antes de mandar para a impressora
-        const nPag = keys.length;
-        document.getElementById('fu-prev-info').innerText = `${nPag} folha(s) A4 · Ficha ${cod} · Confira antes de imprimir — nada foi enviado à impressora ainda.`;
+        abrirPreviewDoc(paginas, 'Pré-visualização — Instruções de Trabalho',
+            `${keys.length} folha(s) A4 · Ficha ${cod} · Confira antes de imprimir — nada foi enviado à impressora ainda.`,
+            () => {
+                registrarAtividade(`imprimiu ${keys.length} instrução(ões) de trabalho da ficha ${cod}`);
+                document.body.classList.add('print-mode-fu');
+                window.print();
+                document.body.classList.remove('print-mode-fu');
+            });
+    }
+
+    // Pré-visualização genérica: mostra o(s) documento(s) e só imprime após conferência.
+    // onPrint personalizado permite reusar o preview para relatório/etiqueta (outros modos de impressão).
+    let _previewOnPrint = null;
+    function abrirPreviewDoc(html, titulo, info, onPrint) {
+        document.getElementById('fu-print-area').innerHTML = html;
+        document.getElementById('fu-prev-titulo').innerText = titulo || 'Pré-visualização de Impressão';
+        document.getElementById('fu-prev-info').innerText = info || 'Confira antes de imprimir — nada foi enviado à impressora ainda.';
+        _previewOnPrint = onPrint || null;
         document.getElementById('fu-preview').classList.add('open');
         document.getElementById('fu-preview-scroll').scrollTop = 0;
         renderIcons(document.getElementById('fu-preview'));
     }
-
     function fuPreviewFechar() { document.getElementById('fu-preview').classList.remove('open'); }
     function fuPreviewImprimir() {
-        const cod = document.getElementById('lbl-codigo-fu-ficha').value.trim() || 'SEM CÓDIGO';
+        if (_previewOnPrint) { _previewOnPrint(); return; }
         const n = document.querySelectorAll('#fu-print-area .fu-page').length;
-        registrarAtividade(`imprimiu ${n} instrução(ões) de trabalho da ficha ${cod}`);
+        registrarAtividade(`imprimiu ${n} documento(s) de impressão`);
         document.body.classList.add('print-mode-fu');
         window.print();
         document.body.classList.remove('print-mode-fu');
@@ -5355,9 +5496,21 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
 
     function imprimirEtiqueta() {
-        document.body.classList.add('print-mode-etiqueta');
-        window.print();
-        document.body.classList.remove('print-mode-etiqueta');
+        // Pré-visualização da etiqueta antes de imprimir
+        atualizarEtiqueta();
+        const viewAtiva = document.querySelector('.sys-view.active');
+        const box = viewAtiva ? viewAtiva.querySelector('.etiqueta-box') : null;
+        if (!box) { alert('Esta ficha não possui etiqueta.'); return; }
+        const html = `<div class="fu-page-cap">Etiqueta de Identificação</div><div class="fu-page" style="min-height:auto; display:flex; justify-content:center; padding:14mm;">${box.outerHTML}</div>`;
+        abrirPreviewDoc(html, 'Pré-visualização — Etiqueta',
+            'Etiqueta de identificação · confira os dados antes de imprimir.',
+            () => {
+                fuPreviewFechar();
+                registrarAtividade('imprimiu etiqueta de identificação');
+                document.body.classList.add('print-mode-etiqueta');
+                window.print();
+                document.body.classList.remove('print-mode-etiqueta');
+            });
     }
 
 
@@ -5820,9 +5973,19 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
 
     function imprimirRelatorio() {
-        document.body.classList.add('print-mode-relatorio');
-        window.print();
-        document.body.classList.remove('print-mode-relatorio');
+        // Pré-visualização do relatório antes de exportar
+        const rel = document.getElementById('rel-conteudo');
+        if (!rel || !rel.innerHTML.trim()) { alert('Gere o relatório antes de exportar.'); return; }
+        const html = `<div class="fu-page-cap">Relatório Executivo — Diretoria</div><div class="fu-page" style="min-height:auto; padding:0;">${rel.outerHTML.replace('id="rel-conteudo"', 'id="rel-conteudo-preview"')}</div>`;
+        abrirPreviewDoc(html, 'Pré-visualização — Relatório Executivo',
+            'Documento de diretoria · confira antes de exportar em PDF.',
+            () => {
+                fuPreviewFechar();
+                registrarAtividade('exportou o relatório executivo (PDF)');
+                document.body.classList.add('print-mode-relatorio');
+                window.print();
+                document.body.classList.remove('print-mode-relatorio');
+            });
     }
 
     // Inicialização do Drag and Drop
@@ -5948,7 +6111,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 <div id="fu-preview" class="fu-preview-overlay">
     <div class="fu-preview-bar">
         <div class="t"><i class="fas fa-print"></i>
-            <span>Pré-visualização — Instruções de Trabalho<small id="fu-prev-info">Confira cada folha antes de imprimir. Nada foi enviado à impressora ainda.</small></span>
+            <span><span id="fu-prev-titulo">Pré-visualização de Impressão</span><small id="fu-prev-info">Confira cada folha antes de imprimir. Nada foi enviado à impressora ainda.</small></span>
         </div>
         <div style="display:flex; gap:10px;">
             <button class="action-btn-sec" style="background:#fff;" onclick="fuPreviewFechar()"><i class="fas fa-arrow-rotate-left"></i> Voltar e ajustar</button>
