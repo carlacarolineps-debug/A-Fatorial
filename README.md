@@ -5,41 +5,54 @@ Abra o arquivo no navegador para usar.
 
 ---
 
-## 🎴 Bússola — Baralho Estratégico de Autogestão (`baralho.html`)
+## 🧭 O Método Bússola (`baralho.html`)
 
-Produto de **auto-mentoria** (por Carla Caroline): um baralho de **170 cartas**
-organizadas em **10 naipes**, para autoconsultoria e autogestão. Não são dicas —
-é uma mentoria de mesa que conduz o mentoreado da clareza do objetivo até a raiz
-dos padrões de comportamento que governam seus resultados. Bússola do baralho:
+Sistema de **auto-mentoria estratégica** (por Carla Caroline). Não é um baralho de
+dicas: é um **método de transformação** que trabalha, em conjunto, os três eixos que
+governam qualquer resultado — **Estratégia**, **Mentalidade** e **Comportamento**
+(mais **Liderança** como eixo integrador). Bússola do método:
 *"Seus padrões de comportamento definem seus acontecimentos." — Carla Caroline*.
 
-Arquivo único (`baralho.html`, sem build, fontes de sistema — funciona offline).
-Abra no navegador para usar; use **⤓ Imprimir cartas** para gerar os cards físicos.
+Arquivo único (`baralho.html`, sem build, fontes de sistema — funciona offline,
+persistência em `localStorage`). É um **produto digital** (não voltado a impressão).
 
-**Os 10 naipes (17 cartas cada):**
+### O ciclo — 5 movimentos (5 telas do app)
 
-| Naipe | Foco |
-|-------|------|
-| ◎ Direção | Clareza & propósito |
-| ⬡ Plano | Estratégia & planejamento |
-| ✳ Execução | Disciplina & ação |
-| ✦ Padrões | A bússola do comportamento |
-| ❖ Mente | Mentalidade & crenças |
-| ◆ Forças | Autoconhecimento & talento |
-| ♛ Liderança | Gestão & posicionamento |
-| ☾ Sombra | Medos & autossabotagem |
-| ✧ Identidade | Autenticidade & autoimagem |
-| ▲ Resultados | Mensuração & gestão |
+1. **Início** — a introdução ao método: a lógica (padrão → resultado), os 3 eixos e o ciclo.
+2. **Diagnóstico** (Movimento 01 · Norte) — define o objetivo e responde 10 afirmações
+   (0–10, uma por naipe). Gera o **Mapa Bússola**: um radar dos 10 naipes, notas por eixo
+   e a identificação da **maior alavanca** (o ponto de menor força = maior retorno).
+3. **Hoje** (Movimentos 02–03 · Revelação & Compromisso) — **sorteio inteligente**: a carta
+   não abre por avanço; o sistema entrega a carta que o *seu mapa* pede (priorizando o eixo
+   mais fraco, evitando repetição recente, dando peso às cartas-semente), explicando o porquê.
+   A carta vira um **compromisso com prazo** (ação concreta) enviado à Prática.
+4. **Prática** (Movimentos 04–05 · Prática & Espelho) — diário de compromissos (pendente /
+   cumprido, com vencimento), **sequência** (streak) de dias, % de conclusão, cartas
+   trabalhadas, o **Espelho** (refazer o diagnóstico e comparar a evolução do mapa) e as
+   **ferramentas de campo** (Bússola de Padrões, Termômetro de Compromisso, Plano de 1 Página).
+   Exportação do caderno em texto.
+5. **Baralho** — a biblioteca completa das **170 cartas** (10 naipes × 17), com busca,
+   filtro por naipe, virar carta e anotações persistentes.
+
+### Os 10 naipes (17 cartas cada)
+
+| Eixo | Naipes |
+|------|--------|
+| **Estratégia** | ◎ Direção · ⬡ Plano · ▲ Resultados |
+| **Mentalidade** | ❖ Mente · ◆ Forças · ✧ Identidade |
+| **Comportamento** | ✳ Execução · ✦ Padrões · ☾ Sombra |
+| **Liderança** (integrador) | ♛ Liderança |
 
 Cada carta traz: **pergunta-guia** (quando aplicável), *por que a carta importa*,
 *relevância*, *resultados possíveis*, *influência (+/−) sobre o resultado*, os
-**níveis** (Força · Potência · Efetividade · Facilidade, de 1 a 5, como num baralho)
-e uma **ferramenta para preencher na hora** (salva no navegador). As **24 perguntas
-iniciais** da sessão de mentoria estão embutidas como *cartas-semente*.
+**níveis** (Força · Potência · Efetividade · Facilidade, de 1 a 5) e uma **ferramenta
+para preencher na hora**. As **24 perguntas iniciais** da sessão de mentoria estão
+embutidas como *cartas-semente*, com peso extra no sorteio.
 
-**Recursos:** puxar carta (ritual do dia), filtro por naipe, busca, virar carta
-(frente → verso com a mentoria), anotações persistentes (`localStorage`), exportar
-o caderno em texto, tema escuro/claro e modo impressão (layout de cards físicos).
+**Sorteio inteligente:** o peso de cada carta = prioridade do naipe pelo diagnóstico
+(quanto mais fraco, mais provável) × potência da carta × bônus de carta-semente ×
+penalidade se já foi trabalhada ou vista há poucos dias. A "carta de hoje" é estável
+por dia (semente do dia + objetivo + diagnóstico) para funcionar como ritual.
 
 ---
 
