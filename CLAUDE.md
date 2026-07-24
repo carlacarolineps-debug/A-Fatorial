@@ -16,11 +16,26 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 
 ## Produtos neste repositório
 
+- `Operação Blindada 2407.01.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
+  Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
+  financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
+  login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
+  nativa (170 cartas, diagnóstico comportamental com radar, sorteio inteligente e
+  adaptativo, trilhas de padrão, relatório de ciclo, Pacto de Blindagem, intenções de
+  implementação, protocolo de recaída, ritual de ciclo). Tese: *blinde o negócio por
+  fora e o gestor por dentro*. Identidade "Cofre e Estrategista" (carbono/ouro/aço).
+  Compromissos das cartas caem no Plano 30d; XP alimenta a gamificação existente.
+  Base preservada do arquivo enviado pela Carla (`PORTAL_2007.02`).
+- `baralho.html` — versão standalone do Método Bússola (identidade obsidiana/ouro),
+  agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html` — Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
-- `baralho.html` — **Operação Blindada** (produto de auto-mentoria): jornada
-  externa de estratégia/negócio + motor comportamental (Método Bússola: 170
-  cartas, diagnóstico, sorteio inteligente, trilhas, relatório de ciclo).
-  Identidade visual "Cofre e Estrategista" (carbono / ouro / aço).
+
+### Como regenerar o produto unificado
+Motor da Bússola em `scratchpad/bussola_engine.js` + `bussola.css`; dados das 170
+cartas em `scratchpad/data_D.txt`; injeção nos pontos exatos do arquivo-base via
+`scratchpad/inject.cjs` (registra view, aba NAV, dispatch em `go()`, campo em
+`defaultState()`/boot). Acesso: `PREVIEW=true` quando aberto via `file://`
+(standalone, sem login); hospedado exige login Supabase (trava de acesso mantida).
 
 ## Contexto
 
