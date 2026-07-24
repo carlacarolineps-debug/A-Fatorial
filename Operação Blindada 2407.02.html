@@ -604,6 +604,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .b-pactohead{display:flex;align-items:center;font-weight:600;color:var(--star)}
 .b-hoje-teaser{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-top:2px solid var(--sc,var(--amber));border-radius:var(--radius-sm);cursor:pointer;background:var(--ink-2);transition:transform .16s}
 .b-hoje-teaser:hover{transform:translateY(-2px);border-color:var(--sc,var(--amber))}
+.b-state{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border:1px solid var(--line-soft);border-radius:var(--radius-sm);margin-bottom:12px;background:var(--ink-2)}
+.b-energy{display:flex;gap:6px;margin-left:auto}
+.b-energy button{background:none;border:1px solid var(--line);border-radius:9px;font-size:18px;width:36px;height:34px;cursor:pointer;transition:.15s;line-height:1}
+.b-energy button:hover{border-color:var(--amber);transform:translateY(-2px);background:rgba(245,181,61,.08)}
+.b-cofre{border:1px solid rgba(95,208,166,.35);border-radius:var(--radius-sm);padding:14px 16px;margin:14px 0;background:rgba(95,208,166,.05)}
+.b-provalist{margin:8px 0 0;padding-left:18px}
+.b-provalist li{font-size:12.5px;color:var(--star);margin-bottom:4px;line-height:1.4}
 
 </style>
 </head>
@@ -7031,7 +7038,9 @@ const BTRILHAS=[
 ];
 
 /* ---------- estado ---------- */
-function Bst(){ if(!S.bussola) S.bussola={norte:'',diag:null,diagAt:null,diagHistory:[],seen:{},worked:[],dayCard:null,trilhas:{},pacto:null,ritual:[],interrupts:[]}; const B=S.bussola; if(!B.ritual)B.ritual=[]; if(!B.interrupts)B.interrupts=[]; if(B.pacto===undefined)B.pacto=null; return B; }
+function Bst(){ if(!S.bussola) S.bussola={norte:'',diag:null,diagAt:null,diagHistory:[],seen:{},worked:[],dayCard:null,trilhas:{},pacto:null,ritual:[],interrupts:[],kpis:[],provas:[]}; const B=S.bussola; if(!B.ritual)B.ritual=[]; if(!B.interrupts)B.interrupts=[]; if(!B.kpis)B.kpis=[]; if(!B.provas)B.provas=[]; if(B.pacto===undefined)B.pacto=null; return B; }
+/* mapa naipe -> módulo de negócio que trabalha o mesmo tema "por fora" */
+const BMOD={ direcao:'Raio-X Estratégico', plano:'Raio-X Estratégico', resultados:'Blindagem Financeira', mente:'Descompressão & Pessoas', forcas:'Descompressão & Pessoas', identidade:'Liderança', execucao:'Engenharia de Processos', padroes:'Engenharia de Processos', sabotagem:'Descompressão & Pessoas', lideranca:'Liderança' };
 let bTab='hoje', bOpenTrilha=null, bFilter='todos', bDiagTmp={};
 function bPad(n){return String(n).padStart(3,'0');}
 function bFind(naipe,part){return BCARDS.findIndex(c=>c.n===naipe&&c.t.indexOf(part)>=0);}
@@ -7076,7 +7085,7 @@ function bMini(lv){ return '<div class="b-mini">'+lv.map(v=>{ let d=''; for(let 
 /* ---------- render principal ---------- */
 function renderBussola(){
   const v=$('#view-bussola');
-  const tabs=[{id:'hoje',lbl:'Carta do Dia'},{id:'mapa',lbl:'Diagnóstico'},{id:'trilhas',lbl:'Trilhas de Padrão'},{id:'baralho',lbl:'O Baralho'},{id:'espelho',lbl:'Espelho'}];
+  const tabs=[{id:'hoje',lbl:'Carta do Dia'},{id:'mapa',lbl:'Diagnóstico'},{id:'placar',lbl:'Placar de Blindagem'},{id:'trilhas',lbl:'Trilhas de Padrão'},{id:'baralho',lbl:'O Baralho'},{id:'espelho',lbl:'Espelho'}];
   v.innerHTML=`
     <p class="eyebrow">A blindagem interna do gestor</p>
     <h1 class="page" style="display:flex;align-items:center;gap:12px">🧭 A Bússola</h1>
@@ -7086,6 +7095,7 @@ function renderBussola(){
   const b=$('#bBody');
   if(bTab==='hoje') b.innerHTML=bHojeHtml();
   if(bTab==='mapa') b.innerHTML=bMapaHtml();
+  if(bTab==='placar') b.innerHTML=bPlacarHtml();
   if(bTab==='trilhas') b.innerHTML=bTrilhasHtml();
   if(bTab==='baralho') b.innerHTML=bBaralhoHtml();
   if(bTab==='espelho') b.innerHTML=bEspelhoHtml();
@@ -7114,6 +7124,7 @@ function bHojeHtml(){
     </div>
     <div>
       <div class="kicker">${dt}</div>
+      ${bStateBlock()}
       <div class="callout"><span class="ic">🧭</span><div><b>Por que esta carta hoje:</b> ${bReason(idx,true)}</div></div>
       <div class="btn-row"><button class="btn primary" onclick="openCard(${idx})">Abrir e assumir compromisso</button>
       <button class="btn ghost" onclick="bDrawOther()">Puxar outra</button></div>
@@ -7140,6 +7151,7 @@ function openCard(idx){
     <div class="b-infl"><div class="pos"><b>+ Influência positiva</b>${escapeHtml(c.p)}</div><div class="neg"><b>− Influência negativa</b>${escapeHtml(c.m)}</div></div>
     <div class="b-levels">${levels}</div>
     <div class="callout" style="border-color:${nz.hue}66"><span class="ic">✎</span><div><b>Ferramenta — aplique agora:</b> ${escapeHtml(c.x)}</div></div>
+    ${bCofreBlock(c.n)}
     <div class="b-ii"><div class="b-iihead">🎯 Compromisso de implementação <span class="tiny muted">— a forma que a ciência comprova que faz você cumprir</span></div>
       <label class="fld"><span>1 · QUANDO / ONDE (o gatilho)</span><input class="in" id="bCommitWhen" placeholder="Ex.: amanhã, às 8h, antes de abrir o e-mail…"></label>
       <label class="fld"><span>2 · EU VOU (a ação concreta)</span><textarea class="in" id="bCommitDo" style="min-height:64px" placeholder="Pequena o suficiente para não ter como falhar…"></textarea></label>
@@ -7199,9 +7211,9 @@ function bMapaResultHtml(){
     <div class="card">${radarSVG(ans)}<p class="tiny muted center" style="margin-top:6px">Radar dos 10 naipes · nota 1 a 5</p></div>
     <div>${dims}
       <div class="callout mt16" style="border-color:${w.n.hue}66"><span class="ic">🎯</span><div><b>Sua maior alavanca agora: ${w.n.g} ${w.n.nome} (${w.v}/5)</b><br>Ponto de menor força, no eixo <b>${e.nome}</b>. É aqui que uma mudança pequena gera o maior salto. O sistema vai priorizar cartas deste território.</div></div>
-      <div class="callout" style="border-color:var(--coral)55;background:rgba(255,122,107,.06)"><span class="ic">🔗</span><div><b>No negócio, esse padrão vira:</b> ${w.n.sintoma}.<br><span class="tiny muted">Blindar por dentro (o padrão) é o que sustenta a blindagem por fora (o resultado).</span></div></div>
+      <div class="callout" style="border-color:var(--coral)55;background:rgba(255,122,107,.06)"><span class="ic">🔗</span><div><b>No negócio, esse padrão vira:</b> ${w.n.sintoma}.<br><span class="tiny muted">Por dentro, você trabalha isso aqui na Bússola. Por fora, no módulo <b style="color:var(--star)">${BMOD[w.k]}</b>. Blindar os dois é o que sustenta o resultado.</span></div></div>
     </div></div>
-    <div class="btn-row mt16"><button class="btn primary" onclick="bGo('hoje')">Ver minha carta de hoje</button><button class="btn ghost" onclick="bGo('trilhas')">Seguir uma trilha</button><button class="btn ghost" onclick="openBDiag()">↻ Refazer diagnóstico</button></div>`;
+    <div class="btn-row mt16"><button class="btn primary" onclick="bGo('hoje')">Ver minha carta de hoje</button><button class="btn ghost" onclick="bGo('placar')">🏆 Provar no Placar</button><button class="btn ghost" onclick="go('trilhas')">Módulo ${BMOD[w.k]} →</button><button class="btn ghost" onclick="openBDiag()">↻ Refazer</button></div>`;
 }
 
 /* ---------- TRILHAS de padrão ---------- */
@@ -7265,7 +7277,18 @@ function bEspelhoHtml(){
       <button class="btn ghost xs" onclick="bSetArt();actToPlano()">🎯 Plano 30d</button>
       <button class="btn ghost xs" onclick="bSetArt();actToPdca()">🔁 PDCA</button>
       <button class="btn ghost xs" onclick="bSetArt();actToDiario()">📔 Diário</button>
+      <button class="btn ghost xs" onclick="bShareMentora()">🤝 Enviar à mentora</button>
     </div></div>`;
+}
+function bShareMentora(){
+  const B=Bst(); if(!B.diag){ toast('⚠️','Faça o diagnóstico',''); return; }
+  const w=bWeakest(), eS=BEIXOS.map(e=>e.nome+' '+bEixoScore(e).toFixed(1)).join(' · ');
+  const coms=(S.plan||[]).filter(p=>p.bnaipe), done=coms.filter(p=>p.done).length;
+  const txt=`🧭 MEU CICLO — OPERAÇÃO BLINDADA / A BÚSSOLA\n${S.name?S.name+'\n':''}${B.norte?'Norte: '+B.norte+'\n':''}\nMapa (0-5): ${eS}\nMaior alavanca: ${w.n.nome} (${w.v}/5) → no negócio: ${w.n.sintoma}\nCompromissos: ${done}/${coms.length} cumpridos · sequência ${S.streak||0} dia(s)\n${B.pacto?'\nPacto: "'+B.pacto.identity+'"':''}\n\nPara a mentoria: onde eu preciso de ajuda é em ${w.n.nome}.`;
+  modal(`<p class="eyebrow">Sessão de mentoria</p><h3>🤝 Enviar meu ciclo à mentora</h3>
+    <p class="muted tiny">Leve seu mapa para a sessão. A mentora enxerga em 10 segundos onde te conduzir — e a conversa começa no ponto certo.</p>
+    <textarea class="in" id="bMentoraTxt" style="min-height:180px;margin-top:12px">${escapeHtml(txt)}</textarea>
+    <div class="btn-row mt16"><button class="btn primary" onclick="bCopy('bMentoraTxt')">📋 Copiar para enviar</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
 }
 function bReportBody(){
   const B=Bst();
@@ -7286,7 +7309,7 @@ function bReportBody(){
   else h+=`<p>Você ainda não assumiu compromissos. Vá em <b>Carta do Dia</b> e transforme uma carta em ação no Plano 30d.</p>`;
   if(topOpen) h+=`<p>Atenção: o eixo <b>${BNMAP[topOpen].nome}</b> tem <b>${topN}</b> compromisso(s) em aberto — é aí que seu padrão pede consciência. O sistema insiste nesse território até você resolver.</p>`;
   h+=`<p><b>A ponte para o negócio:</b> enquanto ${w.n.nome} estiver fraco, no dia a dia isso aparece como <b>${w.n.sintoma}</b>. Não é um problema de estratégia — é o padrão por trás dela.</p>`;
-  h+=`<p><b>Prescrição do ciclo:</b> concentre-se em <b>${w.n.nome}</b>.${tr?' A trilha <b>'+tr.nome+'</b> foi desenhada para isso.':''} Uma mudança pequena aqui gera o maior salto.</p>`;
+  h+=`<p><b>Prescrição do ciclo — nas duas frentes:</b> <b>por dentro</b>, ${tr?'siga a trilha <b>'+tr.nome+'</b>':'trabalhe as cartas de <b>'+w.n.nome+'</b>'} e cumpra os compromissos; <b>por fora</b>, aprofunde o módulo <b>${BMOD[w.k]}</b>. Uma mudança pequena aqui gera o maior salto — e o Placar vai provar isso em número.</p>`;
   if(!B.pacto) h+=`<p class="tiny muted">Você ainda não assinou seu Pacto de Blindagem — o compromisso que ancora quem você está se tornando. <a style="color:var(--amber);cursor:pointer;text-decoration:underline" onclick="bPacto()">Assinar agora →</a></p>`;
   h+=`<p class="b-rquote">Seus padrões de comportamento definem seus acontecimentos. Você já os enxerga — agora é escolher diferente.</p>`;
   return h;
@@ -7309,25 +7332,37 @@ function bPacto(){
     <label class="fld"><span>2 · Quem eu escolho me tornar — "Eu sou um(a) líder que…"</span><textarea class="in" id="bpIdentity" style="min-height:56px">${escapeHtml(p.identity||'')}</textarea></label>
     <label class="fld"><span>3 · Minha prática inegociável (o mínimo que faço todo dia útil)</span><input class="in" id="bpCommit" value="${escapeAttrB(p.commit||'')}" placeholder="Ex.: abrir a carta do dia e assumir 1 compromisso"></label>
     <label class="fld"><span>4 · Assino como</span><input class="in" id="bpName" value="${escapeAttrB(p.name||S.name||'')}"></label>
+    <label class="fld"><span>5 · Minha testemunha — quem vai me cobrar (accountability)</span><input class="in" id="bpWitness" value="${escapeAttrB(p.witness||'')}" placeholder="Ex.: minha sócia, meu mentor, meu par…"></label>
     <div class="btn-row mt16"><button class="btn primary" onclick="bSignPacto()">🖋️ Assinar meu pacto (+50 XP)</button><button class="btn ghost" onclick="closeModal()">Agora não</button></div>`);
 }
 function escapeAttrB(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 function bSignPacto(){
   const becoming=($('#bpBecoming').value||'').trim(), identity=($('#bpIdentity').value||'').trim();
   const commit=($('#bpCommit').value||'').trim(), name=($('#bpName').value||'').trim();
+  const witness=(($('#bpWitness')||{}).value||'').trim();
   if(!becoming||!identity){ toast('⚠️','Preencha o essencial','O pacto precisa do que muda e de quem você se torna.'); return; }
   const B=Bst(); const first=!B.pacto;
-  B.pacto={becoming,identity,commit,name,signedAt:Date.now()};
+  B.pacto={becoming,identity,commit,name,witness,signedAt:Date.now()};
   if(first) addXp(50,'Pacto de Blindagem assinado'); else { save(); toast('🛡️','Pacto atualizado',''); }
   save(); closeModal(); renderBussola();
-  if(first) toast('🛡️','Pacto assinado','O compromisso está firmado. Agora é honrá-lo, um dia de cada vez.');
+  if(first){ toast('🛡️','Pacto assinado','O compromisso está firmado. Agora é honrá-lo, um dia de cada vez.'); if(witness) setTimeout(bSharePacto,500); }
 }
+function bSharePacto(){
+  const B=Bst(); if(!B.pacto) return;
+  const p=B.pacto;
+  const txt=`🛡️ MEU PACTO DE BLINDAGEM\n\n"${p.identity}"\n\nA blindagem que estou construindo: ${p.becoming}\nMinha prática inegociável: ${p.commit||'—'}\n\n${p.witness?p.witness+', escolhi você como minha testemunha. Peço que me cobre isso.':''}\n\n— ${p.name||S.name||''}\n(Operação Blindada · A Bússola)`;
+  modal(`<p class="eyebrow">Accountability social</p><h3>🤝 Selar com sua testemunha</h3>
+    <p class="muted tiny">Compromisso dito em voz alta a alguém tem muito mais chance de se cumprir. Copie e envie para <b>${escapeHtml(p.witness||'sua testemunha')}</b>.</p>
+    <textarea class="in" id="bShareTxt" style="min-height:150px;margin-top:12px">${escapeHtml(txt)}</textarea>
+    <div class="btn-row mt16"><button class="btn primary" onclick="bCopy('bShareTxt')">📋 Copiar</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
+}
+function bCopy(id){ const t=$('#'+id); if(!t) return; t.select(); try{ (navigator.clipboard&&navigator.clipboard.writeText)?navigator.clipboard.writeText(t.value):document.execCommand('copy'); toast('📋','Copiado','Cole no WhatsApp, e-mail ou onde quiser.'); }catch(e){ toast('📋','Selecione e copie',''); } }
 function bPactoBanner(){
   const B=Bst();
   if(B.pacto){
-    return `<div class="b-pacto"><div class="b-pactohead">🛡️ Seu Pacto de Blindagem <a class="tiny" style="margin-left:auto;color:var(--amber);cursor:pointer" onclick="bPacto()">editar</a></div>
+    return `<div class="b-pacto"><div class="b-pactohead">🛡️ Seu Pacto de Blindagem <span style="margin-left:auto;display:flex;gap:12px"><a class="tiny" style="color:var(--amber);cursor:pointer" onclick="bSharePacto()">compartilhar</a><a class="tiny" style="color:var(--amber);cursor:pointer" onclick="bPacto()">editar</a></span></div>
       <p style="font-family:var(--serif);font-style:italic;margin:8px 0 0">"${escapeHtml(B.pacto.identity)}"</p>
-      <p class="tiny muted" style="margin:6px 0 0">Prática inegociável: ${escapeHtml(B.pacto.commit||'—')} · assinado por ${escapeHtml(B.pacto.name||'você')}</p></div>`;
+      <p class="tiny muted" style="margin:6px 0 0">Prática inegociável: ${escapeHtml(B.pacto.commit||'—')} · assinado por ${escapeHtml(B.pacto.name||'você')}${B.pacto.witness?' · testemunha: '+escapeHtml(B.pacto.witness):''}</p></div>`;
   }
   return `<div class="b-pacto" style="border-style:dashed;cursor:pointer" onclick="bPacto()"><div class="b-pactohead">🛡️ Assine seu Pacto de Blindagem</div>
     <p class="tiny muted" style="margin:6px 0 0">O compromisso que ancora a transformação. Leva 2 minutos e muda o jogo — <span style="color:var(--amber)">assinar →</span></p></div>`;
@@ -7369,6 +7404,98 @@ function bHomeHook(){
     <div class="mt16">${inner}</div>`;
   v.appendChild(card);
 }
+
+/* ---------- CHECK-IN DE ESTADO (energia personaliza o tom) ---------- */
+function bTodayEnergy(){ const B=Bst(); const t=dayKey(Date.now()); const e=(B.stateLog||[]).find(x=>x.day===t); return e?e.energy:null; }
+function bStateBlock(){
+  const en=bTodayEnergy();
+  const emo=['🥱','😕','😐','🙂','🔥'];
+  if(en){ const msg=['Dia pesado — a carta de hoje pede só o menor passo. Feito vence perfeito.','Energia baixa. Escolha a versão mínima da ação e honre a constância.','Estável. Um passo consistente hoje vale mais que um surto.','Boa energia — aproveite para atacar o compromisso mais difícil.','Energia alta! Canalize num movimento ousado ainda hoje.'][en-1];
+    return `<div class="b-state"><span class="tiny muted">Seu estado hoje: <b style="color:var(--amber)">${emo[en-1]} ${en}/5</b> — ${msg}</span></div>`; }
+  return `<div class="b-state"><span class="tiny muted">Como está sua energia hoje?</span><span class="b-energy">${[1,2,3,4,5].map(n=>`<button onclick="bSetEnergy(${n})" title="${n}/5">${emo[n-1]}</button>`).join('')}</span></div>`;
+}
+function bSetEnergy(n){ const B=Bst(); B.stateLog=B.stateLog||[]; const t=dayKey(Date.now()); const ex=B.stateLog.find(x=>x.day===t); if(ex)ex.energy=n; else B.stateLog.unshift({day:t,energy:n,t:Date.now()}); if(B.stateLog.length>90)B.stateLog.length=90; save(); renderBussola(); }
+
+/* ---------- COFRE DE PROVAS (autoeficácia contra crença/impostor) ---------- */
+function bCofreBlock(naipe){
+  if(['mente','sabotagem','identidade'].indexOf(naipe)<0) return '';
+  const B=Bst(); const provas=(B.provas||[]).slice(0,3);
+  const list=provas.length?provas.map(p=>`<li>${escapeHtml(p.text)}</li>`).join(''):'<li style="color:var(--mute-2)">Seu cofre ainda está vazio — comece agora, com uma prova.</li>';
+  return `<div class="b-cofre"><div class="b-iihead" style="color:var(--sage)">🗝️ Cofre de Provas <span class="tiny muted">— evidências de que você é capaz, contra a crença e o impostor</span></div>
+    <ul class="b-provalist">${list}</ul>
+    <div class="btn-row" style="margin-top:8px;gap:8px"><input class="in" id="bProvaInput" placeholder="Uma prova concreta: algo que você já superou ou conquistou…" style="flex:1"><button class="btn sage sm" onclick="bAddProva()">Guardar</button></div></div>`;
+}
+function bAddProva(){ const el=$('#bProvaInput'); const t=((el&&el.value)||'').trim(); if(!t){ toast('⚠️','Escreva a prova',''); return; } const B=Bst(); B.provas.unshift({t:Date.now(),text:t}); if(B.provas.length>60)B.provas.length=60; addXp(8,'Prova guardada no cofre'); save(); if(el)el.value=''; const box=el?el.closest('.b-cofre'):null; if(box){ const ul=box.querySelector('.b-provalist'); if(ul) ul.innerHTML=B.provas.slice(0,3).map(p=>`<li>${escapeHtml(p.text)}</li>`).join(''); } toast('🗝️','Guardado no cofre','Releia sempre que a dúvida falar mais alto.'); }
+
+/* ---------- PLACAR DE BLINDAGEM (KPI do negócio × evolução do padrão) ---------- */
+function bFmt(n){ if(n==null||isNaN(n))return '—'; return (Math.round(n*100)/100).toLocaleString('pt-BR'); }
+function bBehaviorSeries(){ const B=Bst(); return (B.diagHistory||[]).map(h=>({t:h.at, avg:BNAIPES.reduce((a,n)=>a+(h.scores[n.k]??0),0)/10})); }
+function bSpark(vals,min,max,color){
+  if(!vals.length) return '';
+  const W=300,H=64,pad=7,n=vals.length,rng=(max-min)||1;
+  const pts=vals.map((v,i)=>{ const x=pad+(n===1?(W-2*pad)/2:(i/(n-1))*(W-2*pad)); const y=H-pad-((v-min)/rng)*(H-2*pad); return [x,y]; });
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area=`M${pts[0][0].toFixed(1)} ${H-pad} `+pts.map(p=>'L'+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+` L${pts[n-1][0].toFixed(1)} ${H-pad} Z`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:64px" preserveAspectRatio="none"><path d="${area}" fill="${color}" opacity="0.12"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke"/>${pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="${color}"/>`).join('')}</svg>`;
+}
+function bPlacarHtml(){
+  const B=Bst();
+  const beh=bBehaviorSeries();
+  const intro=`<p class="muted" style="max-width:66ch">Aqui a tese vira prova. Escolha um número do seu negócio — faturamento, propostas fechadas, decisões que o time tomou sozinho, avaliações 5★ — e acompanhe. O sistema mostra a sua <b>evolução comportamental</b> ao lado do <b>resultado</b>. Quando o padrão muda por dentro, o número muda por fora.</p>`;
+  const behCard = (beh.length)? `<div class="card"><p class="eyebrow" style="color:var(--amber)">Por dentro</p><h3 style="margin:2px 0 8px">Evolução do seu padrão</h3>${bSpark(beh.map(p=>p.avg),0,5,'var(--amber)')}<div class="tiny muted" style="margin-top:6px">Média do Mapa (0–5) a cada diagnóstico.${beh.length<2?' Refaça o diagnóstico ao longo do tempo para ver a linha crescer.':''}</div></div>`
+    : `<div class="card"><p class="eyebrow">Por dentro</p><h3 style="margin:2px 0 8px">Evolução do seu padrão</h3><p class="tiny muted">Faça o <b>Diagnóstico</b> para começar a linha comportamental.</p></div>`;
+  const kpiCards=(B.kpis||[]).map(bKpiCard).join('');
+  return `${intro}<div class="grid g-2" style="margin-top:14px">${behCard}${kpiCards}</div>
+    <div class="btn-row mt16"><button class="btn primary" onclick="bAddKpi()">+ Acompanhar um número do negócio</button></div>
+    ${bCorrelation()}`;
+}
+function bKpiCard(k){
+  const vals=k.entries.map(e=>e.v);
+  const last=vals.length?vals[vals.length-1]:null, first=vals.length?vals[0]:null;
+  const delta=(vals.length>1)?(last-first):null;
+  const min=Math.min.apply(null,vals.concat(k.alvo!=null?[k.alvo]:[])), max=Math.max.apply(null,vals.concat(k.alvo!=null?[k.alvo]:[]));
+  return `<div class="card"><div style="display:flex;align-items:baseline;gap:8px"><p class="eyebrow" style="margin:0;color:var(--sage)">Por fora</p><span class="tiny" style="margin-left:auto;cursor:pointer;color:var(--mute-2)" onclick="bDelKpi('${k.id}')">remover</span></div>
+    <h3 style="margin:2px 0 2px">${escapeHtml(k.nome)}</h3>
+    <div style="display:flex;align-items:flex-end;gap:10px;margin:2px 0 8px"><div class="stat-num" style="color:var(--sage)">${last!=null?bFmt(last):'—'}</div><div class="tiny muted">${escapeHtml(k.unidade||'')}${k.alvo!=null?' · alvo '+bFmt(k.alvo):''}${delta!=null?' · '+(delta>=0?'▲ +':'▼ ')+bFmt(delta):''}</div></div>
+    ${vals.length?bSpark(vals,min,max,'var(--sage)'):'<div class="tiny muted">Sem registros ainda.</div>'}
+    <div class="btn-row" style="margin-top:10px"><button class="btn sage sm" onclick="bLogKpi('${k.id}')">Registrar valor de hoje</button></div></div>`;
+}
+function bCorrelation(){
+  const B=Bst(); const beh=bBehaviorSeries(); const kpi=(B.kpis||[]).find(k=>k.entries.length>1);
+  if(beh.length<2||!kpi) return '';
+  const bDelta=beh[beh.length-1].avg-beh[0].avg;
+  const kDelta=kpi.entries[kpi.entries.length-1].v-kpi.entries[0].v;
+  const same=(bDelta>=0)===(kDelta>=0);
+  return `<div class="callout mt16" style="border-color:${same?'var(--sage)':'var(--amber)'}66"><span class="ic">${same?'📈':'🔎'}</span><div>${same?`<b>A prova está na sua frente.</b> Sua média comportamental ${bDelta>=0?'subiu':'recuou'} ${Math.abs(bDelta).toFixed(1)} e, no mesmo período, <b>${escapeHtml(kpi.nome)}</b> ${kDelta>=0?'subiu':'recuou'} ${bFmt(Math.abs(kDelta))}. O padrão e o resultado andam juntos — exatamente como a bússola diz.`:`Comportamento e <b>${escapeHtml(kpi.nome)}</b> ainda apontam para lados diferentes. É normal no começo: o número segue o padrão com atraso. Mantenha os compromissos — a virada vem.`}</div></div>`;
+}
+function bAddKpi(){
+  modal(`<p class="eyebrow">Placar de Blindagem</p><h3>🏆 Acompanhar um número do negócio</h3>
+    <p class="muted tiny">Escolha um indicador que importa e que muda quando VOCÊ muda.</p>
+    <label class="fld" style="margin-top:12px"><span>Nome do indicador</span><input class="in" id="bkNome" placeholder="Ex.: Faturamento do mês"></label>
+    <label class="fld"><span>Unidade (opcional)</span><input class="in" id="bkUn" placeholder="R$, propostas, %…"></label>
+    <label class="fld"><span>Meta / alvo (opcional)</span><input class="in" id="bkAlvo" type="number" inputmode="decimal" placeholder="Ex.: 50000"></label>
+    <label class="fld"><span>Valor de hoje</span><input class="in" id="bkVal" type="number" inputmode="decimal" placeholder="Onde está agora"></label>
+    <div class="btn-row mt16"><button class="btn primary" onclick="bSaveKpi()">Começar a acompanhar</button><button class="btn ghost" onclick="closeModal()">Cancelar</button></div>`);
+}
+function bSaveKpi(){
+  const nome=($('#bkNome').value||'').trim(); if(!nome){ toast('⚠️','Dê um nome ao indicador',''); return; }
+  const un=($('#bkUn').value||'').trim(), alvo=parseFloat($('#bkAlvo').value), val=parseFloat($('#bkVal').value);
+  const B=Bst(); const k={id:'k'+Date.now(),nome,unidade:un,alvo:isNaN(alvo)?null:alvo,entries:[]};
+  if(!isNaN(val)) k.entries.push({t:Date.now(),v:val});
+  B.kpis.unshift(k); addXp(15,'Indicador em acompanhamento'); save(); closeModal(); bTab='placar'; renderBussola();
+}
+function bLogKpi(id){
+  modal(`<p class="eyebrow">Registrar valor</p><h3>Novo ponto no placar</h3>
+    <p class="muted tiny">Cada registro vira um ponto na linha. Registre no seu ritmo (semanal costuma bastar).</p>
+    <label class="fld" style="margin-top:12px"><span>Valor de hoje</span><input class="in" id="bkV2" type="number" inputmode="decimal"></label>
+    <div class="btn-row mt16"><button class="btn sage" onclick="bSaveKpiVal('${id}')">Registrar</button><button class="btn ghost" onclick="closeModal()">Cancelar</button></div>`);
+}
+function bSaveKpiVal(id){
+  const v=parseFloat($('#bkV2').value); if(isNaN(v)){ toast('⚠️','Digite um número',''); return; }
+  const B=Bst(); const k=(B.kpis||[]).find(x=>x.id===id); if(!k)return; k.entries.push({t:Date.now(),v}); if(k.entries.length>60)k.entries.shift();
+  addXp(6,'Placar atualizado'); save(); closeModal(); renderBussola();
+}
+function bDelKpi(id){ const B=Bst(); B.kpis=(B.kpis||[]).filter(x=>x.id!==id); save(); renderBussola(); }
 
 
 /* ===================================================================
