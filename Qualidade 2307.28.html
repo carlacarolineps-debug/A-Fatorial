@@ -4316,9 +4316,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             `Formulário ${insp.lib || ''} · ${insp.etapa} · ${codEt} — confira antes de imprimir.`,
             () => {
                 registrarAtividade(`imprimiu a liberação de setup ${insp.lib || ''} (${insp.etapa} · ${insp.ficha})`);
-                document.body.classList.add('print-mode-fu');
                 window.print();
-                document.body.classList.remove('print-mode-fu');
             });
     }
     function reimprimirLiberacao(idx) { const insp = RB.inspecoes[idx]; if (insp) gerarLiberacaoSetup(insp); }
@@ -5356,6 +5354,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <img src="${a.img}" alt="">
                 <div class="fa-body">
                     <input class="fa-rotulo" value="${(a.rotulo || '').replace(/"/g, '&quot;')}" placeholder="Rótulo (ex.: Arte final)" onchange="fuAnexoRotulo(${a.id}, this.value)">
+                    <select class="fa-rotulo" style="margin-top:5px;" onchange="fuAnexoEtapa(${a.id}, this.value)" title="A folha de anexos sai logo após a folha desta etapa, com o cabeçalho dela">
+                        <option value="">📄 Geral (ficha toda)</option>
+                        ${FU_ETAPAS.map(e => `<option value="${e.key}" ${a.etapa === e.key ? 'selected' : ''}>${e.label}</option>`).join('')}
+                    </select>
                     <div class="fa-acoes">
                         <label style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="radio" name="fu-anexo-main" ${a.principal ? 'checked' : ''} onchange="fuAnexoPrincipal(${a.id})"> Principal</label>
                         <button class="btn-ic" title="Remover anexo" onclick="fuAnexoRemover(${a.id})"><i class="fas fa-xmark"></i></button>
@@ -5364,6 +5366,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             </div>`).join('');
         renderIcons(grid);
     }
+    function fuAnexoEtapa(id, v) { const a = fuAnexos.find(x => x.id === id); if (a) a.etapa = v; }
     function fuAnexoPrincipal(id) { fuAnexos.forEach(a => a.principal = a.id === id); fuRenderAnexos(); }
     function fuAnexoRotulo(id, v) { const a = fuAnexos.find(x => x.id === id); if (a) a.rotulo = v.trim(); }
     function fuAnexoRemover(id) {
@@ -5721,6 +5724,40 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const emitido = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         const obsGeral = (document.getElementById('fu_obs').value || '').trim();
 
+        // Folha de anexos com o cabeçalho e a cor da etapa dona — sai logo após a folha da etapa
+        let nFolhasAnexos = 0;
+        const folhaAnexosHTML = (lista, etLabel, codRef, cor) => {
+            if (!lista.length) return '';
+            nFolhasAnexos++;
+            const principal = lista.find(a => a.principal) || lista[0];
+            const demais = lista.filter(a => a !== principal);
+            return `
+            <div class="fu-page-cap">Folha de Anexos · ${etLabel} · ${codRef} · ${lista.length} imagem(ns)</div>
+            <div class="fu-page">
+                <div class="fup-head" style="border-bottom-color:${cor};">
+                    <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
+                    <div class="fup-doc">
+                        <div class="t" style="color:${cor};">Documentação Visual — Anexos</div>
+                        <div class="e">${etLabel.toUpperCase()} · ${codRef}</div>
+                        <div class="c">Ficha Única ${cod} · acompanha a Instrução de Trabalho</div>
+                    </div>
+                </div>
+                <table class="fup-meta">
+                    <tr><th>Cliente</th><th>Produto</th><th>Código</th><th>Emissão</th></tr>
+                    <tr><td>${g('fu_cliente')}</td><td>${g('fu_produto')}</td><td>${codRef}</td><td>${emitido}</td></tr>
+                </table>
+                <div class="fua-main">
+                    <div class="fua-cap"><span class="tag">★ PRINCIPAL</span> ${principal.rotulo || 'Imagem principal'}</div>
+                    <img src="${principal.img}" alt="">
+                </div>
+                ${demais.length ? `<div class="fua-grid">${demais.map(a => `<div class="fua-item"><div class="c">${a.rotulo || 'Anexo'}</div><img src="${a.img}" alt=""></div>`).join('')}</div>` : ''}
+                <div class="fup-foot">
+                    <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
+                    <span>Emitido por ${currentSessionUser} em ${emitido}</span>
+                </div>
+            </div>`;
+        };
+
         const selecionadas = fluxoSel.filter(e => keys.includes(e.key));
         const paginas = selecionadas.map((et, pIdx) => {
             const codEt = codigoEtapa(cod, fuKeyEfetiva(et.key)) || cod; // código com sufixo da etapa (regra vigente)
@@ -5757,51 +5794,20 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
                     <span>Emitido por ${currentSessionUser} em ${emitido}</span>
                 </div>
-            </div>`;
+            </div>${folhaAnexosHTML(fuAnexos.filter(a => a.etapa === et.key), et.label, codEt, cor)}`;
         }).join('');
 
-        // Folha de anexos: quando há documentação visual, sai uma folha organizada
-        // com a imagem PRINCIPAL em destaque e as demais em grade
-        let folhaAnexos = '';
-        if (fuAnexos.length) {
-            const principal = fuAnexos.find(a => a.principal) || fuAnexos[0];
-            const demais = fuAnexos.filter(a => a !== principal);
-            folhaAnexos = `
-            <div class="fu-page-cap">Folha de Anexos · ${fuAnexos.length} imagem(ns) · ${cod}</div>
-            <div class="fu-page">
-                <div class="fup-head">
-                    <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
-                    <div class="fup-doc">
-                        <div class="t">Documentação Visual — Anexos</div>
-                        <div class="e">${cod}</div>
-                        <div class="c">Ficha Única ${cod} · acompanha as Instruções de Trabalho</div>
-                    </div>
-                </div>
-                <table class="fup-meta">
-                    <tr><th>Cliente</th><th>Produto</th><th>Código</th><th>Emissão</th></tr>
-                    <tr><td>${g('fu_cliente')}</td><td>${g('fu_produto')}</td><td>${cod}</td><td>${emitido}</td></tr>
-                </table>
-                <div class="fua-main">
-                    <div class="fua-cap"><span class="tag">★ PRINCIPAL</span> ${principal.rotulo || 'Imagem principal'}</div>
-                    <img src="${principal.img}" alt="">
-                </div>
-                ${demais.length ? `<div class="fua-grid">${demais.map(a => `<div class="fua-item"><div class="c">${a.rotulo || 'Anexo'}</div><img src="${a.img}" alt=""></div>`).join('')}</div>` : ''}
-                <div class="fup-foot">
-                    <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
-                    <span>Emitido por ${currentSessionUser} em ${emitido}</span>
-                </div>
-            </div>`;
-        }
+        // Anexos gerais (sem etapa) ou de etapas que não entraram nesta impressão
+        const gerais = fuAnexos.filter(a => !a.etapa || !selecionadas.some(e => e.key === a.etapa));
+        const folhaGeral = folhaAnexosHTML(gerais, 'Ficha Completa', cod, '#191040');
 
-        const totalFolhas = keys.length + (folhaAnexos ? 1 : 0);
+        const totalFolhas = keys.length + nFolhasAnexos;
         // Pré-visualização: confere as folhas na tela antes de mandar para a impressora
-        abrirPreviewDoc(paginas + folhaAnexos, 'Pré-visualização — Instruções de Trabalho',
-            `${totalFolhas} folha(s) A4 · Ficha ${cod}${folhaAnexos ? ' · inclui folha de anexos' : ''} · Confira antes de imprimir — nada foi enviado à impressora ainda.`,
+        abrirPreviewDoc(paginas + folhaGeral, 'Pré-visualização — Instruções de Trabalho',
+            `${totalFolhas} folha(s) A4 · Ficha ${cod}${nFolhasAnexos ? ` · ${nFolhasAnexos} folha(s) de anexos` : ''} · Confira antes de imprimir — nada foi enviado à impressora ainda.`,
             () => {
                 registrarAtividade(`imprimiu ${totalFolhas} folha(s) de instrução de trabalho da ficha ${cod}`);
-                document.body.classList.add('print-mode-fu');
                 window.print();
-                document.body.classList.remove('print-mode-fu');
             });
     }
 
@@ -5815,16 +5821,20 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         _previewOnPrint = onPrint || null;
         document.getElementById('fu-preview').classList.add('open');
         document.getElementById('fu-preview-scroll').scrollTop = 0;
+        // Com a pré-visualização aberta, QUALQUER impressão (botão ou Ctrl+P)
+        // sai com os documentos completos — nunca a tela do sistema
+        document.body.classList.add('print-mode-fu');
         renderIcons(document.getElementById('fu-preview'));
     }
-    function fuPreviewFechar() { document.getElementById('fu-preview').classList.remove('open'); }
+    function fuPreviewFechar() {
+        document.getElementById('fu-preview').classList.remove('open');
+        document.body.classList.remove('print-mode-fu');
+    }
     function fuPreviewImprimir() {
         if (_previewOnPrint) { _previewOnPrint(); return; }
         const n = document.querySelectorAll('#fu-print-area .fu-page').length;
         registrarAtividade(`imprimiu ${n} documento(s) de impressão`);
-        document.body.classList.add('print-mode-fu');
-        window.print();
-        document.body.classList.remove('print-mode-fu');
+        window.print(); // o modo de impressão já está ativo com a pré-visualização aberta
     }
 
     // Botão PDF da barra de ações: na Ficha Única imprime por etapa; nas demais, imprime a tela
@@ -6682,9 +6692,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const fuView = document.getElementById('view-form-ficha-unica');
         if (fuView) fuView.addEventListener('input', () => fuAtualizarResumo());
         if (fuView) fuView.addEventListener('paste', fuPasteTabela);
-        // Esc fecha a pré-visualização de impressão
+        // Esc fecha a pré-visualização; Ctrl/Cmd+P nela imprime os documentos
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape' && document.getElementById('fu-preview').classList.contains('open')) fuPreviewFechar();
+            const prevAberta = document.getElementById('fu-preview').classList.contains('open');
+            if (e.key === 'Escape' && prevAberta) fuPreviewFechar();
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p' && prevAberta) { e.preventDefault(); fuPreviewImprimir(); }
         });
     };
 </script>
