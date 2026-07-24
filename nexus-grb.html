@@ -543,7 +543,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .emb-stat{ background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:13px 15px; min-width:0; }
 .emb-stat .l{ font-size:9.5px; text-transform:uppercase; letter-spacing:1.2px; color:#9aa0b0; font-weight:800; white-space:nowrap; }
 .emb-stat .v{ font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:900; margin-top:4px; white-space:nowrap; color:#fff; }
-.emb-stat .s{ font-size:10px; color:#8b90a8; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.emb-stat .s{ font-size:10px; color:#8b90a8; margin-top:3px; white-space:normal; line-height:1.35; }
 .emb-stat .v{ overflow:hidden; text-overflow:ellipsis; }
 .emb-stat.gold .v{ color:var(--nx-gold-bright,#e8cf9a); }
 .emb-stat.green .v{ color:#4fe3b0; }
@@ -1811,71 +1811,6 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </div>
       </div>
 
-      <div class="card-dark" style="margin-bottom:0">
-        <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:10px">
-          <div>
-            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-boxes-stacked mr-2" style="color:var(--accent-gold)"></i> Estoque por tipo (SPED)</div>
-            <div class="card-sub" style="font-size:11.5px">Importado do relatório de <b>posição de estoque</b>, agrupado por tipo (SPED). Abra um tipo para ver as famílias, ou clique para ver a razão completa.</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button x-show="invReqMesesAtivos.length" @click="invReqExpandirTodos()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-plus-square mr-1"></i> Expandir</button>
-            <button x-show="invReqMesesAtivos.length" @click="invReqRecolherTodos()" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-minus-square mr-1"></i> Recolher</button>
-            <button x-show="permEdita && invReqMesesAtivos.length" @click="fatReqEdit=!fatReqEdit" class="emc-btn-secondary text-[11px] py-1.5 px-3"><i class="fas fa-pen mr-1"></i> <span x-text="fatReqEdit?'Concluir edição':'Editar valores'"></span></button>
-          </div>
-        </div>
-        <template x-if="!(empresaExtras.invReq && empresaExtras.invReq.itens.length)">
-          <div style="padding:26px;text-align:center;color:var(--color-muted);font-size:13px;white-space:normal">
-            Nenhum mês importado ainda. Envie o relatório <b>Posição de Estoque</b> no Importador (Configurações Globais): o sistema reconhece o formato sozinho, agrupa por tipo e lança o estoque do mês. As colunas de janeiro a dezembro já estão prontas.
-          </div>
-        </template>
-        <div style="overflow-x:auto" x-show="empresaExtras.invReq && empresaExtras.invReq.itens.length">
-          <table class="dark-table">
-            <thead><tr><th style="min-width:260px">Tipo de estoque</th>
-              <template x-for="m in listaMeses" :key="'iqh'+m.chave"><th class="td-r" :class="invReqMesVazio(m.chave)?'res-future-h':''" :title="invReqMesVazio(m.chave)?'Mês ainda sem posição de estoque: importe o relatório do mês':''" x-text="m.labelData"></th></template>
-              <th class="td-r">Atual</th></tr></thead>
-            <tbody>
-              <template x-for="(r, ri) in invReqRows" :key="'iqr'+ri">
-                <tr :class="r.tipo && !fatReqEdit ? 'nx-drill' : ''"
-                    :style="r.fam ? 'background:rgba(148,163,184,.05)' : ''"
-                    @click="r.tipo && (fatReqEdit || razaoInvReq(r.item))">
-                  <template x-if="r.tipo">
-                    <td>
-                      <span @click.stop="r.item && invReqToggle(r.item.categoria)" style="display:inline-block;width:16px;cursor:pointer" title="Abrir/fechar famílias deste tipo"><i class="fas text-xs" style="color:var(--accent-gold)" :class="(r.item && invReqExpandidoTem(r.item.categoria))?'fa-chevron-down':'fa-chevron-right'"></i></span>
-                      <span class="font-bold text-accent-blue" x-text="r.item.categoria"></span>
-                      <i class="fas fa-magnifying-glass-chart nx-drill-ic" style="font-size:9px;margin-left:7px;color:var(--accent-gold);opacity:0;transition:.15s"></i>
-                    </td>
-                  </template>
-                  <template x-if="r.fam">
-                    <td style="padding-left:34px;color:var(--color-muted)"><i class="fas fa-tag" style="font-size:9px;width:13px;color:var(--color-dim)"></i> <span x-text="r.nome"></span></td>
-                  </template>
-                  <template x-for="m in listaMeses" :key="'iqc'+ri+m.chave">
-                    <td class="td-r" :class="invReqMesVazio(m.chave)?'res-future':''" :style="r.fam?'color:var(--color-muted)':''">
-                      <template x-if="r.tipo && fatReqEdit && permEdita">
-                        <input type="text" inputmode="decimal" class="res-edit-in" @click.stop :value="r.item[m.chave.toLowerCase()] ? fmtNum(r.item[m.chave.toLowerCase()]) : ''" @focus="$event.target.select()" @change="editInvReqCell(r.item, m.chave.toLowerCase(), $event.target.value)">
-                      </template>
-                      <template x-if="r.tipo && !(fatReqEdit && permEdita)"><span x-text="formatarDinheiroExato(r.item[m.chave.toLowerCase()] || 0)"></span></template>
-                      <template x-if="r.fam"><span x-text="formatarDinheiroExato(invReqFamVal(r.categoria, r.nome, m.chave))"></span></template>
-                    </td>
-                  </template>
-                  <td class="td-r font-bold" x-text="formatarDinheiroExato(r.tipo ? (r.item[mesAtivo.toLowerCase()] || 0) : invReqFamVal(r.categoria, r.nome, mesAtivo))"></td>
-                </tr>
-              </template>
-              <tr style="background:rgba(197,168,128,.12);border-top:2px solid var(--accent-gold)">
-                <td class="font-bold text-accent-blue">Posição total <span class="res-nota">todos os códigos</span></td>
-                <template x-for="m in listaMeses" :key="'iqt'+m.chave"><td class="td-r font-bold" :class="invReqMesVazio(m.chave)?'res-future':''" x-text="formatarDinheiroExato(invReqPosicaoTotal(m.chave))"></td></template>
-                <td class="td-r font-bold" x-text="formatarDinheiroExato(invReqPosicaoTotal(mesAtivo))"></td>
-              </tr>
-              <tr style="background:rgba(148,163,184,.06)">
-                <td class="font-bold" style="color:var(--color-muted)">Estoque bruto <span class="res-nota">só IAS</span></td>
-                <template x-for="m in listaMeses" :key="'iqb'+m.chave"><td class="td-r" :class="invReqMesVazio(m.chave)?'res-future':''" style="color:var(--color-muted)" x-text="formatarDinheiroExato(invReqBruto(m.chave))"></td></template>
-                <td class="td-r font-bold" style="color:var(--color-muted)" x-text="formatarDinheiroExato(invReqBruto(mesAtivo))"></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div x-show="empresaExtras.invReq && empresaExtras.invReq.itens.length" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> Esta tabela mostra a <b>posição inteira</b> por classificação fiscal (SPED); o <b>estoque bruto</b> é só os produtos com código <b>IAS</b>. O que entra no Resultado é o <b>estoque líquido</b> (códigos considerados), definido no quadro <b>Estoque por código</b> acima. O estoque é uma foto de cada mês (não soma ao longo do ano).</div>
-      </div>
-
       <div class="ia-insight-box no-print" x-show="analiseInvReq">
         <div class="font-bold mb-6 flex items-center text-accent-blue" style="font-size:16px;"><i class="fas fa-lightbulb mr-2 text-accent-gold"></i> Leitura &amp; Ação · Inventário da Requalificadora</div>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:20px;">
@@ -2979,11 +2914,21 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
     </div>
 
     <div x-show="aba==='resultado_anual'" x-cloak class="print-wrapper">
-      <div class="no-print" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px; margin-bottom: 24px;">
-        <div class="kpi-card blue"><div class="kpi-label">Faturamento Atual (Mês: <span x-text="mesAtivo"></span>)</div><div class="kpi-val text-green-strong" x-text="kpis.faturamento"></div><div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center w-full"><span style="font-size:10px; font-weight:800; color:var(--color-dim); text-transform:uppercase;">Acumulado no ano</span><span style="font-size:12px; font-weight:900; color:var(--accent-blue);" x-text="kpis.faturamentoYTD"></span></div></div>
-        <div class="kpi-card red"><div class="kpi-label">Despesa Atual (Mês: <span x-text="mesAtivo"></span>)</div><div class="kpi-val text-red-strong" x-text="kpis.despesa"></div><div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center w-full"><span style="font-size:10px; font-weight:800; color:var(--color-dim); text-transform:uppercase;">Acumulado no ano</span><span style="font-size:12px; font-weight:900; color:var(--accent-blue);" x-text="kpis.despesaYTD"></span></div></div>
-        <div class="kpi-card green"><div class="kpi-label">Maior Faturamento (Ano)</div><div class="kpi-val text-green-strong" x-text="kpis.maiorFat"></div><div class="kpi-sub mt-auto text-accent-gold font-bold">Pico de Receita</div></div>
-        <div class="kpi-card amber"><div class="kpi-label">Maior Despesa (Ano)</div><div class="kpi-val text-red-strong" x-text="kpis.maiorDesp"></div><div class="kpi-sub mt-auto text-accent-gold font-bold">Pico de Custo</div></div>
+      <div class="emb-hero no-print" style="margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:13px;background:rgba(197,168,128,.16);border:1px solid rgba(197,168,128,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-table" style="color:var(--accent-gold);font-size:19px"></i></div>
+          <div style="min-width:0">
+            <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">DRE Consolidado 2026 · resultado mês a mês</div>
+            <div style="font-size:11.5px;color:#a9adc6">Faturamento, despesas e resultado do exercício, com o acumulado no ano de cada indicador.</div>
+          </div>
+        </div>
+        <div class="emb-hero-grid">
+          <div class="emb-stat gold"><div class="l">Faturamento do mês</div><div class="v" x-text="kpis.faturamento"></div><div class="s"><span x-text="mesAtivo"></span> · acumulado <span x-text="kpis.faturamentoYTD"></span></div></div>
+          <div class="emb-stat red"><div class="l">Despesa do mês</div><div class="v" x-text="kpis.despesa"></div><div class="s"><span x-text="mesAtivo"></span> · acumulado <span x-text="kpis.despesaYTD"></span></div></div>
+          <div class="emb-stat" :class="kpis.resultadoNum < 0 ? 'red' : 'green'"><div class="l">Resultado do mês</div><div class="v" x-text="kpis.resultado"></div><div class="s">acumulado <span x-text="kpis.resultadoYTD"></span></div></div>
+          <div class="emb-stat green"><div class="l">Maior faturamento</div><div class="v" x-text="kpis.maiorFat"></div><div class="s">pico de receita no ano</div></div>
+          <div class="emb-stat"><div class="l">Maior despesa</div><div class="v" x-text="kpis.maiorDesp"></div><div class="s">pico de custo no ano</div></div>
+        </div>
       </div>
       <div class="card-dark print-wrapper">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px" class="no-print">
@@ -3945,7 +3890,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.4';
+const NEXUS_BUILD = '2407.5';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -5177,7 +5122,7 @@ function sistemaUnificado(){
     kpis: { 
         faturamento:'', faturamentoYTD:'',
         despesa:'', despesaYTD:'',
-        resultado:'', resultadoYTD:'',
+        resultado:'', resultadoYTD:'', resultadoNum:0,
         resultadoInv:'', resultadoInvYTD:'', resultadoInvNum:0,
         margem:0, margemYTD:0,
         maiorFat:'', maiorDesp:'',
@@ -7585,17 +7530,25 @@ function sistemaUnificado(){
     invReqTotal(mChave) { return this.invReqBaldeTotal('liquido', mChave); },
     // ESTOQUE BRUTO = INVENTÁRIO / IAS (códigos classificados 'bruto')
     invReqBruto(mChave) { return this.invReqBaldeTotal('bruto', mChave); },
-    // ESTOQUE (linha do DRE) = soma dos dois: bruto (INVENTÁRIO) + líquido (POSIÇÃO DE ESTOQUE)
-    invReqEstoqueDRE(mChave) { return Math.round((this.invReqBruto(mChave) + this.invReqTotal(mChave)) * 100) / 100; },
+    // ESTOQUE (linha do DRE) = bruto (INVENTÁRIO) + líquido (POSIÇÃO DE ESTOQUE) = posição inteira menos o que está "Fora".
+    // Ancora na posição do relatório (soma das famílias) para bater exatamente com a planilha do cliente,
+    // descontando só os códigos marcados como "Fora" — evita centavo de diferença por dupla arredondamento.
+    invReqEstoqueDRE(mChave) {
+      const iv = this.empresaExtras.invReq; if (!iv) return 0;
+      const mk = String(mChave).toLowerCase();
+      const posRaw = (iv.itens || []).reduce((a, i) => a + (i[mk] || 0), 0);
+      const foraRaw = (iv.grupos || []).reduce((a, g) => a + (this.invReqClassif(g.cod) === 'fora' ? (g[mk] || 0) : 0), 0);
+      return Math.round((posRaw - foraRaw) * 100) / 100;
+    },
     invReqExcluidoTotal(mChave) { return this.invReqBaldeTotal('fora', mChave); },
     // Aba ativa do inventário: 'todos' | 'bruto' | 'liquido'
-    invReqAba: 'todos',
+    invReqAba: 'bruto',
     invReqExpCod: [],   // códigos expandidos (mostrando as famílias)
     invReqAbas() {
       return [
-        { id: 'todos', nome: 'Todos os códigos', balde: null },
         { id: 'bruto', nome: 'Estoque bruto', balde: 'bruto' },
         { id: 'liquido', nome: 'Estoque líquido', balde: 'liquido' },
+        { id: 'todos', nome: 'Todos os códigos', balde: null },
       ];
     },
     // Grupos por código exibidos na aba ativa (todos, ou só os do balde da aba)
@@ -8652,6 +8605,7 @@ function sistemaUnificado(){
       this.kpis.faturamento = this.formatarDinheiroExato(rFat);
       this.kpis.despesa = this.formatarDinheiroExato(rDesp);
       this.kpis.resultado = this.formatarDinheiroExato(rOp);
+      this.kpis.resultadoNum = rOp;
       this.kpis.resultadoInv = this.formatarDinheiroExato(rInv);
       this.kpis.resultadoInvNum = rInv;
       this.kpis.margem = rFat>0 ? ((rOp/rFat)*100).toFixed(2) : 0;
