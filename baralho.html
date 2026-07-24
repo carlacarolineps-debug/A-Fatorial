@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Bússola — Baralho Estratégico de Autogestão: 170 cartas de auto-mentoria em gestão, liderança e comportamento. Por Carla Caroline · A! Fatorial.">
+<title>Bússola — Baralho Estratégico · A! Fatorial</title>
+<style>*{margin:0;padding:0;}html,body{margin:0;padding:0;}</style>
+</head>
+<body>
+<style>
+/* ============================================================
+   BÚSSOLA — Baralho Estratégico de Autogestão
+   Identidade: Obsidiana & Ouro · naipes em pedras preciosas
+   Fontes de sistema (sem CDN) · tema escuro padrão + claro
+   ============================================================ */
+:root{
+  --bg:#0a090f;            /* obsidiana */
+  --bg-2:#100e18;
+  --bg-3:#161320;
+  --surface:#151320;
+  --surface-2:#1c1930;
+  --ink:#f3ecdf;           /* pergaminho */
+  --ink-soft:#b8afc4;
+  --ink-faint:#7b7390;
+  --line:rgba(233,210,150,.14);
+  --line-soft:rgba(255,255,255,.07);
+  --gold:#d9b45f;
+  --gold-bright:#f2d891;
+  --gold-deep:#a4802f;
+  --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 46%,var(--gold-deep));
+  --ok:#67c98b; --bad:#e0687a; --warn:#f2a65a;
+  --r:18px; --r-sm:11px; --r-lg:26px;
+  --card-w:300px; --card-h:428px;
+  --shadow:0 2px 8px rgba(0,0,0,.4),0 30px 70px -30px rgba(0,0,0,.7);
+  --font-display:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,'Times New Roman',serif;
+  --font-body:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+:root[data-theme="light"]{
+  --bg:#f4efe4; --bg-2:#efe8d9; --bg-3:#e9e0cd;
+  --surface:#fffdf7; --surface-2:#f7f1e4;
+  --ink:#231d12; --ink-soft:#5f5646; --ink-faint:#928873;
+  --line:rgba(120,95,30,.2); --line-soft:rgba(60,45,15,.1);
+  --gold:#a67c23; --gold-bright:#c79a3a; --gold-deep:#7c5c17;
+  --shadow:0 2px 8px rgba(80,60,20,.1),0 24px 60px -30px rgba(80,60,20,.32);
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    --bg:#f4efe4; --bg-2:#efe8d9; --bg-3:#e9e0cd;
+    --surface:#fffdf7; --surface-2:#f7f1e4;
+    --ink:#231d12; --ink-soft:#5f5646; --ink-faint:#928873;
+    --line:rgba(120,95,30,.2); --line-soft:rgba(60,45,15,.1);
+    --gold:#a67c23; --gold-bright:#c79a3a; --gold-deep:#7c5c17;
+    --shadow:0 2px 8px rgba(80,60,20,.1),0 24px 60px -30px rgba(80,60,20,.32);
+  }
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;font-family:var(--font-body);color:var(--ink);
+  background:
+    radial-gradient(1200px 700px at 78% -8%, rgba(185,140,224,.10), transparent 60%),
+    radial-gradient(1000px 620px at 6% 4%, rgba(217,180,95,.09), transparent 58%),
+    var(--bg);
+  -webkit-font-smoothing:antialiased;line-height:1.55;overflow-x:hidden;
+}
+.wrap{max-width:1280px;margin:0 auto;padding:0 22px;}
+a{color:inherit;}
+::selection{background:rgba(217,180,95,.28);}
+
+/* ---------- Topbar ---------- */
+.topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);
+  background:linear-gradient(to bottom,rgba(10,9,15,.86),rgba(10,9,15,.55));
+  border-bottom:1px solid var(--line);}
+:root[data-theme="light"] .topbar,
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .topbar{background:linear-gradient(to bottom,rgba(244,239,228,.9),rgba(244,239,228,.6));}}
+.topbar-in{display:flex;align-items:center;gap:16px;height:62px;}
+.brand{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.brand .seal{width:38px;height:38px;border-radius:50%;background:var(--gold-grad);
+  display:grid;place-items:center;color:#1a1206;font-weight:800;font-size:18px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.2) inset,0 6px 18px -6px rgba(217,180,95,.7);}
+.brand b{font-family:var(--font-display);font-weight:600;font-size:19px;letter-spacing:.5px;line-height:1;}
+.brand span{display:block;font-size:9.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);margin-top:3px;}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.icon-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);
+  cursor:pointer;font-size:16px;display:grid;place-items:center;transition:.18s var(--ease);}
+.icon-btn:hover{color:var(--gold-bright);border-color:var(--gold);background:rgba(217,180,95,.08);transform:translateY(-1px);}
+.btn{border:none;cursor:pointer;font-family:inherit;font-weight:600;border-radius:12px;transition:.2s var(--ease);
+  display:inline-flex;align-items:center;gap:9px;white-space:nowrap;}
+.btn-gold{background:var(--gold-grad);color:#1a1206;padding:11px 20px;font-size:13.5px;letter-spacing:.2px;
+  box-shadow:0 8px 22px -10px rgba(217,180,95,.75);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px rgba(217,180,95,.85);}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink);padding:10px 16px;font-size:13px;}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-bright);}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;text-align:center;padding:64px 0 40px;overflow:hidden;}
+.hero .eyebrow{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:22px;}
+.hero h1{font-family:var(--font-display);font-weight:600;letter-spacing:.5px;
+  font-size:clamp(38px,7vw,74px);line-height:1.02;margin:0 auto;max-width:16ch;text-wrap:balance;}
+.hero h1 em{font-style:italic;color:var(--gold-bright);}
+.hero .lede{max-width:60ch;margin:22px auto 0;color:var(--ink-soft);font-size:clamp(15px,2vw,17.5px);}
+.compass{width:230px;height:230px;margin:6px auto 30px;position:relative;}
+.compass .ring{position:absolute;inset:0;border-radius:50%;border:1px solid var(--line);}
+.compass .ring.spin{background:conic-gradient(from 0deg,transparent,rgba(217,180,95,.5),transparent 30%,transparent 55%,rgba(185,140,224,.4),transparent 85%);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));
+  animation:spin 18s linear infinite;}
+.compass .ring.r2{inset:26px;opacity:.6;}
+.compass .ring.r3{inset:58px;opacity:.4;}
+.compass .needle{position:absolute;left:50%;top:50%;width:2px;height:82px;transform-origin:bottom center;
+  transform:translate(-50%,-100%) rotate(32deg);background:linear-gradient(to top,transparent,var(--gold-bright));
+  filter:drop-shadow(0 0 6px rgba(242,216,145,.8));animation:sway 6s var(--ease) infinite;}
+.compass .core{position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;transform:translate(-50%,-50%);
+  background:var(--gold-grad);box-shadow:0 0 22px 4px rgba(217,180,95,.5);}
+.compass .card-mini{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--font-display);
+  font-size:44px;color:var(--gold-bright);opacity:.9;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes sway{0%,100%{transform:translate(-50%,-100%) rotate(28deg);}50%{transform:translate(-50%,-100%) rotate(40deg);}}
+@media (prefers-reduced-motion:reduce){.compass .ring.spin,.compass .needle{animation:none;}}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
+
+/* ---------- Bússola / manifesto quote ---------- */
+.bussola{max-width:900px;margin:8px auto 0;padding:30px 34px;border-radius:var(--r-lg);
+  border:1px solid var(--line);background:linear-gradient(135deg,rgba(217,180,95,.08),rgba(185,140,224,.05));
+  position:relative;text-align:center;}
+.bussola::before{content:"✦";position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  background:var(--bg);color:var(--gold);padding:0 12px;font-size:16px;}
+.bussola q{font-family:var(--font-display);font-style:italic;font-size:clamp(19px,3vw,26px);line-height:1.35;quotes:none;text-wrap:balance;}
+.bussola q b{color:var(--gold-bright);font-style:normal;}
+.bussola .sig{margin-top:14px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);}
+
+/* ---------- How-to strip ---------- */
+.howto{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:46px auto 8px;}
+.howto .step{padding:20px;border:1px solid var(--line-soft);border-radius:var(--r);background:var(--surface);}
+.howto .n{font-family:var(--font-display);font-size:13px;color:var(--gold);letter-spacing:1px;}
+.howto h4{margin:8px 0 6px;font-size:15px;}
+.howto p{margin:0;font-size:12.5px;color:var(--ink-soft);line-height:1.5;}
+@media(max-width:820px){.howto{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- Levels legend ---------- */
+.legend{display:flex;flex-wrap:wrap;gap:10px 26px;justify-content:center;margin:26px auto 0;
+  padding:16px;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);}
+.legend .li{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink-soft);}
+.legend .li b{color:var(--ink);font-weight:600;}
+.legend .pip{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(217,180,95,.6);}
+
+/* ---------- Controls ---------- */
+.controls{position:sticky;top:62px;z-index:30;padding:16px 0;margin-top:20px;
+  background:linear-gradient(to bottom,var(--bg) 60%,rgba(10,9,15,0));}
+:root[data-theme="light"] .controls,
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .controls{background:linear-gradient(to bottom,var(--bg) 60%,transparent);}}
+.search{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:11px 16px;max-width:520px;margin:0 auto 14px;}
+.search input{flex:1;background:none;border:none;outline:none;color:var(--ink);font-family:inherit;font-size:14px;}
+.search input::placeholder{color:var(--ink-faint);}
+.suits{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;}
+.suit-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font-size:12.5px;font-weight:500;
+  transition:.18s var(--ease);white-space:nowrap;}
+.suit-chip .g{font-size:14px;line-height:1;}
+.suit-chip:hover{transform:translateY(-1px);color:var(--ink);}
+.suit-chip.on{color:#100e18;font-weight:700;border-color:transparent;}
+.suit-chip .ct{opacity:.7;font-variant-numeric:tabular-nums;font-size:11px;}
+.counter{text-align:center;margin:16px 0 6px;font-size:12.5px;color:var(--ink-faint);}
+.counter b{color:var(--gold);font-variant-numeric:tabular-nums;}
+
+/* ---------- Deck grid ---------- */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-w),1fr));gap:26px;padding:14px 0 60px;}
+.section-head{grid-column:1/-1;display:flex;align-items:baseline;gap:14px;margin:28px 4px 2px;}
+.section-head .g{font-size:22px;}
+.section-head h3{font-family:var(--font-display);font-size:22px;margin:0;font-weight:600;}
+.section-head span{color:var(--ink-faint);font-size:12.5px;letter-spacing:.5px;}
+.section-head .rule{flex:1;height:1px;background:var(--line);}
+
+/* ---------- The Card (flip) ---------- */
+.card{perspective:1600px;height:var(--card-h);cursor:pointer;}
+.card-inner{position:relative;width:100%;height:100%;transition:transform .7s var(--ease);transform-style:preserve-3d;}
+.card.flip .card-inner{transform:rotateY(180deg);}
+.face{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden;
+  border:1px solid var(--suit,#d9b45f);background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;}
+.card:hover .card-inner{box-shadow:0 40px 90px -40px rgba(0,0,0,.85);}
+.card:hover .front{transform:translateY(-4px);transition:transform .3s var(--ease);}
+
+/* FRONT */
+.front{background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb,var(--suit) 26%, transparent), transparent 60%),
+    linear-gradient(170deg,var(--surface-2),var(--surface));
+  padding:20px 20px 18px;}
+.front::after{content:"";position:absolute;inset:8px;border:1px solid color-mix(in srgb,var(--suit) 34%, transparent);border-radius:12px;pointer-events:none;}
+.corner{position:absolute;font-family:var(--font-display);line-height:1;color:var(--suit);z-index:2;}
+.corner.tl{top:16px;left:16px;text-align:center;}
+.corner.br{bottom:16px;right:16px;text-align:center;transform:rotate(180deg);}
+.corner .num{font-size:16px;font-weight:600;letter-spacing:.5px;}
+.corner .g{font-size:15px;display:block;margin-top:2px;}
+.front-mid{margin:auto;text-align:center;padding:6px 8px;z-index:1;}
+.front-mid .bigglyph{font-size:52px;color:var(--suit);filter:drop-shadow(0 0 20px color-mix(in srgb,var(--suit) 55%, transparent));}
+.front-mid .naipe-lab{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--suit);margin-top:14px;font-weight:600;}
+.front-mid h4{font-family:var(--font-display);font-size:23px;margin:8px 6px 0;font-weight:600;line-height:1.15;text-wrap:balance;}
+.front-mid .seed-tag{display:inline-block;margin-top:12px;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gold-bright);border:1px solid var(--gold);border-radius:100px;padding:3px 10px;}
+.front-foot{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--ink-faint);z-index:2;}
+.mini-levels{display:flex;gap:5px;justify-content:center;margin-top:14px;}
+.mini-levels .ml{display:flex;gap:2px;}
+.mini-levels .dot{width:5px;height:5px;border-radius:50%;background:var(--line);}
+.mini-levels .dot.on{background:var(--suit);}
+
+/* BACK */
+.back{transform:rotateY(180deg);background:linear-gradient(180deg,var(--surface-2),var(--surface));
+  padding:0;overflow-y:auto;overflow-x:hidden;}
+.back-head{position:sticky;top:0;background:linear-gradient(180deg,var(--surface-2),color-mix(in srgb,var(--surface-2) 85%,transparent));
+  padding:15px 18px 12px;border-bottom:1px solid var(--line-soft);z-index:2;backdrop-filter:blur(4px);}
+.back-head .kick{display:flex;align-items:center;gap:8px;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--suit);font-weight:600;}
+.back-head h4{font-family:var(--font-display);font-size:18px;margin:5px 0 0;font-weight:600;line-height:1.15;}
+.back-body{padding:12px 18px 16px;display:flex;flex-direction:column;gap:11px;}
+.blk .lab{font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;}
+.blk p{margin:0;font-size:12.3px;color:var(--ink-soft);line-height:1.5;}
+.blk p b{color:var(--ink);font-weight:600;}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);}
+.infl{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.infl .ib{padding:9px 11px;border-radius:10px;font-size:11.5px;line-height:1.45;}
+.infl .pos{background:rgba(103,201,139,.1);border:1px solid rgba(103,201,139,.28);}
+.infl .neg{background:rgba(224,104,122,.1);border:1px solid rgba(224,104,122,.28);}
+.infl .ih{font-weight:700;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;display:block;}
+.infl .pos .ih{color:var(--ok);} .infl .neg .ih{color:var(--bad);}
+.levels{display:flex;flex-direction:column;gap:7px;}
+.lvl{display:grid;grid-template-columns:76px 1fr 22px;align-items:center;gap:9px;}
+.lvl .ln{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-faint);}
+.lvl .bar{height:6px;border-radius:100px;background:var(--line);overflow:hidden;}
+.lvl .fill{height:100%;border-radius:100px;background:var(--suit);box-shadow:0 0 10px color-mix(in srgb,var(--suit) 60%,transparent);}
+.lvl .lv{font-size:11px;font-weight:700;color:var(--suit);text-align:right;font-variant-numeric:tabular-nums;}
+.tool{background:rgba(217,180,95,.07);border:1px solid var(--line);border-radius:12px;padding:11px 12px;}
+.tool .lab{color:var(--gold-bright);}
+.tool textarea{width:100%;margin-top:8px;background:var(--bg-2);border:1px solid var(--line-soft);border-radius:9px;
+  color:var(--ink);font-family:inherit;font-size:12px;padding:9px 10px;resize:vertical;min-height:60px;outline:none;line-height:1.5;}
+.tool textarea:focus{border-color:var(--gold);}
+.tool .saved{font-size:9.5px;color:var(--ok);margin-top:5px;height:12px;letter-spacing:.5px;}
+.back-foot{padding:11px 18px 15px;border-top:1px solid var(--line-soft);}
+.back-foot .compass-line{font-family:var(--font-display);font-style:italic;font-size:11.5px;color:var(--ink-soft);line-height:1.4;text-align:center;}
+.back-foot .compass-line b{color:var(--gold);font-style:normal;}
+.flip-hint{position:absolute;top:14px;right:16px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);z-index:3;}
+
+/* ---------- Tools section ---------- */
+.tools-sec{padding:56px 0;border-top:1px solid var(--line);margin-top:30px;}
+.sec-title{text-align:center;margin-bottom:8px;}
+.sec-title .eyebrow{font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.sec-title h2{font-family:var(--font-display);font-size:clamp(28px,4vw,40px);margin:10px 0 0;font-weight:600;text-wrap:balance;}
+.sec-title p{color:var(--ink-soft);max-width:56ch;margin:12px auto 0;}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:38px;}
+@media(max-width:840px){.tool-grid{grid-template-columns:1fr;}}
+.wtool{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px;}
+.wtool h3{font-family:var(--font-display);font-size:21px;margin:0 0 4px;font-weight:600;}
+.wtool .sub{color:var(--ink-faint);font-size:12.5px;margin-bottom:18px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:6px;}
+.field input[type=text],.field textarea{width:100%;background:var(--bg-2);border:1px solid var(--line-soft);border-radius:10px;
+  color:var(--ink);font-family:inherit;font-size:13.5px;padding:11px 13px;outline:none;resize:vertical;}
+.field input:focus,.field textarea:focus{border-color:var(--gold);}
+.slider-row{display:flex;align-items:center;gap:16px;}
+.slider-row input[type=range]{flex:1;accent-color:var(--gold);}
+.slider-val{font-family:var(--font-display);font-size:34px;color:var(--gold-bright);width:64px;text-align:center;font-variant-numeric:tabular-nums;}
+.gauge-note{font-size:12px;color:var(--ink-soft);min-height:34px;}
+.wheel-wrap{display:flex;flex-direction:column;gap:9px;}
+.wheel-row{display:grid;grid-template-columns:120px 1fr 30px;align-items:center;gap:10px;}
+.wheel-row label{font-size:12px;color:var(--ink-soft);text-transform:none;letter-spacing:0;}
+.wheel-row input{accent-color:var(--gold);}
+.wheel-row .v{font-family:var(--font-display);color:var(--gold-bright);text-align:right;}
+
+/* ---------- Draw modal ---------- */
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(6,5,10,.82);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .3s;}
+.overlay.on{display:flex;opacity:1;}
+.overlay .draw-stage{width:var(--card-w);height:var(--card-h);position:relative;}
+.overlay .draw-close{position:absolute;top:-46px;right:0;color:var(--ink-soft);background:none;border:none;font-size:26px;cursor:pointer;}
+.overlay .draw-again{position:absolute;bottom:-58px;left:50%;transform:translateX(-50%);}
+.draw-stage .card{height:var(--card-h);animation:dealIn .6s var(--ease);}
+@keyframes dealIn{from{transform:translateY(40px) scale(.9) rotate(-4deg);opacity:0;}to{transform:none;opacity:1;}}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--line);padding:40px 0 60px;text-align:center;color:var(--ink-faint);font-size:12.5px;}
+footer .fbrand{font-family:var(--font-display);font-size:17px;color:var(--ink);margin-bottom:6px;}
+footer .fq{font-style:italic;color:var(--gold);max-width:50ch;margin:0 auto 14px;}
+
+/* ---------- Print: card sheet ---------- */
+@media print{
+  @page{size:A4;margin:12mm;}
+  body{background:#fff;color:#111;}
+  .topbar,.hero,.controls,.tools-sec,footer,.overlay,.howto,.legend,.bussola,.flip-hint,.mini-levels{display:none !important;}
+  .wrap{max-width:none;padding:0;}
+  .deck{display:block;padding:0;}
+  .section-head{page-break-before:always;border-bottom:2px solid #111;margin:0 0 6mm;padding-bottom:2mm;}
+  .section-head .rule{display:none;}
+  .card{height:auto;page-break-inside:avoid;display:inline-block;width:86mm;vertical-align:top;margin:0 3mm 5mm 0;perspective:none;}
+  .card-inner{transform:none !important;position:static;}
+  .face{position:static;border:1px solid #333;box-shadow:none;background:#fff;color:#111;-webkit-backface-visibility:visible;backface-visibility:visible;}
+  .front{display:none;}
+  .back{transform:none;overflow:visible;height:auto;}
+  .back-head{position:static;background:#fff;}
+  .tool textarea{min-height:52px;border:1px solid #999;}
+  .blk p,.blk .lab,.back-head h4,.back-foot .compass-line{color:#111 !important;}
+}
+</style>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand" onclick="scrollTo({top:0,behavior:'smooth'})">
+      <div class="seal">A!</div>
+      <div><b>Bússola</b><span>Baralho Estratégico</span></div>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-ghost" onclick="window.print()">⤓ Imprimir cartas</button>
+      <button class="icon-btn" id="themeBtn" title="Alternar tema" onclick="toggleTheme()">☾</button>
+      <button class="btn btn-gold" onclick="drawCard()">✦ Puxar uma carta</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="compass" aria-hidden="true">
+      <div class="ring spin"></div><div class="ring r2"></div><div class="ring r3"></div>
+      <div class="card-mini">✦</div><div class="needle"></div><div class="core"></div>
+    </div>
+    <div class="eyebrow">Auto-mentoria estratégica · 170 cartas</div>
+    <h1>O baralho que revela como seus <em>padrões</em> governam seus resultados</h1>
+    <p class="lede">Não são dicas. É uma mentoria de mesa: 170 cartas divididas em 10 naipes que conduzem você
+      da clareza do objetivo até a raiz dos comportamentos que repetem — ou quebram — seus resultados.</p>
+    <div class="hero-cta">
+      <button class="btn btn-gold" onclick="drawCard()">✦ Puxar uma carta agora</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('deck').scrollIntoView({behavior:'smooth'})">Ver o baralho</button>
+    </div>
+  </section>
+
+  <!-- BÚSSOLA -->
+  <div class="bussola">
+    <q>Seus padrões de comportamento <b>definem</b> seus acontecimentos.</q>
+    <div class="sig">— Carla Caroline · a bússola deste baralho</div>
+  </div>
+
+  <!-- HOW TO -->
+  <div class="howto">
+    <div class="step"><div class="n">Passo 01</div><h4>Puxe ou escolha</h4><p>Sorteie uma carta para o ritual do dia, ou navegue por naipe conforme o desafio do momento.</p></div>
+    <div class="step"><div class="n">Passo 02</div><h4>Vire a carta</h4><p>Toque para ver o verso: por que ela importa, os resultados possíveis e a influência sobre o positivo e o negativo.</p></div>
+    <div class="step"><div class="n">Passo 03</div><h4>Aplique na hora</h4><p>Cada carta traz uma ferramenta para você preencher imediatamente. O que você escreve fica salvo no aparelho.</p></div>
+    <div class="step"><div class="n">Passo 04</div><h4>Leia os níveis</h4><p>Força, Potência, Efetividade e Facilidade indicam o peso de cada carta na sua mão — como num baralho de verdade.</p></div>
+  </div>
+
+  <!-- LEVELS LEGEND -->
+  <div class="legend">
+    <div class="li"><span class="pip"></span><b>Força</b> — peso estratégico da carta</div>
+    <div class="li"><span class="pip"></span><b>Potência</b> — impacto potencial no resultado</div>
+    <div class="li"><span class="pip"></span><b>Efetividade</b> — confiabilidade do efeito ao aplicar</div>
+    <div class="li"><span class="pip"></span><b>Facilidade</b> — quão simples é começar a usar</div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls" id="deck">
+    <div class="search">
+      <span style="color:var(--ink-faint)">⌕</span>
+      <input id="q" type="text" placeholder="Buscar por tema, palavra ou pergunta…" oninput="render()">
+    </div>
+    <div class="suits" id="suits"></div>
+    <div class="counter" id="counter"></div>
+  </div>
+
+  <!-- DECK -->
+  <div class="deck" id="grid"></div>
+
+  <!-- TOOLS -->
+  <section class="tools-sec">
+    <div class="sec-title">
+      <div class="eyebrow">Ferramentas de campo</div>
+      <h2>Três instrumentos para usar agora</h2>
+      <p>A mentoria acontece quando você preenche. Estes instrumentos ficam salvos no seu aparelho e viajam com você a cada nova sessão.</p>
+    </div>
+    <div class="tool-grid">
+      <div class="wtool">
+        <h3>◈ Bússola de Padrões</h3>
+        <div class="sub">O instrumento central. Torne consciente o padrão que governa seus resultados.</div>
+        <div class="field"><label>1 · Que resultado se repete na sua vida (bom ou ruim)?</label><textarea id="bp1" rows="2"></textarea></div>
+        <div class="field"><label>2 · A quem esse padrão está ligado (a herança de quem)?</label><textarea id="bp2" rows="2"></textarea></div>
+        <div class="field"><label>3 · Qual o ganho oculto de manter o padrão?</label><textarea id="bp3" rows="2"></textarea></div>
+        <div class="field"><label>4 · Qual novo comportamento quebra o ciclo hoje?</label><textarea id="bp4" rows="2"></textarea></div>
+      </div>
+      <div class="wtool">
+        <h3>◎ Termômetro de Compromisso</h3>
+        <div class="sub">De 0 a 10: quanto você está disposto a se desenvolver e aplicar?</div>
+        <div class="slider-row">
+          <input type="range" id="commit" min="0" max="10" value="7" oninput="commitNote()">
+          <div class="slider-val" id="commitVal">7</div>
+        </div>
+        <div class="gauge-note" id="commitNote"></div>
+        <div class="field" style="margin-top:16px"><label>Em quanto tempo isso vira prioridade para você começar?</label><input type="text" id="commitWhen" placeholder="Ex.: nos próximos 7 dias"></div>
+        <div class="field"><label>O 1º passo mínimo que você dá em 24 horas</label><input type="text" id="commitStep" placeholder="Uma ação pequena e concreta"></div>
+
+        <h3 style="margin-top:26px">▲ Plano de 1 Página</h3>
+        <div class="sub">Da intenção ao movimento — o essencial numa tela.</div>
+        <div class="field"><label>Objetivo em uma frase</label><input type="text" id="p1"></div>
+        <div class="field"><label>Como vou medir o progresso</label><input type="text" id="p2"></div>
+        <div class="field"><label>Maior obstáculo — e como o contorno</label><input type="text" id="p3"></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="exportNotes()">⤓ Exportar meu caderno</button>
+      <button class="btn btn-ghost" onclick="clearNotes()">Limpar anotações</button>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="fbrand">✦ Bússola — Baralho Estratégico</div>
+    <p class="fq">"Seus padrões de comportamento definem seus acontecimentos."</p>
+    <p>Auto-mentoria de gestão, liderança e comportamento · por Carla Caroline · Ecossistema A! Fatorial</p>
+  </div>
+</footer>
+
+<!-- DRAW OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="draw-stage" id="drawStage">
+    <button class="draw-close" onclick="closeDraw()" aria-label="Fechar">✕</button>
+    <div id="drawSlot"></div>
+    <button class="btn btn-gold draw-again" onclick="drawCard()">✦ Puxar outra</button>
+  </div>
+</div>
+
+<script>
+/* ============================ DADOS ============================ */
+const NAIPES=[
+  {k:'direcao',   nome:'Direção',   sub:'Clareza & Propósito',            g:'◎', hue:'#e8c877'},
+  {k:'plano',     nome:'Plano',     sub:'Estratégia & Planejamento',      g:'⬡', hue:'#57c7c7'},
+  {k:'execucao',  nome:'Execução',  sub:'Disciplina & Ação',              g:'✳', hue:'#f2a65a'},
+  {k:'padroes',   nome:'Padrões',   sub:'A Bússola do Comportamento',     g:'✦', hue:'#b98ce0'},
+  {k:'mente',     nome:'Mente',     sub:'Mentalidade & Crenças',          g:'❖', hue:'#6fa8e5'},
+  {k:'forcas',    nome:'Forças',    sub:'Autoconhecimento & Talento',     g:'◆', hue:'#67c98b'},
+  {k:'lideranca', nome:'Liderança', sub:'Gestão & Posicionamento',        g:'♛', hue:'#e0687a'},
+  {k:'sabotagem', nome:'Sombra',    sub:'Medos & Autossabotagem',         g:'☾', hue:'#9aa7be'},
+  {k:'identidade',nome:'Identidade',sub:'Autenticidade & Autoimagem',     g:'✧', hue:'#e27bb8'},
+  {k:'resultados',nome:'Resultados',sub:'Mensuração & Gestão',            g:'▲', hue:'#b7ce5a'},
+];
+const NMAP=Object.fromEntries(NAIPES.map(n=>[n.k,n]));
+
+/* Campos por carta:
+   n=naipe · t=título · s=carta-semente(pergunta) · q=pergunta-guia
+   w=por que importa · r=relevância · o=resultados possíveis
+   p=influência positiva · m=influência negativa · x=ferramenta (preencher)
+   lv=[Força,Potência,Efetividade,Facilidade] (1–5) · dim=dimensão */
+const D=[
+/* ================= DIREÇÃO ================= */
+{n:'direcao',t:'O Alvo',s:1,q:'O que você busca alcançar?',dim:'Estratégia',
+ w:'Sem alvo declarado, toda energia vira dispersão. É a primeira carta porque nada se planeja em torno do vago.',
+ r:'Define o destino que dá sentido a cada decisão de negócio e de rotina.',
+ o:'Clareza sobre onde investir tempo, dinheiro e foco — e o que recusar.',
+ p:'Um alvo nítido alinha ações, atrai recursos e acelera escolhas.',
+ m:'Alvo difuso gera esforço que não soma e frustração de andar sem sair do lugar.',
+ x:'Escreva, em uma frase, o que você busca alcançar — e a data.',lv:[5,5,4,4]},
+{n:'direcao',t:'O Porquê Maior',dim:'Propósito',
+ w:'A meta responde “o quê”; o propósito responde “por quê” — e é o porquê que sustenta você nos dias difíceis.',
+ r:'Conecta o objetivo a um motivo que não se esgota, dando combustível de longo prazo.',
+ o:'Persistência quando a motivação some e coerência nas decisões.',
+ p:'Um porquê forte transforma disciplina em consequência natural.',
+ m:'Sem propósito, a primeira dificuldade parece motivo para desistir.',
+ x:'Complete: “Eu quero isso porque, no fundo, ______.” Vá fundo até doer um pouco.',lv:[5,5,4,3]},
+{n:'direcao',t:'A Visão de 3 Anos',dim:'Estratégia',
+ w:'Decisões de hoje só fazem sentido contra um futuro imaginado. A visão é a régua do presente.',
+ r:'Dá horizonte à estratégia e evita otimizar o urgente às custas do importante.',
+ o:'Prioridades que se sustentam no tempo e menos zigue-zague.',
+ p:'Uma visão vívida orienta escolhas grandes com serenidade.',
+ m:'Sem visão, você reage ao mercado em vez de conduzir seu jogo.',
+ x:'Descreva um dia da sua vida daqui a 3 anos, no presente do indicativo.',lv:[4,5,4,3]},
+{n:'direcao',t:'Objetivo em Uma Frase',dim:'Estratégia',
+ w:'O que não cabe numa frase ainda não está claro na sua cabeça. Síntese é sinal de domínio.',
+ r:'Transforma intenção difusa em meta comunicável e mensurável.',
+ o:'Alinhamento imediato de você e de quem trabalha com você.',
+ p:'Frase única vira bússola de reuniões, vendas e rotina.',
+ m:'Objetivo comprido e vago não gera compromisso nem cobrança.',
+ x:'Reduza seu objetivo a uma frase com verbo, número e prazo.',lv:[4,4,5,5]},
+{n:'direcao',t:'O Não-Objetivo',dim:'Estratégia',
+ w:'Estratégia é tanto o que você faz quanto o que decide não fazer. O “não” protege o alvo.',
+ r:'Clareza sobre o que recusar evita dispersão de recursos escassos.',
+ o:'Foco preservado e energia concentrada no que move o ponteiro.',
+ p:'Dizer não a bons projetos libera espaço para os ótimos.',
+ m:'Sem não-objetivo, tudo vira prioridade e nada avança de verdade.',
+ x:'Liste 3 coisas que você vai deliberadamente NÃO perseguir neste ciclo.',lv:[4,4,4,4]},
+{n:'direcao',t:'O Custo da Inação',dim:'Mentalidade',
+ w:'Ficar parado também tem preço — só que ele é invisível até você calculá-lo.',
+ r:'Torna o risco de não agir tão concreto quanto o risco de agir.',
+ o:'Urgência saudável e menos adiamento por “mais um tempinho”.',
+ p:'Ver o custo de não mudar destrava decisões travadas há meses.',
+ m:'Ignorar o custo da inércia faz a zona de conforto parecer segura.',
+ x:'Calcule: o que continuar como está te custa em 12 meses (dinheiro, tempo, paz)?',lv:[4,5,4,4]},
+{n:'direcao',t:'O Critério do Sim',dim:'Estratégia',
+ w:'Sem critério, você decide pelo humor. Com critério, você decide pelo alvo.',
+ r:'Cria um filtro objetivo para oportunidades e convites.',
+ o:'Decisões mais rápidas, coerentes e alinhadas ao objetivo.',
+ p:'Um bom critério blinda você de distrações disfarçadas de chance.',
+ m:'Sem filtro, cada oportunidade brilhante rouba foco do essencial.',
+ x:'Defina a pergunta que toda oportunidade precisa passar: “Isso me aproxima de ______?”',lv:[4,4,5,4]},
+{n:'direcao',t:'Aproxima ou Afasta?',s:1,q:'Por fim, isso te aproxima ou te afasta do seu objetivo?',dim:'Comportamento',
+ w:'É a pergunta que encerra qualquer reflexão. Toda escolha ou aproxima ou afasta — não existe neutro.',
+ r:'Converte autoconhecimento em direção prática e imediata.',
+ o:'Ações do dia realinhadas ao objetivo em segundos.',
+ p:'Perguntar isso antes de agir corrige a rota em tempo real.',
+ m:'Não perguntar deixa hábitos automáticos afastarem você sem perceber.',
+ x:'Pegue a última decisão que tomou hoje: aproxima ou afasta? Ajuste agora.',lv:[5,5,5,5]},
+{n:'direcao',t:'O Legado',dim:'Propósito',
+ w:'Pensar no que fica depois de você amplia a visão e eleva o padrão das decisões.',
+ r:'Ancoragem de longo prazo que dá dignidade às escolhas do dia.',
+ o:'Decisões mais corajosas e menos reféns do imediato.',
+ p:'Mirar legado eleva a régua do que você aceita construir.',
+ m:'Sem legado, o negócio vira só sobrevivência mês a mês.',
+ x:'Escreva a frase que você gostaria que dissessem sobre o que você construiu.',lv:[3,4,3,3]},
+{n:'direcao',t:'Definição de Sucesso',dim:'Identidade',
+ w:'Se você não define sucesso, adota a definição dos outros — e nunca se sente suficiente.',
+ r:'Alinha metas de negócio ao que de fato importa para você.',
+ o:'Menos comparação, mais satisfação com o próprio placar.',
+ p:'Sucesso definido por você mantém o rumo mesmo sob pressão externa.',
+ m:'Perseguir o sucesso alheio gera conquista vazia e cansaço.',
+ x:'Complete: “Para mim, ter sucesso neste ano é ______.”',lv:[4,4,4,4]},
+{n:'direcao',t:'O Norte de Valores',dim:'Identidade',
+ w:'Valores são o mapa quando o GPS falha. Decisões alinhadas a valores raramente se arrependem.',
+ r:'Fundamenta estratégia e liderança em princípios inegociáveis.',
+ o:'Coerência entre discurso, marca e prática.',
+ p:'Valores claros simplificam dilemas difíceis.',
+ m:'Sem norte, você se dobra à conveniência e perde autoridade.',
+ x:'Liste seus 3 valores inegociáveis. Onde a rotina os contradiz?',lv:[4,4,4,3]},
+{n:'direcao',t:'A Prioridade Única',dim:'Estratégia',
+ w:'Ter dez prioridades é não ter nenhuma. A pergunta poderosa é: qual a UMA coisa?',
+ r:'Concentra recursos no ponto de maior alavancagem.',
+ o:'Progresso visível onde mais importa, em vez de avanço diluído.',
+ p:'Uma prioridade clara organiza a semana inteira ao redor dela.',
+ m:'Muitas prioridades geram movimento sem resultado.',
+ x:'Responda: “Qual a UMA coisa que, se avançar, torna o resto mais fácil ou desnecessário?”',lv:[5,5,5,4]},
+{n:'direcao',t:'Futuro Escolhido x Herdado',dim:'Comportamento',
+ w:'Boa parte do que você chama de “meta” foi herdada, não escolhida. Reconhecer isso liberta.',
+ r:'Separa desejos próprios de expectativas de terceiros.',
+ o:'Objetivos que você realmente quer perseguir — e por isso persegue.',
+ p:'Escolher conscientemente aumenta energia e reduz sabotagem.',
+ m:'Perseguir metas herdadas gera resistência interna inexplicável.',
+ x:'Ao lado do seu objetivo, escreva: “meu” ou “herdado”. Seja honesto.',lv:[4,5,3,3]},
+{n:'direcao',t:'Clareza Antes da Velocidade',dim:'Estratégia',
+ w:'Correr na direção errada só chega mais rápido ao lugar errado. Primeiro o rumo, depois o ritmo.',
+ r:'Evita eficiência aplicada ao alvo equivocado.',
+ o:'Menos retrabalho e menos energia desperdiçada.',
+ p:'Parar para clarear economiza meses de esforço mal direcionado.',
+ m:'Pressa sem clareza multiplica o erro na velocidade da ação.',
+ x:'Antes de acelerar qualquer projeto, escreva o resultado exato que ele deve entregar.',lv:[4,4,4,4]},
+{n:'direcao',t:'O Destino Mensurável',dim:'Gestão',
+ w:'Objetivo sem número é opinião. Número transforma sonho em meta rastreável.',
+ r:'Permite saber se você está ganhando ou perdendo o jogo.',
+ o:'Feedback objetivo e correção de rota baseada em fato.',
+ p:'Meta numérica dá alvo à execução e critério à comemoração.',
+ m:'Sem métrica, você celebra ou sofre sem saber por quê.',
+ x:'Anexe um número e uma data ao seu objetivo principal.',lv:[4,4,5,4]},
+{n:'direcao',t:'A Pergunta que Simplifica',dim:'Estratégia',
+ w:'A pergunta certa desmonta a complexidade. Estrategistas fazem perguntas melhores, não têm mais respostas.',
+ r:'Reduz problemas grandes ao ponto de decisão essencial.',
+ o:'Clareza rápida onde antes havia paralisia.',
+ p:'Uma boa pergunta economiza semanas de análise.',
+ m:'Perguntas ruins mantêm você girando no problema errado.',
+ x:'Escreva: “Se só um problema pudesse ser resolvido este mês, qual destravaria tudo?”',lv:[4,5,4,4]},
+{n:'direcao',t:'Compromisso com a Direção',dim:'Comportamento',
+ w:'Rumo sem compromisso é intenção. Compromisso é o que faz a direção resistir à tentação de mudar toda semana.',
+ r:'Estabiliza a estratégia tempo suficiente para dar fruto.',
+ o:'Consistência que permite avaliar o que de fato funciona.',
+ p:'Firmeza de direção acumula resultado por efeito composto.',
+ m:'Trocar de rumo sem parar destrói qualquer aprendizado.',
+ x:'Defina por quanto tempo você se compromete a manter esta direção antes de reavaliar.',lv:[4,4,4,4]},
+
+/* ================= PLANO ================= */
+{n:'plano',t:'Os Recursos Necessários',s:1,q:'Quanto tempo, recursos materiais e/ou ajuda de outras pessoas você precisaria para alcançar esse objetivo?',dim:'Estratégia',
+ w:'Objetivo sem inventário de recursos é desejo. Dimensionar o custo real é o começo do plano.',
+ r:'Traduz a meta em necessidades concretas de tempo, dinheiro e gente.',
+ o:'Plano realista e menos surpresas no meio do caminho.',
+ p:'Saber o que falta permite buscar antes de travar.',
+ m:'Subestimar recursos leva a começar e parar por falta de fôlego.',
+ x:'Liste, para seu objetivo: tempo necessário, recursos materiais e ajuda de quem.',lv:[4,4,4,4]},
+{n:'plano',t:'Habilidades e Conhecimentos',s:1,q:'Quais recursos, novas habilidades ou conhecimentos adicionais você precisa para atingir seu objetivo?',dim:'Estratégia',
+ w:'Todo salto de resultado exige um salto de capacidade. Mapear a lacuna é meio caminho para fechá-la.',
+ r:'Identifica o desenvolvimento que sustenta a próxima etapa.',
+ o:'Aprendizado direcionado ao que o objetivo realmente exige.',
+ p:'Fechar a lacuna certa acelera tudo o que vem depois.',
+ m:'Ignorar a lacuna faz você bater no mesmo teto de capacidade.',
+ x:'Aponte a habilidade ou conhecimento que mais falta hoje — e como começar a adquirir.',lv:[4,4,4,4]},
+{n:'plano',t:'Prazos e Resultados-Chave',s:1,q:'Existem prazos ou resultados-chave específicos já definidos?',dim:'Gestão',
+ w:'Sem prazo, a meta escorrega para “algum dia”. Resultados-chave transformam o objetivo em marcos verificáveis.',
+ r:'Cria pontos de checagem que mantêm o plano vivo.',
+ o:'Ritmo, senso de urgência e progresso mensurável.',
+ p:'Prazos honestos disciplinam a execução.',
+ m:'Ausência de marcos permite adiamento infinito.',
+ x:'Defina 3 resultados-chave com data para os próximos 90 dias.',lv:[4,4,5,4]},
+{n:'plano',t:'Plano de Ação Claro',s:1,q:'Você tem um plano de ação claro para alcançar seu objetivo?',dim:'Estratégia',
+ w:'Intenção não é plano. Plano é a sequência de passos que conecta hoje ao objetivo.',
+ r:'Reduz a distância entre querer e fazer a uma lista executável.',
+ o:'Ação diária com direção, sem depender de inspiração.',
+ p:'Um plano escrito libera a mente para executar em vez de decidir de novo.',
+ m:'Sem plano, cada dia recomeça do zero e a energia se esvai na dúvida.',
+ x:'Escreva os próximos 5 passos concretos, na ordem, com o primeiro para hoje.',lv:[5,5,5,4]},
+{n:'plano',t:'O Primeiro Passo',dim:'Comportamento',
+ w:'O plano trava na largada. Reduzir o primeiro passo ao mínimo vence a inércia.',
+ r:'Converte um projeto intimidante em uma ação de 10 minutos.',
+ o:'Movimento imediato — e movimento gera movimento.',
+ p:'Um passo minúsculo hoje derruba a barreira do começo.',
+ m:'Esperar o passo perfeito é como a procrastinação se disfarça.',
+ x:'Qual a menor ação possível que você faz nos próximos 10 minutos?',lv:[4,4,5,5]},
+{n:'plano',t:'O Marco de 90 Dias',dim:'Gestão',
+ w:'Um ano é longo demais para manter foco; um dia, curto demais para grande resultado. 90 dias é a janela ideal.',
+ r:'Divide a jornada em trimestres com meta tangível.',
+ o:'Foco sustentado e vitórias frequentes que renovam o ânimo.',
+ p:'Ciclos de 90 dias criam ritmo e aprendizado rápido.',
+ m:'Metas só anuais adiam a ação para o fim do prazo.',
+ x:'Defina o único grande resultado dos seus próximos 90 dias.',lv:[4,4,4,4]},
+{n:'plano',t:'A Sequência Certa',dim:'Estratégia',
+ w:'Fazer as coisas certas na ordem errada desperdiça esforço. Ordem é alavanca.',
+ r:'Garante que cada passo prepare o terreno do seguinte.',
+ o:'Menos retrabalho e ganhos que se acumulam.',
+ p:'A sequência correta faz um passo puxar o próximo.',
+ m:'Ordem errada obriga a refazer o que já parecia pronto.',
+ x:'Reordene seus próximos passos: o que precisa vir antes para o resto fluir?',lv:[4,4,4,4]},
+{n:'plano',t:'O Gargalo Único',dim:'Estratégia',
+ w:'Todo sistema tem uma restrição que limita o todo. Atacar qualquer outra coisa é ilusão de progresso.',
+ r:'Concentra energia no ponto que de fato destrava o resultado.',
+ o:'Salto de desempenho ao liberar o ponto mais apertado.',
+ p:'Resolver o gargalo multiplica a capacidade de tudo depois dele.',
+ m:'Melhorar o que não é gargalo não muda o resultado final.',
+ x:'Identifique: qual o único gargalo que, resolvido, libera todo o resto?',lv:[5,5,4,3]},
+{n:'plano',t:'Delegar x Fazer',dim:'Liderança',
+ w:'Fazer tudo é o gargalo mais comum do dono. O que só você faz precisa de você; o resto, não.',
+ r:'Libera seu tempo para o trabalho de maior valor.',
+ o:'Mais capacidade sem mais horas na sua agenda.',
+ p:'Delegar bem multiplica você através de outras mãos.',
+ m:'Reter tudo transforma você no teto do negócio.',
+ x:'Liste 3 tarefas que você faz mas alguém poderia fazer a 80% — e delegue uma.',lv:[4,5,4,3]},
+{n:'plano',t:'O Plano B (Pré-Mortem)',dim:'Estratégia',
+ w:'Imaginar o fracasso antes revela os riscos que o otimismo esconde.',
+ r:'Antecipa falhas enquanto ainda são baratas de evitar.',
+ o:'Plano mais robusto e menos surpresas fatais.',
+ p:'Prever o pior prepara respostas em vez de pânico.',
+ m:'Sem plano B, o primeiro imprevisto vira crise.',
+ x:'Imagine que fracassou em 6 meses. Escreva os 3 motivos mais prováveis — e blinde-os.',lv:[4,4,4,4]},
+{n:'plano',t:'O Orçamento do Objetivo',dim:'Negócio',
+ w:'Todo objetivo tem um custo. Ignorá-lo é planejar para o susto.',
+ r:'Conecta a meta à realidade financeira do negócio.',
+ o:'Decisões viáveis e caixa protegido.',
+ p:'Orçar antes evita começar o que não se pode sustentar.',
+ m:'Sem orçamento, o objetivo consome o caixa por vias tortas.',
+ x:'Estime o custo total (dinheiro e tempo) do seu objetivo e de onde ele sai.',lv:[4,4,4,3]},
+{n:'plano',t:'Alavancas x Esforço',dim:'Estratégia',
+ w:'Nem todo esforço rende igual. Poucas alavancas produzem a maioria dos resultados.',
+ r:'Direciona energia para as ações de maior retorno.',
+ o:'Mais resultado com menos horas.',
+ p:'Achar a alavanca certa faz o mesmo esforço render múltiplas vezes.',
+ m:'Distribuir esforço por igual desperdiça sua melhor energia.',
+ x:'Das suas tarefas da semana, qual gera 80% do resultado? Proteja-a.',lv:[5,5,4,3]},
+{n:'plano',t:'O Cronograma Reverso',dim:'Gestão',
+ w:'Planejar do prazo para trás revela o que precisa começar hoje.',
+ r:'Transforma um prazo final em ações datadas no presente.',
+ o:'Clareza sobre o que atrasar já compromete a meta.',
+ p:'O reverso expõe o verdadeiro ponto de partida.',
+ m:'Planejar só para frente empurra tudo para a última hora.',
+ x:'A partir da data-alvo, marque para trás os 3 marcos que precisam acontecer — e quando.',lv:[4,4,4,4]},
+{n:'plano',t:'Rituais Semanais',dim:'Comportamento',
+ w:'Objetivos são conquistados no calendário, não na cabeça. O ritual semanal é onde o plano vira rotina.',
+ r:'Cria um encontro fixo entre você e sua estratégia.',
+ o:'Progresso constante e correção de rota antes de descarrilar.',
+ p:'Uma revisão semanal mantém o objetivo vivo entre as urgências.',
+ m:'Sem ritual, o importante é engolido pelo urgente toda semana.',
+ x:'Agende agora um bloco semanal fixo para revisar plano e prioridades.',lv:[4,5,5,4]},
+{n:'plano',t:'Simplificar o Plano',dim:'Estratégia',
+ w:'Plano complexo demais não se executa. Simplicidade é o que sobrevive ao contato com a realidade.',
+ r:'Aumenta a chance de o plano ser realmente seguido.',
+ o:'Execução leve em vez de plano bonito na gaveta.',
+ p:'Cortar etapas supérfluas acelera e reduz desculpas.',
+ m:'Excesso de passos vira álibi para não começar.',
+ x:'Corte pela metade a lista de passos do seu plano. O que sobra é o essencial.',lv:[4,4,4,5]},
+{n:'plano',t:'O Mapa de Dependências',dim:'Gestão',
+ w:'Alguns passos esperam por outros ou por outras pessoas. Ver isso evita gargalos surpresa.',
+ r:'Antecipa travas causadas por terceiros ou pré-requisitos.',
+ o:'Fluxo sem esperas evitáveis.',
+ p:'Mapear dependências permite acionar o que trava com antecedência.',
+ m:'Ignorá-las faz o projeto parar esperando algo previsível.',
+ x:'Aponte qual passo depende de outra pessoa — e combine o prazo hoje.',lv:[3,4,4,4]},
+{n:'plano',t:'A Revisão do Plano',dim:'Gestão',
+ w:'O plano é uma hipótese, não uma sentença. Revisar com dados é o que o mantém útil.',
+ r:'Ajusta a estratégia à realidade que vai se revelando.',
+ o:'Plano vivo, alinhado ao que de fato funciona.',
+ p:'Revisar regularmente separa o que funciona do que só parecia bom.',
+ m:'Seguir um plano furado por teimosia custa caro.',
+ x:'Marque o que no seu plano já não faz sentido — e corte ou troque hoje.',lv:[4,4,4,4]},
+
+/* ================= EXECUÇÃO ================= */
+{n:'execucao',t:'A Nota de Compromisso',s:1,q:'Considerando uma resposta de 0 a 10, quanto você está disposto a se desenvolver e aplicar seu compromisso para que isso aconteça?',dim:'Comportamento',
+ w:'Antes de qualquer estratégia, é o nível de compromisso que decide o resultado. Um 6 e um 10 vivem em mundos diferentes.',
+ r:'Mede a energia real que você colocará na jornada.',
+ o:'Expectativa realista e consciência do que falta para subir a nota.',
+ p:'Nomear o compromisso convoca você a honrá-lo ou a ajustá-lo.',
+ m:'Fingir um 10 quando se é um 6 gera plano que você não cumpre.',
+ x:'Dê sua nota de 0 a 10. Se não for 10, escreva o que falta para chegar lá.',lv:[5,5,4,5]},
+{n:'execucao',t:'Prazo para Priorizar',s:1,q:'Em quanto tempo isso seria sua prioridade para começar a colocar em prática?',dim:'Comportamento',
+ w:'“Depois” é onde os objetivos vão morrer. Datar o começo é o que separa desejo de decisão.',
+ r:'Converte intenção em compromisso com data.',
+ o:'Início real em vez de adiamento perpétuo.',
+ p:'Uma data de início cria tração imediata.',
+ m:'Sem prazo para começar, a prioridade nunca chega a ser vez.',
+ x:'Escreva a data exata em que isso vira prioridade — e o que muda na agenda nesse dia.',lv:[4,4,5,5]},
+{n:'execucao',t:'Fortalecer Habilidades',s:1,q:'O que você tem feito para fortalecer as suas habilidades?',dim:'Comportamento',
+ w:'Talento estagnado é vantagem que evapora. Quem não afia a lâmina, corta cada vez pior.',
+ r:'Garante que sua capacidade cresça junto com sua ambição.',
+ o:'Evolução contínua que abre novas possibilidades.',
+ p:'Prática deliberada compõe vantagem ao longo do tempo.',
+ m:'Parar de desenvolver faz o mercado te ultrapassar.',
+ x:'Liste o que você tem feito para evoluir — e a próxima habilidade a trabalhar.',lv:[4,4,4,4]},
+{n:'execucao',t:'Vencer Limitações na Prática',s:1,q:'O que você tem feito para vencer suas limitações?',dim:'Comportamento',
+ w:'Reconhecer a limitação é metade; agir contra ela é a metade que muda o jogo.',
+ r:'Transforma consciência de fraqueza em plano de superação.',
+ o:'Barreiras que encolhem a cada ação enfrentada.',
+ p:'Enfrentar limitações amplia a zona do possível.',
+ m:'Só reconhecer sem agir mantém a limitação intacta.',
+ x:'Escolha uma limitação e escreva a ação concreta que você fará contra ela esta semana.',lv:[4,5,4,4]},
+{n:'execucao',t:'Consistência > Intensidade',dim:'Comportamento',
+ w:'Um dia heroico não vence semanas de constância. O resultado mora na repetição.',
+ r:'Prioriza o que se sustenta sobre o que impressiona uma vez.',
+ o:'Progresso composto e previsível.',
+ p:'Constância modesta supera surtos de esforço abandonados.',
+ m:'Depender de picos de intensidade gera avanço e recuo em ciclos.',
+ x:'Escolha uma ação pequena que você consegue repetir todo dia útil. Comece hoje.',lv:[5,5,5,4]},
+{n:'execucao',t:'A Menor Ação',dim:'Comportamento',
+ w:'Quando a tarefa assusta, encolha-a. Duas linhas, dois minutos, um telefonema. O começo vence o tamanho.',
+ r:'Derruba a barreira psicológica de começar.',
+ o:'Movimento onde antes havia paralisia.',
+ p:'Reduzir a ação ao mínimo elimina a desculpa do “não tenho tempo”.',
+ m:'Mirar só a versão grande adia indefinidamente.',
+ x:'Pegue a tarefa que você adia. Escreva a versão de 2 minutos dela — e faça.',lv:[4,4,5,5]},
+{n:'execucao',t:'O Ambiente que Executa',dim:'Comportamento',
+ w:'Você não sobe ao nível dos seus objetivos; você cai ao nível do seu ambiente. Ajuste o entorno e a execução segue.',
+ r:'Usa o contexto a favor em vez de depender só de força de vontade.',
+ o:'Bons hábitos ficam fáceis; maus hábitos, difíceis.',
+ p:'Ambiente desenhado poupa disciplina para o que importa.',
+ m:'Ambiente hostil sabota qualquer intenção, por melhor que seja.',
+ x:'Mude uma coisa no seu ambiente hoje que torne a ação certa mais fácil.',lv:[4,5,4,4]},
+{n:'execucao',t:'O Foco Único',dim:'Comportamento',
+ w:'Multitarefa é a ilusão de fazer muito enquanto se faz mal tudo. O foco único é o superpoder subestimado.',
+ r:'Eleva a qualidade e a velocidade de cada entrega.',
+ o:'Trabalho mais profundo em menos tempo.',
+ p:'Uma coisa de cada vez termina mais e melhor.',
+ m:'Alternar tarefas custa foco a cada troca e some com as horas.',
+ x:'Escolha uma tarefa. Feche tudo o mais por 25 minutos. Só ela.',lv:[4,5,4,4]},
+{n:'execucao',t:'Disciplina x Motivação',dim:'Comportamento',
+ w:'Motivação é visita; disciplina é moradora. Contar com vontade é planejar para os dias bons apenas.',
+ r:'Estabelece sistemas que funcionam mesmo sem ânimo.',
+ o:'Execução estável independente do humor.',
+ p:'Rotina disciplinada entrega quando a motivação falta.',
+ m:'Esperar estar motivado deixa o resultado refém da emoção.',
+ x:'Defina uma regra fixa (dia/hora) para a ação-chave, válida com ou sem vontade.',lv:[5,5,5,4]},
+{n:'execucao',t:'O Bloco Sagrado',dim:'Comportamento',
+ w:'O que não tem hora marcada não acontece. Um bloco protegido é onde o importante ganha espaço.',
+ r:'Garante tempo dedicado ao trabalho que move o objetivo.',
+ o:'Avanço no essencial em meio às urgências.',
+ p:'Blocos protegidos transformam intenção em horas reais.',
+ m:'Agenda toda reativa consome o dia sem tocar no importante.',
+ x:'Bloqueie na agenda 1 hora inegociável amanhã para o seu objetivo principal.',lv:[4,5,5,4]},
+{n:'execucao',t:'Eliminar a Fricção',dim:'Comportamento',
+ w:'Cada obstáculo pequeno entre você e a ação certa reduz a chance de fazê-la. Remova a fricção.',
+ r:'Aumenta a taxa de execução dos bons hábitos.',
+ o:'Ação certa vira caminho de menor esforço.',
+ p:'Menos passos até começar significa começar mais vezes.',
+ m:'Fricção acumulada faz você desistir antes de agir.',
+ x:'Identifique um atrito que atrapalha a ação-chave e elimine-o hoje.',lv:[4,4,4,5]},
+{n:'execucao',t:'Feche Ciclos',dim:'Comportamento',
+ w:'Tarefas abertas ocupam a mente como abas de navegador. Fechar libera energia mental.',
+ r:'Reduz a carga cognitiva que sabota o foco.',
+ o:'Mente mais leve e presente na tarefa atual.',
+ p:'Concluir o que está a 90% libera espaço para o próximo.',
+ m:'Muitos ciclos abertos geram sensação de sobrecarga sem produção.',
+ x:'Liste 3 pendências a 90% e feche uma agora.',lv:[3,4,4,5]},
+{n:'execucao',t:'A Cadência de Execução',dim:'Gestão',
+ w:'Grandes resultados vêm de ritmo, não de arranque. Cadência é a batida que mantém o time (e você) andando.',
+ r:'Cria um pulso previsível de entrega e ajuste.',
+ o:'Progresso constante e visível para todos.',
+ p:'Uma cadência definida evita paradas longas e retomadas caras.',
+ m:'Sem ritmo, o trabalho oscila entre correria e ócio.',
+ x:'Defina a batida da semana: o que se entrega toda segunda e toda sexta?',lv:[4,4,4,4]},
+{n:'execucao',t:'Dizer Não para Executar',dim:'Comportamento',
+ w:'Cada sim a algo é um não a outra coisa. Proteger a execução exige recusar o que dispersa.',
+ r:'Preserva foco e energia para o essencial.',
+ o:'Mais avanço no que importa por menos dispersão.',
+ p:'Recusar o supérfluo abre espaço para o significativo.',
+ m:'Aceitar tudo dilui sua entrega no que mais importa.',
+ x:'Identifique um compromisso que você aceitou por hábito e recuse-o educadamente.',lv:[4,4,4,4]},
+{n:'execucao',t:'Energia como Recurso',dim:'Comportamento',
+ w:'Gestão do tempo sem gestão de energia falha. Você rende conforme o combustível, não só as horas.',
+ r:'Alinha as tarefas nobres aos seus horários de pico.',
+ o:'Mais produção nas mesmas horas.',
+ p:'Trabalhar o difícil na alta energia multiplica o resultado.',
+ m:'Gastar o pico com trivialidades desperdiça seu melhor.',
+ x:'Descubra sua janela de maior energia e reserve-a para o trabalho mais nobre.',lv:[4,4,4,4]},
+{n:'execucao',t:'Feito > Perfeito',dim:'Mentalidade',
+ w:'Perfeição é o disfarce elegante da procrastinação. O feito ensina; o perfeito nunca chega.',
+ r:'Acelera o ciclo de entregar, aprender e melhorar.',
+ o:'Progresso real e feedback do mundo real.',
+ p:'Entregar a versão 1 gera aprendizado impossível na teoria.',
+ m:'Buscar o perfeito trava a entrega e mata o momento.',
+ x:'Publique/entregue hoje a versão “boa o suficiente” de algo que você segura.',lv:[4,4,4,5]},
+{n:'execucao',t:'A Prova de Movimento',dim:'Comportamento',
+ w:'O que não se registra parece que não aconteceu. Evidência diária alimenta a continuidade.',
+ r:'Torna o progresso visível e motivador.',
+ o:'Sensação de avanço que sustenta o esforço.',
+ p:'Ver a corrente de dias feitos dá vontade de não quebrá-la.',
+ m:'Sem registro, o esforço parece infinito e sem retorno.',
+ x:'Comece hoje um registro simples: o que você fez pelo objetivo. Marque o primeiro dia.',lv:[3,4,4,5]},
+
+/* ================= PADRÕES (A BÚSSOLA) ================= */
+{n:'padroes',t:'Padrões de Repetição',s:1,q:'Quando você olha para a sua vida, você consegue identificar padrões de repetição em sua vida?',dim:'Comportamento',
+ w:'O que se repete não é azar — é padrão. E padrão é comportamento em looping. Vê-lo é o primeiro ato de liberdade.',
+ r:'Revela o mecanismo invisível por trás de resultados que voltam.',
+ o:'Consciência do ciclo que você vive sem perceber.',
+ p:'Enxergar o padrão tira você do papel de vítima e devolve o comando.',
+ m:'Não vê-lo condena você a repetir a mesma história com roupas novas.',
+ x:'Liste 2 resultados (bons ou ruins) que se repetem na sua vida. Comece a olhar.',lv:[5,5,4,3]},
+{n:'padroes',t:'Padrão Ligado a Quem',s:1,q:'Quando você identifica esses padrões de repetição, eles estão relacionados a quem?',dim:'Comportamento',
+ w:'Todo padrão tem origem numa relação. Descobrir a quem ele se liga é achar a raiz, não só o galho.',
+ r:'Conecta o comportamento atual à sua história e vínculos.',
+ o:'Compreensão da origem que sustenta o padrão.',
+ p:'Identificar a fonte permite tratar a causa, não o sintoma.',
+ m:'Ignorar a origem faz você combater o efeito para sempre.',
+ x:'Para o padrão que mais te incomoda, escreva a quem ele está ligado.',lv:[5,5,4,3]},
+{n:'padroes',t:'Quem Você Decepcionaria',s:1,q:'Ao quebrar um padrão ligado a alguém importante da sua história, quem você decepcionaria se desse mais um passo rumo ao seu objetivo hoje?',dim:'Comportamento',
+ w:'Às vezes não avançamos por lealdade inconsciente. Crescer parece trair quem ficou. Nomear isso desarma a armadilha.',
+ r:'Expõe a lealdade invisível que freia seu crescimento.',
+ o:'Permissão para superar sem culpa.',
+ p:'Ver a lealdade oculta liberta você para prosperar sem traição imaginária.',
+ m:'Manter a lealdade inconsciente faz você se sabotar para não ferir ninguém.',
+ x:'Complete: “Se eu crescer, sinto que estaria decepcionando ______.” E questione se é verdade.',lv:[5,5,4,2]},
+{n:'padroes',t:'Seus Padrões Definem Seus Acontecimentos',dim:'Comportamento',
+ w:'A carta-bússola de todo o baralho. Seus resultados não são sorte: são a colheita fiel dos seus padrões.',
+ r:'É o princípio que organiza toda a mentoria — comportamento gera acontecimento.',
+ o:'Assunção de autoria plena sobre a própria vida.',
+ p:'Quem entende isso muda o padrão e, com ele, o resultado.',
+ m:'Quem nega isso culpa o mundo e permanece preso ao mesmo ciclo.',
+ x:'Escreva um acontecimento recorrente e o padrão de comportamento que o produz.',lv:[5,5,5,3]},
+{n:'padroes',t:'O Gatilho do Padrão',dim:'Comportamento',
+ w:'Todo padrão é disparado por algo: uma situação, uma emoção, uma pessoa. Achar o gatilho é achar o botão.',
+ r:'Permite interromper o ciclo antes de ele rodar.',
+ o:'Espaço entre estímulo e reação — onde mora a escolha.',
+ p:'Reconhecer o gatilho dá a chance de responder em vez de reagir.',
+ m:'Sem ver o gatilho, o padrão dispara no automático toda vez.',
+ x:'Descreva o que costuma disparar seu padrão indesejado — situação, emoção ou pessoa.',lv:[4,5,4,3]},
+{n:'padroes',t:'A Lealdade Invisível',dim:'Comportamento',
+ w:'Repetimos a vida de quem amamos por fidelidade silenciosa. Prosperar mais que eles pode parecer abandono.',
+ r:'Explica sabotagens que nenhuma estratégia resolve.',
+ o:'Liberdade para ultrapassar tetos herdados da família.',
+ p:'Honrar a origem sem repeti-la abre caminho novo.',
+ m:'Fidelidade inconsciente ao passado limita seu presente.',
+ x:'Pergunte-se: “Que teto de vida eu não me permito ultrapassar por lealdade a alguém?”',lv:[5,5,4,2]},
+{n:'padroes',t:'O Ganho Oculto',dim:'Comportamento',
+ w:'Todo padrão, mesmo o ruim, entrega algum benefício secreto — proteção, atenção, desculpa. Por isso persiste.',
+ r:'Revela por que você mantém o que diz querer largar.',
+ o:'Consciência do benefício que sustenta o comportamento.',
+ p:'Ver o ganho oculto permite obtê-lo de forma saudável.',
+ m:'Ignorá-lo faz o padrão voltar por baixo, apesar do esforço.',
+ x:'Complete: “Manter esse padrão me protege de ______ ou me dá ______.”',lv:[5,5,4,3]},
+{n:'padroes',t:'O Ciclo se Repete',dim:'Comportamento',
+ w:'Reconhecer a forma do loop — começo, meio e recaída — é o que permite quebrá-lo num ponto específico.',
+ r:'Mapeia a mecânica do ciclo para intervir com precisão.',
+ o:'Ponto exato de ruptura identificado.',
+ p:'Ver o ciclo inteiro mostra onde ele é mais fácil de cortar.',
+ m:'Sem mapear, você tenta mudar no ponto mais difícil e fracassa.',
+ x:'Descreva as etapas do seu ciclo recorrente e marque onde seria mais fácil interrompê-lo.',lv:[4,5,4,3]},
+{n:'padroes',t:'Reescrever o Roteiro',dim:'Comportamento',
+ w:'Você segue um roteiro escrito há muito tempo, quase sempre por outros. Reescrevê-lo é retomar a caneta.',
+ r:'Substitui a narrativa automática por uma escolhida.',
+ o:'Comportamentos alinhados a quem você decide ser.',
+ p:'Um novo roteiro produz novas cenas — e novos finais.',
+ m:'Rodar o roteiro antigo entrega sempre o mesmo desfecho.',
+ x:'Reescreva uma frase que você repete sobre si (“eu sempre…”) numa versão que serve ao objetivo.',lv:[4,5,4,3]},
+{n:'padroes',t:'O Teto Familiar',dim:'Comportamento',
+ w:'Muitos têm um limite invisível de sucesso, renda ou felicidade — o teto de onde vieram. Ele não é seu, é herdado.',
+ r:'Explica por que você trava sempre no mesmo nível.',
+ o:'Permissão para romper o limite herdado.',
+ p:'Reconhecer o teto é o primeiro passo para atravessá-lo.',
+ m:'Não vê-lo faz você recuar sempre ao mesmo patamar.',
+ x:'Qual nível de renda/sucesso você sente que “não é para você”? De onde vem esse limite?',lv:[5,5,4,2]},
+{n:'padroes',t:'A Permissão para Superar',dim:'Comportamento',
+ w:'Ninguém supera o que não se autoriza a ter. A permissão interna precede o resultado externo.',
+ r:'Desbloqueia o merecimento que sustenta a conquista.',
+ o:'Abertura interna para receber o que você busca.',
+ p:'Dar-se permissão remove o freio silencioso do autossabotador.',
+ m:'Sem permissão, você conquista e depois perde para voltar ao “seu lugar”.',
+ x:'Escreva e assine: “Eu me permito alcançar ______, mesmo indo além de onde vim.”',lv:[5,5,4,3]},
+{n:'padroes',t:'O Padrão de Autossabotagem',dim:'Comportamento',
+ w:'Perto da vitória, algo te faz recuar. Não é falta de capacidade — é um padrão te protegendo do desconhecido.',
+ r:'Identifica o boicote que age justo quando você está prestes a vencer.',
+ o:'Antecipação do momento crítico onde você costuma recuar.',
+ p:'Prever a sabotagem permite atravessá-la conscientemente.',
+ m:'Ignorá-la faz você desmontar o que construiu na reta final.',
+ x:'Descreva o que você costuma fazer quando está prestes a vencer. Esse é o padrão a vigiar.',lv:[5,5,4,3]},
+{n:'padroes',t:'Consciência x Automático',dim:'Comportamento',
+ w:'No automático, o padrão comanda. Na consciência, você comanda. A diferença é um instante de percepção.',
+ r:'Cria o intervalo onde a mudança se torna possível.',
+ o:'Reações substituídas por respostas escolhidas.',
+ p:'Um segundo de consciência quebra horas de piloto automático.',
+ m:'Viver no automático é entregar o volante ao passado.',
+ x:'Escolha um gatilho e combine consigo: ao senti-lo, você para e respira antes de agir.',lv:[4,5,4,3]},
+{n:'padroes',t:'A Quebra de Padrão',dim:'Comportamento',
+ w:'Padrão só muda quando interrompido na prática, não só na teoria. Uma ação diferente rompe a corrente.',
+ r:'Transforma insight em nova experiência concreta.',
+ o:'Prova viva de que outro resultado é possível.',
+ p:'Uma quebra bem-feita enfraquece o padrão para sempre.',
+ m:'Entender sem interromper mantém o padrão intacto.',
+ x:'Na próxima vez que o padrão surgir, faça UMA coisa diferente. Defina agora qual será.',lv:[5,5,4,3]},
+{n:'padroes',t:'Novo Comportamento, Novo Resultado',dim:'Comportamento',
+ w:'Insanidade é repetir e esperar resultado diferente. Resultado novo exige comportamento novo — não mais esforço no antigo.',
+ r:'Direciona a mudança para a ação, não para a intenção.',
+ o:'Resultados diferentes por causas diferentes.',
+ p:'Trocar o comportamento é o que muda a colheita.',
+ m:'Insistir no mesmo comportamento entrega o mesmo de sempre.',
+ x:'Que comportamento novo você adota esta semana para colher um resultado novo?',lv:[5,5,5,4]},
+{n:'padroes',t:'O Espelho dos Resultados',dim:'Comportamento',
+ w:'Seus resultados são um espelho honesto dos seus padrões. Não mentem, não bajulam. Leia-os.',
+ r:'Usa o que você colhe como diagnóstico do que você planta.',
+ o:'Feedback preciso sobre os comportamentos que te governam.',
+ p:'Ler os resultados como espelho acelera a autocorreção.',
+ m:'Culpar o espelho pelo reflexo impede qualquer mudança.',
+ x:'Olhe um resultado atual e pergunte: “que padrão meu produziu isso?”',lv:[4,5,4,3]},
+{n:'padroes',t:'A Escolha Consciente',dim:'Comportamento',
+ w:'No fim, tudo se resume a uma escolha repetida com consciência. É onde padrão vira destino — ou liberdade.',
+ r:'Coloca o poder de volta nas suas mãos, escolha após escolha.',
+ o:'Vida conduzida por decisão, não por repetição.',
+ p:'Escolher conscientemente, todo dia, reescreve a própria história.',
+ m:'Abrir mão da escolha é deixar o padrão escolher por você.',
+ x:'Hoje, faça uma escolha consciente que contraria seu padrão. Registre qual foi.',lv:[5,5,5,4]},
+
+/* ================= MENTE ================= */
+{n:'mente',t:'Crenças que Afetam a Carreira',s:1,q:'O quanto suas crenças limitantes afetam sua carreira e posicionamento?',dim:'Mentalidade',
+ w:'Crença limitante é um teto invisível: você não tenta o que “sabe” que não consegue. Ela decide antes de você.',
+ r:'Revela o freio mental por trás de resultados estagnados.',
+ o:'Consciência de onde a mente sabota o posicionamento.',
+ p:'Ver a crença é o começo de desativá-la.',
+ m:'Crença não examinada opera como verdade e limita tudo.',
+ x:'Dê uma nota de 0 a 10 para o quanto suas crenças limitam sua carreira — e nomeie a principal.',lv:[5,5,4,3]},
+{n:'mente',t:'Quebrar Crenças Aproxima',s:1,q:'O quanto se desconstruir e quebrar suas crenças limitantes te ajudaria a chegar mais perto do seu objetivo?',dim:'Mentalidade',
+ w:'Se a crença é o teto, quebrá-la é levantar o teto. Muitas vezes o objetivo não exige mais ação — exige menos crença antiga.',
+ r:'Aponta a alavanca mental de maior retorno.',
+ o:'Clareza de que desconstruir crenças destrava o avanço.',
+ p:'Romper uma crença central pode valer mais que meses de esforço.',
+ m:'Manter a crença intacta faz todo esforço bater no mesmo limite.',
+ x:'Estime de 0 a 10 quanto quebrar essa crença te aproximaria do objetivo. Se é alto, comece por ela.',lv:[5,5,4,3]},
+{n:'mente',t:'A Crença Central',dim:'Mentalidade',
+ w:'Sob muitas crenças pequenas mora uma central (“não sou capaz”, “não mereço”). Mexer nela move todas.',
+ r:'Localiza a raiz que sustenta várias limitações.',
+ o:'Uma mudança que reverbera por toda a vida.',
+ p:'Reescrever a crença central destrava áreas inteiras de uma vez.',
+ m:'Tratar só sintomas deixa a raiz produzindo novos limites.',
+ x:'Complete a frase que mais te limita: “No fundo, eu acredito que eu ______.”',lv:[5,5,4,2]},
+{n:'mente',t:'Evidências Contra a Crença',dim:'Mentalidade',
+ w:'Crenças sobrevivem por falta de contestação. Buscar provas contrárias enfraquece a mentira que você repete.',
+ r:'Usa fatos da sua própria vida para derrubar o limite.',
+ o:'Crença abalada por evidência concreta.',
+ p:'Cada prova contrária corrói a autoridade da crença.',
+ m:'Sem contestar, a crença se retroalimenta indefinidamente.',
+ x:'Liste 3 fatos da sua vida que contradizem sua crença limitante.',lv:[4,4,4,4]},
+{n:'mente',t:'Mentalidade de Crescimento',dim:'Mentalidade',
+ w:'Ou você acredita que capacidade é fixa, ou que se desenvolve. Essa crença sozinha muda o quanto você tenta.',
+ r:'Determina se desafios te encolhem ou te expandem.',
+ o:'Disposição a aprender o que ainda não sabe.',
+ p:'Ver habilidade como treinável transforma erro em dado.',
+ m:'Achar-se “sem talento” encerra a tentativa antes dela.',
+ x:'Troque um “eu não sou bom nisso” por “eu ainda não sou bom nisso”. Escreva a versão nova.',lv:[4,5,4,4]},
+{n:'mente',t:'O Diálogo Interno',dim:'Mentalidade',
+ w:'A voz com quem você mais fala é a sua. Se ela te diminui o dia todo, nenhum elogio externo compensa.',
+ r:'Molda a confiança que sustenta cada ação.',
+ o:'Uma narrativa interna que apoia em vez de sabotar.',
+ p:'Falar consigo como um bom mentor eleva o desempenho.',
+ m:'Autocrítica destrutiva mina a coragem de agir.',
+ x:'Anote o que sua voz interna diz nos erros — e reescreva como um mentor firme e justo diria.',lv:[4,5,4,4]},
+{n:'mente',t:'Reformular a História',dim:'Mentalidade',
+ w:'Os fatos são os fatos; o significado que você dá é escolha. A mesma história pode aprisionar ou impulsionar.',
+ r:'Converte experiências difíceis em recurso, não em desculpa.',
+ o:'Passado a serviço do objetivo, não contra ele.',
+ p:'Reenquadrar a história liberta energia presa na mágoa.',
+ m:'História de vítima justifica a estagnação para sempre.',
+ x:'Reescreva um episódio difícil como “o que isso me ensinou/me deu de força”.',lv:[4,4,4,3]},
+{n:'mente',t:'Escassez x Abundância',dim:'Mentalidade',
+ w:'A mente da escassez disputa migalhas; a da abundância cria oportunidades. A lente muda o que você enxerga.',
+ r:'Afeta decisões de preço, parceria, generosidade e risco.',
+ o:'Escolhas mais expansivas e menos defensivas.',
+ p:'Enxergar abundância abre colaboração e ousadia.',
+ m:'Escassez fecha portas por medo de perder o pouco.',
+ x:'Onde você age por escassez? Escreva uma decisão que tomaria na lógica da abundância.',lv:[4,4,4,3]},
+{n:'mente',t:'O Merecimento',dim:'Mentalidade',
+ w:'Você atrai o que acredita merecer, não o que deseja. Sem merecimento, você repele o que pediu.',
+ r:'Fundamenta a capacidade de receber e sustentar conquistas.',
+ o:'Abertura para reter o que você conquista.',
+ p:'Sentir-se merecedor estabiliza o sucesso alcançado.',
+ m:'Baixo merecimento faz você sabotar ou desvalorizar o que ganha.',
+ x:'Complete: “Eu mereço ______ porque ______.” Repita até acreditar.',lv:[4,5,4,3]},
+{n:'mente',t:'A Identidade que Sustenta a Meta',dim:'Identidade',
+ w:'Metas mudam comportamento por um tempo; identidade muda para sempre. Não “fazer”, e sim “ser” quem alcança.',
+ r:'Alinha ações à pessoa que naturalmente teria esse resultado.',
+ o:'Comportamentos coerentes por identidade, não por esforço.',
+ p:'“Eu sou alguém que…” torna o hábito automático.',
+ m:'Buscar a meta sem virar a pessoa faz o resultado não se sustentar.',
+ x:'Complete: “Para ter esse resultado, eu sou o tipo de pessoa que ______.”',lv:[5,5,4,3]},
+{n:'mente',t:'De “Não Consigo” a “Como Posso”',dim:'Mentalidade',
+ w:'“Não consigo” fecha a mente; “como posso” a abre para soluções. A pergunta certa muda o cérebro de tarefa.',
+ r:'Direciona a atenção para possibilidade em vez de impedimento.',
+ o:'Soluções que só aparecem quando você as procura.',
+ p:'Perguntar “como” aciona a criatividade travada pelo “não”.',
+ m:'Afirmar “não dá” encerra a busca antes de ela começar.',
+ x:'Pegue um “eu não consigo” atual e reescreva como “de que forma eu poderia ______?”',lv:[4,4,4,5]},
+{n:'mente',t:'Comparação Rouba Foco',dim:'Mentalidade',
+ w:'Comparar seu bastidor com o palco do outro é injusto e paralisante. A régua saudável é você de ontem.',
+ r:'Preserva foco e autoestima para a própria jornada.',
+ o:'Menos inveja, mais energia no próprio progresso.',
+ p:'Competir consigo mesmo gera evolução sem desgaste.',
+ m:'Comparar-se rouba tempo e enche de sensação de atraso.',
+ x:'Escreva um avanço seu do último ano. Compare-se com essa versão, não com os outros.',lv:[3,4,4,4]},
+{n:'mente',t:'O Filtro da Atenção',dim:'Mentalidade',
+ w:'Sua mente mostra mais daquilo em que você foca. Definir o alvo reprograma o que você passa a enxergar.',
+ r:'Faz oportunidades ligadas ao objetivo “aparecerem”.',
+ o:'Percepção sintonizada no que serve à meta.',
+ p:'Focar no objetivo revela recursos antes invisíveis.',
+ m:'Focar no problema faz o mundo parecer só problema.',
+ x:'Declare em voz alta seu objetivo agora. Repare no que você começa a notar hoje.',lv:[3,4,3,4]},
+{n:'mente',t:'Reprogramar a Narrativa',dim:'Mentalidade',
+ w:'A frase que você repete sobre si vira profecia. Trocar a narrativa é trocar o rumo, palavra por palavra.',
+ r:'Substitui autoconceito limitante por um que impulsiona.',
+ o:'Autoimagem alinhada ao que você quer construir.',
+ p:'Nova narrativa, repetida, molda novo comportamento.',
+ m:'Narrativa antiga confirma o passado no presente.',
+ x:'Escreva sua nova frase-âncora e coloque-a onde você a veja todo dia.',lv:[4,4,4,4]},
+{n:'mente',t:'Fé na Capacidade',dim:'Mentalidade',
+ w:'Autoeficácia — acreditar que você dá conta — prevê mais o resultado do que o talento bruto.',
+ r:'Sustenta a persistência diante da dificuldade.',
+ o:'Coragem de tentar apesar da incerteza.',
+ p:'Confiar na própria capacidade faz você insistir onde outros param.',
+ m:'Duvidar de si aborta a tentativa antes da chance.',
+ x:'Liste 3 desafios que você já superou. Essa é a prova da sua capacidade.',lv:[4,5,4,4]},
+{n:'mente',t:'Perguntas Melhores',dim:'Mentalidade',
+ w:'A qualidade da sua vida segue a qualidade das suas perguntas. “Por que sempre comigo?” e “o que posso aprender?” geram vidas diferentes.',
+ r:'Direciona a mente para respostas úteis.',
+ o:'Foco produtivo em vez de ruminação.',
+ p:'Boas perguntas convocam boas respostas.',
+ m:'Perguntas de vítima geram respostas de vítima.',
+ x:'Troque uma pergunta destrutiva que você se faz por uma construtiva. Escreva as duas.',lv:[4,5,4,4]},
+{n:'mente',t:'Mentalidade de Dono',dim:'Liderança',
+ w:'Dono não terceiriza a culpa nem espera salvação. Assume o resultado — e por isso pode mudá-lo.',
+ r:'Fundamenta responsabilidade e autoridade na gestão.',
+ o:'Postura que transforma problema em algo sob seu comando.',
+ p:'Assumir a autoria devolve a você o poder de agir.',
+ m:'Postura de vítima entrega o controle a circunstâncias.',
+ x:'Pegue um problema atual e reescreva-o como “o que EU posso fazer sobre isso?”',lv:[5,5,5,4]},
+
+/* ================= FORÇAS ================= */
+{n:'forcas',t:'No que Você é Bom',s:1,q:'Em que você realmente é bom e percebe que se destaca e torna seu objetivo mais próximo?',dim:'Autoconhecimento',
+ w:'Você constrói resultado mais rápido sobre a força do que consertando a fraqueza. Saber sua força é saber onde apostar.',
+ r:'Direciona o objetivo para onde você tem vantagem natural.',
+ o:'Progresso acelerado no terreno onde você já brilha.',
+ p:'Apostar na força multiplica retorno com menos desgaste.',
+ m:'Ignorar a força para focar só na falha desperdiça seu melhor.',
+ x:'Escreva em que você se destaca de verdade — e como usar isso a favor do objetivo.',lv:[5,5,4,4]},
+{n:'forcas',t:'A Vantagem Injusta',dim:'Estratégia',
+ w:'Você tem algo que poucos têm: uma combinação, uma rede, uma história. Estratégia é construir sobre isso.',
+ r:'Aponta o diferencial difícil de copiar do seu negócio.',
+ o:'Posicionamento que a concorrência não replica.',
+ p:'Explorar a vantagem injusta cria fosso competitivo.',
+ m:'Competir onde não se tem vantagem é jogo desgastante.',
+ x:'Complete: “Minha vantagem que poucos têm é ______.” Como colocá-la no centro?',lv:[5,5,4,3]},
+{n:'forcas',t:'Talento x Esforço',dim:'Autoconhecimento',
+ w:'Talento aponta a direção; esforço percorre a distância. O talento não trabalhado é promessa não cumprida.',
+ r:'Une dom natural a prática deliberada.',
+ o:'Excelência que vem de talento cultivado.',
+ p:'Regar o talento certo gera resultado desproporcional.',
+ m:'Confiar só no dom sem trabalho estagna no potencial.',
+ x:'Escolha um talento seu e defina uma prática semanal para desenvolvê-lo.',lv:[4,4,4,4]},
+{n:'forcas',t:'A Zona de Genialidade',dim:'Estratégia',
+ w:'Há o que você faz bem, e o que só você faz de um jeito único. Viver na segunda é onde mora o extraordinário.',
+ r:'Concentra você no trabalho de maior valor e satisfação.',
+ o:'Contribuição rara e resultados fora da curva.',
+ p:'Passar mais tempo na genialidade eleva impacto e energia.',
+ m:'Ficar preso ao “competente” consome sua vida no mediano.',
+ x:'Descreva a atividade em que você é insubstituível. Como fazer mais dela?',lv:[5,5,4,3]},
+{n:'forcas',t:'O Feedback dos Outros',dim:'Autoconhecimento',
+ w:'Os outros veem forças suas que você acha “óbvias demais para ter valor”. Ouça o que dizem que você faz bem.',
+ r:'Revela talentos que você desvaloriza por serem fáceis.',
+ o:'Reconhecimento de forças invisíveis para você.',
+ p:'Captar o feedback externo revela ativos ocultos.',
+ m:'Descartar elogios esconde de você o que tem de melhor.',
+ x:'Pergunte a 3 pessoas: “no que você acha que eu sou muito bom?” Anote os padrões.',lv:[4,4,4,4]},
+{n:'forcas',t:'Forças a Serviço da Meta',dim:'Estratégia',
+ w:'Força reconhecida mas desconectada do objetivo é potência desperdiçada. O ponto é apontá-la ao alvo.',
+ r:'Alinha seu melhor recurso ao resultado desejado.',
+ o:'Objetivo alcançado pelo caminho da sua força.',
+ p:'Direcionar a força ao alvo encurta a distância.',
+ m:'Força usada fora do objetivo brilha mas não avança nada.',
+ x:'Escreva como sua principal força pode ser aplicada diretamente ao seu objetivo.',lv:[4,5,4,4]},
+{n:'forcas',t:'A Assinatura Pessoal',dim:'Identidade',
+ w:'Seu jeito próprio de entregar valor é sua marca. Reconhecê-lo transforma você em referência, não commodity.',
+ r:'Sustenta posicionamento e autoridade no mercado.',
+ o:'Diferenciação clara na mente de quem te contrata.',
+ p:'Assinatura nítida faz você ser lembrado e escolhido.',
+ m:'Sem assinatura, você compete só por preço.',
+ x:'Complete: “As pessoas me procuram porque eu, diferente dos outros, ______.”',lv:[4,4,4,3]},
+{n:'forcas',t:'Multiplicar > Consertar',dim:'Estratégia',
+ w:'Levar uma força de 8 a 10 rende mais que uma fraqueza de 3 a 5. Multiplicar o forte vence remendar o fraco.',
+ r:'Otimiza onde investir energia de desenvolvimento.',
+ o:'Retorno maior sobre o mesmo esforço de melhoria.',
+ p:'Aprofundar a força cria excelência distintiva.',
+ m:'Obcecar-se pela fraqueza gera mediania cara.',
+ x:'Escolha UMA força para levar de boa a excepcional neste trimestre.',lv:[4,4,4,4]},
+{n:'forcas',t:'Os Momentos de Pico',dim:'Autoconhecimento',
+ w:'Nos momentos em que você brilhou, há um padrão de força. Estudá-los é ler o mapa do seu melhor.',
+ r:'Extrai de vitórias passadas a receita replicável.',
+ o:'Condições do seu alto desempenho identificadas.',
+ p:'Recriar as condições de pico repete o resultado de pico.',
+ m:'Tratar picos como sorte impede reproduzi-los.',
+ x:'Descreva 2 momentos em que você brilhou. O que eles têm em comum?',lv:[4,4,4,4]},
+{n:'forcas',t:'Recursos que Você Já Tem',dim:'Estratégia',
+ w:'Antes de buscar o que falta, inventarie o que já existe. Muita gente trava por não ver o que tem na mão.',
+ r:'Aproveita ativos disponíveis antes de gastar buscando novos.',
+ o:'Movimento imediato com o que já está ao alcance.',
+ p:'Usar o que já se tem acelera sem custo adicional.',
+ m:'Ignorar recursos próprios adia a ação por falsa falta.',
+ x:'Liste 5 recursos que você já possui (rede, conhecimento, ferramentas) e ainda não usa.',lv:[4,4,4,5]},
+{n:'forcas',t:'Rede e Aliados',dim:'Estratégia',
+ w:'Seu resultado é limitado ou expandido pelas pessoas ao seu redor. Rede é ativo estratégico, não acaso.',
+ r:'Amplia alcance, oportunidades e apoio.',
+ o:'Portas que abrem por relação, não por esforço solitário.',
+ p:'Cultivar aliados multiplica sua capacidade de agir.',
+ m:'Isolamento limita você ao seu próprio braço.',
+ x:'Aponte 3 pessoas que poderiam acelerar seu objetivo — e como reconectar com uma esta semana.',lv:[4,5,4,4]},
+{n:'forcas',t:'O Histórico de Superação',dim:'Autoconhecimento',
+ w:'Você já venceu coisas que pareciam impossíveis. Esse histórico é prova de capacidade contra o medo atual.',
+ r:'Fornece confiança baseada em evidência real.',
+ o:'Coragem sustentada por vitórias passadas.',
+ p:'Lembrar superações passadas desmonta a dúvida presente.',
+ m:'Esquecer o que já venceu faz cada desafio parecer o primeiro.',
+ x:'Liste 3 desafios que você achou que não venceria — e venceu.',lv:[4,4,4,4]},
+{n:'forcas',t:'A Curiosidade como Motor',dim:'Comportamento',
+ w:'Curiosidade sustenta o aprendizado quando a disciplina cansa. Ela é combustível renovável para evoluir.',
+ r:'Mantém você em desenvolvimento sem esforço penoso.',
+ o:'Aprendizado contínuo movido a interesse genuíno.',
+ p:'Seguir a curiosidade abre caminhos e conexões inesperadas.',
+ m:'Sufocar a curiosidade seca a fonte da inovação.',
+ x:'O que desperta sua curiosidade e serve ao objetivo? Reserve tempo para explorar isso.',lv:[3,4,3,4]},
+{n:'forcas',t:'O Domínio Deliberado',dim:'Comportamento',
+ w:'Maestria não vem de repetir no automático, mas de praticar o difícil com atenção. Prática deliberada é o atalho lento.',
+ r:'Constrói competência de nível raro.',
+ o:'Habilidade que vira vantagem durável.',
+ p:'Praticar o ponto fraco da habilidade acelera a maestria.',
+ m:'Repetir só o que já sabe estaciona o desenvolvimento.',
+ x:'Na sua habilidade-chave, isole o ponto mais difícil e treine só ele esta semana.',lv:[4,4,4,3]},
+{n:'forcas',t:'Contar a Sua Força',dim:'Liderança',
+ w:'Competência que ninguém conhece não gera oportunidade. Comunicar valor não é vaidade — é estratégia.',
+ r:'Transforma capacidade em reconhecimento e negócio.',
+ o:'Mais convites, indicações e autoridade.',
+ p:'Comunicar bem a força atrai quem precisa dela.',
+ m:'Ficar calado deixa o mérito invisível e a oportunidade passa.',
+ x:'Escreva em uma frase o valor único que você entrega — e onde comunicá-la esta semana.',lv:[4,4,4,4]},
+{n:'forcas',t:'Combinar Forças',dim:'Estratégia',
+ w:'Você pode não ser o melhor em uma coisa, mas a combinação rara de duas ou três te torna único.',
+ r:'Cria diferencial pela interseção, não pela solidão de um talento.',
+ o:'Posição de mercado difícil de copiar.',
+ p:'Combinar forças gera um perfil singular e valioso.',
+ m:'Buscar ser o nº1 em só uma coisa é disputa brutal.',
+ x:'Liste 3 forças suas. Que oportunidade nasce da combinação delas?',lv:[4,5,4,3]},
+{n:'forcas',t:'Confiança com Evidência',dim:'Autoconhecimento',
+ w:'Confiança sólida não é achismo positivo; é lastreada em provas. Junte as evidências e a segurança vem sozinha.',
+ r:'Estabelece autoconfiança que resiste à crítica.',
+ o:'Firmeza que não depende de aprovação externa.',
+ p:'Confiança baseada em fato sustenta decisões difíceis.',
+ m:'Confiança vazia desmorona ao primeiro tropeço.',
+ x:'Monte seu “dossiê de evidências”: resultados, elogios e vitórias que provam seu valor.',lv:[4,4,4,4]},
+
+/* ================= LIDERANÇA ================= */
+{n:'lideranca',t:'Liderar a Si Mesmo',dim:'Liderança',
+ w:'Ninguém lidera os outros bem antes de liderar a si. Autogestão é a base de toda autoridade legítima.',
+ r:'Fundamenta a liderança na coerência pessoal.',
+ o:'Respeito conquistado pelo exemplo, não pelo cargo.',
+ p:'Autoliderança gera credibilidade que ordens não compram.',
+ m:'Quem não se governa não sustenta autoridade sobre ninguém.',
+ x:'Onde você exige dos outros algo que ainda não pratica? Corrija primeiro em você.',lv:[5,5,4,3]},
+{n:'lideranca',t:'Decisão sob Incerteza',dim:'Liderança',
+ w:'Liderar é decidir sem ter todas as respostas. Esperar certeza é entregar o timing ao acaso.',
+ r:'Mantém o negócio em movimento quando faltam garantias.',
+ o:'Avanço mesmo em cenário nebuloso.',
+ p:'Decidir com 70% de informação, no tempo certo, vence a paralisia.',
+ m:'Adiar a decisão por medo custa a oportunidade inteira.',
+ x:'Pegue uma decisão parada. Defina o mínimo de dados para decidir — e decida no prazo.',lv:[5,5,4,3]},
+{n:'lideranca',t:'A Visão Comunicada',dim:'Liderança',
+ w:'Visão na cabeça do líder não move ninguém. Comunicada com clareza, ela alinha e engaja.',
+ r:'Transforma direção pessoal em energia coletiva.',
+ o:'Time (ou parceiros) remando no mesmo sentido.',
+ p:'Repetir a visão com clareza cria alinhamento espontâneo.',
+ m:'Visão guardada gera esforço desalinhado e ruído.',
+ x:'Escreva sua visão em 3 frases que qualquer pessoa do time repetiria.',lv:[4,5,4,3]},
+{n:'lideranca',t:'Delegar com Confiança',dim:'Liderança',
+ w:'Delegar tarefa é fácil; delegar responsabilidade e confiar é o que forma gente e libera o líder.',
+ r:'Escala o negócio para além das suas mãos.',
+ o:'Time mais capaz e líder com tempo para o estratégico.',
+ p:'Confiar e cobrar resultado desenvolve autonomia.',
+ m:'Microgerenciar sufoca o time e afoga o líder no operacional.',
+ x:'Delegue uma responsabilidade (não só tarefa) e combine o resultado esperado, não o passo a passo.',lv:[4,5,4,3]},
+{n:'lideranca',t:'Responsabilidade Total',dim:'Liderança',
+ w:'O líder assume tudo o que acontece sob seu comando, inclusive o que não fez. É o que separa chefe de líder.',
+ r:'Cria cultura de dono e destrava soluções.',
+ o:'Problemas encarados em vez de terceirizados.',
+ p:'Assumir o resultado devolve ao líder o poder de mudá-lo.',
+ m:'Culpar o time ou o mercado paralisa a correção.',
+ x:'Num problema recente do negócio, escreva a parte que foi sua responsabilidade — e o aprendizado.',lv:[5,5,4,3]},
+{n:'lideranca',t:'O Padrão de Excelência',dim:'Liderança',
+ w:'O nível do seu negócio é o pior que você tolera. O que você deixa passar vira o novo padrão.',
+ r:'Define a qualidade real da operação e da marca.',
+ o:'Padrão elevado que se torna cultura.',
+ p:'Não tolerar o medíocre puxa todos para cima.',
+ m:'Tolerar o “aceitável” faz a qualidade despencar aos poucos.',
+ x:'Identifique algo abaixo do padrão que você vem tolerando — e estabeleça o novo mínimo hoje.',lv:[5,5,4,3]},
+{n:'lideranca',t:'A Cultura Começa em Você',dim:'Liderança',
+ w:'Cultura não é o que está no quadro da parede; é o que o líder faz todo dia. Você ensina o que tolera e repete.',
+ r:'Determina o comportamento coletivo pela sua conduta.',
+ o:'Time que espelha os valores que você pratica.',
+ p:'Comportamento coerente do líder molda a cultura desejada.',
+ m:'Discurso e prática opostos ensinam cinismo ao time.',
+ x:'Qual valor você quer no time? Escreva como VOCÊ o demonstrou (ou não) esta semana.',lv:[4,5,4,3]},
+{n:'lideranca',t:'Conversas Difíceis',dim:'Liderança',
+ w:'O que você evita conversar apodrece. Liderança madura enfrenta o desconforto cedo, com respeito.',
+ r:'Resolve problemas de pessoas antes que virem crise.',
+ o:'Relações limpas e desempenho corrigido a tempo.',
+ p:'Encarar a conversa cedo evita rupturas maiores.',
+ m:'Adiar o assunto difícil o transforma em problema crônico.',
+ x:'Qual conversa você está evitando? Defina quando e como terá — e tenha nos próximos 7 dias.',lv:[4,5,4,3]},
+{n:'lideranca',t:'Escolher as Pessoas Certas',dim:'Liderança',
+ w:'Nenhuma gestão salva a contratação errada. Quem entra define o teto do que o time entrega.',
+ r:'Determina a qualidade da execução e do ambiente.',
+ o:'Time que multiplica em vez de drenar.',
+ p:'Escolher bem na entrada evita anos de gestão de problema.',
+ m:'Contratar por pressa custa caro por muito tempo.',
+ x:'Defina os 3 critérios inegociáveis para quem entra no seu time.',lv:[4,5,4,3]},
+{n:'lideranca',t:'Liderar pelo Exemplo',dim:'Liderança',
+ w:'As pessoas fazem o que você faz, não o que você manda. O exemplo é a única ordem que sempre é obedecida.',
+ r:'Alinha a conduta do time à sua sem precisar cobrar.',
+ o:'Influência real e respeito duradouro.',
+ p:'Exemplo consistente dispensa discurso.',
+ m:'Fazer o oposto do que prega destrói a autoridade.',
+ x:'Escolha um comportamento que você quer no time e passe a demonstrá-lo você mesmo, a partir de hoje.',lv:[5,5,4,3]},
+{n:'lideranca',t:'Proteger o Foco',dim:'Liderança',
+ w:'O papel do líder é subtrair, não só somar. Proteger o time (e você) do que dispersa é gestão de alto nível.',
+ r:'Concentra a força coletiva no que realmente importa.',
+ o:'Mais resultado no essencial, menos ruído.',
+ p:'Blindar o foco multiplica a produtividade do time.',
+ m:'Deixar tudo entrar dilui a energia em mil frentes.',
+ x:'O que você vai tirar da mesa do time (ou da sua) esta semana para proteger o foco?',lv:[4,5,4,3]},
+{n:'lideranca',t:'A Escuta Estratégica',dim:'Liderança',
+ w:'Quem só fala não aprende. O líder que escuta capta problemas, ideias e verdades que ninguém traz de graça.',
+ r:'Abastece decisões com informação de quem está na ponta.',
+ o:'Decisões melhores e time que se sente ouvido.',
+ p:'Escutar de verdade revela o que os relatórios escondem.',
+ m:'Liderar só falando cega você para a realidade do time.',
+ x:'Nesta semana, faça a uma pessoa a pergunta: “o que eu preciso saber e ninguém está me dizendo?”',lv:[4,4,4,4]},
+{n:'lideranca',t:'Presença e Autoridade',dim:'Liderança',
+ w:'Autoridade não é gritar mais alto; é a serenidade de quem sabe onde vai. Presença comunica antes das palavras.',
+ r:'Sustenta o posicionamento de líder no mercado e no time.',
+ o:'Respeito e confiança conquistados pela postura.',
+ p:'Presença firme e calma inspira segurança ao redor.',
+ m:'Insegurança ou agitação contagia o time de dúvida.',
+ x:'Antes da próxima reunião importante, defina a postura que você quer transmitir — e encarne-a.',lv:[4,4,4,3]},
+{n:'lideranca',t:'O Tempo do Líder',dim:'Liderança',
+ w:'Seu tempo é o recurso mais caro do negócio. Onde ele vai revela suas verdadeiras prioridades.',
+ r:'Garante que sua hora se dedique ao trabalho de maior valor.',
+ o:'Liderança focada no estratégico, não no operacional.',
+ p:'Proteger a agenda para o essencial multiplica seu impacto.',
+ m:'Afogar-se no operacional deixa o negócio sem timoneiro.',
+ x:'Analise sua última semana: quanto do seu tempo foi ao estratégico? O que cortar?',lv:[4,5,4,3]},
+{n:'lideranca',t:'Formar Outros Líderes',dim:'Liderança',
+ w:'O líder que centraliza vira gargalo; o que forma líderes multiplica o negócio. Sucesso é medido por sucessão.',
+ r:'Escala a operação e reduz a dependência de você.',
+ o:'Negócio que cresce além da sua capacidade individual.',
+ p:'Desenvolver líderes multiplica a capacidade da empresa.',
+ m:'Reter todo poder trava o crescimento no seu limite.',
+ x:'Escolha alguém com potencial e defina uma responsabilidade para desenvolvê-lo como líder.',lv:[4,5,4,3]},
+{n:'lideranca',t:'Coragem de Ser Impopular',dim:'Liderança',
+ w:'Liderar é, às vezes, tomar a decisão certa e impopular. Quem só busca agradar acaba não liderando nada.',
+ r:'Permite decisões difíceis que o negócio exige.',
+ o:'Rumo mantido mesmo sob pressão por aprovação.',
+ p:'Coragem de desagradar protege o que é essencial.',
+ m:'Buscar unanimidade adia decisões vitais.',
+ x:'Qual decisão certa você adia por medo da reação? Defina quando vai tomá-la.',lv:[4,4,4,3]},
+{n:'lideranca',t:'O Legado de Liderança',dim:'Liderança',
+ w:'Sua liderança será lembrada pelo que deixou nas pessoas, não pelos números de um trimestre.',
+ r:'Eleva o padrão das decisões para o longo prazo.',
+ o:'Impacto que perdura além de você.',
+ p:'Liderar pensando em legado gera decisões mais íntegras.',
+ m:'Liderar só pelo curto prazo queima pessoas e reputação.',
+ x:'Escreva como você quer ser lembrado como líder — e uma atitude que comprove isso esta semana.',lv:[3,4,3,3]},
+
+/* ================= SOMBRA / SABOTAGEM ================= */
+{n:'sabotagem',t:'Limitações e Dificuldades',s:1,q:'Quais são as limitações e dificuldades que você percebe que estão concentradas em seu caminho?',dim:'Mentalidade',
+ w:'Nomear a dificuldade a tira do escuro. O que é vago assusta; o que é nomeado pode ser enfrentado.',
+ r:'Mapeia os obstáculos reais entre você e o objetivo.',
+ o:'Clareza sobre o que precisa ser resolvido.',
+ p:'Nomear a limitação é o primeiro passo para superá-la.',
+ m:'Deixá-la vaga a mantém poderosa e paralisante.',
+ x:'Liste as principais limitações e dificuldades que você percebe no seu caminho hoje.',lv:[4,4,4,4]},
+{n:'sabotagem',t:'O que Pode Dar Errado',s:1,q:'O que você acha que pode dar errado ou ser um obstáculo que te impede de começar?',dim:'Mentalidade',
+ w:'O medo do que pode dar errado costuma travar mais que o próprio erro. Trazê-lo à luz reduz seu tamanho.',
+ r:'Antecipa obstáculos e desarma o medo do começo.',
+ o:'Riscos vistos e, portanto, gerenciáveis.',
+ p:'Prever o obstáculo permite preparar a resposta.',
+ m:'Obstáculo imaginado e não nomeado impede a largada.',
+ x:'Escreva o que você teme que dê errado — e, ao lado, como você lidaria se acontecesse.',lv:[4,4,4,4]},
+{n:'sabotagem',t:'A Pior Coisa ao Chegar Rápido',s:1,q:'Qual seria a pior coisa que aconteceria se você conseguisse chegar ao seu objetivo mais rápido?',dim:'Comportamento',
+ w:'Pergunta reveladora: se o sucesso rápido assusta, há um medo do sucesso operando por baixo do medo do fracasso.',
+ r:'Expõe a autossabotagem disfarçada de prudência.',
+ o:'Consciência do que você teme em vencer.',
+ p:'Ver o medo do sucesso desarma o freio invisível.',
+ m:'Não vê-lo faz você desacelerar sem entender por quê.',
+ x:'Responda com honestidade: o que de ruim viria se você vencesse mais rápido? Aí mora o freio.',lv:[5,5,4,2]},
+{n:'sabotagem',t:'O Medo do Sucesso',dim:'Comportamento',
+ w:'Muitos temem vencer mais que perder: sucesso traz visibilidade, cobrança e mudança de identidade. O medo é real.',
+ r:'Explica recuos inexplicáveis perto da conquista.',
+ o:'Consciência para atravessar o medo em vez de recuar.',
+ p:'Nomear o medo do sucesso permite seguir apesar dele.',
+ m:'Ignorá-lo faz você sabotar bem quando estava quase lá.',
+ x:'Complete: “Se eu tivesse sucesso, teria medo de ______.” Aí está o que trabalhar.',lv:[5,5,4,2]},
+{n:'sabotagem',t:'A Procrastinação Estratégica',dim:'Comportamento',
+ w:'Procrastinar raramente é preguiça; é a mente evitando um medo. Ache o medo e a procrastinação perde a função.',
+ r:'Revela a emoção que trava a ação, não a falta de tempo.',
+ o:'Ação destravada ao tratar a causa real.',
+ p:'Entender o que você evita permite agir sobre o medo.',
+ m:'Combater só a procrastinação deixa a causa intacta.',
+ x:'O que você adia? Pergunte: “que medo essa demora está me poupando de sentir?”',lv:[4,5,4,3]},
+{n:'sabotagem',t:'O Perfeccionismo como Freio',dim:'Comportamento',
+ w:'Perfeccionismo é medo vestido de virtude. Ele adia a entrega até parecer prudência — mas é paralisia.',
+ r:'Desmascara a busca de perfeição como fuga do julgamento.',
+ o:'Entregas que acontecem em vez de ficarem prontas “quase”.',
+ p:'Aceitar o “bom o suficiente” liberta a produção.',
+ m:'Perseguir o impecável trava o lançamento indefinidamente.',
+ x:'O que você segura por não estar perfeito? Defina o padrão “bom o suficiente” e entregue.',lv:[4,4,4,4]},
+{n:'sabotagem',t:'Autossabotagem na Vitória',dim:'Comportamento',
+ w:'Perto de vencer, você cria uma crise, some ou desiste. É o padrão te puxando de volta ao conhecido.',
+ r:'Antecipa o boicote no momento mais crítico.',
+ o:'Reta final atravessada com consciência.',
+ p:'Prever o recuo permite blindá-lo com antecedência.',
+ m:'Ser pego de surpresa desmonta o que estava quase pronto.',
+ x:'Como você costuma se sabotar perto da vitória? Escreva e crie uma trava contra isso.',lv:[5,5,4,3]},
+{n:'sabotagem',t:'A Zona de Conforto Cara',dim:'Comportamento',
+ w:'A zona de conforto parece segura, mas cobra o preço do que você deixa de ser. Conforto e crescimento não moram juntos.',
+ r:'Revela o custo oculto de permanecer onde é confortável.',
+ o:'Disposição a trocar conforto por evolução.',
+ p:'Sair da zona de conforto abre o território do crescimento.',
+ m:'Ficar no conforto garante estagnação disfarçada de paz.',
+ x:'Onde o conforto está te custando crescimento? Dê um passo de desconforto proposital hoje.',lv:[4,5,4,3]},
+{n:'sabotagem',t:'As Desculpas Recorrentes',dim:'Comportamento',
+ w:'Toda desculpa repetida é um padrão protegendo você da ação. A desculpa favorita aponta o medo favorito.',
+ r:'Expõe a narrativa que justifica a estagnação.',
+ o:'Consciência do álibi que trava seu avanço.',
+ p:'Desmontar a desculpa recorrente libera a ação.',
+ m:'Acreditar na própria desculpa mantém o resultado parado.',
+ x:'Qual sua desculpa favorita para não avançar? Escreva-a e responda: é verdade ou é medo?',lv:[4,4,4,4]},
+{n:'sabotagem',t:'O Medo do Julgamento',dim:'Comportamento',
+ w:'O medo do que vão pensar já matou mais sonhos que o fracasso. A opinião alheia só tem o poder que você dá.',
+ r:'Libera a ação da prisão da aprovação externa.',
+ o:'Coragem de se expor e se posicionar.',
+ p:'Reduzir o peso do julgamento destrava exposição e vendas.',
+ m:'Refém da opinião alheia, você se encolhe e some.',
+ x:'O que você não faz por medo do julgamento? Faça uma versão pequena disso esta semana.',lv:[4,5,4,3]},
+{n:'sabotagem',t:'A Síndrome do Impostor',dim:'Mentalidade',
+ w:'Sentir-se fraude apesar das provas é comum em quem cresce. O sentimento mente; os resultados não.',
+ r:'Impede que a autodúvida sabote oportunidades reais.',
+ o:'Aceitação do próprio mérito e das chances que ele abre.',
+ p:'Reconhecer a síndrome permite agir apesar dela.',
+ m:'Acreditar na fraude interna faz você recusar o que merece.',
+ x:'Liste as provas concretas de que você é capaz. Leia sempre que o impostor falar.',lv:[4,4,4,3]},
+{n:'sabotagem',t:'O Teto de Ganho',dim:'Comportamento',
+ w:'Há um valor acima do qual você sente que “não pode” ganhar. Ao chegar perto, você gasta, sabota ou trava.',
+ r:'Explica o limite invisível de renda que você não ultrapassa.',
+ o:'Consciência do teto financeiro autoimposto.',
+ p:'Reconhecer o teto é o passo para atravessá-lo.',
+ m:'Não vê-lo faz o dinheiro sempre voltar ao mesmo nível.',
+ x:'Qual valor de renda parece “demais para você”? De onde vem esse limite? Autorize-se a superá-lo.',lv:[5,5,4,2]},
+{n:'sabotagem',t:'A Distração como Fuga',dim:'Comportamento',
+ w:'A distração é o refúgio favorito de quem foge de algo difícil. Trocar a fuga por foco é enfrentar o que se evita.',
+ r:'Revela o que você evita através da distração.',
+ o:'Foco recuperado ao tratar a causa da fuga.',
+ p:'Ver a distração como fuga direciona você ao verdadeiro desafio.',
+ m:'Ceder à distração adia o essencial e alimenta a culpa.',
+ x:'Qual sua distração favorita? Da próxima vez, pergunte: “do que estou fugindo agora?”',lv:[4,4,4,4]},
+{n:'sabotagem',t:'O Custo do “Depois”',dim:'Comportamento',
+ w:'“Depois” é o cemitério dos objetivos. Cada adiamento tem um custo que só aparece somado, lá na frente.',
+ r:'Torna visível o preço acumulado do adiamento.',
+ o:'Urgência que vence a inércia do “mais tarde”.',
+ p:'Ver o custo do adiamento converte intenção em ação hoje.',
+ m:'O “depois” repetido rouba anos sem você perceber.',
+ x:'O que você diz que fará “depois”? Faça a primeira parte agora, nos próximos 30 minutos.',lv:[4,5,4,4]},
+{n:'sabotagem',t:'Enfrentar o Medo',dim:'Comportamento',
+ w:'O medo encolhe quando você caminha na direção dele. Evitar o alimenta; enfrentar o esvazia.',
+ r:'Transforma o medo de barreira em bússola do crescimento.',
+ o:'Territórios antes bloqueados agora acessíveis.',
+ p:'Cada enfrentamento reduz o poder do medo sobre você.',
+ m:'Fugir do medo o faz crescer e dominar mais áreas.',
+ x:'Escolha um medo pequeno e faça, ainda hoje, uma ação na direção dele.',lv:[4,5,4,3]},
+{n:'sabotagem',t:'Obstáculo Vira Rota',dim:'Estratégia',
+ w:'O obstáculo no caminho pode se tornar o caminho. Muita solução nasce exatamente do problema encarado.',
+ r:'Converte barreiras em direção estratégica.',
+ o:'Problemas transformados em oportunidade ou diferencial.',
+ p:'Encarar o obstáculo revela caminhos que ninguém viu.',
+ m:'Fugir do obstáculo mantém o problema e some com a chance.',
+ x:'Pegue seu maior obstáculo e pergunte: “como ELE poderia virar minha vantagem?”',lv:[4,5,4,3]},
+{n:'sabotagem',t:'A Sombra que Você Nega',dim:'Comportamento',
+ w:'O que você recusa enxergar em si te controla no escuro. Reconhecer a sombra é retirar-lhe o poder.',
+ r:'Integra aspectos negados que sabotam por baixo.',
+ o:'Menos reações automáticas vindas do que você evita ver.',
+ p:'Aceitar a sombra reduz sua interferência oculta.',
+ m:'Negar a sombra a faz agir sem o seu consentimento.',
+ x:'Que traço seu você evita admitir? Escreva-o. Reconhecer já reduz seu domínio.',lv:[4,4,3,2]},
+
+/* ================= IDENTIDADE ================= */
+{n:'identidade',t:'Como te Descreveria Quem te Conhece',s:1,q:'Agora se imagine no lugar da pessoa que mais te conhece. Como essa pessoa te descreveria?',dim:'Identidade',
+ w:'Ver-se pelos olhos de quem te conhece revela pontos cegos — forças e travas que você não admite sozinho.',
+ r:'Expande o autoconhecimento com uma perspectiva externa.',
+ o:'Uma imagem mais completa e honesta de você.',
+ p:'A visão do outro ilumina o que você não vê.',
+ m:'Só a autoimagem interna cega você para metade de si.',
+ x:'Descreva-se como a pessoa que mais te conhece descreveria — sem filtro.',lv:[4,4,3,3]},
+{n:'identidade',t:'Quem te Descreveu',s:1,q:'Quem te descreveu nesse contexto?',dim:'Identidade',
+ w:'A voz que você usou para se descrever tem dono. Saber de quem é revela por qual lente você se enxerga.',
+ r:'Identifica de quem é o olhar que você internalizou.',
+ o:'Consciência da referência que molda sua autoimagem.',
+ p:'Reconhecer a voz permite escolher se ela ainda serve.',
+ m:'Enxergar-se por uma lente alheia sem saber distorce tudo.',
+ x:'A descrição que você fez de si soa como a voz de quem? Nomeie essa pessoa.',lv:[4,4,3,2]},
+{n:'identidade',t:'Você Sem Opinião Alheia',s:1,q:'Como você seria se não houvesse ninguém para opinar no seu modo de vida?',dim:'Identidade',
+ w:'Retirar a plateia revela quem você é sob a maquiagem da aprovação. Ali mora o seu eu mais verdadeiro.',
+ r:'Distingue seus desejos reais das expectativas absorvidas.',
+ o:'Clareza sobre o que você quer quando ninguém julga.',
+ p:'Imaginar-se sem plateia liberta escolhas autênticas.',
+ m:'Viver para a plateia terceiriza sua vida à opinião dos outros.',
+ x:'Descreva como você viveria, se vestiria e trabalharia sem ninguém para opinar.',lv:[5,5,4,3]},
+{n:'identidade',t:'Por que Não é Você Quem te Descreve',s:1,q:'E por que a pessoa que mais te conhece para te descrever não é você?',dim:'Identidade',
+ w:'Se outra pessoa te conhece melhor que você, você terceirizou seu autoconhecimento. Retomá-lo é um ato de poder.',
+ r:'Convoca você a se tornar a maior autoridade sobre si.',
+ o:'Autoridade sobre a própria identidade recuperada.',
+ p:'Assumir o autoconhecimento devolve o comando da narrativa.',
+ m:'Deixar que outros te definam entrega sua direção a eles.',
+ x:'Escreva por que você deveria ser quem melhor te conhece — e um passo para isso hoje.',lv:[5,5,4,3]},
+{n:'identidade',t:'Identidade Presente x Futura',dim:'Identidade',
+ w:'Você age conforme quem acredita ser hoje. Para o resultado novo, é preciso começar a ser, já, a versão futura.',
+ r:'Alinha comportamento à identidade que alcança a meta.',
+ o:'Ações do presente coerentes com o futuro desejado.',
+ p:'Encarnar a versão futura hoje puxa os hábitos certos.',
+ m:'Agir pela identidade antiga mantém o resultado antigo.',
+ x:'Descreva a versão de você que já alcançou o objetivo. O que ela faz diferente hoje?',lv:[5,5,4,3]},
+{n:'identidade',t:'Os Papéis que Você Veste',dim:'Identidade',
+ w:'Você desempenha muitos papéis — e às vezes se confunde com eles. Saber onde termina o papel e começa você é liberdade.',
+ r:'Separa a essência dos personagens sociais.',
+ o:'Menos exaustão de sustentar máscaras.',
+ p:'Reconhecer os papéis permite escolher quando vesti-los.',
+ m:'Confundir-se com o papel aprisiona sua identidade real.',
+ x:'Liste os papéis que você veste. Em qual deles você se sente mais você? E menos?',lv:[3,4,3,3]},
+{n:'identidade',t:'Autenticidade x Aprovação',dim:'Identidade',
+ w:'Buscar aprovação e ser autêntico raramente cabem juntos. A cada escolha, você serve a um ou a outro.',
+ r:'Define se você conduz sua vida ou a plateia.',
+ o:'Decisões alinhadas a você, não à expectativa alheia.',
+ p:'Escolher autenticidade fortalece identidade e paz.',
+ m:'Priorizar a aprovação dissolve você aos poucos.',
+ x:'Onde você troca autenticidade por aprovação? Escolha um lugar para ser mais você esta semana.',lv:[4,5,4,3]},
+{n:'identidade',t:'A Máscara Social',dim:'Identidade',
+ w:'A máscara que protege também sufoca. Ela evita julgamento, mas impede que te conheçam de verdade.',
+ r:'Revela o custo de se esconder atrás de uma imagem.',
+ o:'Conexões e oportunidades vindas do seu eu real.',
+ p:'Baixar a máscara certa aproxima pessoas e negócios.',
+ m:'Viver de máscara isola você mesmo cercado de gente.',
+ x:'Qual máscara você usa por medo? Onde poderia, com segurança, mostrar-se um pouco mais real?',lv:[3,4,3,3]},
+{n:'identidade',t:'Reescrever “Quem Eu Sou”',dim:'Identidade',
+ w:'A frase “eu sou…” é a mais poderosa que você diz. Ela programa comportamento. Escolha-a a dedo.',
+ r:'Redefine a base da qual todos os seus atos partem.',
+ o:'Autoconceito que sustenta o objetivo em vez de miná-lo.',
+ p:'Um “eu sou” elevado puxa a ação para o mesmo nível.',
+ m:'Um “eu sou” limitante prende você ao passado.',
+ x:'Reescreva 3 frases “eu sou…” numa versão que serve a quem você quer se tornar.',lv:[4,5,4,3]},
+{n:'identidade',t:'Alinhar Ação e Identidade',dim:'Identidade',
+ w:'Quando ação e identidade divergem, vem a autossabotagem. O corpo obedece a quem você acredita ser, não ao que planeja.',
+ r:'Elimina o conflito interno que trava a execução.',
+ o:'Comportamentos naturais, sem luta interna constante.',
+ p:'Ação alinhada à identidade flui sem resistência.',
+ m:'Ação contra a autoimagem é revertida pela mente.',
+ x:'Onde suas ações contrariam quem você diz ser? Alinhe uma delas hoje.',lv:[4,5,4,3]},
+{n:'identidade',t:'Soltar a Aprovação',dim:'Identidade',
+ w:'Enquanto você precisar da aprovação de todos, será refém de qualquer um. Soltar isso é ganhar liberdade de agir.',
+ r:'Libera decisões da necessidade de agradar.',
+ o:'Coragem para se posicionar e ser impopular quando preciso.',
+ p:'Independência da aprovação destrava autenticidade e vendas.',
+ m:'Depender de aprovação te faz pequeno e previsível.',
+ x:'De quem você mais busca aprovação? Tome uma decisão sem consultá-la esta semana.',lv:[4,5,4,3]},
+{n:'identidade',t:'A Voz Própria',dim:'Identidade',
+ w:'No meio de tantas opiniões, sua voz vira sussurro. Reencontrá-la é ouvir o que VOCÊ pensa antes do resto.',
+ r:'Recupera o discernimento próprio na hora de decidir.',
+ o:'Decisões que nascem de dentro, não do ruído.',
+ p:'Ouvir a própria voz devolve autoria às escolhas.',
+ m:'Sufocá-la faz você viver a vida ditada pelos outros.',
+ x:'Antes de pedir opinião na próxima decisão, escreva primeiro o que VOCÊ pensa.',lv:[4,4,4,3]},
+{n:'identidade',t:'Coerência de Vida',dim:'Identidade',
+ w:'Coerência é a distância entre o que você valoriza e como vive. Quanto menor, mais paz e mais autoridade.',
+ r:'Alinha valores declarados à rotina real.',
+ o:'Integridade que se sente por dentro e se vê por fora.',
+ p:'Viver os próprios valores gera paz e credibilidade.',
+ m:'Incoerência crônica corrói autoestima e confiança alheia.',
+ x:'Aponte uma incoerência entre o que você valoriza e como vive — e ajuste um ponto.',lv:[4,4,4,3]},
+{n:'identidade',t:'Autoimagem e Resultado',dim:'Identidade',
+ w:'Você entrega resultado compatível com a imagem que tem de si. Eleve a autoimagem e o teto do resultado sobe.',
+ r:'Conecta o que você acha que merece ao que alcança.',
+ o:'Resultados maiores sustentados por autoimagem maior.',
+ p:'Autoimagem elevada permite conquistar e reter mais.',
+ m:'Autoimagem baixa faz você regredir ao “seu tamanho”.',
+ x:'Que imagem de si sustentaria seu objetivo? Escreva-a e comece a agir como ela hoje.',lv:[4,5,4,3]},
+{n:'identidade',t:'Nomear-se Líder',dim:'Liderança',
+ w:'Você espera se sentir líder para agir como um — mas é o contrário. Nomear-se líder autoriza o comportamento de líder.',
+ r:'Assume o posicionamento antes que os outros o concedam.',
+ o:'Postura e decisões à altura da posição desejada.',
+ p:'Assumir a identidade de líder convoca as atitudes dela.',
+ m:'Esperar permissão externa adia seu posicionamento para sempre.',
+ x:'Declare por escrito: “Eu sou um(a) líder que ______.” E aja assim hoje.',lv:[4,5,4,3]},
+{n:'identidade',t:'A Autoestima como Base',dim:'Identidade',
+ w:'Autoestima não é vaidade: é o quanto você se valoriza. Ela é o solo onde tudo o mais — preço, limite, coragem — se sustenta.',
+ r:'Fundamenta o valor que você cobra, aceita e defende.',
+ o:'Relações, preços e escolhas à altura do seu valor.',
+ p:'Autoestima firme faz você pedir, cobrar e recusar com naturalidade.',
+ m:'Autoestima baixa aceita menos do que merece em tudo.',
+ x:'Onde você aceita menos por se valorizar pouco? Escolha um ponto e eleve o seu padrão hoje.',lv:[4,5,4,3]},
+{n:'identidade',t:'A Identidade que Você Escolhe',dim:'Identidade',
+ w:'A carta que fecha o naipe: identidade não é sina, é escolha renovada. Você pode decidir, hoje, quem passa a ser.',
+ r:'Devolve a você o poder de se redefinir a qualquer momento.',
+ o:'Vida conduzida por identidade escolhida, não herdada.',
+ p:'Escolher conscientemente quem ser reescreve o futuro.',
+ m:'Aceitar passivamente a identidade dada repete o destino dado.',
+ x:'Complete e assine: “A partir de hoje, eu escolho ser alguém que ______.”',lv:[5,5,4,3]},
+
+/* ================= RESULTADOS ================= */
+{n:'resultados',t:'Como Você Mensura o Progresso',s:1,q:'Como você mensura seu progresso?',dim:'Gestão',
+ w:'O que não é medido não é gerido — e nem percebido. Sem medida, você não sabe se avança, estaciona ou recua.',
+ r:'Cria o painel que orienta decisões do negócio.',
+ o:'Clareza sobre o que funciona e o que precisa mudar.',
+ p:'Medir o progresso permite corrigir a rota a tempo.',
+ m:'Sem medida, você navega no escuro e confunde esforço com resultado.',
+ x:'Defina como você mede seu progresso hoje — e o principal número que revela se avança.',lv:[5,5,5,4]},
+{n:'resultados',t:'Indicadores que Importam',dim:'Gestão',
+ w:'Medir tudo é não medir nada. Poucos indicadores certos dizem mais que um painel cheio de números.',
+ r:'Foca a atenção nos números que movem o resultado.',
+ o:'Gestão enxuta e decisões mais rápidas.',
+ p:'Poucos indicadores certos clareiam o essencial.',
+ m:'Excesso de métricas confunde e paralisa a decisão.',
+ x:'Escolha os 3 indicadores que realmente dizem se seu negócio está ganhando.',lv:[4,5,4,4]},
+{n:'resultados',t:'O Placar Visível',dim:'Comportamento',
+ w:'Ninguém joga com garra sem ver o placar. Deixar o resultado à vista muda o comportamento sozinho.',
+ r:'Cria consciência diária do jogo que você está jogando.',
+ o:'Engajamento e senso de progresso constante.',
+ p:'Ver o placar todo dia mantém o foco no que importa.',
+ m:'Placar escondido deixa o esforço sem direção nem urgência.',
+ x:'Escolha 1 número-chave e deixe-o visível onde você olha todo dia.',lv:[4,4,4,5]},
+{n:'resultados',t:'A Revisão Semanal',dim:'Gestão',
+ w:'Sem parar para revisar, você repete erros por semanas. A revisão é onde o aprendizado vira ajuste.',
+ r:'Institui o ritmo de correção de rota do negócio.',
+ o:'Melhoria contínua baseada em fato, não em memória.',
+ p:'Revisar toda semana acelera o aprendizado do que funciona.',
+ m:'Sem revisão, o mesmo erro custa o mês inteiro.',
+ x:'Agende 30 min semanais para revisar: o que funcionou, o que não, o que muda.',lv:[4,5,5,4]},
+{n:'resultados',t:'Meta x Realizado',dim:'Gestão',
+ w:'O gap entre o planejado e o feito é a informação mais honesta que existe. Ele diz onde agir.',
+ r:'Expõe desvios cedo, quando ainda são corrigíveis.',
+ o:'Ajustes precisos antes que o desvio vire prejuízo.',
+ p:'Olhar o gap com frequência mantém a meta viva.',
+ m:'Ignorar o gap deixa o desvio crescer sem controle.',
+ x:'Compare sua meta do mês com o realizado até agora. Qual o gap? O que fará sobre ele?',lv:[4,5,4,4]},
+{n:'resultados',t:'Antecipar x Reagir',dim:'Gestão',
+ w:'Indicadores de resultado contam o passado; os de tendência avisam o futuro. Gerir o que antecipa evita apagar incêndio.',
+ r:'Permite agir antes do problema aparecer no caixa.',
+ o:'Correções feitas na causa, não no estrago.',
+ p:'Acompanhar sinais de tendência antecipa a virada.',
+ m:'Olhar só o resultado final deixa você sempre reagindo tarde.',
+ x:'Qual sinal antecede seus resultados (ex.: propostas, contatos)? Passe a acompanhá-lo.',lv:[4,5,4,3]},
+{n:'resultados',t:'Decidir com Dados',dim:'Gestão',
+ w:'Decisão por achismo é aposta; por dado, é gestão. O número reduz o peso do humor e da opinião.',
+ r:'Fundamenta escolhas em evidência, não em impressão.',
+ o:'Decisões mais acertadas e defensáveis.',
+ p:'Basear-se em dados diminui erros caros.',
+ m:'Decidir só pela intuição multiplica o risco.',
+ x:'Numa decisão atual, aponte qual dado você precisa olhar antes de decidir.',lv:[4,4,4,4]},
+{n:'resultados',t:'Ritmo de Feedback',dim:'Gestão',
+ w:'Quanto mais curto o ciclo entre agir e ver o efeito, mais rápido você aprende e corrige.',
+ r:'Acelera a curva de aprendizado do negócio.',
+ o:'Erros baratos e melhoria veloz.',
+ p:'Loops curtos de feedback aceleram o acerto.',
+ m:'Feedback lento faz o erro se repetir por muito tempo.',
+ x:'Como encurtar o tempo entre uma ação sua e o retorno dela? Defina um jeito.',lv:[3,4,4,3]},
+{n:'resultados',t:'Celebrar Marcos',dim:'Comportamento',
+ w:'Sem celebrar, a jornada vira só cobrança e o combustível seca. Reconhecer o avanço renova a energia.',
+ r:'Sustenta a motivação ao longo do percurso.',
+ o:'Fôlego renovado e reforço dos comportamentos certos.',
+ p:'Celebrar marcos gera energia para o próximo trecho.',
+ m:'Nunca comemorar exaure você mesmo vencendo.',
+ x:'Defina o próximo marco e como você vai celebrá-lo quando chegar.',lv:[3,3,4,5]},
+{n:'resultados',t:'Aprender com o Erro',dim:'Gestão',
+ w:'Erro sem análise é só prejuízo; erro examinado é escola paga. A retrospectiva transforma custo em aprendizado.',
+ r:'Converte falhas em melhoria de processo.',
+ o:'Menos repetição dos mesmos tropeços.',
+ p:'Analisar o erro extrai valor do que deu errado.',
+ m:'Varrer o erro para baixo do tapete garante a repetição.',
+ x:'Pegue um erro recente e responda: causa raiz? o que muda para não repetir?',lv:[4,4,4,4]},
+{n:'resultados',t:'Foco no Controlável',dim:'Mentalidade',
+ w:'Energia gasta no que você não controla é desperdício. Concentre-se no que está na sua mão.',
+ r:'Direciona esforço para onde ele de fato muda o placar.',
+ o:'Ação eficaz e menos ansiedade com o incontrolável.',
+ p:'Focar no controlável aumenta impacto e serenidade.',
+ m:'Obcecar-se pelo incontrolável drena energia sem retorno.',
+ x:'Separe seu desafio em “controlo” e “não controlo”. Aja só no primeiro.',lv:[4,4,4,4]},
+{n:'resultados',t:'Números que Contam a Verdade',dim:'Gestão',
+ w:'Alguns números afagam o ego; outros contam a verdade. Gerir exige olhar os que incomodam.',
+ r:'Evita a ilusão de sucesso baseada em métricas de vaidade.',
+ o:'Diagnóstico honesto da saúde do negócio.',
+ p:'Encarar os números reais permite decisões corretas.',
+ m:'Fugir dos números difíceis mascara problemas graves.',
+ x:'Qual número do seu negócio você evita olhar? Olhe agora e anote o que ele revela.',lv:[4,5,4,3]},
+{n:'resultados',t:'Prestação de Contas',dim:'Comportamento',
+ w:'Metas que ninguém cobra viram sugestões. Ter a quem prestar contas eleva drasticamente a taxa de execução.',
+ r:'Cria pressão saudável que sustenta o compromisso.',
+ o:'Compromissos cumpridos por existir cobrança.',
+ p:'Prestar contas a alguém multiplica sua consistência.',
+ m:'Responder só a si mesmo abre espaço para desistir sem custo.',
+ x:'Escolha alguém a quem você reportará seu progresso semanalmente. Combine hoje.',lv:[4,5,5,4]},
+{n:'resultados',t:'O Ajuste de Rota',dim:'Gestão',
+ w:'O plano vai errar — é esperado. O que separa quem chega é a rapidez do ajuste, não a perfeição inicial.',
+ r:'Mantém o negócio adaptável à realidade que muda.',
+ o:'Correções ágeis que preservam o objetivo.',
+ p:'Ajustar cedo evita que o pequeno desvio vire grande.',
+ m:'Insistir no plano errado por orgulho custa o resultado.',
+ x:'O que os últimos resultados pedem que você ajuste? Faça um ajuste concreto agora.',lv:[4,4,4,4]},
+{n:'resultados',t:'O ROI do Esforço',dim:'Estratégia',
+ w:'Nem todo esforço rende igual. Medir o retorno por atividade revela onde parar e onde dobrar a aposta.',
+ r:'Otimiza a alocação do seu recurso mais escasso: energia.',
+ o:'Mais resultado concentrando-se no que rende.',
+ p:'Cortar o esforço de baixo retorno libera o de alto.',
+ m:'Espalhar energia sem medir retorno mantém você ocupado e estagnado.',
+ x:'Liste suas atividades da semana e marque as de maior retorno. Dobre nelas; corte o resto.',lv:[4,5,4,3]},
+{n:'resultados',t:'Documentar o que Funciona',dim:'Gestão',
+ w:'O que deu certo uma vez precisa virar processo, ou depende de sorte. Documentar transforma acerto em sistema.',
+ r:'Torna o sucesso replicável e delegável.',
+ o:'Resultados consistentes independentes de quem executa.',
+ p:'Registrar o que funciona permite repetir e escalar.',
+ m:'Guardar tudo na cabeça trava o negócio em você.',
+ x:'Escolha um acerto recente e escreva o passo a passo que o produziu.',lv:[4,4,4,4]},
+{n:'resultados',t:'Fechamento e Recomeço',dim:'Gestão',
+ w:'A carta que fecha o baralho. Todo ciclo precisa ser encerrado com honestidade para o próximo começar melhor.',
+ r:'Institui a revisão que transforma experiência em sabedoria.',
+ o:'Cada ciclo começando de um patamar mais alto.',
+ p:'Fechar bem um ciclo capitaliza tudo o que ele ensinou.',
+ m:'Emendar ciclos sem revisão carrega os mesmos erros adiante.',
+ x:'Encerre seu ciclo atual: 1 vitória, 1 aprendizado, 1 mudança para o próximo.',lv:[4,4,4,4]},
+];
+
+/* ============================ RENDER ============================ */
+const grid=document.getElementById('grid');
+let ACTIVE='todos';
+const NLABEL={F:'Força',P:'Potência',E:'Efetividade',A:'Facilidade'};
+
+function pad(n){return String(n).padStart(3,'0');}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function levelKey(i){return 'af_deck_note_'+i;}
+function getNote(i){try{return localStorage.getItem(levelKey(i))||'';}catch(e){return '';}}
+function saveNote(i,v){try{localStorage.setItem(levelKey(i),v);}catch(e){}}
+
+function miniLevels(lv,hue){
+  const names=['F','P','E','A'];
+  return '<div class="mini-levels">'+lv.map((val,k)=>{
+    let dots='';for(let d=1;d<=5;d++)dots+='<span class="dot'+(d<=val?' on':'')+'"></span>';
+    return '<span class="ml" title="'+NLABEL[names[k]]+' '+val+'/5">'+dots+'</span>';
+  }).join('')+'</div>';
+}
+
+function cardHTML(c,idx){
+  const nz=NMAP[c.n];const num=pad(idx+1);
+  const seed=c.s?'<div class="seed-tag">Carta-semente</div>':'';
+  const note=getNote(idx);
+  const lvNames=['Força','Potência','Efetividade','Facilidade'];
+  const levels=c.lv.map((v,k)=>(
+    '<div class="lvl"><span class="ln">'+lvNames[k]+'</span>'+
+    '<span class="bar"><span class="fill" style="width:'+(v/5*100)+'%"></span></span>'+
+    '<span class="lv">'+v+'</span></div>'
+  )).join('');
+  const q=c.q?'<div class="blk"><div class="lab">✦ Pergunta-guia</div><p><b>'+esc(c.q)+'</b></p></div>':'';
+  return ''+
+  '<div class="card" style="--suit:'+nz.hue+'" data-i="'+idx+'" onclick="flip(this,event)">'+
+    '<div class="card-inner">'+
+      /* FRONT */
+      '<div class="face front">'+
+        '<span class="flip-hint">virar ↻</span>'+
+        '<div class="corner tl"><span class="num">'+num+'</span><span class="g">'+nz.g+'</span></div>'+
+        '<div class="corner br"><span class="num">'+num+'</span><span class="g">'+nz.g+'</span></div>'+
+        '<div class="front-mid">'+
+          '<div class="bigglyph">'+nz.g+'</div>'+
+          '<div class="naipe-lab">'+nz.nome+'</div>'+
+          '<h4>'+esc(c.t)+'</h4>'+
+          seed+
+          miniLevels(c.lv,nz.hue)+
+        '</div>'+
+        '<div class="front-foot">'+nz.sub+'</div>'+
+      '</div>'+
+      /* BACK */
+      '<div class="face back">'+
+        '<div class="back-head"><div class="kick">'+nz.g+' '+nz.nome+' · '+num+' <span class="pill" style="margin-left:auto">'+esc(c.dim)+'</span></div><h4>'+esc(c.t)+'</h4></div>'+
+        '<div class="back-body">'+
+          q+
+          '<div class="blk"><div class="lab">✦ Por que essa carta importa</div><p>'+esc(c.w)+'</p></div>'+
+          '<div class="blk"><div class="lab">◆ Relevância</div><p>'+esc(c.r)+'</p></div>'+
+          '<div class="blk"><div class="lab">▲ Resultados possíveis</div><p>'+esc(c.o)+'</p></div>'+
+          '<div class="blk"><div class="lab">⇅ Influência sobre o resultado</div>'+
+            '<div class="infl"><div class="ib pos"><span class="ih">+ Positiva</span>'+esc(c.p)+'</div>'+
+            '<div class="ib neg"><span class="ih">− Negativa</span>'+esc(c.m)+'</div></div></div>'+
+          '<div class="blk"><div class="lab">◎ Níveis da carta</div><div class="levels">'+levels+'</div></div>'+
+          '<div class="tool"><div class="lab">✎ Ferramenta — preencha agora</div><p style="font-size:11.5px;color:var(--ink)">'+esc(c.x)+'</p>'+
+            '<textarea placeholder="Escreva aqui — fica salvo no seu aparelho…" oninput="onNote('+idx+',this)" onclick="event.stopPropagation()">'+esc(note)+'</textarea>'+
+            '<div class="saved" id="sv'+idx+'"></div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="back-foot"><div class="compass-line">✦ <b>Seus padrões de comportamento definem seus acontecimentos.</b> — Carla Caroline</div></div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function render(){
+  const term=(document.getElementById('q').value||'').toLowerCase().trim();
+  let html='';
+  const groups = ACTIVE==='todos' ? NAIPES.map(n=>n.k) : [ACTIVE];
+  let shown=0;
+  groups.forEach(k=>{
+    const nz=NMAP[k];
+    const items=D.map((c,i)=>({c,i})).filter(o=>o.c.n===k).filter(o=>{
+      if(!term)return true;
+      const blob=(o.c.t+' '+o.c.w+' '+o.c.r+' '+o.c.o+' '+(o.c.q||'')+' '+o.c.x+' '+o.c.dim).toLowerCase();
+      return blob.includes(term);
+    });
+    if(!items.length)return;
+    html+='<div class="section-head"><span class="g" style="color:'+nz.hue+'">'+nz.g+'</span>'+
+      '<h3>'+nz.nome+'</h3><span>'+nz.sub+'</span><span class="rule"></span><span style="color:'+nz.hue+'">'+items.length+' cartas</span></div>';
+    items.forEach(o=>{html+=cardHTML(o.c,o.i);shown++;});
+  });
+  grid.innerHTML=html || '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--ink-faint)">Nenhuma carta encontrada para essa busca.</div>';
+  updateCounter(shown);
+}
+
+function updateCounter(shown){
+  let filled=0;D.forEach((c,i)=>{if(getNote(i).trim())filled++;});
+  document.getElementById('counter').innerHTML=
+    'Exibindo <b>'+shown+'</b> de <b>'+D.length+'</b> cartas · <b>'+filled+'</b> anotações no seu caderno';
+}
+
+/* ---------- Suits chips ---------- */
+function buildSuits(){
+  const el=document.getElementById('suits');
+  let html='<span class="suit-chip'+(ACTIVE==='todos'?' on':'')+'" style="'+(ACTIVE==='todos'?'background:var(--gold);':'')+'" onclick="setSuit(\'todos\')"><span class="g">✦</span> Todas <span class="ct">'+D.length+'</span></span>';
+  NAIPES.forEach(n=>{
+    const on=ACTIVE===n.k;const ct=D.filter(c=>c.n===n.k).length;
+    html+='<span class="suit-chip'+(on?' on':'')+'" style="'+(on?'background:'+n.hue+';':'--suit:'+n.hue)+'" onclick="setSuit(\''+n.k+'\')">'+
+      '<span class="g" style="color:'+(on?'#100e18':n.hue)+'">'+n.g+'</span> '+n.nome+' <span class="ct">'+ct+'</span></span>';
+  });
+  el.innerHTML=html;
+}
+function setSuit(k){ACTIVE=k;buildSuits();render();document.getElementById('deck').scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* ---------- Flip ---------- */
+function flip(card,e){ if(e && e.target.closest('textarea'))return; card.classList.toggle('flip'); }
+
+/* ---------- Notes ---------- */
+let noteTimers={};
+function onNote(i,ta){
+  saveNote(i,ta.value);
+  const sv=document.getElementById('sv'+i);
+  if(sv){sv.textContent='✓ salvo';clearTimeout(noteTimers[i]);noteTimers[i]=setTimeout(()=>{if(sv)sv.textContent='';},1400);}
+}
+
+/* ---------- Draw ritual ---------- */
+function drawCard(){
+  const i=Math.floor(seededRnd()*D.length);
+  const slot=document.getElementById('drawSlot');
+  slot.innerHTML=cardHTML(D[i],i);
+  document.getElementById('overlay').classList.add('on');
+  const inner=slot.querySelector('.card');
+  if(inner){inner.onclick=function(ev){flip(inner,ev);};}
+}
+function closeDraw(){document.getElementById('overlay').classList.remove('on');}
+let _seed=1;
+function seededRnd(){ _seed=(performance.now()+_seed*9301+49297)%233280; return _seed/233280; }
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeDraw();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDraw();});
+
+/* ---------- Tools persistence ---------- */
+const TOOL_IDS=['bp1','bp2','bp3','bp4','commit','commitWhen','commitStep','p1','p2','p3'];
+function loadTools(){
+  TOOL_IDS.forEach(id=>{const el=document.getElementById(id);if(!el)return;const v=localStorage.getItem('af_tool_'+id);if(v!==null)el.value=v;
+    el.addEventListener('input',()=>{try{localStorage.setItem('af_tool_'+id,el.value);}catch(e){}});});
+  commitNote();
+}
+function commitNote(){
+  const v=+document.getElementById('commit').value;
+  document.getElementById('commitVal').textContent=v;
+  const notes=['Zero disposição é uma resposta honesta — e um convite a descobrir o que trava você.',
+    'Muito baixa. Que crença ou medo está segurando seu compromisso?',
+    'Baixa. Talvez o objetivo ainda não seja realmente seu. Reveja a carta “Futuro Escolhido x Herdado”.',
+    'Há resistência. Investigue o ganho oculto de não avançar.',
+    'Morno. O compromisso oscila com o humor — precisa de sistema, não de vontade.',
+    'Meio a meio. Você quer, mas algo divide sua energia. O que é?',
+    'Boa base. Falta transformar intenção em rotina inegociável.',
+    'Comprometido. Agora proteja esse compromisso do “depois”.',
+    'Forte. Você está pronto para dar passos concretos já.',
+    'Muito forte. Canalize essa energia numa ação hoje mesmo.',
+    'Compromisso total. Nada te segura além dos seus próprios padrões — e você já os está enxergando.'];
+  document.getElementById('commitNote').textContent=notes[v];
+}
+function exportNotes(){
+  let out='BÚSSOLA — BARALHO ESTRATÉGICO · MEU CADERNO\n"Seus padrões de comportamento definem seus acontecimentos." — Carla Caroline\n\n';
+  out+='== FERRAMENTAS ==\n';
+  const lbl={bp1:'Bússola de Padrões · Resultado que se repete',bp2:'Bússola de Padrões · Ligado a quem',bp3:'Bússola de Padrões · Ganho oculto',bp4:'Bússola de Padrões · Novo comportamento',commit:'Compromisso (0-10)',commitWhen:'Prazo para priorizar',commitStep:'1º passo em 24h',p1:'Objetivo em uma frase',p2:'Como vou medir',p3:'Maior obstáculo'};
+  TOOL_IDS.forEach(id=>{const v=(localStorage.getItem('af_tool_'+id)||'').trim();if(v)out+='• '+lbl[id]+': '+v+'\n';});
+  out+='\n== CARTAS ANOTADAS ==\n';
+  D.forEach((c,i)=>{const v=getNote(i).trim();if(v){out+='\n['+pad(i+1)+'] '+NMAP[c.n].nome+' — '+c.t+'\n'+v+'\n';}});
+  const blob=new Blob([out],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meu-caderno-bussola.txt';a.click();
+}
+function clearNotes(){
+  if(!confirm('Isso apaga todas as suas anotações e ferramentas deste aparelho. Continuar?'))return;
+  D.forEach((c,i)=>localStorage.removeItem(levelKey(i)));
+  TOOL_IDS.forEach(id=>localStorage.removeItem('af_tool_'+id));
+  location.reload();
+}
+
+/* ---------- Theme ---------- */
+function toggleTheme(){
+  const root=document.documentElement;
+  const cur=root.getAttribute('data-theme');
+  const isDark = cur ? cur==='dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
+  const next=isDark?'light':'dark';
+  root.setAttribute('data-theme',next);
+  document.getElementById('themeBtn').textContent=next==='dark'?'☾':'☀';
+  try{localStorage.setItem('af_deck_theme',next);}catch(e){}
+}
+(function initTheme(){
+  try{const t=localStorage.getItem('af_deck_theme');if(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'☾':'☀';}}catch(e){}
+})();
+
+/* ---------- Init ---------- */
+buildSuits();render();loadTools();
+</script>
+
+</body>
+</html>

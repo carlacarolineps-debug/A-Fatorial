@@ -3,6 +3,46 @@
 Aplicação de página única (um arquivo `index.html`, sem build, JavaScript puro).
 Abra o arquivo no navegador para usar.
 
+---
+
+## 🎴 Bússola — Baralho Estratégico de Autogestão (`baralho.html`)
+
+Produto de **auto-mentoria** (por Carla Caroline): um baralho de **170 cartas**
+organizadas em **10 naipes**, para autoconsultoria e autogestão. Não são dicas —
+é uma mentoria de mesa que conduz o mentoreado da clareza do objetivo até a raiz
+dos padrões de comportamento que governam seus resultados. Bússola do baralho:
+*"Seus padrões de comportamento definem seus acontecimentos." — Carla Caroline*.
+
+Arquivo único (`baralho.html`, sem build, fontes de sistema — funciona offline).
+Abra no navegador para usar; use **⤓ Imprimir cartas** para gerar os cards físicos.
+
+**Os 10 naipes (17 cartas cada):**
+
+| Naipe | Foco |
+|-------|------|
+| ◎ Direção | Clareza & propósito |
+| ⬡ Plano | Estratégia & planejamento |
+| ✳ Execução | Disciplina & ação |
+| ✦ Padrões | A bússola do comportamento |
+| ❖ Mente | Mentalidade & crenças |
+| ◆ Forças | Autoconhecimento & talento |
+| ♛ Liderança | Gestão & posicionamento |
+| ☾ Sombra | Medos & autossabotagem |
+| ✧ Identidade | Autenticidade & autoimagem |
+| ▲ Resultados | Mensuração & gestão |
+
+Cada carta traz: **pergunta-guia** (quando aplicável), *por que a carta importa*,
+*relevância*, *resultados possíveis*, *influência (+/−) sobre o resultado*, os
+**níveis** (Força · Potência · Efetividade · Facilidade, de 1 a 5, como num baralho)
+e uma **ferramenta para preencher na hora** (salva no navegador). As **24 perguntas
+iniciais** da sessão de mentoria estão embutidas como *cartas-semente*.
+
+**Recursos:** puxar carta (ritual do dia), filtro por naipe, busca, virar carta
+(frente → verso com a mentoria), anotações persistentes (`localStorage`), exportar
+o caderno em texto, tema escuro/claro e modo impressão (layout de cards físicos).
+
+---
+
 ## Acessos (tela de login)
 
 | Perfil | Entra vendo | Pode acessar (padrão) |
