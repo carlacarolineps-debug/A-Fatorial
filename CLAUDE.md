@@ -16,7 +16,7 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.02.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.03.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -30,12 +30,22 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html` — Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### Direção visual: "Cofre Privado" (a partir de 2407.03)
+Linguagem premium — carbono quente + ouro-champanhe + pergaminho, tipografia
+editorial (Fraunces + versaletes), fios de ouro, cantos secos, **sem emoji** no
+chrome e **sem arco-íris** de naipes (monocromático ouro). Tokens retunados no
+`:root` da base; camada de refinamento em `scratchpad/premium.css` (injetada por
+último, vence a cascata); emojis de conteúdo removidos da base **fora** do bloco
+de dados (módulos/troféus preservados). Ver conceito em
+`Operação Blindada — Cofre Privado (direção visual) 2407.01.html`.
+
 ### Como regenerar o produto unificado
-Motor da Bússola em `scratchpad/bussola_engine.js` + `bussola.css`; dados das 170
-cartas em `scratchpad/data_D.txt`; injeção nos pontos exatos do arquivo-base via
-`scratchpad/inject.cjs` (registra view, aba NAV, dispatch em `go()`, campo em
-`defaultState()`/boot). Acesso: `PREVIEW=true` quando aberto via `file://`
-(standalone, sem login); hospedado exige login Supabase (trava de acesso mantida).
+Motor da Bússola em `scratchpad/bussola_engine.js` + `bussola.css` + `premium.css`;
+dados das 170 cartas em `scratchpad/data_D.txt`; injeção nos pontos exatos do
+arquivo-base via `scratchpad/inject.cjs` (registra view, aba NAV, dispatch em
+`go()`, campo em `defaultState()`/boot; injeta bússola.css + premium.css). Acesso:
+`PREVIEW=true` quando aberto via `file://` (standalone, sem login); hospedado exige
+login Supabase (trava de acesso mantida).
 
 ## Contexto
 

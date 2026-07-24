@@ -14,27 +14,29 @@
    Estrutura que protege. Estratégia que escala.
    ============================================================ */
 :root{
-  --ink:#0a0c12;          /* carbono base, quase preto */
-  --ink-2:#10131c;        /* painel */
-  --ink-3:#181c28;        /* card */
-  --line:#2c3344;         /* aço — linhas/divisores */
-  --line-soft:#1f2533;
-  --star:#f4f6fb;         /* texto claro */
-  --mute:#9aa3bb;         /* texto secundário */
-  --mute-2:#69728c;       /* texto terciário */
-  --amber:#f5b53d;        /* OURO — acento principal, conquista/luz */
-  --amber-deep:#c98a1e;
-  --steel:#b9c2d6;        /* aço metálico — estrutura */
-  --sage:#5fd0a6;         /* progresso vivo / sucesso */
+  /* Direção "Cofre Privado" — carbono quente, ouro-champanhe, pergaminho */
+  --ink:#0a0806;          /* carbono quente, quase preto */
+  --ink-2:#12100b;        /* painel */
+  --ink-3:#1a1610;        /* card */
+  --line:rgba(198,168,103,.20);   /* fio de ouro — linhas/divisores */
+  --line-soft:rgba(236,227,210,.07);
+  --star:#ece3d2;         /* pergaminho — texto claro */
+  --mute:#a89f8a;         /* texto secundário (taupe quente) */
+  --mute-2:#6f685a;       /* texto terciário */
+  --amber:#c6a867;        /* OURO champanhe — acento único */
+  --amber-deep:#8a7233;
+  --amber-bright:#e9d4a0;
+  --steel:#8a8f96;        /* aço frio — dado/estrutura */
+  --sage:#63c49a;         /* sucesso (uso semântico, discreto) */
   --sage-deep:#2fa07a;
-  --coral:#ff7a6b;        /* alerta/atenção */
-  --violet:#9b8cff;       /* destaque secundário / info */
-  --glow: 0 0 0 1px rgba(245,181,61,.40), 0 8px 30px -8px rgba(245,181,61,.50);
-  --radius:18px;
-  --radius-sm:12px;
+  --coral:#c06a5a;        /* alerta (uso semântico, discreto) */
+  --violet:#9a8f78;       /* neutro quente (antes: destaque) */
+  --glow: 0 0 0 1px rgba(198,168,103,.30), 0 10px 34px -12px rgba(198,168,103,.32);
+  --radius:5px;
+  --radius-sm:3px;
   --maxw:1120px;
-  --shadow: 0 24px 60px -28px rgba(0,0,0,.78);
-  --serif:"Fraunces", Georgia, "Times New Roman", serif;
+  --shadow: 0 30px 80px -40px rgba(0,0,0,.85);
+  --serif:"Fraunces", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans:"Outfit", "Segoe UI", system-ui, -apple-system, sans-serif;
   --mono:"Space Mono", ui-monospace, "Cascadia Mono", monospace;
 }
@@ -612,6 +614,95 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 .b-provalist{margin:8px 0 0;padding-left:18px}
 .b-provalist li{font-size:12.5px;color:var(--star);margin-bottom:4px;line-height:1.4}
 
+/* ==== PREMIUM (Cofre Privado) ==== */
+/* =====================================================================
+   PREMIUM — direção "Cofre Privado" · camada de refinamento (vence a cascata)
+   Aplica-se a TODO o produto: base Operação Blindada + aba A Bússola.
+   ===================================================================== */
+body{letter-spacing:.004em}
+::selection{background:rgba(198,168,103,.26);color:#fff}
+
+/* rótulos e títulos editoriais */
+.eyebrow,.kicker{letter-spacing:.24em !important;text-transform:uppercase;color:var(--mute-2) !important;font-weight:500;font-family:var(--sans)}
+h1.page,h2.sec,.hero h1,.hero h2{font-family:var(--serif);font-weight:500;letter-spacing:-.01em}
+.lead{color:var(--mute);font-family:var(--sans)}
+.stat-num{font-family:var(--serif);font-weight:500}
+
+/* topbar — mais sóbria */
+.brand small{letter-spacing:.16em;text-transform:uppercase;color:var(--mute-2)}
+.chip{border-radius:2px;border:1px solid var(--line);background:none;text-transform:uppercase;letter-spacing:.1em;font-size:10px;color:var(--mute)}
+.chip .xp,.chip .lvl,.chip .streak{color:var(--amber-bright)}
+
+/* NAV — abas editoriais, sem emoji */
+.tab .ic{display:none !important}
+.tabs{gap:0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{border-radius:0;background:none !important;border:0;border-bottom:2px solid transparent;
+  padding:15px 17px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute-2);font-weight:500;transition:color .2s,border-color .2s}
+.tab:hover{color:var(--star)}
+.tab.active{color:var(--amber-bright);border-bottom-color:var(--amber);background:none !important}
+
+/* sub-abas (Gestão + Bússola) */
+.gtabs{gap:0;border-bottom:1px solid var(--line);flex-wrap:wrap;margin-bottom:8px}
+.gtab{border-radius:0;background:none;border:0;border-bottom:2px solid transparent;
+  padding:13px 15px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute-2)}
+.gtab.on{color:var(--amber-bright);border-bottom-color:var(--amber);background:none}
+
+/* botões — versalete, cantos secos */
+.btn{border-radius:2px;font-family:var(--sans);letter-spacing:.14em;text-transform:uppercase;font-size:11px;font-weight:500;border:1px solid transparent}
+.btn.primary{background:linear-gradient(180deg,var(--amber-bright),var(--amber));color:#241b08;box-shadow:none}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:none;border-color:var(--line);color:var(--star)}
+.btn.ghost:hover{border-color:var(--amber);color:var(--amber-bright)}
+.btn.sage{background:none;border-color:var(--line);color:var(--amber-bright)}
+.btn.sage:hover{border-color:var(--amber)}
+.btn.sm{font-size:10px;padding:9px 15px}.btn.xs{font-size:9.5px;padding:7px 12px;letter-spacing:.12em}
+
+/* cartões, painéis, callouts — fio de ouro */
+.card,.tool-card,.diary-entry,.plan-item,.trophy{border-radius:var(--radius);border:1px solid var(--line)}
+.card{background:linear-gradient(180deg,var(--ink-3),var(--ink-2))}
+.callout{border-radius:var(--radius);border:1px solid var(--line);background:rgba(198,168,103,.05);padding:15px 18px}
+.callout .ic{display:none}
+.challenge,.mentor-note{border-radius:var(--radius)}
+
+/* chips / pills / status */
+.pill,.badge-status,.pill-row .pill{border-radius:2px;border:1px solid var(--line);text-transform:uppercase;letter-spacing:.1em;font-size:10px;background:none;color:var(--mute)}
+.pill.amber{background:var(--amber);color:#241b08;border-color:transparent}
+
+/* módulos / trilhas — glifo discreto (menos "app") */
+.module{border-radius:var(--radius)}
+.module .glyph,.lesson-head .glyph{opacity:.45;filter:grayscale(.4)}
+.ring{filter:grayscale(.2)}
+
+/* likert / campos */
+.likert button{border-radius:2px}
+.in,input.in,textarea.in,select.in{border-radius:3px;background:var(--ink-2);border:1px solid var(--line)}
+.in:focus{border-color:var(--amber)}
+label.fld>span{letter-spacing:.14em;text-transform:uppercase;font-size:10.5px;color:var(--mute-2)}
+
+/* toasts — refinados, sem emoji saltitante */
+.toast{border-radius:2px;border:1px solid var(--line);background:var(--ink-2)}
+.toast .em{display:none}
+.toast b{font-family:var(--serif);font-weight:500}
+
+/* modais */
+.modal{border-radius:var(--radius);border:1px solid var(--line)}
+.modal h3,.card h3,.tg-result h3{font-family:var(--serif);font-weight:500}
+
+/* barra de ações de resultado */
+.res-actions{border-top:1px solid var(--line);gap:4px}
+
+/* diagnóstico / radar */
+.diag-q{border-bottom:1px solid var(--line-soft)}
+.cmp-track{border-radius:2px}
+
+/* ===== Bússola — reforço editorial (mono ouro) ===== */
+.bcard{border-radius:var(--radius-sm);border-top-width:1px}
+.bcard-glyph{filter:none}
+.b-featured{border-radius:var(--radius)}
+.b-ii,.b-cofre,.b-pacto,.b-state,.b-hoje-teaser{border-radius:var(--radius-sm)}
+.b-rlead,.b-report .b-rlead{font-family:var(--serif)}
+.b-mini i.on{background:var(--amber)}
+
 </style>
 </head>
 <body>
@@ -916,7 +1007,7 @@ window.obAskQuestion = function () {
   if (!ta) return;
   var text = (ta.value || "").trim();
   if (!text) { ta.focus(); return; }
-  if (window.OB && OB.isPreview()) { if (window.toast) toast("🔒", "Disponível quando publicado"); return; }
+  if (window.OB && OB.isPreview()) { if (window.toast) toast("", "Disponível quando publicado"); return; }
   OB.caixinhaAsk(text).then(function (r) {
     if (r && r.error) { if (window.toast) toast("⚠️", "Não consegui enviar agora"); return; }
     ta.value = ""; if (window.toast) toast("✓", "Pergunta enviada"); loadObCaixinha();
@@ -949,7 +1040,7 @@ window.loadObAudioHome = function () {
     var hist = rows.slice(1, 6);
     var html = '<div class="card" style="border-color:rgba(245,181,61,.35);background:linear-gradient(135deg,rgba(245,181,61,.07),var(--ink-2))">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
-      + '<span style="font-size:22px">🎙️</span>'
+      + '<span style="font-size:22px"></span>'
       + '<div style="flex:1"><b style="font-family:var(--serif)">' + (isToday ? "Áudio de hoje" : "Último áudio da mentora") + "</b>"
       + (isNew ? ' <span id="ob-audio-new" style="background:var(--amber);color:#1a1505;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;vertical-align:middle">NOVO</span>' : "")
       + '<div class="muted tiny">' + (today.titulo ? obEsc(today.titulo) + " · " : "") + obFmtDate(today.data) + "</div></div></div>"
@@ -975,7 +1066,7 @@ window.loadObAudioMentor = function () {
   var box = document.getElementById("ob-audio-mentor");
   if (!box) return;
   if (!(window.OB && OB.isMentor())) { box.innerHTML = ""; return; }
-  box.innerHTML = '<h2 class="sec"><span class="ic">🎙️</span> Áudio diário · publicar</h2>'
+  box.innerHTML = '<h2 class="sec"><span class="ic"></span> Áudio diário · publicar</h2>'
     + '<div class="card pad-lg">'
     + '<p class="muted tiny" style="margin:0 0 12px">Grave no celular, escolha o arquivo aqui (ou cole um link) e publique. Os membros veem no Início.</p>'
     + '<label class="fld" style="margin:0 0 8px"><span>Título (opcional)</span><input class="in" id="ob-au-title" placeholder="Ex.: O foco de hoje"></label>'
@@ -1004,7 +1095,7 @@ window.obPublishAudio = function () {
       btn.disabled = false; st.textContent = "✓ Áudio publicado!";
       document.getElementById("ob-au-title").value = ""; document.getElementById("ob-au-url").value = ""; document.getElementById("ob-au-tx").value = "";
       if (fileInput) fileInput.value = "";
-      if (window.toast) toast("🎙️", "Áudio publicado", "Os membros já veem no Início");
+      if (window.toast) toast("", "Áudio publicado", "Os membros já veem no Início");
     })
     .catch(function (e) { btn.disabled = false; st.textContent = "Não consegui publicar agora. Tente de novo."; });
 };
@@ -1020,7 +1111,7 @@ window.obCheckUpdates = function () {
     var a = rows[0];
     if ((S.audioNotified || "") !== a.id && (S.audioSeen || "") !== a.id) {
       S.audioNotified = a.id; if (typeof save === "function") save();
-      pushNotif("🎙️", "Novo áudio da mentora", a.titulo || "Disponível no Início");
+      pushNotif("", "Novo áudio da mentora", a.titulo || "Disponível no Início");
     }
   });
 
@@ -1029,7 +1120,7 @@ window.obCheckUpdates = function () {
       var pend = (rows || []).filter(function (r) { return !r.respondida; }).length;
       if (pend > 0 && (S.mentorPendNotified || 0) !== pend) {
         S.mentorPendNotified = pend; if (typeof save === "function") save();
-        pushNotif("📨", pend === 1 ? "1 pergunta na fila" : pend + " perguntas na fila", "Responda em A Mentora");
+        pushNotif("", pend === 1 ? "1 pergunta na fila" : pend + " perguntas na fila", "Responda em A Mentora");
       }
     });
   } else {
@@ -1049,7 +1140,7 @@ window.obCheckUpdates = function () {
       }
       if (answered > 0) {
         S.lastCaixinhaSeen = newest; if (typeof save === "function") save();
-        pushNotif("✅", answered === 1 ? "A mentora respondeu sua pergunta" : "A mentora respondeu " + answered + " perguntas", "Veja em A Mentora");
+        pushNotif("", answered === 1 ? "A mentora respondeu sua pergunta" : "A mentora respondeu " + answered + " perguntas", "Veja em A Mentora");
       }
     });
   }
@@ -3010,7 +3101,7 @@ function addXp(amount, label){
   S.log.unshift({t:Date.now(), type:'xp', label:`+${amount} XP — ${label}`});
   if(lv>before){ S.level=lv; setTimeout(()=>levelUpModal(lv), 400); }
   S.level=lv;
-  toast('✨', `+${amount} XP`, label);
+  toast('', `+${amount} XP`, label);
   checkTrophies();
   save(); renderTop();
 }
@@ -3062,7 +3153,7 @@ function touchStreak(){
   const yest=dayKey(Date.now()-86400000);
   if(S.lastActive===yest){ S.streak=(S.streak||0)+1; }
   else if(S.lastActive){ // quebrou
-    if(S.streak>=1){ pushNotif('🌅','Que bom te ver de volta','Sua jornada continua de onde parou.'); grantTrophy('comeback'); }
+    if(S.streak>=1){ pushNotif('','Que bom te ver de volta','Sua jornada continua de onde parou.'); grantTrophy('comeback'); }
     S.streak=1;
   } else { S.streak=1; }
   S.lastActive=today;
@@ -3093,7 +3184,7 @@ $('#modalBg').addEventListener('click', e=>{ if(e.target.id==='modalBg') closeMo
 
 function levelUpModal(lv){
   modal(`<div class="center">
-    <div class="levelup-em">🆙</div>
+    <div class="levelup-em"></div>
     <p class="eyebrow" style="justify-content:center">Você subiu de nível</p>
     <h3>Nível ${lv} — ${LEVEL_NAMES[lv-1]}</h3>
     <p class="muted mt8">Cada nível abre mais profundidade na sua jornada de mentoria. Continue acendendo a constelação.</p>
@@ -3109,13 +3200,13 @@ function levelUpModal(lv){
 const NAV = [
   {id:'home', label:'Início', ic:'✦'},
   {id:'bussola', label:'A Bússola', ic:'🧭'},
-  {id:'trilhas', label:'Trilhas', ic:'🗺️'},
-  {id:'ferramentas', label:'Ferramentas', ic:'🛠️'},
-  {id:'gestao', label:'Padrão de Gestão', ic:'🛡️'},
-  {id:'pesquisas', label:'Pesquisas', ic:'📊'},
-  {id:'diario', label:'Diário', ic:'📔'},
-  {id:'plano', label:'Plano 30d', ic:'🎯'},
-  {id:'conquistas', label:'Conquistas', ic:'🏆'},
+  {id:'trilhas', label:'Trilhas', ic:''},
+  {id:'ferramentas', label:'Ferramentas', ic:''},
+  {id:'gestao', label:'Padrão de Gestão', ic:''},
+  {id:'pesquisas', label:'Pesquisas', ic:''},
+  {id:'diario', label:'Diário', ic:''},
+  {id:'plano', label:'Plano 30d', ic:''},
+  {id:'conquistas', label:'Conquistas', ic:''},
   {id:'mentora', label:'A Mentora', ic:'✶'}
 ];
 let current='home';
@@ -3154,11 +3245,11 @@ function renderTop(){
   if(!S.name){ z.innerHTML=''; return; }
   const lp=xpInLevel(S.xp);
   const unread=(S.notifs||[]).filter(n=>!n.read).length;
-  const streakChip = S.streak>=2 ? `<div class="chip streak" title="${S.streak} dias seguidos"><span class="ic">🔥</span><span>${S.streak}</span></div>` : '';
+  const streakChip = S.streak>=2 ? `<div class="chip streak" title="${S.streak} dias seguidos"><span class="ic"></span><span>${S.streak}</span></div>` : '';
   z.innerHTML=`
     ${streakChip}
-    <div class="chip lvl"><span class="ic">⭐</span><span class="lbl">Nv ${S.level} · ${LEVEL_NAMES[S.level-1]}</span></div>
-    <div class="chip xp"><span class="ic">✨</span><span>${S.xp} XP</span></div>
+    <div class="chip lvl"><span class="ic"></span><span class="lbl">Nv ${S.level} · ${LEVEL_NAMES[S.level-1]}</span></div>
+    <div class="chip xp"><span class="ic"></span><span>${S.xp} XP</span></div>
     <button class="bell" onclick="openNotifs()" title="Notificações">🔔${unread?`<span class="dot-badge">${unread}</span>`:''}</button>
     <div class="avatar" title="${S.name}" onclick="go('mentora')">${(S.name[0]||'?').toUpperCase()}</div>`;
 }
@@ -3208,7 +3299,7 @@ function startJourney(){
   go('home');
   setTimeout(()=>{
     modal(`<div class="center">
-      <div class="levelup-em">🧭</div>
+      <div class="levelup-em"></div>
       <p class="eyebrow" style="justify-content:center">Antes de começar</p>
       <h3>Bem-vindo(a), ${n.split(' ')[0]}!</h3>
       <p class="muted mt8">Que tal um autodiagnóstico rápido de 9 perguntas? Ele revela onde você já é forte e onde há espaço para crescer — e vira seu "antes", para você medir a evolução no fim da jornada.</p>
@@ -3252,7 +3343,7 @@ function renderHome(){
       </g>
     </svg>
     <p class="greet">${greeting()}, ${firstName}</p>
-    <h1>${done===0?'Sua jornada de mentoria começa aqui.':done===total?'Você completou toda a constelação. 👑':'Continue acendendo sua constelação.'}</h1>
+    <h1>${done===0?'Sua jornada de mentoria começa aqui.':done===total?'Você completou toda a constelação. ':'Continue acendendo sua constelação.'}</h1>
     <p>${done===0?'Cada trilha que você conclui acende uma estrela. Comece pela primeira e avance no seu ritmo.':`${done} de ${total} trilhas concluídas. Você está no nível ${S.level} — ${LEVEL_NAMES[S.level-1]}.`}</p>
     <div class="btn-row">
       <button class="btn primary" onclick="openLesson('${next.id}')">${done===0?'Começar primeira trilha':'Continuar: '+next.title} →</button>
@@ -3264,13 +3355,13 @@ function renderHome(){
     <div class="card kicker"><div class="stat-num" style="color:var(--amber)">${S.xp}</div><div class="stat-lbl">XP total</div></div>
     <div class="card kicker"><div class="stat-num" style="color:var(--sage)">${done}/${total}</div><div class="stat-lbl">Trilhas</div></div>
     <div class="card kicker"><div class="stat-num" style="color:var(--violet)">${trophiesGot}/${TROPHIES.length}</div><div class="stat-lbl">Conquistas</div></div>
-    <div class="card kicker"><div class="stat-num" style="color:var(--coral)">${S.streak||0}</div><div class="stat-lbl">Dias seguidos 🔥</div></div>
+    <div class="card kicker"><div class="stat-num" style="color:var(--coral)">${S.streak||0}</div><div class="stat-lbl">Dias seguidos </div></div>
   </div>
 
   <div id="ob-audio-home"></div>
 
   <div class="card" style="display:flex;gap:14px;align-items:center;border-color:rgba(155,140,255,.3);background:linear-gradient(135deg,rgba(155,140,255,.08),var(--ink-2))">
-    <span style="font-size:24px">💭</span>
+    <span style="font-size:24px"></span>
     <div><div class="tiny muted" style="letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Mantra do dia</div>
     <div style="font-family:var(--serif);font-size:16.5px;font-style:italic;color:#e7e9fb">"${mantraOfDay()}"</div></div>
   </div>
@@ -3309,12 +3400,12 @@ function renderHome(){
     </div>
   </div>
 
-  <h2 class="sec"><span class="ic">📜</span> Atividade recente</h2>
+  <h2 class="sec"><span class="ic"></span> Atividade recente</h2>
   ${planAgendaDashboards()}
 
   <div class="card pad-lg" style="border-color:rgba(95,208,166,.28);background:linear-gradient(120deg,rgba(95,208,166,.07),rgba(245,181,61,.05))">
     <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
-      <span style="font-size:30px">🚀</span>
+      <span style="font-size:30px"></span>
       <div style="flex:1;min-width:180px"><h2 class="sec" style="margin:0 0 4px">Construa junto e ganhe</h2>
       <p class="muted tiny" style="margin:0">Indique a mentoria, sugira melhorias e desbloqueie testes e bônus exclusivos. Indicar é o que mais rende pontos.</p></div>
       <div class="btn-row" style="flex:none">
@@ -3336,12 +3427,12 @@ function nextActionCard(){
   const total=MODULES.length;
   // prioridade de sugestão inteligente
   let icon,title,desc,btn,act;
-  if(!S.diagnostic){ icon='🧭'; title='Faça seu autodiagnóstico'; desc='Descubra seus pontos fortes e onde crescer. Vira seu "antes" para medir evolução.'; btn='Começar diagnóstico'; act="openDiagnostic(false)"; }
+  if(!S.diagnostic){ icon=''; title='Faça seu autodiagnóstico'; desc='Descubra seus pontos fortes e onde crescer. Vira seu "antes" para medir evolução.'; btn='Começar diagnóstico'; act="openDiagnostic(false)"; }
   else if(done<total){ let ni=MODULES.findIndex((m,i)=>isUnlocked(i)&&!S.modules[m.id]?.completed); if(ni<0)ni=0; const m=MODULES[ni];
     icon=m.icon; title='Sua próxima trilha: '+m.title; desc=m.short; btn='Continuar trilha'; act="openLesson('"+m.id+"')"; }
-  else if(!S.retake){ icon='📈'; title='Meça sua evolução'; desc='Você concluiu todas as trilhas! Refaça o diagnóstico e veja o quanto avançou desde o início.'; btn='Ver minha evolução'; act="finishJourney()"; }
-  else if((S.plan||[]).filter(p=>!p.done).length>0){ icon='🎯'; title='Avance seu Plano de 30 dias'; desc='Você tem ações pendentes. Conhecimento vira resultado quando ganha prazo.'; btn='Abrir meu plano'; act="go('plano')"; }
-  else { icon='🛠️'; title='Aprofunde com as ferramentas'; desc='Releia uma trilha ou use as ferramentas práticas com situações novas do seu dia a dia.'; btn='Ver ferramentas'; act="go('ferramentas')"; }
+  else if(!S.retake){ icon=''; title='Meça sua evolução'; desc='Você concluiu todas as trilhas! Refaça o diagnóstico e veja o quanto avançou desde o início.'; btn='Ver minha evolução'; act="finishJourney()"; }
+  else if((S.plan||[]).filter(p=>!p.done).length>0){ icon=''; title='Avance seu Plano de 30 dias'; desc='Você tem ações pendentes. Conhecimento vira resultado quando ganha prazo.'; btn='Abrir meu plano'; act="go('plano')"; }
+  else { icon=''; title='Aprofunde com as ferramentas'; desc='Releia uma trilha ou use as ferramentas práticas com situações novas do seu dia a dia.'; btn='Ver ferramentas'; act="go('ferramentas')"; }
   return `<div class="card pad-lg" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;border-color:rgba(245,181,61,.3);background:linear-gradient(135deg,rgba(245,181,61,.06),var(--ink-2))">
     <div style="width:54px;height:54px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:26px;background:rgba(245,181,61,.12);border:1px solid rgba(245,181,61,.3)">${icon}</div>
     <div style="flex:1;min-width:220px"><div class="tiny" style="color:var(--amber);font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px">Próximo passo sugerido</div>
@@ -3358,7 +3449,7 @@ function homeMentorTip(done,total){
 function renderLog(){
   if(!S.log.length) return '<p class="muted tiny" style="margin:0">Suas conquistas e avanços aparecerão aqui conforme você avança.</p>';
   return '<div style="display:flex;flex-direction:column;gap:2px">'+S.log.slice(0,8).map(e=>{
-    const ic = e.type==='trophy'?'🏆':e.type==='xp'?'✨':e.type==='start'?'🚀':e.type==='module'?'✅':e.type==='survey'?'📊':e.type==='tool'?'🛠️':e.type==='diary'?'📔':'•';
+    const ic = e.type==='trophy'?'':e.type==='xp'?'':e.type==='start'?'':e.type==='module'?'':e.type==='survey'?'':e.type==='tool'?'':e.type==='diary'?'':'•';
     return `<div style="display:flex;gap:11px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft)">
       <span style="font-size:16px">${ic}</span>
       <span style="flex:1;font-size:13.5px">${e.label}</span>
@@ -3398,11 +3489,11 @@ const MOD_MAP = {
 };
 MODULES.forEach(m=>{ m.group = MOD_MAP[m.id] || m.group || 'lideranca'; });
 const GROUPS = [
-  {id:'raiox',         n:'01', icon:'🔍', title:'Raio-X Empresarial',       desc:'Expor o caos real e quebrar a ilusão — a leitura honesta do negócio antes de agir.', status:'open'},
-  {id:'descompressao', n:'02', icon:'🌬️', title:'Descompressão Operacional', desc:'Tirar o dono do sufoco imediato: as pessoas certas, bem escolhidas e treinadas para sustentar a operação.', status:'open'},
-  {id:'lideranca',     n:'03', icon:'🎯', title:'Liderança Sob Controle',    desc:'Corrigir o comportamento que trava o negócio: liderar, alinhar cultura, resolver conflitos e cuidar do clima.', status:'open'},
+  {id:'raiox',         n:'01', icon:'', title:'Raio-X Empresarial',       desc:'Expor o caos real e quebrar a ilusão — a leitura honesta do negócio antes de agir.', status:'open'},
+  {id:'descompressao', n:'02', icon:'', title:'Descompressão Operacional', desc:'Tirar o dono do sufoco imediato: as pessoas certas, bem escolhidas e treinadas para sustentar a operação.', status:'open'},
+  {id:'lideranca',     n:'03', icon:'', title:'Liderança Sob Controle',    desc:'Corrigir o comportamento que trava o negócio: liderar, alinhar cultura, resolver conflitos e cuidar do clima.', status:'open'},
   {id:'engenharia',    n:'04', icon:'⚙️', title:'Engenharia de Processos',   desc:'Organizar o funcionamento e o controle da empresa — governança e estrutura que rodam sem depender de você.', status:'open'},
-  {id:'financas',      n:'05', icon:'💰', title:'Blindagem Financeira',      desc:'Entender e controlar o dinheiro do negócio — do caixa e do capital de giro ao financiamento e ao ponto de equilíbrio.', status:'open'},
+  {id:'financas',      n:'05', icon:'', title:'Blindagem Financeira',      desc:'Entender e controlar o dinheiro do negócio — do caixa e do capital de giro ao financiamento e ao ponto de equilíbrio.', status:'open'},
 ];
 
 let trilhaQuery='';
@@ -3418,7 +3509,7 @@ function renderTrilhas(){
           </div>
           <span class="badge-status st-lock" style="margin-left:auto">Em breve</span>
         </div>
-        <div class="soon-note">📦 Este módulo entra com o próximo conteúdo. Cada anexo novo da mentora vira aulas, quiz, ferramenta, desafio e teste profundo aqui dentro.</div>
+        <div class="soon-note">Este módulo entra com o próximo conteúdo. Cada anexo novo da mentora vira aulas, quiz, ferramenta, desafio e teste profundo aqui dentro.</div>
       </div>`;
     }
     const groupMods = MODULES.map((m,idx)=>({m,idx})).filter(x=>x.m.group===g.id);
@@ -3441,7 +3532,7 @@ function renderTrilhas(){
   <p class="eyebrow">Módulos · Operação Blindada</p>
   <h1 class="page">Trilhas & Módulos</h1>
   <p class="lead">Aqui o conteúdo não é o fim — é o começo. Cada trilha tem aulas curtas, um quiz para fixar e, principalmente, uma <b>aplicação prática</b>: você sai com um documento, um compromisso no Plano e uma ação real. Teoria que não vira prática não muda negócio.</p>
-  <div class="search-wrap"><span class="ic">🔎</span><input class="in search-in" id="trilhaSearch" placeholder="Buscar tema, trilha ou tag…" value="${escAttr(trilhaQuery)}" oninput="filterTrilhas(this.value)"></div>
+  <div class="search-wrap"><span class="ic"></span><input class="in search-in" id="trilhaSearch" placeholder="Buscar tema, trilha ou tag…" value="${escAttr(trilhaQuery)}" oninput="filterTrilhas(this.value)"></div>
   ${groupSections}
   ${signature()}`;
   if(trilhaQuery) filterTrilhas(trilhaQuery);
@@ -3463,17 +3554,17 @@ function trilhaCard(m,idx){
         <div class="pill-row" style="margin-top:12px">${(m.tags||[]).map(t=>`<span class="pill">${t}</span>`).join('')}</div>
       </div>
       <div class="meta">
-        <span>📖 ${m.steps.length} aulas</span>
-        <span>🧠 ${m.quiz.length} quiz</span>
+        <span>${m.steps.length} aulas</span>
+        <span>${m.quiz.length} quiz</span>
         <span class="pill amber" style="margin-left:auto">+${m.xpReward} XP</span>
       </div>
       <div class="barwrap"><div class="bar"><i style="width:${prog}%"></i></div></div>
       <div class="foot">${badge}
         <button class="btn ${st==='done'?'ghost':'primary'} sm" ${st==='lock'?'disabled':''} onclick="openLesson('${m.id}')">${st==='done'?'Revisar':st==='prog'?'Continuar':'Abrir'}</button>
       </div>
-      ${st!=='lock' && DEEP_TESTS[m.id]?`<button class="btn ghost sm" style="width:100%;justify-content:center;margin-top:10px" onclick="openDeepTest('${m.id}')">🧠 Teste Profundo${S.deepTests?.[m.id]?.at?' · feito ✓':''}</button>`:''}
-      ${st!=='lock'?`<button class="btn sage sm" style="width:100%;justify-content:center;margin-top:8px" onclick="applyTrilha('${m.id}')">🎯 Aplicar na prática${S.modules[m.id]?.challengeDone?' ✓':''}</button>`:''}
-      ${st==='lock'?`<div class="lockwrap"><div class="lk"><div class="ic">🔒</div><small>Conclua a trilha anterior para desbloquear.</small></div></div>`:''}
+      ${st!=='lock' && DEEP_TESTS[m.id]?`<button class="btn ghost sm" style="width:100%;justify-content:center;margin-top:10px" onclick="openDeepTest('${m.id}')">Teste Profundo${S.deepTests?.[m.id]?.at?' · feito ✓':''}</button>`:''}
+      ${st!=='lock'?`<button class="btn sage sm" style="width:100%;justify-content:center;margin-top:8px" onclick="applyTrilha('${m.id}')">Aplicar na prática${S.modules[m.id]?.challengeDone?' ✓':''}</button>`:''}
+      ${st==='lock'?`<div class="lockwrap"><div class="lk"><div class="ic"></div><small>Conclua a trilha anterior para desbloquear.</small></div></div>`:''}
     </div>`;
 }
 function escAttr(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
@@ -3545,7 +3636,7 @@ function renderStepsList(){
   const qi=m.steps.length;
   const qdone=st.quiz?.done;
   const e=el('div','step'+(lessonStep===qi?' active':'')+(qdone?' done':''));
-  e.innerHTML=`<div class="dot">${qdone?'✓':'🧠'}</div>
+  e.innerHTML=`<div class="dot">${qdone?'✓':''}</div>
     <div class="stepbody"><div class="kind">quiz</div><b>Quiz da trilha</b></div><span class="arrow">→</span>`;
   e.onclick=()=>{ lessonStep=qi; renderStepsList(); renderStepContent(); window.scrollTo({top:300,behavior:'smooth'}); };
   list.appendChild(e);
@@ -3640,7 +3731,7 @@ function submitQuiz(){
   $('#quizSubmit').style.display='none';
   const r=$('#quizResult');
   r.innerHTML=`<div class="card" style="margin-top:20px;text-align:center;border-color:rgba(245,181,61,.4)">
-    <div style="font-size:40px">${score===m.quiz.length?'🎯':score>=m.quiz.length/2?'👏':'📚'}</div>
+    <div style="font-size:40px">${score===m.quiz.length?'':score>=m.quiz.length/2?'':''}</div>
     <h3 style="font-family:var(--serif);margin:6px 0">${score}/${m.quiz.length} acertos</h3>
     <p class="muted tiny">${score===m.quiz.length?'Gabaritou! Tiro certeiro.':score>=m.quiz.length/2?'Bom trabalho. Revise os que errou.':'Vale revisar as aulas e tentar fixar melhor.'}</p>
   </div>`;
@@ -3666,7 +3757,7 @@ function maybeCompleteModule(m){
     setTimeout(()=>moduleCompleteModal(m),600);
     save();
   } else if(!allSteps){
-    setTimeout(()=>toast('📖','Quase lá','Leia e marque todas as aulas para concluir a trilha.'),300);
+    setTimeout(()=>toast('','Quase lá','Leia e marque todas as aulas para concluir a trilha.'),300);
   }
 }
 const APPLY_ACTIONS={
@@ -3680,7 +3771,7 @@ function applyCommit(modId){
   const m=MODULES.find(x=>x.id===modId); if(!m) return;
   const opts=[m.challenge, ...(APPLY_ACTIONS[m.group]||[])].filter(Boolean);
   openComposer({
-    eyebrow:'Da teoria à prática', title:'🎯 Seu compromisso',
+    eyebrow:'Da teoria à prática', title:'Seu compromisso',
     intro:'Marque o que você vai aplicar desta trilha. Vira ação no seu Plano de 30 dias, com prazo — sem digitar.',
     confirmLabel:'Comprometer no Plano',
     steps:[
@@ -3693,7 +3784,7 @@ function applyCommit(modId){
       picks.forEach((t,k)=>S.plan.push({id:'p'+Date.now()+k, text:t, due:Date.now()+days*86400000, done:false, from:modId, src:m.title}));
       if(S.modules[modId] && !S.modules[modId].challengeDone){ S.modules[modId].challengeDone=true; }
       addXp(30,'Compromisso de aplicação definido'); grantTrophy('planner'); grantTrophy('challenger'); save(); closeModal();
-      planTab='acoes'; go('plano'); toast('🎯','Compromisso firmado',picks.length+' ação(ões) no seu Plano de 30 dias.');
+      planTab='acoes'; go('plano'); toast('','Compromisso firmado',picks.length+' ação(ões) no seu Plano de 30 dias.');
     }
   });
 }
@@ -3705,28 +3796,28 @@ function applyPracticeModal(modId, opts){
   const allDone=MODULES.every(x=>S.modules[x.id]?.completed);
   const tools=TOOLS.filter(t=>t.mod===m.group).slice(0,2);
   const toolBtns=(tools.length?tools.map(t=>`<button class="btn primary sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="closeModal();go('ferramentas');setTimeout(()=>openTool('${t.id}'),180)">${t.icon} Gerar: ${t.title}</button>`).join('')
-    : `<button class="btn primary sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="closeModal();go('ferramentas')">🛠️ Abrir a Caixa de Ferramentas</button>`);
+    : `<button class="btn primary sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="closeModal();go('ferramentas')">Abrir a Caixa de Ferramentas</button>`);
   const lbl='font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin:0 0 8px';
   modal(`<div class="center">
     <div class="levelup-em">${m.glyph}</div>
     <p class="eyebrow" style="justify-content:center">${opts.completed?'Trilha concluída · da teoria à prática':'Da teoria à prática'}</p>
     <h3>${m.title}</h3>
     <p class="muted mt8">${opts.completed?`+${m.xpReward} XP. `:''}Conteúdo não muda negócio — <b>aplicação muda</b>. Faça pelo menos um destes agora:</p>
-    <div class="callout" style="text-align:left;margin:16px 0 18px"><span class="ic">🗡️</span><div><b>Seu desafio prático</b><br>${m.challenge}</div></div>
+    <div class="callout" style="text-align:left;margin:16px 0 18px"><span class="ic"></span><div><b>Seu desafio prático</b><br>${m.challenge}</div></div>
     <div style="text-align:left">
       <p style="${lbl}">1 · Transforme em documento</p>
       ${toolBtns}
       <p style="${lbl};margin-top:14px">2 · Comprometa-se com a prática</p>
-      <button class="btn sage sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="applyCommit('${m.id}')">🎯 Definir compromisso no Plano 30d</button>
+      <button class="btn sage sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="applyCommit('${m.id}')">Definir compromisso no Plano 30d</button>
       <p style="${lbl};margin-top:14px">3 · Aprofunde e reflita</p>
-      ${DEEP_TESTS[m.id]?`<button class="btn ghost sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="closeModal();openDeepTest('${m.id}')">🧠 Teste Profundo desta trilha${S.deepTests?.[m.id]?.at?' · feito ✓':' (+40 XP)'}</button>`:''}
-      <button class="btn ghost sm" style="width:100%;justify-content:center;margin-bottom:16px" onclick="closeModal();diaryGuided()">📔 Reflexão guiada (+20 XP)</button>
+      ${DEEP_TESTS[m.id]?`<button class="btn ghost sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="closeModal();openDeepTest('${m.id}')">Teste Profundo desta trilha${S.deepTests?.[m.id]?.at?' · feito ✓':' (+40 XP)'}</button>`:''}
+      <button class="btn ghost sm" style="width:100%;justify-content:center;margin-bottom:16px" onclick="closeModal();diaryGuided()">Reflexão guiada (+20 XP)</button>
     </div>
     <div class="btn-row" style="justify-content:center">
       ${opts.completed
-        ? (allDone?`<button class="btn primary" onclick="closeModal();finishJourney()">🎓 Concluir a Operação</button>`
+        ? (allDone?`<button class="btn primary" onclick="closeModal();finishJourney()">Concluir a Operação</button>`
            : next?`<button class="btn primary" onclick="closeModal();openLesson('${next.id}')">Próxima trilha →</button>`
-           :`<button class="btn primary" onclick="closeModal();go('conquistas')">Ver conquistas 🏆</button>`)
+           :`<button class="btn primary" onclick="closeModal();go('conquistas')">Ver conquistas </button>`)
         : `<button class="btn primary" onclick="closeModal()">Fechar</button>`}
       <button class="btn ghost" onclick="closeModal();go('trilhas')">Trilhas</button>
     </div>
@@ -3736,11 +3827,11 @@ function applyTrilha(modId){ applyPracticeModal(modId,{}); }
 function moduleCompleteModal(m){ applyPracticeModal(m.id,{completed:true}); }
 function saveQuickDiary(modId){
   const t=$('#quickDiary'); if(!t) return;
-  const text=t.value.trim(); if(!text){ toast('💭','Sem texto','Escreva algo para salvar no diário.'); return; }
+  const text=t.value.trim(); if(!text){ toast('','Sem texto','Escreva algo para salvar no diário.'); return; }
   S.diary.unshift({t:Date.now(), moduleId:modId, text});
   S.log.unshift({t:Date.now(),type:'diary',label:'Reflexão registrada'});
   addXp(20,'Reflexão registrada');
-  t.value=''; t.disabled=true; toast('📔','Reflexão salva','Bonito. Isso fica no seu Diário de Bordo.');
+  t.value=''; t.disabled=true; toast('','Reflexão salva','Bonito. Isso fica no seu Diário de Bordo.');
 }
 function markChallenge(id){
   if(!S.modules[id].challengeDone){ S.modules[id].challengeDone=true; addXp(30,'Desafio prático registrado'); save();
@@ -3768,7 +3859,7 @@ function showCertificate(){
   </div>
   <p class="tiny muted center mt8">Dica: tire um print para registrar. Você fez por merecer.</p>`);
   setTimeout(()=>{ const c=$('#certCard'); if(c){ c.style.animation='pop .5s cubic-bezier(.2,1.2,.3,1)'; } },50);
-  pushNotif('🎓','Operação blindada concluída!','Você se tornou '+LEVEL_NAMES[S.level-1]+'.');
+  pushNotif('','Operação blindada concluída!','Você se tornou '+LEVEL_NAMES[S.level-1]+'.');
 }
 
 /* ===================================================================
@@ -3851,15 +3942,15 @@ function tgGenerate(id,silent){
   _art={title:t.title, icon:t.icon, html:out, actions:[`Aplicar no negócio: ${t.title}`], pdcaTitle:t.title, diaryText:`Usei a ferramenta "${t.title}". O que vou fazer com o resultado: `};
   $('#tgResultWrap').innerHTML=`<div class="tg-result" id="tgResult">${out}</div>
     <div class="btn-row" style="margin-top:14px">
-      <button class="btn sage" onclick="tgSave('${id}')">💾 Salvar ferramenta</button>
-      <button class="btn ghost" onclick="tgCopy()">📋 Copiar</button>
+      <button class="btn sage" onclick="tgSave('${id}')">Salvar ferramenta</button>
+      <button class="btn ghost" onclick="tgCopy()">Copiar</button>
     </div>
     <div class="res-actions">
       <button class="btn ghost xs" onclick="actPrint()">Imprimir A4</button>
-      <button class="btn ghost xs" onclick="actToPlano()">🎯 Plano 30d</button>
-      <button class="btn ghost xs" onclick="actToPdca()">🔁 PDCA</button>
-      <button class="btn ghost xs" onclick="actToAgenda()">📅 Agenda</button>
-      <button class="btn ghost xs" onclick="actToDiario()">📔 Diário</button>
+      <button class="btn ghost xs" onclick="actToPlano()">Plano 30d</button>
+      <button class="btn ghost xs" onclick="actToPdca()">PDCA</button>
+      <button class="btn ghost xs" onclick="actToAgenda()">Agenda</button>
+      <button class="btn ghost xs" onclick="actToDiario()">Diário</button>
     </div>`;
   if(!silent){ const w=$('#tgResultWrap'); if(w&&w.scrollIntoView) w.scrollIntoView({behavior:'smooth',block:'nearest'}); }
 }
@@ -3871,12 +3962,12 @@ function tgSave(id){
   if(fresh){ addXp(25,`Ferramenta salva — ${t.title}`); S.log.unshift({t:Date.now(),type:'tool',label:`Ferramenta salva: ${t.title}`}); }
   grantTrophy('tool_used');
   if(Object.keys(S.tools).length>=TOOLS.length) grantTrophy('all_tools');
-  save(); toast('🛠️','Ferramenta salva',fresh?'+25 XP':'Atualizada.'); renderFerramentas();
+  save(); toast('','Ferramenta salva',fresh?'+25 XP':'Atualizada.'); renderFerramentas();
 }
 function tgCopy(){
   const r=$('#tgResult'); if(!r) return; const txt=r.innerText;
-  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast('📋','Copiado','Cole onde quiser.')).catch(()=>toast('📋','Selecione e copie','Toque e segure no texto do resultado.')); }
-  else toast('📋','Selecione e copie','Toque e segure no texto do resultado.');
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast('','Copiado','Cole onde quiser.')).catch(()=>toast('','Selecione e copie','Toque e segure no texto do resultado.')); }
+  else toast('','Selecione e copie','Toque e segure no texto do resultado.');
 }
 
 /* ===================================================================
@@ -3890,17 +3981,17 @@ function renderPesquisas(){
   <h1 class="page">Pesquisas & Testes</h1>
   <p class="lead">Clima, cultura, DISC, estrutura de caráter, âncoras de carreira e inteligência emocional — instrumentos de consultoria, tabulados na hora e com laudo. Cada um se abre quando você indica a mentoria para alguém.</p>
   <div class="earn-banner">
-    <div class="eb-x"><b>🚀 ${refCount()} de 7 desbloqueadas</b><span>Tudo começa bloqueado. Cada indicação que você envia libera a próxima ferramenta da lista.</span></div>
+    <div class="eb-x"><b>${refCount()} de 7 desbloqueadas</b><span>Tudo começa bloqueado. Cada indicação que você envia libera a próxima ferramenta da lista.</span></div>
     <div class="eb-btns">
-      <button class="btn sage sm" onclick="openReferral()">🚀 Indicar e desbloquear</button>
-      <button class="btn ghost sm" onclick="openSuggestion()">💡 Sugerir</button>
+      <button class="btn sage sm" onclick="openReferral()">Indicar e desbloquear</button>
+      <button class="btn ghost sm" onclick="openSuggestion()">Sugerir</button>
     </div>
   </div>
-  <h2 class="sec" style="margin:8px 0 2px">📊 Pesquisas com o time</h2>
+  <h2 class="sec" style="margin:8px 0 2px">Pesquisas com o time</h2>
   <p class="muted tiny" style="margin:0 0 14px">Aplique com os colaboradores (ou responda você para treinar). O resultado sai por categoria.</p>
   <div class="grid g-2" id="climGrid"></div>
   <div class="divider"></div>
-  <h2 class="sec" style="margin:6px 0 2px">🧬 Testes comportamentais</h2>
+  <h2 class="sec" style="margin:6px 0 2px">Testes comportamentais</h2>
   <p class="muted tiny" style="margin:0 0 14px">Autoavaliações de perfil — para você e para cada pessoa do time. Cada um gera um laudo com forças, pontos de atenção e como desenvolver.</p>
   <div class="grid g-2" id="profGrid"></div>
   ${signature()}`;
@@ -3915,11 +4006,11 @@ function fillSurveyCards(g,list){
     if(lock.locked){
       const prog=Math.min(100,Math.round(refCount()/lock.need*100));
       card.innerHTML=`<div style="font-size:34px;opacity:.5">${s.icon}</div>
-        <h2 class="sec" style="margin:8px 0 6px">${s.title} 🔒</h2>
+        <h2 class="sec" style="margin:8px 0 6px">${s.title} </h2>
         <p class="muted tiny" style="margin:0 0 10px">${s.items.length} itens · escala 1–5</p>
         <p class="tiny" style="margin:0 0 8px;color:var(--violet)">Libere indicando a mentoria — faltam <b>${lock.falta} indicaç${lock.falta>1?'ões':'ão'}</b>.</p>
         <div class="bar" style="margin:0 0 14px"><i style="width:${prog}%"></i></div>
-        <div class="btn-row"><button class="btn sage sm" onclick="openReferral()">🚀 Indicar e desbloquear</button></div>`;
+        <div class="btn-row"><button class="btn sage sm" onclick="openReferral()">Indicar e desbloquear</button></div>`;
       g.appendChild(card); return;
     }
     let status;
@@ -4015,7 +4106,7 @@ function showProfileResult(s,rec){
     <h4 style="font-family:var(--serif);margin:10px 0 12px">Seu perfil completo</h4>
     <div style="display:flex;flex-direction:column;gap:11px">${bars}</div>
     ${cards}
-    <div class="callout mt16"><span class="ic">🧭</span><div><b>Leitura da mentora:</b> ninguém é um tipo puro — você é a combinação. Use suas <b>forças</b> de propósito e trabalhe <b>um</b> ponto de atenção por vez. ${leitura}</div></div>`;
+    <div class="callout mt16"><span class="ic"></span><div><b>Leitura da mentora:</b> ninguém é um tipo puro — você é a combinação. Use suas <b>forças</b> de propósito e trabalhe <b>um</b> ponto de atenção por vez. ${leitura}</div></div>`;
   modal(withResultActions({eyebrow:'Laudo · '+s.icon, title:s.title, icon:s.icon, bodyHtml:body,
     actions:acts.slice(0,3), pdcaTitle:`Desenvolver: ${s.title}`,
     diaryText:`No teste ${s.title} meu perfil dominante foi ${top.label}. O que isso me mostra e o que vou desenvolver: `,
@@ -4040,7 +4131,7 @@ function showSurveyResult(id){
         return `<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>${r.c}</span><b style="color:${col}">${r.m.toFixed(1)}</b></div><div class="bar"><i style="width:${p}%;background:${col}"></i></div></div>`;
       }).join('')}
     </div>
-    <div class="callout mt16"><span class="ic">🧭</span><div><b>Leitura da mentora:</b> seu ponto mais frágil é <b>${lowest.c}</b> (${lowest.m.toFixed(1)}) — comece a intervenção por aí. O mais forte é <b>${highest.c}</b> (${highest.m.toFixed(1)}); proteja esse ativo. Lembre: medir sem agir frustra o time.</div></div>`;
+    <div class="callout mt16"><span class="ic"></span><div><b>Leitura da mentora:</b> seu ponto mais frágil é <b>${lowest.c}</b> (${lowest.m.toFixed(1)}) — comece a intervenção por aí. O mais forte é <b>${highest.c}</b> (${highest.m.toFixed(1)}); proteja esse ativo. Lembre: medir sem agir frustra o time.</div></div>`;
   modal(withResultActions({eyebrow:'Relatório · '+s.icon, title:s.title, icon:s.icon, bodyHtml:body,
     actions:[`Plano de ação para ${lowest.c} (ponto mais frágil)`, `Proteger e reforçar ${highest.c}`],
     pdcaTitle:`Melhorar ${lowest.c}`,
@@ -4061,7 +4152,7 @@ function renderDiario(){
   <div class="card pad-lg" style="margin-bottom:24px">
     <h2 class="sec" style="margin:0 0 6px"><span class="ic">✍️</span> Nova anotação</h2>
     <p class="muted tiny" style="margin:0 0 14px">Reflita marcando opções — quase sem digitar. A reflexão se monta sozinha.</p>
-    <div class="btn-row"><button class="btn primary" onclick="diaryGuided()">✨ Reflexão guiada</button>
+    <div class="btn-row"><button class="btn primary" onclick="diaryGuided()">Reflexão guiada</button>
       <button class="btn ghost" onclick="toggleDiaryFree()">Escrever do meu jeito</button></div>
     <div id="diaryFree" style="display:none;margin-top:16px">
       <label class="fld"><span>Sobre qual tema?</span>
@@ -4072,7 +4163,7 @@ function renderDiario(){
     </div>
   </div>
 
-  <h2 class="sec"><span class="ic">📜</span> Sua linha do tempo ${entries.length?`<span class="pill amber" style="margin-left:6px">${entries.length}</span>`:''}</h2>
+  <h2 class="sec"><span class="ic"></span> Sua linha do tempo ${entries.length?`<span class="pill amber" style="margin-left:6px">${entries.length}</span>`:''}</h2>
   ${entries.length?`<div style="margin-top:6px">${entries.map(e=>{
     const m=MODULES.find(x=>x.id===e.moduleId);
     return `<div class="diary-entry"><div class="tl"><div class="dot"></div><div class="line"></div></div>
@@ -4091,7 +4182,7 @@ function addDiary(){
   S.log.unshift({t:Date.now(),type:'diary',label:'Anotação no Diário de Bordo'});
   addXp(20,'Reflexão registrada');
   renderDiario();
-  toast('📔','Anotação salva','Reflexão é onde o aprendizado vira mudança.');
+  toast('','Anotação salva','Reflexão é onde o aprendizado vira mudança.');
 }
 
 /* ===================================================================
@@ -4109,14 +4200,14 @@ function planAgendaDashboards(){
   const planCard=`<div class="card pad-lg">
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:${pending.length?'14px':'12px'}">
       <div class="ring" style="--p:${pct};position:relative;--sz:72px"><b style="font-size:16px">${pct}%</b></div>
-      <div style="flex:1"><h2 class="sec" style="margin:0 0 3px">🎯 Plano de Ação</h2>
+      <div style="flex:1"><h2 class="sec" style="margin:0 0 3px">Plano de Ação</h2>
       <p class="muted tiny" style="margin:0">${items.length?`${done} de ${items.length} feitas${overdue?` · <b style="color:var(--coral)">${overdue} atrasada${overdue>1?'s':''}</b>`:''}`:'Nenhuma ação ainda.'}</p></div>
     </div>
     ${pending.length?`<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">${pending.map(p=>`<div style="display:flex;gap:8px;align-items:center;font-size:13px"><span style="color:${p.due&&p.due<Date.now()?'var(--coral)':'var(--amber)'};flex:none">●</span><span style="flex:1;color:var(--steel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(p.text)}</span><span class="tiny muted" style="flex:none">${planDueLabel(p)}</span></div>`).join('')}</div>`:''}
     <button class="btn ${items.length?'ghost':'primary'} sm" onclick="goPlano('acoes')">${items.length?'Abrir plano':'Criar meu plano'}</button>
   </div>`;
   const agCard=`<div class="card pad-lg">
-    <h2 class="sec" style="margin:0 0 12px">📅 Agenda</h2>
+    <h2 class="sec" style="margin:0 0 12px">Agenda</h2>
     ${agenda.length?`<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">${agenda.map(a=>{const days=Math.ceil((a.date-Date.now())/86400000);const lbl=days<0?'atrasada':days===0?'hoje':days===1?'amanhã':`em ${days}d`;const dt=new Date(a.date);return `<div style="display:flex;gap:11px;align-items:center"><div style="text-align:center;flex:none;width:40px"><div style="font-family:var(--serif);font-size:18px;color:var(--amber);line-height:1">${dt.getDate()}</div><div class="tiny muted" style="text-transform:uppercase;font-size:9px">${dt.toLocaleDateString('pt-BR',{month:'short'})}</div></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--steel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(a.title)}</div><div class="tiny muted">${lbl}</div></div></div>`;}).join('')}</div>`:'<p class="muted tiny" style="margin:0 0 12px">Nada agendado. Marque ações a partir dos laudos e ferramentas.</p>'}
     <button class="btn ghost sm" onclick="goPlano('agenda')">Abrir agenda</button>
   </div>`;
@@ -4127,7 +4218,7 @@ function renderPlano(){
   const done=items.filter(i=>i.done).length;
   const pct=items.length?Math.round(done/items.length*100):0;
   const pdca=S.pdca||[], agenda=(S.agenda||[]).slice().sort((a,b)=>a.date-b.date), results=S.results||[];
-  const tabs=[['acoes','🎯 Ações',items.length],['pdca','🔁 PDCA',pdca.length],['agenda','📅 Agenda',agenda.length],['resultados','🗂️ Resultados',results.length]];
+  const tabs=[['acoes','Ações',items.length],['pdca','PDCA',pdca.length],['agenda','Agenda',agenda.length],['resultados','Resultados',results.length]];
   let section='';
 
   if(planTab==='acoes'){
@@ -4136,13 +4227,13 @@ function renderPlano(){
     ${items.length?`<div class="card pad-lg" style="margin-bottom:20px;display:flex;gap:22px;align-items:center">
       <div class="ring" style="--p:${pct};position:relative;--sz:96px"><b style="font-size:22px">${pct}%</b><small>feito</small></div>
       <div style="flex:1"><h2 class="sec" style="margin:0 0 6px">${done} de ${items.length} ações concluídas</h2>
-      <p class="muted tiny" style="margin:0 0 8px">${pct===100?'Plano completo. Hora de montar o próximo ciclo. 👏':'Cada ação marcada é uma mudança real no seu dia a dia.'}</p>
+      <p class="muted tiny" style="margin:0 0 8px">${pct===100?'Plano completo. Hora de montar o próximo ciclo. ':'Cada ação marcada é uma mudança real no seu dia a dia.'}</p>
       <div class="bar"><i style="width:${pct}%"></i></div></div>
     </div>`:''}
     <div class="card pad-lg" style="margin-bottom:22px">
       <h2 class="sec" style="margin:0 0 6px"><span class="ic">➕</span> Nova ação</h2>
       <p class="muted tiny" style="margin:0 0 12px">Escolha de uma lista pronta — quase sem digitar — ou escreva a sua.</p>
-      <button class="btn primary" style="margin-bottom:14px" onclick="openPlanLibrary()">📋 Escolher ações prontas</button>
+      <button class="btn primary" style="margin-bottom:14px" onclick="openPlanLibrary()">Escolher ações prontas</button>
       <label class="fld"><span>Ou escreva a sua</span><input class="in" id="planText" placeholder="Ex.: Aplicar a pesquisa de clima com meu time"></label>
       <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
         <label class="fld" style="flex:1;min-width:160px;margin-bottom:0"><span>Prazo</span>
@@ -4151,21 +4242,21 @@ function renderPlano(){
       </div>
     </div>
     ${suggestions.length?`<div class="card pad-lg" style="margin-bottom:22px;border-color:rgba(155,140,255,.3)">
-      <h2 class="sec" style="margin:0 0 6px"><span class="ic">💡</span> Sugestões das suas trilhas</h2>
+      <h2 class="sec" style="margin:0 0 6px"><span class="ic"></span> Sugestões das suas trilhas</h2>
       <p class="muted tiny" style="margin:0 0 14px">Os desafios das trilhas que você concluiu, prontos para virar ação.</p>
       ${suggestions.map(s=>`<div class="challenge"><div class="cnum">${s.icon}</div><div class="cbody"><b>${s.title}</b><p>${s.text}</p></div>
         <button class="btn ghost sm" onclick="addPlanFrom('${s.id}')" style="flex:none">+ Adicionar</button></div>`).join('')}
     </div>`:''}
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 4px">
-      <h2 class="sec" style="margin:0"><span class="ic">🎯</span> Suas ações</h2>
-      ${items.length?`<button class="btn ghost sm" style="margin-left:auto" onclick="exportPlanICS()">📅 Exportar p/ Agenda</button>`:''}
+      <h2 class="sec" style="margin:0"><span class="ic"></span> Suas ações</h2>
+      ${items.length?`<button class="btn ghost sm" style="margin-left:auto" onclick="exportPlanICS()">Exportar p/ Agenda</button>`:''}
     </div>
     ${items.length?items.map(i=>`<div class="plan-item ${i.done?'done':''}">
       <div class="plan-check ${i.done?'on':''}" onclick="togglePlan('${i.id}')">${i.done?'✓':''}</div>
       <div class="ptext">${escapeHtml(i.text)}${i.src?`<span class="src-tag">de: ${escapeHtml(i.src)}</span>`:''}</div>
       <div class="pdue">${planDueLabel(i)}</div>
       <button class="pdel" onclick="delPlan('${i.id}')" title="Remover">×</button>
-    </div>`).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Nenhuma ação ainda. Adicione uma, puxe uma sugestão das trilhas — ou gere ações direto de qualquer laudo pelo botão 🎯 Plano 30d.</p></div>'}`;
+    </div>`).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Nenhuma ação ainda. Adicione uma, puxe uma sugestão das trilhas — ou gere ações direto de qualquer laudo pelo botão Plano 30d.</p></div>'}`;
   }
 
   else if(planTab==='pdca'){
@@ -4173,10 +4264,10 @@ function renderPlano(){
     <div class="card pad-lg" style="margin-bottom:18px;border-color:rgba(245,181,61,.22)">
       <p class="muted tiny" style="margin:0 0 12px">PDCA é um ciclo de melhoria contínua. Crie um para cada problema ou meta e rode as quatro fases:</p>
       <div class="grid g-2" style="gap:10px">
-        <div class="callout" style="margin:0"><span class="ic">📝</span><div><b>Planejar</b> — o quê, por quê.</div></div>
+        <div class="callout" style="margin:0"><span class="ic"></span><div><b>Planejar</b> — o quê, por quê.</div></div>
         <div class="callout" style="margin:0"><span class="ic">⚙️</span><div><b>Executar</b> — fazer e registrar.</div></div>
-        <div class="callout" style="margin:0"><span class="ic">🔍</span><div><b>Checar</b> — o que deu certo.</div></div>
-        <div class="callout" style="margin:0"><span class="ic">🚀</span><div><b>Agir</b> — ajustar e repetir.</div></div>
+        <div class="callout" style="margin:0"><span class="ic"></span><div><b>Checar</b> — o que deu certo.</div></div>
+        <div class="callout" style="margin:0"><span class="ic"></span><div><b>Agir</b> — ajustar e repetir.</div></div>
       </div>
       <button class="btn sage" style="margin-top:14px" onclick="newPdca()">+ Novo ciclo</button>
     </div>
@@ -4186,33 +4277,33 @@ function renderPlano(){
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
           <h3 style="margin:0;font-size:15px">${escapeHtml(c.title)}</h3>
           <span class="pill amber" style="flex:none">${st.ic} ${st.n}</span></div>
-        ${c.plan?`<p class="tiny" style="margin:8px 0 0;color:var(--steel)">📝 ${escapeHtml(c.plan).slice(0,110)}</p>`:'<p class="tiny muted" style="margin:8px 0 0">Ainda sem plano definido.</p>'}
+        ${c.plan?`<p class="tiny" style="margin:8px 0 0;color:var(--steel)">${escapeHtml(c.plan).slice(0,110)}</p>`:'<p class="tiny muted" style="margin:8px 0 0">Ainda sem plano definido.</p>'}
         <div class="bar" style="margin:10px 0 4px"><i style="width:${pp}%"></i></div>
         <p class="tiny muted" style="margin:0 0 12px">${filled}/4 fases preenchidas</p>
         <div class="btn-row"><button class="btn ghost sm" onclick="openPdca('${c.id}')">✏️ Editar</button>
           <button class="btn primary sm" onclick="showPdcaAnalysis('${c.id}')">⚡ Análise</button></div>
-      </div>`;}).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Nenhum ciclo ainda. Crie um aqui ou pelo botão 🔁 PDCA em qualquer laudo.</p></div>'}`;
+      </div>`;}).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Nenhum ciclo ainda. Crie um aqui ou pelo botão PDCA em qualquer laudo.</p></div>'}`;
   }
 
   else if(planTab==='agenda'){
     section=`
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px">
       <p class="muted tiny" style="margin:0;flex:1">Cada ação vira um evento real: <b>Google Agenda</b> em 1 toque, ou exporte tudo para Apple/Outlook.</p>
-      ${agenda.length?`<button class="btn ghost sm" onclick="exportAgendaICS()">🍎 Apple/Outlook (.ics)</button>`:''}
+      ${agenda.length?`<button class="btn ghost sm" onclick="exportAgendaICS()">Apple/Outlook (.ics)</button>`:''}
     </div>
     ${agenda.length?agenda.map(a=>{const days=Math.ceil((a.date-Date.now())/86400000);
       const lbl=days<0?'atrasada':days===0?'hoje':days===1?'amanhã':`em ${days}d`;
       return `<div class="card pad-lg" style="margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:24px">📅</span>
+          <span style="font-size:24px"></span>
           <div style="flex:1;min-width:0"><b style="font-size:14px">${escapeHtml(a.title)}</b>
             <span class="tiny muted" style="display:block">${new Date(a.date).toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'})} · ${lbl}${a.src?` · de: ${escapeHtml(a.src)}`:''}</span></div>
           <button class="pdel" style="flex:none" onclick="delAgenda('${a.id}')" title="Remover">×</button>
         </div>
         <div class="btn-row" style="margin-top:12px">
-          <a class="btn sage sm" target="_blank" rel="noopener" href="${gcalUrl(a.title,a.date,a.src?('Origem: '+a.src):'')}">📅 Adicionar ao Google Agenda</a>
+          <a class="btn sage sm" target="_blank" rel="noopener" href="${gcalUrl(a.title,a.date,a.src?('Origem: '+a.src):'')}">Adicionar ao Google Agenda</a>
         </div>
-      </div>`;}).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Agenda vazia. Use o botão 📅 Agenda em qualquer laudo ou ferramenta para marcar uma ação com data.</p></div>'}`;
+      </div>`;}).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Agenda vazia. Use o botão Agenda em qualquer laudo ou ferramenta para marcar uma ação com data.</p></div>'}`;
   }
 
   else { // resultados
@@ -4222,7 +4313,7 @@ function renderPlano(){
       <span style="font-size:26px">${r.icon}</span>
       <div style="flex:1;min-width:0"><b style="font-size:14px">${escapeHtml(r.title)}</b><span class="tiny muted" style="display:block">${new Date(r.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'})}</span></div>
       <button class="btn ghost sm" style="flex:none" onclick="reopenResult('${r.id}')">Abrir</button>
-    </div>`).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Nada salvo ainda. Em qualquer laudo ou ferramenta, toque em 💾 Salvar.</p></div>'}`;
+    </div>`).join(''):'<div class="card"><p class="muted tiny" style="margin:0">Nada salvo ainda. Em qualquer laudo ou ferramenta, toque em Salvar.</p></div>'}`;
   }
 
   $('#view-plano').innerHTML=`
@@ -4257,14 +4348,14 @@ function addPlanFrom(modId){
 function togglePlan(id){
   const it=S.plan.find(p=>p.id===id); if(!it) return;
   it.done=!it.done;
-  if(it.done){ addXp(20,'Ação concluída'); toast('✅','Ação concluída','Mais uma mudança real. Continue.'); }
+  if(it.done){ addXp(20,'Ação concluída'); toast('','Ação concluída','Mais uma mudança real. Continue.'); }
   else save();
   renderPlano();
 }
 function delPlan(id){ S.plan=S.plan.filter(p=>p.id!==id); save(); renderPlano(); }
 function exportPlanICS(){
   const items=(S.plan||[]).filter(p=>p.due);
-  if(!items.length){ toast('📅','Nada para exportar','Adicione ações com prazo primeiro.'); return; }
+  if(!items.length){ toast('','Nada para exportar','Adicione ações com prazo primeiro.'); return; }
   const pad=n=>String(n).padStart(2,'0');
   const fmt=d=>d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
   const now=new Date();
@@ -4278,7 +4369,7 @@ function exportPlanICS(){
     ics+='DTSTAMP:'+dtstamp+'\r\n';
     ics+='DTSTART;VALUE=DATE:'+fmt(start)+'\r\n';
     ics+='DTEND;VALUE=DATE:'+fmt(end)+'\r\n';
-    ics+='SUMMARY:'+esc('🛡 '+p.text)+'\r\n';
+    ics+='SUMMARY:'+esc(''+p.text)+'\r\n';
     ics+='DESCRIPTION:'+esc('Ação do seu Plano de 30 dias — Operação Blindada.'+(p.done?' (concluída)':''))+'\r\n';
     ics+='BEGIN:VALARM\r\nTRIGGER:-PT9H\r\nACTION:DISPLAY\r\nDESCRIPTION:'+esc(p.text)+'\r\nEND:VALARM\r\n';
     ics+='END:VEVENT\r\n';
@@ -4287,7 +4378,7 @@ function exportPlanICS(){
   const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='operacao-blindada-plano.ics'; a.click(); URL.revokeObjectURL(url);
-  toast('📅','Plano exportado','Abra o arquivo .ics para importar no seu Google Agenda.');
+  toast('','Plano exportado','Abra o arquivo .ics para importar no seu Google Agenda.');
 }
 
 
@@ -4297,19 +4388,19 @@ function exportPlanICS(){
    =================================================================== */
 let _art=null;
 function withResultActions(opts){
-  _art={ title:opts.title, icon:opts.icon||'📄', html:opts.bodyHtml,
+  _art={ title:opts.title, icon:opts.icon||'', html:opts.bodyHtml,
     actions:(opts.actions||[]).filter(Boolean), pdcaTitle:opts.pdcaTitle||opts.title,
     diaryText:opts.diaryText||'' };
   const extra = opts.extra||'';
   return `<p class="eyebrow">${opts.eyebrow||'Resultado'}</p><h3>${_art.icon} ${escapeHtml(opts.title)}</h3>
     <div id="printArea">${opts.bodyHtml}</div>
     <div class="res-actions">
-      <button class="btn ghost xs" onclick="actSave()">💾 Salvar</button>
+      <button class="btn ghost xs" onclick="actSave()">Salvar</button>
       <button class="btn ghost xs" onclick="actPrint()">Imprimir A4</button>
-      <button class="btn ghost xs" onclick="actToPlano()">🎯 Plano 30d</button>
-      <button class="btn ghost xs" onclick="actToPdca()">🔁 PDCA</button>
-      <button class="btn ghost xs" onclick="actToAgenda()">📅 Agenda</button>
-      <button class="btn ghost xs" onclick="actToDiario()">📔 Diário</button>
+      <button class="btn ghost xs" onclick="actToPlano()">Plano 30d</button>
+      <button class="btn ghost xs" onclick="actToPdca()">PDCA</button>
+      <button class="btn ghost xs" onclick="actToAgenda()">Agenda</button>
+      <button class="btn ghost xs" onclick="actToDiario()">Diário</button>
     </div>${extra}`;
 }
 function actSave(){
@@ -4318,7 +4409,7 @@ function actSave(){
   S.results.unshift({id:'r'+Date.now(), title:_art.title, icon:_art.icon, html:_art.html, ts:Date.now()});
   if(S.results.length>60) S.results.length=60;
   S.log.unshift({t:Date.now(),type:'result',label:`Resultado salvo: ${_art.title}`});
-  save(); toast('💾','Resultado salvo','Veja em Plano 30d › Resultados salvos.');
+  save(); toast('','Resultado salvo','Veja em Plano 30d › Resultados salvos.');
 }
 function actPrint(){
   if(!_art) return;
@@ -4343,7 +4434,7 @@ let _pp=[];
 function actToPlano(){
   if(!_art) return;
   _pp=_art.actions.length?_art.actions.slice():[`Agir sobre: ${_art.title}`];
-  modal(`<p class="eyebrow">Plano de Ação</p><h3>🎯 Virar plano de 30 dias</h3>
+  modal(`<p class="eyebrow">Plano de Ação</p><h3>Virar plano de 30 dias</h3>
     <p class="muted tiny">Marque o que quer levar para o seu plano. Os prazos você ajusta depois.</p>
     <div id="planPick" class="mt16" style="display:flex;flex-direction:column;gap:8px">
       ${_pp.map((a,i)=>`<button type="button" class="tg-opt multi on" data-i="${i}" onclick="this.classList.toggle('on')">${escapeHtml(a)}</button>`).join('')}</div>
@@ -4365,11 +4456,11 @@ function actToPdca(){
   S.pdca=S.pdca||[];
   S.pdca.unshift({id:'c'+Date.now(), title:_art.pdcaTitle, source:_art.title,
     plan:(_art.actions[0]||''), do:'', check:'', act:'', stage:'P', createdAt:Date.now(), updatedAt:Date.now()});
-  addXp(15,'Ciclo PDCA iniciado'); save(); toast('🔁','Ciclo PDCA criado','Conduza em Plano 30d › PDCA.');
+  addXp(15,'Ciclo PDCA iniciado'); save(); toast('','Ciclo PDCA criado','Conduza em Plano 30d › PDCA.');
 }
 function actToAgenda(){
   if(!_art) return;
-  modal(`<p class="eyebrow">Agenda</p><h3>📅 Agendar uma ação</h3>
+  modal(`<p class="eyebrow">Agenda</p><h3>Agendar uma ação</h3>
     <label class="fld"><span>O que vai fazer?</span><input class="in" id="agTitle" value="${escapeHtml(_art.actions[0]||_art.title)}"></label>
     <label class="fld"><span>Quando?</span><select class="in" id="agWhen">
       <option value="1">Amanhã</option><option value="3">Em 3 dias</option>
@@ -4381,12 +4472,12 @@ function confirmAgenda(){
   const title=$('#agTitle').value.trim()||'Ação'; const days=+$('#agWhen').value;
   S.agenda=S.agenda||[]; S.agenda.push({id:'a'+Date.now(), title, date:Date.now()+days*86400000, src:_art?_art.title:''});
   addXp(10,'Ação agendada'); save(); closeModal();
-  toast('📅','Agendado','Veja em Plano 30d › Agenda — dá para exportar pro Google/Apple.');
+  toast('','Agendado','Veja em Plano 30d › Agenda — dá para exportar pro Google/Apple.');
 }
 function actToDiario(){
   if(!_art) return;
   const base=_art.diaryText||`Sobre "${_art.title}": o que isso me mostra e o que vou fazer diferente — `;
-  modal(`<p class="eyebrow">Diário de Bordo</p><h3>📔 Registrar reflexão</h3>
+  modal(`<p class="eyebrow">Diário de Bordo</p><h3>Registrar reflexão</h3>
     <label class="fld"><span>Sua reflexão sobre este resultado</span>
       <textarea class="in" id="diaFromText" style="min-height:120px">${escapeHtml(base)}</textarea></label>
     <div class="btn-row"><button class="btn sage" onclick="confirmDiario()">Salvar no diário</button>
@@ -4397,14 +4488,14 @@ function confirmDiario(){
   S.diary.unshift({t:Date.now(), moduleId:null, text, src:_art?_art.title:''});
   S.log.unshift({t:Date.now(),type:'diary',label:'Reflexão registrada a partir de um resultado'});
   addXp(20,'Reflexão registrada'); grantTrophy('reflective'); save(); closeModal();
-  toast('📔','Salvo no diário','Reflexão é onde o aprendizado vira mudança.');
+  toast('','Salvo no diário','Reflexão é onde o aprendizado vira mudança.');
 }
 
 /* ---------- PDCA (ciclos de melhoria) ---------- */
-const PDCA_STAGES={P:{n:'Planejar',ic:'📝'},D:{n:'Executar',ic:'⚙️'},C:{n:'Checar',ic:'🔍'},A:{n:'Agir',ic:'🚀'}};
+const PDCA_STAGES={P:{n:'Planejar',ic:''},D:{n:'Executar',ic:'⚙️'},C:{n:'Checar',ic:''},A:{n:'Agir',ic:''}};
 function newPdca(){
   openComposer({
-    eyebrow:'Novo ciclo PDCA', title:'🔁 Começar um ciclo',
+    eyebrow:'Novo ciclo PDCA', title:'Começar um ciclo',
     intro:'Diga o que quer melhorar — a estrutura já vem montada para você completar aos poucos.',
     confirmLabel:'Criar ciclo',
     steps:[
@@ -4418,18 +4509,18 @@ function newPdca(){
       const plan=(d.primeiro&&d.primeiro.length)?d.primeiro.join('; '):'';
       S.pdca=S.pdca||[]; S.pdca.unshift({id:'c'+Date.now(), title, source:'', plan, do:'', check:'', act:'', stage:'P', createdAt:Date.now(), updatedAt:Date.now()});
       addXp(15,'Ciclo PDCA iniciado'); save(); closeModal(); planTab='pdca'; renderPlano();
-      toast('🔁','Ciclo criado','Abra-o para conduzir as fases.');
+      toast('','Ciclo criado','Abra-o para conduzir as fases.');
     }
   });
 }
 function openPdca(id){
   const c=(S.pdca||[]).find(x=>x.id===id); if(!c) return;
-  modal(`<p class="eyebrow">Ciclo PDCA</p><h3>🔁 ${escapeHtml(c.title)}</h3>
+  modal(`<p class="eyebrow">Ciclo PDCA</p><h3>${escapeHtml(c.title)}</h3>
     <label class="fld"><span>Título do ciclo</span><input class="in" id="pdT" value="${escapeHtml(c.title)}"></label>
-    <label class="fld"><span>📝 Planejar — o quê e por quê</span><textarea class="in" id="pdP" style="min-height:60px" placeholder="O problema, a meta e o plano…">${escapeHtml(c.plan)}</textarea></label>
+    <label class="fld"><span>Planejar — o quê e por quê</span><textarea class="in" id="pdP" style="min-height:60px" placeholder="O problema, a meta e o plano…">${escapeHtml(c.plan)}</textarea></label>
     <label class="fld"><span>⚙️ Executar — o que foi feito</span><textarea class="in" id="pdD" style="min-height:60px" placeholder="O que você testou na prática…">${escapeHtml(c.do)}</textarea></label>
-    <label class="fld"><span>🔍 Checar — o que funcionou e o que não</span><textarea class="in" id="pdC" style="min-height:60px" placeholder="Resultado x esperado…">${escapeHtml(c.check)}</textarea></label>
-    <label class="fld"><span>🚀 Agir — o que ajustar no próximo ciclo</span><textarea class="in" id="pdA" style="min-height:60px" placeholder="O que manter, mudar ou padronizar…">${escapeHtml(c.act)}</textarea></label>
+    <label class="fld"><span>Checar — o que funcionou e o que não</span><textarea class="in" id="pdC" style="min-height:60px" placeholder="Resultado x esperado…">${escapeHtml(c.check)}</textarea></label>
+    <label class="fld"><span>Agir — o que ajustar no próximo ciclo</span><textarea class="in" id="pdA" style="min-height:60px" placeholder="O que manter, mudar ou padronizar…">${escapeHtml(c.act)}</textarea></label>
     <label class="fld"><span>Fase atual</span><select class="in" id="pdStage">${Object.entries(PDCA_STAGES).map(([k,v])=>`<option value="${k}" ${c.stage===k?'selected':''}>${v.ic} ${v.n}</option>`).join('')}</select></label>
     <div class="btn-row"><button class="btn sage" onclick="savePdca('${id}')">Salvar ciclo</button>
       <button class="btn primary" onclick="savePdca('${id}',true)">⚡ Gerar análise</button>
@@ -4441,12 +4532,12 @@ function savePdca(id,analyze){
   c.check=$('#pdC').value.trim(); c.act=$('#pdA').value.trim(); c.stage=$('#pdStage').value; c.updatedAt=Date.now();
   save();
   if(analyze){ showPdcaAnalysis(id); return; }
-  closeModal(); toast('🔁','Ciclo salvo',''); planTab='pdca'; renderPlano();
+  closeModal(); toast('','Ciclo salvo',''); planTab='pdca'; renderPlano();
 }
 function delPdca(id){ S.pdca=(S.pdca||[]).filter(x=>x.id!==id); save(); closeModal(); planTab='pdca'; renderPlano(); }
 function showPdcaAnalysis(id){
   const c=(S.pdca||[]).find(x=>x.id===id); if(!c) return;
-  const keys=[['plan','📝 Planejar'],['do','⚙️ Executar'],['check','🔍 Checar'],['act','🚀 Agir']];
+  const keys=[['plan','Planejar'],['do','⚙️ Executar'],['check','Checar'],['act','Agir']];
   const filled=keys.filter(([k])=>c[k]&&c[k].trim());
   const pct=Math.round(filled.length/4*100);
   let diag, next;
@@ -4455,14 +4546,14 @@ function showPdcaAnalysis(id){
   else if(!(c.check&&c.check.trim())){ diag='Você executou, mas <b>ainda não checou</b>. Sem medir, você não sabe se funcionou — compare o que aconteceu com o que esperava.'; next='Medir o resultado e comparar com a meta.'; }
   else if(!(c.act&&c.act.trim())){ diag='Você já checou os resultados. Falta o passo que gera melhoria de verdade: <b>o que manter, mudar ou padronizar?</b>'; next='Decidir o que padronizar e abrir o próximo ciclo.'; }
   else { diag='<b>Ciclo completo!</b> Você rodou as quatro fases. Agora padronize o que funcionou e abra o próximo ciclo com o aprendizado.'; next=c.act; }
-  const recap=keys.map(([k,l])=>`<div class="metric"><b>${l}</b><span>${c[k]&&c[k].trim()?'✅':'—'}</span></div>${c[k]&&c[k].trim()?`<p style="margin:2px 0 10px;font-size:13px;color:var(--steel)">${escapeHtml(c[k])}</p>`:''}`).join('');
+  const recap=keys.map(([k,l])=>`<div class="metric"><b>${l}</b><span>${c[k]&&c[k].trim()?'':'—'}</span></div>${c[k]&&c[k].trim()?`<p style="margin:2px 0 10px;font-size:13px;color:var(--steel)">${escapeHtml(c[k])}</p>`:''}`).join('');
   const col=pct<50?'var(--coral)':pct<100?'var(--amber)':'var(--sage)';
   const body=`<div class="card" style="text-align:center;margin:0 0 14px;border-color:${col}">
       <div class="stat-num" style="color:${col}">${pct}%</div><div class="stat-lbl">do ciclo preenchido · fase atual: ${(PDCA_STAGES[c.stage]||PDCA_STAGES.P).n}</div></div>
     <div class="bar" style="margin:0 0 16px"><i style="width:${pct}%;background:${col}"></i></div>
     <h4>Onde o ciclo está</h4>${recap}
-    <div class="callout mt16"><span class="ic">🧭</span><div>${diag}</div></div>`;
-  modal(withResultActions({eyebrow:'Análise do ciclo', title:c.title, icon:'🔁', bodyHtml:body,
+    <div class="callout mt16"><span class="ic"></span><div>${diag}</div></div>`;
+  modal(withResultActions({eyebrow:'Análise do ciclo', title:c.title, icon:'', bodyHtml:body,
     actions:[next].filter(Boolean), pdcaTitle:'Próximo ciclo: '+c.title,
     diaryText:`No ciclo PDCA "${c.title}" cheguei a ${pct}%. Próximo passo: `,
     extra:`<div class="btn-row" style="margin-top:12px"><button class="btn ghost sm" onclick="openPdca('${id}')">✏️ Editar ciclo</button></div>`}));
@@ -4473,12 +4564,12 @@ function gcalUrl(title,dateTs,details){
   const pad=n=>String(n).padStart(2,'0');
   const d=new Date(dateTs); const s=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
   const e=new Date(dateTs+86400000); const en=e.getFullYear()+pad(e.getMonth()+1)+pad(e.getDate());
-  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('🛡 '+title)+'&dates='+s+'/'+en+'&details='+encodeURIComponent(details||'Ação agendada na Operação Blindada.');
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(''+title)+'&dates='+s+'/'+en+'&details='+encodeURIComponent(details||'Ação agendada na Operação Blindada.');
 }
 function delAgenda(id){ S.agenda=(S.agenda||[]).filter(x=>x.id!==id); save(); renderPlano(); }
 function exportAgendaICS(){
   const items=(S.agenda||[]);
-  if(!items.length){ toast('📅','Nada para exportar','Agende uma ação primeiro.'); return; }
+  if(!items.length){ toast('','Nada para exportar','Agende uma ação primeiro.'); return; }
   const pad=n=>String(n).padStart(2,'0');
   const fmt=d=>d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
   const now=new Date();
@@ -4487,13 +4578,13 @@ function exportAgendaICS(){
   let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Operacao Blindada//Agenda//PT-BR\r\nCALSCALE:GREGORIAN\r\n';
   items.forEach(p=>{
     const start=new Date(p.date); const end=new Date(p.date+86400000);
-    ics+='BEGIN:VEVENT\r\nUID:'+p.id+'@operacao-blindada\r\nDTSTAMP:'+dtstamp+'\r\nDTSTART;VALUE=DATE:'+fmt(start)+'\r\nDTEND;VALUE=DATE:'+fmt(end)+'\r\nSUMMARY:'+esc('🛡 '+p.title)+'\r\nDESCRIPTION:'+esc('Ação agendada na Operação Blindada.'+(p.src?' Origem: '+p.src:''))+'\r\nBEGIN:VALARM\r\nTRIGGER:-PT9H\r\nACTION:DISPLAY\r\nDESCRIPTION:'+esc(p.title)+'\r\nEND:VALARM\r\nEND:VEVENT\r\n';
+    ics+='BEGIN:VEVENT\r\nUID:'+p.id+'@operacao-blindada\r\nDTSTAMP:'+dtstamp+'\r\nDTSTART;VALUE=DATE:'+fmt(start)+'\r\nDTEND;VALUE=DATE:'+fmt(end)+'\r\nSUMMARY:'+esc(''+p.title)+'\r\nDESCRIPTION:'+esc('Ação agendada na Operação Blindada.'+(p.src?' Origem: '+p.src:''))+'\r\nBEGIN:VALARM\r\nTRIGGER:-PT9H\r\nACTION:DISPLAY\r\nDESCRIPTION:'+esc(p.title)+'\r\nEND:VALARM\r\nEND:VEVENT\r\n';
   });
   ics+='END:VCALENDAR\r\n';
   const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='operacao-blindada-agenda.ics'; a.click(); URL.revokeObjectURL(url);
-  toast('📅','Agenda exportada','Abra o .ics no Google ou Apple Agenda.');
+  toast('','Agenda exportada','Abra o .ics no Google ou Apple Agenda.');
 }
 
 /* ---------- Resultados salvos ---------- */
@@ -4504,9 +4595,9 @@ function reopenResult(id){
     <div id="printArea">${r.html}</div>
     <div class="res-actions">
       <button class="btn ghost xs" onclick="actPrint()">Imprimir A4</button>
-      <button class="btn ghost xs" onclick="actToPlano()">🎯 Plano</button>
-      <button class="btn ghost xs" onclick="actToDiario()">📔 Diário</button>
-      <button class="btn ghost xs" onclick="delResult('${id}')">🗑️ Excluir</button>
+      <button class="btn ghost xs" onclick="actToPlano()">Plano</button>
+      <button class="btn ghost xs" onclick="actToDiario()">Diário</button>
+      <button class="btn ghost xs" onclick="delResult('${id}')">Excluir</button>
     </div>`);
 }
 function delResult(id){ S.results=(S.results||[]).filter(x=>x.id!==id); save(); closeModal(); planTab='resultados'; renderPlano(); }
@@ -4514,7 +4605,7 @@ function delResult(id){ S.results=(S.results||[]).filter(x=>x.id!==id); save(); 
 /* ---------- SUGESTÃO (co-criação + recompensa) ---------- */
 const MENTOR_EMAIL='gestaogrupoa@gmail.com';
 function openSuggestion(){
-  modal(`<p class="eyebrow">Co-criação</p><h3>💡 Sua sugestão molda a mentoria</h3>
+  modal(`<p class="eyebrow">Co-criação</p><h3>Sua sugestão molda a mentoria</h3>
     <p class="muted tiny">Faltou um tema? Tem uma ideia, um pedido ou um problema? Manda aqui — você ajuda a construir a Operação Blindada e ganha pontos por isso.</p>
     <label class="fld"><span>Tipo</span><select class="in" id="sugType"><option>Ideia</option><option>Pedido de conteúdo / teste</option><option>Problema ou melhoria</option></select></label>
     <label class="fld"><span>Sua sugestão</span><textarea class="in" id="sugText" style="min-height:110px" placeholder="Ex.: queria um teste sobre precificação e um conteúdo sobre time comercial…"></textarea></label>
@@ -4526,12 +4617,12 @@ function submitSuggestion(){
   S.suggestions=S.suggestions||[]; S.suggestions.unshift({id:'s'+Date.now(), type, text, ts:Date.now()});
   addXp(30,'Sugestão enviada'); grantTrophy('cocriador'); save();
   const mail='mailto:'+MENTOR_EMAIL+'?subject='+encodeURIComponent('Sugestão Operação Blindada'+(S.name?' — '+S.name:''))+'&body='+encodeURIComponent('['+type+']\n\n'+text+'\n\n— Enviado pelo app Operação Blindada');
-  modal(`<div class="center"><div style="font-size:46px">💡</div>
+  modal(`<div class="center"><div style="font-size:46px"></div>
     <p class="eyebrow" style="justify-content:center">+30 XP</p>
     <h3>Sugestão recebida!</h3>
     <p class="muted mt8">Ela ficou salva aqui. Quer que a Carla receba agora? Envie em 1 toque — fazer parte da construção é o que destrava os bônus.</p>
     <div class="btn-row mt16" style="justify-content:center">
-      <a class="btn primary" href="${mail}" onclick="closeModal()">📧 Enviar para a mentora</a>
+      <a class="btn primary" href="${mail}" onclick="closeModal()">Enviar para a mentora</a>
       <button class="btn ghost" onclick="closeModal()">Fechar</button></div></div>`);
 }
 
@@ -4545,15 +4636,15 @@ function openReferral(){
   const refs=refCount();
   const txt=encodeURIComponent(inviteText());
   const url=encodeURIComponent(INVITE_URL);
-  modal(`<p class="eyebrow">Indique & ganhe</p><h3>🚀 Indique e desbloqueie as ferramentas</h3>
+  modal(`<p class="eyebrow">Indique & ganhe</p><h3>Indique e desbloqueie as ferramentas</h3>
     <p class="muted tiny">Aqui é o motor da mentoria: <b>cada indicação que você envia desbloqueia uma nova pesquisa ou teste</b>. Comece agora:</p>
     <div class="card" style="margin:12px 0;background:var(--ink)"><p class="tiny" style="margin:0;line-height:1.55;color:var(--steel)">${escapeHtml(inviteText())}</p></div>
     <div class="btn-row">
-      <a class="btn sage" target="_blank" rel="noopener" href="https://wa.me/?text=${txt}" onclick="regReferral('whatsapp')">💬 WhatsApp</a>
+      <a class="btn sage" target="_blank" rel="noopener" href="https://wa.me/?text=${txt}" onclick="regReferral('whatsapp')">WhatsApp</a>
       <a class="btn primary" target="_blank" rel="noopener" href="https://t.me/share/url?url=${url}&text=${txt}" onclick="regReferral('telegram')">✈️ Telegram</a>
-      <a class="btn ghost" target="_blank" rel="noopener" href="mailto:?subject=${encodeURIComponent('Acho que isso é pra você')}&body=${txt}" onclick="regReferral('email')">📧 Email</a>
+      <a class="btn ghost" target="_blank" rel="noopener" href="mailto:?subject=${encodeURIComponent('Acho que isso é pra você')}&body=${txt}" onclick="regReferral('email')">Email</a>
     </div>
-    <div class="callout mt16"><span class="ic">🔓</span><div><b>Você já indicou ${refs}.</b> Cada indicação abre o próximo:<br>${UNLOCK_ORDER.map(([id,nm],i)=>`${refs>=(i+1)?'✅':'🔒'} ${i+1}ª — <b>${nm}</b>`).join('<br>')}</div></div>
+    <div class="callout mt16"><span class="ic"></span><div><b>Você já indicou ${refs}.</b> Cada indicação abre o próximo:<br>${UNLOCK_ORDER.map(([id,nm],i)=>`${refs>=(i+1)?'':''} ${i+1}ª — <b>${nm}</b>`).join('<br>')}</div></div>
     <p class="tiny muted" style="margin-top:10px">Quando o backend confirmar o cadastro do(a) convidado(a), a indicação rende bônus ainda maiores (Fase 2).</p>
     <button class="btn ghost mt16" onclick="closeModal()">Fechar</button>`);
 }
@@ -4565,8 +4656,8 @@ function regReferral(ch){
   addXp(firstOfChannel?120:40,`Convite enviado (${ch})`);
   grantTrophy('embaixador');
   SURVEYS.filter(s=>TEST_GATES[s.id]===after).forEach(s=>{
-    pushNotif('🔓','Novo desbloqueio!', s.title);
-    setTimeout(()=>toast('🔓','Desbloqueado!', s.title), 900);
+    pushNotif('','Novo desbloqueio!', s.title);
+    setTimeout(()=>toast('','Desbloqueado!', s.title), 900);
   });
   save();
   setTimeout(()=>{ if(current==='pesquisas') renderPesquisas(); },250);
@@ -4606,7 +4697,7 @@ function composerConfirm(){
 /* Diário guiado */
 function diaryGuided(){
   openComposer({
-    eyebrow:'Reflexão guiada', title:'📔 Nova reflexão',
+    eyebrow:'Reflexão guiada', title:'Nova reflexão',
     intro:'Marque as opções — a reflexão se monta sozinha. Pouca escrita, muito valor.',
     confirmLabel:'Salvar reflexão (+20 XP)',
     steps:[
@@ -4628,7 +4719,7 @@ function diaryGuided(){
       S.diary.unshift({t:Date.now(), moduleId:null, text, tema:d.tema||''});
       S.log.unshift({t:Date.now(),type:'diary',label:'Reflexão registrada'});
       addXp(20,'Reflexão registrada'); grantTrophy('reflective'); save(); closeModal(); renderDiario();
-      toast('📔','Reflexão salva','Reflexão é onde o aprendizado vira mudança.');
+      toast('','Reflexão salva','Reflexão é onde o aprendizado vira mudança.');
     }
   });
 }
@@ -4643,7 +4734,7 @@ const PLAN_LIBRARY={
 };
 function openPlanLibrary(){
   const body=Object.entries(PLAN_LIBRARY).map(([cat,arr])=>`<div class="tg-step"><div class="tg-q">${cat}</div><div class="tg-opts">${arr.map(a=>`<button type="button" class="tg-opt multi" onclick="this.classList.toggle('on')">${a}</button>`).join('')}</div></div>`).join('');
-  modal(`<p class="eyebrow">Ações prontas</p><h3>📋 Escolher ações para o plano</h3>
+  modal(`<p class="eyebrow">Ações prontas</p><h3>Escolher ações para o plano</h3>
     <p class="tg-intro">Marque o que quer fazer — sem digitar. Você ajusta os prazos depois.</p>
     <div id="planLibForm">${body}</div>
     <label class="fld" style="margin-top:6px"><span>Prazo para as selecionadas</span>
@@ -4657,7 +4748,7 @@ function confirmPlanLibrary(){
   const days=+$('#libDue').value;
   picks.forEach((t,k)=>S.plan.push({id:'p'+Date.now()+k, text:t, due:Date.now()+days*86400000, done:false, src:'Ações prontas'}));
   addXp(15,'Ações adicionadas ao plano'); grantTrophy('planner'); save(); closeModal();
-  planTab='acoes'; renderPlano(); toast('🎯','Adicionado',picks.length+' ação(ões) no seu plano.');
+  planTab='acoes'; renderPlano(); toast('','Adicionado',picks.length+' ação(ões) no seu plano.');
 }
 
 /* ===================================================================
@@ -4668,7 +4759,7 @@ function openDiagnostic(isRetake){
   diagTmp={};
   const prev=isRetake?S.diagnostic:null;
   modal(`<p class="eyebrow">${isRetake?'Rediagnóstico':'Ponto de partida'}</p>
-    <h3>🧭 ${isRetake?'Como você está agora?':'Autodiagnóstico de maturidade'}</h3>
+    <h3>${isRetake?'Como você está agora?':'Autodiagnóstico de maturidade'}</h3>
     <p class="muted tiny" style="margin:6px 0 0">Avalie com sinceridade o quanto cada frase descreve você hoje (1 = nada, 5 = totalmente). ${isRetake?'Vamos comparar com o seu ponto de partida.':'Isso vira o seu "antes" — no fim da jornada você compara.'}</p>
     <div class="mt16" id="diagForm"></div>
     <div class="divider"></div>
@@ -4695,9 +4786,9 @@ function showDiagnosticResult(){
   const ans=S.diagnostic.answers;
   const rows=Object.entries(ans).sort((a,b)=>a[1]-b[1]);
   const low=rows[0], high=rows[rows.length-1];
-  modal(`<p class="eyebrow">Seu ponto de partida</p><h3>🧭 Mapa de maturidade</h3>
+  modal(`<p class="eyebrow">Seu ponto de partida</p><h3>Mapa de maturidade</h3>
     ${radarSVG(ans)}
-    <div class="callout mt16"><span class="ic">🌱</span><div>Onde você se vê mais forte: <b>${high[0]}</b>. Onde há mais espaço para crescer: <b>${low[0]}</b>. Sugiro começar dando atenção especial à trilha de ${low[0]} — e, ao fim da jornada, refazer este diagnóstico para ver o quanto avançou.</div></div>
+    <div class="callout mt16"><span class="ic"></span><div>Onde você se vê mais forte: <b>${high[0]}</b>. Onde há mais espaço para crescer: <b>${low[0]}</b>. Sugiro começar dando atenção especial à trilha de ${low[0]} — e, ao fim da jornada, refazer este diagnóstico para ver o quanto avançou.</div></div>
     <button class="btn primary" onclick="closeModal();go('trilhas')">Começar pelas trilhas →</button>`);
 }
 function showEvolution(){
@@ -4705,7 +4796,7 @@ function showEvolution(){
   const dims=Object.keys(before);
   const avgB=dimAvg(before), avgA=dimAvg(after);
   const delta=(avgA-avgB);
-  modal(`<p class="eyebrow">Antes e depois</p><h3>📈 Sua evolução</h3>
+  modal(`<p class="eyebrow">Antes e depois</p><h3>Sua evolução</h3>
     <div class="card" style="text-align:center;margin:14px 0;border-color:rgba(95,208,166,.4)">
       <div style="display:flex;justify-content:center;gap:30px;align-items:center">
         <div><div class="stat-num" style="color:var(--violet)">${avgB.toFixed(1)}</div><div class="stat-lbl">Início</div></div>
@@ -4721,7 +4812,7 @@ function showEvolution(){
         <span class="tiny" style="color:${a>=b?'var(--sage)':'var(--coral)'};text-align:right">${a>b?'+':''}${a-b}</span></div>`;
     }).join('')}</div>
     <p class="tiny muted" style="margin:4px 0 14px"><span style="color:var(--violet)">▬</span> antes &nbsp; <span style="color:var(--sage)">▬</span> agora</p>
-    <div class="callout"><span class="ic">🎓</span><div><b>${delta>0?'Você evoluiu de forma mensurável.':'Você manteve sua base.'}</b> Esse é o tipo de prova que transforma percepção em resultado. Guarde este antes e depois — ele conta a sua história de desenvolvimento.</div></div>
+    <div class="callout"><span class="ic"></span><div><b>${delta>0?'Você evoluiu de forma mensurável.':'Você manteve sua base.'}</b> Esse é o tipo de prova que transforma percepção em resultado. Guarde este antes e depois — ele conta a sua história de desenvolvimento.</div></div>
     <button class="btn primary" onclick="closeModal()">Fechar</button>`);
 }
 function radarSVG(ans){
@@ -4751,7 +4842,7 @@ function openDeepTest(id){
   const m=MODULES.find(x=>x.id===id);
   const doneBefore=!!S.deepTests?.[id]?.at;
   modal(`<p class="eyebrow">Teste Profundo${m?' · '+m.title:''}</p>
-    <h3>🧠 ${t.title}</h3>
+    <h3>${t.title}</h3>
     <p class="muted tiny" style="margin:6px 0 0">${t.intro}</p>
     <p class="muted tiny" style="margin:8px 0 0">Escala: <b>1 = discordo totalmente</b> · <b>5 = concordo totalmente</b>.</p>
     <div class="mt16" id="deepForm"></div>
@@ -4804,7 +4895,7 @@ function showDeepTestResult(id){
         <div class="stat-num" style="color:${band.color}">${overall}%</div>
         <div class="stat-lbl">${band.label}</div></div>
       <div style="margin:10px 0">${dims.map(k=>deepBar(t.dims[k], r.pct[k], r.pct[k]<40?'var(--coral)':r.pct[k]<75?'var(--amber)':'var(--sage)')).join('')}</div>
-      <div class="callout"><span class="ic">🧭</span><div>${note}<br><br>Mais forte: <b>${t.dims[high]}</b>. Onde focar agora: <b>${t.dims[low]}</b>.${tip}</div></div>`;
+      <div class="callout"><span class="ic"></span><div>${note}<br><br>Mais forte: <b>${t.dims[high]}</b>. Onde focar agora: <b>${t.dims[low]}</b>.${tip}</div></div>`;
   } else {
     const sorted=dims.slice().sort((a,b)=>r.pct[b]-r.pct[a]);
     const dom=sorted[0];
@@ -4814,9 +4905,9 @@ function showDeepTestResult(id){
       <div class="card" style="border-color:rgba(245,181,61,.4)"><p class="eyebrow">Seu perfil dominante</p>
         <h3 style="font-family:var(--serif);margin:4px 0 8px">${t.dims[dom]}</h3>
         <p class="muted" style="margin:0;line-height:1.6">${t.profileNotes[dom]}</p></div>
-      ${t.closing?`<div class="callout mt16"><span class="ic">💡</span><div>${t.closing}</div></div>`:''}`;
+      ${t.closing?`<div class="callout mt16"><span class="ic"></span><div>${t.closing}</div></div>`:''}`;
   }
-  modal(withResultActions({eyebrow:'Resultado'+(m?' · '+m.title:''), title:t.title, icon:'🧠', bodyHtml:body,
+  modal(withResultActions({eyebrow:'Resultado'+(m?' · '+m.title:''), title:t.title, icon:'', bodyHtml:body,
     actions:resActs, pdcaTitle:t.title, diaryText,
     extra:`<div class="btn-row" style="margin-top:14px">
       <button class="btn ghost sm" onclick="closeModal();openDeepTest('${id}')" style="flex:1;justify-content:center">Refazer</button>
@@ -4836,7 +4927,7 @@ function renderConquistas(){
   <p class="lead">Cada marco da sua jornada vira um troféu. Você já desbloqueou <b style="color:var(--amber)">${got} de ${TROPHIES.length}</b>.</p>
 
   <div class="card pad-lg" style="margin-bottom:24px">
-    <h2 class="sec" style="margin:0 0 16px"><span class="ic">📊</span> Seu mapa de níveis</h2>
+    <h2 class="sec" style="margin:0 0 16px"><span class="ic"></span> Seu mapa de níveis</h2>
     <div style="display:flex;flex-direction:column;gap:9px">
       ${LEVEL_NAMES.map((nm,i)=>{ const lv=i+1; const reached=S.level>=lv; const isCur=S.level===lv;
         return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;${i<LEVEL_NAMES.length-1?'border-bottom:1px solid var(--line-soft)':''}">
@@ -4854,7 +4945,7 @@ function renderConquistas(){
   TROPHIES.forEach(t=>{
     const un=S.trophies[t.id];
     const c=el('div','trophy '+(un?'unlocked':'locked'));
-    c.innerHTML=`<span class="em">${un?t.em:'🔒'}</span><b>${t.title}</b><small>${t.desc}</small>${un?`<div class="got">✓ ${new Date(un).toLocaleDateString('pt-BR')}</div>`:''}`;
+    c.innerHTML=`<span class="em">${un?t.em:''}</span><b>${t.title}</b><small>${t.desc}</small>${un?`<div class="got">✓ ${new Date(un).toLocaleDateString('pt-BR')}</div>`:''}`;
     g.appendChild(c);
   });
 }
@@ -4880,7 +4971,7 @@ function renderMentora(){
       <p class="content-block" style="font-size:14.5px">Esta plataforma reúne nove domínios da atuação em Gestão de Pessoas: recrutamento, seleção, clima, treinamento, avaliação de desempenho, liderança, cultura, conflitos e saúde no trabalho. Cada trilha entrega teoria essencial, fixa com quiz e te entrega ferramentas e pesquisas para usar com pessoas de verdade.</p>
     </div>
     <div class="card pad-lg">
-      <h2 class="sec" style="margin:0 0 14px"><span class="ic">🧭</span> Como tirar o máximo</h2>
+      <h2 class="sec" style="margin:0 0 14px"><span class="ic"></span> Como tirar o máximo</h2>
       <div class="content-block" style="font-size:14.5px">
         <ul>
           <li><b>Avance no seu ritmo</b> — uma trilha desbloqueia a próxima, mas não há pressa.</li>
@@ -4900,7 +4991,7 @@ function renderMentora(){
       <div><div class="stat-num" style="color:var(--violet)">${Object.keys(S.trophies).length}/${TROPHIES.length}</div><div class="stat-lbl">Conquistas</div></div>
     </div>
     ${S.diagnostic?`<div class="divider"></div>
-      <h3 style="font-family:var(--serif);font-size:17px;margin:0 0 4px">🧭 Seu mapa de maturidade</h3>
+      <h3 style="font-family:var(--serif);font-size:17px;margin:0 0 4px">Seu mapa de maturidade</h3>
       <p class="muted tiny" style="margin:0 0 6px">${S.retake?'Comparação do seu antes e depois.':'Feito no início. Refaça ao concluir todas as trilhas para medir a evolução.'}</p>
       ${radarSVG(S.retake?S.retake.answers:S.diagnostic.answers)}
       <div class="btn-row" style="justify-content:center">
@@ -4908,13 +4999,13 @@ function renderMentora(){
         : MODULES.every(m=>S.modules[m.id]?.completed)?`<button class="btn sage sm" onclick="openDiagnostic(true)">Refazer e ver evolução</button>`
         :`<button class="btn ghost sm" onclick="showDiagnosticResult()">Rever diagnóstico</button>`}
       </div>`:`<div class="divider"></div>
-      <div class="callout" style="margin:0"><span class="ic">🧭</span><div>Você ainda não fez o autodiagnóstico. <b style="cursor:pointer;color:var(--amber)" onclick="openDiagnostic(false)">Fazer agora →</b></div></div>`}
+      <div class="callout" style="margin:0"><span class="ic"></span><div>Você ainda não fez o autodiagnóstico. <b style="cursor:pointer;color:var(--amber)" onclick="openDiagnostic(false)">Fazer agora →</b></div></div>`}
     <div class="divider"></div>
     <div class="btn-row">
       <button class="btn ghost sm" onclick="editProfile()">Editar meu perfil</button>
       <button class="btn ghost sm" onclick="exportData()">Exportar progresso (JSON)</button>
       <label class="btn ghost sm" style="cursor:pointer">Importar progresso<input type="file" accept="application/json" style="display:none" onchange="if(this.files[0])importData(this.files[0])"></label>
-      ${MODULES.every(m=>S.modules[m.id]?.completed)?`<button class="btn sage sm" onclick="showCertificate()">🎖️ Ver certificado</button>`:''}
+      ${MODULES.every(m=>S.modules[m.id]?.completed)?`<button class="btn sage sm" onclick="showCertificate()">Ver certificado</button>`:''}
       ${(window.OB && !OB.isPreview())?`<button class="btn ghost sm" onclick="OB.signOut()">Sair da conta</button>`:''}
       <button class="btn ghost sm" onclick="confirmReset()" style="color:var(--coral)">Recomeçar do zero</button>
     </div>
@@ -4922,13 +5013,13 @@ function renderMentora(){
 
   <div id="ob-audio-mentor"></div>
 
-  <h2 class="sec"><span class="ic">🏆</span> Ranking entre membros</h2>
+  <h2 class="sec"><span class="ic"></span> Ranking entre membros</h2>
   <div class="card pad-lg">
     <p class="muted tiny" style="margin:0 0 14px">Pontuação comparada entre os membros ativos da Operação Blindada — premiando constância e ações concluídas, não só cliques. Atualiza conforme você avança.</p>
     <div id="ob-ranking" class="content-block" style="font-size:14px">Carregando ranking…</div>
   </div>
 
-  <h2 class="sec"><span class="ic">📨</span> Caixinha de perguntas</h2>
+  <h2 class="sec"><span class="ic"></span> Caixinha de perguntas</h2>
   <div class="card pad-lg">
     <div id="ob-caixinha-ask">
       <p class="muted tiny" style="margin:0 0 10px">Mande sua dúvida para a mentora — ela responde aqui dentro.</p>
@@ -4939,14 +5030,14 @@ function renderMentora(){
     <div id="ob-caixinha-list">Carregando…</div>
   </div>
 
-  <h2 class="sec"><span class="ic">🛰️</span> Próximos recursos</h2>
+  <h2 class="sec"><span class="ic"></span> Próximos recursos</h2>
   <div class="card pad-lg">
     <p class="muted tiny" style="margin:0 0 14px">Estes recursos entram nas próximas atualizações da camada conectada. Já fazem parte do plano da Operação Blindada.</p>
     <div class="roadmap">
-      <div class="ri"><span class="em">🎙️</span><div><b>Áudio diário da mentora</b><p>Um contato curto todo dia, para você se sentir acompanhada na sua operação.</p></div><span class="tagx">Em breve</span></div>
-      <div class="ri"><span class="em">📨</span><div><b>Caixinha de perguntas</b><p>Envie dúvidas; a mentora responde por áudio ou vídeo dentro da plataforma.</p></div><span class="tagx">Em breve</span></div>
-      <div class="ri"><span class="em">📍</span><div><b>Mapa de membros próximos</b><p>Com consentimento, encontre quem está perto para networking presencial.</p></div><span class="tagx">Fase 3</span></div>
-      <div class="ri"><span class="em">🤝</span><div><b>Comunidade & encontros</b><p>Grupos, eventos e galeria de fotos como prova social da mentoria.</p></div><span class="tagx">Fase 3</span></div>
+      <div class="ri"><span class="em"></span><div><b>Áudio diário da mentora</b><p>Um contato curto todo dia, para você se sentir acompanhada na sua operação.</p></div><span class="tagx">Em breve</span></div>
+      <div class="ri"><span class="em"></span><div><b>Caixinha de perguntas</b><p>Envie dúvidas; a mentora responde por áudio ou vídeo dentro da plataforma.</p></div><span class="tagx">Em breve</span></div>
+      <div class="ri"><span class="em"></span><div><b>Mapa de membros próximos</b><p>Com consentimento, encontre quem está perto para networking presencial.</p></div><span class="tagx">Fase 3</span></div>
+      <div class="ri"><span class="em"></span><div><b>Comunidade & encontros</b><p>Grupos, eventos e galeria de fotos como prova social da mentoria.</p></div><span class="tagx">Fase 3</span></div>
     </div>
   </div>
   ${signature()}`;
@@ -4969,7 +5060,7 @@ function exportData(){
   const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='operacao-blindada-'+(S.name||'progresso')+'.json'; a.click(); URL.revokeObjectURL(url);
-  toast('📤','Progresso exportado','Arquivo salvo no seu dispositivo.');
+  toast('','Progresso exportado','Arquivo salvo no seu dispositivo.');
 }
 function confirmReset(){
   modal(`<div class="center"><div class="levelup-em">⚠️</div><h3>Recomeçar do zero?</h3>
@@ -5024,14 +5115,14 @@ function gFarolChip(f){
 
 /* ---------- templates de indicadores (genéricos, adaptáveis a qualquer negócio) ---------- */
 const G_KPI_PACKS=[
-  {id:'comercial', em:'💼', nome:'Comercial & Vendas', kpis:[
+  {id:'comercial', em:'', nome:'Comercial & Vendas', kpis:[
     {nome:'Faturamento vs. meta (R$)', fonte:'ERP / controle de vendas', freq:'semanal', inv:false},
     {nome:'Taxa de conversão (%) — fechados ÷ orçamentos', fonte:'Planilha de orçamentos / CRM', freq:'semanal', inv:false},
     {nome:'Valor em negociação ainda vivo (R$)', fonte:'CRM / planilha de propostas', freq:'semanal', inv:false},
     {nome:'Ticket médio (R$)', fonte:'ERP / vendas do mês', freq:'mensal', inv:false},
     {nome:'Tempo até a 1ª resposta ao cliente (min)', fonte:'WhatsApp / chat / telefone', freq:'semanal', inv:true},
   ]},
-  {id:'financeiro', em:'💰', nome:'Financeiro', kpis:[
+  {id:'financeiro', em:'', nome:'Financeiro', kpis:[
     {nome:'Caixa projetado para 30 dias (R$)', fonte:'Fluxo de caixa', freq:'semanal', inv:false},
     {nome:'Inadimplência — vencidos há +30 dias (%)', fonte:'Contas a receber', freq:'semanal', inv:true},
     {nome:'Pagamentos em atraso (qtd)', fonte:'Contas a pagar', freq:'semanal', inv:true},
@@ -5044,19 +5135,19 @@ const G_KPI_PACKS=[
     {nome:'Capacidade utilizada (%)', fonte:'Agenda / escala da equipe', freq:'mensal', inv:false},
     {nome:'Itens críticos em falta / ruptura (qtd)', fonte:'Estoque / almoxarifado', freq:'semanal', inv:true},
   ]},
-  {id:'marketing', em:'📣', nome:'Marketing & Digital', kpis:[
+  {id:'marketing', em:'', nome:'Marketing & Digital', kpis:[
     {nome:'Leads gerados na semana (qtd)', fonte:'Formulários / WhatsApp / tráfego', freq:'semanal', inv:false},
     {nome:'Investimento em mídia vs. orçado (R$)', fonte:'Gerenciadores de anúncio', freq:'semanal', inv:true},
     {nome:'Retorno sobre anúncios — ROAS', fonte:'Plataformas de anúncio', freq:'semanal', inv:false},
     {nome:'Conversão do site / página (%)', fonte:'Analytics', freq:'mensal', inv:false},
   ]},
-  {id:'pessoas', em:'👥', nome:'Pessoas & Equipe', kpis:[
+  {id:'pessoas', em:'', nome:'Pessoas & Equipe', kpis:[
     {nome:'Absenteísmo e atrasos (%)', fonte:'Ponto / escala', freq:'mensal', inv:true},
     {nome:'Rotatividade — desligamentos no mês (qtd)', fonte:'RH / DP', freq:'mensal', inv:true},
     {nome:'Feedbacks aplicados (qtd)', fonte:'Registro de conversas 1:1', freq:'mensal', inv:false},
     {nome:'Produtividade por pessoa (R$ ou qtd)', fonte:'ERP / metas individuais', freq:'mensal', inv:false},
   ]},
-  {id:'atendimento', em:'💚', nome:'Atendimento & Pós-venda', kpis:[
+  {id:'atendimento', em:'', nome:'Atendimento & Pós-venda', kpis:[
     {nome:'Tempo até a 1ª resposta (min)', fonte:'WhatsApp / e-mail / chat', freq:'semanal', inv:true},
     {nome:'Resolução no primeiro contato (%)', fonte:'Registro de atendimentos', freq:'mensal', inv:false},
     {nome:'Reclamações por 100 pedidos (qtd)', fonte:'SAC / pós-venda', freq:'mensal', inv:true},
@@ -5312,7 +5403,7 @@ function gRsgHtml(){
     ? `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:520px">
         <tr style="color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.08em;text-align:left"><th style="padding:5px 8px">Indicador</th><th>Realizado</th><th>Meta</th><th>Farol</th></tr>
         ${sem.map(k=>{const f=gFarol(k);return `<tr><td style="padding:7px 8px;border-top:1px solid var(--line-soft)">${escapeHtml(k.nome)}</td><td>${escapeHtml(String(k.real||'—'))}</td><td>${escapeHtml(String(k.meta||'—'))}</td><td>${gFarolChip(f)}</td></tr>`;}).join('')}
-      </table></div><p class="tiny muted mt8">Os números vêm do seu Painel (aba 🚦). Atualize lá antes de fechar o report.</p>`
+      </table></div><p class="tiny muted mt8">Os números vêm do seu Painel (aba ). Atualize lá antes de fechar o report.</p>`
     : `<p class="muted tiny">Você ainda não tem indicadores <b>semanais</b> no Painel. Monte o painel primeiro — o RSG puxa os números de lá.</p>`;
   return `
   <div class="grid g-2" style="grid-template-columns:1.4fr 1fr;align-items:start">
@@ -5525,9 +5616,9 @@ function gAlcadaHtml(){
       <label class="fld"><span>O que NÃO muda na rotina (tranquilize: nada sai da lista de trabalho)</span><textarea class="in" id="caRotina" rows="2" placeholder="A rotina da pessoa, do jeito que já é hoje…" onchange="gCartaoDraft()">${escapeHtml(d.rotina||'')}</textarea></label>
       <label class="fld"><span>Números da semana — 3 ou 4, um por linha, no formato “indicador — onde tira”</span><textarea class="in" id="caNumeros" rows="3" placeholder="Faturamento vs. meta — ERP&#10;Taxa de conversão — planilha de orçamentos" onchange="gCartaoDraft()">${escapeHtml(d.numeros||'')}</textarea></label>
       <div class="grid g-3 mt8" style="gap:10px">
-        <label class="fld"><span>🟢 DECIDE SOZINHO (níveis 1–2) — um por linha</span><textarea class="in" id="caDecide" rows="5" placeholder="Escala e folga da equipe&#10;Desconto até o limite combinado" onchange="gCartaoDraft()">${escapeHtml(d.decide||'')}</textarea></label>
-        <label class="fld"><span>🟡 LEVA COM RECOMENDAÇÃO (nível 3)</span><textarea class="in" id="caRecomenda" rows="5" placeholder="Desconto acima da alçada&#10;Exceção de pagamento" onchange="gCartaoDraft()">${escapeHtml(d.recomenda||'')}</textarea></label>
-        <label class="fld"><span>🔴 É DA DIREÇÃO (nível 4)</span><textarea class="in" id="caDirecao" rows="5" placeholder="Contratação e desligamento&#10;Investimento estrutural" onchange="gCartaoDraft()">${escapeHtml(d.direcao||'')}</textarea></label>
+        <label class="fld"><span>DECIDE SOZINHO (níveis 1–2) — um por linha</span><textarea class="in" id="caDecide" rows="5" placeholder="Escala e folga da equipe&#10;Desconto até o limite combinado" onchange="gCartaoDraft()">${escapeHtml(d.decide||'')}</textarea></label>
+        <label class="fld"><span>LEVA COM RECOMENDAÇÃO (nível 3)</span><textarea class="in" id="caRecomenda" rows="5" placeholder="Desconto acima da alçada&#10;Exceção de pagamento" onchange="gCartaoDraft()">${escapeHtml(d.recomenda||'')}</textarea></label>
+        <label class="fld"><span>É DA DIREÇÃO (nível 4)</span><textarea class="in" id="caDirecao" rows="5" placeholder="Contratação e desligamento&#10;Investimento estrutural" onchange="gCartaoDraft()">${escapeHtml(d.direcao||'')}</textarea></label>
       </div>
       <label class="fld"><span>“Comece assim” — a primeira frase da apresentação (se começa com número, vira análise; se começa com desabafo, vira socorro)</span><textarea class="in" id="caFrase" rows="2" placeholder='“A área fechou a semana em ___% da meta. O que puxou foi ___. Já fiz ___ e recomendo ___.”' onchange="gCartaoDraft()">${escapeHtml(d.frase||'')}</textarea></label>
       <div class="btn-row mt16">
@@ -5574,7 +5665,7 @@ function gCartaoPrint(i){
      <ul style="margin:0 0 10px;padding-left:16px">${gLinhas(c.numeros).map(x=>`<li>${escapeHtml(x)}</li>`).join('')||'<li>—</li>'}</ul>
      <h5>A sua alçada</h5>
      <div style="display:flex;gap:14px">${col('EU DECIDO SOZINHO · níveis 1–2',gLinhas(c.decide))}${col('LEVO COM RECOMENDAÇÃO · nível 3',gLinhas(c.recomenda))}${col('É DA DIREÇÃO · nível 4',gLinhas(c.direcao))}</div>
-     <div class="callout" style="margin-top:16px"><span class="ic">💬</span><div><b>Comece assim:</b> ${escapeHtml(c.frase||'“A área fechou a semana em ___% da meta. O que puxou foi ___. Já fiz ___ e recomendo ___.”')}</div></div>
+     <div class="callout" style="margin-top:16px"><span class="ic"></span><div><b>Comece assim:</b> ${escapeHtml(c.frase||'“A área fechou a semana em ___% da meta. O que puxou foi ___. Já fiz ___ e recomendo ___.”')}</div></div>
      <p style="font-size:10px;color:#8a8a8e;margin-top:14px">Decisão registrada que deu errado custa menos que decisão que ficou esperando resposta. Autonomia se ganha mostrando critério.</p>`);
 }
 
@@ -5582,11 +5673,11 @@ function gCartaoPrint(i){
    ABA 6 — MÉTODO DOS 5 DEDOS
    =================================================================== */
 const G_DEDOS=[
-  {k:'situacao', em:'👍', t:'1 · Polegar — Situação', p:'O que aconteceu, em UMA frase. Sem rodeio.', ex:'Perdi conversão em pedidos grandes.'},
+  {k:'situacao', em:'', t:'1 · Polegar — Situação', p:'O que aconteceu, em UMA frase. Sem rodeio.', ex:'Perdi conversão em pedidos grandes.'},
   {k:'numero',   em:'☝️', t:'2 · Indicador — Número', p:'O dado que prova. “Caiu” não é número; 21% é número.', ex:'A conversão nessa faixa caiu de 24% para 13%.'},
-  {k:'jafiz',    em:'🖕', t:'3 · Médio — O que eu já fiz', p:'A providência que você já tomou. Muda a conversa inteira.', ex:'Já mudei a ordem de atendimento para priorizar esses casos.'},
-  {k:'recomendo',em:'💍', t:'4 · Anelar — O que eu recomendo', p:'O dedo mais importante. Sem ele, você pede que pensem por você.', ex:'Recomendo alçada de 8% de desconto com relatório semanal.'},
-  {k:'preciso',  em:'🤙', t:'5 · Mindinho — O que eu preciso de você', p:'O pedido exato: aval, decisão, recurso — ou só ciência.', ex:'Preciso do seu aval até sexta.'},
+  {k:'jafiz',    em:'', t:'3 · Médio — O que eu já fiz', p:'A providência que você já tomou. Muda a conversa inteira.', ex:'Já mudei a ordem de atendimento para priorizar esses casos.'},
+  {k:'recomendo',em:'', t:'4 · Anelar — O que eu recomendo', p:'O dedo mais importante. Sem ele, você pede que pensem por você.', ex:'Recomendo alçada de 8% de desconto com relatório semanal.'},
+  {k:'preciso',  em:'', t:'5 · Mindinho — O que eu preciso de você', p:'O pedido exato: aval, decisão, recurso — ou só ciência.', ex:'Preciso do seu aval até sexta.'},
 ];
 function gDedosHtml(){
   const g=G(); const d=g.drafts.dedos||{};
@@ -5647,13 +5738,13 @@ function gDedosCopy(){
   const fala=gDedosFala(gDedosCollect());
   if(!fala){ toast('⚠️','Nada para copiar','Preencha os dedos primeiro.'); return; }
   navigator.clipboard?.writeText(fala.replace(/[“”]/g,''));
-  toast('📋','Fala copiada','Cole no WhatsApp, no e-mail ou leve para a reunião.');
+  toast('','Fala copiada','Cole no WhatsApp, no e-mail ou leve para a reunião.');
 }
 function gDedosPrintDraft(){
   const d=gDedosCollect();
   gPrint('','Roteiro dos 5 Dedos',
     G_DEDOS.map(f=>`<h5>${f.t}</h5><p>${escapeHtml(d[f.k]||'—')}</p>`).join('')+
-    `<div class="callout"><span class="ic">💬</span><div><b>Fala completa:</b> ${escapeHtml(gDedosFala(d)||'—')}</div></div>
+    `<div class="callout"><span class="ic"></span><div><b>Fala completa:</b> ${escapeHtml(gDedosFala(d)||'—')}</div></div>
      <p style="font-size:10px;color:#8a8a8e;margin-top:12px">Antes de falar, confira a mão. Faltou um dedo, a conversa ainda não está pronta.</p>`);
 }
 
@@ -5668,10 +5759,10 @@ function gFluxoHtml(){
     {t:'Se der errado, dá para voltar atrás?', s:'Contrato assinado, dinheiro alto, jurídico e dívida não dão.', sim:'nivel1', nao:'nivel4'},
   ];
   const NIVEIS={
-    nivel1:{em:'🟢',t:'Nível 1 — Decida e registre',d:'Não precisa avisar ninguém. Aparece só como número no report da semana. Decisão registrada que deu errado custa menos que decisão parada esperando resposta.'},
-    nivel2:{em:'🟢',t:'Nível 2 — Decida e avise no mesmo dia',d:'Decide primeiro, comunica depois — com a razão da escolha. Não é pedir permissão.'},
-    nivel3:{em:'🟡',t:'Nível 3 — Leve com a sua recomendação',d:'Use os 5 Dedos (aba 5 Dedos). A direção aprova, ajusta ou recusa — mas em cima do que você já pensou.'},
-    nivel4:{em:'🔴',t:'Nível 4 — A direção decide',d:'Leve os dados e o contexto. Este bloco não se delega — e isso não é falta de confiança: é o tipo de decisão que não tem volta.'},
+    nivel1:{em:'',t:'Nível 1 — Decida e registre',d:'Não precisa avisar ninguém. Aparece só como número no report da semana. Decisão registrada que deu errado custa menos que decisão parada esperando resposta.'},
+    nivel2:{em:'',t:'Nível 2 — Decida e avise no mesmo dia',d:'Decide primeiro, comunica depois — com a razão da escolha. Não é pedir permissão.'},
+    nivel3:{em:'',t:'Nível 3 — Leve com a sua recomendação',d:'Use os 5 Dedos (aba 5 Dedos). A direção aprova, ajusta ou recusa — mas em cima do que você já pensou.'},
+    nivel4:{em:'',t:'Nível 4 — A direção decide',d:'Leve os dados e o contexto. Este bloco não se delega — e isso não é falta de confiança: é o tipo de decisão que não tem volta.'},
   };
   let wizard='';
   const st=gFlow.step;
@@ -5750,7 +5841,7 @@ function importData(file){
       if(!obj || typeof obj!=='object' || !('xp' in obj)) throw new Error('formato');
       S={...defaultState(),...obj};
       await Store.set(KEY, JSON.stringify(S));
-      toast('📥','Progresso importado','Bem-vindo(a) de volta.');
+      toast('','Progresso importado','Bem-vindo(a) de volta.');
       renderTop(); go('home');
     }catch(err){ toast('⚠️','Arquivo inválido','Selecione um backup exportado pela própria plataforma.'); }
   };
@@ -5777,16 +5868,16 @@ function signature(){
    .likert / .gtabs / .callout / .card (componentes nativos).
    =================================================================== */
 const BNAIPES=[
-  {k:'direcao',   nome:'Direção',   sub:'Clareza & Propósito',        g:'◎', hue:'#e8c877', sintoma:'metas que trocam toda semana e uma equipe que não sabe para onde ir'},
-  {k:'plano',     nome:'Plano',     sub:'Estratégia & Planejamento',  g:'⬡', hue:'#57c7c7', sintoma:'muito esforço e pouco resultado, retrabalho e projetos que não fecham'},
-  {k:'execucao',  nome:'Execução',  sub:'Disciplina & Ação',          g:'✳', hue:'#f2a65a', sintoma:'boas ideias que morrem na gaveta e prazos que estouram'},
-  {k:'padroes',   nome:'Padrões',   sub:'A Bússola do Comportamento', g:'✦', hue:'#b98ce0', sintoma:'o mesmo problema que volta com outra roupa, ciclo após ciclo'},
-  {k:'mente',     nome:'Mente',     sub:'Mentalidade & Crenças',      g:'❖', hue:'#6fa8e5', sintoma:'decisões travadas e preços cobrados abaixo do valor que você entrega'},
-  {k:'forcas',    nome:'Forças',    sub:'Autoconhecimento & Talento', g:'◆', hue:'#5fd0a6', sintoma:'competir por preço em vez de diferencial, sem posicionamento claro'},
-  {k:'lideranca', nome:'Liderança', sub:'Gestão & Posicionamento',    g:'♛', hue:'#e0687a', sintoma:'tudo depender de você e o time não decidir nada sozinho'},
-  {k:'sabotagem', nome:'Sombra',    sub:'Medos & Autossabotagem',     g:'☾', hue:'#9aa7be', sintoma:'o negócio empacar justo quando está perto do próximo nível'},
-  {k:'identidade',nome:'Identidade',sub:'Autenticidade & Autoimagem', g:'✧', hue:'#e27bb8', sintoma:'você se encolher, não se posicionar e deixar vendas e autoridade na mesa'},
-  {k:'resultados',nome:'Resultados',sub:'Mensuração & Gestão',        g:'▲', hue:'#b7ce5a', sintoma:'decidir no achismo e descobrir os problemas tarde demais'},
+  {k:'direcao',   nome:'Direção',   sub:'Clareza & Propósito',        g:'◎', hue:'#c6a867', sintoma:'metas que trocam toda semana e uma equipe que não sabe para onde ir'},
+  {k:'plano',     nome:'Plano',     sub:'Estratégia & Planejamento',  g:'⬡', hue:'#c6a867', sintoma:'muito esforço e pouco resultado, retrabalho e projetos que não fecham'},
+  {k:'execucao',  nome:'Execução',  sub:'Disciplina & Ação',          g:'✳', hue:'#c6a867', sintoma:'boas ideias que morrem na gaveta e prazos que estouram'},
+  {k:'padroes',   nome:'Padrões',   sub:'A Bússola do Comportamento', g:'✦', hue:'#c6a867', sintoma:'o mesmo problema que volta com outra roupa, ciclo após ciclo'},
+  {k:'mente',     nome:'Mente',     sub:'Mentalidade & Crenças',      g:'❖', hue:'#c6a867', sintoma:'decisões travadas e preços cobrados abaixo do valor que você entrega'},
+  {k:'forcas',    nome:'Forças',    sub:'Autoconhecimento & Talento', g:'◆', hue:'#c6a867', sintoma:'competir por preço em vez de diferencial, sem posicionamento claro'},
+  {k:'lideranca', nome:'Liderança', sub:'Gestão & Posicionamento',    g:'♛', hue:'#c6a867', sintoma:'tudo depender de você e o time não decidir nada sozinho'},
+  {k:'sabotagem', nome:'Sombra',    sub:'Medos & Autossabotagem',     g:'☾', hue:'#c6a867', sintoma:'o negócio empacar justo quando está perto do próximo nível'},
+  {k:'identidade',nome:'Identidade',sub:'Autenticidade & Autoimagem', g:'✧', hue:'#c6a867', sintoma:'você se encolher, não se posicionar e deixar vendas e autoridade na mesa'},
+  {k:'resultados',nome:'Resultados',sub:'Mensuração & Gestão',        g:'▲', hue:'#c6a867', sintoma:'decidir no achismo e descobrir os problemas tarde demais'},
 ];
 const BNMAP=Object.fromEntries(BNAIPES.map(n=>[n.k,n]));
 
@@ -7005,10 +7096,10 @@ const BCARDS=[
 ];
 
 const BEIXOS=[
-  {k:'estrategia',  nome:'Estratégia',   hue:'#e8c877', naipes:['direcao','plano','resultados']},
-  {k:'mentalidade', nome:'Mentalidade',  hue:'#6fa8e5', naipes:['mente','forcas','identidade']},
-  {k:'comportamento',nome:'Comportamento',hue:'#b98ce0',naipes:['execucao','padroes','sabotagem']},
-  {k:'lideranca',   nome:'Liderança',    hue:'#e0687a', naipes:['lideranca']},
+  {k:'estrategia',  nome:'Estratégia',   hue:'#c6a867', naipes:['direcao','plano','resultados']},
+  {k:'mentalidade', nome:'Mentalidade',  hue:'#c6a867', naipes:['mente','forcas','identidade']},
+  {k:'comportamento',nome:'Comportamento',hue:'#c6a867',naipes:['execucao','padroes','sabotagem']},
+  {k:'lideranca',   nome:'Liderança',    hue:'#c6a867', naipes:['lideranca']},
 ];
 const BDIAG=[
   {n:'direcao',   q:'Tenho clareza total do que busco — e do porquê.'},
@@ -7023,17 +7114,17 @@ const BDIAG=[
   {n:'lideranca', q:'Lidero a mim e aos outros com clareza e firmeza.'},
 ];
 const BTRILHAS=[
-  {id:'clareza',nome:'Clareza & Direção',ico:'◎',hue:'#e8c877',obj:'Para quem está disperso e precisa de foco.',
+  {id:'clareza',nome:'Clareza & Direção',ico:'◎',hue:'#c6a867',obj:'Para quem está disperso e precisa de foco.',
     steps:[['direcao','O Alvo'],['direcao','Porquê Maior'],['direcao','Uma Frase'],['direcao','Prioridade Única'],['direcao','Não-Objetivo'],['plano','Plano de Ação'],['resultados','Mensura'],['direcao','Aproxima ou Afasta']]},
-  {id:'execucao',nome:'Máquina de Execução',ico:'✳',hue:'#f2a65a',obj:'Para transformar intenção em constância.',
+  {id:'execucao',nome:'Máquina de Execução',ico:'✳',hue:'#c6a867',obj:'Para transformar intenção em constância.',
     steps:[['execucao','Nota de Compromisso'],['execucao','Consistência'],['execucao','Bloco Sagrado'],['execucao','Ambiente que Executa'],['execucao','Foco Único'],['execucao','Disciplina'],['plano','Rituais Semanais'],['execucao','Prova de Movimento']]},
-  {id:'teto',nome:'Quebrar o Teto',ico:'✦',hue:'#b98ce0',obj:'O coração do método: romper padrões herdados.',
+  {id:'teto',nome:'Quebrar o Teto',ico:'✦',hue:'#c6a867',obj:'O coração do método: romper padrões herdados.',
     steps:[['padroes','Padrões de Repetição'],['padroes','Ligado a Quem'],['padroes','Decepcionaria'],['padroes','Lealdade Invisível'],['padroes','Ganho Oculto'],['padroes','Teto Familiar'],['padroes','Permissão para Superar'],['padroes','Quebra de Padrão'],['padroes','Escolha Consciente']]},
-  {id:'medo',nome:'Do Medo à Ação',ico:'☾',hue:'#9aa7be',obj:'Para vencer autossabotagem e travas.',
+  {id:'medo',nome:'Do Medo à Ação',ico:'☾',hue:'#c6a867',obj:'Para vencer autossabotagem e travas.',
     steps:[['sabotagem','Limitações'],['sabotagem','Medo do Sucesso'],['sabotagem','Procrastinação'],['sabotagem','Zona de Conforto'],['mente','Crença Central'],['sabotagem','Enfrentar o Medo'],['sabotagem','Custo do'],['sabotagem','Obstáculo Vira Rota']]},
-  {id:'lideranca',nome:'Liderança & Posicionamento',ico:'♛',hue:'#e0687a',obj:'Para se posicionar como líder de verdade.',
+  {id:'lideranca',nome:'Liderança & Posicionamento',ico:'♛',hue:'#c6a867',obj:'Para se posicionar como líder de verdade.',
     steps:[['lideranca','Liderar a Si'],['identidade','Nomear-se Líder'],['lideranca','Visão Comunicada'],['lideranca','Padrão de Excelência'],['lideranca','Delegar com Confiança'],['lideranca','Conversas Difíceis'],['lideranca','Presença e Autoridade'],['lideranca','Formar Outros']]},
-  {id:'operacional',nome:'Sair do Operacional',ico:'⬡',hue:'#57c7c7',obj:'Para o dono preso na operação.',
+  {id:'operacional',nome:'Sair do Operacional',ico:'⬡',hue:'#c6a867',obj:'Para o dono preso na operação.',
     steps:[['plano','Delegar x Fazer'],['plano','Gargalo Único'],['lideranca','Delegar com Confiança'],['lideranca','Proteger o Foco'],['lideranca','Tempo do Líder'],['execucao','Dizer Não'],['plano','Alavancas'],['lideranca','Formar Outros']]},
 ];
 
@@ -7088,7 +7179,7 @@ function renderBussola(){
   const tabs=[{id:'hoje',lbl:'Carta do Dia'},{id:'mapa',lbl:'Diagnóstico'},{id:'placar',lbl:'Placar de Blindagem'},{id:'trilhas',lbl:'Trilhas de Padrão'},{id:'baralho',lbl:'O Baralho'},{id:'espelho',lbl:'Espelho'}];
   v.innerHTML=`
     <p class="eyebrow">A blindagem interna do gestor</p>
-    <h1 class="page" style="display:flex;align-items:center;gap:12px">🧭 A Bússola</h1>
+    <h1 class="page" style="display:flex;align-items:center;gap:12px">A Bússola</h1>
     <p class="lead">Estratégia blinda o negócio por fora; a Bússola blinda você por dentro. <span style="font-family:var(--serif);font-style:italic;color:var(--amber)">Seus padrões de comportamento definem seus acontecimentos.</span> — Carla Caroline</p>
     <div class="gtabs">${tabs.map(t=>`<button class="gtab ${bTab===t.id?'on':''}" onclick="bGo('${t.id}')">${t.lbl}</button>`).join('')}</div>
     <div id="bBody"></div>`;
@@ -7125,7 +7216,7 @@ function bHojeHtml(){
     <div>
       <div class="kicker">${dt}</div>
       ${bStateBlock()}
-      <div class="callout"><span class="ic">🧭</span><div><b>Por que esta carta hoje:</b> ${bReason(idx,true)}</div></div>
+      <div class="callout"><span class="ic"></span><div><b>Por que esta carta hoje:</b> ${bReason(idx,true)}</div></div>
       <div class="btn-row"><button class="btn primary" onclick="openCard(${idx})">Abrir e assumir compromisso</button>
       <button class="btn ghost" onclick="bDrawOther()">Puxar outra</button></div>
       <p class="tiny muted mt16">A carta de hoje é estável — volte quando quiser que ela estará aqui. Amanhã, o mapa escolhe a próxima.</p>
@@ -7152,13 +7243,13 @@ function openCard(idx){
     <div class="b-levels">${levels}</div>
     <div class="callout" style="border-color:${nz.hue}66"><span class="ic">✎</span><div><b>Ferramenta — aplique agora:</b> ${escapeHtml(c.x)}</div></div>
     ${bCofreBlock(c.n)}
-    <div class="b-ii"><div class="b-iihead">🎯 Compromisso de implementação <span class="tiny muted">— a forma que a ciência comprova que faz você cumprir</span></div>
+    <div class="b-ii"><div class="b-iihead">Compromisso de implementação <span class="tiny muted">— a forma que a ciência comprova que faz você cumprir</span></div>
       <label class="fld"><span>1 · QUANDO / ONDE (o gatilho)</span><input class="in" id="bCommitWhen" placeholder="Ex.: amanhã, às 8h, antes de abrir o e-mail…"></label>
       <label class="fld"><span>2 · EU VOU (a ação concreta)</span><textarea class="in" id="bCommitDo" style="min-height:64px" placeholder="Pequena o suficiente para não ter como falhar…"></textarea></label>
       ${(c.n==='padroes'||c.n==='sabotagem')?`<label class="fld"><span>3 · PROTOCOLO DE RECAÍDA — se eu me pegar no padrão, eu interrompo com…</span><input class="in" id="bCommitInterrupt" placeholder="Ex.: respiro, escrevo o gatilho e faço a menor ação possível"></label>`:''}
       <label class="fld"><span>Prazo</span><select class="in" id="bCommitPrazo"><option value="2">Em 48 horas</option><option value="7" selected>Em 7 dias</option><option value="15">Em 15 dias</option><option value="30">Em 30 dias</option></select></label>
     </div>
-    <div class="btn-row"><button class="btn sage" onclick="bAssumir(${idx})">🎯 Assinar compromisso e enviar ao Plano 30d</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>
+    <div class="btn-row"><button class="btn sage" onclick="bAssumir(${idx})">Assinar compromisso e enviar ao Plano 30d</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>
     <p class="tiny muted" style="margin-top:14px;font-family:var(--serif);font-style:italic">✦ Seus padrões de comportamento definem seus acontecimentos. — Carla Caroline</p>`);
 }
 function bAssumir(idx){
@@ -7169,14 +7260,14 @@ function bAssumir(idx){
   S.plan.push({id:'p'+Date.now(), text, due:Date.now()+days*86400000, done:false, src:'Bússola · '+BNMAP[c.n].nome+': '+c.t, bnaipe:c.n, bcard:idx});
   const ie=$('#bCommitInterrupt'); if(ie&&ie.value.trim()){ const B=Bst(); B.interrupts.unshift({naipe:c.n, card:c.t, text:ie.value.trim(), t:Date.now()}); if(B.interrupts.length>40)B.interrupts.length=40; }
   bMarkWorked(idx); addXp(20,'Compromisso da Bússola assumido'); grantTrophy('planner'); save(); closeModal();
-  toast('🎯','Compromisso assinado','Está no seu Plano 30d — com gatilho e ação definidos.');
+  toast('','Compromisso assinado','Está no seu Plano 30d — com gatilho e ação definidos.');
 }
 
 /* ---------- MAPA / diagnóstico comportamental ---------- */
 function bMapaHtml(){
   const B=Bst();
   if(!B.diag){
-    return `<div class="card pad-lg"><p class="eyebrow">Movimento 01 · Norte</p><h3>🧭 Diagnóstico Comportamental</h3>
+    return `<div class="card pad-lg"><p class="eyebrow">Movimento 01 · Norte</p><h3>Diagnóstico Comportamental</h3>
       <p class="muted">Dez afirmações, de 1 a 5. O sistema mapeia seus eixos e revela sua <b>maior alavanca</b> — o ponto onde uma mudança pequena gera o maior salto de resultado. Complementa o autodiagnóstico de negócio.</p>
       <div class="btn-row mt16"><button class="btn primary" onclick="openBDiag()">Começar diagnóstico (+40 XP)</button></div></div>`;
   }
@@ -7184,7 +7275,7 @@ function bMapaHtml(){
 }
 function openBDiag(){
   bDiagTmp={}; const B=Bst();
-  modal(`<p class="eyebrow">Diagnóstico Comportamental</p><h3>🧭 Seu Mapa Bússola</h3>
+  modal(`<p class="eyebrow">Diagnóstico Comportamental</p><h3>Seu Mapa Bússola</h3>
     <p class="muted tiny" style="margin:6px 0 0">De 1 (nada verdadeiro) a 5 (totalmente verdadeiro), com sinceridade.</p>
     <label class="fld" style="margin-top:12px"><span>Seu Norte — o que você busca alcançar?</span><textarea class="in" id="bNorte" style="min-height:60px">${escapeHtml(B.norte||'')}</textarea></label>
     <div class="mt16" id="bDiagForm"></div>
@@ -7210,10 +7301,10 @@ function bMapaResultHtml(){
   return `<div class="grid g-2">
     <div class="card">${radarSVG(ans)}<p class="tiny muted center" style="margin-top:6px">Radar dos 10 naipes · nota 1 a 5</p></div>
     <div>${dims}
-      <div class="callout mt16" style="border-color:${w.n.hue}66"><span class="ic">🎯</span><div><b>Sua maior alavanca agora: ${w.n.g} ${w.n.nome} (${w.v}/5)</b><br>Ponto de menor força, no eixo <b>${e.nome}</b>. É aqui que uma mudança pequena gera o maior salto. O sistema vai priorizar cartas deste território.</div></div>
+      <div class="callout mt16" style="border-color:${w.n.hue}66"><span class="ic"></span><div><b>Sua maior alavanca agora: ${w.n.g} ${w.n.nome} (${w.v}/5)</b><br>Ponto de menor força, no eixo <b>${e.nome}</b>. É aqui que uma mudança pequena gera o maior salto. O sistema vai priorizar cartas deste território.</div></div>
       <div class="callout" style="border-color:var(--coral)55;background:rgba(255,122,107,.06)"><span class="ic">🔗</span><div><b>No negócio, esse padrão vira:</b> ${w.n.sintoma}.<br><span class="tiny muted">Por dentro, você trabalha isso aqui na Bússola. Por fora, no módulo <b style="color:var(--star)">${BMOD[w.k]}</b>. Blindar os dois é o que sustenta o resultado.</span></div></div>
     </div></div>
-    <div class="btn-row mt16"><button class="btn primary" onclick="bGo('hoje')">Ver minha carta de hoje</button><button class="btn ghost" onclick="bGo('placar')">🏆 Provar no Placar</button><button class="btn ghost" onclick="go('trilhas')">Módulo ${BMOD[w.k]} →</button><button class="btn ghost" onclick="openBDiag()">↻ Refazer</button></div>`;
+    <div class="btn-row mt16"><button class="btn primary" onclick="bGo('hoje')">Ver minha carta de hoje</button><button class="btn ghost" onclick="bGo('placar')">Provar no Placar</button><button class="btn ghost" onclick="go('trilhas')">Módulo ${BMOD[w.k]} →</button><button class="btn ghost" onclick="openBDiag()">↻ Refazer</button></div>`;
 }
 
 /* ---------- TRILHAS de padrão ---------- */
@@ -7221,7 +7312,7 @@ function bTrilhasHtml(){
   const B=Bst();
   if(bOpenTrilha) return bTrilhaDetail(bOpenTrilha);
   let sug='';
-  if(B.diag){ const w=bWeakest(), t=bSuggest(w.k); if(t) sug=`<div class="callout" style="border-color:${t.hue}66"><span class="ic">🧭</span><div>Seu ponto de menor força é <b>${w.n.nome}</b>. A trilha <b style="color:${t.hue}">${t.nome}</b> foi desenhada para isso. <a style="color:var(--amber);cursor:pointer;text-decoration:underline" onclick="bOpenT('${t.id}')">Começar →</a></div></div>`; }
+  if(B.diag){ const w=bWeakest(), t=bSuggest(w.k); if(t) sug=`<div class="callout" style="border-color:${t.hue}66"><span class="ic"></span><div>Seu ponto de menor força é <b>${w.n.nome}</b>. A trilha <b style="color:${t.hue}">${t.nome}</b> foi desenhada para isso. <a style="color:var(--amber);cursor:pointer;text-decoration:underline" onclick="bOpenT('${t.id}')">Começar →</a></div></div>`; }
   return sug+'<div class="grid g-3" style="margin-top:14px">'+BTRILHAS.map(t=>{ const done=(B.trilhas[t.id]&&B.trilhas[t.id].done)||[]; const pct=Math.round(done.length/t.steps.length*100); return `<div class="card b-trilha" style="--sc:${t.hue}" onclick="bOpenT('${t.id}')"><div class="b-tico">${t.ico}</div><h3 style="font-family:var(--serif);margin:6px 0 4px">${t.nome}</h3><p class="muted tiny">${t.obj}</p><div class="b-bar" style="margin-top:10px"><i style="width:${pct}%;background:${t.hue}"></i></div><div class="tiny muted" style="margin-top:6px">${done.length}/${t.steps.length} passos${pct===100?' · ✓ completa':''}</div></div>`; }).join('')+'</div>';
 }
 function bOpenT(id){ bOpenTrilha=id; renderBussola(); window.scrollTo({top:120,behavior:'smooth'}); }
@@ -7241,7 +7332,7 @@ function bTrilhaDetail(id){
       <div style="display:flex;gap:14px;align-items:center"><span style="font-size:30px;color:${t.hue}">${t.ico}</span><div><h2 style="margin:0;font-family:var(--serif)">${t.nome}</h2><div class="tiny muted">${t.obj}</div></div></div>
       <div class="b-bar" style="margin-top:16px"><i style="width:${pct}%;background:${t.hue}"></i></div><div class="tiny muted" style="margin-top:6px">${done.length}/${t.steps.length} · ${pct}%</div>
       <div class="b-stepper" style="margin-top:18px">${rows}</div>
-      ${pct===100?`<div class="callout mt16"><span class="ic">🏆</span><div>Trilha completa. Refaça seu diagnóstico no Espelho para ver a evolução — e escolha a próxima.</div></div>`:''}
+      ${pct===100?`<div class="callout mt16"><span class="ic"></span><div>Trilha completa. Refaça seu diagnóstico no Espelho para ver a evolução — e escolha a próxima.</div></div>`:''}
     </div>`;
 }
 function bConclude(id,i){
@@ -7268,27 +7359,27 @@ function bEspelhoHtml(){
   const B=Bst();
   if(!B.diag) return `<div class="card pad-lg"><p class="muted">Faça seu diagnóstico para receber o relatório do seu ciclo — uma leitura do seu mapa, da sua constância e do que fazer a seguir.</p><button class="btn primary mt16" onclick="bGo('mapa')">Fazer diagnóstico</button></div>`;
   const rc=(B.ritual||[]).length;
-  return `<div class="card pad-lg" style="border-color:rgba(155,140,255,.35);margin-bottom:16px"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div><p class="eyebrow" style="color:var(--violet)">Cadência</p><h3 style="margin:2px 0 0">🔄 Ritual de Ciclo</h3><p class="muted tiny" style="margin:4px 0 0">Revisão semanal — a diferença entre quem evolui e quem só consome conteúdo.${rc?' Você já fechou '+rc+' ciclo(s).':''}</p></div><button class="btn primary" style="margin-left:auto" onclick="bRitual()">Fazer o ritual</button></div></div>
-    <div class="card pad-lg"><p class="eyebrow">O Espelho</p><h3>🧭 Relatório do ciclo</h3>
+  return `<div class="card pad-lg" style="border-color:rgba(155,140,255,.35);margin-bottom:16px"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div><p class="eyebrow" style="color:var(--violet)">Cadência</p><h3 style="margin:2px 0 0">Ritual de Ciclo</h3><p class="muted tiny" style="margin:4px 0 0">Revisão semanal — a diferença entre quem evolui e quem só consome conteúdo.${rc?' Você já fechou '+rc+' ciclo(s).':''}</p></div><button class="btn primary" style="margin-left:auto" onclick="bRitual()">Fazer o ritual</button></div></div>
+    <div class="card pad-lg"><p class="eyebrow">O Espelho</p><h3>Relatório do ciclo</h3>
     <div class="b-report">${bReportBody()}</div>
     <div class="res-actions">
-      <button class="btn ghost xs" onclick="bSetArt();actSave()">💾 Salvar</button>
+      <button class="btn ghost xs" onclick="bSetArt();actSave()">Salvar</button>
       <button class="btn ghost xs" onclick="bSetArt();actPrint()">Imprimir A4</button>
-      <button class="btn ghost xs" onclick="bSetArt();actToPlano()">🎯 Plano 30d</button>
-      <button class="btn ghost xs" onclick="bSetArt();actToPdca()">🔁 PDCA</button>
-      <button class="btn ghost xs" onclick="bSetArt();actToDiario()">📔 Diário</button>
-      <button class="btn ghost xs" onclick="bShareMentora()">🤝 Enviar à mentora</button>
+      <button class="btn ghost xs" onclick="bSetArt();actToPlano()">Plano 30d</button>
+      <button class="btn ghost xs" onclick="bSetArt();actToPdca()">PDCA</button>
+      <button class="btn ghost xs" onclick="bSetArt();actToDiario()">Diário</button>
+      <button class="btn ghost xs" onclick="bShareMentora()">Enviar à mentora</button>
     </div></div>`;
 }
 function bShareMentora(){
   const B=Bst(); if(!B.diag){ toast('⚠️','Faça o diagnóstico',''); return; }
   const w=bWeakest(), eS=BEIXOS.map(e=>e.nome+' '+bEixoScore(e).toFixed(1)).join(' · ');
   const coms=(S.plan||[]).filter(p=>p.bnaipe), done=coms.filter(p=>p.done).length;
-  const txt=`🧭 MEU CICLO — OPERAÇÃO BLINDADA / A BÚSSOLA\n${S.name?S.name+'\n':''}${B.norte?'Norte: '+B.norte+'\n':''}\nMapa (0-5): ${eS}\nMaior alavanca: ${w.n.nome} (${w.v}/5) → no negócio: ${w.n.sintoma}\nCompromissos: ${done}/${coms.length} cumpridos · sequência ${S.streak||0} dia(s)\n${B.pacto?'\nPacto: "'+B.pacto.identity+'"':''}\n\nPara a mentoria: onde eu preciso de ajuda é em ${w.n.nome}.`;
-  modal(`<p class="eyebrow">Sessão de mentoria</p><h3>🤝 Enviar meu ciclo à mentora</h3>
+  const txt=`MEU CICLO — OPERAÇÃO BLINDADA / A BÚSSOLA\n${S.name?S.name+'\n':''}${B.norte?'Norte: '+B.norte+'\n':''}\nMapa (0-5): ${eS}\nMaior alavanca: ${w.n.nome} (${w.v}/5) → no negócio: ${w.n.sintoma}\nCompromissos: ${done}/${coms.length} cumpridos · sequência ${S.streak||0} dia(s)\n${B.pacto?'\nPacto: "'+B.pacto.identity+'"':''}\n\nPara a mentoria: onde eu preciso de ajuda é em ${w.n.nome}.`;
+  modal(`<p class="eyebrow">Sessão de mentoria</p><h3>Enviar meu ciclo à mentora</h3>
     <p class="muted tiny">Leve seu mapa para a sessão. A mentora enxerga em 10 segundos onde te conduzir — e a conversa começa no ponto certo.</p>
     <textarea class="in" id="bMentoraTxt" style="min-height:180px;margin-top:12px">${escapeHtml(txt)}</textarea>
-    <div class="btn-row mt16"><button class="btn primary" onclick="bCopy('bMentoraTxt')">📋 Copiar para enviar</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
+    <div class="btn-row mt16"><button class="btn primary" onclick="bCopy('bMentoraTxt')">Copiar para enviar</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
 }
 function bReportBody(){
   const B=Bst();
@@ -7316,7 +7407,7 @@ function bReportBody(){
 }
 function bSetArt(){
   const B=Bst(), w=bWeakest(), tr=bSuggest(w.k);
-  _art={ title:'Relatório do Ciclo — Bússola', icon:'🧭',
+  _art={ title:'Relatório do Ciclo — Bússola', icon:'',
     html:bReportBody(),
     actions:['Focar no eixo '+w.n.nome+' neste ciclo', tr?('Seguir a trilha '+tr.nome):'Assumir uma carta por dia', 'Cumprir os compromissos da Bússola em aberto'],
     pdcaTitle:'Ciclo Bússola — '+w.n.nome,
@@ -7326,14 +7417,14 @@ function bSetArt(){
 /* ---------- PACTO DE BLINDAGEM (dispositivo de compromisso + identidade) ---------- */
 function bPacto(){
   const B=Bst(), p=B.pacto||{};
-  modal(`<p class="eyebrow">Dispositivo de compromisso</p><h3>🛡️ Pacto de Blindagem</h3>
+  modal(`<p class="eyebrow">Dispositivo de compromisso</p><h3>Pacto de Blindagem</h3>
     <p class="muted tiny" style="margin:6px 0 0">Programas que geram transformação real começam por um compromisso assinado com a própria identidade — não por mais conteúdo. Preencha com verdade. Você poderá revisitar.</p>
     <label class="fld" style="margin-top:14px"><span>1 · A blindagem que estou construindo (o que muda quando eu vencer isso)</span><textarea class="in" id="bpBecoming" style="min-height:64px">${escapeHtml(p.becoming||'')}</textarea></label>
     <label class="fld"><span>2 · Quem eu escolho me tornar — "Eu sou um(a) líder que…"</span><textarea class="in" id="bpIdentity" style="min-height:56px">${escapeHtml(p.identity||'')}</textarea></label>
     <label class="fld"><span>3 · Minha prática inegociável (o mínimo que faço todo dia útil)</span><input class="in" id="bpCommit" value="${escapeAttrB(p.commit||'')}" placeholder="Ex.: abrir a carta do dia e assumir 1 compromisso"></label>
     <label class="fld"><span>4 · Assino como</span><input class="in" id="bpName" value="${escapeAttrB(p.name||S.name||'')}"></label>
     <label class="fld"><span>5 · Minha testemunha — quem vai me cobrar (accountability)</span><input class="in" id="bpWitness" value="${escapeAttrB(p.witness||'')}" placeholder="Ex.: minha sócia, meu mentor, meu par…"></label>
-    <div class="btn-row mt16"><button class="btn primary" onclick="bSignPacto()">🖋️ Assinar meu pacto (+50 XP)</button><button class="btn ghost" onclick="closeModal()">Agora não</button></div>`);
+    <div class="btn-row mt16"><button class="btn primary" onclick="bSignPacto()">Assinar meu pacto (+50 XP)</button><button class="btn ghost" onclick="closeModal()">Agora não</button></div>`);
 }
 function escapeAttrB(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 function bSignPacto(){
@@ -7343,34 +7434,34 @@ function bSignPacto(){
   if(!becoming||!identity){ toast('⚠️','Preencha o essencial','O pacto precisa do que muda e de quem você se torna.'); return; }
   const B=Bst(); const first=!B.pacto;
   B.pacto={becoming,identity,commit,name,witness,signedAt:Date.now()};
-  if(first) addXp(50,'Pacto de Blindagem assinado'); else { save(); toast('🛡️','Pacto atualizado',''); }
+  if(first) addXp(50,'Pacto de Blindagem assinado'); else { save(); toast('','Pacto atualizado',''); }
   save(); closeModal(); renderBussola();
-  if(first){ toast('🛡️','Pacto assinado','O compromisso está firmado. Agora é honrá-lo, um dia de cada vez.'); if(witness) setTimeout(bSharePacto,500); }
+  if(first){ toast('','Pacto assinado','O compromisso está firmado. Agora é honrá-lo, um dia de cada vez.'); if(witness) setTimeout(bSharePacto,500); }
 }
 function bSharePacto(){
   const B=Bst(); if(!B.pacto) return;
   const p=B.pacto;
-  const txt=`🛡️ MEU PACTO DE BLINDAGEM\n\n"${p.identity}"\n\nA blindagem que estou construindo: ${p.becoming}\nMinha prática inegociável: ${p.commit||'—'}\n\n${p.witness?p.witness+', escolhi você como minha testemunha. Peço que me cobre isso.':''}\n\n— ${p.name||S.name||''}\n(Operação Blindada · A Bússola)`;
-  modal(`<p class="eyebrow">Accountability social</p><h3>🤝 Selar com sua testemunha</h3>
+  const txt=`MEU PACTO DE BLINDAGEM\n\n"${p.identity}"\n\nA blindagem que estou construindo: ${p.becoming}\nMinha prática inegociável: ${p.commit||'—'}\n\n${p.witness?p.witness+', escolhi você como minha testemunha. Peço que me cobre isso.':''}\n\n— ${p.name||S.name||''}\n(Operação Blindada · A Bússola)`;
+  modal(`<p class="eyebrow">Accountability social</p><h3>Selar com sua testemunha</h3>
     <p class="muted tiny">Compromisso dito em voz alta a alguém tem muito mais chance de se cumprir. Copie e envie para <b>${escapeHtml(p.witness||'sua testemunha')}</b>.</p>
     <textarea class="in" id="bShareTxt" style="min-height:150px;margin-top:12px">${escapeHtml(txt)}</textarea>
-    <div class="btn-row mt16"><button class="btn primary" onclick="bCopy('bShareTxt')">📋 Copiar</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
+    <div class="btn-row mt16"><button class="btn primary" onclick="bCopy('bShareTxt')">Copiar</button><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
 }
-function bCopy(id){ const t=$('#'+id); if(!t) return; t.select(); try{ (navigator.clipboard&&navigator.clipboard.writeText)?navigator.clipboard.writeText(t.value):document.execCommand('copy'); toast('📋','Copiado','Cole no WhatsApp, e-mail ou onde quiser.'); }catch(e){ toast('📋','Selecione e copie',''); } }
+function bCopy(id){ const t=$('#'+id); if(!t) return; t.select(); try{ (navigator.clipboard&&navigator.clipboard.writeText)?navigator.clipboard.writeText(t.value):document.execCommand('copy'); toast('','Copiado','Cole no WhatsApp, e-mail ou onde quiser.'); }catch(e){ toast('','Selecione e copie',''); } }
 function bPactoBanner(){
   const B=Bst();
   if(B.pacto){
-    return `<div class="b-pacto"><div class="b-pactohead">🛡️ Seu Pacto de Blindagem <span style="margin-left:auto;display:flex;gap:12px"><a class="tiny" style="color:var(--amber);cursor:pointer" onclick="bSharePacto()">compartilhar</a><a class="tiny" style="color:var(--amber);cursor:pointer" onclick="bPacto()">editar</a></span></div>
+    return `<div class="b-pacto"><div class="b-pactohead">Seu Pacto de Blindagem <span style="margin-left:auto;display:flex;gap:12px"><a class="tiny" style="color:var(--amber);cursor:pointer" onclick="bSharePacto()">compartilhar</a><a class="tiny" style="color:var(--amber);cursor:pointer" onclick="bPacto()">editar</a></span></div>
       <p style="font-family:var(--serif);font-style:italic;margin:8px 0 0">"${escapeHtml(B.pacto.identity)}"</p>
       <p class="tiny muted" style="margin:6px 0 0">Prática inegociável: ${escapeHtml(B.pacto.commit||'—')} · assinado por ${escapeHtml(B.pacto.name||'você')}${B.pacto.witness?' · testemunha: '+escapeHtml(B.pacto.witness):''}</p></div>`;
   }
-  return `<div class="b-pacto" style="border-style:dashed;cursor:pointer" onclick="bPacto()"><div class="b-pactohead">🛡️ Assine seu Pacto de Blindagem</div>
+  return `<div class="b-pacto" style="border-style:dashed;cursor:pointer" onclick="bPacto()"><div class="b-pactohead">Assine seu Pacto de Blindagem</div>
     <p class="tiny muted" style="margin:6px 0 0">O compromisso que ancora a transformação. Leva 2 minutos e muda o jogo — <span style="color:var(--amber)">assinar →</span></p></div>`;
 }
 
 /* ---------- RITUAL DE CICLO (revisão semanal que alimenta o Espelho) ---------- */
 function bRitual(){
-  modal(`<p class="eyebrow">Cadência de transformação</p><h3>🔄 Ritual de Ciclo</h3>
+  modal(`<p class="eyebrow">Cadência de transformação</p><h3>Ritual de Ciclo</h3>
     <p class="muted tiny" style="margin:6px 0 0">Os melhores programas do mundo rodam em cadência, não em surtos. 3 perguntas, uma vez por semana. Isso vira memória e ajuste.</p>
     <label class="fld" style="margin-top:14px"><span>1 · Qual foi a maior vitória deste ciclo (por menor que pareça)?</span><textarea class="in" id="brWin" style="min-height:56px"></textarea></label>
     <label class="fld"><span>2 · Qual padrão apareceu — e o que ele estava tentando te proteger?</span><textarea class="in" id="brPattern" style="min-height:56px"></textarea></label>
@@ -7381,9 +7472,9 @@ function bSaveRitual(){
   const win=($('#brWin').value||'').trim(), pat=($('#brPattern').value||'').trim(), adj=($('#brAdjust').value||'').trim();
   if(!win&&!pat&&!adj){ toast('⚠️','Escreva algo','O ritual precisa de reflexão.'); return; }
   const B=Bst(); B.ritual.unshift({t:Date.now(), win, pattern:pat, adjust:adj}); if(B.ritual.length>52)B.ritual.length=52;
-  S.diary.unshift({t:Date.now(), moduleId:null, src:'Ritual de Ciclo · Bússola', text:`🔄 Ritual de Ciclo\nVitória: ${win}\nPadrão: ${pat}\nAjuste: ${adj}`});
+  S.diary.unshift({t:Date.now(), moduleId:null, src:'Ritual de Ciclo · Bússola', text:`Ritual de Ciclo\nVitória: ${win}\nPadrão: ${pat}\nAjuste: ${adj}`});
   addXp(30,'Ritual de ciclo concluído'); grantTrophy('reflective'); save(); closeModal(); renderBussola();
-  toast('🔄','Ciclo fechado','Sua reflexão foi para o Diário de Bordo.');
+  toast('','Ciclo fechado','Sua reflexão foi para o Diário de Bordo.');
 }
 
 /* ---------- gancho na Home (tese interno↔externo, nativo) ---------- */
@@ -7398,7 +7489,7 @@ function bHomeHook(){
   const card=el('div','card pad-lg');
   card.id='bHomeCard';
   card.style.cssText='margin-top:18px;border-color:rgba(245,181,61,.35);background:radial-gradient(600px 200px at 0% -30%,rgba(155,140,255,.12),transparent 60%),linear-gradient(180deg,var(--ink-3),var(--ink-2))';
-  card.innerHTML=`<p class="eyebrow">🧭 A Bússola · blindagem interna</p>
+  card.innerHTML=`<p class="eyebrow">A Bússola · blindagem interna</p>
     <h2 class="sec" style="margin:6px 0 8px">Blinde o negócio por fora. Blinde-se por dentro.</h2>
     <p class="muted" style="max-width:60ch">Estratégia sem mudança de comportamento não se sustenta. Aqui, seus <b>padrões</b> viram consciência, e consciência vira ação no seu Plano — porque <span style="font-family:var(--serif);font-style:italic;color:var(--amber)">seus padrões de comportamento definem seus acontecimentos</span>.</p>
     <div class="mt16">${inner}</div>`;
@@ -7409,9 +7500,9 @@ function bHomeHook(){
 function bTodayEnergy(){ const B=Bst(); const t=dayKey(Date.now()); const e=(B.stateLog||[]).find(x=>x.day===t); return e?e.energy:null; }
 function bStateBlock(){
   const en=bTodayEnergy();
-  const emo=['🥱','😕','😐','🙂','🔥'];
+  const emo=['1','2','3','4','5'];
   if(en){ const msg=['Dia pesado — a carta de hoje pede só o menor passo. Feito vence perfeito.','Energia baixa. Escolha a versão mínima da ação e honre a constância.','Estável. Um passo consistente hoje vale mais que um surto.','Boa energia — aproveite para atacar o compromisso mais difícil.','Energia alta! Canalize num movimento ousado ainda hoje.'][en-1];
-    return `<div class="b-state"><span class="tiny muted">Seu estado hoje: <b style="color:var(--amber)">${emo[en-1]} ${en}/5</b> — ${msg}</span></div>`; }
+    return `<div class="b-state"><span class="tiny muted">Seu estado hoje: <b style="color:var(--amber)">${en}/5</b> — ${msg}</span></div>`; }
   return `<div class="b-state"><span class="tiny muted">Como está sua energia hoje?</span><span class="b-energy">${[1,2,3,4,5].map(n=>`<button onclick="bSetEnergy(${n})" title="${n}/5">${emo[n-1]}</button>`).join('')}</span></div>`;
 }
 function bSetEnergy(n){ const B=Bst(); B.stateLog=B.stateLog||[]; const t=dayKey(Date.now()); const ex=B.stateLog.find(x=>x.day===t); if(ex)ex.energy=n; else B.stateLog.unshift({day:t,energy:n,t:Date.now()}); if(B.stateLog.length>90)B.stateLog.length=90; save(); renderBussola(); }
@@ -7421,11 +7512,11 @@ function bCofreBlock(naipe){
   if(['mente','sabotagem','identidade'].indexOf(naipe)<0) return '';
   const B=Bst(); const provas=(B.provas||[]).slice(0,3);
   const list=provas.length?provas.map(p=>`<li>${escapeHtml(p.text)}</li>`).join(''):'<li style="color:var(--mute-2)">Seu cofre ainda está vazio — comece agora, com uma prova.</li>';
-  return `<div class="b-cofre"><div class="b-iihead" style="color:var(--sage)">🗝️ Cofre de Provas <span class="tiny muted">— evidências de que você é capaz, contra a crença e o impostor</span></div>
+  return `<div class="b-cofre"><div class="b-iihead" style="color:var(--sage)">Cofre de Provas <span class="tiny muted">— evidências de que você é capaz, contra a crença e o impostor</span></div>
     <ul class="b-provalist">${list}</ul>
     <div class="btn-row" style="margin-top:8px;gap:8px"><input class="in" id="bProvaInput" placeholder="Uma prova concreta: algo que você já superou ou conquistou…" style="flex:1"><button class="btn sage sm" onclick="bAddProva()">Guardar</button></div></div>`;
 }
-function bAddProva(){ const el=$('#bProvaInput'); const t=((el&&el.value)||'').trim(); if(!t){ toast('⚠️','Escreva a prova',''); return; } const B=Bst(); B.provas.unshift({t:Date.now(),text:t}); if(B.provas.length>60)B.provas.length=60; addXp(8,'Prova guardada no cofre'); save(); if(el)el.value=''; const box=el?el.closest('.b-cofre'):null; if(box){ const ul=box.querySelector('.b-provalist'); if(ul) ul.innerHTML=B.provas.slice(0,3).map(p=>`<li>${escapeHtml(p.text)}</li>`).join(''); } toast('🗝️','Guardado no cofre','Releia sempre que a dúvida falar mais alto.'); }
+function bAddProva(){ const el=$('#bProvaInput'); const t=((el&&el.value)||'').trim(); if(!t){ toast('⚠️','Escreva a prova',''); return; } const B=Bst(); B.provas.unshift({t:Date.now(),text:t}); if(B.provas.length>60)B.provas.length=60; addXp(8,'Prova guardada no cofre'); save(); if(el)el.value=''; const box=el?el.closest('.b-cofre'):null; if(box){ const ul=box.querySelector('.b-provalist'); if(ul) ul.innerHTML=B.provas.slice(0,3).map(p=>`<li>${escapeHtml(p.text)}</li>`).join(''); } toast('','Guardado no cofre','Releia sempre que a dúvida falar mais alto.'); }
 
 /* ---------- PLACAR DE BLINDAGEM (KPI do negócio × evolução do padrão) ---------- */
 function bFmt(n){ if(n==null||isNaN(n))return '—'; return (Math.round(n*100)/100).toLocaleString('pt-BR'); }
@@ -7466,10 +7557,10 @@ function bCorrelation(){
   const bDelta=beh[beh.length-1].avg-beh[0].avg;
   const kDelta=kpi.entries[kpi.entries.length-1].v-kpi.entries[0].v;
   const same=(bDelta>=0)===(kDelta>=0);
-  return `<div class="callout mt16" style="border-color:${same?'var(--sage)':'var(--amber)'}66"><span class="ic">${same?'📈':'🔎'}</span><div>${same?`<b>A prova está na sua frente.</b> Sua média comportamental ${bDelta>=0?'subiu':'recuou'} ${Math.abs(bDelta).toFixed(1)} e, no mesmo período, <b>${escapeHtml(kpi.nome)}</b> ${kDelta>=0?'subiu':'recuou'} ${bFmt(Math.abs(kDelta))}. O padrão e o resultado andam juntos — exatamente como a bússola diz.`:`Comportamento e <b>${escapeHtml(kpi.nome)}</b> ainda apontam para lados diferentes. É normal no começo: o número segue o padrão com atraso. Mantenha os compromissos — a virada vem.`}</div></div>`;
+  return `<div class="callout mt16" style="border-color:${same?'var(--sage)':'var(--amber)'}66"><span class="ic">${same?'':''}</span><div>${same?`<b>A prova está na sua frente.</b> Sua média comportamental ${bDelta>=0?'subiu':'recuou'} ${Math.abs(bDelta).toFixed(1)} e, no mesmo período, <b>${escapeHtml(kpi.nome)}</b> ${kDelta>=0?'subiu':'recuou'} ${bFmt(Math.abs(kDelta))}. O padrão e o resultado andam juntos — exatamente como a bússola diz.`:`Comportamento e <b>${escapeHtml(kpi.nome)}</b> ainda apontam para lados diferentes. É normal no começo: o número segue o padrão com atraso. Mantenha os compromissos — a virada vem.`}</div></div>`;
 }
 function bAddKpi(){
-  modal(`<p class="eyebrow">Placar de Blindagem</p><h3>🏆 Acompanhar um número do negócio</h3>
+  modal(`<p class="eyebrow">Placar de Blindagem</p><h3>Acompanhar um número do negócio</h3>
     <p class="muted tiny">Escolha um indicador que importa e que muda quando VOCÊ muda.</p>
     <label class="fld" style="margin-top:12px"><span>Nome do indicador</span><input class="in" id="bkNome" placeholder="Ex.: Faturamento do mês"></label>
     <label class="fld"><span>Unidade (opcional)</span><input class="in" id="bkUn" placeholder="R$, propostas, %…"></label>
