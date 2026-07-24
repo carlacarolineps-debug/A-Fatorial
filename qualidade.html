@@ -273,6 +273,7 @@
     .inner-table { width: 100%; border-collapse: collapse; margin-top: 2px; }
     .inner-table th, .inner-table td { border: 1px solid #ccc; font-size: 9px; text-align: center; padding: 2px; }
     .inner-table th { background: #f1f5f9; color: #334155;}
+    .inner-table th.grp-th { background: #191040; color: #fff; font-size: 9px; letter-spacing: .03em; text-transform: uppercase; padding: 3px; }
     .inner-table input { width: 100%; text-align: center; border: none; font-size: 10px; font-weight: bold; background: transparent; outline: none; padding:4px;}
     .inner-table textarea { width: 100%; border: none; font-size: 10px; font-weight: bold; background: transparent; outline: none; resize: vertical; min-height: 25px; padding:4px;}
     
@@ -381,6 +382,7 @@
         body.print-mode-fu .grid-form,
         body.print-mode-fu .fpg-val,
         body.print-mode-fu .inner-table th,
+        body.print-mode-fu .inner-table th.grp-th,
         body.print-mode-fu .fup-fluxo .fx.now { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         body.print-mode-fu .fu-page .grid-form { page-break-inside: auto; }
         body.print-mode-fu .fu-page .g-col, body.print-mode-fu .fu-page .inner-table tr { page-break-inside: avoid; }
@@ -424,7 +426,7 @@
     .fu-page .inner-table .fpg-val { font-size: 9px; padding: 1px 3px; }
 
     /* Campo ainda não preenchido: amarelo claro + atenção */
-    .inp.fu-vazio { background: #fefce8 !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='11' height='11'%3E%3Cpath d='M12 3.5l9 15.5H3z' fill='%23f59e0b'/%3E%3Cpath d='M12 10v4.5M12 17.2v.3' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 6px center !important; }
+    .fu-vazio { background: #fefce8 !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='11' height='11'%3E%3Cpath d='M12 3.5l9 15.5H3z' fill='%23f59e0b'/%3E%3Cpath d='M12 10v4.5M12 17.2v.3' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 6px center !important; }
 
     /* ---- Anexos da Ficha Única (documentação visual) ---- */
     .fu-anexos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 12px; }
@@ -1769,20 +1771,28 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" id="fu_imp_cilindro" value="540,00"></div>
                 <div class="g-col g-col-2"><span class="lbl">Passo</span><input class="inp" id="fu_imp_passo" value="535,00"></div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">CONTROLE DE TEMPERATURA °C</span></div>
-                <div class="g-col g-col-4"><span class="lbl">Entre Cores (°C)</span><input class="inp" id="fu_imp_t_cores"></div>
-                <div class="g-col g-col-4"><span class="lbl">Final (°C)</span><input class="inp" id="fu_imp_t_final"></div>
-                <div class="g-col g-col-4"><span class="lbl">Calandra (°C)</span><input class="inp" id="fu_imp_t_calandra"></div>
-
-                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">TENSÕES E PRESSÕES</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Tensão Rebobinador</span><input class="inp" id="fu_imp_t_rebob"></div>
-                <div class="g-col g-col-3"><span class="lbl">Balancim</span><input class="inp" id="fu_imp_balancim"></div>
-                <div class="g-col g-col-3"><span class="lbl">Tensão do Filme (kgf)</span><input class="inp" id="fu_imp_tensao"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão (Bar)</span><input class="inp" id="fu_imp_c_pressao"></div>
-                <div class="g-col g-col-3"><span class="lbl">Velocidade (Bar)</span><input class="inp" id="fu_imp_v_bar"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Tambor (Bar)</span><input class="inp" id="fu_imp_cp_tambor"></div>
-                <div class="g-col g-col-3"><span class="lbl">Frenagem (kgf)</span><input class="inp" id="fu_imp_frenagem"></div>
-                <div class="g-col g-col-3"><span class="lbl">Pressão Compactador (Bar)</span><input class="inp" id="fu_imp_p_compact"></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">RECEITA — TEMPERATURAS, TENSÕES E PRESSÕES</span></div>
+                <div class="g-col g-col-6">
+                    <table class="inner-table" style="margin:0; border:none;">
+                        <tr><th class="grp-th" colspan="3">CONTROLE DE TEMPERATURA °C</th></tr>
+                        <tr><th>ENTRE CORES °C</th><th>FINAL °C</th><th>CALANDRA °C</th></tr>
+                        <tr><td><input id="fu_imp_t_cores" data-l="Temperatura · Entre Cores °C"></td><td><input id="fu_imp_t_final" data-l="Temperatura · Final °C"></td><td><input id="fu_imp_t_calandra" data-l="Temperatura · Calandra °C"></td></tr>
+                    </table>
+                </div>
+                <div class="g-col g-col-6">
+                    <table class="inner-table" style="margin:0; border:none;">
+                        <tr><th class="grp-th" colspan="3">REBOBINADOR — TENSÕES</th></tr>
+                        <tr><th>TENSÃO REBOBINADOR</th><th>TENSÃO DO FILME</th><th>BALANCIM</th></tr>
+                        <tr><td><input id="fu_imp_t_rebob" data-l="Rebobinador · Tensão Rebobinador"></td><td><input id="fu_imp_tensao" data-l="Rebobinador · Tensão do Filme (kgf)"></td><td><input id="fu_imp_balancim" data-l="Rebobinador · Balancim"></td></tr>
+                    </table>
+                </div>
+                <div class="g-col g-col-12">
+                    <table class="inner-table" style="margin:0; border:none;">
+                        <tr><th class="grp-th" colspan="5">PRESSÕES</th></tr>
+                        <tr><th>CONTRA PRESSÃO (Bar)</th><th>VELOCIDADE (Bar)</th><th>CONTRA PRESSÃO TAMBOR (Bar)</th><th>FRENAGEM kgf</th><th>PRESSÃO COMPACTADOR (Bar)</th></tr>
+                        <tr><td><input id="fu_imp_c_pressao" data-l="Pressão · Contra Pressão (Bar)"></td><td><input id="fu_imp_v_bar" data-l="Pressão · Velocidade (Bar)"></td><td><input id="fu_imp_cp_tambor" data-l="Pressão · Contra Pressão Tambor (Bar)"></td><td><input id="fu_imp_frenagem" data-l="Pressão · Frenagem kgf"></td><td><input id="fu_imp_p_compact" data-l="Pressão · Pressão Compactador (Bar)"></td></tr>
+                    </table>
+                </div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">CONFIGURAÇÕES DAS ESTAÇÕES, TINTAS E DUPLA FACE</span></div>
                 <div class="g-col g-col-12">
