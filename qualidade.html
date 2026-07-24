@@ -806,6 +806,9 @@
     .chip-et:has(input:checked) input { accent-color:#c5a880; }
     .fu-sec { display:none; scroll-margin-top: 200px; }
     .fu-sec.on { display:grid; }
+    /* Sub-cabeçalho de grupo dentro da seção (separa os blocos como na ficha original) */
+    .g-col.fu-grp { padding: 6px 10px; border-top: 2px solid rgba(0,0,0,.06); }
+    .g-col.fu-grp .lbl { font-size: 10px; letter-spacing: .04em; margin: 0; }
     /* Barra de etapas congelada: acompanha a rolagem logo abaixo do header */
     .fu-fluxo-sticky { position: sticky; top: 64px; z-index: 30; background: #fff; box-shadow: 0 12px 26px -14px rgba(16,16,45,.30); }
     .fu-fluxo-sticky .chip-et span { cursor: pointer; }
@@ -1750,14 +1753,15 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_imp_velocidade" value="220"></div>
                 <div class="g-col g-col-3"><span class="lbl">Sentido Desbobinamento</span><input class="inp" id="fu_imp_sentido" value="Cabeça" list="dl_sentido"></div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">MATÉRIA PRIMA E BOBINA BASE</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">MATÉRIA PRIMA E BOBINA BASE</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Código MP <span style="font-weight:400; color:#94a3b8; font-size:9px;">(preenche descrição e medidas)</span></span><input class="inp" id="fu_imp_mp_codigo" list="dl_mp" autocomplete="off" placeholder="Digite ou selecione" onchange="fuMPChange()"><datalist id="dl_mp"></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Descrição Matéria Prima</span><input class="inp" id="fu_imp_mp_descricao" placeholder="Preenche ao escolher o código"></div>
+                <div class="g-col g-col-4"><span class="lbl">Descrição Matéria Prima</span><input class="inp" id="fu_imp_mp_descricao" placeholder="Preenche ao escolher o código"></div>
                 <div class="g-col g-col-2"><span class="lbl">Largura MP (mm)</span><input class="inp" id="fu_imp_mp_largura" value="700,00" onchange="fuMPSyncAC()"></div>
                 <div class="g-col g-col-2"><span class="lbl">Espessura MP (mm)</span><input class="inp" id="fu_imp_mp_espessura" value="0,060" onchange="fuMPSyncAC()"></div>
-                <div class="g-col g-col-2"><span class="lbl">Corona MP</span><input class="inp" id="fu_imp_mp_corona" value="38" list="dl_corona"></div>
+                <div class="g-col g-col-1"><span class="lbl">Corona</span><input class="inp" id="fu_imp_mp_corona" value="38" list="dl_corona"></div>
+                <div class="g-col g-col-4"><span class="lbl">Tratamento</span><input class="inp" id="fu_imp_mp_tratamento" value="Somente um lado" list="dl_tratamento" onchange="fuMPSyncAC()"></div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">CONFIGURAÇÃO DE CLICHÊ E MÁQUINA</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">CONFIGURAÇÃO DE CLICHÊ E MÁQUINA</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Nº Clichê</span><input class="inp" id="fu_imp_cliche" list="dl_cliches" placeholder="Ex.: 7607"></div>
                 <div class="g-col g-col-2"><span class="lbl">Tipo de Impressão</span><input class="inp" id="fu_imp_tipo" value="EXTERNO" list="dl_tipo_imp"></div>
                 <div class="g-col g-col-2"><span class="lbl">Nº Pistas</span><input class="inp" id="fu_imp_pistas" value="1" list="dl_1a50"></div>
@@ -1765,20 +1769,22 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" id="fu_imp_cilindro" value="540,00"></div>
                 <div class="g-col g-col-2"><span class="lbl">Passo</span><input class="inp" id="fu_imp_passo" value="535,00"></div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">RECEITA — TEMPERATURAS E TENSÕES</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">CONTROLE DE TEMPERATURA °C</span></div>
+                <div class="g-col g-col-4"><span class="lbl">Entre Cores (°C)</span><input class="inp" id="fu_imp_t_cores"></div>
+                <div class="g-col g-col-4"><span class="lbl">Final (°C)</span><input class="inp" id="fu_imp_t_final"></div>
+                <div class="g-col g-col-4"><span class="lbl">Calandra (°C)</span><input class="inp" id="fu_imp_t_calandra"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">TENSÕES E PRESSÕES</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Tensão Rebobinador</span><input class="inp" id="fu_imp_t_rebob"></div>
-                <div class="g-col g-col-3"><span class="lbl">Temp. Calandra (°C)</span><input class="inp" id="fu_imp_t_calandra"></div>
-                <div class="g-col g-col-3"><span class="lbl">Temp. Entre Cores (°C)</span><input class="inp" id="fu_imp_t_cores"></div>
-                <div class="g-col g-col-3"><span class="lbl">Temp. Final (°C)</span><input class="inp" id="fu_imp_t_final"></div>
                 <div class="g-col g-col-3"><span class="lbl">Balancim</span><input class="inp" id="fu_imp_balancim"></div>
                 <div class="g-col g-col-3"><span class="lbl">Tensão do Filme (kgf)</span><input class="inp" id="fu_imp_tensao"></div>
                 <div class="g-col g-col-3"><span class="lbl">Contra Pressão (Bar)</span><input class="inp" id="fu_imp_c_pressao"></div>
                 <div class="g-col g-col-3"><span class="lbl">Velocidade (Bar)</span><input class="inp" id="fu_imp_v_bar"></div>
-                <div class="g-col g-col-4"><span class="lbl">Contra Pressão Tambor (Bar)</span><input class="inp" id="fu_imp_cp_tambor"></div>
-                <div class="g-col g-col-4"><span class="lbl">Frenagem (kgf)</span><input class="inp" id="fu_imp_frenagem"></div>
-                <div class="g-col g-col-4"><span class="lbl">Pressão Compactador (Bar)</span><input class="inp" id="fu_imp_p_compact"></div>
+                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Tambor (Bar)</span><input class="inp" id="fu_imp_cp_tambor"></div>
+                <div class="g-col g-col-3"><span class="lbl">Frenagem (kgf)</span><input class="inp" id="fu_imp_frenagem"></div>
+                <div class="g-col g-col-3"><span class="lbl">Pressão Compactador (Bar)</span><input class="inp" id="fu_imp_p_compact"></div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">ESTAÇÕES, TINTAS E DUPLA FACE</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">CONFIGURAÇÕES DAS ESTAÇÕES, TINTAS E DUPLA FACE</span></div>
                 <div class="g-col g-col-12">
                     <table class="inner-table" style="margin:0; border:none;">
                         <tr><th style="width:34px;">EST.</th><th>TINTA</th><th>VISC (Zahn 2)</th><th>SECAGEM</th><th>LPC ANILOX</th><th>BCM</th><th>DUPLA FACE</th></tr>
@@ -1851,43 +1857,63 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-2"><span class="lbl">Vel. Esteira</span><input class="inp" id="fu_cor_esteira" value="45"></div>
                 <div class="g-col g-col-2"><span class="lbl">Sacos por Corte</span><input class="inp" id="fu_cor_sacos" value="1"></div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#0d9488;">BOBINA DE ENTRADA (RECEITA)</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">RECEITA</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Peso Aprox. Milheiro (kg)</span><input class="inp" id="fu_cor_milheiro" value="12,35"></div>
+                <div class="g-col g-col-3"><span class="lbl">Quant. por Pacote</span><input class="inp" id="fu_cor_qtd_pacote" placeholder="Ex.: 200"></div>
+                <div class="g-col g-col-3"><span class="lbl">Peso Aprox. p/ Pacote (kg)</span><input class="inp" id="fu_cor_p_pacote" value="6,175"></div>
+                <div class="g-col g-col-3"><span class="lbl">Zíper</span><input class="inp" id="fu_cor_dispositivos" value="Sem zíper"></div>
+                <div class="g-col g-col-3"><span class="lbl">Sem Zíper</span><input class="inp" id="fu_cor_sem_ziper" value="0"></div>
+                <div class="g-col g-col-3"><span class="lbl">Com Zíper</span><input class="inp" id="fu_cor_com_ziper" value="0,00"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">BOBINA DE ENTRADA</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Largura (mm)</span><input class="inp" id="fu_cor_b_largura" value="700,00"></div>
                 <div class="g-col g-col-3"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_b_espessura" value="0,060"></div>
                 <div class="g-col g-col-3"><span class="lbl">Corona</span><input class="inp" id="fu_cor_b_corona" value="38" list="dl_corona"></div>
-                <div class="g-col g-col-3"><span class="lbl">Tratamento</span><input class="inp" id="fu_cor_b_tratamento" value="Não Aplicável" list="dl_tratamento"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tratamento</span><input class="inp" id="fu_cor_b_tratamento" value="Não se Aplica" list="dl_tratamento"></div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#0d9488;">SOLDA, SENSORES E CAMES</span></div>
-                <div class="g-col g-col-2"><span class="lbl">Temp. Solda Sup. (°C)</span><input class="inp" id="fu_cor_temp_sup" value="350"></div>
-                <div class="g-col g-col-2"><span class="lbl">Temp. Solda Inf. (°C)</span><input class="inp" id="fu_cor_temp_inf" value="OFF" list="dl_onoff"></div>
-                <div class="g-col g-col-2"><span class="lbl">Fotocélula: Comprimento</span><input class="inp" id="fu_cor_f_comp" value="1"></div>
-                <div class="g-col g-col-2"><span class="lbl">Fotocélula: Janela</span><input class="inp" id="fu_cor_f_janela" value="OFF" list="dl_onoff"></div>
-                <div class="g-col g-col-2"><span class="lbl">Fotocélula: Nº Erros</span><input class="inp" id="fu_cor_f_erros" value="OFF" list="dl_onoff"></div>
-                <div class="g-col g-col-2"><span class="lbl">Disparo (°C)</span><input class="inp" id="fu_cor_f_disparo" value="OFF" list="dl_onoff"></div>
-                <div class="g-col g-col-2"><span class="lbl">Came Parada (início)</span><input class="inp" id="fu_cor_cp_ini" value="50"></div>
-                <div class="g-col g-col-2"><span class="lbl">Came Parada (final)</span><input class="inp" id="fu_cor_cp_fim" value="2"></div>
-                <div class="g-col g-col-2"><span class="lbl">Came Transporte (início)</span><input class="inp" id="fu_cor_ct_ini" value="OFF" list="dl_onoff"></div>
-                <div class="g-col g-col-2"><span class="lbl">Came Transporte (final)</span><input class="inp" id="fu_cor_ct_fim" value="OFF" list="dl_onoff"></div>
-                <div class="g-col g-col-2"><span class="lbl">Vel. Solda (% / filme)</span><input class="inp" id="fu_cor_v_solda" value="OFF" list="dl_onoff"></div>
-                <div class="g-col g-col-2"><span class="lbl">Came Dispositivos</span><input class="inp" id="fu_cor_c_disp" value="OFF / SKIP"></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">TEMPERATURA E FOTOCÉLULA / ULTRASSON</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Cabeçote Superior (°C)</span><input class="inp" id="fu_cor_temp_sup" value="350"></div>
+                <div class="g-col g-col-3"><span class="lbl">Cabeçote Inferior (°C)</span><input class="inp" id="fu_cor_temp_inf" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-2"><span class="lbl">Comprimento</span><input class="inp" id="fu_cor_f_comp" value="1"></div>
+                <div class="g-col g-col-2"><span class="lbl">Janela</span><input class="inp" id="fu_cor_f_janela" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-2"><span class="lbl">Nº Erros</span><input class="inp" id="fu_cor_f_erros" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-3"><span class="lbl">Disparo (°C)</span><input class="inp" id="fu_cor_f_disparo" value="OFF" list="dl_onoff"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">CAMES E VELOCIDADE DE SOLDA</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Came Parada — Início</span><input class="inp" id="fu_cor_cp_ini" value="50"></div>
+                <div class="g-col g-col-3"><span class="lbl">Came Parada — Final</span><input class="inp" id="fu_cor_cp_fim" value="2"></div>
+                <div class="g-col g-col-3"><span class="lbl">Came Transporte — Início</span><input class="inp" id="fu_cor_ct_ini" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-3"><span class="lbl">Came Transporte — Final</span><input class="inp" id="fu_cor_ct_fim" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-6"><span class="lbl">Velocidade de Solda (% / filme)</span><input class="inp" id="fu_cor_v_solda" value="OFF" list="dl_onoff"></div>
+                <div class="g-col g-col-6"><span class="lbl">Came de Dispositivos / SKIP</span><input class="inp" id="fu_cor_c_disp" value="OFF / SKIP"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">DISPOSITIVOS E CONTRA PRESSÃO (Bar)</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Dispositivo 1</span><input class="inp" id="fu_cor_disp1" value="Ar de Guia" list="dl_dispositivo"></div>
                 <div class="g-col g-col-3"><span class="lbl">Dispositivo 2</span><input class="inp" id="fu_cor_disp2" value="N/A" list="dl_dispositivo"></div>
                 <div class="g-col g-col-3"><span class="lbl">Dispositivo 3</span><input class="inp" id="fu_cor_disp3" value="N/A" list="dl_dispositivo"></div>
                 <div class="g-col g-col-3"><span class="lbl">Dispositivo 4</span><input class="inp" id="fu_cor_disp4" value="N/A" list="dl_dispositivo"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 1 (Bar)</span><input class="inp" id="fu_cor_cp1" value="5"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 2 (Bar)</span><input class="inp" id="fu_cor_cp2" value="N/A" list="dl_na"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 3 (Bar)</span><input class="inp" id="fu_cor_cp3" value="N/A" list="dl_na"></div>
-                <div class="g-col g-col-3"><span class="lbl">Contra Pressão Disp. 4 (Bar)</span><input class="inp" id="fu_cor_cp4" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Pressão Disp. 1 (Bar)</span><input class="inp" id="fu_cor_cp1" value="5"></div>
+                <div class="g-col g-col-3"><span class="lbl">Pressão Disp. 2 (Bar)</span><input class="inp" id="fu_cor_cp2" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Pressão Disp. 3 (Bar)</span><input class="inp" id="fu_cor_cp3" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Pressão Disp. 4 (Bar)</span><input class="inp" id="fu_cor_cp4" value="N/A" list="dl_na"></div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#0d9488;">CARACTERÍSTICAS DA EMBALAGEM</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Largura x Comprimento</span><input class="inp" id="fu_cor_medida" value="270 x 350 mm (+/- 10)"></div>
-                <div class="g-col g-col-3"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_espessura" value="0,120 +/- 0,010"></div>
-                <div class="g-col g-col-2"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" value="N/A / N/A" list="dl_na"></div>
-                <div class="g-col g-col-2"><span class="lbl">Peso Milheiro (kg)</span><input class="inp" id="fu_cor_milheiro" value="12,35"></div>
-                <div class="g-col g-col-2"><span class="lbl">Peso/Pacote (kg)</span><input class="inp" id="fu_cor_p_pacote" value="6,175"></div>
-                <div class="g-col g-col-3"><span class="lbl">Sem Zíper</span><input class="inp" id="fu_cor_sem_ziper" value="0"></div>
-                <div class="g-col g-col-3"><span class="lbl">Com Zíper</span><input class="inp" id="fu_cor_com_ziper" value="0,00"></div>
-                <div class="g-col g-col-6"><span class="lbl">Zíper / Dispositivos (observações)</span><input class="inp" id="fu_cor_dispositivos" value="Sem zíper · Ar de guia"></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">AUTO CONTROLE — CARACTERÍSTICA DA EMBALAGEM</span></div>
+                <div class="g-col g-col-4"><span class="lbl">Largura x Comprimento</span><input class="inp" id="fu_cor_medida" value="270 x 350 mm (+/- 10)"></div>
+                <div class="g-col g-col-4"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_espessura" value="0,120 +/- 0,010"></div>
+                <div class="g-col g-col-4"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" value="N/A / N/A" list="dl_na"></div>
+                <div class="g-col g-col-4"><span class="lbl">Alça — Tipo</span><input class="inp" id="fu_cor_alca_tipo" placeholder="Ex.: Vazada / N/A"></div>
+                <div class="g-col g-col-4"><span class="lbl">Alça — Dimensões</span><input class="inp" id="fu_cor_alca_dim" placeholder="Ex.: N/A"></div>
+                <div class="g-col g-col-4"><span class="lbl">Alça — Altura</span><input class="inp" id="fu_cor_alca_altura" placeholder="Ex.: 40,00"></div>
+                <div class="g-col g-col-3"><span class="lbl">Zip — Tipo</span><input class="inp" id="fu_cor_zip_tipo" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Zip — Altura</span><input class="inp" id="fu_cor_zip_altura" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Fita — Tipo</span><input class="inp" id="fu_cor_fita_tipo" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Fita — Altura</span><input class="inp" id="fu_cor_fita_altura" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Furação — Tipo</span><input class="inp" id="fu_cor_furacao_tipo" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Furação — Quantidade</span><input class="inp" id="fu_cor_furacao_qtd" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-3"><span class="lbl">Solda — 1º Tipo</span><input class="inp" id="fu_cor_solda1" placeholder="Ex.: Lateral"></div>
+                <div class="g-col g-col-3"><span class="lbl">Solda — 2º Tipo</span><input class="inp" id="fu_cor_solda2" value="N/A" list="dl_na"></div>
+                <div class="g-col g-col-8"><span class="lbl">Aspecto Visual</span><input class="inp" id="fu_cor_aspecto" value="De acordo amostra padrão (isento de sujidades, riscos e desalinhamento)" readonly style="background:#eef2f7; cursor:default;"></div>
+                <div class="g-col g-col-12" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Para a execução da produção, a amostra retirada deve ser aprovada pelo Controle de Qualidade. Na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b>.</span></div>
             </div>
 
             <!-- SEÇÃO: ESPECIFICAÇÃO FINAL DE PRODUTO ACABADO (etapa final da Qualidade) -->
@@ -5233,8 +5259,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function fuMPSyncAC() {
         const l = (document.getElementById('fu_imp_mp_largura') || {}).value || '';
         const e = (document.getElementById('fu_imp_mp_espessura') || {}).value || '';
+        const t = (document.getElementById('fu_imp_mp_tratamento') || {}).value || '';
         if (l.trim()) document.getElementById('fu_imp_ac_largura').value = l.trim() + ' +/- 10,00 mm';
         if (e.trim()) document.getElementById('fu_imp_ac_espessura').value = e.trim() + ' +/- 5,00 mm';
+        const acT = document.getElementById('fu_imp_ac_tratamento');
+        if (t.trim() && acT) acT.value = t.trim();
         fuAtualizarResumo();
     }
 
