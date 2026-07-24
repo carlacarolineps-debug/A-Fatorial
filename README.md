@@ -16,22 +16,26 @@ governam qualquer resultado — **Estratégia**, **Mentalidade** e **Comportamen
 Arquivo único (`baralho.html`, sem build, fontes de sistema — funciona offline,
 persistência em `localStorage`). É um **produto digital** (não voltado a impressão).
 
-### O ciclo — 5 movimentos (5 telas do app)
+### O ciclo — 6 telas do app
 
-1. **Início** — a introdução ao método: a lógica (padrão → resultado), os 3 eixos e o ciclo.
+1. **Início** — introdução ao método: a lógica (padrão → resultado), os 3 eixos, o ciclo e um
+   **guia de condução** (roteiro de auto-sessão em 6 passos, com perguntas de aprofundamento por eixo).
 2. **Diagnóstico** (Movimento 01 · Norte) — define o objetivo e responde 10 afirmações
-   (0–10, uma por naipe). Gera o **Mapa Bússola**: um radar dos 10 naipes, notas por eixo
+   (0–10, uma por naipe). Gera o **Mapa Bússola**: um radar (canvas) dos 10 naipes, notas por eixo
    e a identificação da **maior alavanca** (o ponto de menor força = maior retorno).
-3. **Hoje** (Movimentos 02–03 · Revelação & Compromisso) — **sorteio inteligente**: a carta
-   não abre por avanço; o sistema entrega a carta que o *seu mapa* pede (priorizando o eixo
-   mais fraco, evitando repetição recente, dando peso às cartas-semente), explicando o porquê.
+3. **Hoje** (Movimentos 02–03 · Revelação & Compromisso) — **sorteio inteligente e adaptativo**:
+   a carta não abre por avanço; o sistema entrega a carta que o *seu mapa* pede, explicando o porquê.
    A carta vira um **compromisso com prazo** (ação concreta) enviado à Prática.
-4. **Prática** (Movimentos 04–05 · Prática & Espelho) — diário de compromissos (pendente /
-   cumprido, com vencimento), **sequência** (streak) de dias, % de conclusão, cartas
-   trabalhadas, o **Espelho** (refazer o diagnóstico e comparar a evolução do mapa) e as
-   **ferramentas de campo** (Bússola de Padrões, Termômetro de Compromisso, Plano de 1 Página).
+4. **Trilhas** — **jornadas guiadas** (6 trilhas temáticas) que encadeiam cartas rumo a um resultado
+   (ex.: *Quebrar o Teto*, *Máquina de Execução*, *Sair do Operacional*). Cada passo é uma carta e
+   vira um compromisso; a trilha recomendada é sugerida pelo eixo mais fraco do diagnóstico.
+5. **Prática** (Movimentos 04–05 · Prática & Espelho) — diário de compromissos (pendente /
+   cumprido, com vencimento), **sequência** (streak), % de conclusão, cartas trabalhadas, e o
+   **Espelho**: um **relatório do ciclo** gerado em texto (lê o mapa, a constância e os compromissos
+   e escreve um diagnóstico com voz de mentor, incluindo a prescrição) + evolução do mapa entre
+   diagnósticos + **ferramentas de campo** (Bússola de Padrões, Termômetro, Plano de 1 Página).
    Exportação do caderno em texto.
-5. **Baralho** — a biblioteca completa das **170 cartas** (10 naipes × 17), com busca,
+6. **Baralho** — a biblioteca completa das **170 cartas** (10 naipes × 17), com busca,
    filtro por naipe, virar carta e anotações persistentes.
 
 ### Os 10 naipes (17 cartas cada)
@@ -49,10 +53,12 @@ Cada carta traz: **pergunta-guia** (quando aplicável), *por que a carta importa
 para preencher na hora**. As **24 perguntas iniciais** da sessão de mentoria estão
 embutidas como *cartas-semente*, com peso extra no sorteio.
 
-**Sorteio inteligente:** o peso de cada carta = prioridade do naipe pelo diagnóstico
-(quanto mais fraco, mais provável) × potência da carta × bônus de carta-semente ×
-penalidade se já foi trabalhada ou vista há poucos dias. A "carta de hoje" é estável
-por dia (semente do dia + objetivo + diagnóstico) para funcionar como ritual.
+**Sorteio inteligente e adaptativo:** o peso de cada carta = prioridade do naipe pelo
+diagnóstico (quanto mais fraco, mais provável) × potência da carta × bônus de carta-semente
+× penalidade se já foi trabalhada ou vista há poucos dias. **Adaptação ao comportamento:**
+naipes com compromissos **em aberto** ganham peso (o sistema *insiste* no padrão não resolvido)
+e naipes onde você **cumpre** compromissos favorecem cartas novas (o sistema *aprofunda*). A
+"carta de hoje" é estável por dia (semente do dia + objetivo + diagnóstico) para funcionar como ritual.
 
 ---
 
