@@ -1601,12 +1601,18 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <div class="emb-stat red"><div class="l">Retenções (abatimentos)</div><div class="v" x-text="fmtAbrev(fatReqBrutoTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004) - fatReqTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s">bruto menos líquido (ISS, PIS, IRRF)</div></div>
           <div class="emb-stat" :class="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'green' : ''"><div class="l">Grupo 004 no mês</div><div class="v" x-text="fmtAbrev(fatReqTotal(mesAtivo, true) - fatReqTotal(mesAtivo, false))"></div><div class="s" x-text="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'sendo considerado no total' : 'registrado, oculto do total'"></div></div>
           <div class="emb-stat">
-            <div class="l">Considerar 004?</div>
-            <div style="margin-top:7px"><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
-              <input type="checkbox" :checked="empresaExtras.fatReq && empresaExtras.fatReq.considerar004" @change="setConsiderar004($event.target.checked)" style="width:17px;height:17px;accent-color:var(--accent-gold)">
-              <span style="font-size:12.5px;color:#fff;font-weight:800" x-text="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'Sim, considerando' : 'Não considerar'"></span>
-            </label></div>
-            <div class="s" style="margin-top:5px">reversível a qualquer momento</div>
+            <div class="l">Considerar 004 como</div>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+              <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" :checked="empresaExtras.fatReq && empresaExtras.fatReq.considerar004" @change="setConsiderar004($event.target.checked)" style="width:16px;height:16px;accent-color:#4fe3b0">
+                <span style="font-size:12px;color:#fff;font-weight:800">Receita <span style="color:#8b90a8;font-weight:600">(faturamento)</span></span>
+              </label>
+              <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" :checked="considerar004Desp" @change="setConsiderar004Desp($event.target.checked)" style="width:16px;height:16px;accent-color:#ff8095">
+                <span style="font-size:12px;color:#fff;font-weight:800">Despesa <span style="color:#8b90a8;font-weight:600">(total de despesas)</span></span>
+              </label>
+            </div>
+            <div class="s" style="margin-top:6px">reversível a qualquer momento</div>
           </div>
         </div>
       </div>
@@ -2708,12 +2714,18 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <div class="emb-stat" x-show="!temRepasseEmb"><div class="l">Grupos de custo</div><div class="v" x-text="ccPais.length"></div><div class="s" x-text="ccFolhas.length+' lançamentos'"></div></div>
           <div class="emb-stat" x-show="temRepasseEmb" :class="considerarRepasse ? 'green' : 'red'"><div class="l">Repasse da Embalagem no mês</div><div class="v" x-text="fmtAbrev(repasseEmbMes(mesAtivo))"></div><div class="s" x-text="considerarRepasse ? 'sendo considerado na despesa' : 'registrado, oculto do total'"></div></div>
           <div class="emb-stat" x-show="temRepasseEmb">
-            <div class="l">Considerar repasse da embalagem?</div>
-            <div style="margin-top:7px"><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
-              <input type="checkbox" :checked="considerarRepasse" @change="setConsiderarRepasse($event.target.checked)" style="width:17px;height:17px;accent-color:var(--accent-gold)">
-              <span style="font-size:12.5px;color:#fff;font-weight:800" x-text="considerarRepasse ? 'Sim, considerando' : 'Não considerar'"></span>
-            </label></div>
-            <div class="s" style="margin-top:5px">reversível a qualquer momento</div>
+            <div class="l">Considerar repasse como</div>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:7px">
+              <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" :checked="considerarRepasse" @change="setConsiderarRepasse($event.target.checked)" style="width:16px;height:16px;accent-color:#ff8095">
+                <span style="font-size:12px;color:#fff;font-weight:800">Despesa <span style="color:#8b90a8;font-weight:600">(total de despesas)</span></span>
+              </label>
+              <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" :checked="considerarRepasseRec" @change="setConsiderarRepasseRec($event.target.checked)" style="width:16px;height:16px;accent-color:#4fe3b0">
+                <span style="font-size:12px;color:#fff;font-weight:800">Receita <span style="color:#8b90a8;font-weight:600">(faturamento)</span></span>
+              </label>
+            </div>
+            <div class="s" style="margin-top:6px">reversível a qualquer momento</div>
           </div>
         </div>
       </div>
@@ -3891,7 +3903,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.6';
+const NEXUS_BUILD = '2407.7';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -3958,7 +3970,7 @@ const EMPRESAS = {
     // Faturamento por categoria (contas a receber importadas); grupo 004 fica oculto e
     // fora dos totais por pedido do cliente, com a opção "Considerar 004" para reverter.
     // Inventário por Tipo (SPED), só valor (Requalificadora não usa peso, kg ou fator).
-    extras: { fatReq: { considerar004: false, considerarRepasse: false, itens: [], meses: {} }, invReq: { itens: [], detalhe: {}, bruto: {}, grupos: [], classif: {}, detCod: {}, meses: {} } }
+    extras: { fatReq: { considerar004: false, considerar004Desp: false, considerarRepasse: false, considerarRepasseRec: false, itens: [], meses: {} }, invReq: { itens: [], detalhe: {}, bruto: {}, grupos: [], classif: {}, detCod: {}, meses: {} } }
   },
   embalagem: {
     id:'embalagem', nome:'Rebracil Embalagens', curto:'Embalagem',
@@ -6577,12 +6589,15 @@ function sistemaUnificado(){
 
       let tDesp = this.dreAtual.find(l => l.desc === "Total de Despesas");
       let reqLine = this.dreAtual.find(l => l.desc === "Despesa Requalificadora");
+      // Grupo 004 (Outras Receitas) contado como DESPESA, por opção do cliente (soma ao Total de Despesas).
+      const considerar004Desp = !!(this.empresaExtras.fatReq && this.empresaExtras.fatReq.considerar004Desp);
       if (rowTotal && tDesp) {
           this.listaMeses.forEach(m => {
               let k = m.chave.toLowerCase();
               if (rowTotal[k] !== undefined) {
-                  tDesp[k] = rowTotal[k];
-                  if (reqLine) reqLine[k] = rowTotal[k];
+                  const extra004 = considerar004Desp ? this.fat004Mes(k) : 0;
+                  tDesp[k] = rowTotal[k] + extra004;
+                  if (reqLine) reqLine[k] = tDesp[k];
               }
           });
       }
@@ -7251,7 +7266,15 @@ function sistemaUnificado(){
     aplicarFatReqNoDre() {
       const fr = this.empresaExtras.fatReq; if (!fr) return;
       const l = this.dreAtual.find(x => x.desc === 'Faturamento'); if (!l) return;
-      Object.keys(fr.meses).forEach(mk => { if (fr.meses[mk]) l[mk] = this.fatReqTotal(mk, !!fr.considerar004); });
+      const rec004 = !!fr.considerar004;
+      const repRec = !!fr.considerarRepasseRec;
+      this.listaMeses.forEach(m => {
+        const k = m.chave.toLowerCase();
+        const temFat = !!fr.meses[k];
+        const rep = repRec ? this.repasseEmbMes(k) : 0;   // repasse da embalagem contado como receita, por opção
+        if (temFat) l[k] = this.fatReqTotal(k, rec004) + rep;
+        else if (rep) l[k] = rep;   // mês sem contas a receber, mas com repasse considerado como receita
+      });
     },
     setConsiderar004(v) {
       if (!this.exigirEdicao()) return;
@@ -7259,11 +7282,32 @@ function sistemaUnificado(){
       fr.considerar004 = !!v;
       this.aplicarFatReqNoDre();
       this.dreAtual = [...this.dreAtual];
-      this.registrarLog((fr.considerar004 ? 'Passou a CONSIDERAR' : 'Deixou de considerar') + ' o grupo 004 (Outras Receitas) no faturamento da Requalificadora');
+      this.registrarLog((fr.considerar004 ? 'Passou a CONSIDERAR' : 'Deixou de considerar') + ' o grupo 004 (Outras Receitas) como RECEITA no faturamento da Requalificadora');
       this.recalcularTudo();
+    },
+    // Valor do grupo 004 (Outras Receitas) no mês, líquido
+    get considerar004Desp() { return !!(this.empresaExtras.fatReq && this.empresaExtras.fatReq.considerar004Desp); },
+    fat004Mes(mChave) { return Math.round((this.fatReqTotal(mChave, true) - this.fatReqTotal(mChave, false)) * 100) / 100; },
+    setConsiderar004Desp(v) {
+      if (!this.exigirEdicao()) return;
+      const fr = this.empresaExtras.fatReq; if (!fr) return;
+      fr.considerar004Desp = !!v;
+      this.registrarLog((fr.considerar004Desp ? 'Passou a CONSIDERAR' : 'Deixou de considerar') + ' o grupo 004 (Outras Receitas) como DESPESA da Requalificadora');
+      this.recalcularTudo();
+      this.dreAtual = [...this.dreAtual];
     },
     // ===== Repasse da Embalagem (011.33): pass-through opcional na despesa da Requalificadora =====
     get considerarRepasse() { return !!(this.empresaExtras.fatReq && this.empresaExtras.fatReq.considerarRepasse); },
+    get considerarRepasseRec() { return !!(this.empresaExtras.fatReq && this.empresaExtras.fatReq.considerarRepasseRec); },
+    setConsiderarRepasseRec(v) {
+      if (!this.exigirEdicao()) return;
+      const fr = this.empresaExtras.fatReq; if (!fr) return;
+      fr.considerarRepasseRec = !!v;
+      this.aplicarFatReqNoDre();
+      this.registrarLog((fr.considerarRepasseRec ? 'Passou a CONSIDERAR' : 'Deixou de considerar') + ' o Repasse da Embalagem (011.33) como RECEITA no faturamento da Requalificadora');
+      this.recalcularTudo();
+      this.dreAtual = [...this.dreAtual];
+    },
     get temRepasseEmb() { return this.empresaAtiva === 'requalificadora' && (this.centrosCustoData || []).some(c => !c.ip && /repasse\s*embalagem/i.test(String(c.c || ''))); },
     ehLinhaRepasseEmb(c) { return this.empresaAtiva === 'requalificadora' && c && !c.ip && /repasse\s*embalagem/i.test(String(c.c || '')); },
     repasseEmbMes(mChave) {
