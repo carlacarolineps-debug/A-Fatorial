@@ -2519,12 +2519,13 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               <div style="background: rgba(13,148,136,0.1); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items:center; justify-content:center;">
                 <i class="fas fa-file-excel text-3xl text-accent-green"></i>
               </div>
-              <h3 class="font-bold text-accent-blue text-lg" style="white-space:normal">Arraste a planilha aqui, ou:</h3>
+              <h3 class="font-bold text-accent-blue text-lg" style="white-space:normal">Arraste uma ou várias planilhas aqui, ou:</h3>
               <label class="emc-btn" style="cursor:pointer; font-size:14px; padding: 12px 32px; background:var(--accent-green); color:white; border-color:var(--accent-green);">
-                <i class="fas fa-search mr-2"></i> Procurar Planilha...
-                <input type="file" accept=".csv, .xlsx, .xls" class="hidden" @change="receberArquivoImportacao">
+                <i class="fas fa-search mr-2"></i> <span x-text="impImportandoLote ? 'Importando...' : 'Procurar Planilhas...'"></span>
+                <input type="file" accept=".csv, .xlsx, .xls" multiple class="hidden" @change="receberArquivoImportacao" :disabled="impImportandoLote">
               </label>
-              <p class="text-xs" style="color:var(--color-muted);max-width:560px;line-height:1.6;white-space:normal">O sistema identifica sozinho o que a planilha alimenta (despesa, faturamento ou inventário) e o mês do arquivo. Você revisa e confirma antes de qualquer coisa entrar no sistema.</p>
+              <p class="text-xs" style="color:var(--color-muted);max-width:560px;line-height:1.6;white-space:normal"><b>Pode selecionar vários arquivos de uma vez</b> (segure Ctrl/Shift ou arraste um grupo). O sistema identifica sozinho o que cada planilha alimenta (despesa, faturamento ou inventário) e o mês de cada arquivo. Com um arquivo só, você revisa antes; com vários, ele importa todos e mostra o resumo no fim.</p>
+              <div x-show="impImportandoLote" style="font-size:12.5px;color:var(--accent-blue);font-weight:800"><i class="fas fa-spinner fa-spin mr-2"></i> <span x-text="impLoteProgresso"></span></div>
             </div>
           </template>
 
@@ -3952,7 +3953,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.1';
+const NEXUS_BUILD = '2407.2';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -4258,6 +4259,8 @@ function sistemaUnificado(){
     tipoImportacao: 'auto',
     impPendente: null,
     impNota: '',
+    impImportandoLote: false,   // true enquanto importa vários arquivos de uma vez
+    impLoteProgresso: '',
     fatReqEdit: false,
     fatReqVista: 'liquido',
     invReqExpandido: [],
@@ -6760,9 +6763,14 @@ function sistemaUnificado(){
     // com tipo, mês e empresa já detectados. Nada é importado antes do "Importar agora".
     receberArquivoImportacao(evt) {
         if (!this.exigirEdicao()) { if (evt.target) evt.target.value = ''; return; }
-        const file = (evt.dataTransfer ? evt.dataTransfer.files[0] : evt.target.files[0]);
+        const lista = evt.dataTransfer ? evt.dataTransfer.files : (evt.target ? evt.target.files : null);
+        const files = lista ? Array.from(lista) : [];
         if (evt.target && evt.target.value !== undefined) evt.target.value = '';
-        if (!file) return;
+        if (!files.length) return;
+        // Vários arquivos de uma vez: importa todos em lote e mostra o resumo no fim
+        if (files.length > 1) { this.importarVariosArquivos(files); return; }
+        // Um arquivo só: fluxo com revisão antes de confirmar
+        const file = files[0];
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
@@ -6772,6 +6780,47 @@ function sistemaUnificado(){
             } catch (err) { alert('Não consegui ler este arquivo: ' + err.message); this.impPendente = null; }
         };
         reader.readAsArrayBuffer(file);
+    },
+    // Lê um arquivo e devolve o workbook (Promise), para processar a fila em ordem
+    _lerWorkbook(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => { try { resolve(XLSX.read(new Uint8Array(e.target.result), { type: 'array' })); } catch (err) { reject(err); } };
+            reader.onerror = () => reject(new Error('falha ao ler o arquivo'));
+            reader.readAsArrayBuffer(file);
+        });
+    },
+    // Importa vários arquivos em sequência. Cada um é detectado e roteado sozinho; os avisos de
+    // sucesso de cada importador são reunidos num resumo único no fim (as perguntas de substituição
+    // continuam aparecendo quando houver conflito com valor oficial).
+    async importarVariosArquivos(files) {
+        this.impPendente = null; this.impNota = '';
+        this.impImportandoLote = true;
+        const resumo = [];
+        const alertOrig = window.alert;
+        window.alert = (m) => resumo.push(String(m).split('\n')[0]);   // captura a 1a linha do aviso de cada arquivo
+        try {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                this.impLoteProgresso = 'Importando ' + (i + 1) + ' de ' + files.length + ': ' + file.name;
+                await new Promise(r => setTimeout(r, 30));   // deixa a tela atualizar o progresso
+                try {
+                    const wb = await this._lerWorkbook(file);
+                    this.impPendente = { nome: file.name, workbook: wb };
+                    this.mesImportacao = null;                 // cada arquivo usa o próprio mês detectado
+                    this.detectarImportacao(wb, file.name);
+                    if (this.tipoImportacao === 'bloqueado') { resumo.push('IGNORADO ' + file.name + ': ' + (this.impNota || 'não importável aqui')); this.impPendente = null; this.impNota = ''; continue; }
+                    this.confirmarImportacaoPendente();        // roteia e importa (síncrono)
+                } catch (e) { resumo.push('ERRO em ' + file.name + ': ' + (e && e.message || e)); this.impPendente = null; }
+            }
+        } finally {
+            window.alert = alertOrig;
+            this.impImportandoLote = false; this.impLoteProgresso = '';
+            this.impPendente = null; this.impNota = '';
+        }
+        this.mudarAba('configuracoes'); this.abaConfig = 'importador';   // volta ao importador com o resumo
+        this.registrarLog('Importação em lote: ' + files.length + ' arquivo(s).');
+        alert('Importação de ' + files.length + ' arquivo(s) concluída:\n\n' + resumo.join('\n'));
     },
     // Detecção automática de tipo, mês e observações do arquivo pendente
     detectarImportacao(workbook, nome) {
@@ -8566,8 +8615,12 @@ function sistemaUnificado(){
       }
     },
 
-    mudarAba(nome) { 
-        this.aba = nome; 
+    mudarAba(nome) {
+        // Durante uma importação em lote, os importadores não trocam de aba: a tela fica no
+        // importador e nenhuma outra tela renderiza contra dados sendo reconstruídos (evita erros
+        // transitórios de render). Ao terminar o lote, a navegação para o importador é refeita.
+        if (this.impImportandoLote) return;
+        this.aba = nome;
         sairTelaCheia();
         this.showResumo = false;
         setTimeout(() => {
