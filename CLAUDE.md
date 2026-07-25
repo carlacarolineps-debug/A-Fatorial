@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.13.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.14.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,33 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Liberação realmente sequencial + Cruzeiro do Sul (2407.14)
+A Carla: "todas as páginas, acessos e botões estão liberados, quero que libere
+após a conclusão do passo anterior"; "o comece por aqui precisa ser a primeira
+página e só liberar as boas-vindas depois de finalizar todas as etapas"; e sobre
+a constelação: "precisa parecer uma constelação, não um rabisco".
+
+**1. Sequência de verdade.** O bug: os passos futuros tinham botão "Abrir", dava
+para pular. Agora `afSeq()` conta só os passos concluídos **em sequência desde o
+início**, e é ele que libera tudo. `afDo(id)` recusa passo à frente (avisa "um
+passo de cada vez"). No card, só o passo da vez tem botão: os seguintes mostram
+cadeado e "abre depois". `AREA_PASSO` liga cada área ao número de passos exigidos
+(bussola 1, plano/diário 4, trilhas 5, ferramentas/gestão/pesquisas 6) e
+`gateDe()` usa `afSeq()`.
+
+**2. Comece por aqui é a primeira página.** Enquanto `afCompleta()` é falso,
+`renderHome` devolve só `<div id="afHost">` e a jornada ocupa a tela inteira, com
+isotipo, anel de progresso, grau (`AF_GRAU`: Iniciante → Blindado) e o selo "abre:
+X" no passo atual. `bHomeHook` não injeta o card da Bússola nesse modo. As
+boas-vindas (herói, faixa de instrumentos, mantra) só aparecem em 8/8.
+
+**3. Cruzeiro do Sul.** A constelação genérica virou a cruz do sul: 5 estrelas com
+magnitudes reais (Acrux a mais brilhante), as duas linhas da cruz, 78 estrelas de
+fundo com cintilância, nebulosa em gradiente radial e glint de 4 pontas nas
+acesas. Acende conforme as trilhas concluídas. Referência de mercado pesquisada:
+Marca Passos (Aliança Divergente/Elton Euler), de onde vieram as ideias de grau de
+progressão visível e de mostrar o que cada etapa libera.
 
 ### Isotipo próprio + jornada primeiro de tudo (2407.13)
 A Carla: "a pessoa primeiro tem que fazer toda essa parte do comece por aqui e
