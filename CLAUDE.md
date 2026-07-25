@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.14.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.15.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,40 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Diagnóstico dentro das Trilhas + padrão de questionário (2407.15)
+A Carla: "esse diagnóstico tem relação aos conteúdos da trilha, para liberar a
+trilha é necessário fazer esse diagnóstico, e deve estar na página da trilha e não
+na página inicial"; "aprofunde as perguntas"; "melhore o visual não só desse
+diagnóstico como para todos, criando um padrão para todo sistema".
+
+**1. As 19 perguntas.** O `DIAGNOSTIC` cobria só 9 das 19 trilhas (faltava toda a
+estratégia, governança e finanças). Agora tem **uma frase por trilha**, com
+`{mod, t, dim, q}`: `mod` liga ao módulo (GROUPS), `t` à trilha. As frases viraram
+comportamentais ("Antes de abrir uma vaga, tenho escrito o que a pessoa precisa
+entregar e como vou medir isso") em vez de declarações vagas. `diagPorModulo(ans)`
+agrega as 19 respostas nos 5 módulos, então o radar tem 5 eixos legíveis em vez de
+19 (vale para o resultado, a evolução e a tela da Mentora).
+
+**2. O diagnóstico mora nas Trilhas e é a chave delas.** `renderTrilhas()` começa
+com `if(!S.diagnostic)` e devolve a `.gatepane`: isotipo, "O autodiagnóstico abre as
+suas trilhas", os 5 módulos com quantas frases cada e o botão. O passo 3 da jornada
+(`diagn`) agora faz `go('trilhas')` em vez de abrir modal na Home, e anuncia
+`libera:'Trilhas'`. `AREA_PASSO.trilhas` virou 2 (a página abre para o passo 3
+acontecer lá dentro; o conteúdo só aparece depois do diagnóstico).
+
+**3. Padrão de questionário (`.qz-*`), para o sistema inteiro.** Mesma cabeça
+(eyebrow, título, lead, **barra de progresso** ao vivo e legenda "1 não é o meu
+caso / 5 é exatamente assim"), mesmas seções por módulo (`.qz-sec` com número e
+fio), mesma pergunta (`.qz-item` com `.qz-dim` em versalete) e a **mesma escala**
+(`.qz-scale`, alvos de 52px, selecionado em ouro). Rodapé fixo (`.qz-foot`) com o
+botão e quantas faltam; ao submeter incompleto, rola até a pergunta e a destaca
+(`.faltando`). Aplicado ao autodiagnóstico, ao Mapa Bússola (`openBDiag`, com
+`bqzSync`) e, via `.likert` restilizado, às pesquisas e testes profundos.
+
+**4. Confirmação do bloqueio.** Com 0 passos: Bússola, Trilhas, Plano, Diário,
+Ferramentas, Padrão de Gestão, Pesquisas e Conquistas mostram tela de cadeado.
+Só **A Mentora** fica aberta, de propósito: é a conta (login, sair, limpar dados).
 
 ### Liberação realmente sequencial + Cruzeiro do Sul (2407.14)
 A Carla: "todas as páginas, acessos e botões estão liberados, quero que libere
