@@ -780,6 +780,9 @@ body{
 .af-half{border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;background:var(--ink-2)}
 .af-hk{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;font-weight:600}
 .af-half p{font-size:13px;color:var(--mute);line-height:1.5}
+.af-jfoot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line-soft);text-align:right}
+.af-jfoot a{color:var(--mute-2);cursor:pointer;font-size:11.5px;letter-spacing:.04em;text-decoration:underline;text-underline-offset:2px}
+.af-jfoot a:hover{color:var(--coral)}
 
 </style>
 </head>
@@ -7218,7 +7221,25 @@ const BTRILHAS=[
 ];
 
 /* ---------- estado ---------- */
-function Bst(){ if(!S.bussola) S.bussola={norte:'',diag:null,diagAt:null,diagHistory:[],seen:{},worked:[],dayCard:null,trilhas:{},pacto:null,ritual:[],interrupts:[],kpis:[],provas:[]}; const B=S.bussola; if(!B.ritual)B.ritual=[]; if(!B.interrupts)B.interrupts=[]; if(!B.kpis)B.kpis=[]; if(!B.provas)B.provas=[]; if(B.pacto===undefined)B.pacto=null; return B; }
+function Bst(){
+  if(!S.bussola) S.bussola={};
+  const B=S.bussola;
+  if(B.norte===undefined)B.norte='';
+  if(B.diag===undefined)B.diag=null;
+  if(B.diagAt===undefined)B.diagAt=null;
+  if(!B.diagHistory)B.diagHistory=[];
+  if(!B.seen)B.seen={};
+  if(!B.worked)B.worked=[];
+  if(B.dayCard===undefined)B.dayCard=null;
+  if(!B.trilhas)B.trilhas={};
+  if(B.pacto===undefined)B.pacto=null;
+  if(!B.ritual)B.ritual=[];
+  if(!B.interrupts)B.interrupts=[];
+  if(!B.kpis)B.kpis=[];
+  if(!B.provas)B.provas=[];
+  if(!B.stateLog)B.stateLog=[];
+  return B;
+}
 /* mapa naipe -> módulo de negócio que trabalha o mesmo tema "por fora" */
 const BMOD={ direcao:'Raio-X Estratégico', plano:'Raio-X Estratégico', resultados:'Blindagem Financeira', mente:'Descompressão & Pessoas', forcas:'Descompressão & Pessoas', identidade:'Liderança', execucao:'Engenharia de Processos', padroes:'Engenharia de Processos', sabotagem:'Descompressão & Pessoas', lideranca:'Liderança' };
 let bTab='hoje', bOpenTrilha=null, bFilter='todos', bDiagTmp={};
@@ -7768,8 +7789,16 @@ function renderJornada(){
       <div><p class="eyebrow">Comece por aqui</p><h2 class="sec" style="margin:4px 0 0">Sua jornada, passo a passo</h2></div>
       <div class="af-jprog"><div class="af-jpct">${doneN}<span>/${st.length}</span></div><div class="af-jbar"><i style="width:${pct}%"></i></div></div></div>
     <p class="lead" style="margin:10px 0 16px">Não precisa saber por onde começar — eu te guio. Faça um passo de cada vez; cada botão leva você direto ao lugar certo.</p>
-    <div class="af-steps">${rows}</div>`;
+    <div class="af-steps">${rows}</div>
+    <div class="af-jfoot"><a onclick="afReset()">Limpar meus dados e recomeçar do zero</a></div>`;
   v.insertBefore(card, v.firstChild);
+}
+function afReset(){
+  if(!confirm('Isto apaga TODAS as informações salvas neste aparelho — diagnósticos, cartas, compromissos, plano, progresso e pacto — e recomeça do zero.\n\nNão dá para desfazer. Deseja continuar?')) return;
+  try{ localStorage.removeItem('operacaoblindada:state:v1'); }catch(e){}
+  try{ localStorage.clear(); }catch(e){}
+  try{ if(window.OB && OB.signOut){ /* hospedado: encerra sessão para não re-sincronizar */ } }catch(e){}
+  location.reload();
 }
 
 
