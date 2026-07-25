@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.15.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.16.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,46 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Camada conectada construída de verdade (2407.16)
+A Carla: "quero que você já faça a criação de todos esses recursos dentro do
+sistema, deixe tudo perfeito, faça isso completo" (sobre a lista "Próximos
+recursos" da tela da Mentora).
+
+**O que já existia:** o **áudio diário** (upload/link, publicação, player no
+Início, histórico, transcrição, XP, selo NOVO) e a **caixinha de perguntas**
+(texto) já estavam prontos, só constavam como "Em breve".
+
+**1. Caixinha responde por áudio e vídeo.** `OB.caixinhaAnswer(id,text,url,tipo)`
+agora aceita mídia, `OB.midiaUpload(file,bucket)` sobe o arquivo, `obMidiaPlayer(r)`
+renderiza `<audio>`/`<video>` para a pessoa. A leitura pede `midia_url,midia_tipo`
+e, se o banco ainda não tiver as colunas, cai na consulta antiga sem quebrar.
+
+**2. Nova view `comunidade`** (`comunidade.js`, injetada junto com o motor), com
+3 abas:
+- **Encontros**: a mentora cria (título, quando, presencial/online, cidade, local
+  ou link); o membro confirma presença ("Eu vou" / "Talvez", +10 XP). Cartão com
+  medalhão de data, e evento passado fica esmaecido.
+- **Membros próximos**: consentimento explícito (`.cm-switch`), cartão de membro
+  (nome, negócio, cidade, UF, área, contato que a pessoa aceita mostrar), busca, e
+  ordenação por proximidade com selo "mesma cidade" / "mesmo estado". Sair do mapa
+  remove na hora (`OB.perfilRemover`).
+- **Galeria**: foto com legenda, layout em colunas.
+
+**3. Local-first.** Tudo funciona sem servidor (localStorage) e sincroniza quando
+o Supabase responde; se a chamada falhar, cai no local sem erro. `CM()` guarda
+`perfil/eventos/presencas/galeria/membros` em `S.comunidade`.
+
+**4. SQL em `supabase/comunidade.sql`**: colunas de mídia na caixinha, tabelas
+`membros`, `eventos`, `presencas`, `galeria`, buckets `midia` e `galeria`, tudo com
+RLS (o mapa só mostra quem marcou `visivel`; a mentora administra via
+`public.eh_mentora()`).
+
+**5. A lista "Próximos recursos" virou "Recursos da camada conectada"**, com selo
+Pronto nos dois primeiros e botão Abrir nos dois novos.
+
+Bug corrigido no caminho: `cmSalvarPerfil` zerava o cartão quando era chamado de
+fora do formulário; agora só sobrescreve o campo que está na tela.
 
 ### Diagnóstico dentro das Trilhas + padrão de questionário (2407.15)
 A Carla: "esse diagnóstico tem relação aos conteúdos da trilha, para liberar a
