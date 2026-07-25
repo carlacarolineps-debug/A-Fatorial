@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.11.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.12.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,37 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Home com vida, liberação por etapas e ferramentas (2407.12)
+A Carla: "arrume essa parte que ficou totalmente sem graça, sem vida, preciso que
+fique bonito e diferenciado"; "a pessoa não pode ter o acesso inicial a tudo pois
+ela precisa fazer o passo a passo primeiro"; "melhore muito as ferramentas".
+
+**1. Home.** O herói virou um bloco só: `constelacaoSVG(done,total)` desenha 12
+estrelas e **acende de verdade** as que correspondem às trilhas concluídas (linhas
+`.viva`, brilho e pulsar suave que respeita `prefers-reduced-motion`). As 4 caixinhas
+soltas viraram a `.hero-strip` dentro do próprio herói, separada por fios. O mantra
+virou citação editorial (`.mantra`). O roteiro da jornada agora entra **depois** da
+saudação, não antes. Emoji fora do chrome: `ICO` traz ícones em traço e o
+`nextActionCard` usa `.nx-ico`.
+
+**2. Liberação por etapas.** `GATES` define o que cada área exige, na ordem do
+`AF_JORNADA`: Bússola pede o método entendido; Trilhas pedem o autodiagnóstico;
+Plano e Diário pedem a 1ª carta; Ferramentas, Padrão de Gestão e Pesquisas pedem a
+1ª trilha. Conquistas e Mentora ficam sempre abertas. `go()` chama `gateDe(view)` e,
+se travado, renderiza `renderLocked` (cadeado, o porquê, progresso da jornada e o
+botão que leva ao passo que falta) em vez da tela. A barra inferior e a tela "Mais"
+mostram cadeado; `gateCheckNovos()` avisa quando algo abre (um aviso só, mesmo que
+várias áreas abram juntas). Nada foi removido: só sequenciado.
+
+**3. Ferramentas.** Deixou de ser uma grade solta: agora é **agrupada por módulo**
+(`.fx-sec` com número e fio), cartões `.fx-card` com ícone em traço, descrição em
+2 linhas, estado **preenchida** em verde e um anel de progresso no topo
+(`.fx-ring`, "N/9").
+
+Emoji: saíram das trilhas (medalhão numerado `.num-glyph`), do plano, das pesquisas,
+do diário e da Mentora. **Só as medalhas de Conquistas mantêm ícone**, de propósito.
+Corrigido de passagem: `radarSVG` não quebra mais com diagnóstico salvo pela metade.
 
 ### Painel de Indicadores: de planilha a painel de decisão (2407.11)
 A Carla: "gostei da ideia mas não gostei de como ficou, não parece útil". Era uma
