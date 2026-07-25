@@ -1,4 +1,4 @@
-# A! Fatorial — Sistema de Gestão (Arquitetura de Lucro)
+# A! Fatorial: Sistema de Gestão (Arquitetura de Lucro)
 
 Aplicação de página única (um arquivo `index.html`, sem build, JavaScript puro).
 Abra o arquivo no navegador para usar.
@@ -9,33 +9,33 @@ Abra o arquivo no navegador para usar.
 
 Sistema de **auto-mentoria estratégica** (por Carla Caroline). Não é um baralho de
 dicas: é um **método de transformação** que trabalha, em conjunto, os três eixos que
-governam qualquer resultado — **Estratégia**, **Mentalidade** e **Comportamento**
+governam qualquer resultado: **Estratégia**, **Mentalidade** e **Comportamento**
 (mais **Liderança** como eixo integrador). Bússola do método:
-*"Seus padrões de comportamento definem seus acontecimentos." — Carla Caroline*.
+*"Seus padrões de comportamento definem seus acontecimentos."<br>Carla Caroline*.
 
-Arquivo único (`baralho.html`, sem build, fontes de sistema — funciona offline,
+Arquivo único (`baralho.html`, sem build, fontes de sistema: funciona offline,
 persistência em `localStorage`). É um **produto digital** (não voltado a impressão).
 
-### O ciclo — 6 telas do app
+### O ciclo: 6 telas do app
 
-1. **Início** — introdução ao método: a lógica (padrão → resultado), os 3 eixos, o ciclo e um
+1. **Início**: introdução ao método: a lógica (padrão → resultado), os 3 eixos, o ciclo e um
    **guia de condução** (roteiro de auto-sessão em 6 passos, com perguntas de aprofundamento por eixo).
-2. **Diagnóstico** (Movimento 01 · Norte) — define o objetivo e responde 10 afirmações
-   (0–10, uma por naipe). Gera o **Mapa Bússola**: um radar (canvas) dos 10 naipes, notas por eixo
+2. **Diagnóstico** (Movimento 01 · Norte): define o objetivo e responde 10 afirmações
+   (0-10, uma por naipe). Gera o **Mapa Bússola**: um radar (canvas) dos 10 naipes, notas por eixo
    e a identificação da **maior alavanca** (o ponto de menor força = maior retorno).
-3. **Hoje** (Movimentos 02–03 · Revelação & Compromisso) — **sorteio inteligente e adaptativo**:
+3. **Hoje** (Movimentos 02-03 · Revelação & Compromisso): **sorteio inteligente e adaptativo**:
    a carta não abre por avanço; o sistema entrega a carta que o *seu mapa* pede, explicando o porquê.
    A carta vira um **compromisso com prazo** (ação concreta) enviado à Prática.
-4. **Trilhas** — **jornadas guiadas** (6 trilhas temáticas) que encadeiam cartas rumo a um resultado
+4. **Trilhas**: **jornadas guiadas** (6 trilhas temáticas) que encadeiam cartas rumo a um resultado
    (ex.: *Quebrar o Teto*, *Máquina de Execução*, *Sair do Operacional*). Cada passo é uma carta e
    vira um compromisso; a trilha recomendada é sugerida pelo eixo mais fraco do diagnóstico.
-5. **Prática** (Movimentos 04–05 · Prática & Espelho) — diário de compromissos (pendente /
+5. **Prática** (Movimentos 04-05 · Prática & Espelho): diário de compromissos (pendente /
    cumprido, com vencimento), **sequência** (streak), % de conclusão, cartas trabalhadas, e o
    **Espelho**: um **relatório do ciclo** gerado em texto (lê o mapa, a constância e os compromissos
    e escreve um diagnóstico com voz de mentor, incluindo a prescrição) + evolução do mapa entre
    diagnósticos + **ferramentas de campo** (Bússola de Padrões, Termômetro, Plano de 1 Página).
    Exportação do caderno em texto.
-6. **Baralho** — a biblioteca completa das **170 cartas** (10 naipes × 17), com busca,
+6. **Baralho**: a biblioteca completa das **170 cartas** (10 naipes × 17), com busca,
    filtro por naipe, virar carta e anotações persistentes.
 
 ### Os 10 naipes (17 cartas cada)
@@ -71,16 +71,16 @@ e naipes onde você **cumpre** compromissos favorecem cartas novas (o sistema *a
 | **Cliente** | Portal do cliente | Portal do cliente |
 
 Todos os perfis usam **o mesmo visual** (tema escuro "gamer" neon) e a **mesma
-moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem permissão.
+moldura** (menu lateral + topo): cada um enxerga apenas os itens que tem permissão.
 
 ## Novidades desta versão
 
-1. **Mesmo visual para todos os acessos** — o tema escuro/neon do portal do
+1. **Mesmo visual para todos os acessos**: o tema escuro/neon do portal do
    colaborador passou a valer para o ecossistema inteiro (admin, colaborador e
    cliente), com a barra lateral sempre visível.
-2. **Esteira comercial e Propostas no portal do colaborador** — cada colaborador
+2. **Esteira comercial e Propostas no portal do colaborador**: cada colaborador
    acessa essas telas dentro da própria plataforma.
-3. **Permissões configuráveis** — em **Equipe e acessos**, o admin marca quais
+3. **Permissões configuráveis**: em **Equipe e acessos**, o admin marca quais
    telas cada perfil enxerga e define se o colaborador vê *todos* os negócios da
    empresa ou *apenas os seus*. As escolhas valem na hora e ficam salvas no
    navegador (chave `af_permissoes`). O acesso do admin à própria tela de
@@ -92,16 +92,16 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
    - **Colaborador**: indicador da "próxima conquista a desbloquear" no cartão do
      jogador, somado à gamificação já existente (XP, níveis, badges, missões, saga).
 
-5. **CNAE / base da Nota Fiscal no catálogo** — cada serviço recebe uma sugestão
+5. **CNAE / base da Nota Fiscal no catálogo**: cada serviço recebe uma sugestão
    automática de CNAE, escolhida apenas entre os 6 CNAEs registrados no CNPJ da
    empresa (30.361.388/0001-17). O campo "Tipo de serviço (base da NF)" do funil
    também passou a exibir o CNAE de cada opção.
-6. **Gestão de usuários (Equipe e acessos → Equipe e responsáveis)** — login,
+6. **Gestão de usuários (Equipe e acessos → Equipe e responsáveis)**: login,
    senha, foto de perfil, apelido e status por usuário; ativar/desativar; alterar
    senha; criar novo usuário. Usuários inativos não conseguem entrar. Cada
    colaborador também personaliza foto e apelido no próprio portal ("Meu perfil").
    Login agora valida senha e status (com senha padrão de demonstração).
-7. **Catálogo → aba "Oportunidades por CNAE"** — biblioteca curada de 49 serviços
+7. **Catálogo → aba "Oportunidades por CNAE"**: biblioteca curada de 49 serviços
    que a empresa PODE oferecer dentro dos CNAEs que já tem registrados (sem risco
    fiscal). Cada serviço traz descrição e preço sugerido; um clique ativa na
    carteira (entra no catálogo com o CNAE certo). Inclui um insight estratégico
@@ -124,29 +124,29 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
      esteira já preenchida com o cliente e o serviço solicitado, convertendo o
      pedido em proposta. Funções: `renderSolicitacoes`, `solicitacaoConverter`,
      `solicitacaoAtender`, `solicitacaoVerCliente`, `listaSolicitacoes`.
-9. **Notificações sonoras** — sons curtos gerados via Web Audio (sem arquivos),
+9. **Notificações sonoras**: sons curtos gerados via Web Audio (sem arquivos),
    com timbres distintos por evento: XP/pontuação, notificação, conquista, subida
    de nível, **pagamento recebido (caixa registradora)**, **proposta/entrega
    aprovada e proposta gerada (sucesso)**, **novo pedido de cliente** e **perda**.
    Botão 🔊/🔇 na barra de topo liga/desliga (preferência em `localStorage`
    `af_som`) e há um **controle de volume** (slider, `af_vol`). Toca também um
    **som de boas-vindas no login**. Objeto `SOUND` (tipos: xp, notify, badge,
-   levelup, cash, success, request, lost, welcome; `volume` 0–1); ganchos em
+   levelup, cash, success, request, lost, welcome; `volume` 0-1); ganchos em
    `notify`, `colAddXP`, `colGanhaBadge`, `darBaixa`, `cliAprovar`/
    `ptAprovarProposta`, `confConfirmar`, `entAprovar`, `satSave`, `avalSalvar`,
    `depSave`, `perdaSave`, `portalSolicitarServico` e `loginEnter`.
-10. **Modo apresentação** — botão 🎤 na barra de topo borra os valores sensíveis
+10. **Modo apresentação**: botão 🎤 na barra de topo borra os valores sensíveis
     (KPIs do dashboard e do financeiro, tabela de recebíveis, custo/margem e nota
     interna do funil); passe o mouse para revelar. Marque mais elementos com a
     classe `sens`. Funções: `toggleApresentacao`.
-11. **Exportar proposta em PDF** — botão "⤓ Baixar PDF" no topo do portal/overlay
+11. **Exportar proposta em PDF**: botão "⤓ Baixar PDF" no topo do portal/overlay
     da proposta usa o diálogo de impressão (`@media print` isola só a proposta).
     Função: `cliExportarPDF`.
-12. **Tema claro/escuro** — botão 🌙/☀️ alterna entre o escuro "gamer" (padrão) e
+12. **Tema claro/escuro**: botão 🌙/☀️ alterna entre o escuro "gamer" (padrão) e
     um tema claro; a preferência fica em `localStorage` (`af_tema`). O portal do
     colaborador mantém a identidade gamer nos dois temas. Funções: `alternarTema`,
     `aplicarTema`.
-13. **Centro Financeiro 360** (nav "Centro Financeiro 360", admin) — gestão
+13. **Centro Financeiro 360** (nav "Centro Financeiro 360", admin): gestão
     financeira pessoal + empresa num só lugar:
     - **Visão geral**: KPIs (entradas, saídas, resultado, mistura PF↔Empresa),
       gráfico de categorias, evolução mensal e o **Conselheiro** (analisa e diz o
@@ -155,10 +155,10 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - **Importar extrato**: cole o texto do extrato (parser do Nubank validado
       contra os totais oficiais) → prévia → importa categorizando.
     - **Metas & objetivos**: alvo, aporte mensal e **tempo para alcançar**.
-    - Vem **semeado com extratos reais (jan–abr/2026)**. Persistência em
+    - Vem **semeado com extratos reais (jan-abr/2026)**. Persistência em
       `localStorage` (`af_fin`). Funções: `FIN360`, `finParseExtrato`,
       `finConselho`, `finVisaoGeral`, `finResumo`, `finCatFinal`.
-14. **Planejamento estratégico** (nav "Planejamento estratégico", admin) — metas
+14. **Planejamento estratégico** (nav "Planejamento estratégico", admin): metas
     de venda ligadas ao pipeline e ao financeiro:
     - Cada meta: serviço, quantidade × valor (ou **recorrente** por unidade, ex.:
       Medical R$ 25/agendamento), prazo e **projeção de receita**.
@@ -177,13 +177,12 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       **rodapé** (razão social, CNPJ, contato), com a cor da marca; o PDF sai com
       a capa em página própria. Funções: `BRAND`, `renderBrand`, `brandLogoHTML`.
     - **Atalho de teclado Alt+P** alterna o modo apresentação.
-16. **Importação CSV / qualquer banco (Cora PJ)** — além do parser Nubank, o
+16. **Importação CSV / qualquer banco (Cora PJ)**: além do parser Nubank, o
     Centro Financeiro importa **CSV/planilha** de qualquer banco (Cora, Inter…),
     por colagem ou **upload de arquivo**. Detecta delimitador, datas e sinais
     (crédito/débito). Escolha o contexto **Empresa** para separar o PJ do pessoal.
     Função: `finParseCSV`.
-17. **Visão do dono** (nav "Visão do dono", admin — tela inicial do admin) —
-    cockpit executivo que une, numa tela: receita projetada × realizada, resultado
+17. **Visão do dono** (nav "Visão do dono", admin, tela inicial do admin), cockpit executivo que une, numa tela: receita projetada × realizada, resultado
     financeiro, **valuation**, saúde financeira (saldo PF/PJ e mistura), funil
     comercial, **conselho do dia** (financeiro + comercial) e o progresso das
     metas. Função: `renderDono`.
@@ -207,7 +206,7 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - **Metas do plano na projeção**: recorrência (alvo/12) + clientes fechados
       entram como receita futura no fluxo de caixa (toggle). `finProjMeses`.
     - **Mais gráficos na Gestão à vista**: resultado mensal, caixa projetado (6m)
-      e metas de venda — para decisão rápida. `renderDashCharts`, `miniBars`.
+      e metas de venda: para decisão rápida. `renderDashCharts`, `miniBars`.
 20. **Alertas inteligentes, exportar CSV e metas trimestrais**
     - **Alertas no sino**: caixa projetado negativo, meta de venda sem fechamentos
       perto do prazo, propostas não abertas, pedidos de cliente novos e avaliações
@@ -215,14 +214,14 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       `gerarAlertasInteligentes`.
     - **Exportar lançamentos em CSV** (Excel/contador): respeita o filtro atual,
       com BOM e formato pt-BR. `finExportarCSV`.
-    - **Metas por trimestre** (Planejamento): meta de faturamento por Q1–Q4 com
+    - **Metas por trimestre** (Planejamento): meta de faturamento por Q1-Q4 com
       **realizado calculado automaticamente** dos lançamentos (entradas de receita,
       excluindo transferências/aportes). `planoTrimestreCard`,
       `finReceitaRealTrimestre`.
 21. **Simulador de futuro + backup + conciliação + meta do colaborador**
     - **Simulador de futuro** (nav própria): calculadora de premissas (receita,
       crescimento %/ano, custos fixos, custo variável %, pró-labore, rendimento
-      %/mês) projetando **6m, 1, 2, 5 e 10 anos** — quanto sobra/falta, caixa
+      %/mês) projetando **6m, 1, 2, 5 e 10 anos**: quanto sobra/falta, caixa
       acumulado, patrimônio investindo a sobra (juros compostos), **contas a
       reduzir** e **movimentos estratégicos**. `renderFuturo`, `futuroSerie`.
     - **Backup/Restauração** (Equipe e acessos): exporta/importa todo o sistema
