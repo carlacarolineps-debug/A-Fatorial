@@ -164,8 +164,8 @@ Application Code
 
 **Brand:**
 ```bash
-node .claude/skills/brand/scripts/inject-brand-context.cjs
-node .claude/skills/brand/scripts/validate-asset.cjs <path>
+node .claude/skills/design-brand/scripts/inject-brand-context.cjs
+node .claude/skills/design-brand/scripts/validate-asset.cjs <path>
 ```
 
 **Tokens:**

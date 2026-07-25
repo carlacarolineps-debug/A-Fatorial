@@ -27,9 +27,9 @@ Unified design skill: brand, tokens, UI, logo, CIP, slides, banners, social phot
 
 | Task | Sub-skill | Details |
 |------|-----------|---------|
-| Brand identity, voice, assets | `brand` | External skill |
+| Brand identity, voice, assets | `design-brand` | External skill |
 | Tokens, specs, CSS vars | `design-system` | External skill |
-| shadcn/ui, Tailwind, code | `ui-styling` | External skill |
+| shadcn/ui, Tailwind, code | `design-ui-styling` | External skill |
 | Logo creation, AI generation | Logo (built-in) | `references/logo-design.md` |
 | CIP mockups, deliverables | CIP (built-in) | `references/cip-design.md` |
 | Presentations, pitch decks | Slides (built-in) | `references/slides.md` |
@@ -66,7 +66,7 @@ python3 ~/.claude/skills/design/scripts/logo/generate.py --prompt "coffee shop v
 
 **IMPORTANT:** When scripts fail, try to fix them directly.
 
-After generation, **ALWAYS** ask user about HTML preview via `AskUserQuestion`. If yes, invoke `/ui-ux-pro-max` for gallery.
+After generation, **ALWAYS** ask user about HTML preview via `AskUserQuestion`. If yes, invoke `/design-ui-ux-pro-max` for gallery.
 
 ## CIP Design (Built-in)
 
@@ -138,7 +138,7 @@ Load `references/banner-sizes-and-styles.md` for complete sizes and styles refer
 ### Banner: Workflow
 
 1. **Gather requirements** via `AskUserQuestion` — purpose, platform, content, brand, style, quantity
-2. **Research** — Activate `ui-ux-pro-max`, browse Pinterest for references
+2. **Research** — Activate `design-ui-ux-pro-max`, browse Pinterest for references
 3. **Design** — Create HTML/CSS banner with `frontend-design`, generate visuals with `ai-artist`/`ai-multimodal`
 4. **Export** — Screenshot to PNG at exact dimensions via `chrome-devtools`
 5. **Present** — Show all options side-by-side, iterate on feedback
@@ -216,7 +216,7 @@ python3 ~/.claude/skills/design/scripts/icon/generate.py --prompt "user profile"
 
 ## Social Photos (Built-in)
 
-Multi-platform social image design: HTML/CSS → screenshot export. Uses `ui-ux-pro-max`, `brand`, `design-system`, `chrome-devtools` skills.
+Multi-platform social image design: HTML/CSS → screenshot export. Uses `design-ui-ux-pro-max`, `design-brand`, `design-system`, `chrome-devtools` skills.
 
 Load `references/social-photos-design.md` for sizes, templates, best practices.
 
@@ -225,7 +225,7 @@ Load `references/social-photos-design.md` for sizes, templates, best practices.
 1. **Orchestrate** — `project-management` skill for TODO tasks; parallel subagents for independent work
 2. **Analyze** — Parse prompt: subject, platforms, style, brand context, content elements
 3. **Ideate** — 3-5 concepts, present via `AskUserQuestion`
-4. **Design** — `/ckm:brand` → `/ckm:design-system` → randomly invoke `/ck:ui-ux-pro-max` OR `/ck:frontend-design`; HTML per idea × size
+4. **Design** — `/ckm:brand` → `/ckm:design-system` → randomly invoke `/ck:design-ui-ux-pro-max` OR `/ck:frontend-design`; HTML per idea × size
 5. **Export** — `chrome-devtools` or Playwright screenshot at exact px (2x deviceScaleFactor)
 6. **Verify** — Use Chrome MCP or `chrome-devtools` skill to visually inspect exported designs; fix layout/styling issues and re-export
 7. **Report** — Summary to `plans/reports/` with design decisions
