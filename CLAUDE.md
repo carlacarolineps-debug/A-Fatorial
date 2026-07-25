@@ -16,7 +16,7 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.04.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.05.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -29,6 +29,17 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 - `baralho.html` — versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html` — Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Orientação guiada — "pensa pela pessoa" (a partir de 2407.05)
+A pedido da Carla (usuário novo não sabia por onde começar; "não remova nada").
+Camada de wayfinding por cima de tudo, sem remover recursos: (1) **boas-vindas**
+que explicam as duas frentes (negócio por fora + você por dentro); (2) roteiro
+**"Comece por aqui · Sua jornada, passo a passo"** na Home — 8 passos numerados
+com status/progresso e CTA que leva ao lugar certo; (3) faixa **"Próximo passo · N/8"**
+sempre no topo (abaixo da nav), em toda tela. Estado em `S.af`; passos em
+`AF_JORNADA` (detecta conclusão pelo estado real); `renderJornada()` (prepend na
+Home via `bHomeHook`), `afGuiaUpdate()` (faixa, ligada em `go()`), `afMetodo()`
+(boas-vindas). CSS na seção "ORIENTAÇÃO GUIADA" do `premium.css`.
 
 ### Evolução "Vivo — joia sobre carbono" (a partir de 2407.04)
 A pedido da Carla ("cores mais vivas, algo mais interessante de ver"), a cor

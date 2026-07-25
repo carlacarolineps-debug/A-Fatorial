@@ -743,6 +743,44 @@ body{
 
 .b-mini i.on{ background:var(--sc,var(--amber)) !important; }
 
+/* =====================================================================
+   ORIENTAÇÃO GUIADA (2407.05)
+   ===================================================================== */
+#afBanner{background:linear-gradient(180deg,rgba(198,168,103,.16),rgba(198,168,103,.05));border-bottom:1px solid var(--line);position:relative;z-index:9}
+.af-banner-in{display:flex;align-items:center;gap:16px;padding:12px 22px;flex-wrap:wrap}
+.af-bstep{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber-bright);white-space:nowrap;font-weight:600}
+.af-btxt{font-size:13.5px;color:var(--mute);flex:1;min-width:200px}
+.af-btxt b{color:var(--star);font-family:var(--serif);font-weight:500}
+.af-bx{background:none;border:0;color:var(--mute-2);font-size:18px;cursor:pointer;line-height:1;padding:2px 6px}
+.af-bx:hover{color:var(--amber-bright)}
+/* roteiro (jornada) na Home */
+.af-jornada{margin-bottom:20px;border-color:var(--amber) !important;background:radial-gradient(700px 240px at 0% -30%,rgba(198,168,103,.10),transparent 60%),linear-gradient(180deg,var(--ink-3),var(--ink-2)) !important}
+.af-jhead{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.af-jprog{text-align:right;min-width:120px}
+.af-jpct{font-family:var(--serif);font-size:30px;color:var(--amber-bright);line-height:1}
+.af-jpct span{font-size:16px;color:var(--mute-2)}
+.af-jbar{height:4px;border-radius:100px;background:var(--line);overflow:hidden;margin-top:8px}
+.af-jbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--amber-bright));box-shadow:0 0 10px rgba(233,184,76,.6)}
+.af-steps{display:flex;flex-direction:column}
+.af-step{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line-soft)}
+.af-step:first-child{border-top:0}
+.af-node{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-family:var(--serif);font-size:14px;color:var(--mute-2);background:var(--ink-2)}
+.af-step.done .af-node{background:linear-gradient(180deg,var(--amber-bright),var(--amber));color:#241b08;border-color:transparent}
+.af-step.cur .af-node{border-color:var(--amber);color:var(--amber-bright);box-shadow:0 0 0 4px rgba(233,184,76,.14),0 0 16px -3px var(--amber)}
+.af-step.cur{background:linear-gradient(90deg,rgba(198,168,103,.07),transparent 70%);margin:0 -14px;padding:14px;border-radius:var(--radius);border-top-color:transparent}
+.af-step.done .af-stitle{color:var(--mute)}
+.af-stitle{font-family:var(--serif);font-size:17px;color:var(--star)}
+.af-step.done .af-stitle{text-decoration:none;color:var(--mute-2)}
+.af-now{font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber-bright);border:1px solid var(--amber);border-radius:100px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+.af-sdesc{font-size:12.5px;color:var(--mute-2);margin-top:2px}
+.af-doneb{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage)}
+/* modal do método (duas frentes) */
+.af-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:560px){.af-two{grid-template-columns:1fr}.af-step{grid-template-columns:32px 1fr;gap:10px}.af-step>.btn,.af-step .af-doneb{grid-column:2}}
+.af-half{border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;background:var(--ink-2)}
+.af-hk{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;font-weight:600}
+.af-half p{font-size:13px;color:var(--mute);line-height:1.5}
+
 </style>
 </head>
 <body>
@@ -3259,6 +3297,7 @@ function go(view){
   $$('.tab').forEach(t=>t.classList.toggle('active', t.dataset.v===current));
   window.scrollTo({top:0,behavior:'smooth'});
   S.visited[view]=true; touchStreak(); save();
+  if(typeof afGuiaUpdate==='function') afGuiaUpdate();
   if(view==='home'){ renderHome(); if(typeof bHomeHook==='function') bHomeHook(); }
   if(view==='bussola') renderBussola();
   if(view==='trilhas') renderTrilhas();
@@ -7530,6 +7569,7 @@ function bSaveRitual(){
 /* ---------- gancho na Home (tese interno↔externo, nativo) ---------- */
 function bHomeHook(){
   const v=$('#view-home'); if(!v||!S.name) return;
+  renderJornada();
   if(v.querySelector('#bHomeCard')) return;
   const B=Bst();
   const diagDone=!!B.diag;
@@ -7637,6 +7677,100 @@ function bSaveKpiVal(id){
   addXp(6,'Placar atualizado'); save(); closeModal(); renderBussola();
 }
 function bDelKpi(id){ const B=Bst(); B.kpis=(B.kpis||[]).filter(x=>x.id!==id); save(); renderBussola(); }
+
+/* =====================================================================
+   ORIENTAÇÃO GUIADA (2407.05) — pensa pela pessoa: boas-vindas, jornada
+   passo a passo na Home e faixa "próximo passo" sempre visível.
+   ===================================================================== */
+function AF(){ if(!S.af) S.af={metodo:false,welcomed:false}; return S.af; }
+let afHidden=false; // ocultar a faixa só nesta sessão
+const AF_JORNADA=[
+  {id:'metodo', t:'Entenda o método', d:'2 minutos: como tudo funciona e por quê.',
+    done:()=>!!AF().metodo, go:()=>afMetodo(false)},
+  {id:'diagb', t:'Diagnóstico comportamental', d:'Descubra o padrão que governa seus resultados.',
+    done:()=>!!(S.bussola&&S.bussola.diag), go:()=>{go('bussola');bTab='mapa';renderBussola();openBDiag();}},
+  {id:'diagn', t:'Autodiagnóstico de negócio', d:'Meça a maturidade da sua gestão — o seu ponto de partida.',
+    done:()=>!!S.diagnostic, go:()=>openDiagnostic(false)},
+  {id:'carta', t:'Sua 1ª carta + compromisso', d:'Receba a carta certa e transforme em ação no Plano 30d.',
+    done:()=>(S.plan||[]).some(p=>p.bnaipe), go:()=>{go('bussola');bTab='hoje';renderBussola();}},
+  {id:'pacto', t:'Assine seu Pacto de Blindagem', d:'Firme o compromisso com quem você escolhe se tornar.',
+    done:()=>!!(S.bussola&&S.bussola.pacto), go:()=>bPacto()},
+  {id:'trilha', t:'Comece sua 1ª trilha', d:'A primeira aula do seu módulo de negócio.',
+    done:()=>Object.values(S.modules||{}).some(m=>m&&(m.completed||(m.steps&&Object.keys(m.steps).length))), go:()=>go('trilhas')},
+  {id:'placar', t:'Prove no Placar', d:'Ligue um número do negócio ao seu padrão — a prova da mudança.',
+    done:()=>!!(S.bussola&&S.bussola.kpis&&S.bussola.kpis.length), go:()=>{go('bussola');bTab='placar';renderBussola();}},
+  {id:'ciclo', t:'Feche seu 1º ciclo', d:'Revise no Espelho e registre o aprendizado da semana.',
+    done:()=>!!(S.bussola&&S.bussola.ritual&&S.bussola.ritual.length), go:()=>{go('bussola');bTab='espelho';renderBussola();}},
+];
+function afState(){ return AF_JORNADA.map(s=>({s,done:!!s.done()})); }
+function afDo(id){ const s=AF_JORNADA.find(x=>x.id===id); if(s) s.go(); }
+
+function afMetodo(isWelcome){
+  modal(`<p class="eyebrow">${isWelcome?'Bem-vinda':'O método'}</p>
+    <h3>Como a Operação Blindada funciona</h3>
+    <p class="muted" style="margin-top:8px">Você trabalha em duas frentes ao mesmo tempo — e é a soma das duas que transforma de verdade:</p>
+    <div class="af-two">
+      <div class="af-half"><div class="af-hk">Por fora · o negócio</div><p>Módulos de estratégia, liderança, governança e finanças — para blindar a empresa.</p></div>
+      <div class="af-half"><div class="af-hk">Por dentro · você</div><p>A Bússola: 170 cartas e diagnósticos que revelam os padrões de comportamento que governam seus resultados.</p></div>
+    </div>
+    <p class="muted" style="margin-top:12px">A regra que amarra tudo: <span style="font-family:var(--serif);font-style:italic;color:var(--amber)">seus padrões de comportamento definem seus acontecimentos.</span></p>
+    <div class="callout" style="margin-top:12px"><div><b>Não precisa saber por onde começar.</b> Na tela inicial há uma <b>jornada passo a passo</b>, e a faixa no topo mostra sempre o seu <b>próximo passo</b>. Faça um de cada vez.</div></div>
+    <div class="btn-row" style="margin-top:16px"><button class="btn primary" onclick="afMetodoOk()">${isWelcome?'Começar minha jornada →':'Entendi'}</button></div>`);
+}
+function afMetodoOk(){ AF().metodo=true; save(); closeModal(); go('home'); }
+
+function afEnsureBanner(){
+  if(document.getElementById('afBanner')) return;
+  const tb=document.querySelector('.topbar'); if(!tb) return;
+  const el=document.createElement('div'); el.id='afBanner';
+  tb.insertAdjacentElement('afterend', el);
+}
+function afBannerHide(){ afHidden=true; const b=document.getElementById('afBanner'); if(b) b.style.display='none'; }
+function afGuiaUpdate(){
+  if(!S.name) return;                       // ainda no onboarding
+  const A=AF();
+  if(!A.welcomed){ A.welcomed=true; save(); setTimeout(()=>afMetodo(true),350); }
+  afEnsureBanner();
+  const b=document.getElementById('afBanner'); if(!b) return;
+  if(afHidden){ b.style.display='none'; return; }
+  b.style.display='';
+  const st=afState(); const doneN=st.filter(x=>x.done).length; const next=st.find(x=>!x.done);
+  if(next){
+    const idx=AF_JORNADA.indexOf(next.s)+1;
+    b.innerHTML=`<div class="af-banner-in wrap">
+      <span class="af-bstep">Próximo passo · ${idx}/${AF_JORNADA.length}</span>
+      <span class="af-btxt"><b>${next.s.t}</b> — ${next.s.d}</span>
+      <button class="btn primary sm" onclick="afDo('${next.s.id}')">Fazer agora →</button>
+      <button class="af-bx" title="Ocultar por agora" onclick="afBannerHide()">×</button></div>`;
+  } else {
+    b.innerHTML=`<div class="af-banner-in wrap">
+      <span class="af-bstep">✓ Jornada completa</span>
+      <span class="af-btxt">Você percorreu o essencial. Continue com a <b>carta de hoje</b> e feche cada semana no <b>ritual de ciclo</b>.</span>
+      <button class="btn ghost sm" onclick="afDo('carta')">Carta de hoje →</button>
+      <button class="af-bx" onclick="afBannerHide()">×</button></div>`;
+  }
+}
+function renderJornada(){
+  const v=document.getElementById('view-home'); if(!v||!S.name) return;
+  if(v.querySelector('#afJornada')) return;
+  const st=afState(); const doneN=st.filter(x=>x.done).length; const nextIdx=st.findIndex(x=>!x.done);
+  const rows=st.map((x,i)=>{
+    const cur=(i===nextIdx);
+    return `<div class="af-step ${x.done?'done':cur?'cur':''}"><div class="af-node">${x.done?'✓':(i+1)}</div>
+      <div class="af-sbody"><div class="af-stitle">${x.s.t}${cur?' <span class="af-now">seu próximo passo</span>':''}</div>
+        <div class="af-sdesc">${x.s.d}</div></div>
+      ${x.done?'<span class="af-doneb">feito</span>':`<button class="btn ${cur?'primary':'ghost'} sm" onclick="afDo('${x.s.id}')">${cur?'Fazer agora':'Abrir'}</button>`}</div>`;
+  }).join('');
+  const pct=Math.round(doneN/st.length*100);
+  const card=document.createElement('div');
+  card.id='afJornada'; card.className='card pad-lg af-jornada';
+  card.innerHTML=`<div class="af-jhead">
+      <div><p class="eyebrow">Comece por aqui</p><h2 class="sec" style="margin:4px 0 0">Sua jornada, passo a passo</h2></div>
+      <div class="af-jprog"><div class="af-jpct">${doneN}<span>/${st.length}</span></div><div class="af-jbar"><i style="width:${pct}%"></i></div></div></div>
+    <p class="lead" style="margin:10px 0 16px">Não precisa saber por onde começar — eu te guio. Faça um passo de cada vez; cada botão leva você direto ao lugar certo.</p>
+    <div class="af-steps">${rows}</div>`;
+  v.insertBefore(card, v.firstChild);
+}
 
 
 /* ===================================================================
