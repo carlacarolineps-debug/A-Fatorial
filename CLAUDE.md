@@ -16,7 +16,7 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.07.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.08.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -29,6 +29,45 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 - `baralho.html` — versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html` — Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Carta aberta = carta de verdade + plano de ação (a partir de 2407.08)
+A pedido da Carla ("mude o visual de como aparece a carta quando você dá um clique,
+mas não altere nada de como ficaram as cartas... use a mesma identidade que está fora
+e ela precisa ter aparência visual de carta"; e sobre o antigo formulário: "não tem
+utilidade nenhuma nessa ferramenta, transforme a carta na maior sacada para aplicação
+prática, para o aluno sair dali com um plano de ação, que ele possa imprimir e baixar,
+rodar um PDCA, ou incluir no planner").
+
+**Visual — a carta aberta virou uma carta.** `.bo-face` no `premium.css` (seção "CARTA
+ABERTA"): moldura dupla (`::before`), **índices nos cantos** com naipe + número
+(`.bo-corner.tl` / `.br` rotacionado 180°, como baralho impresso), **marca d'água** do
+naipe (`.bo-wm`), fio de ouro ornamental (`.bo-rule`), pergunta-guia em serifa itálica
+(`.bo-q`), os 4 atributos como **pips** (`.bo-stats`/`.bo-pips`), dimensão no pé
+(`.bo-dim`) e brilho de gema na cor do naipe (`--sc`, mesma variável do baralho).
+**O baralho (`.bcard`) não foi tocado** — só a carta aberta.
+
+**Sacada prática — a carta produz um plano.** Fluxo em 3 telas (`bussola_engine.js`):
+1. `openCard(idx)` — a face da carta + "O padrão em jogo" (leitura comportamental do
+   naipe) + painéis + a ferramenta + CTA único **"Transformar em plano de ação"**.
+2. `bPlanStart(idx)` — construtor em 3 passos onde **nada começa em branco**:
+   (a) "onde você está nessa carta?" (`BNIVEL`: novo / oscilo / forte) **calibra o
+   plano**; (b) 3 ações sugeridas e editáveis (`bPlanSugs`, derivadas do `BPLAY` do
+   naipe + a ferramenta `c.x` da carta); (c) gatilho com chips prontos (`BGATILHOS`)
+   + prazo. Métrica, risco e protocolo de recaída vêm pré-preenchidos em `<details>`.
+3. `bPlanGo(idx)` — gera o **Plano de Ação**: compromisso (intenção de implementação),
+   sequência de 4 passos sem repetição (`pega()` dedupe — a ação escolhida pode
+   coincidir com o passo de 10 min ou com a cadência, conforme o nível), métrica,
+   risco, protocolo e 7 caixinhas de marcação. Sai por `withResultActions` →
+   **Salvar · Imprimir A4 · Plano 30d · PDCA · Agenda · Diário**, mais
+   `bPlanDownload()` que **baixa um .html autônomo** (branded, imprime em A4, funciona
+   sem internet). Já grava no `S.plan` com `bnaipe` (preserva o passo 4 da jornada),
+   no `interrupts`, marca `worked`, dá XP e o troféu.
+
+`BPLAY` = playbook por naipe (padrão, micro-ação de 10 min, cadência, como elevar,
+métrica, risco, protocolo de interrupção) — é o que dá substância de mentoria às
+sugestões das 170 cartas. CSS das telas 2 e 3: `.bp-*` e `.pl-*`. Com modal aberto os
+toasts sobem para o topo (`body:has(.modal-bg.show) .toast-zone`) para não cobrir a
+barra de ações.
 
 ### Navegação de app nativo — pronto para as lojas (a partir de 2407.07)
 A pedido da Carla ("repense a forma de entrar nas seções, pense como app pois iremos
