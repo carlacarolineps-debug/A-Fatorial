@@ -16,7 +16,7 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.06.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.07.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -29,6 +29,28 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 - `baralho.html` — versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html` — Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Navegação de app nativo — pronto para as lojas (a partir de 2407.07)
+A pedido da Carla ("repense a forma de entrar nas seções, pense como app pois iremos
+subir na Play Store e na App Store; haja como designer de apps"). Trocamos a barra de
+abas horizontal com rolagem (10 itens, padrão de site) por navegação **nativa**, sem
+remover nenhuma seção:
+- **Bottom tab bar** fixa (`.appnav`/`#appnav`), 5 destinos principais em `PRIMARY`
+  = `home · bussola · trilhas · plano · menu`, com ícones em traço (SVG, sem emoji no
+  chrome), alvo ≥52px, zona do polegar, indicador de aba ativa em ouro,
+  `env(safe-area-inset-bottom)` para o notch/home-indicator, blur + fio de ouro no topo.
+- **Tela "Mais"** (`view-menu`/`renderMenu()`) = hub das seções que não cabem na barra
+  (`OVERFLOW` = ferramentas, gestão, pesquisas, diário, conquistas, mentora) em linhas
+  grandes com ícone + título + subtítulo (`MENU_SUB`) + chevron; rodapé com "Limpar
+  meus dados".
+- **Topo contextual**: raiz mostra a marca; telas raiz não-home mostram o **título da
+  tela**; telas secundárias mostram **‹ voltar** (`#topBack`/`navBack()`) + título.
+  `syncChrome(view)` cuida disso e do estado ativo da barra; `lastPrimary` guarda a
+  raiz para o voltar. `NAV_TITLE`/`NAV_SHORT`/`NAV_ICON` no motor da navegação.
+- **Transição "entrar na tela"** (`.view-in`, keyframe `viewIn`, respeita
+  `prefers-reduced-motion`). Barra inferior escondida no onboarding via `appnavShow()`
+  (substituiu os antigos `$('#tabs').style.display`). CSS na seção "APP SHELL" do
+  `premium.css`. A antiga `.tabs` foi aposentada (`display:none`).
 
 ### Orientação guiada — "pensa pela pessoa" (a partir de 2407.05)
 A pedido da Carla (usuário novo não sabia por onde começar; "não remova nada").
