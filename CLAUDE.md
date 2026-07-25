@@ -16,7 +16,7 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.03.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.04.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -29,6 +29,15 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 - `baralho.html` — versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html` — Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Evolução "Vivo — joia sobre carbono" (a partir de 2407.04)
+A pedido da Carla ("cores mais vivas, algo mais interessante de ver"), a cor
+voltou como **pedras preciosas profundas** (naipes: topázio, turquesa, âmbar,
+ametista, safira, esmeralda, rubi, aço, rosa, citrino) — cor vibrante no
+**conteúdo**, chrome permanece ouro. Fundo com auroras de joia, cartas do baralho
+como **gemas retroiluminadas** (glow na cor do naipe), radar com gradiente/brilho,
+eixos coloridos. Hues em `BNAIPES`/`BEIXOS` (motor); brilhos/fundos na seção "VIVO"
+do `premium.css`; radar enriquecido em `radarSVG` (base).
 
 ### Direção visual: "Cofre Privado" (a partir de 2407.03)
 Linguagem premium — carbono quente + ouro-champanhe + pergaminho, tipografia

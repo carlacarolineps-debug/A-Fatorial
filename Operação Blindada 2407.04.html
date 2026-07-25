@@ -703,6 +703,46 @@ label.fld>span{letter-spacing:.14em;text-transform:uppercase;font-size:10.5px;co
 .b-rlead,.b-report .b-rlead{font-family:var(--serif)}
 .b-mini i.on{background:var(--amber)}
 
+/* =====================================================================
+   VIVO (2407.04) — joia sobre carbono iluminado.
+   Cor vibrante no conteúdo; chrome permanece ouro. Vence a cascata.
+   ===================================================================== */
+body{
+  background:
+    radial-gradient(1150px 660px at 86% -12%, rgba(233,184,76,.14), transparent 58%),
+    radial-gradient(780px 540px at 3% 4%, rgba(166,107,232,.11), transparent 55%),
+    radial-gradient(720px 520px at 98% 42%, rgba(78,143,230,.08), transparent 55%),
+    radial-gradient(880px 600px at 50% 114%, rgba(47,184,137,.08), transparent 55%),
+    var(--ink) !important;
+}
+/* Baralho — gemas retroiluminadas na cor do naipe */
+.bcard{
+  background:
+    radial-gradient(150% 82% at 50% -20%, color-mix(in srgb, var(--sc,var(--amber)) 32%, transparent), transparent 62%),
+    linear-gradient(180deg, var(--ink-3), var(--ink-2)) !important;
+  border-top:2px solid var(--sc,var(--amber)) !important;
+  box-shadow:0 12px 36px -22px color-mix(in srgb, var(--sc,var(--amber)) 65%, transparent);
+}
+.bcard:hover{ box-shadow:0 24px 54px -20px color-mix(in srgb, var(--sc,var(--amber)) 75%, transparent) !important; }
+.bcard-glyph,.b-fglyph{ text-shadow:0 0 22px color-mix(in srgb, var(--sc,var(--amber)) 65%, transparent); }
+.b-featured{ box-shadow:0 26px 74px -32px color-mix(in srgb, var(--sc,var(--amber)) 78%, transparent); }
+.b-tico{ text-shadow:0 0 18px color-mix(in srgb, var(--sc,var(--amber)) 60%, transparent); }
+.b-bar>i{ box-shadow:0 0 10px color-mix(in srgb, var(--sc,var(--amber)) 60%, transparent); }
+.b-mini i.on{ box-shadow:0 0 5px color-mix(in srgb, var(--sc,var(--amber)) 75%, transparent); }
+.b-trilha{ box-shadow:0 12px 36px -26px color-mix(in srgb, var(--sc,var(--amber)) 55%, transparent); }
+.b-step.done .b-node,.b-step.cur .b-node{ box-shadow:0 0 0 4px color-mix(in srgb, var(--amber) 18%, transparent),0 0 16px -4px var(--amber); }
+.b-dim .dh b{ color:var(--amber-bright); }
+/* Botões e cartões — profundidade e brilho quente */
+.btn.primary{ box-shadow:0 10px 28px -12px rgba(233,184,76,.55) !important; }
+.btn.primary:hover{ box-shadow:0 14px 34px -12px rgba(233,184,76,.7) !important; }
+.card{ box-shadow:0 26px 64px -42px rgba(0,0,0,.82), inset 0 1px 0 rgba(255,255,255,.035); }
+.stat-num{ color:var(--amber-bright); }
+.tab.active,.gtab.on{ text-shadow:0 0 14px rgba(233,184,76,.35); }
+/* topo com leve calor */
+.topbar,.top-bar{ box-shadow:0 1px 0 var(--line),0 20px 40px -40px rgba(233,184,76,.4); }
+
+.b-mini i.on{ background:var(--sc,var(--amber)) !important; }
+
 </style>
 </head>
 <body>
@@ -4825,9 +4865,19 @@ function radarSVG(ans){
     const [lx,ly]=pt(i,R+22); labels+=`<text x="${lx}" y="${ly}" font-size="9" fill="#9aa6cf" text-anchor="middle" dominant-baseline="middle" font-family="monospace">${d}</text>`; });
   const dataPts=dims.map((d,i)=>pt(i,R*(ans[d]/5)).join(',')).join(' ');
   return `<div class="center"><svg viewBox="0 0 300 320" style="max-width:340px;width:100%">
+    <defs>
+      <radialGradient id="radFill" cx="50%" cy="42%" r="60%">
+        <stop offset="0%" stop-color="rgba(233,212,160,.42)"/>
+        <stop offset="60%" stop-color="rgba(198,168,103,.22)"/>
+        <stop offset="100%" stop-color="rgba(198,168,103,.06)"/>
+      </radialGradient>
+      <filter id="radGlow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
     ${grid}${axes}
-    <polygon points="${dataPts}" fill="rgba(245,181,61,.25)" stroke="var(--amber)" stroke-width="2"/>
-    ${dims.map((d,i)=>{const [x,y]=pt(i,R*(ans[d]/5));return `<circle cx="${x}" cy="${y}" r="3.5" fill="var(--amber)"/>`;}).join('')}
+    <polygon points="${dataPts}" fill="url(#radFill)" stroke="var(--amber-bright,#e9d4a0)" stroke-width="2" filter="url(#radGlow)"/>
+    ${dims.map((d,i)=>{const [x,y]=pt(i,R*(ans[d]/5));return `<circle cx="${x}" cy="${y}" r="3.6" fill="var(--amber-bright,#e9d4a0)" filter="url(#radGlow)"/>`;}).join('')}
     ${labels}
   </svg></div>`;
 }
@@ -5868,16 +5918,16 @@ function signature(){
    .likert / .gtabs / .callout / .card (componentes nativos).
    =================================================================== */
 const BNAIPES=[
-  {k:'direcao',   nome:'Direção',   sub:'Clareza & Propósito',        g:'◎', hue:'#c6a867', sintoma:'metas que trocam toda semana e uma equipe que não sabe para onde ir'},
-  {k:'plano',     nome:'Plano',     sub:'Estratégia & Planejamento',  g:'⬡', hue:'#c6a867', sintoma:'muito esforço e pouco resultado, retrabalho e projetos que não fecham'},
-  {k:'execucao',  nome:'Execução',  sub:'Disciplina & Ação',          g:'✳', hue:'#c6a867', sintoma:'boas ideias que morrem na gaveta e prazos que estouram'},
-  {k:'padroes',   nome:'Padrões',   sub:'A Bússola do Comportamento', g:'✦', hue:'#c6a867', sintoma:'o mesmo problema que volta com outra roupa, ciclo após ciclo'},
-  {k:'mente',     nome:'Mente',     sub:'Mentalidade & Crenças',      g:'❖', hue:'#c6a867', sintoma:'decisões travadas e preços cobrados abaixo do valor que você entrega'},
-  {k:'forcas',    nome:'Forças',    sub:'Autoconhecimento & Talento', g:'◆', hue:'#c6a867', sintoma:'competir por preço em vez de diferencial, sem posicionamento claro'},
-  {k:'lideranca', nome:'Liderança', sub:'Gestão & Posicionamento',    g:'♛', hue:'#c6a867', sintoma:'tudo depender de você e o time não decidir nada sozinho'},
-  {k:'sabotagem', nome:'Sombra',    sub:'Medos & Autossabotagem',     g:'☾', hue:'#c6a867', sintoma:'o negócio empacar justo quando está perto do próximo nível'},
-  {k:'identidade',nome:'Identidade',sub:'Autenticidade & Autoimagem', g:'✧', hue:'#c6a867', sintoma:'você se encolher, não se posicionar e deixar vendas e autoridade na mesa'},
-  {k:'resultados',nome:'Resultados',sub:'Mensuração & Gestão',        g:'▲', hue:'#c6a867', sintoma:'decidir no achismo e descobrir os problemas tarde demais'},
+  {k:'direcao',   nome:'Direção',   sub:'Clareza & Propósito',        g:'◎', hue:'#e9b84c', sintoma:'metas que trocam toda semana e uma equipe que não sabe para onde ir'},
+  {k:'plano',     nome:'Plano',     sub:'Estratégia & Planejamento',  g:'⬡', hue:'#2fbfb0', sintoma:'muito esforço e pouco resultado, retrabalho e projetos que não fecham'},
+  {k:'execucao',  nome:'Execução',  sub:'Disciplina & Ação',          g:'✳', hue:'#ee9a3c', sintoma:'boas ideias que morrem na gaveta e prazos que estouram'},
+  {k:'padroes',   nome:'Padrões',   sub:'A Bússola do Comportamento', g:'✦', hue:'#a66be8', sintoma:'o mesmo problema que volta com outra roupa, ciclo após ciclo'},
+  {k:'mente',     nome:'Mente',     sub:'Mentalidade & Crenças',      g:'❖', hue:'#4e8fe6', sintoma:'decisões travadas e preços cobrados abaixo do valor que você entrega'},
+  {k:'forcas',    nome:'Forças',    sub:'Autoconhecimento & Talento', g:'◆', hue:'#2fb889', sintoma:'competir por preço em vez de diferencial, sem posicionamento claro'},
+  {k:'lideranca', nome:'Liderança', sub:'Gestão & Posicionamento',    g:'♛', hue:'#e85c74', sintoma:'tudo depender de você e o time não decidir nada sozinho'},
+  {k:'sabotagem', nome:'Sombra',    sub:'Medos & Autossabotagem',     g:'☾', hue:'#8c99b4', sintoma:'o negócio empacar justo quando está perto do próximo nível'},
+  {k:'identidade',nome:'Identidade',sub:'Autenticidade & Autoimagem', g:'✧', hue:'#e876b4', sintoma:'você se encolher, não se posicionar e deixar vendas e autoridade na mesa'},
+  {k:'resultados',nome:'Resultados',sub:'Mensuração & Gestão',        g:'▲', hue:'#bcc84e', sintoma:'decidir no achismo e descobrir os problemas tarde demais'},
 ];
 const BNMAP=Object.fromEntries(BNAIPES.map(n=>[n.k,n]));
 
@@ -7096,10 +7146,10 @@ const BCARDS=[
 ];
 
 const BEIXOS=[
-  {k:'estrategia',  nome:'Estratégia',   hue:'#c6a867', naipes:['direcao','plano','resultados']},
-  {k:'mentalidade', nome:'Mentalidade',  hue:'#c6a867', naipes:['mente','forcas','identidade']},
-  {k:'comportamento',nome:'Comportamento',hue:'#c6a867',naipes:['execucao','padroes','sabotagem']},
-  {k:'lideranca',   nome:'Liderança',    hue:'#c6a867', naipes:['lideranca']},
+  {k:'estrategia',  nome:'Estratégia',   hue:'#e9b84c', naipes:['direcao','plano','resultados']},
+  {k:'mentalidade', nome:'Mentalidade',  hue:'#4e8fe6', naipes:['mente','forcas','identidade']},
+  {k:'comportamento',nome:'Comportamento',hue:'#a66be8',naipes:['execucao','padroes','sabotagem']},
+  {k:'lideranca',   nome:'Liderança',    hue:'#e85c74', naipes:['lideranca']},
 ];
 const BDIAG=[
   {n:'direcao',   q:'Tenho clareza total do que busco — e do porquê.'},
