@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.16.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.17.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,49 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O topo virou insígnia (2407.17)
+A Carla: "melhore essa parte de cima, pois ficou algo sem graça, não ficou muito
+bonito, quero que fique bonito igual restante do app".
+
+**A causa real:** a barra do topo tinha ficado para trás em todas as reformas. O
+fundo ainda era `rgba(12,18,36,.96)`, **azul-marinho da paleta antiga**, enquanto o
+app inteiro virou carbono quente (`--ink:#0a0806`); o sino era o emoji 🔔 (o único
+emoji do chrome); e nível e XP eram duas pílulas retangulares que não diziam nada.
+
+**1. A barra.** Carbono com duas auroras de ouro (`::before`), blur com saturação e
+um **fio de ouro que atravessa a base** (`::after`) e **se acende ao rolar**
+(`topbarScroll()` liga a classe `.scrolled`, que também traz a sombra). Sem borda
+dura: o conteúdo dissolve por baixo.
+
+**2. A marca.** O isotipo passou a morar em um medalhão com moldura dupla (aro de
+ouro + fio interno) e sobe para 26px. "Operação Blindada" ganhou gradiente de
+pergaminho (`background-clip:text` com `-webkit-text-fill-color`, mantendo `color`
+como reserva) e a assinatura virou versalete com **losango de ouro** no lugar do "·".
+
+**3. O vazio do meio virou intenção.** `.top-fio`: um fio de ouro que cresce
+(`flex:1`) e liga a marca à patente, mais forte no centro e dissolvendo nas pontas.
+Some abaixo de 860px.
+
+**4. Nível e XP viraram patente.** As duas pílulas mortas viraram um **anel que mede
+o XP que falta para o próximo nível** (mesma linguagem do anel da jornada:
+conic-gradient com `--p`), com o número dentro em serifa, o nome da patente e
+`Nível N ◆ N XP` em versalete. Clicar abre `openPatente()`: anel grande, barra de
+progresso, "Faltam N XP para o Nível N+1" e a tabela **De onde vem o XP**
+(`XP_FONTES`), que antes não existia em lugar nenhum do app.
+
+**5. Sino e retrato.** O emoji virou SVG em traço (`TICO.sino`, junto com
+`TICO.chama` da sequência de dias), com marcador de ouro em vez do coral. O avatar
+ganhou aro de ouro cônico com miolo escuro e a inicial em serifa. As notificações
+também perderam o emoji: `.nt-row` com losango de ouro para o que ainda não foi
+lido e cinza para o resto.
+
+**6. Título das telas internas** com âncora de ouro (`.screentitle::before`).
+
+**Celular (até 620px):** some a assinatura, some o texto da patente (fica só o
+anel), some a sequência de dias (ela vive em Conquistas) e o título fica em uma
+linha só: 60px de altura, contra os 89px que a versão anterior produzia quebrando
+o texto em três linhas.
 
 ### Camada conectada construída de verdade (2407.16)
 A Carla: "quero que você já faça a criação de todos esses recursos dentro do
