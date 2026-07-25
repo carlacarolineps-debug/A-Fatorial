@@ -1143,7 +1143,7 @@ main.wrap{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px)) !important
 }
 
 /* avisos (toasts) não podem cobrir a barra de ações de um modal aberto */
-body:has(.modal-bg.show) .toast-zone{
+body.modal-on .toast-zone{
   bottom:auto !important;
   top:calc(env(safe-area-inset-top,0px) + 76px);
   z-index:210}
@@ -2040,6 +2040,11 @@ body.tour-on{overflow:hidden}
   border-radius:12px;background:rgba(198,168,103,.07)}
 .aula-jornada span{font-size:12px;letter-spacing:.04em;color:var(--mute)}
 
+/* fora da tela, a constelação para de animar (mesmo desenho, sem custo) */
+.constellation.cx-parada .cx-sky circle,
+.constellation.cx-parada .cx-halo,
+.constellation.cx-parada .cx-glint path{animation-play-state:paused}
+
 </style>
 </head>
 <body>
@@ -2085,7 +2090,7 @@ body.tour-on{overflow:hidden}
 <div id="printSheet"></div>
 
 <!-- ===== FASE 2 · Supabase: login + trava de acesso + sincronização ===== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 window.OB = (function () {
   "use strict";
@@ -4777,11 +4782,24 @@ function toast(em, title, sub){
 }
 
 /* ---------- modal ---------- */
-function modal(html){ $('#modalBox').innerHTML = `<button class="x" onclick="closeModal()">×</button>`+html; $('#modalBg').classList.add('show'); }
-function closeModal(){ $('#modalBg').classList.remove('show'); }
+function modal(html){ $('#modalBox').innerHTML = `<button class="x" onclick="closeModal()">×</button>`+html; $('#modalBg').classList.add('show'); document.body.classList.add('modal-on'); }
+function closeModal(){ $('#modalBg').classList.remove('show'); document.body.classList.remove('modal-on'); }
 $('#modalBg').addEventListener('click', e=>{ if(e.target.id==='modalBg') closeModal(); });
 
-function levelUpModal(lv){
+/* a tela está ocupada? (modal aberto, questionário ou tour rodando) */
+function telaOcupada(){
+  return !!(document.querySelector('#modalBg.show')
+    || document.getElementById('qzHost')
+    || document.getElementById('tourBg'));
+}
+function levelUpModal(lv, tentativa){
+  /* nunca roubar a tela de um resultado ou de um questionário em curso */
+  if(telaOcupada()){
+    const n=(tentativa||0)+1;
+    if(n<20) setTimeout(()=>levelUpModal(lv,n), 1500);
+    else toast('','Nível '+lv, LEVEL_NAMES[lv-1]||'');
+    return;
+  }
   modal(`<div class="center">
     <div class="levelup-em"></div>
     <p class="eyebrow" style="justify-content:center">Você subiu de nível</p>
@@ -4857,7 +4875,9 @@ function go(view){
   vEl.classList.remove('view-in'); void vEl.offsetWidth; vEl.classList.add('view-in');
   syncChrome(view);
   window.scrollTo({top:0,behavior:'smooth'});
-  S.visited[view]=true; touchStreak(); save();
+  /* só grava se algo mudou mesmo: trocar de tela não precisa escrever no disco */
+  if(!S.visited[view]){ S.visited[view]=true; save(); }
+  touchStreak();
   if(typeof afGuiaUpdate==='function') afGuiaUpdate();
   if(typeof gateCheckNovos==='function') gateCheckNovos();
   const trava = (typeof gateDe==='function') ? gateDe(view) : null;
@@ -5235,6 +5255,7 @@ function renderHome(){
 
   ${signature()}
   `;
+  if(typeof cxVigia==='function') setTimeout(cxVigia,0);
 }
 function greeting(){ const h=new Date().getHours(); return h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'; }
 function mantraOfDay(){ const d=new Date(); const seed=d.getFullYear()*1000+ (d.getMonth()*31+d.getDate()); return MANTRAS[seed % MANTRAS.length]; }
@@ -6733,7 +6754,7 @@ function showDiagnosticResult(){
       </div>
     </div>
 
-    ${radarSVG(porMod)}
+    ${radarSVG(porMod, RADAR_CURTO)}
 
     <div class="dgr-bars">${barras}</div>
 
@@ -6779,10 +6800,13 @@ function showEvolution(){
     <div class="callout"><span class="ic"></span><div><b>${delta>0?'Você evoluiu de forma mensurável.':'Você manteve sua base.'}</b> Esse é o tipo de prova que transforma percepção em resultado. Guarde este antes e depois: ele conta a sua história de desenvolvimento.</div></div>
     <button class="btn primary" onclick="closeModal()">Fechar</button>`);
 }
-function radarSVG(ans){
+/* nomes curtos para os eixos: o nome inteiro fica nas barras logo abaixo */
+const RADAR_CURTO={'Raio-X Empresarial':'Raio-X','Descompressão Operacional':'Descompressão',
+  'Liderança Sob Controle':'Liderança','Engenharia de Processos':'Processos','Blindagem Financeira':'Financeira'};
+function radarSVG(ans, curtos){
   if(!ans || typeof ans!=='object' || !Object.keys(ans).length)
     return '<p class="muted tiny" style="text-align:center;padding:18px 0">Sem diagnóstico ainda para desenhar o radar.</p>';
-  const dims=Object.keys(ans), N=dims.length, cx=200, cy=170, R=108;
+  const dims=Object.keys(ans), N=dims.length, cx=235, cy=168, R=106;
   const pt=(i,r)=>{ const a=(Math.PI*2*i/N)-Math.PI/2; return [cx+Math.cos(a)*r, cy+Math.sin(a)*r]; };
   let grid='';
   [0.25,0.5,0.75,1].forEach((f,k)=>{ const pts=dims.map((_,i)=>pt(i,R*f).join(',')).join(' ');
@@ -6793,16 +6817,17 @@ function radarSVG(ans){
     const a=(Math.PI*2*i/N)-Math.PI/2, cosA=Math.cos(a);
     const [lx,ly]=pt(i,R+20);
     const anchor = Math.abs(cosA)<0.3 ? 'middle' : (cosA>0 ? 'start' : 'end');
-    /* nome longo quebra em duas linhas, para nunca sair da moldura */
-    let l1=d, l2='';
-    if(d.length>14){ const meio=d.lastIndexOf(' ', Math.ceil(d.length/2)+3);
-      if(meio>0){ l1=d.slice(0,meio); l2=d.slice(meio+1); } }
+    /* nome curto quando existir, e quebra em duas linhas se ainda for longo */
+    const nome=(curtos&&curtos[d])||d;
+    let l1=nome, l2='';
+    if(nome.length>14){ const meio=nome.lastIndexOf(' ', Math.ceil(nome.length/2)+3);
+      if(meio>0){ l1=nome.slice(0,meio); l2=nome.slice(meio+1); } }
     const dy = l2 ? -5 : 0;
     labels+=`<text class="rd-lb" x="${lx}" y="${ly+dy}" text-anchor="${anchor}">${escapeHtml(l1)}`
       + (l2?`<tspan x="${lx}" dy="12">${escapeHtml(l2)}</tspan>`:'') + `</text>`;
   });
   const dataPts=dims.map((d,i)=>pt(i,R*Math.max(0.06,(ans[d]/5))).join(',')).join(' ');
-  return `<div class="center"><svg viewBox="0 0 400 340" style="max-width:420px;width:100%" role="img">
+  return `<div class="center"><svg viewBox="0 0 470 336" style="max-width:470px;width:100%" role="img">
     <defs>
       <radialGradient id="radFill" cx="50%" cy="42%" r="62%">
         <stop offset="0%" stop-color="rgba(233,212,160,.40)"/>
@@ -10275,7 +10300,7 @@ function afGuiaUpdate(){
   }
 }
 /* nomes de estágio: a jornada é um rito de passagem, não uma lista de tarefas */
-const AF_GRAU=['Iniciante','Observador','Consciente','Comprometido','Pactuado','Praticante','Provador','Blindado'];
+const AF_GRAU=['Iniciante','Observador','Consciente','Decidido','Assinado','Praticante','Provador','Blindado'];
 function renderJornada(){
   const v=document.getElementById('view-home'); if(!v||!S.name) return;
   if(v.querySelector('#afJornada')) return;
@@ -10506,7 +10531,7 @@ function cmMembrosHtml(){
   </div>
 
   <div class="cm-filtros">
-    <input class="in" id="cmBusca" placeholder="Buscar por cidade, área ou negócio…" oninput="cmCarregarMembros()">
+    <input class="in" id="cmBusca" placeholder="Buscar por cidade, área ou negócio…" oninput="cmBuscaEspera()">
   </div>
   <div id="cmMembros"><p class="muted tiny">Carregando membros…</p></div>`;
 }
@@ -10527,6 +10552,9 @@ function cmSalvarPerfil(silencioso){
   if(P.visivel && cmConectado() && OB.perfilPublicar) OB.perfilPublicar(P).catch(()=>{});
   if(!silencioso){ toast('','Cartão salvo', P.visivel?'Já está visível para os outros membros.':'Ative "Apareço no mapa" quando quiser ser encontrada.'); renderComunidade(); }
 }
+/* uma consulta por pausa de digitação, não uma por tecla */
+let cmBuscaT=null;
+function cmBuscaEspera(){ clearTimeout(cmBuscaT); cmBuscaT=setTimeout(()=>{ cmBuscaT=null; cmCarregarMembros(); }, 280); }
 function cmCarregarMembros(){
   const box=$('#cmMembros'); if(!box) return;
   const q=(($('#cmBusca')&&$('#cmBusca').value)||'').toLowerCase().trim();
@@ -11090,6 +11118,7 @@ async function boot(){
 
   const bm=$('#brandMark'); if(bm && window.OB && OB.shield) bm.innerHTML=OB.shield(26);
   topbarScroll();
+  cxVigia();
   renderTabs();
   if(!S.name){
     appnavShow(false);
@@ -11102,13 +11131,33 @@ async function boot(){
     go('home');
   }
 }
+/* A constelação só anima enquanto está na tela: fora dela, as 80 estrelas
+   parariam de custar nada. Nada muda no visual de quem está olhando. */
+let _cxObs=null;
+function cxVigia(){
+  if(!('IntersectionObserver' in window)) return;
+  if(_cxObs) _cxObs.disconnect();
+  _cxObs=new IntersectionObserver(es=>{
+    es.forEach(e=>e.target.classList.toggle('cx-parada', !e.isIntersecting));
+  },{rootMargin:'80px'});
+  const liga=()=>{ document.querySelectorAll('svg.constellation').forEach(el=>_cxObs.observe(el)); };
+  liga();
+  document.addEventListener('af:render', liga);
+}
+
 /* O topo ganha peso quando a página desce: fio de ouro mais forte e sombra. */
 function topbarScroll(){
   const t=$('#topbar'); if(!t) return;
   const marca=()=>t.classList.toggle('scrolled',(window.scrollY||document.documentElement.scrollTop||0)>6);
   window.addEventListener('scroll',marca,{passive:true}); marca();
 }
-window.addEventListener('resize', ()=>{ if(current==='lesson') renderLesson(); });
+let _rzW=window.innerWidth, _rzT=null;
+window.addEventListener('resize', ()=>{
+  if(window.innerWidth===_rzW) return;   // só a altura mudou: nada a refazer
+  _rzW=window.innerWidth;
+  clearTimeout(_rzT);
+  _rzT=setTimeout(()=>{ _rzT=null; if(current==='lesson') renderLesson(); }, 180);
+});
 OB.start().then(boot).then(function(){ if(window.obCheckUpdates) obCheckUpdates(); });
 </script>
 </body>

@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.18.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.19.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,59 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A jornada acontece em um lugar só (2407.19)
+A Carla: "não quero que a pessoa fique indo e voltando no comece aqui, ela tem que
+seguir uma sequência que tenha lógica"; "na hora que ela apertar fazer agora ela faz
+e já volta, quero que ele faça tudo no mesmo lugar"; "tudo tem que ficar bloqueado
+até terminar"; "o comece por aqui não está passando do número 5"; "deixe mais bonito
+esse print, que é a resposta do diagnóstico".
+
+**1. O bug do passo 5 era o modal de nível.** `addXp()` dispara `levelUpModal()`
+depois de 400ms, e ele chamava `modal()` por cima do que estivesse aberto: o
+resultado do diagnóstico, a carta, o termo. A tela trocava sozinha e o passo parecia
+não fechar. Agora `levelUpModal` checa `telaOcupada()` (modal, questionário ou tour)
+e espera a vez, virando aviso simples depois de 20 tentativas. O segundo motivo era
+`bSignPacto()`, que só chamava `renderBussola()`: a jornada na Home não era
+redesenhada e o passo continuava marcado como atual.
+
+**2. Sequência nova, com lógica.** Você por dentro, a prática, o compromisso, a
+empresa por fora, o conteúdo, a medição, a rotina:
+método → **Mapa Bússola** → **carta vira plano** → **Termo de Blindagem** →
+**autodiagnóstico do negócio** → **primeira aula** → **primeiro número no Placar** →
+**primeiro fechamento de ciclo**. O autodiagnóstico ficou colado na primeira aula, que
+é o momento em que ele faz sentido (era o pedido: "só aparece na hora de abrir a
+trilha"). Cada passo mostra tempo estimado e o porquê dele.
+
+**3. Tudo no mesmo lugar.** Nenhum passo navega para dentro do app: o Mapa e o
+diagnóstico abrem o questionário em tela cheia, a carta, o termo, o placar e o
+fechamento abrem modal. `afEmPasso` guarda o passo que a pessoa apertou e `afFeito()`
+(chamado nos pontos de conclusão) devolve para a jornada, rolando até o passo
+seguinte. Só a aula tem tela própria, e ali o topo vira "← Comece por aqui" com o
+número do passo; ao marcar o primeiro passo da aula, volta sozinho.
+
+**4. Nada abre antes do fim.** `afAreaAtual()` foi zerada: a exceção que abria a área
+do passo da vez não existe mais, porque nenhum passo precisa dela. As 10 áreas ficam
+trancadas até 8 de 8.
+
+**5. O resultado do diagnóstico virou leitura.** Nota geral em anel com faixa
+(Início, Estruturando, Consolidando, Blindado), radar com rótulos curtos na
+tipografia do app (era monoespaçado azul, cortado nas bordas: agora `RADAR_CURTO`
+encurta os nomes e a moldura ficou 470 de largura), as cinco notas em barras
+ordenadas da mais fraca para a mais forte, e dois blocos: "já está forte" e "comece
+por aqui", este apontando a trilha mais fraca do módulo. `AF_GRAU` perdeu o
+"Pactuado" (virou "Assinado").
+
+**6. Mais leve (auditoria de desempenho).** Rodei uma auditoria em seis frentes sobre
+os fontes e apliquei o que era seguro: `resize` só redesenha a aula quando a
+**largura** muda (no celular a barra do navegador dispara resize a cada rolagem e
+reconstruía a aula inteira); a constelação da Home para de animar quando sai da tela
+(IntersectionObserver liga `.cx-parada`, 80 animações infinitas a menos); `go()` só
+grava no disco quando a tela é nova (antes gravava o estado inteiro a cada
+navegação); o supabase-js do CDN virou `defer` (203 KB que travavam o parser antes de
+o app existir); `body:has(.modal-bg.show)` virou uma classe no body (o `:has` forçava
+recálculo de estilo do documento inteiro); e a busca de membros espera a pausa da
+digitação em vez de consultar a cada tecla.
 
 ### Vocabulário sem termo religioso (SEMPRE)
 A Carla: "substitua as palavras pacto, ritual, tudo que remeta palavra religiosa".
