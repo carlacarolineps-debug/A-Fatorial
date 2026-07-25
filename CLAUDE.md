@@ -16,7 +16,7 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.08.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.09.html` — **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -30,6 +30,25 @@ Exemplos: `O Método Bússola 2407.01`, `Operação Blindada 2407.01`.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html` — Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### A moldura da carta envolve tudo + rolagem invisível (a partir de 2407.09)
+A pedido da Carla ("ainda dá para melhorar o aspecto visual, e deixe o visual da carta
+ao redor dela"; "remova barra de rolagem ou integrada na carta"):
+- **O modal deixou de ser caixa — a carta é a caixa.** `.modal:has(.bo-card)` fica
+  transparente, sem borda, sem padding; quem emoldura todo o conteúdo é `.bo-card`
+  (moldura dupla via `::before`, fio de luz no topo via `::after`, brilho do naipe).
+- **Índices dos cantos e marca d'água presos à moldura** (`.bo-corner.tl`/`.br`,
+  `.bo-wm`) — não rolam com o texto. O × mora no canto superior direito, que num
+  baralho é justamente o canto livre.
+- **Rolagem por dentro da carta, sem barra visível**: `.bo-scroll` é o único
+  scroller (`scrollbar-width:none` + `::-webkit-scrollbar{display:none}`); a barra
+  também foi escondida em todos os modais. Duas faixas `.bo-fade` (topo e base)
+  fazem o texto **dissolver nas bordas** em vez de bater nos índices dos cantos —
+  daí o padding maior no `.bo-scroll` (54px topo / 48px base).
+- Refino editorial: rótulos das seções em versalete com fio (`.bo-sec h4::after`),
+  faixa de atributos entre fios (`.bo-stats`), influências ± viraram **duas colunas
+  com fio colorido** (saiu o bloco verde/vermelho que pesava), ferramenta como placa
+  inscrita, título em `clamp()` e assinatura da Carla na cor do naipe.
+
 ### Carta aberta = carta de verdade + plano de ação (a partir de 2407.08)
 A pedido da Carla ("mude o visual de como aparece a carta quando você dá um clique,
 mas não altere nada de como ficaram as cartas... use a mesma identidade que está fora
@@ -38,8 +57,9 @@ utilidade nenhuma nessa ferramenta, transforme a carta na maior sacada para apli
 prática, para o aluno sair dali com um plano de ação, que ele possa imprimir e baixar,
 rodar um PDCA, ou incluir no planner").
 
-**Visual — a carta aberta virou uma carta.** `.bo-face` no `premium.css` (seção "CARTA
-ABERTA"): moldura dupla (`::before`), **índices nos cantos** com naipe + número
+**Visual — a carta aberta virou uma carta.** (Nesta versão a moldura era o bloco
+`.bo-face` no topo; a partir de 2407.09 ela virou `.bo-card` e envolve tudo — ver acima.)
+Seção "CARTA ABERTA" do `premium.css`: moldura dupla (`::before`), **índices nos cantos** com naipe + número
 (`.bo-corner.tl` / `.br` rotacionado 180°, como baralho impresso), **marca d'água** do
 naipe (`.bo-wm`), fio de ouro ornamental (`.bo-rule`), pergunta-guia em serifa itálica
 (`.bo-q`), os 4 atributos como **pips** (`.bo-stats`/`.bo-pips`), dimensão no pé
