@@ -33,19 +33,82 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.17.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.18.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
   nativa (170 cartas, diagnóstico comportamental com radar, sorteio inteligente e
-  adaptativo, trilhas de padrão, relatório de ciclo, Pacto de Blindagem, intenções de
-  implementação, protocolo de recaída, ritual de ciclo). Tese: *blinde o negócio por
+  adaptativo, trilhas de padrão, relatório de ciclo, Termo de Blindagem, intenções de
+  implementação, protocolo de recaída, fechamento de ciclo). Tese: *blinde o negócio por
   fora e o gestor por dentro*. Identidade "Cofre e Estrategista" (carbono/ouro/aço).
   Compromissos das cartas caem no Plano 30d; XP alimenta a gamificação existente.
   Base preservada do arquivo enviado pela Carla (`PORTAL_2007.02`).
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Vocabulário sem termo religioso (SEMPRE)
+A Carla: "substitua as palavras pacto, ritual, tudo que remeta palavra religiosa".
+Trocas já feitas e que devem ser mantidas em qualquer texto novo:
+`Pacto de Blindagem` virou **Termo de Blindagem**; `Ritual de Ciclo` virou
+**Fechamento de Ciclo** (e "ritual" solto virou "rotina" ou "revisão");
+`Mantra do dia` virou **Lema do dia**; `O Bloco Sagrado` virou **O Bloco
+Intocável**; "espera salvação" virou "espera que alguém resolva"; "espírito de
+competição" virou "competição saudável". **Só o texto visível mudou**: as chaves
+de dados (`S.bussola.pacto`, `S.bussola.ritual`) e os nomes de função (`bPacto`,
+`bRitual`) continuam iguais, senão os dados de quem já usa o app se perdem.
+
+### Liberação só no fim, tour depois, questionário vivo (2407.18)
+A Carla: "as páginas só podem ser liberadas até terminar tudo e depois vai fazendo
+um passo a passo aprendendo a mexer no app"; "os diagnósticos [precisam ficar] de
+uma forma mais legal e dinâmica"; "revise o código para deixar o app mais leve";
+"o Diário precisa estar ali embaixo com um ícone de atalho"; "vai ser um
+aplicativo que abra no computador e celular".
+
+**1. Nada abre antes do fim.** `AREA_PASSO` (que liberava por etapas) saiu.
+`gateDe(view)` agora só devolve aberto se `afCompleta()` **ou** se a área é a do
+passo da vez (`afAreaAtual()`, novo campo `area` em `AF_JORNADA`: o passo 2 abre a
+Bússola, o 3 abre as Trilhas, e assim por diante). Sem isso a própria jornada não
+teria por onde acontecer. As 10 áreas ficam trancadas, **inclusive A Mentora**: a
+tela de cadeado dela carrega "Limpar meus dados" e "Sair da conta", para ninguém
+ficar preso. Os textos do `GATES` deixaram de ser barreira e viraram vitrine: cada
+cadeado conta o que existe do outro lado.
+
+**2. O tour (`tour.js`).** Quando o oitavo passo fecha, `gateCheckNovos()` grava
+`S.unlocks.jornada_ok`, refaz a barra e chama `tourOferecer()`. São 8 paradas com
+holofote em cima do elemento de verdade (`.tour-hole` com `box-shadow` de 9999px e
+aro de ouro) e balão que se posiciona sozinho acima ou abaixo. O convite espera a
+vez se houver modal ou questionário aberto. Refazer: link na tela Mais.
+
+**3. Questionário vivo (`quiz.js`).** O padrão `.qz-*` (lista longa) virou um motor
+de tela cheia com **uma pergunta por vez**: abertura com quantas frases e quantos
+minutos, capítulo por módulo (com a nota do módulo anterior), pergunta em serifa
+grande, escala de 5 linhas altas com rótulo em cada uma, avanço automático,
+teclado (1 a 5, setas, Esc), **rascunho salvo** (continua de onde parou) e tela de
+conferência antes de concluir. Usado pelos quatro: autodiagnóstico (19), Mapa
+Bússola (10, com o Norte virando a primeira tela), pesquisas e testes profundos.
+`qzAgrupar()` só cria capítulos quando o bloco tem pelo menos 2,5 frases em média
+(a pesquisa de clima tinha 14 categorias para 18 frases: viraria interrupção).
+As funções de submissão antigas continuam as mesmas, recebendo as respostas.
+
+**4. Diário na barra de baixo.** `PRIMARY` passou a ter 6 destinos
+(`home, bussola, trilhas, plano, diario, menu`) e o Diário saiu do `OVERFLOW`.
+A 430px os rótulos e ícones encolhem um pouco: 6 alvos de 64px, sem estouro.
+
+**5. Mais leve, sem mudar nada.** A primeira pintura caiu de **12.880ms para
+340ms** no teste: as fontes do Google saíram do `@import` (que bloqueia a
+renderização e, sem internet, trava a tela até o tempo esgotar) e viraram `<link>`
+assíncrono com `preconnect`, mantendo exatamente as mesmas famílias. O histórico
+(`S.log`) ganhou teto de 400 registros dentro do `save()`: a linha do tempo sempre
+mostrou só 8, e o estado crescia para sempre em cada gravação. `saveSoon()`
+(espera 700ms) segura a escrita durante cliques em sequência. Testado também com
+`content-visibility` nas 170 cartas: **descartado**, porque mudava a altura da
+rolagem (26.658px para 40.861px) e não acelerava nada.
+
+**6. Isotipo.** Redesenhado em vetor a partir da imagem que a Carla enviou: escudo
+de topo em bico, aro dourado com bisel, campo escuro, **duas faixas de patente de
+cada lado** e cadeado central com rebites e fechadura. Se ela mandar o PNG
+original (subindo no repositório ou por link direto), dá para trocar por ele.
 
 ### O topo virou insígnia (2407.17)
 A Carla: "melhore essa parte de cima, pois ficou algo sem graça, não ficou muito
