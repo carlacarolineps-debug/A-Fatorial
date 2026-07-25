@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.12.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.13.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,29 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Isotipo próprio + jornada primeiro de tudo (2407.13)
+A Carla: "a pessoa primeiro tem que fazer toda essa parte do comece por aqui e
+depois ela vai ter acesso ao restante, apos isso o app libera para uso, e essa
+parte precisa estar primeiro de tudo"; e mandou o isotipo (escudo dourado com
+cadeado) para substituir o escudo anterior.
+
+**1. Isotipo.** `shieldSvg(px)` (no IIFE `OB`) foi reescrito como o isotipo dela:
+escudo com rima dourada (gradientes `obG/obGl/obGd`), interior escuro, duas faixas
+por lado e um cadeado central com fechadura, tudo em vetor (nítido em qualquer
+tamanho, offline). A marca do topo (`#brandMark`) é preenchida no boot com
+`OB.shield(24)`; o onboarding usa um tile escuro com o isotipo (igual ao ícone de
+app que ela enviou); o card de Padrão de Gestão e as telas de aula seguem usando
+`OB.shield`.
+
+**2. Jornada primeiro.** `renderJornada` agora insere o "Comece por aqui" como
+**primeiro filho** de `#view-home` (antes do herói) enquanto não estiver completa,
+com o selo "O app abre por etapas conforme você avança" e a fala "Antes de tudo,
+faça esta sequência". Quando os 8 passos terminam, o card vira o estado
+**"Operação liberada · Jornada concluída"** (verde) e desce para depois do herói.
+A liberação real continua nos `GATES` (2407.12): cada passo abre a próxima área, e
+a sequência dos passos é auto-consistente (todo passo que navega para uma área já
+foi destravado por um passo anterior).
 
 ### Home com vida, liberação por etapas e ferramentas (2407.12)
 A Carla: "arrume essa parte que ficou totalmente sem graça, sem vida, preciso que
