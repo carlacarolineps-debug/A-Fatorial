@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.10.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.11.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,26 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Painel de Indicadores: de planilha a painel de decisão (2407.11)
+A Carla: "gostei da ideia mas não gostei de como ficou, não parece útil". Era uma
+tabela de 8 colunas (820px mínimo), inútil no celular e sem dizer nada.
+- **Cartões, não linhas** (`.kpi-card`): número grande, meta, % de atingimento,
+  barra, **veredito em português** (`gVeredito`: "Faltam 27.000 para a meta") e
+  tendência contra o anterior (`gTend`, já respeitando "menor é melhor").
+- **Bloco de decisão no topo** (`.kpi-foco`): o pior indicador em vermelho, com
+  botão que cria a ação no Plano 30d (`gKpiAcao`). Resumo por farol (`.kpi-sums`)
+  e alerta quando passa de 8 indicadores (o método manda de 4 a 6 por área).
+- **Duas zonas**: quem tem número vira cartão; quem não tem cai numa lista
+  enxuta ("Ainda sem meta", `.kpi-pend`), para o sinal dominar a tela.
+- **Estado inicial ensina**: escolher uma área pronta, não encarar linhas vazias.
+- **Editor em modal** (`gKpiEdit`): o checkbox críptico "↓ melhor" virou a
+  pergunta "qual direção é boa?" com exemplos. Era a origem do bug abaixo.
+- **Travas de sanidade no `gFarol`**: acima de 300% o farol vira "checar" em vez
+  de mentir. O print da Carla mostrava R$ 3.000 de R$ 30.000 como **1000% verde**
+  (a direção estava invertida e a conta virava meta ÷ realizado); agora dá 10%
+  vermelho, ou "checar" se a direção estiver trocada.
+- `gNum` formata em pt-BR. RSG, PTM e a impressão A4 seguem lendo `g.kpis`.
 
 ### Limpeza geral dos travessões (2407.10)
 Todos os travessões saíram do sistema (produto principal, `index.html`,
