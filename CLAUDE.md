@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.21.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2607.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -71,16 +71,18 @@ O topo mostra o anel de **semana N de 52** e o tema do mês. Local primeiro:
 tudo funciona offline e sincroniza com Supabase (tabela `videos` nova em
 `supabase/comunidade.sql`, encontros reaproveitam `eventos`).
 
-**2. Doze trilhas novas, escritas para o ano.** Oito aprofundam os módulos mais
+**2. Dezoito trilhas novas, escritas para o ano.** Oito aprofundam os módulos mais
 rasos: Processos que rodam sem você, A rotina de gestão da semana, Padronização e
 qualidade (Engenharia); Delegar sem perder o controle, Os primeiros 90 dias
 (Descompressão); Preço, margem e o que sobra, Caixa: o oxigênio da operação
 (Finanças); Conversas difíceis (Liderança). E o **sexto módulo, "Blindagem do
-Gestor"**, nasceu das 170 cartas: uma trilha por naipe (Direção, Plano, Resultados,
-Mente, Forças, Identidade, Padrões, e as demais em escrita), cada uma
-citando as cartas pelo nome e transformando o padrão em protocolo de uma semana.
-Cada trilha tem 5 aulas, 4 perguntas de quiz e desafio prático, com 2.200 a 2.800
-palavras de conteúdo real.
+Gestor"**, nasceu das 170 cartas: **as dez trilhas dos dez naipes** (Direção,
+Plano, Resultados, Mente, Forças, Identidade, Execução, Padrões, Sabotagem e
+Liderança), cada uma citando as cartas pelo nome e transformando o padrão em
+protocolo de uma semana. Cada trilha tem 5 aulas, 4 perguntas de quiz e desafio
+prático, com 2.200 a 2.800 palavras de conteúdo real. O app foi de 19 para
+**37 trilhas e 147 aulas**. As dez do baralho não são escada: `isUnlocked`
+libera todas, porque a pessoa começa pelo naipe que o Mapa Bússola apontou.
 
 **3. Becos sem saída fechados (varredura em seis frentes).**
 - **Bug real:** quem respondia o quiz antes de marcar as aulas nunca fechava a
