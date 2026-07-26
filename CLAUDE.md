@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.20.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.21.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,54 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O ano inteiro dentro do app, e o dobro de trilhas (2407.21)
+A Carla mandou o print da página de vendas ("Um ano inteiro de ritmo, método e
+companhia") e pediu: "inclua o conteúdo e já crie tudo dentro do sistema do que
+está no print"; "os áudios 1 por dia, os vídeos 2 por semana e um espaço para link
+dos encontros como calendário vinculado a notificação e agenda"; e depois: "crie
+baseado nas cartas os conteúdos para mais trilhas do ano inteiro e aprofunde".
+
+**1. Nova área "O Ano" (`ano.js`).** É o print virado produto, com quatro abas:
+- **O ritmo**: os seis cartões da cadência (áudio todo dia, duas aulas por semana,
+  encontro ao vivo toda semana, encontro híbrido todo mês, comunidade todo dia,
+  onboarding com o time), o próximo encontro em destaque e o bloco dos 12 meses com
+  renovação antecipada.
+- **Encontros**: a mentora publica com data, hora, link e local. O membro entra pelo
+  link, confirma presença (+10 XP) e clica em **Adicionar à agenda**, que cria a
+  entrada na Agenda do app e baixa um `.ics` com alarme de 1 hora antes para o
+  calendário do celular. `anAvisos()` roda no boot e avisa quando falta menos de 24h.
+- **Aulas da semana**: as duas aulas gravadas por semana, com contador "N de 2
+  publicadas", marcação de assistida (+15 XP) e histórico das semanas anteriores.
+- **O ano inteiro**: os 12 meses com tema, descrição e o módulo ligado, marcando
+  "você está aqui".
+O topo mostra o anel de **semana N de 52** e o tema do mês. Local primeiro:
+tudo funciona offline e sincroniza com Supabase (tabela `videos` nova em
+`supabase/comunidade.sql`, encontros reaproveitam `eventos`).
+
+**2. Doze trilhas novas, escritas para o ano.** Oito aprofundam os módulos mais
+rasos: Processos que rodam sem você, A rotina de gestão da semana, Padronização e
+qualidade (Engenharia); Delegar sem perder o controle, Os primeiros 90 dias
+(Descompressão); Preço, margem e o que sobra, Caixa: o oxigênio da operação
+(Finanças); Conversas difíceis (Liderança). E o **sexto módulo, "Blindagem do
+Gestor"**, nasceu das 170 cartas: uma trilha por naipe (Direção, Plano, Resultados,
+Mente, Forças, Identidade, Padrões, e as demais em escrita), cada uma
+citando as cartas pelo nome e transformando o padrão em protocolo de uma semana.
+Cada trilha tem 5 aulas, 4 perguntas de quiz e desafio prático, com 2.200 a 2.800
+palavras de conteúdo real.
+
+**3. Becos sem saída fechados (varredura em seis frentes).**
+- **Bug real:** quem respondia o quiz antes de marcar as aulas nunca fechava a
+  trilha. Agora `completeStep` também chama `maybeCompleteModule`, e o quiz enviado
+  com aulas faltando abre a lista do que falta, com botão por aula.
+- **Trilha concluída** deixou de ser um modal que some: `renderTrilhaFechada` põe um
+  painel permanente no lugar do quiz respondido, com os próximos passos numerados.
+- **Fim de módulo** passou a existir: `moduloFechado` dá selo, +150 XP, o resumo do
+  que a pessoa produziu (ferramentas, testes, ações) e anuncia o módulo que abre.
+- **Teste profundo** termina com ação: "seu ponto mais fraco é X", com botão que
+  vira compromisso no Plano 30d (prazo de 14 dias) e outro que abre a ferramenta.
+- **Os 7 dias** do plano da carta eram sete quadradinhos sem clique: agora marcam,
+  gravam em `S.bussola.dias`, dão XP e comemoram a sequência.
 
 ### O sistema virou mentor (2407.20)
 A Carla: "não estou entendendo o que é para fazer depois de concluir a primeira

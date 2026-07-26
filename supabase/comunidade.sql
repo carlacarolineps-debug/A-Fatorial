@@ -157,3 +157,24 @@ create policy midia_apaga on storage.objects
 
 -- Pronto. O app detecta as tabelas sozinho: se algo faltar, ele cai no
 -- modo local sem quebrar.
+
+-- ---------------------------------------------------------------------
+-- 7) AULAS DA SEMANA (2 vídeos por semana; só a mentora publica)
+-- ---------------------------------------------------------------------
+create table if not exists public.videos (
+  id         uuid primary key default gen_random_uuid(),
+  titulo     text not null,
+  url        text not null,
+  descricao  text,
+  created_at timestamptz not null default now()
+);
+create index if not exists videos_data_idx on public.videos (created_at desc);
+
+alter table public.videos enable row level security;
+
+drop policy if exists videos_leitura on public.videos;
+create policy videos_leitura on public.videos for select to authenticated using (true);
+
+drop policy if exists videos_mentora on public.videos;
+create policy videos_mentora on public.videos
+  for all to authenticated using (public.eh_mentora()) with check (public.eh_mentora());
