@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2407.19.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2407.20.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,57 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O sistema virou mentor (2407.20)
+A Carla: "não estou entendendo o que é para fazer depois de concluir a primeira
+trilha, está tudo meio que solto, não quero a impressão de 'e agora o que faço?'.
+O sistema precisa pensar pela pessoa, nunca deixar a pessoa perdida, precisa agir
+como mentor"; "quero o áudio diário na área de diário e na tela de início"; "pense
+em como distribuir para não deixar as seções escondidas e perdidas".
+
+**1. Motor de próximo passo (`mentor.js`).** 16 regras leem o estado real e
+devolvem sempre uma próxima ação, com prioridade: compromisso atrasado (100),
+retomada depois de sumir (96), vence hoje (92), encontro chegando (88),
+autodiagnóstico (86), Mapa Bússola (84), carta do dia (80), aula pela metade (72),
+ferramenta do módulo concluído (70), teste profundo (64), próxima trilha (62),
+placar parado (58), fechamento de ciclo (56), rediagnóstico (50), diário (46),
+pesquisa (40), padrão de gestão (38), comunidade (34) e uma rede de segurança que
+sempre dispara (1). Cada regra tem título, **o porquê em voz de mentoria**, tempo
+estimado e a chamada exata que abre o lugar.
+
+**2. Onde isso aparece.** A Home abre com o bloco do mentor: a ação de agora, o
+"depois disso" com as três seguintes e a **rotina do dia** (carta, uma aula, uma
+linha no Diário) com marcação de 0 a 3. Em qualquer outra tela, a faixa do topo
+(que na jornada era "próximo passo N/8") vira a voz do mentor. `addXp()` atualiza a
+faixa a cada conquista, então ela nunca fica velha. Na Home a faixa some, porque
+ali o bloco já é o mentor.
+
+**3. A ponte de fim de trilha (`mtTrilhaConcluida`).** Era o beco exato que ela
+descreveu. Agora, ao concluir uma trilha, abre uma tela numerada: transforme em
+documento (a ferramenta daquele módulo), comprometa-se com uma prática (vai para o
+Plano 30d), meça a maturidade (teste profundo) e siga para a próxima trilha, mais
+"voltar para o meu próximo passo".
+
+**4. Bug real encontrado na varredura:** quem fazia o quiz **antes** de marcar todas
+as aulas nunca fechava a trilha, porque `maybeCompleteModule()` só era chamado ao
+enviar o quiz. Agora também é chamado no fim de `completeStep()`.
+
+**5. O que venceu aparece no Plano.** Bloco no topo da aba Ações: "Venceu e não foi
+feito", com **Fiz** e **Nova data** (`planAdiar`, +7 dias) por item, e um aviso
+discreto quando algo vence hoje.
+
+**6. Mapa da operação.** Grade com as 10 áreas na Home (ícone, nome, uma linha e o
+estado ao vivo: "3 de 19 concluídas", "9 de 9 preenchidas", "1 registro"). Nada de
+seção escondida: se a pessoa não vê, ela não entra.
+
+**7. Áudio do dia no Início e no Diário.** `loadObAudioHome(alvo)` agora aceita o
+destino e o Diário abre com ele no topo. Sem áudio publicado (ou offline), aparece
+o cartão explicando onde ele vai tocar, para o lugar nunca ficar vazio sem
+explicação.
+
+**8. A Home foi reordenada:** herói curto (sem botão repetido), mentor, áudio do
+dia, mapa da operação, e só então lema, Padrão de Gestão, progresso e histórico. A
+jornada concluída virou uma faixa fina com os 8 passos guardados em "ver".
 
 ### A jornada acontece em um lugar só (2407.19)
 A Carla: "não quero que a pessoa fique indo e voltando no comece aqui, ela tem que
