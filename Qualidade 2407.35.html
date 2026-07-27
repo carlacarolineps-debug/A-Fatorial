@@ -962,6 +962,21 @@
         <button class="sys-nav-btn" onclick="nav('prod-reports')" id="nav-prod-reports"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Divergências Reportadas</button>
       </div>
 
+      <!-- MENU DO DEPARTAMENTO COMPRAS -->
+      <div id="navd-compras" class="navd" style="display:none;">
+        <div class="nav-section">Compras — Suprimentos</div>
+        <button class="sys-nav-btn" onclick="nav('compras-reqs')" id="nav-compras-reqs"><span class="nav-icon"><i class="fas fa-cart-shopping"></i></span> Requisições de Compra</button>
+        <div class="nav-section">Cadastros</div>
+        <button class="sys-nav-btn" onclick="nav('cad-fornecedores')"><span class="nav-icon"><i class="fas fa-handshake"></i></span> Fornecedores</button>
+      </div>
+
+      <!-- MENU DO DEPARTAMENTO LOGÍSTICA -->
+      <div id="navd-logistica" class="navd" style="display:none;">
+        <div class="nav-section">Logística</div>
+        <button class="sys-nav-btn" onclick="nav('log-recebimento')" id="nav-log-recebimento"><span class="nav-icon"><i class="fas fa-dolly"></i></span> Recebimento de Materiais</button>
+        <button class="sys-nav-btn" onclick="nav('log-separacao')" id="nav-log-separacao"><span class="nav-icon"><i class="fas fa-truck-ramp-box"></i></span> Separação & Expedição</button>
+      </div>
+
       <!-- MENU DO DEPARTAMENTO QUALIDADE -->
       <div id="navd-qualidade" class="navd">
         <div class="nav-section">Operação</div>
@@ -1137,6 +1152,7 @@
             <div id="insp-ficha-ctx" style="display:none; margin-top:10px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:12px; color:#475569;"></div>
         </div>
 
+        <div id="insp-recebimentos"></div>
         <div id="insp-banner-wrap"></div>
 
         <div class="card-base">
@@ -2710,6 +2726,47 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
          DEPARTAMENTO COMERCIAL — Pedidos & Propostas (alimenta a Qualidade, POP 6.1)
          ========================================================================== -->
     <!-- ==========================================================================
+         DEPARTAMENTO COMPRAS — requisições vindas do PCP
+         ========================================================================== -->
+    <div id="view-compras-reqs" class="sys-view">
+        <div class="cmd-strip" id="compras-strip" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-cart-shopping" style="color:#7c3aed;"></i> Requisições de Compra <span style="font-size:11px; color:#64748b; font-weight:normal;">— materiais solicitados pelo PCP</span></div>
+            <div class="cmd-panel-sub">Compras cota e efetua a compra. Ao marcar como <b>Comprado</b>, o material entra na fila de <b>Recebimento</b> da Logística.</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Data</th><th>Ficha</th><th>Material</th><th>Qtd</th><th>Fornecedor</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-compras-reqs"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         DEPARTAMENTO LOGÍSTICA — Recebimento (dá entrada → inspeção Qualidade) e Expedição
+         ========================================================================== -->
+    <div id="view-log-recebimento" class="sys-view">
+        <div class="cmd-strip" id="log-strip" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-dolly" style="color:#f59e0b;"></i> Recebimento de Materiais</div>
+            <div class="cmd-panel-sub">Materiais comprados que chegam à fábrica. A Logística <b>dá entrada</b> no material recebido — isso dispara a <b>inspeção de recebimento da Qualidade</b> (etapa Recebimento MP).</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Data compra</th><th>Ficha</th><th>Material</th><th>Qtd</th><th>Fornecedor</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-log-recebimento"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <div id="view-log-separacao" class="sys-view">
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-truck-ramp-box" style="color:#f59e0b;"></i> Separação & Expedição</div>
+            <div class="cmd-panel-sub">Materiais e produtos a separar e expedir, conforme a fila de produção e os materiais do produto.</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Ficha</th><th>Produto</th><th>Cliente</th><th>Máquina</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-log-separacao"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
          DEPARTAMENTO PCP — Fila de Produção, Fichas da Qualidade, Materiais → Compras
          ========================================================================== -->
     <div id="view-pcp-fila" class="sys-view">
@@ -3675,8 +3732,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { id: 'rh',          nome: 'RH',             setor: 'Pessoas & Acessos',      icone: '<i class="fas fa-users"></i>', cor: '#0d9488', ativo: true },
         { id: 'pcp',         nome: 'PCP',            setor: 'Planejamento & Fila',    icone: '<i class="fas fa-calendar-days"></i>', cor: '#2563eb', ativo: true },
         { id: 'producao',    nome: 'Produção',       setor: 'Chão de Fábrica',        icone: '<i class="fas fa-industry"></i>', cor: '#0f766e', ativo: true },
-        { id: 'compras',     nome: 'Compras',        setor: 'Suprimentos',            icone: '<i class="fas fa-cart-shopping"></i>', cor: '#7c3aed', ativo: false },
-        { id: 'logistica',   nome: 'Logística',      setor: 'Recebimento & Expedição', icone: '<i class="fas fa-truck"></i>', cor: '#f59e0b', ativo: false },
+        { id: 'compras',     nome: 'Compras',        setor: 'Suprimentos',            icone: '<i class="fas fa-cart-shopping"></i>', cor: '#7c3aed', ativo: true },
+        { id: 'logistica',   nome: 'Logística',      setor: 'Recebimento & Expedição', icone: '<i class="fas fa-truck"></i>', cor: '#f59e0b', ativo: true },
         { id: 'grupo',       nome: 'Grupo · Consolidado', setor: 'Todos os setores juntos', icone: '<i class="fas fa-layer-group"></i>', cor: '#c5a880', ativo: false }
     ];
 
@@ -3764,6 +3821,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if (id === 'rh') { nav('rh-colaboradores'); }
         else if (id === 'pcp') { nav('pcp-fila'); }
         else if (id === 'producao') { nav('prod-fila'); }
+        else if (id === 'compras') { nav('compras-reqs'); }
+        else if (id === 'logistica') { nav('log-recebimento'); }
         else { renderDashboard(); nav('comando'); }   // Qualidade aterrissa na Central de Comando
     }
 
@@ -3919,6 +3978,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tela === 'prod-fila') headerTitle = 'Produção — Fila a Produzir';
         else if(tela === 'prod-fichas') headerTitle = 'Produção — Verificação de Parâmetros';
         else if(tela === 'prod-reports') headerTitle = 'Produção — Divergências Reportadas';
+        else if(tela === 'compras-reqs') headerTitle = 'Compras — Requisições';
+        else if(tela === 'log-recebimento') headerTitle = 'Logística — Recebimento de Materiais';
+        else if(tela === 'log-separacao') headerTitle = 'Logística — Separação & Expedição';
         else if(tela === 'dash') headerTitle = 'Dashboard Geral';
         else if(tela === 'calendario') headerTitle = 'Produção — Fila e Calendário';
         else if(tela === 'form-ficha-unica') headerTitle = 'Ficha Única de Parâmetros — Todas as Etapas';
@@ -3964,6 +4026,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'prod-fila') renderProdFila();
         if(tela === 'prod-fichas') renderProdFichas();
         if(tela === 'prod-reports') renderProdReports();
+        if(tela === 'compras-reqs') renderCompras();
+        if(tela === 'log-recebimento') renderLogRecebimento();
+        if(tela === 'log-separacao') renderLogSeparacao();
         if(tela === 'dash') renderDashboard();
         if(tela === 'retrabalho') renderRetrabalhoView();
         if(tela === 'indicadores') renderIndicadores();
@@ -4334,9 +4399,35 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     // Mapeia a etapa de inspeção ↔ chave da Ficha Única (parâmetros + regra de sufixo)
     const ETAPA_FU_KEY = { 'Recebimento MP': 'recebimento', 'Impressão': 'impressao', 'Laminação': 'laminacao', 'Rebobinadeira': 'rebobinadeira', 'Corte e Solda': 'corte' };
 
+    function renderRecebimentosInsp() {
+        const wrap = document.getElementById('insp-recebimentos'); if (!wrap) return;
+        const pend = recebimentosPendentes();
+        if (!pend.length) { wrap.innerHTML = ''; return; }
+        wrap.innerHTML = `<div class="card-base" style="margin-bottom:16px; border-color:#fde047;">
+            <div class="cmd-panel-t" style="color:#8a6d1a;"><i class="fas fa-dolly" style="color:var(--gold-deep);"></i> Recebimentos aguardando inspeção <span class="gold-chip">${pend.length}</span></div>
+            <div class="cmd-panel-sub">Materiais que a Logística deu entrada. Inspecione o recebimento (etapa Recebimento MP) antes de liberar para produção.</div>
+            <div style="overflow-x:auto;"><table class="main-table"><thead><tr><th>Data</th><th>Material</th><th>Qtd</th><th>Fornecedor</th><th>Ficha</th><th style="text-align:center;">Ação</th></tr></thead><tbody>
+            ${pend.map(r => `<tr><td>${fmtData(r.data)}</td><td>${r.material}</td><td>${r.qtd||'-'}</td><td>${r.fornecedor||'-'}</td><td>${r.ficha||'-'}</td>
+                <td style="text-align:center;"><button class="dec-btn primary" style="padding:5px 10px;" onclick="inspRecebimento(${r.id})"><i class="fas fa-clipboard-check"></i> Inspecionar</button></td></tr>`).join('')}
+            </tbody></table></div></div>`;
+        renderIcons(wrap);
+    }
+    function inspRecebimento(id) {
+        const r = RB.recebimentos.find(x => x.id === id); if (!r) return;
+        document.getElementById('insp-etapa').value = 'Recebimento MP';
+        document.getElementById('insp-tipo').value = 'processo';
+        document.getElementById('insp-ficha').value = r.ficha || r.material;
+        r.status = 'Em inspeção'; rbSave();
+        renderInspecaoItens();
+        renderRecebimentosInsp();
+        toast('Recebimento em inspeção — avalie os itens e registre.');
+        document.getElementById('insp-itens').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     function renderInspecaoView() {
         const sel = document.getElementById('insp-etapa');
         sel.innerHTML = ETAPAS_QUALIDADE.map(e => `<option>${e}</option>`).join('');
+        renderRecebimentosInsp();
         // Fila de produção (fichas em aberto, inclusive as vindas do Comercial/PCP)
         const dl = document.getElementById('dl_fila');
         if (dl) dl.innerHTML = dbFichas.filter(f => f.status !== 'Concluído')
@@ -4961,7 +5052,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function mostrarNavDepto(dep) {
         document.querySelectorAll('.navd').forEach(el => el.style.display = 'none');
         const nd = document.getElementById('navd-' + dep); if (nd) nd.style.display = 'block';
-        const lg = document.getElementById('logo-depto'); if (lg) lg.innerText = { qualidade: 'QUALIDADE', comercial: 'COMERCIAL', rh: 'RECURSOS HUMANOS', pcp: 'PCP', producao: 'PRODUÇÃO' }[dep] || 'REBRACIL';
+        const lg = document.getElementById('logo-depto'); if (lg) lg.innerText = { qualidade: 'QUALIDADE', comercial: 'COMERCIAL', rh: 'RECURSOS HUMANOS', pcp: 'PCP', producao: 'PRODUÇÃO', compras: 'COMPRAS', logistica: 'LOGÍSTICA' }[dep] || 'REBRACIL';
         const nf = document.getElementById('hdr-nova-ficha'); if (nf) nf.style.display = dep === 'qualidade' ? '' : 'none';
     }
 
@@ -5172,6 +5263,73 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const tb = document.getElementById('tb-prod-reports'); if (!tb) return;
         tb.innerHTML = arr.length ? arr.map(r => `<tr><td>${fmtData(r.data)}</td><td style="font-weight:bold; color:#0f766e;">${r.ficha}</td><td style="font-size:12px;">${r.texto}</td><td>${r.usuario}</td><td><span class="badge-status ${r.status==='Resolvida'?'st-conc':'st-err'}">${r.status}</span></td></tr>`).join('') : vazioTb(5, 'Nenhuma divergência reportada.');
     }
+
+    // ==========================================================================
+    // DEPARTAMENTO COMPRAS — cota e compra as requisições do PCP
+    // ==========================================================================
+    function renderCompras() {
+        const arr = RB.comprasReqs;
+        const strip = document.getElementById('compras-strip');
+        if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#7c3aed"><div class="l">Requisições</div><div class="v">${arr.length}</div></div><div class="cmd-mini" style="--c:#f59e0b"><div class="l">A comprar</div><div class="v">${arr.filter(r => r.status === 'Solicitado' || r.status === 'Em cotação').length}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Compradas</div><div class="v">${arr.filter(r => r.status === 'Comprado').length}</div></div>`;
+        const tb = document.getElementById('tb-compras-reqs'); if (!tb) return;
+        const stcls = s => s === 'Comprado' ? 'st-conc' : s === 'Em cotação' ? 'st-and' : 'st-pend';
+        tb.innerHTML = arr.length ? arr.map(r => `<tr>
+            <td>${fmtData(r.data)}</td><td style="font-weight:bold; color:#7c3aed;">${r.ficha || '-'}</td><td>${r.material}</td><td>${r.qtd || '-'}</td>
+            <td><input class="inp" style="min-width:120px;" value="${(r.fornecedor||'').replace(/"/g,'&quot;')}" list="dl_fornecedores" placeholder="Fornecedor" onchange="comprasSet(${r.id},'fornecedor',this.value)"><datalist id="dl_fornecedores"></datalist></td>
+            <td><span class="badge-status ${stcls(r.status)}">${r.status}</span></td>
+            <td style="text-align:center; white-space:nowrap;">
+                ${r.status !== 'Comprado' ? `<button class="btn-ic" title="Em cotação" onclick="comprasSet(${r.id},'status','Em cotação')"><i class="fas fa-magnifying-glass-dollar"></i></button>
+                <button class="dec-btn primary" style="padding:5px 10px;" onclick="comprasComprar(${r.id})"><i class="fas fa-check"></i> Comprado</button>` : '<span style="font-size:10px; color:#0f766e; font-weight:700;">→ Recebimento</span>'}
+            </td></tr>`).join('') : vazioTb(7, 'Nenhuma requisição do PCP.');
+        renderIcons(tb);
+        const dlf = document.getElementById('dl_fornecedores');
+        if (dlf) dlf.innerHTML = RB.fornecedores.slice(0, 400).map(f => `<option value="${(f.razao||'').replace(/"/g,'&quot;')}"></option>`).join('');
+    }
+    function comprasSet(id, campo, v) { const r = RB.comprasReqs.find(x => x.id === id); if (r) { r[campo] = v; rbSave(); renderCompras(); } }
+    function comprasComprar(id) {
+        const r = RB.comprasReqs.find(x => x.id === id); if (!r) return;
+        r.status = 'Comprado'; r.dataCompra = new Date().toISOString();
+        registrarAtividade(`Compras efetuou a compra de "${r.material}"${r.fornecedor ? ' (' + r.fornecedor + ')' : ''}`);
+        rbSave(); renderCompras();
+        toast('Compra registrada — material vai para o Recebimento da Logística.');
+    }
+
+    // ==========================================================================
+    // DEPARTAMENTO LOGÍSTICA — recebimento (dá entrada → inspeção Qualidade) e expedição
+    // ==========================================================================
+    function renderLogRecebimento() {
+        const strip = document.getElementById('log-strip');
+        const aguardando = RB.comprasReqs.filter(r => r.status === 'Comprado');
+        if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#f59e0b"><div class="l">A receber</div><div class="v">${aguardando.length}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Recebidos</div><div class="v">${RB.recebimentos.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Aguard. inspeção</div><div class="v">${RB.recebimentos.filter(x => x.status === 'Aguardando inspeção').length}</div></div>`;
+        const tb = document.getElementById('tb-log-recebimento'); if (!tb) return;
+        tb.innerHTML = aguardando.length ? aguardando.map(r => `<tr>
+            <td>${fmtData(r.dataCompra || r.data)}</td><td style="font-weight:bold; color:#f59e0b;">${r.ficha || '-'}</td><td>${r.material}</td><td>${r.qtd || '-'}</td><td>${r.fornecedor || '-'}</td>
+            <td><span class="badge-status st-conc">Comprado</span></td>
+            <td style="text-align:center;"><button class="dec-btn primary" style="padding:5px 10px;" onclick="logDarEntrada(${r.id})"><i class="fas fa-dolly"></i> Dar entrada</button></td>
+        </tr>`).join('') : vazioTb(7, 'Nenhum material aguardando recebimento.');
+        renderIcons(tb);
+    }
+    function logDarEntrada(id) {
+        const r = RB.comprasReqs.find(x => x.id === id); if (!r) return;
+        r.status = 'Recebido';
+        RB.recebimentos.unshift({ id: novoId(), data: new Date().toISOString(), ficha: r.ficha, material: r.material, qtd: r.qtd, fornecedor: r.fornecedor, status: 'Aguardando inspeção', usuario: currentSessionUser });
+        registrarAtividade(`Logística deu entrada no material "${r.material}" — aguardando inspeção da Qualidade`);
+        rbSave(); renderLogRecebimento();
+        toast('Entrada registrada — a Qualidade fará a inspeção de recebimento.');
+    }
+    function renderLogSeparacao() {
+        const tb = document.getElementById('tb-log-separacao'); if (!tb) return;
+        const arr = RB.fila.filter(x => ['Liberada p/ Produção', 'Em produção', 'Concluída'].includes(x.status));
+        tb.innerHTML = arr.length ? arr.map(it => `<tr>
+            <td style="font-weight:bold; color:#f59e0b;">${it.cod}</td><td>${it.produto || '-'}</td><td>${it.cliente || '-'}</td><td>${it.maquina || '-'}</td>
+            <td><span class="badge-status ${it.status === 'Concluída' ? 'st-conc' : 'st-and'}">${it.status}</span></td>
+            <td style="text-align:center;"><button class="btn-ic" title="Ver ficha" onclick="abrirFichaLeitura('${it.cod}')"><i class="fas fa-eye"></i></button></td>
+        </tr>`).join('') : vazioTb(6, 'Nada a separar/expedir no momento.');
+        renderIcons(tb);
+    }
+
+    // Qualidade: recebimentos aguardando inspeção de recebimento (Recebimento MP)
+    function recebimentosPendentes() { return RB.recebimentos.filter(x => x.status === 'Aguardando inspeção'); }
 
     function renderRHColaboradores() {
         const strip = document.getElementById('rh-strip');
