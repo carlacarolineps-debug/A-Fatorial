@@ -2738,6 +2738,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
           <div class="flex gap-2 no-print flex-shrink-0">
              <button @click="abrirModalNovoCC()" class="emc-btn-gold"><i class="fas fa-plus"></i> Novo Lançamento</button>
+             <button @click="abrirTransferenciaCCLivre()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:10px" title="Transferir valor de um centro de custo para outro (mês a mês)"><i class="fas fa-exchange-alt mr-1"></i> Transferir</button>
              <button @click="expandirTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:10px"><i class="fas fa-expand-arrows-alt mr-1"></i> Expandir Todos</button>
              <button @click="recolherTodosCC()" class="emc-btn-secondary text-[11px] py-1.5 px-3" style="border-radius:10px"><i class="fas fa-compress-arrows-alt mr-1"></i> Recolher Todos</button>
           </div>
@@ -3218,40 +3219,37 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:10px">
           <div>
             <div class="card-title" style="margin-bottom:2px"><i class="fas fa-table-cells mr-2" style="color:var(--accent-gold)"></i> Distribuição do Resultado · mês a mês</div>
-            <div class="card-sub" style="font-size:11.5px">Cada mês distribui o <b>Resultado Operacional</b> do DRE pelos percentuais de cada carteira, igual à sua planilha (D.R). Os valores vêm dos lançamentos reais; edite os <b>%</b> na tabela de carteiras abaixo. Só aparecem os meses já lançados.</div>
+            <div class="card-sub" style="font-size:11.5px">Cada mês distribui o <b>Resultado Operacional</b> do DRE pelos percentuais de cada carteira, igual à sua planilha (D.R). Os valores vêm dos lançamentos reais; edite os <b>%</b> na tabela de carteiras abaixo. Os <b>12 meses de 2026</b> já ficam prontos: os que ainda não têm resultado aparecem como <b>—</b> e se preenchem sozinhos conforme você lança no DRE.</div>
           </div>
           <div class="badge-status" :class="Math.abs(somaChaves-100)<0.01 ? 'badge-ok':'badge-danger'" style="width:auto" x-text="'Soma dos % = ' + fmtNum(somaChaves) + '%'"></div>
         </div>
-        <template x-if="!drMesesLancados.length">
-          <div style="padding:26px;text-align:center;color:var(--color-muted);font-size:13px;white-space:normal">Ainda não há Resultado Operacional lançado. Assim que os meses forem preenchidos no DRE, a distribuição aparece aqui, mês a mês.</div>
-        </template>
-        <div style="overflow-x:auto" x-show="drMesesLancados.length">
+        <div style="overflow-x:auto">
           <table class="dark-table">
             <thead><tr>
               <th style="min-width:180px">Carteira</th>
               <th class="td-r" style="min-width:60px">%</th>
-              <template x-for="m in drMesesLancados" :key="'drh'+m.chave"><th class="td-r" x-text="m.labelData"></th></template>
+              <template x-for="m in listaMeses" :key="'drh'+m.chave"><th class="td-r" :class="{'text-accent-gold highlight-col':mesAtivo===m.chave, 'res-future':!drMesLancado(m.chave)}" x-text="m.labelData"></th></template>
               <th class="td-r">Acumulado</th>
             </tr></thead>
             <tbody>
               <tr style="background:rgba(25,16,64,.06);border-bottom:2px solid var(--accent-gold)">
                 <td class="font-bold text-accent-blue"><i class="fas fa-coins mr-1" style="color:var(--accent-gold)"></i> Resultado Operacional (base)</td>
                 <td class="td-r font-bold text-accent-blue">100%</td>
-                <template x-for="m in drMesesLancados" :key="'drb'+m.chave"><td class="td-r font-bold" :class="drResMes(m.chave)<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drResMes(m.chave))"></td></template>
+                <template x-for="m in listaMeses" :key="'drb'+m.chave"><td class="td-r font-bold" :class="!drMesLancado(m.chave)?'res-future':(drResMes(m.chave)<0?'text-red-strong':'text-accent-blue')" x-text="drMesLancado(m.chave)?formatarDinheiroExato(drResMes(m.chave)):'—'"></td></template>
                 <td class="td-r font-bold" :class="drAcumuladoBase<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drAcumuladoBase)"></td>
               </tr>
               <template x-for="c in chavesDR.filter(x=>x.tipo==='socio')" :key="'drrow'+c.id">
                 <tr>
                   <td class="font-bold"><span style="display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px" :style="'background:'+c.cor"></span><span x-text="c.nome"></span></td>
                   <td class="td-r font-bold" style="color:var(--color-muted)" x-text="fmtNum(c.percentual)+'%'"></td>
-                  <template x-for="m in drMesesLancados" :key="'drc'+c.id+m.chave"><td class="td-r" :class="drResMes(m.chave)*c.percentual<0?'text-red-strong':''" x-text="formatarDinheiroExato(drResMes(m.chave)*c.percentual/100)"></td></template>
+                  <template x-for="m in listaMeses" :key="'drc'+c.id+m.chave"><td class="td-r" :class="!drMesLancado(m.chave)?'res-future':(drResMes(m.chave)*c.percentual<0?'text-red-strong':'')" x-text="drMesLancado(m.chave)?formatarDinheiroExato(drResMes(m.chave)*c.percentual/100):'—'"></td></template>
                   <td class="td-r font-bold" :class="drAcumuladoBase*c.percentual<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drAcumuladoBase*c.percentual/100)"></td>
                 </tr>
               </template>
             </tbody>
           </table>
         </div>
-        <div x-show="drMesesLancados.length" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> Meses de resultado <b>negativo</b> aparecem em vermelho: nesses meses a distribuição também é negativa (a carteira devolve/absorve o prejuízo proporcional), exatamente como na planilha. O <b>Acumulado</b> é a soma dos meses lançados.</div>
+        <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> A tabela já traz <b>janeiro a dezembro</b>; os meses ainda sem resultado ficam como <b>—</b> e se preenchem automaticamente quando o mês é lançado no DRE. Meses de resultado <b>negativo</b> aparecem em vermelho (a carteira absorve o prejuízo proporcional, como na planilha). O <b>Acumulado</b> é a soma dos meses já lançados.</div>
       </div>
 
       <div class="card-dark" style="margin-bottom:0; border-color: var(--accent-gold); box-shadow: 0 4px 12px rgba(197,168,128,0.15);">
@@ -3955,7 +3953,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.12';
+const NEXUS_BUILD = '2407.13';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -5860,6 +5858,8 @@ function sistemaUnificado(){
     get drMesesLancados() {
       return this.listaMeses.filter(m => Math.abs(this.drResMes(m.chave)) > 0.005);
     },
+    // Mês já tem Resultado Operacional lançado? (usado para exibir os 12 meses, marcando os futuros)
+    drMesLancado(chave) { return Math.abs(this.drResMes(chave)) > 0.005; },
 
     // ===== Leituras & Análises Orçamentárias DINÂMICAS (calculadas dos dados reais) =====
     _mesAnterior(mk) {
