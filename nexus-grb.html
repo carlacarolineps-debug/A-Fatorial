@@ -3190,32 +3190,68 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
     <div x-show="aba==='dr_config'" x-cloak style="display:grid; gap:24px;">
       
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(225px,1fr)); gap:16px;">
-        <div class="kpi-card blue">
-          <div class="kpi-label">Fundo Operacional (no ano)</div>
-          <div class="kpi-val" :class="drAcumuladoBase < 0 ? 'text-red-strong' : 'text-accent-blue'" x-text="formatarDinheiroExato(drAcumuladoBase)"></div>
-          <div class="kpi-sub text-gray-500">Base gerada no Resultado do DRE</div>
+      <div class="emb-hero">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:44px;height:44px;border-radius:13px;background:rgba(197,168,128,.16);border:1px solid rgba(197,168,128,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-wallet" style="color:var(--accent-gold);font-size:19px"></i></div>
+          <div style="min-width:0">
+            <div class="display" style="font-size:19px;font-weight:900;color:#fff;white-space:nowrap">Motor de Gestão de Carteiras</div>
+            <div style="font-size:11.5px;color:#a9adc6">Distribuição do Resultado por carteira, mês a mês, e o saldo livre de cada uma.</div>
+          </div>
         </div>
-        <div class="kpi-card gold">
-          <div class="kpi-label">Capital Comprometido</div>
-          <div class="kpi-val text-red-strong" x-text="'- ' + formatarDinheiroExato(totalDistribuidoGlobal)"></div>
-          <div class="kpi-sub text-gray-500">Total Pago + Reservado globalmente</div>
+        <div class="emb-hero-grid">
+          <div class="emb-stat gold"><div class="l">Fundo Operacional (no ano)</div><div class="v" x-text="fmtAbrev(drAcumuladoBase)"></div><div class="s">resultado acumulado do DRE</div></div>
+          <div class="emb-stat red"><div class="l">Capital Comprometido</div><div class="v" x-text="fmtAbrev(totalDistribuidoGlobal)"></div><div class="s">pago + reservado</div></div>
+          <div class="emb-stat green"><div class="l">Saldo Global Livre</div><div class="v" x-text="fmtAbrev(drAcumuladoBase - totalDistribuidoGlobal)"></div><div class="s">dinheiro não comprometido</div></div>
+          <div class="emb-stat" :class="Math.abs(somaChaves-100)<0.01?'green':'red'"><div class="l">Soma das carteiras</div><div class="v" x-text="fmtNum(somaChaves)+'%'"></div><div class="s" x-text="Math.abs(somaChaves-100)<0.01?'auditoria ok (100%)':'precisa somar 100%'"></div></div>
+          <div class="emb-stat">
+            <div class="l">Adicionar carteira</div>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+              <button @click="adicionarChave('socio')" class="emc-btn-secondary" style="padding:6px 8px;font-size:10.5px"><i class="fas fa-plus mr-1"></i> Societária</button>
+              <button @click="adicionarChave('investimento')" class="emc-btn" style="padding:6px 8px;font-size:10.5px;background:var(--accent-gold);border-color:var(--accent-gold)"><i class="fas fa-plus mr-1"></i> Investimento</button>
+            </div>
+          </div>
         </div>
-        <div class="kpi-card green" style="background: #f0fdfa; border-color: var(--accent-green);">
-          <div class="kpi-label text-accent-green">Saldo Global Livre</div>
-          <div class="kpi-val text-green-strong" x-text="formatarDinheiroExato(drAcumuladoBase - totalDistribuidoGlobal)"></div>
-          <div class="kpi-sub text-gray-500">Dinheiro não comprometido</div>
+      </div>
+
+      <!-- ===== Distribuição do Resultado · mês a mês (base D.R) ===== -->
+      <div class="card-dark">
+        <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:10px">
+          <div>
+            <div class="card-title" style="margin-bottom:2px"><i class="fas fa-table-cells mr-2" style="color:var(--accent-gold)"></i> Distribuição do Resultado · mês a mês</div>
+            <div class="card-sub" style="font-size:11.5px">Cada mês distribui o <b>Resultado Operacional</b> do DRE pelos percentuais de cada carteira, igual à sua planilha (D.R). Os valores vêm dos lançamentos reais; edite os <b>%</b> na tabela de carteiras abaixo. Só aparecem os meses já lançados.</div>
+          </div>
+          <div class="badge-status" :class="Math.abs(somaChaves-100)<0.01 ? 'badge-ok':'badge-danger'" style="width:auto" x-text="'Soma dos % = ' + fmtNum(somaChaves) + '%'"></div>
         </div>
-        <template x-if="somaChaves < 100">
-           <div class="kpi-card amber"><div class="kpi-label">Atenção Estratégica</div><div class="kpi-val text-accent-blue">Auditoria Falhou</div><div class="kpi-sub text-red-strong font-bold">A soma das carteiras deve ser 100%</div></div>
+        <template x-if="!drMesesLancados.length">
+          <div style="padding:26px;text-align:center;color:var(--color-muted);font-size:13px;white-space:normal">Ainda não há Resultado Operacional lançado. Assim que os meses forem preenchidos no DRE, a distribuição aparece aqui, mês a mês.</div>
         </template>
-        <template x-if="somaChaves === 100">
-           <div class="kpi-card" style="border-color: var(--color-border2);">
-              <div class="kpi-label">Acesso Rápido</div>
-              <button @click="adicionarChave('socio')" class="emc-btn-secondary w-full mt-2" style="padding: 8px; font-size: 11px;"><i class="fas fa-plus mr-2"></i> Add Cart. Societária</button>
-              <button @click="adicionarChave('investimento')" class="emc-btn w-full mt-2" style="padding: 8px; font-size: 11px; background: var(--accent-gold); border-color: var(--accent-gold);"><i class="fas fa-plus mr-2"></i> Add Cart. Investimento</button>
-           </div>
-        </template>
+        <div style="overflow-x:auto" x-show="drMesesLancados.length">
+          <table class="dark-table">
+            <thead><tr>
+              <th style="min-width:180px">Carteira</th>
+              <th class="td-r" style="min-width:60px">%</th>
+              <template x-for="m in drMesesLancados" :key="'drh'+m.chave"><th class="td-r" x-text="m.labelData"></th></template>
+              <th class="td-r">Acumulado</th>
+            </tr></thead>
+            <tbody>
+              <tr style="background:rgba(25,16,64,.06);border-bottom:2px solid var(--accent-gold)">
+                <td class="font-bold text-accent-blue"><i class="fas fa-coins mr-1" style="color:var(--accent-gold)"></i> Resultado Operacional (base)</td>
+                <td class="td-r font-bold text-accent-blue">100%</td>
+                <template x-for="m in drMesesLancados" :key="'drb'+m.chave"><td class="td-r font-bold" :class="drResMes(m.chave)<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drResMes(m.chave))"></td></template>
+                <td class="td-r font-bold" :class="drAcumuladoBase<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drAcumuladoBase)"></td>
+              </tr>
+              <template x-for="c in chavesDR.filter(x=>x.tipo==='socio')" :key="'drrow'+c.id">
+                <tr>
+                  <td class="font-bold"><span style="display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px" :style="'background:'+c.cor"></span><span x-text="c.nome"></span></td>
+                  <td class="td-r font-bold" style="color:var(--color-muted)" x-text="fmtNum(c.percentual)+'%'"></td>
+                  <template x-for="m in drMesesLancados" :key="'drc'+c.id+m.chave"><td class="td-r" :class="drResMes(m.chave)*c.percentual<0?'text-red-strong':''" x-text="formatarDinheiroExato(drResMes(m.chave)*c.percentual/100)"></td></template>
+                  <td class="td-r font-bold" :class="drAcumuladoBase*c.percentual<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drAcumuladoBase*c.percentual/100)"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div x-show="drMesesLancados.length" style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> Meses de resultado <b>negativo</b> aparecem em vermelho: nesses meses a distribuição também é negativa (a carteira devolve/absorve o prejuízo proporcional), exatamente como na planilha. O <b>Acumulado</b> é a soma dos meses lançados.</div>
       </div>
 
       <div class="card-dark" style="margin-bottom:0; border-color: var(--accent-gold); box-shadow: 0 4px 12px rgba(197,168,128,0.15);">
@@ -3919,7 +3955,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.10';
+const NEXUS_BUILD = '2407.11';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -5805,12 +5841,21 @@ function sistemaUnificado(){
       return aj ? [aj, ...base] : base;   // Ajustes vem primeiro, para corrigir sem mandar para um C.C. incorreto
     },
     
-    get drAcumuladoBase() { 
+    get drAcumuladoBase() {
       const rowOp = this.dreAtual.find(l => l.desc === "Resultado Operacional");
       if(!rowOp) return 0;
       let acc = 0;
       this.listaMeses.forEach(m => { acc += (rowOp[m.chave.toLowerCase()] || 0); });
       return acc;
+    },
+    // Resultado Operacional do mês (base da distribuição D.R), lido ao vivo do DRE
+    drResMes(chave) {
+      const rowOp = this.dreAtual.find(l => l.desc === "Resultado Operacional");
+      return rowOp ? (rowOp[String(chave).toLowerCase()] || 0) : 0;
+    },
+    // Só os meses que já têm resultado lançado (para o comparativo mês a mês)
+    get drMesesLancados() {
+      return this.listaMeses.filter(m => Math.abs(this.drResMes(m.chave)) > 0.005);
     },
 
     // ===== Leituras & Análises Orçamentárias DINÂMICAS (calculadas dos dados reais) =====
