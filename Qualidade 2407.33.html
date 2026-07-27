@@ -429,6 +429,12 @@
     /* Campo ainda não preenchido: amarelo claro + atenção */
     .fu-vazio { background: #fefce8 !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='11' height='11'%3E%3Cpath d='M12 3.5l9 15.5H3z' fill='%23f59e0b'/%3E%3Cpath d='M12 10v4.5M12 17.2v.3' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 6px center !important; }
 
+    /* ---- Croqui de medidas (desenho técnico gerado das medidas) ---- */
+    .fu-croqui-box { border: 1px solid var(--border); border-radius: 8px; background: #fff; min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .fu-croqui-box svg { width: 100%; height: auto; max-height: 260px; }
+    .fu-page .fu-croqui-box { border: 1px solid #999; min-height: 0; }
+    .fu-page .fu-croqui-box svg { max-height: 70mm; }
+
     /* ---- Anexos da Ficha Única (documentação visual) ---- */
     .fu-anexos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 12px; }
     .fu-anexo-card { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; position: relative; }
@@ -1721,11 +1727,15 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
             </div>
 
-            <!-- SEÇÃO: SOLICITAÇÃO DE CLICHÊ (todos os campos da ficha individual) -->
+            <!-- SEÇÃO: SOLICITAÇÃO DE CLICHÊ (quadrantes agrupados como a ficha original) -->
             <div class="grid-form fu-sec" id="fu-sec-cliche">
                 <div class="section-title" style="background:#c9a227;">ETAPA · SOLICITAÇÃO DE CLICHÊ <span class="fu-cod-et" id="fu-cod-cliche"></span></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">DADOS DA SOLICITAÇÃO</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Vincular a Clichê Existente</span><input class="inp" id="fu_cli_vinculo" list="dl_cliches" placeholder="Nº do clichê (opcional)"><datalist id="dl_cliches"></datalist></div>
-                <div class="g-col g-col-8">
+                <div class="g-col g-col-4"><span class="lbl">Elaborado por</span><input class="inp" id="fu_cli_elaborado" placeholder="Preenche ao ativar a etapa"></div>
+                <div class="g-col g-col-4"><span class="lbl">Cores da Impressão</span><input class="inp" id="fu_cli_cores" list="dl_cores_imp" placeholder="Digite ou selecione"></div>
+                <div class="g-col g-col-12">
                     <span class="lbl">Materiais Solicitados à Clicheria <span style="font-weight:400; color:#94a3b8; font-size:10px;">(marque o que está sendo solicitado)</span></span>
                     <input type="hidden" id="fu_cli_materiais" value="Print tamanho real · Prova digital - GMG">
                     <div class="chips-fluxo" id="fu-cli-mats" style="margin-top:5px;">
@@ -1734,18 +1744,41 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                         <label class="chip-et"><input type="checkbox" value="Prova Impressa" onchange="fuMateriaisSync()"><span>Prova Impressa</span></label>
                     </div>
                 </div>
-                <div class="g-col g-col-4"><span class="lbl">Cores da Impressão</span><input class="inp" id="fu_cli_cores" list="dl_cores_imp" placeholder="Digite ou selecione"></div>
-                <div class="g-col g-col-3"><span class="lbl">Medida Embalagem</span><input class="inp" id="fu_cli_medida_emb" placeholder="Ex.: 195,00 x 340,00 + 40,00 mm"></div>
-                <div class="g-col g-col-3"><span class="lbl">Medida Impressão</span><input class="inp" id="fu_cli_medida_imp" placeholder="Ex.: 390,00 x 300,00 mm"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">DIMENSÕES E SUBSTRATO</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Medida Embalagem</span><input class="inp" id="fu_cli_medida_emb" placeholder="Ex.: 106,67 x 160,00 mm"></div>
+                <div class="g-col g-col-3"><span class="lbl">Medida Impressão</span><input class="inp" id="fu_cli_medida_imp" placeholder="Ex.: 320,00 x 480,00 mm"></div>
                 <div class="g-col g-col-3"><span class="lbl">Substrato 1</span><input class="inp" id="fu_cli_substrato" list="dl_substrato" placeholder="Digite ou selecione"></div>
                 <div class="g-col g-col-3"><span class="lbl">Substrato 2</span><input class="inp" id="fu_cli_substrato2" list="dl_substrato" placeholder="Digite ou selecione"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">ESPECIFICAÇÕES TÉCNICAS</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Impressão</span><select class="inp" id="fu_cli_impressao"><option>Externa</option><option>Interna</option></select></div>
-                <div class="g-col g-col-2"><span class="lbl">Lineatura</span><input class="inp" id="fu_cli_lineatura" list="dl_lineatura" placeholder="Selecione (lpc)"></div>
+                <div class="g-col g-col-2"><span class="lbl">Lineatura</span><input class="inp" id="fu_cli_lineatura" list="dl_lineatura" placeholder="lpc"></div>
                 <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" id="fu_cli_cilindro" value="390,00"></div>
-                <div class="g-col g-col-2"><span class="lbl">Mont. Vertical (Repetição)</span><input class="inp" id="fu_cli_mont_v" value="2" list="dl_1a4"></div>
-                <div class="g-col g-col-2"><span class="lbl">Mont. Horizontal (Pistas)</span><input class="inp" id="fu_cli_mont_h" value="1" list="dl_1a4"></div>
-                <div class="g-col g-col-2"><span class="lbl">Distorção (tipo / mm)</span><input class="inp" id="fu_cli_distorcao" value="Cameron / 395,00" list="dl_distorcao"></div>
-                <div class="g-col g-col-12"><span class="lbl">Observações e Solicitações do Clichê</span><textarea class="inp" id="fu_cli_obs" rows="2" style="resize:vertical;"></textarea></div>
+                <div class="g-col g-col-2"><span class="lbl">Cameron</span><select class="inp" id="fu_cli_cameron"><option>Sim</option><option>Não</option></select></div>
+                <div class="g-col g-col-2"><span class="lbl">Largura Cameron (mm)</span><input class="inp" id="fu_cli_largura_cameron" placeholder="Ex.: 3,00"></div>
+                <div class="g-col g-col-2"><span class="lbl">Distorção</span><input class="inp" id="fu_cli_distorcao" value="315" list="dl_distorcao"></div>
+                <div class="g-col g-col-3"><span class="lbl">Mont. Vertical (Repetição)</span><input class="inp" id="fu_cli_mont_v" value="2" list="dl_1a50"></div>
+                <div class="g-col g-col-3"><span class="lbl">Mont. Horizontal (Pistas)</span><input class="inp" id="fu_cli_mont_h" value="1" list="dl_1a50"></div>
+                <div class="g-col g-col-3"><span class="lbl">Passo</span><input class="inp" id="fu_cli_passo" placeholder="mm"></div>
+                <div class="g-col g-col-3"><span class="lbl">Cor de Referência</span><input class="inp" id="fu_cli_cor_ref" value="Preto" list="dl_tintas"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">CROQUI DA ARTE — MEDIDAS (o desenho é gerado automaticamente)</span></div>
+                <div class="g-col g-col-6">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <div><span class="lbl">Largura (mm)</span><input class="inp" id="fu_cli_med_largura" inputmode="decimal" placeholder="Ex.: 106,67" oninput="fuCliCroqui()"></div>
+                        <div><span class="lbl">Altura / Comprimento (mm)</span><input class="inp" id="fu_cli_med_altura" inputmode="decimal" placeholder="Ex.: 160,00" oninput="fuCliCroqui()"></div>
+                        <div><span class="lbl">Sanfona (mm)</span><input class="inp" id="fu_cli_med_sanfona" inputmode="decimal" placeholder="Ex.: 0" oninput="fuCliCroqui()"></div>
+                        <div><span class="lbl">Aba / Fita (mm)</span><input class="inp" id="fu_cli_med_aba" inputmode="decimal" placeholder="Ex.: 0" oninput="fuCliCroqui()"></div>
+                    </div>
+                    <p style="font-size:10px; color:#94a3b8; margin:8px 0 0;">Preencha as medidas → o croqui com as réguas de medição é desenhado ao lado e sai na impressão. Para o croqui da arte real, anexe a imagem em <b>Documentação Visual</b> e vincule à etapa Solicitação de Clichê.</p>
+                </div>
+                <div class="g-col g-col-6" style="padding:6px;">
+                    <div id="fu-cli-croqui" class="fu-croqui-box"></div>
+                </div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">OBSERVAÇÕES E SOLICITAÇÕES</span></div>
+                <div class="g-col g-col-12"><textarea class="inp" id="fu_cli_obs" rows="2" style="resize:vertical;" placeholder="Ex.: Adicionar fotocélula conforme croqui; particularidades da montagem…"></textarea></div>
             </div>
 
             <!-- SEÇÃO: IMPRESSÃO (todos os campos da ficha individual) -->
@@ -3849,6 +3882,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             if (dlmp) dlmp.innerHTML = RB.produtos
                 .filter(px => /mat[eé]ria|processo/i.test(px.tipo || ''))
                 .map(px => `<option value="${(px.codigo||'').replace(/"/g,'&quot;')}">${(px.descricao||'').slice(0,70).replace(/"/g,'&quot;')}</option>`).join('');
+            fuCliCroqui();
             fuAtualizarResumo();
         }
     }
@@ -5221,6 +5255,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function fuToggleEtapa(cb) {
         const sec = document.getElementById('fu-sec-' + cb.value);
         if (sec) sec.classList.toggle('on', cb.checked);
+        // Ao ativar a Solicitação de Clichê: preenche elaborador e desenha o croqui
+        if (cb.value === 'cliche' && cb.checked) {
+            const el = document.getElementById('fu_cli_elaborado');
+            if (el && !el.value.trim()) el.value = currentSessionUser;
+            fuCliCroqui();
+        }
         // Ao ativar a Especificação Final: preenche o que o sistema já sabe
         if (cb.value === 'final' && cb.checked) {
             const set = (id, v) => { const el = document.getElementById(id); if (el && !el.value.trim()) el.value = v; };
@@ -5355,6 +5395,67 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         }
         fuAtualizarResumo();
         toast('Matéria prima ' + p.codigo + ' carregada da base.');
+    }
+
+    // ---- Croqui de medidas: desenha a embalagem com réguas de cotagem a partir das medidas ----
+    function fuCliCroqui() {
+        const box = document.getElementById('fu-cli-croqui');
+        if (!box) return;
+        const num = id => { const el = document.getElementById(id); return el ? (parseFloat((el.value || '').replace(',', '.')) || 0) : 0; };
+        const L = num('fu_cli_med_largura'), A = num('fu_cli_med_altura'), S = num('fu_cli_med_sanfona'), B = num('fu_cli_med_aba');
+        const fmt = v => (v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' mm' : '—');
+
+        if (!L && !A) {
+            box.innerHTML = '<span style="font-size:11px; color:#94a3b8; padding:20px; text-align:center;">Preencha Largura e Altura<br>para gerar o croqui com as réguas de medição.</span>';
+            return;
+        }
+        // Área de desenho e escala proporcional
+        const W = 360, H = 300, padL = 70, padR = 40, padT = 50, padB = 60;
+        const availW = W - padL - padR, availH = H - padT - padB;
+        const lv = L || 1, av = A || 1;
+        const sc = Math.min(availW / lv, availH / av);
+        const rw = lv * sc, rh = av * sc;
+        const x0 = padL + (availW - rw) / 2, y0 = padT + (availH - rh) / 2;
+        const x1 = x0 + rw, y1 = y0 + rh;
+
+        // Marcador de cota (setas) reutilizável
+        const svg = [];
+        svg.push(`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Arial, sans-serif">`);
+        svg.push(`<defs><marker id="cotaArrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="#191040" stroke-width="1"/></marker></defs>`);
+        svg.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`);
+        // Embalagem
+        svg.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="#f1f5f9" stroke="#191040" stroke-width="1.5"/>`);
+        // Sanfona (dobras laterais tracejadas)
+        if (S > 0) {
+            const sw = Math.min(S * sc, rw / 3);
+            svg.push(`<line x1="${x0 + sw}" y1="${y0}" x2="${x0 + sw}" y2="${y1}" stroke="#0d9488" stroke-width="1" stroke-dasharray="4 3"/>`);
+            svg.push(`<line x1="${x1 - sw}" y1="${y0}" x2="${x1 - sw}" y2="${y1}" stroke="#0d9488" stroke-width="1" stroke-dasharray="4 3"/>`);
+            svg.push(`<text x="${x0 + sw / 2}" y="${y0 + rh / 2}" font-size="7" fill="#0d9488" text-anchor="middle" transform="rotate(-90 ${x0 + sw / 2} ${y0 + rh / 2})">SANFONA ${fmt(S)}</text>`);
+        }
+        // Aba / fita (faixa superior tracejada)
+        if (B > 0) {
+            const bh = Math.min(B * sc, rh / 4);
+            svg.push(`<line x1="${x0}" y1="${y0 + bh}" x2="${x1}" y2="${y0 + bh}" stroke="#be123c" stroke-width="1" stroke-dasharray="4 3"/>`);
+            svg.push(`<text x="${x0 + rw / 2}" y="${y0 + bh - 2}" font-size="7" fill="#be123c" text-anchor="middle">ABA / FITA ${fmt(B)}</text>`);
+        }
+        // Cota horizontal (largura) — abaixo
+        const cy = y1 + 28;
+        svg.push(`<line x1="${x0}" y1="${y1 + 6}" x2="${x0}" y2="${cy + 6}" stroke="#94a3b8" stroke-width=".6"/>`);
+        svg.push(`<line x1="${x1}" y1="${y1 + 6}" x2="${x1}" y2="${cy + 6}" stroke="#94a3b8" stroke-width=".6"/>`);
+        svg.push(`<line x1="${x0}" y1="${cy}" x2="${x1}" y2="${cy}" stroke="#191040" stroke-width="1" marker-start="url(#cotaArrow)" marker-end="url(#cotaArrow)"/>`);
+        svg.push(`<rect x="${(x0 + x1) / 2 - 34}" y="${cy - 8}" width="68" height="14" fill="#fff"/>`);
+        svg.push(`<text x="${(x0 + x1) / 2}" y="${cy + 2}" font-size="9" font-weight="700" fill="#191040" text-anchor="middle">${fmt(L)}</text>`);
+        // Cota vertical (altura) — à esquerda
+        const cx = x0 - 30;
+        svg.push(`<line x1="${x0 - 6}" y1="${y0}" x2="${cx - 6}" y2="${y0}" stroke="#94a3b8" stroke-width=".6"/>`);
+        svg.push(`<line x1="${x0 - 6}" y1="${y1}" x2="${cx - 6}" y2="${y1}" stroke="#94a3b8" stroke-width=".6"/>`);
+        svg.push(`<line x1="${cx}" y1="${y0}" x2="${cx}" y2="${y1}" stroke="#191040" stroke-width="1" marker-start="url(#cotaArrow)" marker-end="url(#cotaArrow)"/>`);
+        svg.push(`<rect x="${cx - 8}" y="${(y0 + y1) / 2 - 34}" width="14" height="68" fill="#fff"/>`);
+        svg.push(`<text x="${cx}" y="${(y0 + y1) / 2}" font-size="9" font-weight="700" fill="#191040" text-anchor="middle" transform="rotate(-90 ${cx} ${(y0 + y1) / 2})">${fmt(A)}</text>`);
+        // Título
+        svg.push(`<text x="${W / 2}" y="20" font-size="10" font-weight="800" fill="#8a6d1a" text-anchor="middle" letter-spacing="1">CROQUI DA EMBALAGEM</text>`);
+        svg.push(`</svg>`);
+        box.innerHTML = svg.join('');
     }
 
     // ---- Checklist "Materiais Solicitados à Clicheria" (grava no campo oculto fu_cli_materiais) ----
@@ -5518,6 +5619,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         document.getElementById('lbl-codigo-fu-ficha').value = reaproveitar ? codAtual : f.cod;
         fuAnexos = JSON.parse(JSON.stringify(f.anexos || [])); fuRenderAnexos();
         fuMateriaisRestaurar();
+        fuCliCroqui();
         fuAtualizarResumo();
     }
 
