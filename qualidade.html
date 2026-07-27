@@ -494,6 +494,27 @@
     .fcard .fc-bar > i { display:block; height:100%; border-radius:999px; }
     .fila-timeline { background:#fff; border:1px solid var(--border); border-radius:10px; padding:6px; overflow-x:auto; }
     .fila-timeline svg { display:block; min-width:640px; }
+    /* seletor de visualização + calendário arrastável */
+    .fila-viewbar { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+    .fila-vtabs { display:inline-flex; background:#f1f5f9; border-radius:999px; padding:3px; }
+    .fila-vtab { border:none; background:transparent; padding:6px 15px; border-radius:999px; font-size:12.5px; font-weight:700; color:#64748b; cursor:pointer; display:flex; align-items:center; gap:6px; }
+    .fila-vtab.sel { background:#fff; color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+    .fila-cal-nav { display:flex; align-items:center; gap:8px; margin-left:auto; font-weight:700; color:var(--navy); font-size:13px; }
+    .fila-cal-nav button { border:1px solid var(--border); background:#fff; width:28px; height:28px; border-radius:8px; cursor:pointer; color:#475569; }
+    .fila-cal-nav button:hover { background:#f1f5f9; }
+    .fila-hint { font-size:11px; color:#94a3b8; }
+    .fcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:#e2e8f0; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; }
+    .fcal-dow { background:#f8fafc; text-align:center; font-size:11px; font-weight:800; color:#64748b; padding:7px 0; text-transform:uppercase; letter-spacing:.04em; }
+    .fcal-day { background:#fff; min-height:96px; padding:5px 5px 6px; position:relative; transition:background .1s; }
+    .fcal-day.out { background:#fafbfc; }
+    .fcal-day.out .fcal-num { color:#cbd5e1; }
+    .fcal-day.drop-hi { background:#eff6ff; box-shadow:inset 0 0 0 2px #93c5fd; }
+    .fcal-num { font-size:11px; font-weight:700; color:#94a3b8; }
+    .fcal-day.today .fcal-num { background:var(--gold); color:var(--navy); border-radius:6px; padding:0 6px; }
+    .fcal-chip { font-size:10px; color:#fff; border-radius:5px; padding:3px 6px; margin-top:3px; cursor:pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-weight:600; display:flex; justify-content:space-between; gap:4px; }
+    .fcal-chip .p { opacity:.85; }
+    .fcard[draggable="true"] { cursor:grab; }
+    .fcard.dragging { opacity:.5; }
     /* ---- PCP Dashboard premium (decisão só de olhar) ---- */
     .pcp-dash { display:flex; flex-direction:column; gap:16px; }
     .pcp-cockpit { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -5657,9 +5678,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
     function pcpFilaRemover(id) { const it = RB.fila.find(x => x.id === id); if (!it || !confirm(`Remover ${it.cod} da fila?`)) return; RB.fila = RB.fila.filter(x => x.id !== id); RB.fila.forEach((x, k) => x.seq = k + 1); rbSave(); renderPcpFila(); renderPcpFichas(); }
     function renderPcpFila() {
-        renderFilaBoard('pcp-fila-board', null);
-        const strip = document.getElementById('pcp-strip');
-        if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">Na fila</div><div class="v">${RB.fila.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Fichas liberadas</div><div class="v">${dbFichas.filter(fichaLiberadaPCP).length}</div></div><div class="cmd-mini" style="--c:#7c3aed"><div class="l">Materiais p/ Compras</div><div class="v">${RB.comprasReqs.length}</div></div><div class="cmd-mini" style="--c:#e11d48"><div class="l">Divergências</div><div class="v">${RB.reportsProducao.filter(r => r.status !== 'Resolvida').length}</div></div>`;
+        renderFilaBoard('pcp-fila-board', 'pcp-strip');
         const tb = document.getElementById('tb-pcp-fila'); if (!tb) return;
         const prio = ['Normal', 'Alta', 'Urgente', 'Baixa'];
         tb.innerHTML = RB.fila.length ? RB.fila.map(it => `<tr>
@@ -6065,7 +6084,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function pcpProgAll() {
         PROG_MAQS.forEach(progComputarMaq);
         const out = [];
-        PROG_MAQS.forEach(maq => (RB.programacao[maq] || []).forEach(it => out.push({ ...it, maq })));
+        PROG_MAQS.forEach(maq => (RB.programacao[maq] || []).forEach((it, idx) => out.push({ ...it, maq, _key: maq + '#' + idx })));
         out.sort((a, b) => (a.inicio || '9999').localeCompare(b.inicio || '9999'));
         return out;
     }
@@ -6114,25 +6133,82 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         svg.push(`</svg>`);
         return svg.join('');
     }
-    function filaBoardHTML() {
-        const all = pcpProgAll();
+    // Estado de visualização do board (Calendário principal · Gantt secundário) + registro de containers
+    let filaView = 'calendario';
+    let filaCal = null;            // {y, m} — mês exibido
+    let filaDragKey = null;        // OP sendo arrastada (maq#idx)
+    const FILA_TARGETS = [['pcp-fila-board', 'pcp-strip'], ['qual-fila-board', 'qual-fila-strip'], ['prod-fila-board', 'prod-fila-strip']];
+    function filaRerenderAll() { FILA_TARGETS.forEach(([c, s]) => { if (document.getElementById(c)) renderFilaBoard(c, s); }); }
+    function filaSetView(v) { filaView = v; filaRerenderAll(); }
+    function filaCalNav(d) { if (!filaCal) return; let m = filaCal.m + d, y = filaCal.y; if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; } filaCal = { y, m }; filaRerenderAll(); }
+    function filaDragStart(ev, key) { filaDragKey = key; try { ev.dataTransfer.setData('text/plain', key); ev.dataTransfer.effectAllowed = 'move'; } catch (e) {} if (ev.target.classList) ev.target.classList.add('dragging'); }
+    function filaDragEnd(ev) { if (ev.target.classList) ev.target.classList.remove('dragging'); }
+    function filaDragOver(ev, cell) { ev.preventDefault(); if (cell) cell.classList.add('drop-hi'); }
+    function filaDragLeave(cell) { if (cell) cell.classList.remove('drop-hi'); }
+    function filaDrop(ev, dateStr) {
+        ev.preventDefault();
+        const key = filaDragKey || (ev.dataTransfer && ev.dataTransfer.getData('text/plain'));
+        filaDragKey = null;
+        if (!key) return;
+        const [maq, idxS] = key.split('#'); const idx = parseInt(idxS, 10);
+        const lista = RB.programacao[maq]; if (!lista || !lista[idx]) return;
+        lista[idx].inicio = dateStr;
+        // reprograma: OPs seguintes reencadeiam a partir desta
+        for (let i = idx + 1; i < lista.length; i++) lista[i].inicio = '';
+        progComputarMaq(maq); rbSave();
+        registrarAtividade(`reprogramou ${lista[idx].op || lista[idx].sku} (${maq}) para ${new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR')}`);
+        filaRerenderAll();
+        toast(`OP reprogramada para ${new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR')}.`);
+    }
+    function filaQueueHTML(all) {
         const cards = all.length ? all.map(it => {
             const c = filaCorItem(it), pct = Math.min(100, it.pct || 0);
-            return `<div class="fcard" style="border-left-color:${c};" onclick="filaAbrirItem('${(it.op||'').replace(/'/g,'')}','${(it.sku||'').replace(/'/g,'')}')">
+            return `<div class="fcard" draggable="true" ondragstart="filaDragStart(event,'${it._key}')" ondragend="filaDragEnd(event)" style="border-left-color:${c};" onclick="filaAbrirItem('${(it.op||'').replace(/'/g,'')}','${(it.sku||'').replace(/'/g,'')}')">
                 <div class="fc-top"><span class="fc-cod">${it.op || it.sku || '—'}</span><span style="color:${MAQ_COR[it.maq]};">${it.maq}</span></div>
                 <div class="fc-title">${(it.desc || it.cliente || it.sku || '').toString().slice(0, 46)}</div>
                 <div class="fc-meta"><span>${it.cliente || '—'}</span><span>${progNum(it.qtProg).toLocaleString('pt-BR')} kg</span></div>
                 <div class="fc-meta" style="margin-top:2px;"><span>${fmtBR(it.inicio)} → ${fmtBR(it.termino)}</span><span style="font-weight:700; color:${c};">${it.pct || 0}%</span></div>
                 <div class="fc-bar"><i style="width:${pct}%; background:${c};"></i></div>
             </div>`;
-        }).join('') : '<div style="padding:24px; text-align:center; color:#94a3b8; font-size:12px;">Fila vazia. Adicione OPs na Programação das Rotativas.</div>';
-        return `<div class="fila-board">
-            <div class="fila-queue">
-                <div class="fila-queue-head">Sequência de produção <span class="badge-count">${all.length}</span></div>
-                ${cards}
-            </div>
-            <div class="fila-timeline">${filaGanttSVG(all)}</div>
+        }).join('') : '<div style="padding:24px; text-align:center; color:#94a3b8; font-size:12px;">Fila vazia. Programe OPs nas Rotativas.</div>';
+        return `<div class="fila-queue"><div class="fila-queue-head">Sequência <span class="badge-count">${all.length}</span></div>${cards}</div>`;
+    }
+    function filaCalHTML(all) {
+        const comData = all.filter(x => x.inicio);
+        if (!filaCal) { const base = comData.length ? comData.reduce((m, x) => x.inicio < m ? x.inicio : m, comData[0].inicio) : new Date().toISOString().slice(0, 10); const d = new Date(base + 'T12:00:00'); filaCal = { y: d.getFullYear(), m: d.getMonth() }; }
+        const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        const first = new Date(filaCal.y, filaCal.m, 1), start = new Date(first); start.setDate(1 - first.getDay());
+        const hoje = new Date().toISOString().slice(0, 10);
+        const porDia = {};
+        all.forEach(it => { if (it.inicio) { (porDia[it.inicio] = porDia[it.inicio] || []).push(it); } });
+        let cells = '';
+        for (let i = 0; i < 42; i++) {
+            const d = new Date(start); d.setDate(start.getDate() + i);
+            const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const out = d.getMonth() !== filaCal.m;
+            const chips = (porDia[ds] || []).map(it => { const c = filaCorItem(it); return `<div class="fcal-chip" style="background:${c};" onclick="event.stopPropagation(); filaAbrirItem('${(it.op||'').replace(/'/g,'')}','${(it.sku||'').replace(/'/g,'')}')" title="${(it.op||'')} · ${(it.cliente||'')} · ${progNum(it.qtProg)}kg"><span>${it.op || it.sku || ''}</span><span class="p">${it.pct||0}%</span></div>`; }).join('');
+            cells += `<div class="fcal-day ${out ? 'out' : ''} ${ds === hoje ? 'today' : ''}" ondragover="filaDragOver(event,this)" ondragleave="filaDragLeave(this)" ondrop="filaDragLeave(this); filaDrop(event,'${ds}')"><div class="fcal-num">${d.getDate()}</div>${chips}</div>`;
+        }
+        const dows = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(x => `<div class="fcal-dow">${x}</div>`).join('');
+        return `<div style="flex:1; min-width:0;">
+            <div class="fila-cal-nav" style="margin:0 0 8px; justify-content:flex-end;"><button onclick="filaCalNav(-1)">‹</button><span>${meses[filaCal.m]} ${filaCal.y}</span><button onclick="filaCalNav(1)">›</button></div>
+            <div class="fcal-grid">${dows}${cells}</div>
+            <div class="fila-hint" style="margin-top:8px;"><i class="fas fa-hand-pointer"></i> Arraste uma OP da sequência para um dia para <b>reprogramar</b>. As OPs seguintes se reencadeiam automaticamente.</div>
         </div>`;
+    }
+    function filaBoardHTML() {
+        const all = pcpProgAll();
+        const vista = filaView === 'gantt'
+            ? `<div class="fila-timeline" style="flex:1;">${filaGanttSVG(all)}</div>`
+            : filaCalHTML(all);
+        return `<div class="fila-viewbar">
+            <div class="fila-vtabs">
+                <button class="fila-vtab ${filaView==='calendario'?'sel':''}" onclick="filaSetView('calendario')"><i class="fas fa-calendar-days"></i> Calendário</button>
+                <button class="fila-vtab ${filaView==='gantt'?'sel':''}" onclick="filaSetView('gantt')"><i class="fas fa-bars-staggered"></i> Gantt</button>
+            </div>
+            <span class="fila-hint">${filaView==='calendario'?'Visualização principal — arraste para reprogramar':'Linha do tempo por máquina'}</span>
+        </div>
+        <div class="fila-board">${filaQueueHTML(all)}${vista}</div>`;
     }
     function renderFilaBoard(containerId, stripId) {
         const el = document.getElementById(containerId); if (!el) return;
@@ -6141,7 +6217,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             const strip = document.getElementById(stripId), all = pcpProgAll();
             const prog = all.reduce((s, x) => s + progNum(x.qtProg), 0), real = all.reduce((s, x) => s + progNum(x.qtReal), 0);
             const atras = all.filter(x => x.entrega && x.termino && x.termino > x.entrega && progNum(x.qtReal) < progNum(x.qtProg)).length;
-            const prox = all.find(x => (x.pct || 0) < 100);
             if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">OPs na fila</div><div class="v">${all.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Kg programados</div><div class="v">${Math.round(prog).toLocaleString('pt-BR')}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Atingido</div><div class="v">${prog ? Math.round(real / prog * 100) : 0}%</div></div><div class="cmd-mini" style="--c:#e11d48"><div class="l">Em atraso</div><div class="v">${atras}</div></div>`;
         }
     }
