@@ -494,6 +494,47 @@
     .fcard .fc-bar > i { display:block; height:100%; border-radius:999px; }
     .fila-timeline { background:#fff; border:1px solid var(--border); border-radius:10px; padding:6px; overflow-x:auto; }
     .fila-timeline svg { display:block; min-width:640px; }
+    /* ---- PCP Dashboard premium (decisão só de olhar) ---- */
+    .pcp-dash { display:flex; flex-direction:column; gap:16px; }
+    .pcp-cockpit { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:920px){ .pcp-cockpit { grid-template-columns:1fr; } }
+    .mcard { position:relative; border-radius:16px; padding:18px 20px; color:#fff; overflow:hidden; box-shadow:0 10px 26px -10px rgba(20,16,64,.5); }
+    .mcard::after { content:''; position:absolute; right:-40px; top:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,.08); }
+    .mcard .mc-top { display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
+    .mcard .mc-name { font-size:17px; font-weight:800; letter-spacing:.02em; display:flex; align-items:center; gap:9px; }
+    .mcard .mc-name i { opacity:.85; }
+    .mc-status { font-size:11px; font-weight:800; padding:4px 11px; border-radius:999px; background:rgba(255,255,255,.22); text-transform:uppercase; letter-spacing:.05em; }
+    .mcard .mc-body { display:flex; align-items:center; gap:18px; margin-top:14px; position:relative; z-index:1; }
+    .mcard .mc-job { flex:1; min-width:0; }
+    .mc-job .lab { font-size:10px; text-transform:uppercase; letter-spacing:.08em; opacity:.75; }
+    .mc-job .op { font-size:22px; font-weight:800; line-height:1.1; }
+    .mc-job .cli { font-size:13px; opacity:.92; margin-top:2px; }
+    .mc-job .desc { font-size:11.5px; opacity:.7; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mc-foot { display:flex; gap:18px; margin-top:14px; position:relative; z-index:1; font-size:11px; }
+    .mc-foot .b { font-size:15px; font-weight:800; display:block; }
+    .mc-foot .k { opacity:.75; }
+    .mc-next { margin-top:12px; padding-top:11px; border-top:1px solid rgba(255,255,255,.2); font-size:11.5px; position:relative; z-index:1; display:flex; align-items:center; gap:8px; }
+    .mc-next b { font-weight:700; }
+    .pcp-tiles { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; }
+    @media (max-width:1100px){ .pcp-tiles { grid-template-columns:repeat(3,1fr); } }
+    @media (max-width:640px){ .pcp-tiles { grid-template-columns:repeat(2,1fr); } }
+    .tile { background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px 15px; box-shadow:0 1px 3px rgba(0,0,0,.05); position:relative; }
+    .tile .t-ic { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; color:#fff; margin-bottom:9px; }
+    .tile .t-v { font-size:24px; font-weight:800; color:var(--navy); line-height:1; }
+    .tile .t-l { font-size:11px; color:#64748b; margin-top:4px; }
+    .pcp-dash-row { display:grid; grid-template-columns:1fr 1.35fr; gap:16px; }
+    .pcp-dash-row3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    @media (max-width:1100px){ .pcp-dash-row, .pcp-dash-row3 { grid-template-columns:1fr; } }
+    .pcp-decisoes #gv-alertas { max-height:392px; overflow-y:auto; padding-right:2px; }
+    .alert-row { display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:10px; border:1px solid var(--border); border-left-width:4px; margin-bottom:8px; cursor:pointer; transition:.13s; background:#fff; }
+    .alert-row:hover { background:#f8fafc; transform:translateX(2px); }
+    .alert-row .a-ic { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; flex-shrink:0; }
+    .alert-row .a-main { flex:1; min-width:0; }
+    .alert-row .a-t { font-size:12.5px; font-weight:700; color:#1e293b; }
+    .alert-row .a-s { font-size:11px; color:#64748b; }
+    .alert-row .a-pct { font-weight:800; font-size:14px; }
+    .alert-empty { text-align:center; color:#16a34a; padding:24px; font-size:13px; font-weight:600; }
+    .alert-empty i { font-size:30px; display:block; margin-bottom:8px; }
     .cli-box { min-height: 320px; }
     .cli-box svg { max-height: 340px; }
     .cli-box img { border-radius: 6px; }
@@ -2883,24 +2924,31 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     </div>
 
     <!-- ===== PCP · GESTÃO À VISTA (dashboard visual) ===== -->
-    <div id="view-pcp-painel" class="sys-view">
-        <div class="cmd-strip" id="gv-strip" style="grid-template-columns:repeat(5,1fr);"></div>
-        <div class="pcp-gv-grid">
-            <div class="gv-card full">
-                <h4><i class="fas fa-bars-staggered" style="color:#2563eb;"></i> Ocupação das máquinas <span class="sub">linha do tempo da programação — cada barra é uma OP</span></h4>
-                <div id="gv-gantt" style="overflow-x:auto;"></div>
-                <div class="gv-legend"><span><i style="background:#2563eb;"></i>Gearless</span><span><i style="background:#7c3aed;"></i>Millennium</span><span><i style="background:#16a34a;"></i>Concluída (≥100%)</span><span><i style="background:#e11d48;"></i>Em atraso</span></div>
+    <div id="view-pcp-painel" class="sys-view pcp-dash">
+        <div id="pcp-cockpit" class="pcp-cockpit"></div>
+        <div id="pcp-tiles" class="pcp-tiles"></div>
+        <div class="pcp-dash-row">
+            <div class="gv-card pcp-decisoes">
+                <h4><i class="fas fa-bolt" style="color:#f59e0b;"></i> Precisa de decisão <span class="sub" id="gv-alertas-n"></span></h4>
+                <div id="gv-alertas"></div>
             </div>
             <div class="gv-card">
-                <h4><i class="fas fa-chart-column" style="color:#2563eb;"></i> Realizado × Programado (kg)</h4>
+                <h4><i class="fas fa-bars-staggered" style="color:#2563eb;"></i> Ocupação das máquinas <span class="sub">cada barra é uma OP</span></h4>
+                <div id="gv-gantt" style="overflow-x:auto;"></div>
+                <div class="gv-legend"><span><i style="background:#2563eb;"></i>Gearless</span><span><i style="background:#7c3aed;"></i>Millennium</span><span><i style="background:#16a34a;"></i>Concluída</span><span><i style="background:#e11d48;"></i>Atraso</span></div>
+            </div>
+        </div>
+        <div class="pcp-dash-row3">
+            <div class="gv-card">
+                <h4><i class="fas fa-chart-column" style="color:#2563eb;"></i> Realizado × Programado <span class="sub">kg</span></h4>
                 <div id="gv-real"></div>
             </div>
             <div class="gv-card">
-                <h4><i class="fas fa-triangle-exclamation" style="color:#e11d48;"></i> Paradas por motivo <span class="sub">horas apontadas (exclui produção)</span></h4>
+                <h4><i class="fas fa-triangle-exclamation" style="color:#e11d48;"></i> Paradas por motivo <span class="sub">horas</span></h4>
                 <div id="gv-paradas"></div>
             </div>
-            <div class="gv-card full">
-                <h4><i class="fas fa-calendar-day" style="color:#0d9488;"></i> Produção diária <span class="sub">metros apontados por dia</span></h4>
+            <div class="gv-card">
+                <h4><i class="fas fa-calendar-day" style="color:#0d9488;"></i> Produção diária <span class="sub">metros/dia</span></h4>
                 <div id="gv-diaria" style="overflow-x:auto;"></div>
             </div>
         </div>
@@ -6150,6 +6198,65 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         });
         svg.push('</svg>'); return svg.join('');
     }
+    // Anel de progresso (donut SVG)
+    function ringSVG(pct, size, color, txtColor) {
+        const p = Math.max(0, Math.min(100, pct || 0)), r = (size - 9) / 2, c = 2 * Math.PI * r, off = c * (1 - p / 100);
+        return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0;">
+            <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="7"/>
+            <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/>
+            <text x="${size/2}" y="${size/2+1}" text-anchor="middle" dominant-baseline="middle" font-size="${(size*0.26).toFixed(0)}" font-weight="800" fill="${txtColor||'#fff'}">${p}%</text></svg>`;
+    }
+    function pcpMachineCard(maq) {
+        const l = RB.programacao[maq] || [];
+        const prog = l.reduce((s, x) => s + progNum(x.qtProg), 0), real = l.reduce((s, x) => s + progNum(x.qtReal), 0);
+        const atual = l.find(x => (x.pct || 0) < 100) || l[l.length - 1] || null;
+        const idx = atual ? l.indexOf(atual) : -1;
+        const prox = idx >= 0 ? l.slice(idx + 1).find(x => (x.pct || 0) < 100) : null;
+        const restante = l.filter(x => (x.pct || 0) < 100).length;
+        const cor = MAQ_COR[maq];
+        const grad = maq === 'Gearless' ? 'linear-gradient(135deg,#1e3a8a,#2563eb)' : 'linear-gradient(135deg,#4c1d95,#7c3aed)';
+        let status = 'Sem programação', pill = 'rgba(255,255,255,.22)';
+        if (atual) {
+            if (atual.entrega && atual.termino && atual.termino > atual.entrega && (atual.pct || 0) < 100) { status = 'Atrasada'; pill = 'rgba(239,68,68,.9)'; }
+            else if ((atual.pct || 0) > 0) { status = 'Em produção'; pill = 'rgba(34,197,94,.9)'; }
+            else { status = 'A iniciar'; pill = 'rgba(255,255,255,.28)'; }
+        }
+        const jobHtml = atual ? `
+            <div class="mc-body">
+                ${ringSVG(atual.pct || 0, 74, '#fff')}
+                <div class="mc-job">
+                    <div class="lab">OP atual</div>
+                    <div class="op">${atual.op || atual.sku || '—'}</div>
+                    <div class="cli">${atual.cliente || 'Cliente não informado'}</div>
+                    <div class="desc">${(atual.desc || atual.sku || '').toString().slice(0, 42)}</div>
+                </div>
+            </div>
+            <div class="mc-foot">
+                <div><span class="b">${progNum(atual.qtReal).toLocaleString('pt-BR')}</span><span class="k">de ${progNum(atual.qtProg).toLocaleString('pt-BR')} kg</span></div>
+                <div><span class="b">${fmtBR(atual.inicio)}→${fmtBR(atual.termino)}</span><span class="k">janela</span></div>
+                <div><span class="b">${restante}</span><span class="k">OPs na fila</span></div>
+            </div>
+            <div class="mc-next"><i class="fas fa-forward-step"></i> Próxima: <b>${prox ? (prox.op || prox.sku) + ' · ' + (prox.cliente || '—') : 'fila concluída'}</b></div>`
+            : `<div class="mc-body" style="min-height:74px; align-items:center; opacity:.85;"><i class="fas fa-inbox" style="font-size:26px;"></i><div class="mc-job"><div class="op" style="font-size:16px;">Sem OPs programadas</div><div class="cli">Importe ou programe OPs para esta máquina.</div></div></div>`;
+        return `<div class="mcard" style="background:${grad};">
+            <div class="mc-top"><div class="mc-name"><i class="fas fa-gear"></i> ${maq}</div><span class="mc-status" style="background:${pill};">${status}</span></div>
+            ${jobHtml}</div>`;
+    }
+    function pcpAlertas() {
+        const all = pcpProgAll().filter(x => (x.pct || 0) < 100);
+        const alerts = [];
+        all.forEach(x => {
+            const atraso = x.entrega && x.termino && x.termino > x.entrega;
+            if (atraso) alerts.push({ sev: 3, cor: '#dc2626', ic: 'triangle-exclamation', t: `${x.op || x.sku} — vai atrasar a entrega`, s: `${x.maq} · previsto ${fmtBR(x.termino)} · entrega ${fmtBR(x.entrega)}`, pct: x.pct || 0, op: x.op, sku: x.sku });
+            else if ((x.pct || 0) > 0 && (x.pct || 0) < 80) alerts.push({ sev: 2, cor: '#f59e0b', ic: 'gauge-high', t: `${x.op || x.sku} — produção abaixo do programado`, s: `${x.maq} · ${x.cliente || '—'} · ${progNum(x.qtReal).toLocaleString('pt-BR')}/${progNum(x.qtProg).toLocaleString('pt-BR')} kg`, pct: x.pct || 0, op: x.op, sku: x.sku });
+        });
+        alerts.sort((a, b) => b.sev - a.sev || a.pct - b.pct);
+        if (!alerts.length) return '<div class="alert-empty"><i class="fas fa-circle-check"></i>Tudo sob controle — nenhuma OP exige decisão agora.</div>';
+        return alerts.slice(0, 9).map(a => `<div class="alert-row" style="border-left-color:${a.cor};" onclick="filaAbrirItem('${(a.op||'').replace(/'/g,'')}','${(a.sku||'').replace(/'/g,'')}')">
+            <div class="a-ic" style="background:${a.cor};"><i class="fas fa-${a.ic}"></i></div>
+            <div class="a-main"><div class="a-t">${a.t}</div><div class="a-s">${a.s}</div></div>
+            <div class="a-pct" style="color:${a.cor};">${a.pct}%</div></div>`).join('');
+    }
     function renderPcpPainel() {
         const all = pcpProgAll();
         const prog = all.reduce((s, x) => s + progNum(x.qtProg), 0), real = all.reduce((s, x) => s + progNum(x.qtReal), 0);
@@ -6158,14 +6265,21 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const paradaMin = apo.filter(a => a.cod && !/99 - Produção/.test(a.cod) && !/^R /.test(a.cod)).reduce((s, a) => s + minutosDe(a.total), 0);
         const dispon = (prodMin + paradaMin) ? Math.round(prodMin / (prodMin + paradaMin) * 100) : 0;
         const aparas = apo.reduce((s, a) => s + progNum(a.apl) + progNum(a.api), 0);
-        const strip = document.getElementById('gv-strip');
-        if (strip) strip.innerHTML = `
-            <div class="cmd-mini" style="--c:#2563eb"><div class="l">OPs na fila</div><div class="v">${all.length}</div></div>
-            <div class="cmd-mini" style="--c:var(--gold)"><div class="l">Atingido (kg)</div><div class="v">${prog ? Math.round(real / prog * 100) : 0}%</div></div>
-            <div class="cmd-mini" style="--c:#0d9488"><div class="l">Disponibilidade</div><div class="v">${dispon}%</div></div>
-            <div class="cmd-mini" style="--c:#f59e0b"><div class="l">Horas paradas</div><div class="v">${Math.round(paradaMin / 60)}h</div></div>
-            <div class="cmd-mini" style="--c:#e11d48"><div class="l">Aparas (kg)</div><div class="v">${Math.round(aparas).toLocaleString('pt-BR')}</div></div>`;
+        const pend = all.filter(x => (x.pct || 0) < 100);
+        const atrasadas = pend.filter(x => x.entrega && x.termino && x.termino > x.entrega).length;
+        const noPrazo = pend.length ? Math.round((pend.length - atrasadas) / pend.length * 100) : 100;
         const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+        set('pcp-cockpit', PROG_MAQS.map(pcpMachineCard).join(''));
+        const tile = (ic, bg, v, l) => `<div class="tile"><div class="t-ic" style="background:${bg};"><i class="fas fa-${ic}"></i></div><div class="t-v">${v}</div><div class="t-l">${l}</div></div>`;
+        set('pcp-tiles',
+            tile('layer-group', '#2563eb', pend.length, 'OPs na fila') +
+            tile('bullseye', '#c5a880', (prog ? Math.round(real / prog * 100) : 0) + '%', 'Atingido (kg)') +
+            tile('clock', noPrazo >= 90 ? '#16a34a' : '#f59e0b', noPrazo + '%', 'No prazo') +
+            tile('triangle-exclamation', atrasadas ? '#e11d48' : '#94a3b8', atrasadas, 'Em atraso') +
+            tile('gauge-high', dispon >= 75 ? '#0d9488' : '#f59e0b', dispon + '%', 'Disponibilidade') +
+            tile('recycle', '#7c3aed', Math.round(aparas).toLocaleString('pt-BR'), 'Aparas (kg)'));
+        set('gv-alertas', pcpAlertas());
+        const na = document.getElementById('gv-alertas-n'); if (na) na.innerText = pend.filter(x => (x.entrega && x.termino && x.termino > x.entrega) || ((x.pct || 0) > 0 && (x.pct || 0) < 80)).length + ' item(ns)';
         set('gv-gantt', filaGanttSVG(all));
         set('gv-real', gvRealVsProgSVG());
         set('gv-paradas', gvParadasSVG());
