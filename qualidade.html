@@ -453,6 +453,23 @@
     /* Croqui + Arte otimizados: medidas em linha, caixas maiores */
     .cli-med-row { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)) 2.2fr; gap: 10px; align-items: end; }
     .cli-med-row .cli-med-nota { font-size: 10.5px; color: #94a3b8; margin: 0; align-self: center; line-height: 1.35; }
+    /* ---- PCP: Programação / Apontamentos / Kit OP ---- */
+    .prog-tabs { display:flex; gap:8px; margin-top:10px; }
+    .prog-tab { padding:8px 18px; border:1.5px solid var(--border); border-radius:8px 8px 0 0; background:#f8fafc; cursor:pointer; font-weight:700; font-size:13px; color:#475569; }
+    .prog-tab.sel { background:#2563eb; color:#fff; border-color:#2563eb; }
+    .prog-kpis { display:flex; gap:10px; flex-wrap:wrap; }
+    .prog-kpi { background:#f1f5f9; border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:11px; color:#64748b; }
+    .prog-kpi b { display:block; font-size:15px; color:var(--navy); }
+    .prog-table td { padding:3px 5px; }
+    .prog-table input, .prog-table select { border:1px solid transparent; background:transparent; width:100%; padding:4px 5px; font-size:12px; border-radius:5px; }
+    .prog-table input:focus, .prog-table select:focus { border-color:#93c5fd; background:#fff; outline:none; }
+    .prog-table .prog-ro { color:#64748b; text-align:center; font-weight:600; }
+    .prog-table tr.prog-done { background:#f0fdf4; }
+    .prog-table tr.prog-late { background:#fff1f2; }
+    .kit-doc { display:flex; align-items:center; gap:6px; font-size:12px; padding:5px 10px; border:1px solid var(--border); border-radius:999px; background:#fff; cursor:pointer; }
+    .kit-doc input { accent-color:#2563eb; }
+    .mini-btn { border:1px solid var(--border); background:#fff; border-radius:5px; cursor:pointer; font-size:12px; line-height:1; padding:3px 7px; color:#475569; }
+    .mini-btn:hover { background:#f1f5f9; border-color:#94a3b8; }
     .cli-box { min-height: 320px; }
     .cli-box svg { max-height: 340px; }
     .cli-box img { border-radius: 6px; }
@@ -998,6 +1015,9 @@
       <div id="navd-pcp" class="navd" style="display:none;">
         <div class="nav-section">PCP — Planejamento</div>
         <button class="sys-nav-btn" onclick="nav('pcp-fila')" id="nav-pcp-fila"><span class="nav-icon"><i class="fas fa-calendar-days"></i></span> Fila de Produção</button>
+        <button class="sys-nav-btn" onclick="nav('pcp-programacao')" id="nav-pcp-programacao"><span class="nav-icon"><i class="fas fa-table-list"></i></span> Programação Rotativas</button>
+        <button class="sys-nav-btn" onclick="nav('pcp-apontamentos')" id="nav-pcp-apontamentos"><span class="nav-icon"><i class="fas fa-stopwatch"></i></span> Apontamentos</button>
+        <button class="sys-nav-btn" onclick="nav('pcp-kitop')" id="nav-pcp-kitop"><span class="nav-icon"><i class="fas fa-folder-open"></i></span> Kit OP</button>
         <button class="sys-nav-btn" onclick="nav('pcp-fichas')" id="nav-pcp-fichas"><span class="nav-icon"><i class="fas fa-file-lines"></i></span> Fichas da Qualidade</button>
         <button class="sys-nav-btn" onclick="nav('pcp-materiais')" id="nav-pcp-materiais"><span class="nav-icon"><i class="fas fa-boxes-stacked"></i></span> Materiais → Compras</button>
         <div class="nav-section">Cadastros</div>
@@ -2957,6 +2977,109 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         </div>
     </div>
 
+    <!-- ===== PCP · PROGRAMAÇÃO DAS ROTATIVAS (Gearless / Millennium) ===== -->
+    <div id="view-pcp-programacao" class="sys-view">
+        <div class="card-base" style="margin-bottom:14px;">
+            <div class="card-title"><i class="fas fa-table-list" style="color:#2563eb;"></i> Programação das Rotativas</div>
+            <div class="cmd-panel-sub">Sequência de produção por máquina impressora rotativa. Preencha as quantidades e as datas de início — o sistema calcula os <b>dias</b> (pela capacidade/dia), o <b>término</b> e o <b>% realizado</b>. Ordem editável.</div>
+            <div class="prog-tabs" id="prog-tabs"></div>
+            <div style="display:flex; gap:16px; align-items:end; flex-wrap:wrap; margin-top:10px;">
+                <div class="insp-field"><label>Capacidade (kg/dia)</label><input type="number" id="prog-cap" style="width:120px;" onchange="progSetCap(this.value)"></div>
+                <div class="insp-field"><label>Início do projeto</label><input type="date" id="prog-inicio" onchange="progRecalc()"></div>
+                <button class="action-btn-sec" onclick="progAddLinha()"><i class="fas fa-plus"></i> Nova linha</button>
+                <button class="action-btn-sec" onclick="progImportarFila()"><i class="fas fa-download"></i> Puxar da Fila</button>
+                <button class="action-btn-sec" onclick="progImprimir()"><i class="fas fa-print"></i> Imprimir</button>
+                <div style="flex:1;"></div>
+                <div class="prog-kpis" id="prog-kpis"></div>
+            </div>
+        </div>
+        <div class="card-base">
+            <div style="overflow-x:auto;"><table class="main-table prog-table">
+                <thead><tr>
+                    <th style="width:34px;">Seq</th><th style="width:70px;">OP/Obs</th><th style="width:92px;">Entrega</th>
+                    <th style="width:56px;">Larg.</th><th>Cliente</th><th style="width:96px;">SKU</th><th>Descrição</th>
+                    <th style="width:80px;">Qt. Prog.</th><th style="width:80px;">Qt. Realiz.</th><th style="width:56px;">%</th>
+                    <th style="width:104px;">Início</th><th style="width:46px;">Dias</th><th style="width:92px;">Término</th>
+                    <th style="width:70px; text-align:center;">Ações</th>
+                </tr></thead>
+                <tbody id="tb-prog"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <!-- ===== PCP · APONTAMENTOS DE PRODUÇÃO (Rotativas) ===== -->
+    <div id="view-pcp-apontamentos" class="sys-view">
+        <div class="card-base" style="margin-bottom:14px;">
+            <div class="card-title"><i class="fas fa-stopwatch" style="color:#2563eb;"></i> Apontamentos de Produção — Rotativas</div>
+            <div class="cmd-panel-sub">Registro por intervalo: máquina, operadores, OP, código do apontamento (produção/parada), produção em metros e kg, aparas e horas. A hora total é calculada.</div>
+            <div class="quick-form">
+                <div class="qf g-col-1"><span class="lbl">Dia</span><input class="inp" id="apo-dia" type="number" min="1" max="31"></div>
+                <div class="qf g-col-2"><span class="lbl">Mês</span><input class="inp" id="apo-mes" list="dl_meses"><datalist id="dl_meses"><option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option></datalist></div>
+                <div class="qf g-col-1"><span class="lbl">Ano</span><input class="inp" id="apo-ano" type="number"></div>
+                <div class="qf g-col-1"><span class="lbl">Turno</span><select class="inp" id="apo-turno"><option>1º</option><option>2º</option></select></div>
+                <div class="qf g-col-2"><span class="lbl">Máquina</span><select class="inp" id="apo-maq"><option>Gearless</option><option>Millennium</option></select></div>
+                <div class="qf g-col-2"><span class="lbl">Operador 1</span><input class="inp" id="apo-op1"></div>
+                <div class="qf g-col-2"><span class="lbl">Operador 2</span><input class="inp" id="apo-op2"></div>
+                <div class="qf g-col-5"><span class="lbl">Código (apontamento / parada)</span><select class="inp" id="apo-cod"></select></div>
+                <div class="qf g-col-2"><span class="lbl">Nº OP</span><input class="inp" id="apo-op" placeholder="Ex.: 907/1"></div>
+                <div class="qf g-col-2"><span class="lbl">SKU</span><input class="inp" id="apo-sku" list="dl_mp"></div>
+                <div class="qf g-col-1"><span class="lbl">Prod. (mt)</span><input class="inp" id="apo-mt" type="number"></div>
+                <div class="qf g-col-1"><span class="lbl">kg</span><input class="inp" id="apo-kg" type="number"></div>
+                <div class="qf g-col-1"><span class="lbl">Aparas lisa</span><input class="inp" id="apo-apl" type="number"></div>
+                <div class="qf g-col-1"><span class="lbl">Aparas imp.</span><input class="inp" id="apo-api" type="number"></div>
+                <div class="qf g-col-1"><span class="lbl">Hora início</span><input class="inp" id="apo-hi" type="time"></div>
+                <div class="qf g-col-1"><span class="lbl">Hora final</span><input class="inp" id="apo-hf" type="time"></div>
+                <div class="qf g-col-6"><span class="lbl">Observação</span><input class="inp" id="apo-obs"></div>
+            </div>
+            <div style="text-align:right; margin-top:6px;">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="apoLimpar()"><i class="fas fa-eraser"></i> Limpar</button>
+                <button class="sys-btn-success" onclick="apoAdd()"><i class="fas fa-plus"></i> Registrar apontamento</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Apontamentos registrados <span class="gold-chip" id="apo-chip">0</span>
+                <input class="input-search" id="apo-busca" placeholder="Filtrar por OP, SKU, operador…" onkeyup="renderApontamentos()" style="font-weight:normal;">
+            </div>
+            <div class="prog-kpis" id="apo-kpis" style="margin:6px 0 10px;"></div>
+            <div style="overflow-x:auto;"><table class="main-table" style="font-size:12px;">
+                <thead><tr><th>Data</th><th>Turno</th><th>Máq.</th><th>Operadores</th><th>Código</th><th>Nº OP</th><th>SKU</th><th>Prod. mt</th><th>kg</th><th>Ap. lisa</th><th>Ap. imp.</th><th>Início</th><th>Final</th><th>Total</th><th>OBS</th><th class="no-print"></th></tr></thead>
+                <tbody id="tb-apontamentos"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <!-- ===== PCP · KIT OP (documentos da Ordem de Produção) ===== -->
+    <div id="view-pcp-kitop" class="sys-view">
+        <div class="card-base" style="margin-bottom:14px;">
+            <div class="card-title"><i class="fas fa-folder-open" style="color:#2563eb;"></i> Kit da Ordem de Produção</div>
+            <div class="cmd-panel-sub">Monte o kit de documentos que acompanha a OP no chão de fábrica: <b>Capa (Principal)</b>, <b>Solicitação de MP</b>, <b>Controle de Paradas</b> e <b>Fechamento da OP</b>. Preencha o cabeçalho e imprima o kit.</div>
+            <div class="quick-form">
+                <div class="qf g-col-2"><span class="lbl">Nº OP</span><input class="inp" id="kit-op" placeholder="Ex.: 1151/0"></div>
+                <div class="qf g-col-2"><span class="lbl">Data</span><input class="inp" id="kit-data" type="date"></div>
+                <div class="qf g-col-2"><span class="lbl">SKU</span><input class="inp" id="kit-sku" list="dl_mp" onchange="kitPreencherSku()"></div>
+                <div class="qf g-col-4"><span class="lbl">Descrição</span><input class="inp" id="kit-desc"></div>
+                <div class="qf g-col-2"><span class="lbl">Nº Máquina / Setor</span><input class="inp" id="kit-maq" placeholder="Ex.: Gearless"></div>
+                <div class="qf g-col-4"><span class="lbl">Cliente</span><input class="inp" id="kit-cliente" list="dl_clientes"></div>
+                <div class="qf g-col-2"><span class="lbl">Largura</span><input class="inp" id="kit-larg"></div>
+                <div class="qf g-col-2"><span class="lbl">Qtd programada</span><input class="inp" id="kit-qtd"></div>
+                <div class="qf g-col-4"><span class="lbl">Documentos do kit</span>
+                    <div id="kit-docs" style="display:flex; flex-wrap:wrap; gap:10px; padding-top:6px;"></div>
+                </div>
+            </div>
+            <div style="text-align:right; margin-top:6px;">
+                <button class="action-btn-sec" style="margin-right:8px;" onclick="kitLimpar()"><i class="fas fa-eraser"></i> Limpar</button>
+                <button class="sys-btn-success" onclick="kitImprimir()"><i class="fas fa-print"></i> Gerar / Imprimir Kit OP</button>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Kits gerados <span class="gold-chip" id="kit-chip">0</span></div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Data</th><th>Nº OP</th><th>SKU</th><th>Descrição</th><th>Cliente</th><th>Documentos</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-kitop"></tbody>
+            </table></div>
+        </div>
+    </div>
+
     <!-- ==========================================================================
          DEPARTAMENTO PRODUÇÃO — Fila, Verificação de Parâmetros, Divergências
          ========================================================================== -->
@@ -3745,8 +3868,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         .forEach(k => { if (!RB[k]) RB[k] = []; });
     if (!RB.regrasCodigo) RB.regrasCodigo = regrasCodigoSeed();
     // Coleções do fluxo multi-setor (PCP, Produção, Compras, Logística)
-    ['fila','comprasReqs','reportsProducao','recebimentos'].forEach(k => { if (!RB[k]) RB[k] = []; });
+    ['fila','comprasReqs','reportsProducao','recebimentos','apontamentos','kitops'].forEach(k => { if (!RB[k]) RB[k] = []; });
     if (!RB.checklistDiario) RB.checklistDiario = {};
+    if (!RB.programacao) RB.programacao = { Gearless: [], Millennium: [] };
+    if (!RB.progCap) RB.progCap = { Gearless: 1500, Millennium: 1200 };
+    if (!RB.progInicio) RB.progInicio = {};
     if (!RB.aniloxes) RB.aniloxes = [
         { id: 21, codigo: 'ANX-160', lpc: '160', bcm: '—', obs: 'Branco' },
         { id: 22, codigo: 'ANX-S',   lpc: 'S',   bcm: '3.2', obs: '' },
@@ -4121,6 +4247,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tela === 'comercial-pedidos') headerTitle = 'Comercial — Pedidos & Propostas';
         else if(tela === 'rh-colaboradores') headerTitle = 'RH — Colaboradores';
         else if(tela === 'pcp-fila') headerTitle = 'PCP — Fila de Produção';
+        else if(tela === 'pcp-programacao') headerTitle = 'PCP — Programação das Rotativas';
+        else if(tela === 'pcp-apontamentos') headerTitle = 'PCP — Apontamentos de Produção';
+        else if(tela === 'pcp-kitop') headerTitle = 'PCP — Kit da Ordem de Produção';
         else if(tela === 'pcp-fichas') headerTitle = 'PCP — Fichas da Qualidade';
         else if(tela === 'pcp-materiais') headerTitle = 'PCP — Materiais → Compras';
         else if(tela === 'prod-fila') headerTitle = 'Produção — Fila a Produzir';
@@ -4171,6 +4300,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comercial-pedidos') renderComercialPedidos();
         if(tela === 'rh-colaboradores') renderRHColaboradores();
         if(tela === 'pcp-fila') renderPcpFila();
+        if(tela === 'pcp-programacao') renderProgramacao();
+        if(tela === 'pcp-apontamentos') renderApontamentosView();
+        if(tela === 'pcp-kitop') renderKitOpView();
         if(tela === 'pcp-fichas') renderPcpFichas();
         if(tela === 'pcp-materiais') renderPcpMateriais();
         if(tela === 'prod-fila') renderProdFila();
@@ -5530,6 +5662,251 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const stcls = s => s === 'Comprado' ? 'st-conc' : s === 'Em cotação' ? 'st-and' : 'st-pend';
         tb.innerHTML = RB.comprasReqs.length ? RB.comprasReqs.map(r => `<tr><td>${fmtData(r.data)}</td><td style="font-weight:bold; color:#2563eb;">${r.ficha||'-'}</td><td>${r.material}</td><td>${r.qtd||'-'}</td><td><span class="badge-status ${stcls(r.status)}">${r.status}</span></td><td>${r.usuario}</td></tr>`).join('') : vazioTb(6, 'Nenhum material solicitado.');
     }
+
+    // ==========================================================================
+    // PCP · PROGRAMAÇÃO DAS ROTATIVAS (Gearless / Millennium)
+    // ==========================================================================
+    let progMaq = 'Gearless';
+    const PROG_MAQS = ['Gearless', 'Millennium'];
+    function progLista() { RB.programacao = RB.programacao || {}; if (!RB.programacao[progMaq]) RB.programacao[progMaq] = []; return RB.programacao[progMaq]; }
+    function progNum(v) { const n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isFinite(n) ? n : 0; }
+    function progAddDias(dateStr, dias) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr + 'T12:00:00'); if (isNaN(d)) return '';
+        d.setDate(d.getDate() + Math.max(0, (dias || 0) - 1));
+        return d.toISOString().slice(0, 10);
+    }
+    function progRecalc() {
+        const cap = progNum((document.getElementById('prog-cap') || {}).value) || RB.progCap[progMaq] || 1000;
+        RB.progCap[progMaq] = cap;
+        const inicioProj = (document.getElementById('prog-inicio') || {}).value || '';
+        if (inicioProj) RB.progInicio[progMaq] = inicioProj;
+        let cursor = inicioProj || RB.progInicio[progMaq] || '';
+        progLista().forEach(it => {
+            const prog = progNum(it.qtProg), real = progNum(it.qtReal);
+            it.pct = prog ? Math.round((real / prog) * 100) : 0;
+            it.dias = prog ? Math.max(1, Math.ceil(prog / cap)) : 1;
+            if (!it.inicio && cursor) it.inicio = cursor;
+            it.termino = progAddDias(it.inicio, it.dias);
+            // próximo item começa no dia seguinte ao término deste
+            if (it.termino) { const nx = new Date(it.termino + 'T12:00:00'); nx.setDate(nx.getDate() + 1); cursor = nx.toISOString().slice(0, 10); }
+        });
+        rbSave();
+    }
+    function renderProgramacao() {
+        const tabs = document.getElementById('prog-tabs');
+        if (tabs) tabs.innerHTML = PROG_MAQS.map(m => `<div class="prog-tab ${m === progMaq ? 'sel' : ''}" onclick="progSelMaq('${m}')">${m} <span style="opacity:.7; font-weight:400;">(${(RB.programacao[m] || []).length})</span></div>`).join('');
+        const capEl = document.getElementById('prog-cap'); if (capEl) capEl.value = RB.progCap[progMaq] || '';
+        const iniEl = document.getElementById('prog-inicio'); if (iniEl) iniEl.value = RB.progInicio[progMaq] || '';
+        progRecalc();
+        const tb = document.getElementById('tb-prog'); if (!tb) return;
+        const lista = progLista();
+        const fmtd = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+        tb.innerHTML = lista.length ? lista.map((it, i) => {
+            const done = it.pct >= 100, late = !done && it.entrega && it.termino && it.termino > it.entrega;
+            return `<tr class="${done ? 'prog-done' : (late ? 'prog-late' : '')}">
+                <td class="prog-ro">${i + 1}</td>
+                <td><input value="${it.op || ''}" onchange="progSet(${i},'op',this.value)"></td>
+                <td><input type="date" value="${it.entrega || ''}" onchange="progSet(${i},'entrega',this.value)"></td>
+                <td><input value="${it.larg || ''}" onchange="progSet(${i},'larg',this.value)"></td>
+                <td><input value="${(it.cliente || '').replace(/"/g,'&quot;')}" list="dl_clientes" onchange="progSet(${i},'cliente',this.value)"></td>
+                <td><input value="${it.sku || ''}" list="dl_mp" onchange="progSet(${i},'sku',this.value)"></td>
+                <td><input value="${(it.desc || '').replace(/"/g,'&quot;')}" onchange="progSet(${i},'desc',this.value)"></td>
+                <td><input type="number" value="${it.qtProg || ''}" onchange="progSet(${i},'qtProg',this.value)"></td>
+                <td><input type="number" value="${it.qtReal || ''}" onchange="progSet(${i},'qtReal',this.value)"></td>
+                <td class="prog-ro" style="color:${done ? '#16a34a' : (it.pct ? '#2563eb' : '#94a3b8')}">${it.pct || 0}%</td>
+                <td><input type="date" value="${it.inicio || ''}" onchange="progSet(${i},'inicio',this.value)"></td>
+                <td class="prog-ro">${it.dias || 1}</td>
+                <td class="prog-ro">${fmtd(it.termino)}</td>
+                <td style="text-align:center; white-space:nowrap;">
+                    <button class="mini-btn" title="Subir" onclick="progMover(${i},-1)">▲</button>
+                    <button class="mini-btn" title="Descer" onclick="progMover(${i},1)">▼</button>
+                    <button class="mini-btn" title="Remover" onclick="progRemover(${i})" style="color:#ef4444;">✕</button>
+                </td></tr>`;
+        }).join('') : vazioTb(14, 'Nenhuma OP programada nesta máquina. Use “Nova linha” ou “Puxar da Fila”.');
+        // KPIs
+        const totProg = lista.reduce((s, x) => s + progNum(x.qtProg), 0), totReal = lista.reduce((s, x) => s + progNum(x.qtReal), 0);
+        const kpi = document.getElementById('prog-kpis');
+        if (kpi) kpi.innerHTML = `<div class="prog-kpi">OPs<b>${lista.length}</b></div><div class="prog-kpi">Kg programados<b>${totProg.toLocaleString('pt-BR')}</b></div><div class="prog-kpi">Kg realizados<b>${totReal.toLocaleString('pt-BR')}</b></div><div class="prog-kpi">Atingido<b>${totProg ? Math.round(totReal / totProg * 100) : 0}%</b></div>`;
+    }
+    function progSelMaq(m) { progMaq = m; renderProgramacao(); }
+    function progSetCap(v) { RB.progCap[progMaq] = progNum(v); renderProgramacao(); }
+    function progSet(i, campo, v) { const it = progLista()[i]; if (!it) return; it[campo] = v; renderProgramacao(); }
+    function progAddLinha() { progLista().push({ op: '', entrega: '', larg: '', cliente: '', sku: '', desc: '', qtProg: '', qtReal: '', inicio: '' }); renderProgramacao(); }
+    function progMover(i, dir) { const l = progLista(); const j = i + dir; if (j < 0 || j >= l.length) return; [l[i], l[j]] = [l[j], l[i]]; l.forEach(x => x.inicio = ''); renderProgramacao(); }
+    function progRemover(i) { const l = progLista(); if (!confirm('Remover esta OP da programação?')) return; l.splice(i, 1); l.forEach(x => x.inicio = ''); renderProgramacao(); }
+    function progImportarFila() {
+        const l = progLista(); let add = 0;
+        (RB.fila || []).filter(f => (f.maquina || '') === progMaq || !f.maquina).forEach(f => {
+            if (l.some(x => x.op === f.cod)) return;
+            const p = RB.produtos.find(x => (x.codigo || '') === (f.produto || '') || (x.descricao || '') === (f.produto || ''));
+            l.push({ op: f.cod, entrega: f.dataPrev || '', larg: '', cliente: f.cliente || '', sku: p ? p.codigo : (f.produto || ''), desc: p ? p.descricao : (f.produto || ''), qtProg: '', qtReal: '', inicio: '' });
+            add++;
+        });
+        if (!add) { alert('Nenhuma OP nova da fila para esta máquina.'); return; }
+        renderProgramacao();
+    }
+    function progImprimir() {
+        const lista = progLista();
+        if (!lista.length) { alert('Programação vazia.'); return; }
+        const fmtd = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+        const linhas = lista.map((it, i) => `<tr><td class="l">${i + 1}</td><td class="v" style="text-align:left;">${it.op || '—'}</td><td class="v">${fmtd(it.entrega)}</td><td class="v" style="text-align:left;">${it.cliente || '—'}</td><td class="v">${it.sku || '—'}</td><td class="v" style="text-align:left;">${it.desc || '—'}</td><td class="l">${progNum(it.qtProg).toLocaleString('pt-BR')}</td><td class="l">${it.pct || 0}%</td><td class="v">${fmtd(it.inicio)}</td><td class="l">${it.dias || 1}</td><td class="v">${fmtd(it.termino)}</td></tr>`).join('');
+        const html = `<div class="fu-page"><div class="fup-head"><div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div><div class="fup-doc"><div class="t">Programação — ${progMaq}</div><div class="e">Capacidade ${RB.progCap[progMaq] || '—'} kg/dia</div><div class="c">${lista.length} OP(s) · emitido ${new Date().toLocaleDateString('pt-BR')}</div></div></div>
+            <table class="fup-params"><tr><th>Seq</th><th>OP</th><th>Entrega</th><th>Cliente</th><th>SKU</th><th>Descrição</th><th>Qt.Prog</th><th>%</th><th>Início</th><th>Dias</th><th>Término</th></tr>${linhas}</table>
+            <div class="fup-foot"><span>PCP · Grupo Rebracil</span><span>Emitido por ${currentSessionUser}</span></div></div>`;
+        abrirPreviewDoc(html, 'Pré-visualização — Programação ' + progMaq, `Programação da ${progMaq} · confira antes de imprimir.`, () => { document.body.classList.add('print-mode-fu'); window.print(); document.body.classList.remove('print-mode-fu'); });
+    }
+
+    // ==========================================================================
+    // PCP · APONTAMENTOS DE PRODUÇÃO (Rotativas)
+    // ==========================================================================
+    const APO_CODIGOS = ['1 - Ajuste de Registro','2 - Manutenção Corretiva','3 - Falta de Matéria Prima','3 - Falta de Matéria Prima/ Pré-impresso','4 - Ajuste de Máquina','5 - Troca de Bobina','6 - Falta de Operador','7 - Reunião','8 - Treinamento','9 - Falta de Energia','10 - Falta de Ar Comprimido','11 - Manutenção Preventiva','12 - Troca de Cilindro/Camisa','13 - Troca de Anilox','14 - Colagem Clichê','15 - Limpeza Bomba de Tinta/limpeza geral','16 - Troca de Faca','18 - Acerto de Cor','20 - Repasse de Material','21 - Problemas com Matéria Prima','22 - Sem produção','23 - Aprovação CQ','24 - Setup','25 - Problemas com clichê','26 - Outros (justificar)','99 - Produção','R - Refeição'];
+    function apoHoraTotal(hi, hf) {
+        if (!hi || !hf) return '';
+        const [a, b] = hi.split(':').map(Number), [c, d] = hf.split(':').map(Number);
+        let mins = (c * 60 + d) - (a * 60 + b); if (mins < 0) mins += 24 * 60;
+        return String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
+    }
+    function renderApontamentosView() {
+        const sel = document.getElementById('apo-cod');
+        if (sel && !sel.dataset.built) { sel.innerHTML = APO_CODIGOS.map(c => `<option>${c}</option>`).join(''); sel.value = '99 - Produção'; sel.dataset.built = '1'; }
+        const now = new Date();
+        const setIf = (id, v) => { const el = document.getElementById(id); if (el && !el.value) el.value = v; };
+        setIf('apo-dia', now.getDate()); setIf('apo-ano', now.getFullYear());
+        setIf('apo-mes', ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][now.getMonth()]);
+        renderApontamentos();
+    }
+    function apoAdd() {
+        const g = id => (document.getElementById(id) || {}).value || '';
+        const hi = g('apo-hi'), hf = g('apo-hf');
+        if (!g('apo-cod')) { alert('Selecione o código do apontamento.'); return; }
+        RB.apontamentos.unshift({
+            id: novoId(), dia: g('apo-dia'), mes: g('apo-mes'), ano: g('apo-ano'), turno: g('apo-turno'),
+            maq: g('apo-maq'), op1: g('apo-op1'), op2: g('apo-op2'), cod: g('apo-cod'), op: g('apo-op'), sku: g('apo-sku'),
+            mt: g('apo-mt'), kg: g('apo-kg'), apl: g('apo-apl'), api: g('apo-api'), hi, hf, total: apoHoraTotal(hi, hf), obs: g('apo-obs'), usuario: currentSessionUser
+        });
+        rbSave(); registrarAtividade(`apontou ${g('apo-cod')} na ${g('apo-maq')} (OP ${g('apo-op') || '—'})`);
+        ['apo-op1','apo-op2','apo-op','apo-sku','apo-mt','apo-kg','apo-apl','apo-api','apo-hi','apo-hf','apo-obs'].forEach(i => { const el = document.getElementById(i); if (el) el.value = ''; });
+        renderApontamentos();
+    }
+    function apoLimpar() { ['apo-op1','apo-op2','apo-op','apo-sku','apo-mt','apo-kg','apo-apl','apo-api','apo-hi','apo-hf','apo-obs'].forEach(i => { const el = document.getElementById(i); if (el) el.value = ''; }); }
+    function apoRemover(id) { const r = RB.apontamentos.find(x => x.id === id); if (!r || !confirm('Remover este apontamento?')) return; RB.apontamentos = RB.apontamentos.filter(x => x.id !== id); rbSave(); renderApontamentos(); }
+    function renderApontamentos() {
+        const busca = ((document.getElementById('apo-busca') || {}).value || '').toLowerCase();
+        const arr = RB.apontamentos.filter(r => !busca || [r.op, r.sku, r.op1, r.op2, r.cod, r.maq].join(' ').toLowerCase().includes(busca));
+        const chip = document.getElementById('apo-chip'); if (chip) chip.innerText = arr.length;
+        const tb = document.getElementById('tb-apontamentos'); if (!tb) return;
+        const codIcon = c => /99 - Produção/.test(c) ? '#16a34a' : /^R /.test(c) ? '#64748b' : '#dc2626';
+        tb.innerHTML = arr.length ? arr.map(r => `<tr>
+            <td>${(r.dia||'')}/${(r.mes||'').slice(0,3)}/${(r.ano||'')}</td><td>${r.turno||''}</td><td>${r.maq||''}</td>
+            <td>${[r.op1, r.op2].filter(Boolean).join(' / ') || '—'}</td>
+            <td style="font-weight:600; color:${codIcon(r.cod)};">${r.cod||''}</td>
+            <td style="font-weight:bold; color:#2563eb;">${r.op||'—'}</td><td>${r.sku||'—'}</td>
+            <td style="text-align:right;">${r.mt ? Number(r.mt).toLocaleString('pt-BR') : '—'}</td>
+            <td style="text-align:right;">${r.kg ? Number(r.kg).toLocaleString('pt-BR') : '—'}</td>
+            <td style="text-align:right;">${r.apl || '—'}</td><td style="text-align:right;">${r.api || '—'}</td>
+            <td>${r.hi||'—'}</td><td>${r.hf||'—'}</td><td style="font-weight:600;">${r.total||'—'}</td><td>${r.obs||''}</td>
+            <td class="no-print" style="text-align:center;"><button class="mini-btn" style="color:#ef4444;" onclick="apoRemover(${r.id})">✕</button></td></tr>`).join('') : vazioTb(16, 'Nenhum apontamento registrado.');
+        // KPIs
+        const soma = (k) => arr.reduce((s, x) => s + progNum(x[k]), 0);
+        const kpi = document.getElementById('apo-kpis');
+        if (kpi) kpi.innerHTML = `<div class="prog-kpi">Registros<b>${arr.length}</b></div><div class="prog-kpi">Produção (mt)<b>${soma('mt').toLocaleString('pt-BR')}</b></div><div class="prog-kpi">Produção (kg)<b>${soma('kg').toLocaleString('pt-BR')}</b></div><div class="prog-kpi">Aparas (kg)<b>${(soma('apl') + soma('api')).toLocaleString('pt-BR')}</b></div>`;
+    }
+
+    // ==========================================================================
+    // PCP · KIT OP (documentos que acompanham a Ordem de Produção)
+    // ==========================================================================
+    const KIT_DOCS = [
+        { key: 'principal', nome: 'Capa (Principal)', on: true },
+        { key: 'mp', nome: 'Solicitação de MP', on: true },
+        { key: 'paradas', nome: 'Controle de Paradas', on: true },
+        { key: 'fechamento', nome: 'Fechamento da OP', on: true }
+    ];
+    let kitSel = { principal: true, mp: true, paradas: true, fechamento: true };
+    function renderKitOpView() {
+        const host = document.getElementById('kit-docs');
+        if (host) host.innerHTML = KIT_DOCS.map(d => `<label class="kit-doc"><input type="checkbox" ${kitSel[d.key] ? 'checked' : ''} onchange="kitSel['${d.key}']=this.checked">${d.nome}</label>`).join('');
+        const dt = document.getElementById('kit-data'); if (dt && !dt.value) dt.value = new Date().toISOString().slice(0, 10);
+        renderKitOps();
+    }
+    function kitPreencherSku() {
+        const sku = (document.getElementById('kit-sku') || {}).value || '';
+        const p = RB.produtos.find(x => (x.codigo || '').toUpperCase() === sku.toUpperCase());
+        if (p) { const d = document.getElementById('kit-desc'); if (d && !d.value) d.value = p.descricao || ''; }
+    }
+    function kitLimpar() { ['kit-op','kit-sku','kit-desc','kit-maq','kit-cliente','kit-larg','kit-qtd'].forEach(i => { const el = document.getElementById(i); if (el) el.value = ''; }); }
+    function kitDados() {
+        const g = id => (document.getElementById(id) || {}).value || '';
+        return { op: g('kit-op'), data: g('kit-data'), sku: g('kit-sku'), desc: g('kit-desc'), maq: g('kit-maq'), cliente: g('kit-cliente'), larg: g('kit-larg'), qtd: g('kit-qtd') };
+    }
+    function kitFolhaHTML(titulo, corpo, d) {
+        const dt = d.data ? new Date(d.data + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+        return `<div class="fu-page"><div class="fup-head"><div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div><div class="fup-doc"><div class="t">${titulo}</div><div class="e">OP ${d.op || '—'} · ${dt}</div><div class="c">${d.sku || ''} ${d.desc ? '· ' + d.desc : ''}</div></div></div>
+            <table class="fup-meta"><tr><th>Cliente</th><th>SKU</th><th>Máquina/Setor</th><th>Largura</th><th>Qtd programada</th></tr>
+            <tr><td>${d.cliente || '—'}</td><td>${d.sku || '—'}</td><td>${d.maq || '—'}</td><td>${d.larg || '—'}</td><td>${d.qtd || '—'}</td></tr></table>
+            ${corpo}
+            <div class="fup-foot"><span>Kit OP · Grupo Rebracil</span><span>Emitido por ${currentSessionUser} em ${new Date().toLocaleDateString('pt-BR')}</span></div></div>`;
+    }
+    function kitLinhasVazias(cols, n) {
+        let r = '';
+        for (let i = 0; i < n; i++) r += '<tr>' + cols.map(() => '<td style="height:22px;">&nbsp;</td>').join('') + '</tr>';
+        return r;
+    }
+    function kitImprimir() {
+        const d = kitDados();
+        if (!d.op) { alert('Informe o Nº da OP.'); return; }
+        let html = '';
+        if (kitSel.principal) {
+            html += kitFolhaHTML('Ordem de Produção — Capa', `<table class="fup-params"><tr><th>Campo</th><th>Informação</th></tr>
+                <tr><td class="l">Nº OP</td><td class="v" style="text-align:left; font-weight:800;">${d.op}</td></tr>
+                <tr><td class="l">SKU / Código</td><td class="v" style="text-align:left;">${d.sku || '—'}</td></tr>
+                <tr><td class="l">Descrição</td><td class="v" style="text-align:left;">${d.desc || '—'}</td></tr>
+                <tr><td class="l">Cliente</td><td class="v" style="text-align:left;">${d.cliente || '—'}</td></tr>
+                <tr><td class="l">Máquina / Setor</td><td class="v" style="text-align:left;">${d.maq || '—'}</td></tr>
+                <tr><td class="l">Largura</td><td class="v" style="text-align:left;">${d.larg || '—'}</td></tr>
+                <tr><td class="l">Qtd programada</td><td class="v" style="text-align:left;">${d.qtd || '—'}</td></tr></table>`, d);
+        }
+        if (kitSel.mp) {
+            html += kitFolhaHTML('Solicitação de Retirada de MP', `<div class="fup-sec-title">Materiais / Bobinas</div>
+                <table class="fup-params"><tr><th>Código de Produto</th><th>Fornecedor</th><th>Peso previsto (kg)</th><th>Peso entregue</th><th>Volume / Pallet</th></tr>
+                ${kitLinhasVazias([1,2,3,4,5], 8)}</table>
+                <div class="fup-sec-title">Acessórios (Zip / Fita / Forros)</div>
+                <table class="fup-params"><tr><th>Código do Acessório</th><th>Modelo</th><th>Qtd</th><th>Entregue</th></tr>${kitLinhasVazias([1,2,3,4], 4)}</table>`, d);
+        }
+        if (kitSel.paradas) {
+            html += kitFolhaHTML('Controle de Paradas de Máquina', `<table class="fup-params"><tr><th>Data</th><th>Código da parada</th><th>Hora início</th><th>Hora término</th><th>Total</th><th>Observação</th></tr>${kitLinhasVazias([1,2,3,4,5,6], 14)}</table>
+                <div style="font-size:9px; color:#555; margin-top:6px;">Códigos: ${APO_CODIGOS.join(' · ')}</div>`, d);
+        }
+        if (kitSel.fechamento) {
+            html += kitFolhaHTML('Fechamento da Ordem de Produção', `<div class="fup-sec-title">Fechamento de Produção</div>
+                <table class="fup-params"><tr><th>Produzido (kg)</th><th>Produzido (mt)</th><th>Aparas lisa</th><th>Aparas imp.</th><th>Refugo</th><th>Rendimento %</th></tr>${kitLinhasVazias([1,2,3,4,5,6], 2)}</table>
+                <div class="fup-sec-title">Fechamento de Tintas / MP / Insumos</div>
+                <table class="fup-params"><tr><th>Item</th><th>Consumo previsto</th><th>Consumo real</th><th>Devolução ao estoque</th></tr>${kitLinhasVazias([1,2,3,4], 6)}</table>
+                <div class="fup-sec-title">Movimentação de Estoque / Observações</div>
+                <table class="fup-params"><tr><td style="height:70px; text-align:left; vertical-align:top;">&nbsp;</td></tr></table>`, d);
+        }
+        // salva o registro do kit
+        const docs = KIT_DOCS.filter(x => kitSel[x.key]).map(x => x.nome).join(', ');
+        RB.kitops.unshift({ id: novoId(), ...d, docs, criadoEm: new Date().toISOString(), usuario: currentSessionUser });
+        rbSave(); registrarAtividade(`gerou o Kit OP ${d.op}`); renderKitOps();
+        abrirPreviewDoc(html, 'Pré-visualização — Kit OP ' + d.op, `Kit da OP ${d.op} (${docs}) · confira antes de imprimir.`, () => { document.body.classList.add('print-mode-fu'); window.print(); document.body.classList.remove('print-mode-fu'); });
+    }
+    function renderKitOps() {
+        const chip = document.getElementById('kit-chip'); if (chip) chip.innerText = RB.kitops.length;
+        const tb = document.getElementById('tb-kitop'); if (!tb) return;
+        tb.innerHTML = RB.kitops.length ? RB.kitops.map(k => `<tr>
+            <td>${k.data ? new Date(k.data + 'T12:00:00').toLocaleDateString('pt-BR') : fmtData(k.criadoEm)}</td>
+            <td style="font-weight:bold; color:#2563eb;">${k.op}</td><td>${k.sku || '—'}</td><td>${k.desc || '—'}</td><td>${k.cliente || '—'}</td>
+            <td style="font-size:11px;">${k.docs || '—'}</td>
+            <td style="text-align:center;"><button class="mini-btn" title="Recarregar" onclick="kitCarregar(${k.id})"><i class="fas fa-rotate-left"></i></button> <button class="mini-btn" style="color:#ef4444;" onclick="kitRemover(${k.id})">✕</button></td></tr>`).join('') : vazioTb(7, 'Nenhum kit gerado ainda.');
+    }
+    function kitCarregar(id) {
+        const k = RB.kitops.find(x => x.id === id); if (!k) return;
+        const set = (i, v) => { const el = document.getElementById(i); if (el) el.value = v || ''; };
+        set('kit-op', k.op); set('kit-data', k.data); set('kit-sku', k.sku); set('kit-desc', k.desc); set('kit-maq', k.maq); set('kit-cliente', k.cliente); set('kit-larg', k.larg); set('kit-qtd', k.qtd);
+        window.scrollTo(0, 0);
+    }
+    function kitRemover(id) { const k = RB.kitops.find(x => x.id === id); if (!k || !confirm(`Remover o registro do Kit OP ${k.op}?`)) return; RB.kitops = RB.kitops.filter(x => x.id !== id); rbSave(); renderKitOps(); }
 
     // ==========================================================================
     // DEPARTAMENTO PRODUÇÃO — segue a fila, verifica parâmetros e reporta divergências
