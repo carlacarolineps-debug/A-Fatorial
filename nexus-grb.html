@@ -2863,9 +2863,9 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <thead><tr><th style="width: 50px;">Rank</th><th>Ano</th><th class="td-r">Faturamento</th><th class="td-r">Total de Despesas</th><th class="td-r">Resultado Operacional</th><th class="td-r text-center">Tendência / Comportamento</th></tr></thead>
             <tbody>
               <template x-for="(linha, idx) in historicoOrdenado" :key="linha.ano">
-                <tr :class="{'highlight-row': linha.ano === 2025}">
+                <tr :class="{'highlight-row': linha.ano === anoVigente}">
                   <td style="font-weight:900; color:var(--color-muted);" x-text="'#' + (idx + 1)"></td>
-                  <td style="font-weight:900; color:var(--accent-blue); font-size:14px;" x-text="linha.ano"></td>
+                  <td style="font-weight:900; color:var(--accent-blue); font-size:14px;"><span x-text="linha.ano"></span><template x-if="linha.atual"><span class="res-nota" style="margin-left:6px">em curso</span></template></td>
                   <td class="td-r font-bold" x-text="formatarDinheiroExato(linha.fat)"></td><td class="td-r text-gray-500" x-text="formatarDinheiroExato(linha.desp)"></td>
                   <td class="td-r font-bold" :class="linha.lucro < 0 ? 'text-red-strong' : 'text-green-strong'" x-text="formatarDinheiroExato(linha.lucro)"></td>
                   <td class="td-r text-center font-bold"><span style="display:inline-flex; align-items:center; gap:6px; background: rgba(0,0,0,0.03); padding: 4px 12px; border-radius: 12px;" :class="linha.tendencia === 'Crescimento' ? 'text-green-strong' : (linha.tendencia === 'Queda' ? 'text-red-strong' : 'text-gray-500')"><span x-text="linha.icon" style="font-size:14px;"></span> <span x-text="linha.tendencia" style="font-size: 11px; text-transform: uppercase;"></span></span></td>
@@ -2878,18 +2878,18 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
       <div class="card-dark">
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 16px;">
-          <div><div class="card-title mb-1">Matriz Fiel de Resultados (Extração 2017-2025)</div><p class="text-xs text-gray-500 mb-0">Somente o melhor e o pior resultado de cada linha são destacados em verde ou vermelho.</p></div>
+          <div><div class="card-title mb-1">Matriz Fiel de Resultados (Extração 2017-<span x-text="anoVigente"></span>)</div><p class="text-xs text-gray-500 mb-0">Anos anteriores são fixos; a coluna <b x-text="anoVigente"></b> entra ao vivo, do resultado acumulado do exercício. Melhor e pior de cada linha destacados.</p></div>
           <div style="display:flex; align-items:center; gap:8px;"><label class="text-xs font-bold text-gray-500 uppercase">Ordem dos Anos:</label><select x-model="ordemMatriz" class="emc-input w-auto text-accent-blue"><option value="desc">Mais Atual ➝ Mais Antigo</option><option value="asc">Mais Antigo ➝ Mais Atual</option></select></div>
         </div>
         <div class="js-hscroll" style="overflow-x:auto; max-width: 100%; border: 1px solid var(--color-border); border-radius: 8px;">
           <table class="dark-table" style="width:100%; font-size:12px; white-space: nowrap;">
-            <thead><tr><th class="sticky-col" style="font-size:12px; min-width: 210px;">DESCRIÇÃO DAS LINHAS</th><template x-for="ano in anosMatrizExibicao" :key="ano"><th class="td-r font-bold text-gray-500" x-text="ano" style="padding: 12px 16px;"></th></template></tr></thead>
+            <thead><tr><th class="sticky-col" style="font-size:12px; min-width: 210px;">DESCRIÇÃO DAS LINHAS</th><template x-for="ano in anosMatrizExibicao" :key="ano"><th class="td-r font-bold" :class="ano===anoVigente?'text-accent-blue':'text-gray-500'" style="padding: 12px 16px;"><span x-text="ano"></span><template x-if="ano===anoVigente"><span class="res-nota" style="display:block">em curso</span></template></th></template></tr></thead>
             <tbody>
-              <template x-for="linha in historicoDreBase" :key="linha.desc">
+              <template x-for="linha in historicoMatriz" :key="linha.desc">
                 <tr :class="{'highlight-row': linha.desc.includes('Resultado Operacional')}">
                   <td class="sticky-col font-bold text-accent-blue" x-text="linha.desc"></td>
                   <template x-for="ano in anosMatrizExibicao" :key="ano">
-                    <td class="td-r" style="padding: 12px 16px;" :class="avaliarExtremoHorizontal(linha, ano, anosMatrizExibicao)" x-text="formatarDinheiroExato(linha[ano])"></td>
+                    <td class="td-r" style="padding: 12px 16px;" :class="[avaliarExtremoHorizontal(linha, ano, anosMatrizExibicao), ano===anoVigente?'text-accent-blue':'']" x-text="formatarDinheiroExato(linha[ano])"></td>
                   </template>
                 </tr>
               </template>
@@ -3919,7 +3919,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.9';
+const NEXUS_BUILD = '2407.10';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -5717,7 +5717,7 @@ function sistemaUnificado(){
       this.registrarLog('Exportou os logs de auditoria (CSV).');
     },
 
-    get tituloAba(){ return {'acoes':'Central de Ações · Plano Estratégico','hub':'Portal de Empresas · Grupo Rebracil','consolidado':'Central do Grupo · Consolidado','resultado_emb':'Resultado 2026 · Embalagem','emb_despesa':'Embalagem · Despesa','emb_receita':'Embalagem · Receita','emb_inventario':'Embalagem · Inventário','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Visão e Estratégia','fechamento':'Fechamento do Mês · Embalagem','servicos':'Serviços · Fechamento da Unidade','faturamento_req':'Faturamento · Requalificadora','inventario_req':'Inventário · Requalificadora','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários','dashboard':'Visão Geral de Resultados','historico_comparativo':'Comparativo Histórico (2017-2025)','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
+    get tituloAba(){ return {'acoes':'Central de Ações · Plano Estratégico','hub':'Portal de Empresas · Grupo Rebracil','consolidado':'Central do Grupo · Consolidado','resultado_emb':'Resultado 2026 · Embalagem','emb_despesa':'Embalagem · Despesa','emb_receita':'Embalagem · Receita','emb_inventario':'Embalagem · Inventário','faturamento':'Embalagem · Faturamento & Fator (R$/kg)','subempresas':'Embalagem · Visão e Estratégia','fechamento':'Fechamento do Mês · Embalagem','servicos':'Serviços · Fechamento da Unidade','faturamento_req':'Faturamento · Requalificadora','inventario_req':'Inventário · Requalificadora','inventario':'Embalagem · Inventário & ITP','projecao':'Tendência & Projeção','comparador':'Comparador de Empresas','simulador':'Simulador de Cenários','dashboard':'Visão Geral de Resultados','historico_comparativo':'Comparativo Histórico (2017-'+this.anoVigente+')','resultado_anual':'DRE Consolidado 2026','centro_custo': 'Matriz de Custos e Despesas','previsoes':'Gestão de Provisões de Risco','dr_config':'Motor de Gestão de Carteiras', 'configuracoes':'Configurações Globais (12 Meses)', 'despesa_mensal':'Despesa Mensal Lançada'}[this.aba] || ''; },
     get descAba(){ return {
       'acoes':'Quadro estratégico: arraste os cartões (ou use as setas) entre A Fazer, Em Andamento e Concluído. A Inteligência gera ações a partir dos alertas.',
       'fechamento':'Checklist do fechamento com status automático e conferência de consistência, o sistema confere o que antes era conferido na mão.',
@@ -5738,19 +5738,65 @@ function sistemaUnificado(){
       'centro_custo':'Rastreabilidade de gastos por centro de custo, com sub-lançamentos.',
       'despesa_mensal':'Despesas lançadas do mês, por conta e fornecedor.',
       'previsoes':'Provisões de risco: previsto x realizado e sobra/estouro.',
-      'historico_comparativo':'Série histórica 2017–2025 para leitura de tendência.',
+      'historico_comparativo':'Série histórica 2017–'+this.anoVigente+' (o ano em curso entra automaticamente).',
       'dr_config':'Distribuição de resultado e carteiras de capital.',
       'configuracoes':'Usuários, marca, cópia de segurança e parâmetros do sistema.'
     }[this.aba] || ''; },
     
+    // Ano de exercício em curso (lido do próprio dado; hoje 2026). A partir daqui, entra sozinho no comparativo.
+    get anoVigente() {
+      const lbl = (this.listaMeses && this.listaMeses[0] && this.listaMeses[0].labelData) || '';
+      const m = String(lbl).match(/(20\d{2})/); return m ? parseInt(m[1]) : 2026;
+    },
+    // Valor ao vivo do ano vigente para cada linha do histórico (puxa do DRE atual acumulado).
+    // O Estoque é SALDO DE FECHAMENTO (último mês lançado), nunca somatória dos meses.
+    historicoLiveVal(desc) {
+      const acum = d => { const l = this.dreAtual.find(x => x.desc === d); return l ? (l.acum || 0) : 0; };
+      const estoqueFech = () => { const l = this.dreAtual.find(x => x.desc === 'Estoque'); if (!l) return 0; let v = 0; this.listaMeses.forEach(m => { const k = m.chave.toLowerCase(); if ((l[k] || 0) > 0) v = l[k]; }); return v; };
+      const map = {
+        'Total Despesas': () => acum('Total de Despesas'),
+        'Despesa Requalificadora': () => acum('Total de Despesas'),
+        'Diferença Provisões': () => acum('Diferença Provisões'),
+        'Faturamento': () => acum('Faturamento'),
+        'Resultado Operacional': () => acum('Resultado Operacional'),
+        'Estoque': estoqueFech,
+        'Diferença Estoque': () => acum('Diferença de Estoque'),
+        'Operacional com Inventário': () => acum('Resultado Operacional com Inventário'),
+        'OP c/ Inv. e Dif. prov': () => acum('Resultado Op. com Inv. e Diferença de Provisão'),
+        'Relatório T.F': () => acum('Relatório TF'),
+        'Resultado Real s/ TF': () => acum('Resultado Real Sem TF e Spot'),
+      };
+      return map[desc] ? map[desc]() : 0;
+    },
+    // Matriz Fiel com o ano vigente já embutido (coluna 2026 ao vivo).
+    get historicoMatriz() {
+      const av = this.anoVigente;
+      if (!(av && av >= 2026)) return this.historicoDreBase;
+      return this.historicoDreBase.map(l => ({ ...l, [av]: this.historicoLiveVal(l.desc) }));
+    },
     get historicoOrdenado() {
-      let d = [...this.tendenciaHistorica];
+      let d = this.tendenciaHistorica.map(x => ({ ...x }));
+      const av = this.anoVigente;
+      if (av && av >= 2026 && !d.some(x => x.ano === av)) {
+        const fat = this.historicoLiveVal('Faturamento');
+        const desp = this.historicoLiveVal('Total Despesas');
+        const lucro = this.historicoLiveVal('Resultado Operacional');
+        const ant = d.slice().sort((a, b) => b.ano - a.ano)[0];
+        let tendencia = 'Mantém', icon = '→';
+        if (ant) { if (lucro > (ant.lucro || 0) * 1.02) { tendencia = 'Crescimento'; icon = '↑'; } else if (lucro < (ant.lucro || 0) * 0.98) { tendencia = 'Queda'; icon = '↓'; } }
+        d.push({ ano: av, fat, desp, lucro, tendencia, icon, atual: true });
+      }
       if(this.ordenacaoHistorico==='ano_desc') return d.sort((a,b)=>b.ano-a.ano);
       if(this.ordenacaoHistorico==='ano_asc') return d.sort((a,b)=>a.ano-b.ano);
       if(this.ordenacaoHistorico==='lucro_desc') return d.sort((a,b)=>b.lucro-a.lucro);
       return d.sort((a,b)=>a.lucro-b.lucro);
     },
-    get anosMatrizExibicao() { return this.ordemMatriz === 'desc' ? [2025,2024,2023,2022,2021,2020,2019,2018,2017] : [2017,2018,2019,2020,2021,2022,2023,2024,2025]; },
+    get anosMatrizExibicao() {
+      const base = [2025,2024,2023,2022,2021,2020,2019,2018,2017];
+      const av = this.anoVigente;
+      const comAtual = (av && av >= 2026 && !base.includes(av)) ? [av, ...base] : base;
+      return this.ordemMatriz === 'desc' ? comAtual : [...comAtual].reverse();
+    },
     get somaChaves() { return this.chavesDR.reduce((acc, curr) => acc + (curr.percentual||0), 0); },
     get ccPais() { return this.centrosCustoData.filter(c => c.ip === 1 && c.c !== 'Ajustes' && c.c !== 'Total'); },
     get ccTransferiveis() {
@@ -6679,18 +6725,11 @@ function sistemaUnificado(){
       let resOpInvDifProv = this.dreAtual.find(l=>l.desc==="Resultado Op. com Inv. e Diferença de Provisão");
       let resRealSemTF = this.dreAtual.find(l=>l.desc==="Resultado Real Sem TF e Spot");
 
+      // O estoque NÃO é somatória: cada mês é um saldo, e a Diferença de Estoque do mês é sempre
+      // (saldo do mês − saldo do mês anterior). Janeiro/2026 puxa do saldo de fechamento de dez/2025
+      // (base = R$ 1.037.371,61, conforme a planilha oficial da Requalificadora). Não há mais "mês de
+      // abertura com variação zero": janeiro já compara com o saldo do ano anterior.
       let prevEstoque = (this.estoqueBase != null) ? this.estoqueBase : 1037371.61;
-      // Requalificadora (modo diff) com posição de estoque importada: o primeiro mês lançado é a
-      // ABERTURA (variação de estoque = zero); só os meses seguintes lançam a variação real. Evita
-      // um salto irreal ao comparar a posição (estoque líquido) com uma base de escopo diferente.
-      // Sem posição importada, mantém a base embutida (comportamento original conferido).
-      if (this.invMode !== 'full' && est) {
-          const ivBase = this.empresaExtras && this.empresaExtras.invReq;
-          if (ivBase && ivBase.meses && Object.keys(ivBase.meses).some(k => ivBase.meses[k])) {
-              const primeiro = this.listaMeses.map(m => m.chave.toLowerCase()).find(k => (est[k] || 0) > 0);
-              if (primeiro) prevEstoque = est[primeiro];
-          }
-      }
 
       this.listaMeses.forEach(m => {
           let k = m.chave.toLowerCase();
@@ -8942,7 +8981,7 @@ function sistemaUnificado(){
       }
 
       if(this.aba==='historico_comparativo') {
-        const hist = [...this.tendenciaHistorica].sort((a,b)=>a.ano-b.ano);
+        const hist = this.historicoOrdenado.slice().sort((a,b)=>a.ano-b.ano);
         renderChart('chartHistorico','bar',{labels:hist.map(i=>i.ano),datasets:[{label:'Faturamento',data:hist.map(i=>i.fat),backgroundColor:cBlue, order: 2},{label:'Total de Despesas',data:hist.map(i=>i.desp),backgroundColor:cGold, order: 2},{type:'line',label:'Resultado Op.',data:hist.map(i=>i.lucro),borderColor:cGreen,borderWidth:3,yAxisID:'y2',pointRadius:5, order: 1}]},chartOptsBase({scales:{x:{grid:{color:'rgba(122,128,153,0.1)'}},y:{display:!0,grid:{color:'rgba(122,128,153,0.1)'},ticks:{callback:v=>fmtAbrev(v)}},y2:{position:'right',display:!0,ticks:{callback:v=>fmtAbrev(v)}}}}));
       }
       
