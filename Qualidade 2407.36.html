@@ -429,6 +429,18 @@
     /* Campo ainda não preenchido: amarelo claro + atenção */
     .fu-vazio { background: #fefce8 !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='11' height='11'%3E%3Cpath d='M12 3.5l9 15.5H3z' fill='%23f59e0b'/%3E%3Cpath d='M12 10v4.5M12 17.2v.3' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 6px center !important; }
 
+    /* ---- Tipo de Puxada (sentido de impressão/rebobinamento) ---- */
+    .puxada-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:6px; }
+    .puxada-opt { border:1.5px solid var(--border); border-radius:8px; padding:6px; text-align:center; cursor:pointer; background:#fff; transition:.15s; }
+    .puxada-opt:hover { border-color:#94a3b8; }
+    .puxada-opt.sel { border-color:#191040; box-shadow:0 0 0 2px #19104022; background:#f8f7fc; }
+    .puxada-opt svg { width:100%; height:auto; max-height:96px; }
+    .puxada-opt .pl { font-size:11px; font-weight:700; color:#334155; margin-top:2px; }
+    .puxada-opt.sel .pl { color:#191040; }
+    .fu-page .puxada-opt { padding:3px; }
+    .fu-page .puxada-opt:not(.sel) { opacity:.35; }
+    .fu-page .puxada-opt svg { max-height:60px; }
+
     /* ---- Croqui de medidas (desenho técnico gerado das medidas) ---- */
     .fu-croqui-box { border: 1px solid var(--border); border-radius: 8px; background: #fff; min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .fu-croqui-box svg { width: 100%; height: auto; max-height: 260px; }
@@ -1823,6 +1835,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Velocidade (m/min)</span><input class="inp" id="fu_imp_velocidade" value="220"></div>
                 <div class="g-col g-col-3"><span class="lbl">Sentido Desbobinamento</span><input class="inp" id="fu_imp_sentido" value="Cabeça" list="dl_sentido"></div>
 
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">TIPO DE PUXADA <span style="font-weight:400; color:#94a3b8; font-size:9px;">(sentido que será impresso)</span></span></div>
+                <div class="g-col g-col-12"><input type="hidden" id="fu_imp_puxada"><div class="puxada-host" data-campo="fu_imp_puxada"></div></div>
+
                 <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">MATÉRIA PRIMA E BOBINA BASE</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Código MP <span style="font-weight:400; color:#94a3b8; font-size:9px;">(preenche descrição e medidas)</span></span><input class="inp" id="fu_imp_mp_codigo" list="dl_mp" autocomplete="off" placeholder="Digite ou selecione" onchange="fuMPChange()"><datalist id="dl_mp"></datalist></div>
                 <div class="g-col g-col-4"><span class="lbl">Descrição Matéria Prima</span><input class="inp" id="fu_imp_mp_descricao" placeholder="Preenche ao escolher o código"></div>
@@ -1937,6 +1952,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-4"><span class="lbl">Alinhamento / Telescopagem</span><input class="inp" id="fu_reb_alinhamento" value="Conforme padrão" list="dl_conforme"></div>
                 <div class="g-col g-col-4"><span class="lbl">Aspecto (rugas / enrugamento)</span><input class="inp" id="fu_reb_aspecto" value="Sem defeitos" list="dl_conforme"></div>
                 <div class="g-col g-col-4"><span class="lbl">Identificação / Etiqueta</span><input class="inp" id="fu_reb_etiqueta" value="OK" list="dl_conforme"></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e0f2fe;"><span class="lbl" style="color:#0891b2;">TIPO DE PUXADA <span style="font-weight:400; color:#94a3b8; font-size:9px;">(sentido que será rebobinado)</span></span></div>
+                <div class="g-col g-col-12"><input type="hidden" id="fu_reb_puxada"><div class="puxada-host" data-campo="fu_reb_puxada"></div></div>
             </div>
 
             <!-- SEÇÃO: CORTE & SOLDA (todos os campos da ficha individual) -->
@@ -4065,6 +4082,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 .filter(px => /mat[eé]ria|processo/i.test(px.tipo || ''))
                 .map(px => `<option value="${(px.codigo||'').replace(/"/g,'&quot;')}">${(px.descricao||'').slice(0,70).replace(/"/g,'&quot;')}</option>`).join('');
             fuCliCroqui();
+            fuPuxadaInit();
             fuAtualizarResumo();
         }
     }
@@ -5796,6 +5814,45 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         toast('Matéria prima ' + p.codigo + ' carregada da base.');
     }
 
+    // ---- Tipo de Puxada: seletor visual do sentido de impressão/rebobinamento ----
+    const PUXADAS = [
+        { key: 'Pé 1', rot: 0 }, { key: 'Pé 2', rot: -90 },
+        { key: 'Cabeça 1', rot: 180 }, { key: 'Cabeça 2', rot: 90 }
+    ];
+    function puxadaSVG(rot) {
+        return `<svg viewBox="0 0 100 108" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16,30 Q16,14 33,14 L74,14 Q88,14 88,26 L88,31" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+            <ellipse cx="25" cy="22" rx="9" ry="9" fill="#fff" stroke="#94a3b8" stroke-width="1.2"/><circle cx="25" cy="22" r="2.5" fill="#94a3b8"/>
+            <rect x="25" y="30" width="52" height="54" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="51" y="52" text-anchor="middle" font-size="10" font-weight="800" fill="#334155" font-family="Inter, Arial" transform="rotate(${rot} 51 52)">REBRACIL</text>
+            <path d="M51,60 L51,76" stroke="#191040" stroke-width="2.4"/><path d="M45,70 L51,78 L57,70" fill="none" stroke="#191040" stroke-width="2.4"/>
+        </svg>`;
+    }
+    function fuPuxadaInit() {
+        document.querySelectorAll('.puxada-host').forEach(host => {
+            const campo = host.dataset.campo;
+            if (!host.dataset.built) {
+                host.innerHTML = `<div class="puxada-grid">` + PUXADAS.map(p =>
+                    `<div class="puxada-opt" data-val="${p.key}" onclick="fuPuxadaSel('${campo}','${p.key}',this)">${puxadaSVG(p.rot)}<div class="pl">${p.key}</div></div>`
+                ).join('') + `</div>`;
+                host.dataset.built = '1';
+            }
+            fuPuxadaAplicar(campo);
+        });
+    }
+    function fuPuxadaAplicar(campo) {
+        const v = (document.getElementById(campo) || {}).value || '';
+        const host = document.querySelector(`.puxada-host[data-campo="${campo}"]`); if (!host) return;
+        host.querySelectorAll('.puxada-opt').forEach(o => o.classList.toggle('sel', o.dataset.val === v));
+    }
+    function fuPuxadaSel(campo, val, el) {
+        const cur = (document.getElementById(campo) || {}).value;
+        const novo = cur === val ? '' : val; // clicar de novo desmarca
+        document.getElementById(campo).value = novo;
+        fuPuxadaAplicar(campo);
+        fuAtualizarResumo();
+    }
+
     // ---- Croqui de medidas: desenha a embalagem com réguas de cotagem a partir das medidas ----
     function fuCliCroqui() {
         const box = document.getElementById('fu-cli-croqui');
@@ -6019,6 +6076,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         fuAnexos = JSON.parse(JSON.stringify(f.anexos || [])); fuRenderAnexos();
         fuMateriaisRestaurar();
         fuCliCroqui();
+        fuPuxadaInit();
         fuAtualizarResumo();
     }
 
