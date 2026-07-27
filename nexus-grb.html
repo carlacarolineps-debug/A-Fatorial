@@ -3602,10 +3602,26 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             <select x-model="modalTCC.destino" class="emc-input">
               <option value="">Selecione o centro de custo destino...</option>
               <template x-for="c in ccTransferiveis" :key="c.c">
-                <option :value="c.c" x-text="c.c"></option>
+                <option :value="c.c" x-text="c.c==='Ajustes' ? 'Ajustes (correção sem C.C. específico)' : c.c"></option>
               </template>
+              <option value="__novo__">＋ Criar novo centro de custo…</option>
             </select>
           </div>
+          <template x-if="modalTCC.destino === '__novo__'">
+            <div class="flex flex-col gap-3 rounded-lg" style="background:var(--color-surface2);padding:12px;border:1px dashed var(--color-border)">
+              <div>
+                <label class="text-[11px] font-bold text-gray-500 uppercase">Nome do novo centro de custo</label>
+                <input type="text" x-model="modalTCC.novoNome" class="emc-input" placeholder="Ex.: AJUSTE DE CLASSIFICAÇÃO">
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-gray-500 uppercase">Grupo (pai)</label>
+                <select x-model="modalTCC.novoParent" class="emc-input">
+                  <option value="">Selecione o grupo...</option>
+                  <template x-for="p in ccPais" :key="'np'+p.c"><option :value="p.c" x-text="p.c"></option></template>
+                </select>
+              </div>
+            </div>
+          </template>
           <div>
             <label class="text-[11px] font-bold text-gray-500 uppercase">Valor (R$)</label>
             <input type="text" inputmode="decimal" x-model="modalTCC.valor" class="emc-input" placeholder="0,00">
@@ -3903,7 +3919,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.8';
+const NEXUS_BUILD = '2407.9';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -5158,7 +5174,7 @@ function sistemaUnificado(){
 
     // --- Modais integrados (v13/06) ---
     modalTransferencia: { open: false, origemId: null, destinoId: '', valor: '', motivo: '' },
-    modalTCC: { open: false, origem: '', destino: '', valor: 0, mes: '' },
+    modalTCC: { open: false, origem: '', destino: '', valor: 0, mes: '', novoNome: '', novoParent: '' },
     modalNovoCC: { open: false, mes: '', parentCode: '', nome: '', valor: 0 },
 
     get totalDistribuidoGlobal() {
@@ -5304,21 +5320,37 @@ function sistemaUnificado(){
       this.modalTCC.mes = mesAtual;
       this.modalTCC.valor = valorMax || 0;
       this.modalTCC.destino = '';
+      this.modalTCC.novoNome = ''; this.modalTCC.novoParent = '';
       this.modalTCC.open = true;
     },
     executarTransferenciaCC() {
       let val = this.parseNumero(this.modalTCC.valor);
-      if (!this.modalTCC.destino || val <= 0) { alert('Preencha destino e valor.'); return; }
-      this.salvarEstado(`Transferência C.C. de ${this.modalTCC.origem} para ${this.modalTCC.destino}`);
+      let destino = this.modalTCC.destino;
+      if (!destino || val <= 0) { alert('Preencha destino e valor.'); return; }
+      // Criar novo centro de custo como destino, se escolhido
+      if (destino === '__novo__') {
+        const nome = (this.modalTCC.novoNome || '').trim().toUpperCase();
+        if (!nome || !this.modalTCC.novoParent) { alert('Dê um nome ao novo centro de custo e escolha o grupo.'); return; }
+        if (this.centrosCustoData.some(c => c.c === nome)) { alert('Já existe um centro de custo com esse nome.'); return; }
+        const novo = { c: nome, ip: 0, parentCode: this.modalTCC.novoParent };
+        this.listaMeses.forEach(m => novo[m.chave.toLowerCase()] = 0);
+        novo.ac = 0; novo.mm = 0; novo.ma = 0;
+        this.centrosCustoData.push(novo);
+        this.ordenarCentrosCusto();
+        destino = nome;
+      }
+      this.salvarEstado(`Transferência C.C. de ${this.modalTCC.origem} para ${destino}`);
       let ccO = this.centrosCustoData.find(c => c.c === this.modalTCC.origem);
-      let ccD = this.centrosCustoData.find(c => c.c === this.modalTCC.destino);
+      let ccD = this.centrosCustoData.find(c => c.c === destino);
       if (ccO && ccD) {
         ccO[this.modalTCC.mes] = (ccO[this.modalTCC.mes] || 0) - val;
         ccD[this.modalTCC.mes] = (ccD[this.modalTCC.mes] || 0) + val;
       }
       this.modalTCC.open = false;
+      this.modalTCC.novoNome = ''; this.modalTCC.novoParent = '';
       this.recalcularTudo();
-      this.registrarLog('Transferência contábil entre centros de custo via interface.');
+      this.persistirDados();
+      this.registrarLog('Transferência entre centros de custo: ' + this.modalTCC.origem + ' → ' + destino + ' (' + this.formatarDinheiroExato(val) + ', ' + String(this.modalTCC.mes).toUpperCase() + ').');
     },
     abrirModalNovoCC() {
       sairTelaCheia();
@@ -5721,7 +5753,11 @@ function sistemaUnificado(){
     get anosMatrizExibicao() { return this.ordemMatriz === 'desc' ? [2025,2024,2023,2022,2021,2020,2019,2018,2017] : [2017,2018,2019,2020,2021,2022,2023,2024,2025]; },
     get somaChaves() { return this.chavesDR.reduce((acc, curr) => acc + (curr.percentual||0), 0); },
     get ccPais() { return this.centrosCustoData.filter(c => c.ip === 1 && c.c !== 'Ajustes' && c.c !== 'Total'); },
-    get ccTransferiveis() { return this.centrosCustoData.filter(c => c.ip === 0 && c.c !== 'Total' && c.c !== 'Ajustes' && c.c !== this.modalTCC.origem); },
+    get ccTransferiveis() {
+      const base = this.centrosCustoData.filter(c => c.ip === 0 && c.c !== 'Total' && c.c !== 'Ajustes' && c.c !== this.modalTCC.origem);
+      const aj = this.centrosCustoData.find(c => c.c === 'Ajustes');
+      return aj ? [aj, ...base] : base;   // Ajustes vem primeiro, para corrigir sem mandar para um C.C. incorreto
+    },
     
     get drAcumuladoBase() { 
       const rowOp = this.dreAtual.find(l => l.desc === "Resultado Operacional");
@@ -6442,6 +6478,7 @@ function sistemaUnificado(){
       this.modalTCC.mes = this.mesAtivo.toLowerCase();
       this.modalTCC.valor = 0;
       this.modalTCC.destino = '';
+      this.modalTCC.novoNome = ''; this.modalTCC.novoParent = '';
       this.modalTCC.open = true;
     },
     get ccFolhas() { return this.centrosCustoData.filter(c => !c.ip && c.c !== 'Total' && c.c !== 'Ajustes'); },
