@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2707.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2707.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,64 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Passe visual e resgate de vocabulário (2707.02)
+A Carla: "está visualmente feio, preciso que agora trabalhe totalmente no visual
+e se perdeu alguma coisa entre as edições, recupere".
+
+**O diagnóstico:** o problema não era cor nem tipografia, era **caixa dentro de
+caixa**. Toda seção era um cartão com moldura contendo outros cartões com
+moldura: tudo com o mesmo peso, nada com hierarquia, e a página virava pilha.
+A Home tinha 18 blocos empilhados e 5.437px de altura no celular.
+
+**A regra que passou a valer:** um bloco de ouro por tela (a ação de agora),
+seções separadas por **fio e rótulo** (`.sx`), listas com **linhas** (`.lista`,
+`.linha`) e caixa só para item clicável. Nada foi removido do app: o que saiu de
+uma tela foi para onde já morava.
+
+**1. A Home caiu de 5.437 para 3.657px** (desktop: 4.045 para 2.922). Ordem
+nova: saudação, o treino de hoje, herói/constelação, o que vem depois do treino,
+rotina, áudio do dia, a carta de hoje em faixa fina, mapa da operação, lema e
+recado lado a lado, linha do tempo. Saíram da Home (e foram para a tela **Mais**,
+sem perder nada): "Construa junto e ganhe" (indicar, sugerir), o progresso de
+nível (o anel da patente no topo já faz isso, e o botão abre o detalhe) e os
+cartões que duplicavam áreas já presentes no mapa (Padrão de Gestão, atividade
+recente, agenda, o cartaz da Bússola).
+
+**2. As Trilhas caíram de 14.513 para 7.385px.** O que o programa já abriu é
+**cartão**; o que ainda tem data é **linha** com a semana em que entra
+(`trilhaLinha`). Com 37 trilhas e 4 abertas, a página deixou de ser um muro e o
+que está liberado passou a saltar aos olhos. A busca continua achando as duas
+formas. As duas ações extras da trilha (teste profundo, aplicar na prática)
+viraram uma linha de dois botões discretos em vez de duas barras empilhadas.
+
+**3. As sessões do treino carregam a cor do pilar**: barra de 3px à esquerda,
+letra do pilar em medalhão e um leve degradê da cor. Sessão fechada cai para 62%
+com um visto verde. O trabalho extra virou lista de linhas com seta, a mesma
+língua do mentor.
+
+**4. O caminho das 52 semanas** abre nas semanas em volta de hoje (2.008px em
+vez de 7.325px), com o botão "ver as 52 semanas, uma por uma".
+
+**5. Conquistas viraram vitrine**: duas colunas no celular, quatro no
+computador, medalha compacta (3.201px em vez de 4.644px).
+
+**6. Bugs de layout corrigidos:** as "Sugestões das suas trilhas" tinham o texto
+espremido numa coluna de duas palavras (`.challenge` virou grid); o cartão da
+prática permanente tinha a caixa de marcar solta e o texto quebrado (virou grid
+de duas colunas); "Registrar número" quebrava em duas linhas dentro do objetivo
+(virou "Medir", com `white-space:nowrap` em todo `.btn.sm`); "Editar" foi para o
+canto do cartão; a marca do módulo aparecia cortada; e as sete abas do Padrão de
+Gestão quebravam em três linhas com um item órfão (agora deslizam na horizontal).
+
+**7. O que estava perdido, recuperado.** As 18 trilhas escritas em 2607.01 foram
+validadas contra travessão, mas **não contra o vocabulário religioso**. A
+varredura achou e trocou: "o ritual de 10 minutos" (rotina), "vira ritual"
+(automatismo), "com ritual agendado" (com hora marcada), "os rituais que
+sustentam o padrão" (as rotinas), "Domingo: o pacto" (o termo), "releia o pacto
+assinado" (o termo), "ela é sagrada" (intocável) e a carta **"Rituais Semanais"
+virou "Rotinas Semanais"** no baralho e em todas as citações dentro das trilhas.
+Restam só "desagrada" e "desagradar", que são palavras comuns.
 
 ### O Plano de Guerra: alvo, apostas, objetivos e práticas (2707.01)
 A Carla mandou a análise de um app concorrente (Marca Passos, da Aliança
