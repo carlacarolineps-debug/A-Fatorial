@@ -429,6 +429,10 @@
     /* Campo ainda não preenchido: amarelo claro + atenção */
     .fu-vazio { background: #fefce8 !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='11' height='11'%3E%3Cpath d='M12 3.5l9 15.5H3z' fill='%23f59e0b'/%3E%3Cpath d='M12 10v4.5M12 17.2v.3' stroke='%23fff' stroke-width='1.8'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 6px center !important; }
 
+    /* ---- Checklist diário ---- */
+    .chk-row.done { background: #f0fdf9; }
+    .chk-row.done td:nth-child(2) { color: #0f766e; text-decoration: line-through; text-decoration-color: #94d3c6; }
+
     /* ---- Tipo de Puxada (sentido de impressão/rebobinamento) ---- */
     .puxada-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:6px; }
     .puxada-opt { border:1.5px solid var(--border); border-radius:8px; padding:6px; text-align:center; cursor:pointer; background:#fff; transition:.15s; }
@@ -1019,6 +1023,7 @@
         </div>
 
         <button class="sys-nav-btn" onclick="nav('inspecao')" id="nav-inspecao"><span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Inspeção &amp; Liberação de Setup</button>
+        <button class="sys-nav-btn" onclick="nav('checklist-diario')" id="nav-checklist-diario"><span class="nav-icon"><i class="fas fa-clipboard-list"></i></span> Checklist Diário</button>
         <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-list-check"></i></span> Apontamentos</button>
         <button class="sys-nav-btn" onclick="nav('retrabalho')" id="nav-retrabalho"><span class="nav-icon"><i class="fas fa-rotate"></i></span> Retrabalho &amp; Entregas</button>
         <button class="sys-nav-btn" onclick="nav('calendario')" id="nav-calendario"><span class="nav-icon"><i class="fas fa-calendar-days"></i></span> Produção — Fila e Calendário</button>
@@ -1182,6 +1187,28 @@
             </table>
             </div>
         </div>
+    </div>
+
+    <!-- ==========================================================================
+         CHECKLIST DIÁRIO — rotina da Qualidade (pontualidade + rondas de inspeção)
+         ========================================================================== -->
+    <div id="view-checklist-diario" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="cmd-panel-t"><i class="fas fa-clipboard-list" style="color:var(--gold-deep);"></i> Check List de Tarefas Diárias</div>
+            <div class="cmd-panel-sub">Rotina diária do setor: pontualidade e as rondas de inspeção de processos por máquina, nos horários definidos. Marque <b>Feito</b> e, se fora do horário, <b>Atraso</b>.</div>
+            <div class="insp-top" style="align-items:center;">
+                <div class="insp-field"><label>Dia</label><input type="date" id="chk-data" onchange="renderChecklistDiario()"></div>
+                <div class="insp-field"><label>Responsável</label><input id="chk-resp" placeholder="Nome"></div>
+                <div class="insp-field" style="flex:1; min-width:220px;"><label>Progresso do dia</label>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="bar-track" style="flex:1;"><div class="bar-fill" id="chk-bar" style="width:0%; background:var(--gold);"></div></div>
+                        <b id="chk-pct" style="font-size:13px; color:var(--navy);">0%</b>
+                    </div>
+                </div>
+                <div class="insp-field"><label>&nbsp;</label><button class="action-btn-sec" onclick="imprimirChecklist()"><i class="fas fa-print"></i> Imprimir</button></div>
+            </div>
+        </div>
+        <div id="chk-blocos"></div>
     </div>
 
     <!-- ==========================================================================
@@ -3618,6 +3645,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     if (!RB.regrasCodigo) RB.regrasCodigo = regrasCodigoSeed();
     // Coleções do fluxo multi-setor (PCP, Produção, Compras, Logística)
     ['fila','comprasReqs','reportsProducao','recebimentos'].forEach(k => { if (!RB[k]) RB[k] = []; });
+    if (!RB.checklistDiario) RB.checklistDiario = {};
     if (!RB.aniloxes) RB.aniloxes = [
         { id: 21, codigo: 'ANX-160', lpc: '160', bcm: '—', obs: 'Branco' },
         { id: 22, codigo: 'ANX-S',   lpc: 'S',   bcm: '3.2', obs: '' },
@@ -3983,6 +4011,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') headerTitle = 'Central de Comando';
         else if(tela === 'inspecao') headerTitle = 'Inspeção & Liberação de Setup';
         else if(tela === 'parametros') headerTitle = 'Parâmetros de Qualidade';
+        else if(tela === 'checklist-diario') headerTitle = 'Checklist Diário — Rotina da Qualidade';
         else if(tela === 'regras-codigo') headerTitle = 'Configuração — Regras de Código por Etapa';
         else if(tela === 'importar') headerTitle = 'Configuração — Importar dados';
         else if(tela === 'auditoria') headerTitle = 'Auditoria e Rastreabilidade';
@@ -4025,6 +4054,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') renderComando();
         if(tela === 'inspecao') renderInspecaoView();
         if(tela === 'parametros') renderParametros();
+        if(tela === 'checklist-diario') renderChecklistDiario();
         if(tela === 'regras-codigo') renderRegrasCodigo();
         if(tela === 'cad-clientes') renderCadClientes();
         if(tela === 'cad-fornecedores') renderCadFornecedores();
@@ -4416,6 +4446,108 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     // Mapeia a etapa de inspeção ↔ chave da Ficha Única (parâmetros + regra de sufixo)
     const ETAPA_FU_KEY = { 'Recebimento MP': 'recebimento', 'Impressão': 'impressao', 'Laminação': 'laminacao', 'Rebobinadeira': 'rebobinadeira', 'Corte e Solda': 'corte' };
+
+    // ==========================================================================
+    // CHECKLIST DIÁRIO — rotina da Qualidade (do modelo CHECK LIST DE TAREFAS DIÁRIAS)
+    // ==========================================================================
+    const CHECKLIST_TEMPLATE = [
+        { bloco: 'Pontualidade', tarefas: [
+            { id: 'p1', hora: '07:00', t: 'Registrar o ponto de início' },
+            { id: 'p2', hora: '11:15', t: 'Registrar o ponto de saída (almoço)' },
+            { id: 'p3', hora: '11:30', t: 'Registrar o ponto de retorno' },
+            { id: 'p4', hora: '13:00', t: 'Registrar o ponto final' }
+        ]},
+        { bloco: '1ª Inspeção de Processos (manhã)', tarefas: [
+            { id: 'm1', hora: '07:10', t: 'Impressão ou Laminação Milênio' },
+            { id: 'm2', hora: '07:20', t: 'Impressão Gearless' },
+            { id: 'm3', hora: '07:30', t: 'Rebobinadeira 1' },
+            { id: 'm4', hora: '07:35', t: 'Rebobinadeira 2' },
+            { id: 'm5', hora: '07:40', t: 'Rebobinadeira 3' },
+            { id: 'm6', hora: '07:50', t: 'Corte e Solda 4' },
+            { id: 'm7', hora: '07:55', t: 'Corte e Solda 3' },
+            { id: 'm8', hora: '08:00', t: 'Corte e Solda 2' },
+            { id: 'm9', hora: '08:05', t: 'Narita' },
+            { id: 'm10', hora: '08:15', t: 'MCR' },
+            { id: 'm11', hora: '08:25', t: 'Arquivar amostras' },
+            { id: 'm12', hora: '08:35', t: 'Lançar os dados de inspeção' },
+            { id: 'm13', hora: '08:55', t: 'Término do lançamento' }
+        ]},
+        { bloco: '2ª Inspeção de Processos (tarde)', tarefas: [
+            { id: 't1', hora: '11:00', t: 'Impressão ou Laminação Milênio' },
+            { id: 't2', hora: '11:10', t: 'Impressão Gearless' },
+            { id: 't3', hora: '11:30', t: 'Rebobinadeira 1' },
+            { id: 't4', hora: '11:35', t: 'Rebobinadeira 2' },
+            { id: 't5', hora: '11:45', t: 'Rebobinadeira 3' },
+            { id: 't6', hora: '11:55', t: 'Corte e Solda 4' },
+            { id: 't7', hora: '12:00', t: 'Corte e Solda 3' },
+            { id: 't8', hora: '12:05', t: 'Corte e Solda 2' },
+            { id: 't9', hora: '12:10', t: 'Narita' },
+            { id: 't10', hora: '12:20', t: 'MCR' },
+            { id: 't11', hora: '12:30', t: 'Arquivar amostras' },
+            { id: 't12', hora: '12:40', t: 'Lançar os dados de inspeção' },
+            { id: 't13', hora: '12:55', t: 'Término do lançamento' }
+        ]}
+    ];
+    const CHK_TOTAL = CHECKLIST_TEMPLATE.reduce((a, b) => a + b.tarefas.length, 0);
+    function chkDia() { const el = document.getElementById('chk-data'); return el && el.value ? el.value : new Date().toISOString().slice(0, 10); }
+    function chkEstado(dia) { RB.checklistDiario = RB.checklistDiario || {}; if (!RB.checklistDiario[dia]) RB.checklistDiario[dia] = {}; return RB.checklistDiario[dia]; }
+    function chkToggle(id, campo) {
+        const est = chkEstado(chkDia());
+        est[id] = est[id] || {};
+        est[id][campo] = !est[id][campo];
+        // marcar Feito muito depois do horário sugere atraso automático
+        rbSave(); renderChecklistProgresso();
+    }
+    function renderChecklistProgresso() {
+        const est = chkEstado(chkDia());
+        const feitos = Object.values(est).filter(x => x.feito).length;
+        const pct = Math.round(100 * feitos / CHK_TOTAL);
+        const bar = document.getElementById('chk-bar'), p = document.getElementById('chk-pct');
+        if (bar) bar.style.width = pct + '%';
+        if (p) p.innerText = pct + '% (' + feitos + '/' + CHK_TOTAL + ')';
+        // reflete os checkboxes visíveis
+        document.querySelectorAll('#chk-blocos .chk-row').forEach(row => {
+            const id = row.dataset.id, e = est[id] || {};
+            const fb = row.querySelector('.chk-feito'), ab = row.querySelector('.chk-atraso');
+            if (fb) fb.checked = !!e.feito;
+            if (ab) ab.checked = !!e.atraso;
+            row.classList.toggle('done', !!e.feito);
+        });
+    }
+    function renderChecklistDiario() {
+        const di = document.getElementById('chk-data'); if (di && !di.value) di.value = new Date().toISOString().slice(0, 10);
+        const cont = document.getElementById('chk-blocos'); if (!cont) return;
+        cont.innerHTML = CHECKLIST_TEMPLATE.map(b => `
+            <div class="card-base" style="margin-bottom:14px;">
+                <div class="card-title" style="color:var(--navy);"><i class="fas fa-clock" style="color:var(--gold-deep);"></i> ${b.bloco}</div>
+                <div style="overflow-x:auto;"><table class="main-table">
+                    <thead><tr><th style="width:70px;">Horário</th><th>Tarefa</th><th style="width:70px; text-align:center;">Feito</th><th style="width:70px; text-align:center;">Atraso</th></tr></thead>
+                    <tbody>${b.tarefas.map(t => `<tr class="chk-row" data-id="${t.id}">
+                        <td style="font-weight:700; color:#64748b;">${t.hora}</td>
+                        <td>${t.t}</td>
+                        <td style="text-align:center;"><input type="checkbox" class="chk-feito" style="width:17px; height:17px; accent-color:#0d9488;" onchange="chkToggle('${t.id}','feito')"></td>
+                        <td style="text-align:center;"><input type="checkbox" class="chk-atraso" style="width:17px; height:17px; accent-color:#e11d48;" onchange="chkToggle('${t.id}','atraso')"></td>
+                    </tr>`).join('')}</tbody>
+                </table></div>
+            </div>`).join('');
+        renderChecklistProgresso();
+    }
+    function imprimirChecklist() {
+        const dia = chkDia(), est = chkEstado(dia), resp = (document.getElementById('chk-resp')||{}).value || '';
+        const dataFmt = new Date(dia + 'T12:00:00').toLocaleDateString('pt-BR');
+        const feitos = Object.values(est).filter(x => x.feito).length;
+        const html = `<div class="fu-page-cap">Checklist Diário · ${dataFmt}</div><div class="fu-page">
+            <div class="fup-head"><div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
+                <div class="fup-doc"><div class="t">Check List de Tarefas Diárias</div><div class="e">${dataFmt}</div><div class="c">Rotina da Qualidade · ${feitos}/${CHK_TOTAL} concluídas</div></div></div>
+            <table class="fup-meta"><tr><th>Responsável</th><th>Data</th><th>Concluídas</th><th>Atrasos</th></tr>
+                <tr><td>${resp||'—'}</td><td>${dataFmt}</td><td>${feitos}/${CHK_TOTAL}</td><td>${Object.values(est).filter(x=>x.atraso).length}</td></tr></table>
+            ${CHECKLIST_TEMPLATE.map(b => `<div class="fup-sec-title">${b.bloco}</div><table class="fup-params">
+                ${b.tarefas.map(t => { const e = est[t.id]||{}; return `<tr><td class="l" style="width:14%;">${t.hora}</td><td class="v" style="width:56%; text-align:left;">${t.t}</td><td class="l" style="width:15%;">${e.feito?'✔ Feito':'—'}</td><td class="v" style="width:15%;">${e.atraso?'⚠ Atraso':''}</td></tr>`; }).join('')}
+            </table>`).join('')}
+            <div class="fup-foot"><span>Sistema Qualidade da Embalagem — Grupo Rebracil</span><span>Emitido por ${currentSessionUser} em ${new Date().toLocaleDateString('pt-BR')}</span></div>
+        </div>`;
+        abrirPreviewDoc(html, 'Pré-visualização — Checklist Diário', `Checklist de ${dataFmt} · confira antes de imprimir.`, () => { document.body.classList.add('print-mode-fu'); window.print(); document.body.classList.remove('print-mode-fu'); });
+    }
 
     function renderRecebimentosInsp() {
         const wrap = document.getElementById('insp-recebimentos'); if (!wrap) return;
