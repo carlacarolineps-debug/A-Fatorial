@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2607.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2607.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,86 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O sistema virou treinador: o Programa EMC (2607.02)
+A Carla: "ainda está muito solto, faz o que quer, abre o que quer, não tem
+direcionamento constante, apenas inicial, se o aluno quiser e tiver tempo pra zerar
+os conteúdos num dia só ele pode?"; "o que ele vai aplicar na prática, para que, qual
+o objetivo?"; "pense como um personal training que leva seus alunos até o resultado
+pegando na mão, sem soltar de maneira nenhuma"; "vai ter gente super disciplinada e
+gente com zero disciplina"; "os pilares do meu método é EMC: Estratégia, Mentalidade,
+Comportamento, preciso de transformação nos 3 pilares e preciso de provas que venham
+do aluno de que o método funciona"; "quando entro no sistema pela primeira vez abre o
+diagnóstico antes do Comece por aqui, revise".
+
+**1. O Programa EMC (`programa.js`), sétimo destino da barra de baixo.** A biblioteca
+virou treino prescrito de 52 semanas. Toda semana tem três sessões, uma por pilar, e
+cada sessão diz **o objetivo** e **o que você aplica**, com tempo estimado:
+- **E, Estratégia**: a trilha da semana, trabalhada em bloco de 2 a 4 semanas em
+  quatro modos diferentes (`estudar` → `aplicar` (a ferramenta do módulo) → `medir`
+  (teste profundo ou Placar) → `documentar` (o report semanal));
+- **M, Mentalidade**: o naipe do mês, em quatro modos (`padrao` (a trilha do gestor),
+  `carta` (uma carta daquele naipe virando plano), `espelho` (fechamento de ciclo),
+  `releitura`);
+- **C, Comportamento**: o **protocolo de 5 dias** montado do `BPLAY` do naipe, variando
+  a cada semana (micro-ação, cadência, elevar, protocolo de recaída).
+
+**2. A resposta para "dá para zerar em um dia?": não, e o app explica por quê.**
+Três travas somadas, verificadas em teste (`t23.cjs`):
+- **calendário**: `isUnlocked` respeita `pgTrilhaLiberada`. Na semana 1, das 37 trilhas,
+  **2 abrem e 35 recusam**, cada uma dizendo em que semana entra e em quantos dias.
+  Nada fica escondido: o cartão mostra o selo "Semana N" e a aba "Caminho" lista as 52.
+- **teto do dia**: 1 sessão por dia no ritmo Padrão, 2 no Intenso (`pgPodeHoje`), com
+  a tela que explica que fazer mais atropela em vez de acelerar.
+- **um dia por dia**: `pgDia()` guarda a data de calendário de cada marca, então o
+  protocolo de 5 dias leva **5 dias**. Fazer o trabalho das três sessões hoje não fecha
+  a semana, não dispara o check-in e não abre a semana seguinte.
+
+**3. Para quem tem disciplina de sobra: trabalho extra, não conteúdo adiantado.**
+`pgExtras()` oferece ferramenta pendente, teste profundo, report semanal, pesquisa,
+carta extra e Diário. Nada disso conta como sessão, então pode ser feito hoje.
+Para quem tem zero disciplina: **modo resgate** (adesão abaixo de 40% em 3 semanas)
+perdoa o atraso e prescreve só a sessão de hoje. Entre os dois, o modo normal cobra a
+dívida de até 2 semanas ("esta sessão ficou aberta na semana N").
+
+**4. As sessões fecham sozinhas quando o trabalho acontece** (`pgAuto`): aula marcada,
+ferramenta salva, teste enviado, KPI lançado, RSG fechado, carta virada em plano e
+fechamento de ciclo. A pessoa nunca precisa lembrar de "marcar como feita", e o
+auto-fechamento passa por cima do teto do dia (o teto governa a prescrição, não o
+esforço já entregue).
+
+**5. As provas vêm do aluno.** Uma prova por semana, do tipo que o trabalho daquela
+semana pede (relato, documento, número, registro), mais **12 provas de marco**, uma no
+fim de cada mês. Ficam no **cofre de provas**, alimentam o painel EMC e entram no
+**relatório de transformação** (antes → agora por pilar, com as provas listadas, saindo
+por `withResultActions`). Tabela `provas` com RLS em `supabase/comunidade.sql` (seção 8)
+e `OB.provaEnviar`/`OB.provasList`: a mentora vê todas, o aluno vê as dele.
+
+**6. Painel EMC**: três anéis (E, M, C) de 0 a 100 calculados **do que a pessoa
+produziu**, não do que assistiu (diagnóstico, trilhas, ferramentas, placar, report,
+cartas, registros, adesão ao treino, compromissos cumpridos, dias de protocolo,
+fechamentos, provas). O "antes" é fotografado no **primeiro boot** com nome (não na
+primeira visita ao painel, senão o antes já seria o agora).
+
+**7. A Home abre pelo treino.** Ordem nova: saudação em uma linha, **o treino de hoje**
+(pilar, tempo, semana, objetivo, o que aplicar, botão), herói/constelação, "depois do
+treino, se sobrar tempo" (o mentor sem repetir o que o treinador já disse), áudio do
+dia, mapa da operação. A jornada concluída desceu para o fim da Home. A rotina do dia
+virou 4 itens: a sessão, o dia do protocolo, a carta e o Diário.
+
+**8. O bug da primeira entrada, corrigido.** `startJourney()` abria um modal de
+autodiagnóstico 500ms depois de entrar, que colidia com o `afMetodo(true)` disparado a
+350ms por `afGuiaUpdate()`: por isso o diagnóstico aparecia antes do Comece por aqui.
+O modal saiu. Quem recebe a pessoa é **uma** tela: o método EMC (os três pilares, a
+regra que amarra e o aviso de que o treino é de 52 semanas com uma sessão por dia),
+que entrega direto para a sequência. O diagnóstico continua tendo passo próprio, na
+hora em que faz sentido, e o resultado dele agora aponta para o treino em vez de dizer
+"abra suas trilhas".
+
+**9. O que mudou em volta:** o tour ganhou a parada "Meu Treino" e o convite passou a
+dizer "agora o treinador assume"; `afTrilhaSugerida` e `mtProximaTrilha` nunca sugerem
+trilha de semana futura; `renderPrograma` também checa o `GATES` (as abas chamam a
+função direto); as Trilhas ganharam a faixa "Semana N de 52" com o porquê do ritmo.
 
 ### O ano inteiro dentro do app, e o dobro de trilhas (2407.21)
 A Carla mandou o print da página de vendas ("Um ano inteiro de ritmo, método e

@@ -178,3 +178,30 @@ create policy videos_leitura on public.videos for select to authenticated using 
 drop policy if exists videos_mentora on public.videos;
 create policy videos_mentora on public.videos
   for all to authenticated using (public.eh_mentora()) with check (public.eh_mentora());
+
+-- ---------------------------------------------------------------------
+-- 8) PROVAS DO ALUNO (a evidência de que o método funcionou)
+--    Uma prova por semana, doze marcos no ano. O aluno vê só as dele;
+--    a mentora vê todas, porque é o painel de resultado da mentoria.
+-- ---------------------------------------------------------------------
+create table if not exists public.provas (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  semana     int,
+  tipo       text,          -- numero | documento | foto | relato
+  titulo     text,
+  texto      text,
+  numero     numeric,
+  marco      boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists provas_user_idx on public.provas (user_id, created_at desc);
+create index if not exists provas_semana_idx on public.provas (semana);
+
+alter table public.provas enable row level security;
+
+drop policy if exists provas_minhas on public.provas;
+create policy provas_minhas on public.provas
+  for all to authenticated
+  using (user_id = auth.uid() or public.eh_mentora())
+  with check (user_id = auth.uid());
