@@ -470,6 +470,30 @@
     .kit-doc input { accent-color:#2563eb; }
     .mini-btn { border:1px solid var(--border); background:#fff; border-radius:5px; cursor:pointer; font-size:12px; line-height:1; padding:3px 7px; color:#475569; }
     .mini-btn:hover { background:#f1f5f9; border-color:#94a3b8; }
+    /* ---- PCP Gestão à Vista / Board de fila ---- */
+    .pcp-gv-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .pcp-gv-grid .full { grid-column:1 / -1; }
+    @media (max-width:1080px){ .pcp-gv-grid { grid-template-columns:1fr; } }
+    .gv-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:14px 16px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+    .gv-card h4 { margin:0 0 10px; font-size:13px; color:var(--navy); display:flex; align-items:center; gap:7px; }
+    .gv-card h4 .sub { font-weight:400; font-size:11px; color:#94a3b8; margin-left:auto; }
+    .gv-legend { display:flex; gap:14px; flex-wrap:wrap; font-size:11px; color:#64748b; margin-top:8px; }
+    .gv-legend span { display:inline-flex; align-items:center; gap:5px; }
+    .gv-legend i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+    .fila-board { display:grid; grid-template-columns:300px 1fr; gap:16px; }
+    @media (max-width:1080px){ .fila-board { grid-template-columns:1fr; } }
+    .fila-queue { background:#f4f7f9; border:1px solid var(--border); border-radius:10px; padding:12px; max-height:560px; overflow-y:auto; }
+    .fila-queue-head { font-weight:700; color:#1e293b; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; }
+    .fcard { background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:9px 11px; margin-bottom:9px; border-left:4px solid #94a3b8; cursor:pointer; transition:.15s; }
+    .fcard:hover { box-shadow:0 4px 10px -2px rgba(0,0,0,.14); transform:translateY(-1px); }
+    .fcard .fc-top { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:700; }
+    .fcard .fc-cod { color:var(--navy); }
+    .fcard .fc-title { font-size:12px; color:#334155; margin:4px 0; line-height:1.25; }
+    .fcard .fc-meta { display:flex; justify-content:space-between; font-size:10.5px; color:#64748b; }
+    .fcard .fc-bar { height:5px; border-radius:999px; background:#e2e8f0; overflow:hidden; margin-top:6px; }
+    .fcard .fc-bar > i { display:block; height:100%; border-radius:999px; }
+    .fila-timeline { background:#fff; border:1px solid var(--border); border-radius:10px; padding:6px; overflow-x:auto; }
+    .fila-timeline svg { display:block; min-width:640px; }
     .cli-box { min-height: 320px; }
     .cli-box svg { max-height: 340px; }
     .cli-box img { border-radius: 6px; }
@@ -1014,6 +1038,7 @@
       <!-- MENU DO DEPARTAMENTO PCP -->
       <div id="navd-pcp" class="navd" style="display:none;">
         <div class="nav-section">PCP — Planejamento</div>
+        <button class="sys-nav-btn" onclick="nav('pcp-painel')" id="nav-pcp-painel"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Gestão à Vista</button>
         <button class="sys-nav-btn" onclick="nav('pcp-fila')" id="nav-pcp-fila"><span class="nav-icon"><i class="fas fa-calendar-days"></i></span> Fila de Produção</button>
         <button class="sys-nav-btn" onclick="nav('pcp-programacao')" id="nav-pcp-programacao"><span class="nav-icon"><i class="fas fa-table-list"></i></span> Programação Rotativas</button>
         <button class="sys-nav-btn" onclick="nav('pcp-apontamentos')" id="nav-pcp-apontamentos"><span class="nav-icon"><i class="fas fa-stopwatch"></i></span> Apontamentos</button>
@@ -1426,136 +1451,12 @@
     <!-- ==========================================================================
          NOVA TELA 2: CALENDÁRIO ESTRATÉGICO
          ========================================================================== -->
-    <div id="view-calendario" class="sys-view" style="max-width: 1600px; padding-bottom: 0;">
-        <div class="cal-layout">
-            
-            <!-- BACKLOG / FILA MÃO NA MASSA -->
-            <div class="cal-sidebar">
-                <div class="cal-sidebar-head">
-                    Fila de Produção <span class="badge-count">6</span>
-                </div>
-                <div class="cal-queue" id="drag-queue">
-                    <!-- Cards de Fila -->
-                    <div class="drag-card type-imp" draggable="true">
-                        <div class="dc-head"><span style="color:#2563eb;">VCM-75051</span> <span>Alta</span></div>
-                        <div class="dc-title">Bobina PEBD Batata Palito</div>
-                        <div class="dc-info"><span class="dc-tag tag-imp">Impressão</span> <span>150.000 un</span></div>
-                    </div>
-                    
-                    <div class="drag-card type-cor" draggable="true">
-                        <div class="dc-head"><span style="color:#0f766e;">VA-7512</span> <span>Normal</span></div>
-                        <div class="dc-title">Saco PEBD 500x700 Zíper</div>
-                        <div class="dc-info"><span class="dc-tag tag-cor">Corte/Solda</span> <span>50.000 un</span></div>
-                    </div>
-
-                    <div class="drag-card type-imp" draggable="true">
-                        <div class="dc-head"><span style="color:#2563eb;">IDL-50</span> <span>Normal</span></div>
-                        <div class="dc-title">Bobina Fundo Estrela 30x40</div>
-                        <div class="dc-info"><span class="dc-tag tag-imp">Impressão</span> <span>80.000 un</span></div>
-                    </div>
-
-                    <div class="drag-card type-cor" draggable="true">
-                        <div class="dc-head"><span style="color:#0f766e;">VA-9005</span> <span>Alta</span></div>
-                        <div class="dc-title">Sacola Vazada Alta Densidade</div>
-                        <div class="dc-info"><span class="dc-tag tag-cor">Corte/Solda</span> <span>100.000 un</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GRADE DO CALENDÁRIO -->
-            <div class="cal-main">
-                <div class="cal-header">
-                    <div class="cal-nav">
-                        <button class="btn-cal-nav"><</button>
-                        <span>Maio 2026</span>
-                        <button class="btn-cal-nav">></button>
-                    </div>
-                    <div class="cal-filters">
-                        <button class="sys-btn-success" style="padding: 6px 12px; font-size:11px;"><i class="fas fa-rotate"></i> Recalcular Ocupação</button>
-                        <select class="cal-select">
-                            <option>Todas as Máquinas</option>
-                            <option>Impressora Gearless</option>
-                            <option>Corte e Solda 01</option>
-                        </select>
-                        <select class="cal-select">
-                            <option>Todos os Setores</option>
-                            <option>Impressão</option>
-                            <option>Corte e Solda</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-                    <div class="cal-day-head">Dom</div><div class="cal-day-head">Seg</div><div class="cal-day-head">Ter</div>
-                    <div class="cal-day-head">Qua</div><div class="cal-day-head">Qui</div><div class="cal-day-head">Sex</div><div class="cal-day-head">Sáb</div>
-                </div>
-
-                <!-- Simulação de Grade Mensal Visão Semanal -->
-                <div class="cal-grid">
-                    <!-- Semana 1 (Dias simulados com eventos fixos p/ visualização) -->
-                    <div class="cal-day out-month"><div class="cal-day-number">26</div></div>
-                    <div class="cal-day out-month"><div class="cal-day-number">27</div></div>
-                    <div class="cal-day out-month"><div class="cal-day-number">28</div></div>
-                    <div class="cal-day out-month"><div class="cal-day-number">29</div></div>
-                    <div class="cal-day out-month"><div class="cal-day-number">30</div></div>
-                    <div class="cal-day"><div class="cal-day-number">1</div><div class="cal-cap">Feriado</div></div>
-                    <div class="cal-day"><div class="cal-day-number">2</div></div>
-                    
-                    <!-- Semana 2 (Semana Atual) -->
-                    <div class="cal-day"><div class="cal-day-number">3</div></div>
-                    <div class="cal-day today">
-                        <div class="cal-day-number">4</div>
-                        <div class="cal-cap cap-high">95% Ocupado</div>
-                        <div class="drag-card type-man" style="padding: 5px;">
-                            <div class="dc-head"><span style="color:#d97706;">MAN-01</span></div>
-                            <div class="dc-title" style="font-size:10px;">Manutenção Gearless</div>
-                        </div>
-                        <div class="drag-card type-imp" style="padding: 5px;">
-                            <div class="dc-head"><span style="color:#2563eb;">VA-8800</span></div>
-                            <div class="dc-title" style="font-size:10px;">Bobina Plástica Lisa</div>
-                        </div>
-                    </div>
-                    <div class="cal-day">
-                        <div class="cal-day-number">5</div>
-                        <div class="cal-cap">60% Ocupado</div>
-                        <div class="drag-card type-cor" style="padding: 5px;">
-                            <div class="dc-head"><span style="color:#0f766e;">ABC-101</span></div>
-                            <div class="dc-title" style="font-size:10px;">Saco PP Transparente</div>
-                        </div>
-                    </div>
-                    <div class="cal-day">
-                        <div class="cal-day-number">6</div>
-                        <div class="cal-cap">40% Ocupado</div>
-                    </div>
-                    <div class="cal-day">
-                        <div class="cal-day-number">7</div>
-                        <div class="cal-cap cap-high">Lim. Expedição</div>
-                        <div class="drag-card type-exp" style="padding: 5px;">
-                            <div class="dc-head"><span style="color:#be123c;">EXP-ABC</span></div>
-                            <div class="dc-title" style="font-size:10px;">Entrega Carga ABC</div>
-                        </div>
-                    </div>
-                    <div class="cal-day"><div class="cal-day-number">8</div></div>
-                    <div class="cal-day"><div class="cal-day-number">9</div></div>
-                    
-                    <!-- Preenchendo resto da grade vazio para manter estrutura drag and drop -->
-                    <div class="cal-day"><div class="cal-day-number">10</div></div>
-                    <div class="cal-day"><div class="cal-day-number">11</div></div>
-                    <div class="cal-day"><div class="cal-day-number">12</div></div>
-                    <div class="cal-day"><div class="cal-day-number">13</div></div>
-                    <div class="cal-day"><div class="cal-day-number">14</div></div>
-                    <div class="cal-day"><div class="cal-day-number">15</div></div>
-                    <div class="cal-day"><div class="cal-day-number">16</div></div>
-                    
-                    <div class="cal-day"><div class="cal-day-number">17</div></div>
-                    <div class="cal-day"><div class="cal-day-number">18</div></div>
-                    <div class="cal-day"><div class="cal-day-number">19</div></div>
-                    <div class="cal-day"><div class="cal-day-number">20</div></div>
-                    <div class="cal-day"><div class="cal-day-number">21</div></div>
-                    <div class="cal-day"><div class="cal-day-number">22</div></div>
-                    <div class="cal-day"><div class="cal-day-number">23</div></div>
-                </div>
-            </div>
+    <div id="view-calendario" class="sys-view" style="padding-bottom: 0;">
+        <div class="cmd-strip" id="qual-fila-strip" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-calendar-days" style="color:var(--gold-deep);"></i> Fila &amp; Calendário de Produção <span style="font-size:11px; color:#64748b; font-weight:normal;">— o mesmo quadro do PCP e da Produção</span></div>
+            <div class="cmd-panel-sub">A Qualidade gera as fichas e envia para o setor seguinte; o PCP imprime e sequencia. Este é o <b>mesmo quadro de fila</b> que aparece no PCP e na Produção — integrado, nada se perde.</div>
+            <div id="qual-fila-board"></div>
         </div>
     </div>
 
@@ -2936,9 +2837,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
          ========================================================================== -->
     <div id="view-pcp-fila" class="sys-view">
         <div class="cmd-strip" id="pcp-strip" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title"><i class="fas fa-calendar-days" style="color:#2563eb;"></i> Fila &amp; Calendário de Produção <span style="font-size:11px; color:#64748b; font-weight:normal;">— o mesmo quadro que a Qualidade e a Produção enxergam</span></div>
+            <div class="cmd-panel-sub">Sequência e linha do tempo das OPs por máquina. Clique num cartão para abrir a ficha. É o mesmo modelo de fila usado nos painéis de Qualidade e Produção.</div>
+            <div id="pcp-fila-board"></div>
+        </div>
         <div class="card-base">
-            <div class="card-title"><i class="fas fa-calendar-days" style="color:#2563eb;"></i> Fila de Produção <span style="font-size:11px; color:#64748b; font-weight:normal;">— sequência que a Produção deve seguir</span></div>
-            <div class="cmd-panel-sub">O PCP planeja a ordem, a máquina e a data. A Produção segue esta fila; a Qualidade e a Produção enxergam a mesma sequência.</div>
+            <div class="card-title"><i class="fas fa-list-ol" style="color:#2563eb;"></i> Planejamento da fila <span style="font-size:11px; color:#64748b; font-weight:normal;">— edite máquina, data, prioridade e ordem</span></div>
             <div style="overflow-x:auto;"><table class="main-table">
                 <thead><tr><th style="width:40px;">Seq</th><th>Ficha</th><th>Produto</th><th>Cliente</th><th>Máquina</th><th>Data prev.</th><th>Prioridade</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
                 <tbody id="tb-pcp-fila"></tbody>
@@ -2974,6 +2879,30 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <thead><tr><th>Data</th><th>Ficha</th><th>Material</th><th>Qtd</th><th>Status</th><th>Solicitado por</th></tr></thead>
                 <tbody id="tb-pcp-materiais"></tbody>
             </table></div>
+        </div>
+    </div>
+
+    <!-- ===== PCP · GESTÃO À VISTA (dashboard visual) ===== -->
+    <div id="view-pcp-painel" class="sys-view">
+        <div class="cmd-strip" id="gv-strip" style="grid-template-columns:repeat(5,1fr);"></div>
+        <div class="pcp-gv-grid">
+            <div class="gv-card full">
+                <h4><i class="fas fa-bars-staggered" style="color:#2563eb;"></i> Ocupação das máquinas <span class="sub">linha do tempo da programação — cada barra é uma OP</span></h4>
+                <div id="gv-gantt" style="overflow-x:auto;"></div>
+                <div class="gv-legend"><span><i style="background:#2563eb;"></i>Gearless</span><span><i style="background:#7c3aed;"></i>Millennium</span><span><i style="background:#16a34a;"></i>Concluída (≥100%)</span><span><i style="background:#e11d48;"></i>Em atraso</span></div>
+            </div>
+            <div class="gv-card">
+                <h4><i class="fas fa-chart-column" style="color:#2563eb;"></i> Realizado × Programado (kg)</h4>
+                <div id="gv-real"></div>
+            </div>
+            <div class="gv-card">
+                <h4><i class="fas fa-triangle-exclamation" style="color:#e11d48;"></i> Paradas por motivo <span class="sub">horas apontadas (exclui produção)</span></h4>
+                <div id="gv-paradas"></div>
+            </div>
+            <div class="gv-card full">
+                <h4><i class="fas fa-calendar-day" style="color:#0d9488;"></i> Produção diária <span class="sub">metros apontados por dia</span></h4>
+                <div id="gv-diaria" style="overflow-x:auto;"></div>
+            </div>
         </div>
     </div>
 
@@ -3089,6 +3018,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
          DEPARTAMENTO PRODUÇÃO — Fila, Verificação de Parâmetros, Divergências
          ========================================================================== -->
     <div id="view-prod-fila" class="sys-view">
+        <div class="cmd-strip" id="prod-fila-strip" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title"><i class="fas fa-calendar-days" style="color:#0f766e;"></i> Fila &amp; Calendário de Produção <span style="font-size:11px; color:#64748b; font-weight:normal;">— o mesmo quadro do PCP e da Qualidade</span></div>
+            <div class="cmd-panel-sub">Siga a sequência e a linha do tempo definidas pelo PCP. É o mesmo quadro integrado que a Qualidade e o PCP enxergam.</div>
+            <div id="prod-fila-board"></div>
+        </div>
         <div class="card-base">
             <div class="card-title"><i class="fas fa-list-check" style="color:#0f766e;"></i> Fila a Produzir <span style="font-size:11px; color:#64748b; font-weight:normal;">— sequência definida pelo PCP</span></div>
             <div class="cmd-panel-sub">Siga a ordem definida pelo PCP. Clique numa ficha para verificar os parâmetros antes de iniciar.</div>
@@ -4290,6 +4225,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tela === 'usuarios') headerTitle = 'Usuários e Acessos';
         else if(tela === 'comercial-pedidos') headerTitle = 'Comercial — Pedidos & Propostas';
         else if(tela === 'rh-colaboradores') headerTitle = 'RH — Colaboradores';
+        else if(tela === 'pcp-painel') headerTitle = 'PCP — Gestão à Vista';
         else if(tela === 'pcp-fila') headerTitle = 'PCP — Fila de Produção';
         else if(tela === 'pcp-programacao') headerTitle = 'PCP — Programação das Rotativas';
         else if(tela === 'pcp-apontamentos') headerTitle = 'PCP — Apontamentos de Produção';
@@ -4343,7 +4279,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'usuarios') renderUsuarios();
         if(tela === 'comercial-pedidos') renderComercialPedidos();
         if(tela === 'rh-colaboradores') renderRHColaboradores();
+        if(tela === 'pcp-painel') renderPcpPainel();
         if(tela === 'pcp-fila') renderPcpFila();
+        if(tela === 'calendario') renderFilaBoard('qual-fila-board', 'qual-fila-strip');
         if(tela === 'pcp-programacao') renderProgramacao();
         if(tela === 'pcp-apontamentos') renderApontamentosView();
         if(tela === 'pcp-kitop') renderKitOpView();
@@ -5671,6 +5609,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
     function pcpFilaRemover(id) { const it = RB.fila.find(x => x.id === id); if (!it || !confirm(`Remover ${it.cod} da fila?`)) return; RB.fila = RB.fila.filter(x => x.id !== id); RB.fila.forEach((x, k) => x.seq = k + 1); rbSave(); renderPcpFila(); renderPcpFichas(); }
     function renderPcpFila() {
+        renderFilaBoard('pcp-fila-board', null);
         const strip = document.getElementById('pcp-strip');
         if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">Na fila</div><div class="v">${RB.fila.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Fichas liberadas</div><div class="v">${dbFichas.filter(fichaLiberadaPCP).length}</div></div><div class="cmd-mini" style="--c:#7c3aed"><div class="l">Materiais p/ Compras</div><div class="v">${RB.comprasReqs.length}</div></div><div class="cmd-mini" style="--c:#e11d48"><div class="l">Divergências</div><div class="v">${RB.reportsProducao.filter(r => r.status !== 'Resolvida').length}</div></div>`;
         const tb = document.getElementById('tb-pcp-fila'); if (!tb) return;
@@ -5720,21 +5659,26 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         d.setDate(d.getDate() + Math.max(0, (dias || 0) - 1));
         return d.toISOString().slice(0, 10);
     }
-    function progRecalc() {
-        const cap = progNum((document.getElementById('prog-cap') || {}).value) || RB.progCap[progMaq] || 1000;
-        RB.progCap[progMaq] = cap;
-        const inicioProj = (document.getElementById('prog-inicio') || {}).value || '';
-        if (inicioProj) RB.progInicio[progMaq] = inicioProj;
-        let cursor = inicioProj || RB.progInicio[progMaq] || '';
-        progLista().forEach(it => {
+    // Recalcula dias/%/término de uma máquina (sem depender do DOM) — reutilizável pelo painel/board
+    function progComputarMaq(maq) {
+        RB.programacao = RB.programacao || {}; if (!RB.programacao[maq]) RB.programacao[maq] = [];
+        const cap = RB.progCap[maq] || 1000;
+        let cursor = RB.progInicio[maq] || (RB.programacao[maq][0] && RB.programacao[maq][0].inicio) || '';
+        RB.programacao[maq].forEach(it => {
             const prog = progNum(it.qtProg), real = progNum(it.qtReal);
             it.pct = prog ? Math.round((real / prog) * 100) : 0;
             it.dias = prog ? Math.max(1, Math.ceil(prog / cap)) : 1;
             if (!it.inicio && cursor) it.inicio = cursor;
             it.termino = progAddDias(it.inicio, it.dias);
-            // próximo item começa no dia seguinte ao término deste
             if (it.termino) { const nx = new Date(it.termino + 'T12:00:00'); nx.setDate(nx.getDate() + 1); cursor = nx.toISOString().slice(0, 10); }
         });
+    }
+    function progRecalc() {
+        const cap = progNum((document.getElementById('prog-cap') || {}).value) || RB.progCap[progMaq] || 1000;
+        RB.progCap[progMaq] = cap;
+        const inicioProj = (document.getElementById('prog-inicio') || {}).value || '';
+        if (inicioProj) RB.progInicio[progMaq] = inicioProj;
+        progComputarMaq(progMaq);
         rbSave();
     }
     function renderProgramacao() {
@@ -6066,9 +6010,173 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
 
     // ==========================================================================
+    // FILA & CALENDÁRIO — quadro único compartilhado (PCP · Qualidade · Produção)
+    // A Programação das rotativas É a fila de produção; o mesmo board aparece nos 3 portais.
+    // ==========================================================================
+    const MAQ_COR = { Gearless: '#2563eb', Millennium: '#7c3aed' };
+    function pcpProgAll() {
+        PROG_MAQS.forEach(progComputarMaq);
+        const out = [];
+        PROG_MAQS.forEach(maq => (RB.programacao[maq] || []).forEach(it => out.push({ ...it, maq })));
+        out.sort((a, b) => (a.inicio || '9999').localeCompare(b.inicio || '9999'));
+        return out;
+    }
+    function fmtBR(s) { return s ? new Date(s + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '—'; }
+    function filaCorItem(it) {
+        if (progNum(it.qtReal) >= progNum(it.qtProg) && progNum(it.qtProg) > 0) return '#16a34a';
+        if (it.entrega && it.termino && it.termino > it.entrega) return '#e11d48';
+        return MAQ_COR[it.maq] || '#64748b';
+    }
+    function filaAbrirItem(op, sku) {
+        const f = dbFichas.find(x => x.cod === op || x.cod === sku || (x.produto || '') === sku);
+        if (f) { abrirFichaLeitura(f.cod); return; }
+        toast(`OP ${op || sku} — sem ficha vinculada ainda.`);
+    }
+    // Gantt (linha do tempo) por máquina — SVG inline, offline
+    function filaGanttSVG(items) {
+        const comDatas = items.filter(x => x.inicio && x.termino);
+        if (!comDatas.length) return '<div style="padding:20px; text-align:center; color:#94a3b8; font-size:12px;">Sem datas para a linha do tempo. Preencha início/quantidade na Programação.</div>';
+        const min = comDatas.reduce((m, x) => x.inicio < m ? x.inicio : m, comDatas[0].inicio);
+        const max = comDatas.reduce((m, x) => x.termino > m ? x.termino : m, comDatas[0].termino);
+        const d0 = new Date(min + 'T12:00:00'), d1 = new Date(max + 'T12:00:00');
+        const totalDias = Math.max(1, Math.round((d1 - d0) / 86400000) + 1);
+        const rows = PROG_MAQS.filter(m => comDatas.some(x => x.maq === m));
+        const padL = 92, padT = 34, rowH = 46, colW = Math.max(20, Math.min(46, 900 / totalDias));
+        const W = padL + totalDias * colW + 20, H = padT + rows.length * rowH + 16;
+        const xOf = ds => padL + Math.round((new Date(ds + 'T12:00:00') - d0) / 86400000) * colW;
+        const svg = [`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Inter,Arial,sans-serif">`];
+        // grade de dias
+        for (let i = 0; i <= totalDias; i++) {
+            const x = padL + i * colW;
+            svg.push(`<line x1="${x}" y1="${padT - 6}" x2="${x}" y2="${H - 8}" stroke="#eef2f7" stroke-width="1"/>`);
+            if (i < totalDias) { const dd = new Date(d0); dd.setDate(dd.getDate() + i); svg.push(`<text x="${x + colW / 2}" y="${padT - 12}" font-size="8" fill="#94a3b8" text-anchor="middle">${dd.getDate()}/${dd.getMonth() + 1}</text>`); }
+        }
+        rows.forEach((maq, ri) => {
+            const y = padT + ri * rowH;
+            svg.push(`<text x="8" y="${y + rowH / 2 + 4}" font-size="11" font-weight="700" fill="${MAQ_COR[maq]}">${maq}</text>`);
+            comDatas.filter(x => x.maq === maq).forEach(it => {
+                const x = xOf(it.inicio), w = Math.max(colW - 3, Math.round((new Date(it.termino + 'T12:00:00') - new Date(it.inicio + 'T12:00:00')) / 86400000 + 1) * colW - 3);
+                const c = filaCorItem(it);
+                svg.push(`<g><title>${(it.op || '')} · ${(it.cliente || '')} · ${(it.sku || '')} — ${fmtBR(it.inicio)} a ${fmtBR(it.termino)} (${it.pct || 0}%)</title>`);
+                svg.push(`<rect x="${x}" y="${y + 7}" width="${w}" height="${rowH - 16}" rx="5" fill="${c}" opacity="0.9"/>`);
+                if (w > 34) svg.push(`<text x="${x + 6}" y="${y + rowH / 2 + 3}" font-size="9" fill="#fff" font-weight="600">${(it.op || it.sku || '').toString().slice(0, 10)}</text>`);
+                svg.push(`</g>`);
+            });
+        });
+        svg.push(`</svg>`);
+        return svg.join('');
+    }
+    function filaBoardHTML() {
+        const all = pcpProgAll();
+        const cards = all.length ? all.map(it => {
+            const c = filaCorItem(it), pct = Math.min(100, it.pct || 0);
+            return `<div class="fcard" style="border-left-color:${c};" onclick="filaAbrirItem('${(it.op||'').replace(/'/g,'')}','${(it.sku||'').replace(/'/g,'')}')">
+                <div class="fc-top"><span class="fc-cod">${it.op || it.sku || '—'}</span><span style="color:${MAQ_COR[it.maq]};">${it.maq}</span></div>
+                <div class="fc-title">${(it.desc || it.cliente || it.sku || '').toString().slice(0, 46)}</div>
+                <div class="fc-meta"><span>${it.cliente || '—'}</span><span>${progNum(it.qtProg).toLocaleString('pt-BR')} kg</span></div>
+                <div class="fc-meta" style="margin-top:2px;"><span>${fmtBR(it.inicio)} → ${fmtBR(it.termino)}</span><span style="font-weight:700; color:${c};">${it.pct || 0}%</span></div>
+                <div class="fc-bar"><i style="width:${pct}%; background:${c};"></i></div>
+            </div>`;
+        }).join('') : '<div style="padding:24px; text-align:center; color:#94a3b8; font-size:12px;">Fila vazia. Adicione OPs na Programação das Rotativas.</div>';
+        return `<div class="fila-board">
+            <div class="fila-queue">
+                <div class="fila-queue-head">Sequência de produção <span class="badge-count">${all.length}</span></div>
+                ${cards}
+            </div>
+            <div class="fila-timeline">${filaGanttSVG(all)}</div>
+        </div>`;
+    }
+    function renderFilaBoard(containerId, stripId) {
+        const el = document.getElementById(containerId); if (!el) return;
+        el.innerHTML = filaBoardHTML();
+        if (stripId) {
+            const strip = document.getElementById(stripId), all = pcpProgAll();
+            const prog = all.reduce((s, x) => s + progNum(x.qtProg), 0), real = all.reduce((s, x) => s + progNum(x.qtReal), 0);
+            const atras = all.filter(x => x.entrega && x.termino && x.termino > x.entrega && progNum(x.qtReal) < progNum(x.qtProg)).length;
+            const prox = all.find(x => (x.pct || 0) < 100);
+            if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">OPs na fila</div><div class="v">${all.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Kg programados</div><div class="v">${Math.round(prog).toLocaleString('pt-BR')}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Atingido</div><div class="v">${prog ? Math.round(real / prog * 100) : 0}%</div></div><div class="cmd-mini" style="--c:#e11d48"><div class="l">Em atraso</div><div class="v">${atras}</div></div>`;
+        }
+    }
+
+    // ==========================================================================
+    // PCP · GESTÃO À VISTA — gráficos (SVG inline, offline) além das planilhas
+    // ==========================================================================
+    function minutosDe(hhmm) { if (!hhmm) return 0; const [h, m] = hhmm.split(':').map(Number); return (h || 0) * 60 + (m || 0); }
+    function gvBarsHorizontais(dados, unidade) {
+        if (!dados.length) return '<div style="padding:18px; color:#94a3b8; font-size:12px; text-align:center;">Sem dados.</div>';
+        const max = Math.max(...dados.map(d => d.v), 1), W = 460, bh = 26, gap = 12, padL = 150, H = dados.length * (bh + gap) + 12;
+        const svg = [`<svg viewBox="0 0 ${W} ${H}" width="100%" font-family="Inter,Arial,sans-serif">`];
+        dados.forEach((d, i) => {
+            const y = i * (bh + gap) + 6, w = Math.round((W - padL - 60) * d.v / max);
+            svg.push(`<text x="${padL - 8}" y="${y + bh / 2 + 4}" font-size="10.5" fill="#475569" text-anchor="end">${d.label.slice(0, 24)}</text>`);
+            svg.push(`<rect x="${padL}" y="${y}" width="${Math.max(w, 2)}" height="${bh}" rx="4" fill="${d.cor || '#2563eb'}"/>`);
+            svg.push(`<text x="${padL + Math.max(w, 2) + 6}" y="${y + bh / 2 + 4}" font-size="10.5" font-weight="700" fill="#334155">${d.v.toLocaleString('pt-BR')}${unidade || ''}</text>`);
+        });
+        svg.push('</svg>'); return svg.join('');
+    }
+    function gvRealVsProgSVG() {
+        const dados = PROG_MAQS.map(maq => { const l = RB.programacao[maq] || []; return { maq, prog: l.reduce((s, x) => s + progNum(x.qtProg), 0), real: l.reduce((s, x) => s + progNum(x.qtReal), 0) }; });
+        const max = Math.max(...dados.map(d => Math.max(d.prog, d.real)), 1), W = 460, H = 200, padB = 34, padT = 14, gw = W / dados.length;
+        const svg = [`<svg viewBox="0 0 ${W} ${H}" width="100%" font-family="Inter,Arial,sans-serif">`];
+        dados.forEach((d, i) => {
+            const cx = i * gw + gw / 2, bw = 42;
+            const hP = Math.round((H - padB - padT) * d.prog / max), hR = Math.round((H - padB - padT) * d.real / max);
+            svg.push(`<rect x="${cx - bw - 3}" y="${H - padB - hP}" width="${bw}" height="${hP}" rx="4" fill="#cbd5e1"/>`);
+            svg.push(`<rect x="${cx + 3}" y="${H - padB - hR}" width="${bw}" height="${hR}" rx="4" fill="${MAQ_COR[d.maq]}"/>`);
+            svg.push(`<text x="${cx}" y="${H - padB + 16}" font-size="11" fill="#334155" text-anchor="middle" font-weight="700">${d.maq}</text>`);
+            svg.push(`<text x="${cx - bw / 2 - 3}" y="${H - padB - hP - 4}" font-size="9" fill="#64748b" text-anchor="middle">${Math.round(d.prog / 1000)}k</text>`);
+            svg.push(`<text x="${cx + bw / 2 + 3}" y="${H - padB - hR - 4}" font-size="9" fill="${MAQ_COR[d.maq]}" text-anchor="middle" font-weight="700">${Math.round(d.real / 1000)}k</text>`);
+        });
+        svg.push(`</svg>`);
+        return svg.join('') + '<div class="gv-legend"><span><i style="background:#cbd5e1;"></i>Programado</span><span><i style="background:#2563eb;"></i>Realizado</span></div>';
+    }
+    function gvParadasSVG() {
+        const map = {};
+        (RB.apontamentos || []).forEach(a => { if (!a.cod || /99 - Produção/.test(a.cod)) return; map[a.cod] = (map[a.cod] || 0) + minutosDe(a.total); });
+        const dados = Object.entries(map).map(([k, v]) => ({ label: k, v: Math.round(v / 60 * 10) / 10, cor: /^R /.test(k) ? '#94a3b8' : '#e11d48' })).sort((a, b) => b.v - a.v).slice(0, 8);
+        return gvBarsHorizontais(dados, ' h');
+    }
+    function gvDiariaSVG() {
+        const map = {};
+        (RB.apontamentos || []).forEach(a => { if (!a.dia) return; const k = `${String(a.dia).padStart(2,'0')}/${(a.mes||'').slice(0,3)}`; map[k] = (map[k] || 0) + progNum(a.mt); });
+        const dados = Object.entries(map);
+        if (!dados.length) return '<div style="padding:18px; color:#94a3b8; font-size:12px; text-align:center;">Sem apontamentos de produção.</div>';
+        const max = Math.max(...dados.map(d => d[1]), 1), W = Math.max(560, dados.length * 46), H = 190, padB = 32, padT = 12, gw = W / dados.length;
+        const svg = [`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Inter,Arial,sans-serif">`];
+        dados.forEach((d, i) => {
+            const h = Math.round((H - padB - padT) * d[1] / max), x = i * gw + gw / 2 - 15;
+            svg.push(`<rect x="${x}" y="${H - padB - h}" width="30" height="${h}" rx="3" fill="#0d9488"><title>${d[0]}: ${Math.round(d[1]).toLocaleString('pt-BR')} mt</title></rect>`);
+            svg.push(`<text x="${x + 15}" y="${H - padB + 14}" font-size="8.5" fill="#64748b" text-anchor="middle">${d[0]}</text>`);
+        });
+        svg.push('</svg>'); return svg.join('');
+    }
+    function renderPcpPainel() {
+        const all = pcpProgAll();
+        const prog = all.reduce((s, x) => s + progNum(x.qtProg), 0), real = all.reduce((s, x) => s + progNum(x.qtReal), 0);
+        const apo = RB.apontamentos || [];
+        const prodMin = apo.filter(a => /99 - Produção/.test(a.cod)).reduce((s, a) => s + minutosDe(a.total), 0);
+        const paradaMin = apo.filter(a => a.cod && !/99 - Produção/.test(a.cod) && !/^R /.test(a.cod)).reduce((s, a) => s + minutosDe(a.total), 0);
+        const dispon = (prodMin + paradaMin) ? Math.round(prodMin / (prodMin + paradaMin) * 100) : 0;
+        const aparas = apo.reduce((s, a) => s + progNum(a.apl) + progNum(a.api), 0);
+        const strip = document.getElementById('gv-strip');
+        if (strip) strip.innerHTML = `
+            <div class="cmd-mini" style="--c:#2563eb"><div class="l">OPs na fila</div><div class="v">${all.length}</div></div>
+            <div class="cmd-mini" style="--c:var(--gold)"><div class="l">Atingido (kg)</div><div class="v">${prog ? Math.round(real / prog * 100) : 0}%</div></div>
+            <div class="cmd-mini" style="--c:#0d9488"><div class="l">Disponibilidade</div><div class="v">${dispon}%</div></div>
+            <div class="cmd-mini" style="--c:#f59e0b"><div class="l">Horas paradas</div><div class="v">${Math.round(paradaMin / 60)}h</div></div>
+            <div class="cmd-mini" style="--c:#e11d48"><div class="l">Aparas (kg)</div><div class="v">${Math.round(aparas).toLocaleString('pt-BR')}</div></div>`;
+        const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+        set('gv-gantt', filaGanttSVG(all));
+        set('gv-real', gvRealVsProgSVG());
+        set('gv-paradas', gvParadasSVG());
+        set('gv-diaria', gvDiariaSVG());
+    }
+
+    // ==========================================================================
     // DEPARTAMENTO PRODUÇÃO — segue a fila, verifica parâmetros e reporta divergências
     // ==========================================================================
     function renderProdFila() {
+        renderFilaBoard('prod-fila-board', 'prod-fila-strip');
         const tb = document.getElementById('tb-prod-fila'); if (!tb) return;
         const visiveis = RB.fila.filter(x => x.status !== 'Concluída');
         tb.innerHTML = visiveis.length ? visiveis.map(it => `<tr class="row-ficha" onclick="abrirFichaLeitura('${it.cod}')">
