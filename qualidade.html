@@ -515,8 +515,33 @@
     .fcal-chip .p { opacity:.85; }
     .fcard[draggable="true"] { cursor:grab; }
     .fcard.dragging { opacity:.5; }
+    /* ---- Cabeçalho de página (identidade visual por tela do PCP) ---- */
+    .page-hero { display:flex; align-items:center; gap:16px; border-radius:14px; padding:16px 20px; margin-bottom:16px; color:#fff; position:relative; overflow:hidden; box-shadow:0 8px 22px -12px rgba(20,16,64,.55); }
+    .page-hero::after { content:''; position:absolute; right:-30px; top:-46px; width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.09); }
+    .page-hero .ph-ic { width:50px; height:50px; border-radius:14px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:21px; flex-shrink:0; position:relative; z-index:1; }
+    .page-hero .ph-txt { position:relative; z-index:1; min-width:0; }
+    .page-hero .ph-t { font-size:18px; font-weight:800; letter-spacing:.01em; }
+    .page-hero .ph-s { font-size:12px; opacity:.86; margin-top:2px; }
+    .page-hero .ph-stats { margin-left:auto; display:flex; gap:22px; position:relative; z-index:1; text-align:right; }
+    .page-hero .ph-stat b { display:block; font-size:20px; font-weight:800; line-height:1.1; }
+    .page-hero .ph-stat span { font-size:10.5px; opacity:.8; text-transform:uppercase; letter-spacing:.05em; }
+    @media (max-width:820px){ .page-hero .ph-stats { display:none; } }
+    /* ---- Desfazer/Refazer global ---- */
+    .hist-dock { position:fixed; right:20px; bottom:20px; z-index:3500; display:flex; align-items:center; gap:8px; background:rgba(25,16,64,.96); color:#fff; border-radius:14px; padding:8px 10px; box-shadow:0 12px 34px -8px rgba(0,0,0,.55); backdrop-filter:blur(6px); }
+    .hist-dock button { border:none; background:rgba(255,255,255,.12); color:#fff; width:38px; height:38px; border-radius:10px; cursor:pointer; font-size:15px; transition:.13s; display:flex; align-items:center; justify-content:center; }
+    .hist-dock button:hover:not(:disabled) { background:var(--gold); color:var(--navy); }
+    .hist-dock button:disabled { opacity:.3; cursor:default; }
+    .hist-dock .hd-label { font-size:11px; max-width:190px; line-height:1.25; }
+    .hist-dock .hd-label b { display:block; font-size:9px; text-transform:uppercase; letter-spacing:.06em; opacity:.6; font-weight:800; }
+    .hist-dock .hd-txt { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; }
+    @keyframes histFlash { 0%{ box-shadow:0 0 0 0 rgba(197,168,128,.9), 0 0 0 4px rgba(197,168,128,.55); background:rgba(197,168,128,.28); } 100%{ box-shadow:0 0 0 0 rgba(197,168,128,0); background:transparent; } }
+    .hist-flash { animation:histFlash 2.1s ease-out; border-radius:8px; }
+    .hist-toast { position:fixed; left:50%; top:22px; transform:translateX(-50%); z-index:3600; background:var(--navy); color:#fff; padding:11px 20px; border-radius:12px; font-size:13px; font-weight:600; box-shadow:0 10px 30px -8px rgba(0,0,0,.5); display:flex; align-items:center; gap:10px; opacity:0; transition:opacity .2s, transform .2s; pointer-events:none; }
+    .hist-toast.show { opacity:1; transform:translateX(-50%) translateY(4px); }
+    .hist-toast i { color:var(--gold); }
     /* ---- PCP Dashboard premium (decisão só de olhar) ---- */
-    .pcp-dash { display:flex; flex-direction:column; gap:16px; }
+    /* só vira flex quando a view está ativa — senão sobrescreve o display:none do .sys-view */
+    .sys-view.pcp-dash.active { display:flex; flex-direction:column; gap:16px; }
     .pcp-cockpit { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
     @media (max-width:920px){ .pcp-cockpit { grid-template-columns:1fr; } }
     .mcard { position:relative; border-radius:16px; padding:18px 20px; color:#fff; overflow:hidden; box-shadow:0 10px 26px -10px rgba(20,16,64,.5); }
@@ -544,8 +569,8 @@
     .tile .t-v { font-size:24px; font-weight:800; color:var(--navy); line-height:1; }
     .tile .t-l { font-size:11px; color:#64748b; margin-top:4px; }
     .pcp-dash-row { display:grid; grid-template-columns:1fr 1.35fr; gap:16px; }
-    .pcp-dash-row3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-    @media (max-width:1100px){ .pcp-dash-row, .pcp-dash-row3 { grid-template-columns:1fr; } }
+    .pcp-dash-row2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:1100px){ .pcp-dash-row, .pcp-dash-row2 { grid-template-columns:1fr; } }
     .pcp-decisoes #gv-alertas { max-height:392px; overflow-y:auto; padding-right:2px; }
     .alert-row { display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:10px; border:1px solid var(--border); border-left-width:4px; margin-bottom:8px; cursor:pointer; transition:.13s; background:#fff; }
     .alert-row:hover { background:#f8fafc; transform:translateX(2px); }
@@ -2898,7 +2923,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
          DEPARTAMENTO PCP — Fila de Produção, Fichas da Qualidade, Materiais → Compras
          ========================================================================== -->
     <div id="view-pcp-fila" class="sys-view">
-        <div class="cmd-strip" id="pcp-strip" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div id="pcp-fila-hero"></div>
         <div class="card-base" style="margin-bottom:16px;">
             <div class="card-title"><i class="fas fa-calendar-days" style="color:#2563eb;"></i> Fila &amp; Calendário de Produção <span style="font-size:11px; color:#64748b; font-weight:normal;">— o mesmo quadro que a Qualidade e a Produção enxergam</span></div>
             <div class="cmd-panel-sub">Sequência e linha do tempo das OPs por máquina. Clique num cartão para abrir a ficha. É o mesmo modelo de fila usado nos painéis de Qualidade e Produção.</div>
@@ -2946,6 +2971,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     <!-- ===== PCP · GESTÃO À VISTA (dashboard visual) ===== -->
     <div id="view-pcp-painel" class="sys-view pcp-dash">
+        <div id="gv-hero"></div>
         <div id="pcp-cockpit" class="pcp-cockpit"></div>
         <div id="pcp-tiles" class="pcp-tiles"></div>
         <div class="pcp-dash-row">
@@ -2959,25 +2985,25 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="gv-legend"><span><i style="background:#2563eb;"></i>Gearless</span><span><i style="background:#7c3aed;"></i>Millennium</span><span><i style="background:#16a34a;"></i>Concluída</span><span><i style="background:#e11d48;"></i>Atraso</span></div>
             </div>
         </div>
-        <div class="pcp-dash-row3">
+        <div class="pcp-dash-row2">
             <div class="gv-card">
-                <h4><i class="fas fa-chart-column" style="color:#2563eb;"></i> Realizado × Programado <span class="sub">kg</span></h4>
+                <h4><i class="fas fa-chart-column" style="color:#2563eb;"></i> Realizado × Programado <span class="sub">kg por máquina</span></h4>
                 <div id="gv-real"></div>
             </div>
             <div class="gv-card">
-                <h4><i class="fas fa-triangle-exclamation" style="color:#e11d48;"></i> Paradas por motivo <span class="sub">horas</span></h4>
+                <h4><i class="fas fa-triangle-exclamation" style="color:#e11d48;"></i> Paradas por motivo <span class="sub">horas apontadas</span></h4>
                 <div id="gv-paradas"></div>
             </div>
-            <div class="gv-card">
-                <h4><i class="fas fa-calendar-day" style="color:#0d9488;"></i> Produção diária <span class="sub">metros/dia</span></h4>
-                <div id="gv-diaria" style="overflow-x:auto;"></div>
-            </div>
+        </div>
+        <div class="gv-card">
+            <h4><i class="fas fa-calendar-day" style="color:#0d9488;"></i> Produção diária <span class="sub">metros apontados por dia</span></h4>
+            <div id="gv-diaria" style="overflow-x:auto;"></div>
         </div>
     </div>
 
     <!-- ===== PCP · PROGRAMAÇÃO DAS ROTATIVAS (Gearless / Millennium) ===== -->
     <div id="view-pcp-programacao" class="sys-view">
-        <div class="cmd-strip" id="prog-strip" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div id="prog-hero"></div>
         <div class="card-base" style="margin-bottom:14px;">
             <div class="card-title"><i class="fas fa-table-list" style="color:#2563eb;"></i> Programação das Rotativas</div>
             <div class="cmd-panel-sub">Sequência de produção por máquina impressora rotativa. Preencha as quantidades e as datas de início — o sistema calcula os <b>dias</b> (pela capacidade/dia), o <b>término</b> e o <b>% realizado</b>. Ordem editável.</div>
@@ -3009,7 +3035,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     <!-- ===== PCP · APONTAMENTOS DE PRODUÇÃO (Rotativas) ===== -->
     <div id="view-pcp-apontamentos" class="sys-view">
-        <div class="cmd-strip" id="apo-strip" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div id="apo-hero"></div>
         <div class="card-base" style="margin-bottom:14px;">
             <div class="card-title"><i class="fas fa-stopwatch" style="color:#2563eb;"></i> Apontamentos de Produção — Rotativas</div>
             <div class="cmd-panel-sub">Registro por intervalo: máquina, operadores, OP, código do apontamento (produção/parada), produção em metros e kg, aparas e horas. A hora total é calculada.</div>
@@ -3052,7 +3078,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     <!-- ===== PCP · KIT OP (documentos da Ordem de Produção) ===== -->
     <div id="view-pcp-kitop" class="sys-view">
-        <div class="cmd-strip" id="kit-strip" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div id="kit-hero"></div>
         <div class="card-base" style="margin-bottom:14px;">
             <div class="card-title"><i class="fas fa-folder-open" style="color:#2563eb;"></i> Kit da Ordem de Produção</div>
             <div class="cmd-panel-sub">Monte o kit de documentos que acompanha a OP no chão de fábrica: <b>Capa (Principal)</b>, <b>Solicitação de MP</b>, <b>Controle de Paradas</b> e <b>Fechamento da OP</b>. Preencha o cabeçalho e imprima o kit.</div>
@@ -3797,6 +3823,111 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         } catch (e) {
             alert('Armazenamento local cheio — não foi possível gravar. Remova anexos de fichas antigas ou exporte os dados para liberar espaço.');
         }
+        if (typeof histSchedule === 'function') histSchedule();
+    }
+
+    // ==========================================================================
+    // DESFAZER / REFAZER GLOBAL — histórico por etapa, em qualquer painel
+    // Cada ação vira um passo; desfazer/refazer restaura o estado e leva você
+    // até a mudança, destacando-a (mesmo que pule de página).
+    // ==========================================================================
+    let histStack = [], histMeta = [], histIndex = -1;
+    let histReady = false, histRestoring = false, histTimer = null, histNextAction = null;
+    // Chamado pelas ações para rotular o passo e apontar onde destacar
+    function histAcao(label, focus) { histNextAction = { label: label || 'Alteração', focus: focus || null }; }
+    function telaAtiva() { const v = document.querySelector('.sys-view.active'); return v ? v.id.replace('view-', '') : null; }
+    function histSchedule() {
+        if (!histReady || histRestoring) return;
+        clearTimeout(histTimer);
+        histTimer = setTimeout(histCommit, 450);
+    }
+    function histCommit() {
+        if (!histReady || histRestoring) return;
+        const snap = JSON.stringify(RB);
+        if (histStack[histIndex] === snap) { histNextAction = null; return; }
+        histStack = histStack.slice(0, histIndex + 1);
+        histMeta = histMeta.slice(0, histIndex + 1);
+        histStack.push(snap);
+        histMeta.push(histNextAction || { label: 'Alteração', focus: { tela: telaAtiva() } });
+        histNextAction = null;
+        const CAP = 40;
+        while (histStack.length > CAP) { histStack.shift(); histMeta.shift(); }
+        histIndex = histStack.length - 1;
+        histUpdateDock();
+    }
+    function histRestore(json) {
+        histRestoring = true;
+        RB = JSON.parse(json);
+        dbFichas = RB.fichas;
+        try { localStorage.setItem(RB_KEY, JSON.stringify(RB)); } catch (e) {}
+        histRestoring = false;
+    }
+    function histRerender(tela) {
+        const alvo = tela || telaAtiva();
+        if (alvo && document.getElementById('view-' + alvo)) nav(alvo);
+    }
+    function histFlash(meta) {
+        const f = meta && meta.focus;
+        histRerender(f && f.tela);
+        setTimeout(() => {
+            let el = null;
+            if (f && f.sel) el = document.querySelector(f.sel);
+            else if (f && f.hl) el = document.querySelector(`[data-hl="${String(f.hl).replace(/"/g,'')}"]`);
+            if (!el && f && f.tela) el = document.getElementById('view-' + f.tela);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.remove('hist-flash'); void el.offsetWidth; el.classList.add('hist-flash');
+                setTimeout(() => el.classList.remove('hist-flash'), 2200);
+            }
+        }, 220);
+    }
+    function histToast(modo, label) {
+        let t = document.getElementById('hist-toast');
+        if (!t) { t = document.createElement('div'); t.id = 'hist-toast'; t.className = 'hist-toast'; document.body.appendChild(t); }
+        t.innerHTML = `<i class="fas fa-${modo === 'undo' ? 'rotate-left' : 'rotate-right'}"></i> <span>${modo === 'undo' ? 'Desfeito' : 'Refeito'}: <b>${label || 'ação'}</b></span>`;
+        t.classList.add('show'); clearTimeout(t._tm); t._tm = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    function histUndo() {
+        if (histIndex <= 0) return;
+        const meta = histMeta[histIndex];   // passo sendo desfeito
+        histIndex--;
+        histRestore(histStack[histIndex]);
+        histFlash(meta); histToast('undo', meta && meta.label); histUpdateDock();
+    }
+    function histRedo() {
+        if (histIndex >= histStack.length - 1) return;
+        histIndex++;
+        const meta = histMeta[histIndex];   // passo sendo refeito
+        histRestore(histStack[histIndex]);
+        histFlash(meta); histToast('redo', meta && meta.label); histUpdateDock();
+    }
+    function histUpdateDock() {
+        let dock = document.getElementById('hist-dock');
+        if (!dock) {
+            dock = document.createElement('div'); dock.id = 'hist-dock'; dock.className = 'hist-dock';
+            dock.innerHTML = `<button id="hist-undo-btn" title="Desfazer (Ctrl+Z)" onclick="histUndo()"><i class="fas fa-rotate-left"></i></button>
+                <div class="hd-label"><b id="hist-mode">Histórico</b><span class="hd-txt" id="hist-txt">—</span></div>
+                <button id="hist-redo-btn" title="Refazer (Ctrl+Shift+Z)" onclick="histRedo()"><i class="fas fa-rotate-right"></i></button>`;
+            document.body.appendChild(dock);
+        }
+        const podeUndo = histIndex > 0, podeRedo = histIndex < histStack.length - 1;
+        document.getElementById('hist-undo-btn').disabled = !podeUndo;
+        document.getElementById('hist-redo-btn').disabled = !podeRedo;
+        const modo = document.getElementById('hist-mode'), txt = document.getElementById('hist-txt');
+        if (podeRedo) { modo.innerText = 'Refazer →'; txt.innerText = (histMeta[histIndex + 1] || {}).label || '—'; }
+        else if (podeUndo) { modo.innerText = 'Desfazer'; txt.innerText = (histMeta[histIndex] || {}).label || '—'; }
+        else { modo.innerText = 'Histórico'; txt.innerText = 'nenhuma ação ainda'; }
+        // esconde na tela de login
+        dock.style.display = document.getElementById('login-overlay') && document.getElementById('login-overlay').style.display !== 'none' ? 'none' : 'flex';
+    }
+    function histInit() {
+        histStack = [JSON.stringify(RB)]; histMeta = [{ label: 'Estado inicial', focus: null }]; histIndex = 0; histReady = true;
+        histUpdateDock();
+        document.addEventListener('keydown', e => {
+            const tag = (e.target.tagName || '').toLowerCase(), editando = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { if (editando && !e.shiftKey) return; e.preventDefault(); e.shiftKey ? histRedo() : histUndo(); }
+            else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); histRedo(); }
+        });
     }
     function rbSeedRetrabalhos() {
         // Amostra histórica (marcada como demo) para os indicadores nascerem com leitura
@@ -4095,10 +4226,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         setTxt('hdr-user-nome', user.nome);
         setTxt('hdr-user-cargo', user.cargo);
         setTxt('hdr-user-av', user.avatar || '👤');
+        if (typeof histUpdateDock === 'function') setTimeout(histUpdateDock, 60);
     }
 
     function logout() {
         registrarAtividade('encerrou a sessão');
+        const dock = document.getElementById('hist-dock'); if (dock) dock.style.display = 'none';
         sessaoUser = null; deptoAtual = null;
         try { localStorage.removeItem(SESSAO_KEY); } catch(e) {}
         document.getElementById('hub-portal').classList.remove('show');
@@ -5678,7 +5811,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
     function pcpFilaRemover(id) { const it = RB.fila.find(x => x.id === id); if (!it || !confirm(`Remover ${it.cod} da fila?`)) return; RB.fila = RB.fila.filter(x => x.id !== id); RB.fila.forEach((x, k) => x.seq = k + 1); rbSave(); renderPcpFila(); renderPcpFichas(); }
     function renderPcpFila() {
-        renderFilaBoard('pcp-fila-board', 'pcp-strip');
+        const all = pcpProgAll(), pend = all.filter(x => (x.pct || 0) < 100);
+        const atras = pend.filter(x => x.entrega && x.termino && x.termino > x.entrega).length;
+        const prox = pend[0];
+        pageHero('pcp-fila-hero', { grad: 'linear-gradient(135deg,#0f766e,#0d9488)', ic: 'calendar-days', t: 'Fila & Calendário de Produção',
+            s: 'Sequência e datas das OPs — arraste no calendário para reprogramar. Mesmo quadro da Qualidade e da Produção.',
+            stats: [{ v: pend.length, l: 'a produzir' }, { v: atras, l: 'em atraso' }, { v: prox ? (prox.op || prox.sku || '—') : '—', l: 'próxima OP' }] });
+        renderFilaBoard('pcp-fila-board', null);
         const tb = document.getElementById('tb-pcp-fila'); if (!tb) return;
         const prio = ['Normal', 'Alta', 'Urgente', 'Baixa'];
         tb.innerHTML = RB.fila.length ? RB.fila.map(it => `<tr>
@@ -5749,12 +5888,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         rbSave();
     }
     function renderProgramacao() {
-        const strip = document.getElementById('prog-strip');
-        if (strip) {
-            const all = [...(RB.programacao.Gearless || []), ...(RB.programacao.Millennium || [])];
-            const prog = all.reduce((s, x) => s + progNum(x.qtProg), 0), real = all.reduce((s, x) => s + progNum(x.qtReal), 0);
-            const atras = all.filter(x => x.entrega && x.termino && x.termino > x.entrega && progNum(x.qtReal) < progNum(x.qtProg)).length;
-            strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">OPs programadas</div><div class="v">${all.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Kg programados</div><div class="v">${Math.round(prog).toLocaleString('pt-BR')}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Atingido</div><div class="v">${prog ? Math.round(real / prog * 100) : 0}%</div></div><div class="cmd-mini" style="--c:#e11d48"><div class="l">Em atraso</div><div class="v">${atras}</div></div>`;
+        {
+            const lista = RB.programacao[progMaq] || [];
+            const prog = lista.reduce((s, x) => s + progNum(x.qtProg), 0);
+            pageHero('prog-hero', { grad: 'linear-gradient(135deg,#1e3a8a,#2563eb)', ic: 'table-list', t: 'Programação das Rotativas',
+                s: 'Planilha de sequenciamento por máquina — quantidades, datas e capacidade. Os dias e o término são calculados.',
+                stats: [{ v: progMaq, l: 'máquina' }, { v: lista.length, l: 'OPs' }, { v: Math.round(prog).toLocaleString('pt-BR'), l: 'kg programados' }] });
         }
         const tabs = document.getElementById('prog-tabs');
         if (tabs) tabs.innerHTML = PROG_MAQS.map(m => `<div class="prog-tab ${m === progMaq ? 'sel' : ''}" onclick="progSelMaq('${m}')">${m} <span style="opacity:.7; font-weight:400;">(${(RB.programacao[m] || []).length})</span></div>`).join('');
@@ -5836,12 +5975,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const setIf = (id, v) => { const el = document.getElementById(id); if (el && !el.value) el.value = v; };
         setIf('apo-dia', now.getDate()); setIf('apo-ano', now.getFullYear());
         setIf('apo-mes', ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][now.getMonth()]);
-        const strip = document.getElementById('apo-strip');
-        if (strip) {
-            const arr = RB.apontamentos;
+        {
+            const arr = RB.apontamentos || [];
             const soma = k => arr.reduce((s, x) => s + progNum(x[k]), 0);
-            const prod = arr.filter(x => /99 - Produção/.test(x.cod)).length;
-            strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">Apontamentos</div><div class="v">${arr.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Produção (kg)</div><div class="v">${Math.round(soma('kg')).toLocaleString('pt-BR')}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Registros de produção</div><div class="v">${prod}</div></div><div class="cmd-mini" style="--c:#e11d48"><div class="l">Aparas (kg)</div><div class="v">${Math.round(soma('apl') + soma('api')).toLocaleString('pt-BR')}</div></div>`;
+            const paradaMin = arr.filter(a => a.cod && !/99 - Produção/.test(a.cod) && !/^R /.test(a.cod)).reduce((s, a) => s + minutosDe(a.total), 0);
+            pageHero('apo-hero', { grad: 'linear-gradient(135deg,#7c2d12,#ea580c)', ic: 'stopwatch', t: 'Apontamentos de Produção',
+                s: 'Registro por intervalo: produção, paradas e horas de cada OP nas rotativas. A hora total é calculada.',
+                stats: [{ v: arr.length, l: 'registros' }, { v: Math.round(soma('mt')).toLocaleString('pt-BR'), l: 'metros' }, { v: Math.round(paradaMin / 60) + 'h', l: 'paradas' }] });
         }
         renderApontamentos();
     }
@@ -5896,11 +6036,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const host = document.getElementById('kit-docs');
         if (host) host.innerHTML = KIT_DOCS.map(d => `<label class="kit-doc"><input type="checkbox" ${kitSel[d.key] ? 'checked' : ''} onchange="kitSel['${d.key}']=this.checked">${d.nome}</label>`).join('');
         const dt = document.getElementById('kit-data'); if (dt && !dt.value) dt.value = new Date().toISOString().slice(0, 10);
-        const strip = document.getElementById('kit-strip');
-        if (strip) {
+        {
             const hoje = new Date().toISOString().slice(0, 10);
             const doHoje = RB.kitops.filter(k => (k.data || '').slice(0, 10) === hoje || (k.criadoEm || '').slice(0, 10) === hoje).length;
-            strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">Kits gerados</div><div class="v">${RB.kitops.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Gerados hoje</div><div class="v">${doHoje}</div></div><div class="cmd-mini" style="--c:#0d9488"><div class="l">Documentos por kit</div><div class="v">${KIT_DOCS.length}</div></div>`;
+            pageHero('kit-hero', { grad: 'linear-gradient(135deg,#4c1d95,#7c3aed)', ic: 'folder-open', t: 'Kit da Ordem de Produção',
+                s: 'Monte e imprima os documentos que acompanham a OP no chão de fábrica: capa, MP, paradas e fechamento.',
+                stats: [{ v: RB.kitops.length, l: 'kits gerados' }, { v: doHoje, l: 'hoje' }, { v: KIT_DOCS.length, l: 'folhas/kit' }] });
         }
         renderKitOps();
     }
@@ -6081,6 +6222,16 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     // A Programação das rotativas É a fila de produção; o mesmo board aparece nos 3 portais.
     // ==========================================================================
     const MAQ_COR = { Gearless: '#2563eb', Millennium: '#7c3aed' };
+    // Cabeçalho de página: dá identidade visual própria a cada tela (cor, ícone, propósito e números do contexto)
+    function pageHero(id, cfg) {
+        const el = document.getElementById(id); if (!el) return;
+        const stats = (cfg.stats || []).map(s => `<div class="ph-stat"><b>${s.v}</b><span>${s.l}</span></div>`).join('');
+        el.innerHTML = `<div class="page-hero" style="background:${cfg.grad};">
+            <div class="ph-ic"><i class="fas fa-${cfg.ic}"></i></div>
+            <div class="ph-txt"><div class="ph-t">${cfg.t}</div><div class="ph-s">${cfg.s}</div></div>
+            <div class="ph-stats">${stats}</div></div>`;
+        renderIcons(el);
+    }
     function pcpProgAll() {
         PROG_MAQS.forEach(progComputarMaq);
         const out = [];
@@ -6155,7 +6306,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         lista[idx].inicio = dateStr;
         // reprograma: OPs seguintes reencadeiam a partir desta
         for (let i = idx + 1; i < lista.length; i++) lista[i].inicio = '';
-        progComputarMaq(maq); rbSave();
+        progComputarMaq(maq);
+        histAcao(`Reprogramou ${lista[idx].op || lista[idx].sku} → ${new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR')}`, { tela: telaAtiva(), hl: (lista[idx].op || lista[idx].sku) });
+        rbSave();
         registrarAtividade(`reprogramou ${lista[idx].op || lista[idx].sku} (${maq}) para ${new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR')}`);
         filaRerenderAll();
         toast(`OP reprogramada para ${new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR')}.`);
@@ -6163,7 +6316,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function filaQueueHTML(all) {
         const cards = all.length ? all.map(it => {
             const c = filaCorItem(it), pct = Math.min(100, it.pct || 0);
-            return `<div class="fcard" draggable="true" ondragstart="filaDragStart(event,'${it._key}')" ondragend="filaDragEnd(event)" style="border-left-color:${c};" onclick="filaAbrirItem('${(it.op||'').replace(/'/g,'')}','${(it.sku||'').replace(/'/g,'')}')">
+            return `<div class="fcard" data-hl="${(it.op||it.sku||'').replace(/"/g,'')}" draggable="true" ondragstart="filaDragStart(event,'${it._key}')" ondragend="filaDragEnd(event)" style="border-left-color:${c};" onclick="filaAbrirItem('${(it.op||'').replace(/'/g,'')}','${(it.sku||'').replace(/'/g,'')}')">
                 <div class="fc-top"><span class="fc-cod">${it.op || it.sku || '—'}</span><span style="color:${MAQ_COR[it.maq]};">${it.maq}</span></div>
                 <div class="fc-title">${(it.desc || it.cliente || it.sku || '').toString().slice(0, 46)}</div>
                 <div class="fc-meta"><span>${it.cliente || '—'}</span><span>${progNum(it.qtProg).toLocaleString('pt-BR')} kg</span></div>
@@ -6227,28 +6380,28 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function minutosDe(hhmm) { if (!hhmm) return 0; const [h, m] = hhmm.split(':').map(Number); return (h || 0) * 60 + (m || 0); }
     function gvBarsHorizontais(dados, unidade) {
         if (!dados.length) return '<div style="padding:18px; color:#94a3b8; font-size:12px; text-align:center;">Sem dados.</div>';
-        const max = Math.max(...dados.map(d => d.v), 1), W = 460, bh = 26, gap = 12, padL = 150, H = dados.length * (bh + gap) + 12;
+        const max = Math.max(...dados.map(d => d.v), 1), W = 560, bh = 30, gap = 13, padL = 210, H = dados.length * (bh + gap) + 12;
         const svg = [`<svg viewBox="0 0 ${W} ${H}" width="100%" font-family="Inter,Arial,sans-serif">`];
         dados.forEach((d, i) => {
-            const y = i * (bh + gap) + 6, w = Math.round((W - padL - 60) * d.v / max);
-            svg.push(`<text x="${padL - 8}" y="${y + bh / 2 + 4}" font-size="10.5" fill="#475569" text-anchor="end">${d.label.slice(0, 24)}</text>`);
-            svg.push(`<rect x="${padL}" y="${y}" width="${Math.max(w, 2)}" height="${bh}" rx="4" fill="${d.cor || '#2563eb'}"/>`);
-            svg.push(`<text x="${padL + Math.max(w, 2) + 6}" y="${y + bh / 2 + 4}" font-size="10.5" font-weight="700" fill="#334155">${d.v.toLocaleString('pt-BR')}${unidade || ''}</text>`);
+            const y = i * (bh + gap) + 6, w = Math.round((W - padL - 70) * d.v / max);
+            svg.push(`<text x="${padL - 10}" y="${y + bh / 2 + 4}" font-size="12" fill="#475569" text-anchor="end">${d.label.slice(0, 26)}</text>`);
+            svg.push(`<rect x="${padL}" y="${y}" width="${Math.max(w, 2)}" height="${bh}" rx="5" fill="${d.cor || '#2563eb'}"/>`);
+            svg.push(`<text x="${padL + Math.max(w, 2) + 8}" y="${y + bh / 2 + 4}" font-size="12" font-weight="700" fill="#334155">${d.v.toLocaleString('pt-BR')}${unidade || ''}</text>`);
         });
         svg.push('</svg>'); return svg.join('');
     }
     function gvRealVsProgSVG() {
         const dados = PROG_MAQS.map(maq => { const l = RB.programacao[maq] || []; return { maq, prog: l.reduce((s, x) => s + progNum(x.qtProg), 0), real: l.reduce((s, x) => s + progNum(x.qtReal), 0) }; });
-        const max = Math.max(...dados.map(d => Math.max(d.prog, d.real)), 1), W = 460, H = 200, padB = 34, padT = 14, gw = W / dados.length;
+        const max = Math.max(...dados.map(d => Math.max(d.prog, d.real)), 1), W = 520, H = 250, padB = 42, padT = 22, gw = W / dados.length;
         const svg = [`<svg viewBox="0 0 ${W} ${H}" width="100%" font-family="Inter,Arial,sans-serif">`];
         dados.forEach((d, i) => {
-            const cx = i * gw + gw / 2, bw = 42;
+            const cx = i * gw + gw / 2, bw = 56;
             const hP = Math.round((H - padB - padT) * d.prog / max), hR = Math.round((H - padB - padT) * d.real / max);
-            svg.push(`<rect x="${cx - bw - 3}" y="${H - padB - hP}" width="${bw}" height="${hP}" rx="4" fill="#cbd5e1"/>`);
-            svg.push(`<rect x="${cx + 3}" y="${H - padB - hR}" width="${bw}" height="${hR}" rx="4" fill="${MAQ_COR[d.maq]}"/>`);
-            svg.push(`<text x="${cx}" y="${H - padB + 16}" font-size="11" fill="#334155" text-anchor="middle" font-weight="700">${d.maq}</text>`);
-            svg.push(`<text x="${cx - bw / 2 - 3}" y="${H - padB - hP - 4}" font-size="9" fill="#64748b" text-anchor="middle">${Math.round(d.prog / 1000)}k</text>`);
-            svg.push(`<text x="${cx + bw / 2 + 3}" y="${H - padB - hR - 4}" font-size="9" fill="${MAQ_COR[d.maq]}" text-anchor="middle" font-weight="700">${Math.round(d.real / 1000)}k</text>`);
+            svg.push(`<rect x="${cx - bw - 4}" y="${H - padB - hP}" width="${bw}" height="${hP}" rx="5" fill="#cbd5e1"/>`);
+            svg.push(`<rect x="${cx + 4}" y="${H - padB - hR}" width="${bw}" height="${hR}" rx="5" fill="${MAQ_COR[d.maq]}"/>`);
+            svg.push(`<text x="${cx}" y="${H - padB + 20}" font-size="13" fill="#334155" text-anchor="middle" font-weight="700">${d.maq}</text>`);
+            svg.push(`<text x="${cx - bw / 2 - 4}" y="${H - padB - hP - 6}" font-size="11" fill="#64748b" text-anchor="middle" font-weight="600">${Math.round(d.prog / 1000)}k</text>`);
+            svg.push(`<text x="${cx + bw / 2 + 4}" y="${H - padB - hR - 6}" font-size="11.5" fill="${MAQ_COR[d.maq]}" text-anchor="middle" font-weight="800">${Math.round(d.real / 1000)}k</text>`);
         });
         svg.push(`</svg>`);
         return svg.join('') + '<div class="gv-legend"><span><i style="background:#cbd5e1;"></i>Programado</span><span><i style="background:#2563eb;"></i>Realizado</span></div>';
@@ -6344,6 +6497,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const atrasadas = pend.filter(x => x.entrega && x.termino && x.termino > x.entrega).length;
         const noPrazo = pend.length ? Math.round((pend.length - atrasadas) / pend.length * 100) : 100;
         const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+        pageHero('gv-hero', { grad: 'linear-gradient(135deg,#191040,#3b2f7a)', ic: 'chart-line', t: 'Gestão à Vista — PCP',
+            s: 'O que está rodando agora em cada máquina, o que exige decisão e como a fábrica está performando.',
+            stats: [{ v: pend.length, l: 'OPs abertas' }, { v: atrasadas, l: 'em atraso' }, { v: dispon + '%', l: 'disponibilidade' }] });
         set('pcp-cockpit', PROG_MAQS.map(pcpMachineCard).join(''));
         const tile = (ic, bg, v, l) => `<div class="tile"><div class="t-ic" style="background:${bg};"><i class="fas fa-${ic}"></i></div><div class="t-v">${v}</div><div class="t-l">${l}</div></div>`;
         set('pcp-tiles',
@@ -8510,6 +8666,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         renderIcons(document);   // converte todos os ícones fa-* em SVG embutido
         initDragAndDrop();
         iniciarSessao();   // decide entre login, hub ou painel conforme a sessão salva
+        histInit();        // histórico global de desfazer/refazer (baseline = estado atual)
         // Ficha Única: progresso e resumo atualizam enquanto digita
         const fuView = document.getElementById('view-form-ficha-unica');
         if (fuView) fuView.addEventListener('input', () => fuAtualizarResumo());
