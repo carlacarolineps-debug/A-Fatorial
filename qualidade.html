@@ -450,6 +450,17 @@
     .fu-croqui-box svg { width: 100%; height: auto; max-height: 260px; }
     .fu-page .fu-croqui-box { border: 1px solid #999; min-height: 0; }
     .fu-page .fu-croqui-box svg { max-height: 70mm; }
+    /* Croqui + Arte otimizados: medidas em linha, caixas maiores */
+    .cli-med-row { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)) 2.2fr; gap: 10px; align-items: end; }
+    .cli-med-row .cli-med-nota { font-size: 10.5px; color: #94a3b8; margin: 0; align-self: center; line-height: 1.35; }
+    .cli-box { min-height: 300px; }
+    .cli-box img { border-radius: 6px; }
+    @media (max-width: 900px) { .cli-med-row { grid-template-columns: repeat(2, 1fr); } .cli-med-row .cli-med-nota { grid-column: 1 / -1; } }
+    /* Lightbox da arte */
+    .cli-lightbox { position: fixed; inset: 0; background: rgba(15,12,30,.85); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 30px; }
+    .cli-lightbox.open { display: flex; }
+    .cli-lightbox img { max-width: 94vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 12px 48px rgba(0,0,0,.5); background:#fff; }
+    .cli-lightbox .cli-lb-close { position: absolute; top: 18px; right: 24px; color: #fff; font-size: 30px; cursor: pointer; background: none; border: none; line-height: 1; }
 
     /* ---- Placas de Identificação (RGQ-130) ---- */
     .placa-tipos { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:10px; margin-top:12px; }
@@ -1893,34 +1904,37 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Cor de Referência</span><input class="inp" id="fu_cli_cor_ref" value="Preto" list="dl_tintas"></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">CROQUI DA ARTE — MEDIDAS (o desenho é gerado automaticamente)</span></div>
-                <div class="g-col g-col-4">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <div class="g-col g-col-12">
+                    <div class="cli-med-row">
                         <div><span class="lbl">Largura (mm)</span><input class="inp" id="fu_cli_med_largura" inputmode="decimal" placeholder="Ex.: 106,67" oninput="fuCliCroqui()"></div>
                         <div><span class="lbl">Altura / Comprimento (mm)</span><input class="inp" id="fu_cli_med_altura" inputmode="decimal" placeholder="Ex.: 160,00" oninput="fuCliCroqui()"></div>
                         <div><span class="lbl">Sanfona (mm)</span><input class="inp" id="fu_cli_med_sanfona" inputmode="decimal" placeholder="Ex.: 0" oninput="fuCliCroqui()"></div>
                         <div><span class="lbl">Aba / Fita (mm)</span><input class="inp" id="fu_cli_med_aba" inputmode="decimal" placeholder="Ex.: 0" oninput="fuCliCroqui()"></div>
+                        <p class="cli-med-nota no-print">Preencha as medidas → o croqui é desenhado ao lado. Anexe a <b>arte real</b>; ela fica junto na ficha e sai na impressão. Clique na arte para ampliar.</p>
                     </div>
-                    <p style="font-size:10px; color:#94a3b8; margin:8px 0 0;">Preencha as medidas → o croqui com as réguas de medição é desenhado. Ao lado, anexe a <b>imagem da arte real</b> — ela fica junto na mesma ficha e sai na impressão.</p>
                 </div>
-                <div class="g-col g-col-4" style="padding:6px;">
+                <div class="g-col g-col-6" style="padding:6px;">
                     <span class="lbl" style="color:#8a6d1a;">Croqui gerado (medidas)</span>
-                    <div id="fu-cli-croqui" class="fu-croqui-box"></div>
+                    <div id="fu-cli-croqui" class="fu-croqui-box cli-box"></div>
                 </div>
-                <div class="g-col g-col-4" style="padding:6px;">
-                    <span class="lbl" style="color:#8a6d1a;">Arte real (anexe a imagem)</span>
-                    <div class="fu-croqui-box" id="fu-cli-arte-box" style="flex-direction:column; gap:8px; position:relative;">
-                        <input type="hidden" id="fu_cli_arte_img">
-                        <img id="fu_cli_arte_prev" alt="Arte da embalagem" style="display:none; width:100%; height:auto; max-height:230px; object-fit:contain;">
-                        <div id="fu-cli-arte-placeholder" style="text-align:center; color:#b8a878; padding:18px 8px;">
-                            <i class="fas fa-image" style="font-size:30px; display:block; margin-bottom:8px; opacity:.55;"></i>
-                            <span style="font-size:11px;">Nenhuma imagem anexada</span>
+                <div class="g-col g-col-6" style="padding:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <span class="lbl" style="color:#8a6d1a; margin:0;">Arte real</span>
+                        <div class="no-print" style="display:flex; gap:6px; align-items:center;">
+                            <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:3px 10px; font-size:11px;"><i class="fas fa-paperclip"></i> Anexar
+                                <input type="file" accept="image/*" style="display:none;" onchange="fuCliArteUpload(this)">
+                            </label>
+                            <button type="button" class="action-btn-sec no-print" id="fu-cli-arte-del" onclick="fuCliArteRemover()" style="color:#ef4444; padding:3px 9px; font-size:11px; display:none;"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
-                    <div class="no-print" style="display:flex; gap:6px; margin-top:6px; align-items:center;">
-                        <label class="action-btn-sec" style="cursor:pointer; margin:0;"><i class="fas fa-paperclip"></i> Anexar imagem
+                    <div class="fu-croqui-box cli-box" id="fu-cli-arte-box" style="flex-direction:column; gap:8px; position:relative; margin-top:3px;">
+                        <input type="hidden" id="fu_cli_arte_img">
+                        <img id="fu_cli_arte_prev" alt="Arte da embalagem" style="display:none; width:100%; height:100%; max-height:300px; object-fit:contain; cursor:zoom-in;" onclick="fuCliArteZoom()">
+                        <label id="fu-cli-arte-placeholder" class="no-print" style="text-align:center; color:#b8a878; padding:26px 8px; cursor:pointer; width:100%;">
                             <input type="file" accept="image/*" style="display:none;" onchange="fuCliArteUpload(this)">
+                            <i class="fas fa-cloud-arrow-up" style="font-size:34px; display:block; margin-bottom:10px; opacity:.55;"></i>
+                            <span style="font-size:12px;">Clique para anexar a arte<br><small style="opacity:.7;">PNG, JPG — fica salva na ficha</small></span>
                         </label>
-                        <button type="button" class="action-btn-sec" onclick="fuCliArteRemover()" style="color:#ef4444;"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
 
@@ -6172,9 +6186,25 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const hid = document.getElementById('fu_cli_arte_img');
         const img = document.getElementById('fu_cli_arte_prev');
         const ph = document.getElementById('fu-cli-arte-placeholder');
+        const del = document.getElementById('fu-cli-arte-del');
         if (!hid || !img || !ph) return;
-        if (hid.value) { img.src = hid.value; img.style.display = 'block'; ph.style.display = 'none'; }
-        else { img.removeAttribute('src'); img.style.display = 'none'; ph.style.display = 'block'; }
+        if (hid.value) { img.src = hid.value; img.style.display = 'block'; ph.style.display = 'none'; if (del) del.style.display = ''; }
+        else { img.removeAttribute('src'); img.style.display = 'none'; ph.style.display = 'block'; if (del) del.style.display = 'none'; }
+    }
+    function fuCliArteZoom() {
+        const hid = document.getElementById('fu_cli_arte_img');
+        if (!hid || !hid.value) return;
+        let lb = document.getElementById('cli-lightbox');
+        if (!lb) {
+            lb = document.createElement('div');
+            lb.id = 'cli-lightbox'; lb.className = 'cli-lightbox';
+            lb.innerHTML = '<button class="cli-lb-close" title="Fechar (Esc)">&times;</button><img alt="Arte ampliada">';
+            lb.addEventListener('click', e => { if (e.target === lb || e.target.classList.contains('cli-lb-close')) lb.classList.remove('open'); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('open'); });
+            document.body.appendChild(lb);
+        }
+        lb.querySelector('img').src = hid.value;
+        lb.classList.add('open');
     }
 
     // ---- Croqui de medidas: desenha a embalagem com réguas de cotagem a partir das medidas ----
