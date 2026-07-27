@@ -944,6 +944,24 @@
         <button class="sys-nav-btn" onclick="nav('auditoria')"><span class="nav-icon"><i class="fas fa-clock-rotate-left"></i></span> Auditoria</button>
       </div>
 
+      <!-- MENU DO DEPARTAMENTO PCP -->
+      <div id="navd-pcp" class="navd" style="display:none;">
+        <div class="nav-section">PCP — Planejamento</div>
+        <button class="sys-nav-btn" onclick="nav('pcp-fila')" id="nav-pcp-fila"><span class="nav-icon"><i class="fas fa-calendar-days"></i></span> Fila de Produção</button>
+        <button class="sys-nav-btn" onclick="nav('pcp-fichas')" id="nav-pcp-fichas"><span class="nav-icon"><i class="fas fa-file-lines"></i></span> Fichas da Qualidade</button>
+        <button class="sys-nav-btn" onclick="nav('pcp-materiais')" id="nav-pcp-materiais"><span class="nav-icon"><i class="fas fa-boxes-stacked"></i></span> Materiais → Compras</button>
+        <div class="nav-section">Cadastros</div>
+        <button class="sys-nav-btn" onclick="nav('cad-produtos')"><span class="nav-icon"><i class="fas fa-box"></i></span> Produtos</button>
+      </div>
+
+      <!-- MENU DO DEPARTAMENTO PRODUÇÃO -->
+      <div id="navd-producao" class="navd" style="display:none;">
+        <div class="nav-section">Produção — Chão de Fábrica</div>
+        <button class="sys-nav-btn" onclick="nav('prod-fila')" id="nav-prod-fila"><span class="nav-icon"><i class="fas fa-list-check"></i></span> Fila a Produzir</button>
+        <button class="sys-nav-btn" onclick="nav('prod-fichas')" id="nav-prod-fichas"><span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Verificação de Parâmetros</button>
+        <button class="sys-nav-btn" onclick="nav('prod-reports')" id="nav-prod-reports"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Divergências Reportadas</button>
+      </div>
+
       <!-- MENU DO DEPARTAMENTO QUALIDADE -->
       <div id="navd-qualidade" class="navd">
         <div class="nav-section">Operação</div>
@@ -2691,6 +2709,88 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     <!-- ==========================================================================
          DEPARTAMENTO COMERCIAL — Pedidos & Propostas (alimenta a Qualidade, POP 6.1)
          ========================================================================== -->
+    <!-- ==========================================================================
+         DEPARTAMENTO PCP — Fila de Produção, Fichas da Qualidade, Materiais → Compras
+         ========================================================================== -->
+    <div id="view-pcp-fila" class="sys-view">
+        <div class="cmd-strip" id="pcp-strip" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-calendar-days" style="color:#2563eb;"></i> Fila de Produção <span style="font-size:11px; color:#64748b; font-weight:normal;">— sequência que a Produção deve seguir</span></div>
+            <div class="cmd-panel-sub">O PCP planeja a ordem, a máquina e a data. A Produção segue esta fila; a Qualidade e a Produção enxergam a mesma sequência.</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th style="width:40px;">Seq</th><th>Ficha</th><th>Produto</th><th>Cliente</th><th>Máquina</th><th>Data prev.</th><th>Prioridade</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-pcp-fila"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <div id="view-pcp-fichas" class="sys-view">
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-file-lines" style="color:#2563eb;"></i> Fichas da Qualidade <span class="gold-chip" id="pcp-fichas-chip">0</span></div>
+            <div class="cmd-panel-sub">Fichas aprovadas/concluídas pela Qualidade. O PCP <b>imprime as Instruções de Trabalho</b> e adiciona à fila de produção.</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Ficha</th><th>Produto</th><th>Cliente</th><th>Fluxo</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-pcp-fichas"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <div id="view-pcp-materiais" class="sys-view">
+        <div class="card-base" style="margin-bottom:16px;">
+            <div class="card-title"><i class="fas fa-boxes-stacked" style="color:#2563eb;"></i> Solicitar Materiais → Compras</div>
+            <div class="cmd-panel-sub">O PCP define os materiais necessários para o produto e envia ao setor de Compras realizar a compra. A Logística usa a mesma lista para separar/expedir.</div>
+            <div class="quick-form">
+                <div class="qf g-col-4"><span class="lbl">Ficha / Produto</span><input class="inp" id="pcpm-ficha" list="dl_fila_pcp" placeholder="Código da ficha"><datalist id="dl_fila_pcp"></datalist></div>
+                <div class="qf g-col-4"><span class="lbl">Material</span><input class="inp" id="pcpm-material" list="dl_mp" placeholder="Digite ou selecione da base"></div>
+                <div class="qf g-col-2"><span class="lbl">Quantidade</span><input class="inp" id="pcpm-qtd" placeholder="kg / un"></div>
+                <div class="qf g-col-2"><span class="lbl">&nbsp;</span><button class="sys-btn-success" style="width:100%;" onclick="pcpAddMaterial()"><i class="fas fa-plus"></i> Enviar a Compras</button></div>
+            </div>
+        </div>
+        <div class="card-base">
+            <div class="card-title">Materiais solicitados <span class="gold-chip" id="pcp-mat-chip">0</span></div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Data</th><th>Ficha</th><th>Material</th><th>Qtd</th><th>Status</th><th>Solicitado por</th></tr></thead>
+                <tbody id="tb-pcp-materiais"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         DEPARTAMENTO PRODUÇÃO — Fila, Verificação de Parâmetros, Divergências
+         ========================================================================== -->
+    <div id="view-prod-fila" class="sys-view">
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-list-check" style="color:#0f766e;"></i> Fila a Produzir <span style="font-size:11px; color:#64748b; font-weight:normal;">— sequência definida pelo PCP</span></div>
+            <div class="cmd-panel-sub">Siga a ordem definida pelo PCP. Clique numa ficha para verificar os parâmetros antes de iniciar.</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th style="width:40px;">Seq</th><th>Ficha</th><th>Produto</th><th>Máquina</th><th>Data prev.</th><th>Prioridade</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-prod-fila"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <div id="view-prod-fichas" class="sys-view">
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-clipboard-check" style="color:#0f766e;"></i> Verificação de Parâmetros <span class="gold-chip" id="prod-fichas-chip">0</span></div>
+            <div class="cmd-panel-sub">A Produção consulta as fichas como <b>verificação de parâmetros</b> antes e durante a produção. Se algo estiver alterado ou errado, <b>reporte a divergência</b> — ela volta à Qualidade na Central de Comando.</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Ficha</th><th>Produto</th><th>Cliente</th><th>Fluxo</th><th>Status</th><th style="text-align:center;">Ações</th></tr></thead>
+                <tbody id="tb-prod-fichas"></tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <div id="view-prod-reports" class="sys-view">
+        <div class="card-base">
+            <div class="card-title"><i class="fas fa-triangle-exclamation" style="color:#0f766e;"></i> Divergências Reportadas <span class="gold-chip" id="prod-reports-chip">0</span></div>
+            <div class="cmd-panel-sub">Registro das divergências que a Produção reportou. Cada uma vira uma decisão para a Qualidade na Central de Comando.</div>
+            <div style="overflow-x:auto;"><table class="main-table">
+                <thead><tr><th>Data</th><th>Ficha</th><th>Divergência</th><th>Reportado por</th><th>Status</th></tr></thead>
+                <tbody id="tb-prod-reports"></tbody>
+            </table></div>
+        </div>
+    </div>
+
     <div id="view-comercial-pedidos" class="sys-view">
         <div class="cmd-strip" id="com-strip" style="grid-template-columns:repeat(3,1fr);"></div>
         <div class="card-base" style="margin-bottom:16px;">
@@ -3442,6 +3542,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     ['fichas','retrabalhos','entregas','inspecoes','atividades','clientes','fornecedores','produtos','cliches','setores','auditoria','colaboradores','pedidos']
         .forEach(k => { if (!RB[k]) RB[k] = []; });
     if (!RB.regrasCodigo) RB.regrasCodigo = regrasCodigoSeed();
+    // Coleções do fluxo multi-setor (PCP, Produção, Compras, Logística)
+    ['fila','comprasReqs','reportsProducao','recebimentos'].forEach(k => { if (!RB[k]) RB[k] = []; });
     if (!RB.aniloxes) RB.aniloxes = [
         { id: 21, codigo: 'ANX-160', lpc: '160', bcm: '—', obs: 'Branco' },
         { id: 22, codigo: 'ANX-S',   lpc: 'S',   bcm: '3.2', obs: '' },
@@ -3571,9 +3673,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { id: 'comercial',   nome: 'Comercial',      setor: 'Pedidos & Propostas',    icone: '<i class="fas fa-handshake"></i>', cor: '#1d4ed8', ativo: true },
         { id: 'qualidade',   nome: 'Qualidade',      setor: 'Controle & Laboratório', icone: '<i class="fas fa-flask-vial"></i>', cor: '#c5a880', ativo: true },
         { id: 'rh',          nome: 'RH',             setor: 'Pessoas & Acessos',      icone: '<i class="fas fa-users"></i>', cor: '#0d9488', ativo: true },
-        { id: 'impressao',   nome: 'Impressão',      setor: 'Flexografia',            icone: '<i class="fas fa-print"></i>', cor: '#7c3aed', ativo: false },
-        { id: 'corteesolda', nome: 'Corte e Solda',  setor: 'Conversão',              icone: '<i class="fas fa-scissors"></i>', cor: '#0f766e', ativo: false },
-        { id: 'expedicao',   nome: 'Expedição',      setor: 'Logística',              icone: '<i class="fas fa-truck"></i>', cor: '#f59e0b', ativo: false },
+        { id: 'pcp',         nome: 'PCP',            setor: 'Planejamento & Fila',    icone: '<i class="fas fa-calendar-days"></i>', cor: '#2563eb', ativo: true },
+        { id: 'producao',    nome: 'Produção',       setor: 'Chão de Fábrica',        icone: '<i class="fas fa-industry"></i>', cor: '#0f766e', ativo: true },
+        { id: 'compras',     nome: 'Compras',        setor: 'Suprimentos',            icone: '<i class="fas fa-cart-shopping"></i>', cor: '#7c3aed', ativo: false },
+        { id: 'logistica',   nome: 'Logística',      setor: 'Recebimento & Expedição', icone: '<i class="fas fa-truck"></i>', cor: '#f59e0b', ativo: false },
         { id: 'grupo',       nome: 'Grupo · Consolidado', setor: 'Todos os setores juntos', icone: '<i class="fas fa-layer-group"></i>', cor: '#c5a880', ativo: false }
     ];
 
@@ -3659,6 +3762,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         mostrarNavDepto(id);
         if (id === 'comercial') { nav('comercial-pedidos'); }
         else if (id === 'rh') { nav('rh-colaboradores'); }
+        else if (id === 'pcp') { nav('pcp-fila'); }
+        else if (id === 'producao') { nav('prod-fila'); }
         else { renderDashboard(); nav('comando'); }   // Qualidade aterrissa na Central de Comando
     }
 
@@ -3808,6 +3913,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tela === 'usuarios') headerTitle = 'Usuários e Acessos';
         else if(tela === 'comercial-pedidos') headerTitle = 'Comercial — Pedidos & Propostas';
         else if(tela === 'rh-colaboradores') headerTitle = 'RH — Colaboradores';
+        else if(tela === 'pcp-fila') headerTitle = 'PCP — Fila de Produção';
+        else if(tela === 'pcp-fichas') headerTitle = 'PCP — Fichas da Qualidade';
+        else if(tela === 'pcp-materiais') headerTitle = 'PCP — Materiais → Compras';
+        else if(tela === 'prod-fila') headerTitle = 'Produção — Fila a Produzir';
+        else if(tela === 'prod-fichas') headerTitle = 'Produção — Verificação de Parâmetros';
+        else if(tela === 'prod-reports') headerTitle = 'Produção — Divergências Reportadas';
         else if(tela === 'dash') headerTitle = 'Dashboard Geral';
         else if(tela === 'calendario') headerTitle = 'Produção — Fila e Calendário';
         else if(tela === 'form-ficha-unica') headerTitle = 'Ficha Única de Parâmetros — Todas as Etapas';
@@ -3847,6 +3958,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'usuarios') renderUsuarios();
         if(tela === 'comercial-pedidos') renderComercialPedidos();
         if(tela === 'rh-colaboradores') renderRHColaboradores();
+        if(tela === 'pcp-fila') renderPcpFila();
+        if(tela === 'pcp-fichas') renderPcpFichas();
+        if(tela === 'pcp-materiais') renderPcpMateriais();
+        if(tela === 'prod-fila') renderProdFila();
+        if(tela === 'prod-fichas') renderProdFichas();
+        if(tela === 'prod-reports') renderProdReports();
         if(tela === 'dash') renderDashboard();
         if(tela === 'retrabalho') renderRetrabalhoView();
         if(tela === 'indicadores') renderIndicadores();
@@ -4844,7 +4961,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function mostrarNavDepto(dep) {
         document.querySelectorAll('.navd').forEach(el => el.style.display = 'none');
         const nd = document.getElementById('navd-' + dep); if (nd) nd.style.display = 'block';
-        const lg = document.getElementById('logo-depto'); if (lg) lg.innerText = { qualidade: 'QUALIDADE', comercial: 'COMERCIAL', rh: 'RECURSOS HUMANOS' }[dep] || 'REBRACIL';
+        const lg = document.getElementById('logo-depto'); if (lg) lg.innerText = { qualidade: 'QUALIDADE', comercial: 'COMERCIAL', rh: 'RECURSOS HUMANOS', pcp: 'PCP', producao: 'PRODUÇÃO' }[dep] || 'REBRACIL';
         const nf = document.getElementById('hdr-nova-ficha'); if (nf) nf.style.display = dep === 'qualidade' ? '' : 'none';
     }
 
@@ -4932,6 +5049,130 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
     function colEditar(id) { const c = RB.colaboradores.find(x => x.id === id); if (!c) return; const set = (f, v) => { const e = document.getElementById(f); if (e) e.value = v == null ? '' : v; }; set('col-id', c.id); set('col-nome', c.nome); set('col-cpf', c.cpf); set('col-cargo', c.cargo); set('col-setor', c.setor); set('col-admissao', c.admissao); set('col-status', c.status); document.getElementById('rh-titulo').innerText = 'Editar: ' + c.nome; }
     function colExcluir(id) { const c = RB.colaboradores.find(x => x.id === id); if (!c) return; if (!confirm('Excluir "' + c.nome + '"?')) return; RB.colaboradores = RB.colaboradores.filter(x => x.id !== id); registrarAuditoria('excluiu', 'colaborador', c.nome, { tipo: 'restaurar', colecao: 'colaboradores', dados: c }); rbSave(); renderRHColaboradores(); }
+    // ==========================================================================
+    // DEPARTAMENTO PCP — recebe fichas da Qualidade, imprime, monta a fila e pede materiais
+    // ==========================================================================
+    const fichaLiberadaPCP = f => ['Aprovado', 'Concluído'].includes(f.status);
+    function abrirFichaLeitura(cod) {
+        const f = dbFichas.find(x => x.cod === cod);
+        const tipo = f && f.tipo === 'unica' ? 'ficha-unica' : (f && f.setor === 'Impressão' ? 'impressao' : 'corte');
+        abrirFicha(tipo, cod);
+    }
+    function pcpImprimir(cod) { abrirFichaLeitura(cod); setTimeout(() => { if (document.getElementById('view-form-ficha-unica').classList.contains('active')) fuAbrirPrint(); else imprimirDocumento(); }, 200); }
+
+    function renderPcpFichas() {
+        const arr = dbFichas.filter(fichaLiberadaPCP);
+        document.getElementById('pcp-fichas-chip').innerText = arr.length + ' liberada(s)';
+        const naFila = cod => RB.fila.some(x => x.cod === cod);
+        const tb = document.getElementById('tb-pcp-fichas'); if (!tb) return;
+        tb.innerHTML = arr.length ? arr.map(f => `<tr>
+            <td style="font-weight:bold; color:#2563eb;">${f.cod}</td><td>${f.produto || '-'}</td><td>${f.cliente || '-'}</td><td style="font-size:11px;">${f.fluxo || f.setor}</td>
+            <td><span class="badge-status st-conc">${f.status}</span></td>
+            <td style="text-align:center; white-space:nowrap;">
+                <button class="btn-ic" title="Ver ficha" onclick="abrirFichaLeitura('${f.cod}')"><i class="fas fa-eye"></i></button>
+                <button class="btn-ic" title="Imprimir Instruções de Trabalho" onclick="pcpImprimir('${f.cod}')"><i class="fas fa-print"></i></button>
+                ${naFila(f.cod) ? '<span style="font-size:10px; color:#0f766e; font-weight:700;">na fila ✓</span>' : `<button class="dec-btn primary" style="padding:5px 10px;" onclick="pcpAddFila('${f.cod}')"><i class="fas fa-plus"></i> Add à fila</button>`}
+            </td></tr>`).join('') : vazioTb(6, 'Nenhuma ficha liberada pela Qualidade ainda.');
+        renderIcons(tb);
+    }
+    function pcpAddFila(cod) {
+        const f = dbFichas.find(x => x.cod === cod); if (!f || RB.fila.some(x => x.cod === cod)) return;
+        RB.fila.push({ id: novoId(), cod, produto: f.produto, cliente: f.cliente, maquina: '', dataPrev: '', prioridade: f.prioridade || 'Normal', status: 'Planejada', seq: RB.fila.length + 1 });
+        registrarAtividade(`PCP adicionou a ficha ${cod} à fila de produção`);
+        rbSave(); renderPcpFila(); renderPcpFichas();
+    }
+    function pcpFilaSet(id, campo, v) { const it = RB.fila.find(x => x.id === id); if (it) { it[campo] = v; rbSave(); } }
+    function pcpFilaMover(id, dir) {
+        const i = RB.fila.findIndex(x => x.id === id); const j = i + dir;
+        if (i < 0 || j < 0 || j >= RB.fila.length) return;
+        [RB.fila[i], RB.fila[j]] = [RB.fila[j], RB.fila[i]];
+        RB.fila.forEach((x, k) => x.seq = k + 1); rbSave(); renderPcpFila();
+    }
+    function pcpFilaRemover(id) { const it = RB.fila.find(x => x.id === id); if (!it || !confirm(`Remover ${it.cod} da fila?`)) return; RB.fila = RB.fila.filter(x => x.id !== id); RB.fila.forEach((x, k) => x.seq = k + 1); rbSave(); renderPcpFila(); renderPcpFichas(); }
+    function renderPcpFila() {
+        const strip = document.getElementById('pcp-strip');
+        if (strip) strip.innerHTML = `<div class="cmd-mini" style="--c:#2563eb"><div class="l">Na fila</div><div class="v">${RB.fila.length}</div></div><div class="cmd-mini" style="--c:var(--gold)"><div class="l">Fichas liberadas</div><div class="v">${dbFichas.filter(fichaLiberadaPCP).length}</div></div><div class="cmd-mini" style="--c:#7c3aed"><div class="l">Materiais p/ Compras</div><div class="v">${RB.comprasReqs.length}</div></div><div class="cmd-mini" style="--c:#e11d48"><div class="l">Divergências</div><div class="v">${RB.reportsProducao.filter(r => r.status !== 'Resolvida').length}</div></div>`;
+        const tb = document.getElementById('tb-pcp-fila'); if (!tb) return;
+        const prio = ['Normal', 'Alta', 'Urgente', 'Baixa'];
+        tb.innerHTML = RB.fila.length ? RB.fila.map(it => `<tr>
+            <td style="font-weight:800; text-align:center;">${it.seq}</td>
+            <td style="font-weight:bold; color:#2563eb;">${it.cod}</td><td>${it.produto || '-'}</td><td>${it.cliente || '-'}</td>
+            <td><input class="inp" style="min-width:110px;" value="${(it.maquina||'').replace(/"/g,'&quot;')}" placeholder="Máquina" onchange="pcpFilaSet(${it.id},'maquina',this.value)"></td>
+            <td><input class="inp" type="date" value="${it.dataPrev||''}" onchange="pcpFilaSet(${it.id},'dataPrev',this.value)"></td>
+            <td><select class="inp" onchange="pcpFilaSet(${it.id},'prioridade',this.value)">${prio.map(p => `<option ${it.prioridade===p?'selected':''}>${p}</option>`).join('')}</select></td>
+            <td><select class="inp" onchange="pcpFilaSet(${it.id},'status',this.value)">${['Planejada','Liberada p/ Produção','Em produção','Concluída'].map(s => `<option ${it.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+            <td style="text-align:center; white-space:nowrap;">
+                <button class="btn-ic" title="Subir" onclick="pcpFilaMover(${it.id},-1)"><i class="fas fa-arrow-up"></i></button>
+                <button class="btn-ic" title="Descer" onclick="pcpFilaMover(${it.id},1)"><i class="fas fa-arrow-down"></i></button>
+                <button class="btn-ic" title="Imprimir" onclick="pcpImprimir('${it.cod}')"><i class="fas fa-print"></i></button>
+                <button class="btn-ic danger" title="Remover" onclick="pcpFilaRemover(${it.id})"><i class="fas fa-xmark"></i></button>
+            </td></tr>`).join('') : vazioTb(9, 'Fila vazia. Adicione fichas liberadas em "Fichas da Qualidade".');
+        renderIcons(tb);
+    }
+    function pcpAddMaterial() {
+        const ficha = val('pcpm-ficha').trim(), material = val('pcpm-material').trim(), qtd = val('pcpm-qtd').trim();
+        if (!material) { alert('Informe o material.'); return; }
+        RB.comprasReqs.unshift({ id: novoId(), data: new Date().toISOString(), ficha, material, qtd, status: 'Solicitado', usuario: currentSessionUser });
+        registrarAtividade(`PCP solicitou material "${material}" a Compras${ficha ? ' (ficha ' + ficha + ')' : ''}`);
+        rbSave(); ['pcpm-material','pcpm-qtd'].forEach(i => document.getElementById(i).value = ''); renderPcpMateriais();
+        toast('Material enviado ao setor de Compras.');
+    }
+    function renderPcpMateriais() {
+        const dl = document.getElementById('dl_fila_pcp');
+        if (dl) dl.innerHTML = RB.fila.map(x => `<option value="${x.cod}">${x.produto||''}</option>`).join('') + dbFichas.filter(fichaLiberadaPCP).map(f => `<option value="${f.cod}">${f.produto||''}</option>`).join('');
+        document.getElementById('pcp-mat-chip').innerText = RB.comprasReqs.length + ' material(is)';
+        const tb = document.getElementById('tb-pcp-materiais'); if (!tb) return;
+        const stcls = s => s === 'Comprado' ? 'st-conc' : s === 'Em cotação' ? 'st-and' : 'st-pend';
+        tb.innerHTML = RB.comprasReqs.length ? RB.comprasReqs.map(r => `<tr><td>${fmtData(r.data)}</td><td style="font-weight:bold; color:#2563eb;">${r.ficha||'-'}</td><td>${r.material}</td><td>${r.qtd||'-'}</td><td><span class="badge-status ${stcls(r.status)}">${r.status}</span></td><td>${r.usuario}</td></tr>`).join('') : vazioTb(6, 'Nenhum material solicitado.');
+    }
+
+    // ==========================================================================
+    // DEPARTAMENTO PRODUÇÃO — segue a fila, verifica parâmetros e reporta divergências
+    // ==========================================================================
+    function renderProdFila() {
+        const tb = document.getElementById('tb-prod-fila'); if (!tb) return;
+        const visiveis = RB.fila.filter(x => x.status !== 'Concluída');
+        tb.innerHTML = visiveis.length ? visiveis.map(it => `<tr class="row-ficha" onclick="abrirFichaLeitura('${it.cod}')">
+            <td style="font-weight:800; text-align:center;">${it.seq}</td>
+            <td style="font-weight:bold; color:#0f766e;">${it.cod}</td><td>${it.produto||'-'}</td><td>${it.maquina||'-'}</td><td>${it.dataPrev ? new Date(it.dataPrev+'T12:00:00').toLocaleDateString('pt-BR') : '-'}</td>
+            <td>${it.prioridade||'Normal'}</td><td><span class="badge-status ${it.status==='Em produção'?'st-and':it.status==='Liberada p/ Produção'?'st-conc':'st-pend'}">${it.status}</span></td>
+            <td class="acoes-cell" onclick="event.stopPropagation()" style="text-align:center;">
+                <button class="btn-ic" title="Verificar parâmetros" onclick="abrirFichaLeitura('${it.cod}')"><i class="fas fa-clipboard-check"></i></button>
+                <button class="btn-ic" title="Reportar divergência" onclick="prodReportar('${it.cod}')"><i class="fas fa-triangle-exclamation"></i></button>
+            </td></tr>`).join('') : vazioTb(8, 'Nenhuma ficha na fila. Aguardando o PCP planejar.');
+        renderIcons(tb);
+    }
+    function renderProdFichas() {
+        const arr = dbFichas.filter(fichaLiberadaPCP);
+        document.getElementById('prod-fichas-chip').innerText = arr.length + ' ficha(s)';
+        const tb = document.getElementById('tb-prod-fichas'); if (!tb) return;
+        tb.innerHTML = arr.length ? arr.map(f => `<tr>
+            <td style="font-weight:bold; color:#0f766e;">${f.cod}</td><td>${f.produto||'-'}</td><td>${f.cliente||'-'}</td><td style="font-size:11px;">${f.fluxo||f.setor}</td>
+            <td><span class="badge-status st-conc">${f.status}</span></td>
+            <td style="text-align:center; white-space:nowrap;">
+                <button class="btn-ic" title="Ver parâmetros" onclick="abrirFichaLeitura('${f.cod}')"><i class="fas fa-eye"></i></button>
+                <button class="dec-btn ghost" style="padding:5px 10px;" onclick="prodReportar('${f.cod}')"><i class="fas fa-triangle-exclamation"></i> Reportar</button>
+            </td></tr>`).join('') : vazioTb(6, 'Nenhuma ficha liberada para verificação.');
+        renderIcons(tb);
+    }
+    function prodReportar(cod) {
+        const txt = prompt(`Reportar divergência na ficha ${cod}:\n\nDescreva o que está alterado ou errado (vai para a Qualidade na Central de Comando).`);
+        if (!txt || !txt.trim()) return;
+        RB.reportsProducao.unshift({ id: novoId(), data: new Date().toISOString(), ficha: cod, texto: txt.trim(), usuario: currentSessionUser, status: 'Aberta' });
+        // Vira ocorrência/retrabalho para a Qualidade tratar
+        const f = dbFichas.find(x => x.cod === cod);
+        RB.retrabalhos.unshift({ data: new Date().toISOString(), ficha: cod, produto: f ? f.produto : '-', origem: 'Produção', destino: 'Qualidade', causa: 'Divergência de parâmetro (Produção)', qtd: 0, custo: 0, obs: txt.trim(), usuario: currentSessionUser });
+        registrarAtividade(`Produção reportou divergência na ficha ${cod}`);
+        rbSave(); renderProdReports();
+        toast('Divergência reportada — a Qualidade verá na Central de Comando.');
+    }
+    function renderProdReports() {
+        const arr = RB.reportsProducao;
+        const chip = document.getElementById('prod-reports-chip'); if (chip) chip.innerText = arr.filter(r => r.status !== 'Resolvida').length + ' aberta(s)';
+        const tb = document.getElementById('tb-prod-reports'); if (!tb) return;
+        tb.innerHTML = arr.length ? arr.map(r => `<tr><td>${fmtData(r.data)}</td><td style="font-weight:bold; color:#0f766e;">${r.ficha}</td><td style="font-size:12px;">${r.texto}</td><td>${r.usuario}</td><td><span class="badge-status ${r.status==='Resolvida'?'st-conc':'st-err'}">${r.status}</span></td></tr>`).join('') : vazioTb(5, 'Nenhuma divergência reportada.');
+    }
+
     function renderRHColaboradores() {
         const strip = document.getElementById('rh-strip');
         const ativos = RB.colaboradores.filter(c => (c.status || 'Ativo') === 'Ativo').length;
