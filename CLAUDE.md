@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2607.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2707.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,66 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O Plano de Guerra: alvo, apostas, objetivos e práticas (2707.01)
+A Carla mandou a análise de um app concorrente (Marca Passos, da Aliança
+Divergente) e pediu: "analise o que faz sentido incluir sem copiar, a ideia é
+fazer muito melhor adaptando no meu produto".
+
+**O que o outro app tem de bom:** uma cadeia encadeada (sonho grande, fichas de
+foco, meta, objetivos, percepções, decisões, ações) em que cada nível libera o
+seguinte, hábitos com impacto declarado, e uma IA de apoio em cada item. **O que
+foi adaptado, com vocabulário e mecânica próprios** (nada de cópia):
+
+**1. `alvo.js`, a aba "Alvo" do Plano.** O Plano 30d era uma lista sem "para
+quê". Agora existe a cadeia: **Alvo do ano → 5 fichas em até 6 frentes →
+objetivos com de/para e prazo → ações amarradas**. Cada elo cobra o anterior:
+- o alvo pede frase, número de partida, meta, unidade, data, o porquê que se lê
+  no dia ruim e **o que você vai deixar de fazer** (a lista que autoriza o não);
+- **as fichas são escassas**: 5 fichas para 6 frentes, e a regra que faz valer é
+  `só cria objetivo a frente que recebeu ficha`. Tirar a ficha de uma frente
+  manda os objetivos dela para a geladeira (nada é apagado, e voltam se a ficha
+  voltar). Foco vira regra, não conselho;
+- **objetivo sem número não salva**: de quanto para quanto, até quando. O card
+  mostra a barra de/para, quantas ações estão em aberto e avisa quando é zero;
+- toda ação do Plano pode ser **amarrada a um objetivo** (`p.obj`), e a aba Alvo
+  denuncia quantas ações em aberto **não servem a objetivo nenhum**.
+
+**2. "Estou travado", a resposta melhor que uma IA genérica.** Em vez de um
+chatbot, quatro diagnósticos e a prescrição vinda do próprio método: não sei o
+que fazer (a ferramenta do módulo da frente), sei e não sai (carta de Execução e
+protocolo de 5 dias), depende de outra pessoa (roteiro de feedback e alçada),
+falta dinheiro ou tempo (preço, margem e caixa, ou tirar ficha de outra frente).
+Determinístico, offline, e na voz dela.
+
+**3. Práticas permanentes: o que fica depois do protocolo.** Quando o protocolo
+de 5 dias fecha, o app pergunta se aquilo entra na rotina de vez. A prática tem
+**impacto declarado**, frequência, marcação de um dia por dia, adesão calculada
+e **revisão marcada em 90 dias**: mantém ou encerra, e encerrar também é gestão.
+É a ideia do "efeito paralelo" deles, só que **ganha na prática**, em vez de ser
+declarada do nada, e alimenta o pilar Comportamento do EMC.
+
+**4. O mural do ano.** As 52 semanas em 52 quadrados no topo da aba Caminho,
+acendendo conforme os três pilares fecham, com marca nas 12 semanas de prova de
+marco. O ano inteiro em uma olhada.
+
+**5. Depois do encontro, uma decisão.** O encontro passado ganha o botão "o que
+eu levo daqui": a nota de 1 a 5 vai para a mentora, e **a decisão vira ação no
+Plano 30d** com prazo de 7 dias. Encontro que não vira decisão foi
+entretenimento.
+
+**6. O que entrou no motor:** `emcScores` passou a contar alvo, apostas,
+objetivos medidos e alcançados no pilar E, e as práticas permanentes no pilar C;
+`pgAuto` fecha a sessão de Estratégia quando o alvo, o objetivo ou a medição
+acontecem; `pgExtras` oferece a cadeia a quem tem disciplina sobrando; e o
+mentor ganhou seis regras novas (alvo 97, apostas 95, objetivo 93, objetivo
+vencido 91, objetivo sem ação 74, objetivo sem medição há 14 dias 66, prática a
+revisar 60). `renderPlano` virou "O seu plano", com a aba Alvo em primeiro.
+
+**O que foi deliberadamente descartado:** o ranking de consumo de áudio
+(regional, nacional, global) e o assistente de IA. O ranking é vaidade para um
+público de donos de empresa, e a IA genérica seria pior do que o mentor e o
+treinador que já existem, que falam o método dela.
 
 ### O sistema virou treinador: o Programa EMC (2607.02)
 A Carla: "ainda está muito solto, faz o que quer, abre o que quer, não tem
