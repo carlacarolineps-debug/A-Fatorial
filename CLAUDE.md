@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2707.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2807.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,53 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Sistema de design: material, escala e movimento (2807.01)
+A Carla: "está muito pobre, parece que foi feito por um amador e não por
+profissional, seja especialista em design irresistível".
+
+**O diagnóstico:** o passe anterior tirou o excesso, mas deixou o app plano.
+Faltava **material**. Os quatro erros de amador que estavam ali:
+1. superfície sem luz: retângulo quase preto com um fio de 1px, sem elevação,
+   sem direção de luz, sem textura;
+2. **caixa-alta em tudo**: rótulo, botão, aba, estado, meta. Quando toda palavra
+   é versalete espaçado, nada parece desenhado, parece template;
+3. raio inconsistente: 2px na base antiga, 20px nos blocos novos;
+4. número tímido: em um produto que mede, o número tinha 13px como qualquer
+   outro texto.
+
+**O que passou a valer:**
+- **Elevação em três níveis** (`--e1/--e2/--e3`), sempre com luz de cima
+  (`inset 0 1px 0 rgba(255,255,255,.05)`) e sombra funda em vez de borda dura.
+- **Grão** sobre a tela inteira (SVG turbulence a 5%, `mix-blend-mode:soft-light`).
+  É a única coisa que separa preto barato de carbono caro.
+- **Raio único**: 12px em controle, 18px em cartão, 24px em bloco herói.
+- **Ouro como material**: `--ouro` é um gradiente de quatro paradas, com
+  brilho interno no topo do botão e sombra quente embaixo.
+- **Caixa-alta só no rótulo de seção.** Botão, aba, pílula e estado viraram
+  frase, com peso 600. Foi a mudança que mais tirou cara de template.
+- **Número tabular** (`font-variant-numeric:tabular-nums`) em todo painel, e
+  número grande onde ele é o assunto.
+- **Movimento**: `cubic-bezier(.2,.8,.2,1)` em tudo, cartão que sobe 3px ao
+  toque, botão que afunda 1,5%, seta que anda 4px, barra que preenche em 700ms,
+  e entrada de tela em cascata (respeitando `prefers-reduced-motion`).
+
+**Os momentos que ficaram irresistíveis:**
+- **O cartão do treino de hoje** foi redesenhado do zero: cabeçalho com a letra
+  do pilar em medalhão e a semana à direita, título em serifa de 29px, o tempo
+  como **número grande** ao lado, `dt/dd` com o rótulo na cor do pilar, o CTA de
+  ouro em frase com seta que anda, e um rodapé com **três pontos** (as sessões da
+  semana) e o atalho para a semana.
+- **O painel EMC** virou dashboard: três anéis grossos nas cores dos pilares com
+  o número em serifa, o total em 38px e o **delta em verde** (`+46`) que é a
+  razão de tudo existir.
+- **O alvo do ano**: anel de 116px com 74% em serifa de 34px, e o de/para em
+  ouro dentro da frase.
+- A saudação virou nome e data em serifa, no lugar do rótulo de sistema.
+
+**Corrigido de passagem:** a pílula "você está aqui" quebrava em cima da linha
+no mapa de níveis; a medalha trancada mostrava uma caixinha falsa; as abas do
+Plano quebravam em duas linhas (agora deslizam, em formato de pílula).
 
 ### Passe visual e resgate de vocabulário (2707.02)
 A Carla: "está visualmente feio, preciso que agora trabalhe totalmente no visual
