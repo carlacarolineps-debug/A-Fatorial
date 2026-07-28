@@ -4186,7 +4186,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.18';
+const NEXUS_BUILD = '2407.19';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -4865,6 +4865,9 @@ function sistemaUnificado(){
           if (Array.isArray(salvo.distribuicoes)) this.distribuicoesManuais = salvo.distribuicoes;
           if (salvo.metas) this.metasMensais = salvo.metas;
           this.hidratarExtras(emp, salvo);
+          // Reordena também o que veio salvo: navegadores que já gravaram a lista com Ajustes/Total
+          // duplicados se corrigem sozinhos ao abrir, sem o cliente precisar zerar nada.
+          this.ordenarCentrosCusto();
           this.collapsedCCs = this.centrosCustoData.filter(c => c.ip === 1).map(c => c.c);
         } else if (salvo) {
           localStorage.removeItem('nexus_v2_dados_' + emp.id); // formato antigo: volta aos dados embutidos da planilha
@@ -5838,9 +5841,15 @@ function sistemaUnificado(){
       this.recalcularTudo();
     },
     ordenarCentrosCusto() {
-      // Reordena mantendo cada filho sob o seu grupo pai, e Ajustes/Total no fim
-      let pais = this.centrosCustoData.filter(c => c.ip === 1);
-      let especiais = this.centrosCustoData.filter(c => c.c === 'Ajustes' || c.c === 'Total');
+      // Reordena mantendo cada filho sob o seu grupo pai, e Ajustes/Total no fim.
+      // Na Embalagem, Ajustes e Total vêm marcados como grupo (ip=1): sem excluí-los daqui eles
+      // entravam na lista como grupo E de novo como especiais, aparecendo duplicados na tela.
+      const ehEspecial = c => c.c === 'Ajustes' || c.c === 'Total';
+      let pais = this.centrosCustoData.filter(c => c.ip === 1 && !ehEspecial(c));
+      // Uma linha de cada, mesmo que o dado salvo no navegador já tenha vindo duplicado
+      let especiais = ['Ajustes', 'Total']
+        .map(nome => this.centrosCustoData.find(c => c.c === nome))
+        .filter(Boolean);
       let ordenado = [];
       pais.forEach(p => {
         ordenado.push(p);
@@ -5853,7 +5862,7 @@ function sistemaUnificado(){
       this.centrosCustoData
         .filter(c => c.ip === 0 && c.c !== 'Ajustes' && c.c !== 'Total' && !pais.some(p => p.c === c.parentCode))
         .forEach(f => ordenado.push(f));
-      especiais.sort((a,b) => a.c === 'Total' ? 1 : -1).forEach(e => ordenado.push(e));
+      especiais.forEach(e => ordenado.push(e));   // já vem na ordem Ajustes → Total
       this.centrosCustoData = ordenado;
     },
 
@@ -8928,10 +8937,20 @@ function sistemaUnificado(){
           const setMeses = (fn) => { Object.entries(colMes).forEach(([ci, mk]) => fn(mk, ci)); };
           const capit = s => s.charAt(0).toUpperCase() + s.slice(1);
           const mesesTocados = new Set();
+          const mesesPreservados = new Set();
+          // A planilha traz as 12 colunas, mas preenche só os meses que ela cobre — o resto vem
+          // ZERADO. Gravar esses zeros apagava o que já tinha sido importado pelos relatórios
+          // mensais: as contas ficavam lançadas e o Total do mês em R$ 0,00. Regra: zero da
+          // planilha não derruba valor já existente (para zerar de fato, edite na tela).
+          const poe = (alvo, chave, v, mk) => {
+            if (v == null) return;
+            if (v === 0 && Math.abs(Number(alvo[chave]) || 0) > 0.005) { mesesPreservados.add(mk); return; }
+            alvo[chave] = v; mesesTocados.add(mk);
+          };
           const aplica = (obj, campo, row) => { if (!obj) return; obj[campo] = obj[campo] || {};
-            setMeses((mk, ci) => { const v = num(row[ci]); if (v != null) { obj[campo][mk] = v; mesesTocados.add(mk); } }); };
+            setMeses((mk, ci) => poe(obj[campo], mk, num(row[ci]), mk)); };
           const aplicaDre = (linha, row) => { const l = dre(linha); if (!l) return;
-            setMeses((mk, ci) => { const v = num(row[ci]); if (v != null) { l[mk] = v; mesesTocados.add(mk); } }); };
+            setMeses((mk, ci) => poe(l, mk, num(row[ci]), mk)); };
           // 2) Varre as linhas com contexto (Kg/Fator pertencem à última linha-mãe)
           const MAPA_FAT = [ ['faturamento emb','Embalagem'], ['faturamento linear','Linear'], ['fat inter company','Inter Company'], ['faturamento teste venda','Teste Venda'], ['faturamento teste sucata','Teste Sucata'], ['faturamento teste x','Teste X'] ];
           const MAPA_DESP = [ ['despesas embalagem','Embalagem'], ['despesas linear','Linear'], ['despesa teste x','Teste X'], ['despesa teste','Teste'] ];
@@ -8946,15 +8965,18 @@ function sistemaUnificado(){
             const mDesp = MAPA_DESP.find(([k]) => rotulo === k || rotulo === k.replace('despesa','despesas') || rotulo.startsWith(k));
             if (mDesp && !rotulo.startsWith('total')) {
               const s = subPor(mDesp[1]);
-              if (s) setMeses((mk, ci) => { const v = num(row[ci]); if (v != null) { s['desp' + capit(mk)] = v; mesesTocados.add(mk); } });
+              if (s) setMeses((mk, ci) => poe(s, 'desp' + capit(mk), num(row[ci]), mk));
               alvoFat = null; alvoInv = null; continue;
             }
             if (rotulo === 'total despesas') {
               // Garante coerência com os Centros de Custo: meses sem lançamentos detalhados vão para "Ajustes"
               const rowAj = this.centrosCustoData.find(c => c.c === 'Ajustes');
               setMeses((mk, ci) => { const v = num(row[ci]); if (v == null) return;
-                mesesTocados.add(mk);
                 const somaFilhos = this.centrosCustoData.reduce((a,c)=> a + (!c.ip && c.c!=='Total' && c.c!=='Ajustes' ? (c[mk]||0) : 0), 0);
+                // Mês sem total na planilha, mas com contas já lançadas: manter o que veio do
+                // relatório mensal. Senão o Ajustes virava -soma e o mês fechava em zero.
+                if (v === 0 && Math.abs(somaFilhos) > 0.005) { mesesPreservados.add(mk); return; }
+                mesesTocados.add(mk);
                 if (rowAj) rowAj[mk] = Math.round((v - somaFilhos) * 100) / 100;
               });
               continue;
@@ -9000,7 +9022,12 @@ function sistemaUnificado(){
           if (ult) { this.mesAtivo = ult.chave; this.subAbaDespesa = ult.chave.toLowerCase(); }
           this.registrarLog('Importou Resultado da Embalagem (' + file.name + '), meses: ' + nomes);
           this.atualizarLeituraSistema();
-          alert('Resultado da Embalagem importado e distribuído com sucesso!\n\nMeses atualizados: ' + nomes + '.\nReceitas (com Kg e Fator), inventário, despesas por empresa, devoluções e estoque já refletem a planilha.');
+          const preservados = [...mesesPreservados].filter(mk => !mesesTocados.has(mk));
+          const aviso = preservados.length
+            ? '\n\nNão mexi em ' + preservados.map(mk => (this.listaMeses.find(m=>m.chave.toLowerCase()===mk)||{}).labelData || mk).join(', ')
+              + ': a planilha vem zerada nesses meses e eu preservei o que já tinha sido importado dos relatórios mensais.'
+            : '';
+          alert('Resultado da Embalagem importado e distribuído com sucesso!\n\nMeses atualizados: ' + nomes + '.\nReceitas (com Kg e Fator), inventário, despesas por empresa, devoluções e estoque já refletem a planilha.' + aviso);
           evt.target.value = '';
         } catch(err) { alert('Erro ao ler a planilha: ' + err.message); evt.target.value = ''; }
     },
