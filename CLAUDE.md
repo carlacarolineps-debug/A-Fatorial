@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2807.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2807.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,55 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Patente de 12 meses, legibilidade e a folha de impressão (2807.02)
+Cinco pedidos da Carla, todos com causa identificada.
+
+**1. Fonte pequena demais.** O app tinha texto de 11px e rótulos de 9,5px.
+Piso novo: nada abaixo de 12px, corpo em 15,5px, `.tiny` em 13px, rótulo de
+seção em 11px. Quem usa todo dia agradece.
+
+**2. "Pontua toda hora e sobe de nível fácil demais, sem critério."** Era
+verdade: a escada terminava em 3.050 XP e uma semana do programa rende ~210,
+então dava para zerar as 11 patentes em 15 semanas de um programa de 52.
+- **A escada virou 12 meses**: `LEVELS` vai a 13.000 XP e ganhou `LEVEL_SEMANAS`,
+  a segunda trava. `levelForXp` agora devolve **o menor** entre o nível por XP e
+  o nível por **semanas fechadas com check-in**. Não dá para comprar tempo: a
+  semana só fecha com as três sessões, a prova e o check-in.
+- **O app parou de comemorar cada clique**: `addXp` só emite aviso e grava no
+  histórico a partir de 20 XP. O resto soma calado.
+- **O critério ficou visível**: `XP_GRUPOS` lista as 27 formas de pontuar,
+  agrupadas (o treino, o plano, o conteúdo, a Bússola, a cadência), com o valor
+  de cada uma. A tela Conquistas virou "Reconhecimento": patente atual, quanto
+  falta de XP **e** de semanas, a tabela inteira, a escada com as duas travas em
+  cada degrau, e as medalhas em aberto legíveis (78% em vez de 42%), porque é o
+  texto delas que ensina o que fazer.
+
+**3. Indicar: copiar o texto com o link.** `copiarConvite()` põe o convite
+inteiro na área de transferência, com reserva para navegador que bloqueia
+(abre o texto selecionável).
+
+**4. Cor de fundo nas seleções.** O `<select>` usava o menu nativo (branco com
+azul do sistema). Agora tem `appearance:none`, seta de ouro em SVG, fundo
+carbono e `option{background:#171410}`, com `color-scheme:dark` nos campos de
+data e hora.
+
+**5. Fechamento de Ciclo sem exemplo.** As três perguntas ganharam
+`placeholder` com exemplo real e uma linha em itálico (`.fld-ex`) que ensina o
+critério: o que vale como vitória, como escrever o padrão ("sempre que ___, eu
+___") e por que o ajuste precisa ser observável.
+
+**6. A impressão.** Estava com texto cinza-claro sobre branco, caixas apagadas e
+a sigla "OB". Reescrita inteira:
+- **a sigla saiu**: o cabeçalho é o wordmark "Operação Blindada" em serifa, com
+  o selo **OPB** discreto à direita e o fio de ouro embaixo;
+- preto de verdade (`#22201c`) em 11,6pt, títulos em Fraunces de 26px;
+- caixas com fundo creme (`#faf7ef`), fio de ouro à esquerda, e verde ou
+  vermelho quando o conteúdo pede;
+- a sequência numerada ganhou medalhão de ouro impresso, e os dias viraram
+  **quadrados de 30px para marcar à caneta**;
+- rodapé com **linha de assinatura** e a marca: o documento vira ferramenta,
+  não folheto.
 
 ### Sistema de design: material, escala e movimento (2807.01)
 A Carla: "está muito pobre, parece que foi feito por um amador e não por
