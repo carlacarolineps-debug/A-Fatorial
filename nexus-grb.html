@@ -2303,6 +2303,21 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           <div class="kpi-foot"><span>Acumulado no ano</span><b x-text="kpis.resultadoInvYTD"></b></div>
         </div>
       </div>
+
+      <!-- Mês com faturamento e sem despesa (ou o contrário) mostra lucro/prejuízo que não existe.
+           Em vez de deixar o número enganar, o painel diz qual planilha está faltando. -->
+      <template x-if="mesesIncompletos.length">
+        <div class="no-print" style="background:rgba(197,168,128,.10);border:1px solid rgba(197,168,128,.55);border-radius:12px;padding:14px 18px">
+          <div style="font-size:12.5px;font-weight:800;color:var(--accent-gold-deep)"><i class="fas fa-triangle-exclamation mr-2"></i> Meses pela metade: o resultado destes meses ainda não é real</div>
+          <div style="font-size:11.5px;color:var(--color-muted);margin-top:5px;line-height:1.6;white-space:normal">
+            <template x-for="m in mesesIncompletos" :key="'inc'+m.mes">
+              <span style="display:inline-block;margin-right:14px"><b x-text="m.mes"></b>: falta <b x-text="m.falta"></b></span>
+            </template>
+            <div style="margin-top:6px">Um mês com faturamento e sem despesa aparece com lucro cheio (e o contrário, com prejuízo cheio). Importe a planilha que falta em <b>Configurações Globais → Importador</b> e o mês se ajusta sozinho.</div>
+          </div>
+        </div>
+      </template>
+
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
         <div class="card-dark"><div class="card-title">Fluxo: Faturamento x Total de Despesas</div><div class="chart-wrap" style="height:250px"><canvas id="chartFatDesp"></canvas></div></div>
         <div class="card-dark"><div class="card-title">Resultado Operacional (Mensal)</div><div class="chart-wrap" style="height:250px"><canvas id="chartEvoRes"></canvas></div></div>
@@ -4171,7 +4186,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.17';
+const NEXUS_BUILD = '2407.18';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -6260,6 +6275,23 @@ function sistemaUnificado(){
     },
     // Mês já tem Resultado Operacional lançado? (usado para exibir os 12 meses, marcando os futuros)
     drMesLancado(chave) { return Math.abs(this.drResMes(chave)) > 0.005; },
+
+    // Meses com só um lado lançado. Cada relatório alimenta uma parte (o da indústria traz
+    // despesa, o de faturamento traz receita), então é normal um mês ficar pela metade enquanto
+    // a outra planilha não chega — e o resultado dele engana até lá.
+    get mesesIncompletos() {
+      const lFat = this.dreAtual.find(l => l.desc === 'Faturamento') || {};
+      const lDesp = this.dreAtual.find(l => l.desc === 'Total de Despesas') || {};
+      const out = [];
+      this.listaMeses.forEach(m => {
+        const k = m.chave.toLowerCase();
+        const temFat = Math.abs(lFat[k] || 0) > 0.005;
+        const temDesp = Math.abs(lDesp[k] || 0) > 0.005;
+        if (temFat && !temDesp) out.push({ mes: m.labelData, falta: 'a despesa' });
+        else if (temDesp && !temFat) out.push({ mes: m.labelData, falta: 'o faturamento' });
+      });
+      return out;
+    },
 
     // ===== Leituras & Análises Orçamentárias DINÂMICAS (calculadas dos dados reais) =====
     _mesAnterior(mk) {
