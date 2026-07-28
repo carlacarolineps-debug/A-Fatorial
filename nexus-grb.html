@@ -2283,12 +2283,12 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px">
         <div class="kpi-card blue">
-          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(25,16,64,.10);color:var(--accent-blue)"><i class="fas fa-arrow-trend-up"></i></div><div class="kpi-label">Faturamento · <span x-text="mesAtivo"></span></div><template x-if="kpis.temMoM"><span class="kpi-mom" :title="'Variação vs '+kpis.momMesAnt" :style="kpis.fatMoM>=0?'color:#0d9488;background:rgba(13,148,136,.11)':'color:#e11d48;background:rgba(225,29,72,.11)'"><i class="fas" :class="kpis.fatMoM>=0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="Math.abs(kpis.fatMoM).toFixed(0)+'%'"></span></span></template></div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(25,16,64,.10);color:var(--accent-blue)"><i class="fas fa-arrow-trend-up"></i></div><div class="kpi-label">Faturamento · <span x-text="mesAtivo"></span></div><template x-if="kpis.fatTemMoM"><span class="kpi-mom" :title="'Variação vs '+kpis.momMesAnt" :style="kpis.fatMoM>=0?'color:#0d9488;background:rgba(13,148,136,.11)':'color:#e11d48;background:rgba(225,29,72,.11)'"><i class="fas" :class="kpis.fatMoM>=0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="fmtMoM(kpis.fatMoM)"></span></span></template></div>
           <div class="kpi-val text-accent-blue" x-text="kpis.faturamento"></div>
           <div class="kpi-foot"><span>Acumulado no ano</span><b x-text="kpis.faturamentoYTD"></b></div>
         </div>
         <div class="kpi-card red">
-          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(225,29,72,.10);color:var(--accent-red)"><i class="fas fa-arrow-trend-down"></i></div><div class="kpi-label">Despesas · <span x-text="mesAtivo"></span></div><template x-if="kpis.temMoM"><span class="kpi-mom" :title="'Variação vs '+kpis.momMesAnt" :style="kpis.despMoM<=0?'color:#0d9488;background:rgba(13,148,136,.11)':'color:#e11d48;background:rgba(225,29,72,.11)'"><i class="fas" :class="kpis.despMoM>0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="Math.abs(kpis.despMoM).toFixed(0)+'%'"></span></span></template></div>
+          <div class="kpi-head"><div class="kpi-ic" style="background:rgba(225,29,72,.10);color:var(--accent-red)"><i class="fas fa-arrow-trend-down"></i></div><div class="kpi-label">Despesas · <span x-text="mesAtivo"></span></div><template x-if="kpis.despTemMoM"><span class="kpi-mom" :title="'Variação vs '+kpis.momMesAnt" :style="kpis.despMoM<=0?'color:#0d9488;background:rgba(13,148,136,.11)':'color:#e11d48;background:rgba(225,29,72,.11)'"><i class="fas" :class="kpis.despMoM>0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="fmtMoM(kpis.despMoM)"></span></span></template></div>
           <div class="kpi-val text-red-strong" x-text="kpis.despesa"></div>
           <div class="kpi-foot"><span>Acumulado no ano</span><b x-text="kpis.despesaYTD"></b></div>
         </div>
@@ -4171,7 +4171,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.16';
+const NEXUS_BUILD = '2407.17';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -4291,9 +4291,33 @@ function chartGrad(context, hex, fade) {
   g.addColorStop(1, hex);
   return g;
 }
+// Enquanto o mês não foi importado, o gráfico fica com a grade vazia e parece quebrado.
+// Este plugin escreve o motivo no lugar, em vez de deixar o espaço mudo.
+const NX_GRAFICO_VAZIO = {
+  id: 'nxGraficoVazio',
+  afterDraw(chart) {
+    const temDado = (chart.data.datasets || []).some(ds => (ds.data || []).some(v => {
+      const n = (v && typeof v === 'object') ? (v.y != null ? v.y : v.v) : v;
+      return n != null && Number(n) !== 0 && !Number.isNaN(Number(n));
+    }));
+    if (temDado) return;
+    const area = chart.chartArea; if (!area) return;
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = "700 12px 'Inter', system-ui, sans-serif";
+    ctx.fillText('Sem dados para o período', (area.left + area.right) / 2, (area.top + area.bottom) / 2 - 8);
+    ctx.font = "500 11px 'Inter', system-ui, sans-serif";
+    ctx.fillStyle = '#a8b0c0';
+    ctx.fillText('Importe a planilha do mês para este gráfico se alimentar.', (area.left + area.right) / 2, (area.top + area.bottom) / 2 + 10);
+    ctx.restore();
+  }
+};
 function aplicarDefaultsGraficos() {
   if (!window.Chart || window.__nexusChartDefaults) return;
   window.__nexusChartDefaults = true;
+  Chart.register(NX_GRAFICO_VAZIO);
   Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
   Chart.defaults.font.size = 11;
   Chart.defaults.color = '#64748b';
@@ -5502,7 +5526,7 @@ function sistemaUnificado(){
         resultadoInv:'', resultadoInvYTD:'', resultadoInvNum:0,
         margem:0, margemYTD:0,
         maiorFat:'', maiorDesp:'',
-        temMoM:false, momMesAnt:'', fatMoM:0, despMoM:0, resMoM:0
+        temMoM:false, fatTemMoM:false, despTemMoM:false, momMesAnt:'', fatMoM:0, despMoM:0, resMoM:0
     },
     
     kpisProvisoes: { 
@@ -5577,6 +5601,12 @@ function sistemaUnificado(){
       return Math.round((reg.ativo / total) * 100);
     },
     registrarInteracao() { this.tempoTracker.ultimaInteracao = Date.now(); },
+    // Variação mês a mês para o selo do KPI. Partindo de uma base pequena a conta explode
+    // (R$ 1,00 → R$ 1 milhão dá 99.999.900%), o que não informa nada: acima de 999% vira "+999%".
+    fmtMoM(v) {
+      const n = Math.abs(Number(v) || 0);
+      return (n > 999 ? '+999' : n.toFixed(0)) + '%';
+    },
 
     // ===== Pilha de Desfazer genérica (v13/06) =====
     salvarEstado(descricaoAcao) {
@@ -9178,12 +9208,17 @@ function sistemaUnificado(){
       if(iMes > 0) {
         const pk = this.listaMeses[iMes-1].chave.toLowerCase();
         const pFat = lFat?(lFat[pk]||0):0, pDesp = lDesp?(lDesp[pk]||0):0, pOp = lOp?(lOp[pk]||0):0;
-        this.kpis.temMoM = (pFat !== 0 || pDesp !== 0);
+        // Mês anterior abaixo de meio centavo conta como ZERO. Testar só `pDesp ?` deixava passar
+        // resíduo de arredondamento (ex.: 0,000000023) e a variação estourava para trilhões de %.
+        const temBase = v => Math.abs(v) >= 0.005;
         this.kpis.momMesAnt = this.listaMeses[iMes-1].chave;
-        this.kpis.fatMoM = pFat ? ((rFat-pFat)/Math.abs(pFat)*100) : 0;
-        this.kpis.despMoM = pDesp ? ((rDesp-pDesp)/Math.abs(pDesp)*100) : 0;
-        this.kpis.resMoM = pOp ? ((rOp-pOp)/Math.abs(pOp)*100) : 0;
-      } else { this.kpis.temMoM = false; }
+        this.kpis.fatTemMoM = temBase(pFat);
+        this.kpis.despTemMoM = temBase(pDesp);
+        this.kpis.temMoM = temBase(pFat) || temBase(pDesp);
+        this.kpis.fatMoM = temBase(pFat) ? ((rFat-pFat)/Math.abs(pFat)*100) : 0;
+        this.kpis.despMoM = temBase(pDesp) ? ((rDesp-pDesp)/Math.abs(pDesp)*100) : 0;
+        this.kpis.resMoM = temBase(pOp) ? ((rOp-pOp)/Math.abs(pOp)*100) : 0;
+      } else { this.kpis.temMoM = false; this.kpis.fatTemMoM = false; this.kpis.despTemMoM = false; }
 
       let mFat=0, mDesp=0;
       if(lFat && lDesp) {
