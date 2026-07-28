@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2807.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2807.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,81 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A apostila oficial entra no sistema (2807.03)
+A Carla mandou os três cadernos da apostila oficial (216 páginas em PDF) e
+pediu: "quero incluir no sistema da operação, distribua da melhor forma e
+conecte o que precisar".
+
+**A decisão:** apostila não vira PDF para baixar, vira prática. O material
+entrou por quatro portas, mais a ficha da mentoria preenchida sozinha.
+
+**1. Seis trilhas novas, o módulo 07 "Alta Performance".** Escritas a partir
+dos manuais dela, com as frases dela: `ap-planejamento` (diagnóstico da
+realidade, SWOT com honestidade brutal, SMART, quebra em 30 dias, KPI com
+frequência, risco e plano B), `ap-networking` (os três princípios, o teste da
+rede, o mapa e o pitch em três frases), `ap-accountability` (os cinco pilares,
+o mapa da responsabilidade, a conversa de reposicionamento),
+`ap-desculpability` (o diagnóstico das quatro perguntas, os três pilares, o
+plano pessoal), `ap-psicologia` (ganho secundário, contrato psicológico não
+dito, o sistema de cultura em cinco etapas, as quatro dinâmicas) e
+`ap-influencia` (os cinco pilares, DESC completo, gatilhos e escuta ativa).
+O app foi de 37 para **43 trilhas e 177 aulas**.
+**Elas não entram na agenda das 52 semanas** (`pgNegocio` exclui o grupo, senão
+o arco do negócio seria atropelado): têm semana fixa em `PG_SEM_APOSTILA`
+(1, 9, 15, 23, 31 e 39), espalhadas na ordem da apostila. Dentro do módulo não
+há escada (`isUnlocked` libera, como no baralho): cada uma abre na sua data.
+Sem isso, seis trilhas abririam de uma vez e a trava anti-maratona cairia: com
+a mudança, o dia 1 abre **3 de 43** trilhas (era 2 de 37).
+
+**2. A caixa de ferramentas do líder: 30 modelos.** Os cadernos 2 e 3 são uma
+sequência de "erro comum + modelo nomeado + exercício". Todos viraram
+ferramenta que se preenche em dois minutos e sai como documento: DESC, CNV,
+STAR, CAR, 3C, pitch, mapa de rede, Eisenhower, 5W2H, ABC, SMART, SWOT, visão
+atual e ideal, mapa de microcomportamentos, contrato psicológico, manual de
+funcionamento pessoal, liderança situacional, 4D, regra 70/30, Johari, mapa da
+responsabilidade, PDCA, SCAMPER, PAD, 4P, 3 Cs, risco e plano B, Kotter,
+transição em três fases e RER. Motor único e declarativo (`AP_FERRS` +
+`apFerr`/`apFerrSalvar`): o resultado passa por `withResultActions` (salvar,
+imprimir A4, Plano 30d, PDCA, agenda, diário) e tem **"virar ação no Plano
+30d"** com prazo de 14 dias. Cada uma vale 25 XP, uma vez.
+
+**3. Os Desafios dos Líderes de Alta Performance.** Os seis desafios dela, nos
+três níveis (Jogador Estratégico, Executor de Elite acima de 30, Mestre da Alta
+Performance acima de 60 com os seis entregues). **Sem evidência não há ponto**:
+o texto da entrega vira **prova no cofre** (com o pilar EMC certo) e dá 40 XP.
+As regras do jogo estão visíveis, incluindo o **cartão amarelo**: encontro que
+passou sem presença confirmada tira 10 pontos, e justificar é um clique
+(`apCartoes` lê `CM().eventos`, então quem não tem encontro publicado nunca
+leva cartão).
+
+**4. O ciclo de 30 dias contra o desculpability.** O plano pessoal das páginas
+71 a 76 virou mecânica: a pessoa declara as áreas, as justificativas que usa, as
+ações de correção e a **frase de blindagem**; depois marca **um dia por dia de
+calendário** com a pergunta central ("hoje eu corrigi mais ou me expliquei
+mais?"), o compromisso da manhã, a ação corrigida e a reflexão. Quadro de 30
+quadrados (verde corrigi, vermelho me justifiquei), reflexão final em quatro
+perguntas, prova no cofre e impressão do quadro inteiro em A4, com as linhas
+vazias para quem preferir caneta.
+
+**5. A ficha de Feedback de Acompanhamento, preenchida pelo app.** A ficha que
+se repete a cada caderno agora sai pronta: evolução antes/agora nos três
+pilares, nível de comprometimento (adesão ao treino), dedicação (provas e
+pontos), ações pendentes, objetivos concluídos, procrastinação e progresso
+financeiro do alvo (moeda antes do número). As três perguntas de fecho saem em
+branco de propósito: elas se respondem à mão, no encontro.
+
+**6. O índice que conecta.** A aba "Os manuais" lista os 12 capítulos com a
+frase-chave, as páginas e **onde cada um vive no app** (trilha, ferramenta,
+desafio ou área), com botão que abre. Nada de seção escondida.
+
+**O que ficou ligado:** `emcScores` conta as ferramentas no pilar E, as trilhas
+da apostila no M e o ciclo de 30 dias no C (com as três linhas novas no
+detalhe); `pgExtras` oferece o dia do ciclo, o desafio da vez e a ferramenta
+pendente como trabalho extra (não ocupa sessão); o mentor ganhou quatro regras
+(`ap_ciclo` 89, `ap_cartao` 87, `ap_desafio` 63, `ap_ferr` 44); `XP_GRUPOS`
+ganhou o grupo "A Apostila" com as seis formas de pontuar; a área entrou no
+`GATES`, no `OVERFLOW`, na tela Mais e no mapa da operação.
 
 ### Patente de 12 meses, legibilidade e a folha de impressão (2807.02)
 Cinco pedidos da Carla, todos com causa identificada.
