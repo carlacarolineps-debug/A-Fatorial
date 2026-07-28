@@ -3366,7 +3366,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                 <tr>
                   <td class="font-bold">
                     <span style="display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px" :style="'background:'+c.cor"></span>
-                    <input type="text" x-model="c.nome" @change="recalcularTudo(); registrarLog('Renomeou carteira')" title="Clique para renomear"
+                    <input type="text" x-model="c.nome" @change="recalcularTudo(); registrarLog('Renomeou carteira')" title="Clique para dar um nome"
+                           placeholder="Nome da carteira..."
                            class="bg-transparent border-b border-dashed border-transparent hover:border-gray-300 focus:border-accent-gold outline-none font-bold" style="width:150px;color:inherit">
                     <span x-show="c.tipo==='investimento'" class="res-nota" style="margin-left:4px">investimento</span>
                   </td>
@@ -3385,6 +3386,11 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               </template>
             </tbody>
           </table>
+        </div>
+        <!-- Fora da tabela de propósito: dentro dela o aviso acompanharia a largura dos 12 meses
+             e ficaria cortado na rolagem horizontal. -->
+        <div x-show="!chavesDR.length" style="text-align:center;padding:20px 16px;margin-top:8px;border:1px dashed var(--color-border);border-radius:10px;color:var(--color-muted);font-size:12px;line-height:1.6;white-space:normal">
+          <i class="fas fa-wallet mr-1" style="color:var(--accent-gold)"></i> Nenhuma carteira criada ainda. Use <b>+ Societária</b> (sócio, retido, reserva de fluxo) ou <b>+ Investimento</b> no topo da tela para criar <b>quem recebe</b>, dê um nome e defina o <b>%</b> de cada um — a soma precisa fechar <b>100%</b>. A linha <b>Resultado Operacional (base)</b> acima não depende disso: ela já vem sozinha do DRE.
         </div>
         <div style="font-size:11px;color:var(--color-muted);margin-top:10px;line-height:1.5;white-space:normal"><i class="fas fa-circle-info mr-1" style="color:var(--accent-gold)"></i> A tabela já traz <b>janeiro a dezembro</b>; os meses ainda sem resultado ficam como <b>—</b> e se preenchem automaticamente quando o mês é lançado no DRE. Meses de resultado <b>negativo</b> aparecem em vermelho (a carteira absorve o prejuízo proporcional, como na planilha). O <b>Acumulado</b> é a soma dos meses já lançados.</div>
       </div>
@@ -4165,7 +4171,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.15';
+const NEXUS_BUILD = '2407.16';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).

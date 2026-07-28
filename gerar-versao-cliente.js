@@ -65,6 +65,14 @@ reescrever('EMB_TENDENCIA', arr => (arr || []).filter(x => Number(x.ano) !== ANO
 // Fechamento oficial de estoque e saldo de abertura são números da Rebracil
 reescrever('NEXUS_EST_OFICIAL_REQ', () => ({}));
 
+// Carteiras: quem recebe e quanto é decisão do cliente. O arquivo vai SEM carteira nenhuma —
+// os nomes e os % da Rebracil não vão junto. Ele cria cada uma em "+ Societária/+ Investimento",
+// dá o nome e define o %. A linha Resultado Operacional (base) continua vindo sozinha do DRE.
+const reCart = /    chavesDR: \[[\s\S]*?\n    \],\n/;
+if (!reCart.test(html)) erros.push('não achei a lista de carteiras (chavesDR)');
+html = html.replace(reCart, () => '    chavesDR: [],   // versão do cliente: ele cria as carteiras e define os %\n');
+trocas++;
+
 // Semente da Requalificadora (jan-mai já conferidos): não vai para o cliente
 if (!/const NEXUS_SEED_REQ = /.test(html)) erros.push('não achei NEXUS_SEED_REQ');
 html = html.replace(/const NEXUS_SEED_REQ = [\s\S]*?;\n/, () => 'const NEXUS_SEED_REQ = null;   // versão do cliente: sem dados embutidos\n');
