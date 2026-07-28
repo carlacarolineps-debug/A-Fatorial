@@ -8,7 +8,7 @@ Abra o arquivo no navegador para usar.
 | Perfil | Entra vendo | Pode acessar (padrão) |
 |--------|-------------|------------------------|
 | **Admin / Gestão** | Gestão à vista | Todas as telas |
-| **Colaborador** | Portal do colaborador | Portal do colaborador, **Esteira comercial** e **Propostas e rastreio** |
+| **Colaborador** | Portal do colaborador | Portal do colaborador, **Esteira comercial**, **Propostas e rastreio** e **Kanban operacional** (já filtrado nas demandas dele) |
 | **Cliente** | Portal do cliente | Portal do cliente |
 
 Todos os perfis usam **o mesmo visual** (tema escuro "gamer" neon) e a **mesma
@@ -202,6 +202,56 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - **Comparar decisões**: o histórico recalcula o impacto em 1/5/10 anos e
       mostra um gráfico de qual decisão rende mais. `decImpacto`.
 
+25. **Kanban operacional com aviso no WhatsApp** (nav "Kanban operacional" —
+    admin e colaborador) — o quadro de demandas da equipe. Cada tarefa tem
+    **dono, prazo e etapa**, e quem é responsável é avisado no WhatsApp.
+    - **Formulário de tarefa**: título, etapa, onda, prioridade (sem prioridade
+      / urgente / médio / pouco urgente), responsável, área, início, término e
+      notas. `kbNova`, `kbEditar`, `kbSalvar`.
+    - **Quadro**: 5 etapas (Backlog → A fazer → Fazendo → Revisão e aguardando →
+      Concluído) com **arrastar e soltar** entre colunas, ou as setas ‹ › do
+      card no celular. `KB_ETAPAS`, `kbDrop`, `kbMover`.
+    - **Duas visões**: por etapa (kanban clássico) e **por responsável** — um
+      bloco "Tarefas de fulano" para cada pessoa. `kbToggleVisao`.
+    - **Painel e filtros**: total, em andamento, concluídas, em atraso e % de
+      conclusão; busca livre + filtros por pessoa (chips coloridos), área, onda
+      e prioridade. `kbRenderKpis`, `kbFiltradas`.
+    - **WhatsApp em 3 modos** (`KANBAN.wa.modo`):
+      **🔗 link direto** (padrão, sem configurar nada — abre a conversa com o
+      texto pronto), **⚡ automático** (envia sozinho pela WhatsApp Cloud API
+      oficial através do servidor em `backend/`) e **🔕 desligado**.
+      `kbNotificar`, `kbMontarMsg`.
+    - **Quando avisa** (configurável): tarefa criada, mudança de etapa, troca de
+      responsável e cobrança de prazo — com três textos editáveis e variáveis
+      `{{nome}} {{tarefa}} {{prioridade}} {{etapa}} {{area}} {{onda}} {{prazo}}
+      {{inicio}} {{situacao}} {{notas}}`. `KB_MSG_PADRAO`, `kbWaSet`.
+    - **Números da equipe**: WhatsApp de cada pessoa (formato `5511999999999`),
+      puxado do telefone do RH quando já existe. `kbContatoSet`, `KANBAN.contatos`.
+    - **Histórico de avisos**: tudo que foi disparado, com status (enviado /
+      pendente / erro) e o motivo quando falha. `kbRenderLog`, `KANBAN.envios`.
+    - **Cobranças**: 📲 no card avisa uma demanda; "Avisar no WhatsApp" no bloco
+      da pessoa cobra tudo que ela tem em aberto; "Cobrar todas as atrasadas"
+      varre o quadro inteiro. `kbCobrar`, `kbCobrarPessoa`, `kbCobrarAtrasadas`.
+    - **No sino**: alerta de demandas atrasadas e das que vencem hoje.
+    - O colaborador entra vendo **as demandas dele** e não enxerga o painel de
+      configuração do WhatsApp. Dados em `localStorage` chave `af_kanban`
+      (incluída no backup).
+
+## Integração com o WhatsApp (pasta `backend/`)
+
+O modo **link direto** funciona sozinho, sem servidor. Para o envio
+**automático** existe uma ponte pronta em [`backend/`](backend/README.md): um
+servidor Node/Express que recebe o aviso do kanban e entrega pela **API oficial
+da Meta (WhatsApp Cloud API)**.
+
+```
+index.html (kanban)  ──POST──▶  backend/  ──▶  Graph API da Meta  ──▶  WhatsApp
+```
+
+O token do WhatsApp fica **no servidor**, nunca no navegador. Passo a passo
+completo (conta na Meta, template `nova_demanda`, deploy e configuração da tela)
+no [README do backend](backend/README.md).
+
 ## CNAEs registrados (base para Nota Fiscal)
 
 | CNAE | Atividade |
@@ -222,6 +272,10 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
+- **Kanban / WhatsApp**: `KANBAN` (estado), `KB_ETAPAS` (colunas),
+  `KB_PRIORIDADES`, `KB_MSG_PADRAO` (textos das mensagens), `kbInit`,
+  `kbRender`, `kbSalvar`, `kbMover`, `kbNotificar` (envio) e `kbWaCfgRender`
+  (painel de configuração). Servidor da API oficial em `backend/server.js`.
 - **Usuários / acessos**: `ADMIN_USER`, `normalizaUsuarios`, `salvarUsuarios`,
   `renderUsuarios`, `usuarioSalvar`, `colaboradorNovo` (persistência em
   `localStorage` chave `af_usuarios`; em produção, isso vai para o backend).
