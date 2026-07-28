@@ -3343,7 +3343,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="flex justify-between items-start flex-wrap gap-3" style="margin-bottom:10px">
           <div>
             <div class="card-title" style="margin-bottom:2px"><i class="fas fa-table-cells mr-2" style="color:var(--accent-gold)"></i> Distribuição do Resultado · mês a mês</div>
-            <div class="card-sub" style="font-size:11.5px">Cada mês distribui o <b>Resultado Operacional</b> do DRE pelos percentuais de cada carteira, igual à sua planilha (D.R). Os valores vêm dos lançamentos reais; edite os <b>%</b> na tabela de carteiras abaixo. Os <b>12 meses de 2026</b> já ficam prontos: os que ainda não têm resultado aparecem como <b>—</b> e se preenchem sozinhos conforme você lança no DRE.</div>
+            <div class="card-sub" style="font-size:11.5px">A linha <b>Resultado Operacional (base)</b> vem sozinha do DRE, mês a mês — você não digita nada nela. Cada carteira recebe a sua fatia pelo <b>%</b>, que você edita <b>aqui mesmo na coluna %</b> (e o nome, clicando nele). Os <b>12 meses de 2026</b> já ficam prontos: os que ainda não têm resultado aparecem como <b>—</b> e se preenchem sozinhos conforme os meses entram no DRE.</div>
           </div>
           <div class="badge-status" :class="Math.abs(somaChaves-100)<0.01 ? 'badge-ok':'badge-danger'" style="width:auto" x-text="'Soma dos % = ' + fmtNum(somaChaves) + '%'"></div>
         </div>
@@ -3362,10 +3362,23 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                 <template x-for="m in listaMeses" :key="'drb'+m.chave"><td class="td-r font-bold" :class="!drMesLancado(m.chave)?'res-future':(drResMes(m.chave)<0?'text-red-strong':'text-accent-blue')" x-text="drMesLancado(m.chave)?formatarDinheiroExato(drResMes(m.chave)):'—'"></td></template>
                 <td class="td-r font-bold" :class="drAcumuladoBase<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drAcumuladoBase)"></td>
               </tr>
-              <template x-for="c in chavesDR.filter(x=>x.tipo==='socio')" :key="'drrow'+c.id">
+              <template x-for="c in chavesDR" :key="'drrow'+c.id">
                 <tr>
-                  <td class="font-bold"><span style="display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px" :style="'background:'+c.cor"></span><span x-text="c.nome"></span></td>
-                  <td class="td-r font-bold" style="color:var(--color-muted)" x-text="fmtNum(c.percentual)+'%'"></td>
+                  <td class="font-bold">
+                    <span style="display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px" :style="'background:'+c.cor"></span>
+                    <input type="text" x-model="c.nome" @change="recalcularTudo(); registrarLog('Renomeou carteira')" title="Clique para renomear"
+                           class="bg-transparent border-b border-dashed border-transparent hover:border-gray-300 focus:border-accent-gold outline-none font-bold" style="width:150px;color:inherit">
+                    <span x-show="c.tipo==='investimento'" class="res-nota" style="margin-left:4px">investimento</span>
+                  </td>
+                  <td class="td-r font-bold">
+                    <span style="display:inline-flex;align-items:center;justify-content:flex-end;gap:2px">
+                      <input type="text" inputmode="decimal" :value="fmtNum(c.percentual)" @focus="$event.target.select()"
+                             @change="setNum(c,'percentual',$event.target.value,'Alterou % de distribuição da carteira ' + c.nome)"
+                             title="Percentual do Resultado Operacional que vai para esta carteira"
+                             class="input-manual bg-transparent border-b border-dashed border-gray-400 focus:border-accent-gold outline-none text-right font-bold px-1" style="width:52px;color:var(--accent-blue)">
+                      <span style="color:var(--color-muted)">%</span>
+                    </span>
+                  </td>
                   <template x-for="m in listaMeses" :key="'drc'+c.id+m.chave"><td class="td-r" :class="!drMesLancado(m.chave)?'res-future':(drResMes(m.chave)*c.percentual<0?'text-red-strong':'')" x-text="drMesLancado(m.chave)?formatarDinheiroExato(drResMes(m.chave)*c.percentual/100):'—'"></td></template>
                   <td class="td-r font-bold" :class="drAcumuladoBase*c.percentual<0?'text-red-strong':'text-accent-blue'" x-text="formatarDinheiroExato(drAcumuladoBase*c.percentual/100)"></td>
                 </tr>
@@ -4152,7 +4165,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.14';
+const NEXUS_BUILD = '2407.15';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).

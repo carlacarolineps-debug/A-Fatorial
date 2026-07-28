@@ -55,11 +55,13 @@ reescrever('EMB_CC_MESES', () => ({}));
 reescrever('EMB_CC_MESES_TOTAL', () => ({}));
 reescrever('EMB_FATORES_MT', () => ({}));
 reescrever('EMB_DIF_KG', () => ({}));
-// Histórico de anos fechados: não entra por planilha, então vai vazio (a tela avisa)
-reescrever('HISTORICO_DRE_COMPLETO', () => []);
-reescrever('TENDENCIA_YOY', () => []);
-reescrever('EMB_HISTORICO', () => []);
-reescrever('EMB_TENDENCIA', () => []);
+// Histórico dos anos JÁ FECHADOS (2017-2025) fica: é referência que não entra por planilha.
+// Só o ano corrente sai, porque ele se monta ao vivo com o que o cliente for subindo.
+const ANO_CORRENTE = 2026;
+reescrever('HISTORICO_DRE_COMPLETO', arr => (arr || []).map(l => { delete l[ANO_CORRENTE]; delete l[String(ANO_CORRENTE)]; return l; }));
+reescrever('TENDENCIA_YOY', arr => (arr || []).filter(x => Number(x.ano) !== ANO_CORRENTE));
+reescrever('EMB_HISTORICO', arr => (arr || []).map(l => { delete l[ANO_CORRENTE]; delete l[String(ANO_CORRENTE)]; return l; }));
+reescrever('EMB_TENDENCIA', arr => (arr || []).filter(x => Number(x.ano) !== ANO_CORRENTE));
 // Fechamento oficial de estoque e saldo de abertura são números da Rebracil
 reescrever('NEXUS_EST_OFICIAL_REQ', () => ({}));
 
@@ -74,25 +76,10 @@ if (!/1037371\.61/.test(html)) erros.push('não achei o estoqueBase da Requalifi
 html = html.split('1037371.61').join('0');
 
 // --- números fixos no HTML (não vinham de constante) ---
+// Os KPIs e as leituras da tela de Comparativo Histórico falam dos anos fechados (2023/2025),
+// que continuam no sistema — então ficam como estão. Aqui só saem textos que citam 2026.
 const trocasTexto = [
-  // KPIs da tela Comparativo Histórico (o rótulo citava 2025, ano que não existe mais aqui)
-  ['<div class="kpi-label">Despesa Total (2025)</div>', '<div class="kpi-label">Despesa Total (último ano)</div>'],
-  ['<div class="kpi-val text-red-strong">R$ 11.080.235,50</div><div class="kpi-sub">Custo consolidado do último ano</div>',
-   '<div class="kpi-val" style="color:var(--color-dim)">—</div><div class="kpi-sub">Sem anos fechados carregados</div>'],
-  ['<div class="kpi-val text-green-strong">R$ 17.370.593,39</div><div class="kpi-sub">Alcançado no exercício de 2023</div>',
-   '<div class="kpi-val" style="color:var(--color-dim)">—</div><div class="kpi-sub">Sem anos fechados carregados</div>'],
-  ['<div class="kpi-val text-green-strong">R$ 864.181,69</div><div class="kpi-sub">Resultado do negócio em 2025 (Sem T.F.)</div>',
-   '<div class="kpi-val" style="color:var(--color-dim)">—</div><div class="kpi-sub">Sem anos fechados carregados</div>'],
-  ['<div class="kpi-val text-red-strong">- R$ 568.412,31</div><div class="kpi-sub">Resultado Real após impacto financeiro (2025)</div>',
-   '<div class="kpi-val" style="color:var(--color-dim)">—</div><div class="kpi-sub">Sem anos fechados carregados</div>'],
-  // Leituras narrativas que citavam números de 2023/2025
-  ['No melhor cenário, o Resultado Real maquia o faturamento. No pior cenário, dependendo só da operação, a empresa apontou prejuízo de -R$ 568K em 2025.',
-   'Esta leitura compara o resultado da operação com o resultado após o impacto financeiro. Ela se escreve sozinha quando os anos fechados forem carregados.'],
-  ['O Faturamento despencou (de R$ 17,3M em 2023 para R$ 11,9M em 2025). Mas as Despesas travaram acima dos R$ 11 milhões.',
-   'Esta leitura compara a evolução do faturamento com a das despesas ano a ano. Ela se escreve sozinha quando os anos fechados forem carregados.'],
-  ['A média de despesa mensal está na casa de R$ 1,5M. O faturamento precisa obrigatoriamente superar essa linha de corte logo na primeira quinzena para garantir caixa livre.',
-   'A média de despesa mensal define a linha de corte que o faturamento precisa superar para garantir caixa livre. Ela aparece aqui assim que os meses forem carregados.'],
-  // Nota da tela de Serviços com os totais de jan/fev
+  // Nota da tela de Serviços com os totais de jan/fev de 2026
   ['Janeiro fecha em <b>R$ 67.342,57</b> e fevereiro em <b>R$ 68.831,82</b>, os mesmos totais das abas R.Serviços da planilha. O <b>Acordo Trabalhista</b> de R$ 25.000,00 por mês é o maior peso da unidade.',
    'Esta tela recebe as contas da unidade de serviços (abas R.Serviços da planilha), mês a mês e editável.'],
 ];
