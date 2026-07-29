@@ -594,6 +594,8 @@
     .ac-croqui { flex:1; display:flex; align-items:center; justify-content:center; padding:4px; min-height:320px; overflow:hidden; }
     .ac-croqui svg { width:100%; height:auto; max-height:400px; }
     .ac-croqui > span { font-size:11px; color:#94a3b8; text-align:center; padding:16px; }
+    .ft-tab .ft-k { background:#f8fafc; font-weight:700; color:#334155; text-align:left; padding-left:8px; }
+    .ft-tab .ft-u { background:#f8fafc; font-size:10px; color:#64748b; text-align:center; font-weight:600; }
     .ac-carac { width:100%; border-collapse:collapse; }
     .ac-carac th { background:#f1f5f9; border:1px solid #cbd5e1; font-size:10px; font-weight:800; color:#334155; text-align:right; padding:4px 7px; width:42%; text-transform:none; letter-spacing:0; }
     .ac-carac td { border:1px solid #cbd5e1; padding:0; }
@@ -1908,6 +1910,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="section-title" style="background:#191040;">2 · FLUXO DE PROCESSOS — MARQUE AS ETAPAS INCLUSAS <span style="float:right; font-weight:400; font-size:9px; opacity:.8;">barra fixa — acompanha a rolagem</span></div>
                 <div class="g-col g-col-12" style="padding-bottom:8px;">
                     <div class="chips-fluxo" id="fu-fluxo">
+                        <label class="chip-et"><input type="checkbox" value="ftmp" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Ficha Técnica de MP</span></label>
                         <label class="chip-et"><input type="checkbox" value="cliche" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Solicitação de Clichê</span></label>
                         <label class="chip-et"><input type="checkbox" value="impressao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Impressão</span></label>
                         <label class="chip-et"><input type="checkbox" value="laminacao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Laminação</span></label>
@@ -1918,6 +1921,41 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     </div>
                     <p style="font-size:11px; color:#94a3b8; margin-top:6px; margin-bottom:0;">Marque a caixinha para incluir/excluir a etapa. <b>Clique no nome</b> para pular direto para a seção de preenchimento.</p>
                 </div>
+            </div>
+
+            <!-- SEÇÃO: FICHA TÉCNICA DE MATÉRIA PRIMA (FT — insumo que entra antes do clichê) -->
+            <div class="grid-form fu-sec" id="fu-sec-ftmp">
+                <div class="section-title" style="background:#475569;">ETAPA · FICHA TÉCNICA DE MATÉRIA PRIMA <span class="fu-cod-et" id="fu-cod-ftmp"></span></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#eef2f7;"><span class="lbl" style="color:#475569;">IDENTIFICAÇÃO DA MATÉRIA PRIMA</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Código MP</span><input class="inp" id="fu_ft_codigo" list="dl_mp" placeholder="Ex.: VCM-7394BPE" onchange="fuFtMPChange()"></div>
+                <div class="g-col g-col-6"><span class="lbl">Descrição do Material</span><input class="inp" id="fu_ft_descricao" placeholder="Ex.: Bobina PEBD Folha Transparente Refilada 520,00 x 0,040 mm"></div>
+                <div class="g-col g-col-3"><span class="lbl">Revisão</span><input class="inp" id="fu_ft_revisao" value="01"></div>
+                <div class="g-col g-col-6"><span class="lbl">Aplicação</span><input class="inp" id="fu_ft_aplicacao" value="Embalagens flexíveis com impressão e sem impressão"></div>
+                <div class="g-col g-col-3"><span class="lbl">Tipo de Bobina</span><input class="inp" id="fu_ft_tipo_bobina" value="Folha Refilada" list="dl_ft_bobina"><datalist id="dl_ft_bobina"><option value="Folha Refilada"></option><option value="Folha Tubular"></option><option value="Sanfonada"></option><option value="Laminada"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Tipo de Composto</span><input class="inp" id="fu_ft_composto" value="COMPOSTO E" list="dl_ft_composto"><datalist id="dl_ft_composto"><option value="COMPOSTO A"></option><option value="COMPOSTO B"></option><option value="COMPOSTO C"></option><option value="COMPOSTO D"></option><option value="COMPOSTO E"></option></datalist></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#eef2f7;"><span class="lbl" style="color:#475569;">CARACTERÍSTICAS — NOMINAL, MÍNIMO E MÁXIMO</span></div>
+                <div class="g-col g-col-12" style="background:transparent; padding:0;">
+                    <table class="inner-table ft-tab">
+                        <tr><th class="grp-th">CARACTERÍSTICA</th><th class="grp-th">NOMINAL</th><th class="grp-th">MÍNIMO</th><th class="grp-th">MÁXIMO</th><th class="grp-th">UNIDADE</th></tr>
+                        <tr><td class="ft-k">Largura</td><td><input id="fu_ft_larg_nom" data-l="Largura Nominal" placeholder="520,00"></td><td><input id="fu_ft_larg_min" data-l="Largura Mínima" placeholder="520,00"></td><td><input id="fu_ft_larg_max" data-l="Largura Máxima" placeholder="525,00"></td><td class="ft-u">mm</td></tr>
+                        <tr><td class="ft-k">Espessura</td><td><input id="fu_ft_esp_nom" data-l="Espessura Nominal" placeholder="40,0"></td><td><input id="fu_ft_esp_min" data-l="Espessura Mínima" placeholder="38"></td><td><input id="fu_ft_esp_max" data-l="Espessura Máxima" placeholder="42"></td><td class="ft-u">micra</td></tr>
+                        <tr><td class="ft-k">Tratamento (Dynas)</td><td><input id="fu_ft_dynas_nom" data-l="Dynas" placeholder="38"></td><td><input id="fu_ft_dynas_min" data-l="Dynas (Mínimo)" placeholder="38"></td><td><input id="fu_ft_dynas_max" data-l="Dynas (Máximo)" placeholder="—"></td><td class="ft-u">dynas</td></tr>
+                    </table>
+                </div>
+                <div class="g-col g-col-4"><span class="lbl">Tratamento</span><input class="inp" id="fu_ft_tratamento" value="Somente um lado" list="dl_tratamento"></div>
+                <div class="g-col g-col-8"><span class="lbl">Formulação Base</span><input class="inp" id="fu_ft_formulacao" placeholder="Ex.: 40% EB 853 + 59% Linear c/ deslizante + 1% Antiestático"></div>
+                <div class="g-col g-col-12"><span class="lbl">Aspecto Visual</span><textarea class="inp" id="fu_ft_aspecto" rows="2" style="resize:vertical;" placeholder="Ex.: Isento de presença de caroços no decorrer da bobina, desalinhamento, amarelamento e planicidade comprometida."></textarea></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#eef2f7;"><span class="lbl" style="color:#475569;">CROQUI DO PRODUTO E OBSERVAÇÕES</span></div>
+                <div id="fu-ac-ftmp" style="display:contents;"></div>
+                <div class="g-col g-col-6"><span class="lbl">Observação</span><textarea class="inp" id="fu_ft_observacao" rows="2" style="resize:vertical;" placeholder="Ex.: Bobinas com diâmetro externo 600,00 ou 400,00 kg médio."></textarea></div>
+                <div class="g-col g-col-6"><span class="lbl">Outras Informações</span><textarea class="inp" id="fu_ft_outras" rows="2" style="resize:vertical;" placeholder="Ex.: Todos os materiais devem acompanhar nota fiscal/romaneio e certificado de conformidade. Identificar com etiqueta/banderola qualquer emenda ou problema na bobina."></textarea></div>
+                <div class="g-col g-col-4"><span class="lbl">Elaborado por</span><input class="inp" id="fu_ft_elaborado"></div>
+                <div class="g-col g-col-4"><span class="lbl">Data</span><input type="date" class="inp" id="fu_ft_data"></div>
+                <div class="g-col g-col-4"><span class="lbl">Fornecedor homologado</span><input class="inp" id="fu_ft_fornecedor" list="dl_fornecedores_ft" placeholder="Digite ou selecione"><datalist id="dl_fornecedores_ft"></datalist></div>
+                <div class="g-col g-col-12" style="background:#f1f5f9; border-top:1px solid #cbd5e1;"><span style="font-size:10.5px; color:#475569; font-weight:700; letter-spacing:.04em;">CÓPIA CONTROLADA — PROIBIDA A REPRODUÇÃO NÃO AUTORIZADA</span></div>
             </div>
 
             <!-- SEÇÃO: SOLICITAÇÃO DE CLICHÊ (quadrantes agrupados como a ficha original) -->
@@ -4565,6 +4603,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             if (dlmp) dlmp.innerHTML = RB.produtos
                 .filter(px => /mat[eé]ria|processo/i.test(px.tipo || ''))
                 .map(px => `<option value="${(px.codigo||'').replace(/"/g,'&quot;')}">${(px.descricao||'').slice(0,70).replace(/"/g,'&quot;')}</option>`).join('');
+            // Fornecedores homologados p/ a Ficha Técnica de MP
+            const dlf = document.getElementById('dl_fornecedores_ft');
+            if (dlf) dlf.innerHTML = RB.fornecedores.slice(0, 800).map(f => `<option value="${(f.razao||'').replace(/"/g,'&quot;')}"></option>`).join('');
             fuCliCroqui();
             fuCliArteRender();
             fuAutoCtrlInit();
@@ -6890,6 +6931,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     // FICHA ÚNICA — todas as etapas num documento só
     // ==========================================================================
     const FU_ETAPAS = [
+        { key: 'ftmp',          label: 'Ficha Técnica de MP',    setor: 'Qualidade' },
         { key: 'cliche',        label: 'Solicitação de Clichê',  setor: 'Pré-Impressão' },
         { key: 'impressao',     label: 'Impressão',              setor: 'Impressão' },
         { key: 'laminacao',     label: 'Laminação',              setor: 'Laminação' },
@@ -7241,6 +7283,14 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { l: 'Aspecto Visual', id: `fu_${p}_ac_aspecto`,   v: 'De acordo amostra padrão', ro: true }
     ];
     const AUTOCTRL_ETAPAS = [
+        { key: 'ftmp',          pref: 'ft',  cor: '#475569', bg: '#eef2f7', tit: 'CROQUI DO PRODUTO',            obj: 'BOBINA',    sentido: 'sentido de desbobinamento',   carac: [
+            { l: 'Largura',    id: 'fu_ft_ac_largura',    ph: 'Ex.: 520,00 +/- 5,00 mm' },
+            { l: 'Espessura',  id: 'fu_ft_ac_espessura',  ph: 'Ex.: 40,0 +/- 2 micra' },
+            { l: 'Tratamento', id: 'fu_ft_ac_tratamento', ph: 'Somente um lado', list: 'dl_tratamento' },
+            { l: 'Diâm. externo', id: 'fu_ft_ac_diametro', ph: 'Ex.: 600,00 mm' },
+            { l: 'Peso médio', id: 'fu_ft_ac_peso',       ph: 'Ex.: 400,00 kg' },
+            { l: 'Tubete',     id: 'fu_ft_ac_tubete',     ph: '3&quot; polegadas', list: 'dl_tubete' }
+        ] },
         { key: 'impressao',     pref: 'imp', cor: '#1d4ed8', bg: '#eaf0fb', tit: 'AUTO CONTROLE IMPRESSÃO',      obj: 'BOBINA',    sentido: 'sentido que será impresso',   carac: CARAC_BOBINA('imp') },
         { key: 'laminacao',     pref: 'lam', cor: '#7c3aed', bg: '#f3ecfd', tit: 'AUTO CONTROLE LAMINAÇÃO',      obj: 'BOBINA',    sentido: 'sentido de laminação',        carac: CARAC_BOBINA('lam') },
         { key: 'rebobinadeira', pref: 'reb', cor: '#0891b2', bg: '#e0f2fe', tit: 'AUTO CONTROLE REBOBINADEIRA',  obj: 'BOBINA',    sentido: 'sentido que será rebobinado', carac: CARAC_BOBINA('reb') },
@@ -7313,6 +7363,22 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         AUTOCTRL_ETAPAS.forEach(e => fuAutoCtrlSentido(e.key));
     }
     function fuAutoCtrlCfg(key) { return AUTOCTRL_ETAPAS.find(x => x.key === key); }
+    // Ficha Técnica de MP: ao informar o código, puxa a descrição e as medidas da base
+    function fuFtMPChange() {
+        const cod = (val('fu_ft_codigo') || '').trim();
+        if (!cod) return;
+        const p = RB.produtos.find(x => (x.codigo || '').toUpperCase() === cod.toUpperCase());
+        const set = (id, v) => { const el = document.getElementById(id); if (el && !el.value.trim() && v) el.value = v; };
+        if (p) {
+            set('fu_ft_descricao', p.descricao);
+            // extrai "520,00 x 0,040" da descrição, quando houver
+            const m = (p.descricao || '').match(/(\d+[.,]?\d*)\s*[xX]\s*(\d+[.,]?\d*)/);
+            if (m) { set('fu_ft_larg_nom', m[1]); set('fu_ft_esp_nom', String(parseFloat(m[2].replace(',', '.')) * 1000 || m[2]).replace('.', ',')); }
+        }
+        set('fu_ft_elaborado', currentSessionUser);
+        const d = document.getElementById('fu_ft_data'); if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+        fuAtualizarResumo();
+    }
     function fuAutoCtrlUpload(input, key) {
         const file = input.files && input.files[0]; if (!file) return;
         if (!/^image\//.test(file.type)) { alert('Selecione um arquivo de imagem.'); return; }
@@ -7753,7 +7819,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
 
     // Cores de cada etapa (mesmas das seções na tela) — controle visual na impressão
-    const FU_COR = { cliche: '#c9a227', impressao: '#1d4ed8', laminacao: '#7c3aed', rebobinadeira: '#0891b2', corte: '#0d9488', final: '#191040', expedicao: '#be123c' };
+    const FU_COR = { ftmp: '#475569', cliche: '#c9a227', impressao: '#1d4ed8', laminacao: '#7c3aed', rebobinadeira: '#0891b2', corte: '#0d9488', final: '#191040', expedicao: '#be123c' };
 
     // Lê a seção na MESMA ORDEM do layout de preenchimento, incluindo os subtítulos
     // de grupo (MP e bobina base, receita, estações/tintas…). Rótulo vem do .lbl da
