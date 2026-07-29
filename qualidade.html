@@ -1948,13 +1948,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-12" style="padding-bottom:8px;">
                     <div class="chips-fluxo" id="fu-fluxo">
                         <label class="chip-et"><input type="checkbox" value="solicitacao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Solicitação de Produto</span></label>
+                        <label class="chip-et" style="border-color:#c5a880;"><input type="checkbox" value="final" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Ficha Técnica de Especificação do Produto</span></label>
                         <label class="chip-et"><input type="checkbox" value="ftmp" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Ficha Técnica de MP</span></label>
                         <label class="chip-et"><input type="checkbox" value="cliche" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Solicitação de Clichê</span></label>
                         <label class="chip-et"><input type="checkbox" value="impressao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Impressão</span></label>
                         <label class="chip-et"><input type="checkbox" value="laminacao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Laminação</span></label>
                         <label class="chip-et"><input type="checkbox" value="rebobinadeira" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Rebobinadeira</span></label>
                         <label class="chip-et"><input type="checkbox" value="corte" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Corte &amp; Solda</span></label>
-                        <label class="chip-et" style="border-color:#c5a880;"><input type="checkbox" value="final" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Especificação Final ★</span></label>
                         <label class="chip-et"><input type="checkbox" value="expedicao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Expedição</span></label>
                     </div>
                     <p style="font-size:11px; color:#94a3b8; margin-top:6px; margin-bottom:0;">Marque a caixinha para incluir/excluir a etapa. <b>Clique no nome</b> para pular direto para a seção de preenchimento.</p>
@@ -2101,6 +2101,39 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Necessita amostra piloto?</span><select class="inp" id="fu_sol_piloto"><option>Sim</option><option>Não</option></select></div>
                 <div class="g-col g-col-12"><span class="lbl">Parecer técnico / o que falta definir</span><textarea class="inp" id="fu_sol_parecer" rows="2" style="resize:vertical;" placeholder="Estrutura sugerida, restrições de máquina, testes necessários, pendências com o cliente…"></textarea></div>
                 <div class="g-col g-col-12" style="background:#ecfdf5; border-top:1px solid #a7f3d0;"><span style="font-size:11px; color:#065f46; font-weight:600;">✓ Ao aprovar esta solicitação, os dados alimentam automaticamente a <b>Ficha Técnica de MP</b> e a <b>Solicitação de Clichê</b> — sem redigitar.</span></div>
+            </div>
+
+            <!-- SEÇÃO: FICHA TÉCNICA DE ESPECIFICAÇÃO DO PRODUTO (etapa 2 — define o produto) -->
+            <div class="grid-form fu-sec" id="fu-sec-final">
+                <div class="section-title" style="background:#191040;">ETAPA · FICHA TÉCNICA DE ESPECIFICAÇÃO DO PRODUTO <span class="fu-cod-et" id="fu-cod-final"></span></div>
+                <div class="g-col g-col-3"><span class="lbl">Modelo do produto</span><select class="inp" id="fu_fin_modelo" onchange="fuFinModelo()"><option value=""></option><option>Corte e Solda</option><option>Rebobinadeira</option><option>Narita</option></select></div>
+                <div class="g-col g-col-2"><span class="lbl">Revisão</span><input class="inp" id="fu_fin_revisao" value="00"></div>
+                <div class="g-col g-col-2"><span class="lbl">Data Elaboração</span><input class="inp" id="fu_fin_dt_elab" placeholder="dd/mm/aaaa"></div>
+                <div class="g-col g-col-5"><span class="lbl">Elaborado — C. Qualidade</span><input class="inp" id="fu_fin_elaborado" placeholder="Preenche ao ativar a etapa"></div>
+
+                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#191040;">PLANO DE INSPEÇÃO — escolha o modelo do produto para pré-carregar as características e tolerâncias</span></div>
+                <div class="g-col g-col-12">
+                    <table class="inner-table" style="margin:0; border:none;">
+                        <tr><th style="width:26px;">Nº</th><th>CARACTERÍSTICA</th><th style="width:60px;">UN.</th><th style="width:70px;">MÍN.</th><th style="width:70px;">NOM.</th><th style="width:70px;">MÁX.</th><th>MEIOS DE CONTROLE</th><th>FREQUÊNCIA</th></tr>
+                        <tr><td>1</td><td><input id="fu_fin_pi1_car" data-l="Item 1 · Característica"></td><td><input id="fu_fin_pi1_un" data-l="Item 1 · Unidade"></td><td><input id="fu_fin_pi1_min" data-l="Item 1 · Mín."></td><td><input id="fu_fin_pi1_nom" data-l="Item 1 · Nominal"></td><td><input id="fu_fin_pi1_max" data-l="Item 1 · Máx."></td><td><input id="fu_fin_pi1_ctl" data-l="Item 1 · Controle"></td><td><input id="fu_fin_pi1_frq" data-l="Item 1 · Frequência"></td></tr>
+                        <tr><td>2</td><td><input id="fu_fin_pi2_car" data-l="Item 2 · Característica"></td><td><input id="fu_fin_pi2_un" data-l="Item 2 · Unidade"></td><td><input id="fu_fin_pi2_min" data-l="Item 2 · Mín."></td><td><input id="fu_fin_pi2_nom" data-l="Item 2 · Nominal"></td><td><input id="fu_fin_pi2_max" data-l="Item 2 · Máx."></td><td><input id="fu_fin_pi2_ctl" data-l="Item 2 · Controle"></td><td><input id="fu_fin_pi2_frq" data-l="Item 2 · Frequência"></td></tr>
+                        <tr><td>3</td><td><input id="fu_fin_pi3_car" data-l="Item 3 · Característica"></td><td><input id="fu_fin_pi3_un" data-l="Item 3 · Unidade"></td><td><input id="fu_fin_pi3_min" data-l="Item 3 · Mín."></td><td><input id="fu_fin_pi3_nom" data-l="Item 3 · Nominal"></td><td><input id="fu_fin_pi3_max" data-l="Item 3 · Máx."></td><td><input id="fu_fin_pi3_ctl" data-l="Item 3 · Controle"></td><td><input id="fu_fin_pi3_frq" data-l="Item 3 · Frequência"></td></tr>
+                        <tr><td>4</td><td><input id="fu_fin_pi4_car" data-l="Item 4 · Característica"></td><td><input id="fu_fin_pi4_un" data-l="Item 4 · Unidade"></td><td><input id="fu_fin_pi4_min" data-l="Item 4 · Mín."></td><td><input id="fu_fin_pi4_nom" data-l="Item 4 · Nominal"></td><td><input id="fu_fin_pi4_max" data-l="Item 4 · Máx."></td><td><input id="fu_fin_pi4_ctl" data-l="Item 4 · Controle"></td><td><input id="fu_fin_pi4_frq" data-l="Item 4 · Frequência"></td></tr>
+                        <tr><td>5</td><td><input id="fu_fin_pi5_car" data-l="Item 5 · Característica"></td><td><input id="fu_fin_pi5_un" data-l="Item 5 · Unidade"></td><td><input id="fu_fin_pi5_min" data-l="Item 5 · Mín."></td><td><input id="fu_fin_pi5_nom" data-l="Item 5 · Nominal"></td><td><input id="fu_fin_pi5_max" data-l="Item 5 · Máx."></td><td><input id="fu_fin_pi5_ctl" data-l="Item 5 · Controle"></td><td><input id="fu_fin_pi5_frq" data-l="Item 5 · Frequência"></td></tr>
+                        <tr><td>6</td><td><input id="fu_fin_pi6_car" data-l="Item 6 · Característica"></td><td><input id="fu_fin_pi6_un" data-l="Item 6 · Unidade"></td><td><input id="fu_fin_pi6_min" data-l="Item 6 · Mín."></td><td><input id="fu_fin_pi6_nom" data-l="Item 6 · Nominal"></td><td><input id="fu_fin_pi6_max" data-l="Item 6 · Máx."></td><td><input id="fu_fin_pi6_ctl" data-l="Item 6 · Controle"></td><td><input id="fu_fin_pi6_frq" data-l="Item 6 · Frequência"></td></tr>
+                        <tr><td>7</td><td><input id="fu_fin_pi7_car" data-l="Item 7 · Característica"></td><td><input id="fu_fin_pi7_un" data-l="Item 7 · Unidade"></td><td><input id="fu_fin_pi7_min" data-l="Item 7 · Mín."></td><td><input id="fu_fin_pi7_nom" data-l="Item 7 · Nominal"></td><td><input id="fu_fin_pi7_max" data-l="Item 7 · Máx."></td><td><input id="fu_fin_pi7_ctl" data-l="Item 7 · Controle"></td><td><input id="fu_fin_pi7_frq" data-l="Item 7 · Frequência"></td></tr>
+                        <tr><td>8</td><td><input id="fu_fin_pi8_car" data-l="Item 8 · Característica"></td><td><input id="fu_fin_pi8_un" data-l="Item 8 · Unidade"></td><td><input id="fu_fin_pi8_min" data-l="Item 8 · Mín."></td><td><input id="fu_fin_pi8_nom" data-l="Item 8 · Nominal"></td><td><input id="fu_fin_pi8_max" data-l="Item 8 · Máx."></td><td><input id="fu_fin_pi8_ctl" data-l="Item 8 · Controle"></td><td><input id="fu_fin_pi8_frq" data-l="Item 8 · Frequência"></td></tr>
+                    </table>
+                    <p style="font-size:10px; color:#94a3b8; margin:6px 0 0;">* Características críticas — devem ser verificadas a cada tirada.</p>
+                </div>
+
+                <div class="g-col g-col-12"><span class="lbl">Modo de Embalamento e Paletização Padrão</span><textarea class="inp" id="fu_fin_embalamento" rows="3" style="resize:vertical;" placeholder="Ex.: Embalar 500 peças no filme plástico para formar um pacote. Etiquetar e paletizar em pallet PBR 1000x1200 mm. Cada nível deve conter 11 pacotes, máximo 14 níveis…"></textarea></div>
+
+                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#191040;">FECHAMENTO DA PRODUÇÃO (preencher ao finalizar o produto)</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Data Produção</span><input class="inp" id="fu_fin_dt_prod" placeholder="dd/mm/aaaa"></div>
+                <div class="g-col g-col-5"><span class="lbl">Produzido Por</span><input class="inp" id="fu_fin_produzido"></div>
+                <div class="g-col g-col-4"><span class="lbl">Nº OP</span><input class="inp" id="fu_fin_op"></div>
+                <div id="fu-ac-final" style="display:contents;"></div>
             </div>
 
             <!-- SEÇÃO: FICHA TÉCNICA DE MATÉRIA PRIMA (FT — insumo que entra antes do clichê) -->
@@ -2391,39 +2424,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-12" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Para a execução da produção, a amostra retirada deve ser aprovada pelo Controle de Qualidade. Na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b>.</span></div>
                 <div id="fu-ac-corte" style="display:contents;"></div>
                 <div id="fu-cep-host-cor" style="display:contents;"></div>
-            </div>
-
-            <!-- SEÇÃO: ESPECIFICAÇÃO FINAL DE PRODUTO ACABADO (etapa final da Qualidade) -->
-            <div class="grid-form fu-sec" id="fu-sec-final">
-                <div class="section-title" style="background:#191040;">ETAPA FINAL · ESPECIFICAÇÃO DE PRODUTO ACABADO <span class="fu-cod-et" id="fu-cod-final"></span></div>
-                <div class="g-col g-col-3"><span class="lbl">Modelo da Etapa Final</span><select class="inp" id="fu_fin_modelo" onchange="fuFinModelo()"><option value=""></option><option>Corte e Solda</option><option>Rebobinadeira</option><option>Narita</option></select></div>
-                <div class="g-col g-col-2"><span class="lbl">Revisão</span><input class="inp" id="fu_fin_revisao" value="00"></div>
-                <div class="g-col g-col-2"><span class="lbl">Data Elaboração</span><input class="inp" id="fu_fin_dt_elab" placeholder="dd/mm/aaaa"></div>
-                <div class="g-col g-col-5"><span class="lbl">Elaborado — C. Qualidade</span><input class="inp" id="fu_fin_elaborado" placeholder="Preenche ao ativar a etapa"></div>
-
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#191040;">PLANO DE INSPEÇÃO — escolha o modelo acima para pré-carregar (puxa medidas já preenchidas nas etapas)</span></div>
-                <div class="g-col g-col-12">
-                    <table class="inner-table" style="margin:0; border:none;">
-                        <tr><th style="width:26px;">Nº</th><th>CARACTERÍSTICA</th><th style="width:60px;">UN.</th><th style="width:70px;">MÍN.</th><th style="width:70px;">NOM.</th><th style="width:70px;">MÁX.</th><th>MEIOS DE CONTROLE</th><th>FREQUÊNCIA</th></tr>
-                        <tr><td>1</td><td><input id="fu_fin_pi1_car" data-l="Item 1 · Característica"></td><td><input id="fu_fin_pi1_un" data-l="Item 1 · Unidade"></td><td><input id="fu_fin_pi1_min" data-l="Item 1 · Mín."></td><td><input id="fu_fin_pi1_nom" data-l="Item 1 · Nominal"></td><td><input id="fu_fin_pi1_max" data-l="Item 1 · Máx."></td><td><input id="fu_fin_pi1_ctl" data-l="Item 1 · Controle"></td><td><input id="fu_fin_pi1_frq" data-l="Item 1 · Frequência"></td></tr>
-                        <tr><td>2</td><td><input id="fu_fin_pi2_car" data-l="Item 2 · Característica"></td><td><input id="fu_fin_pi2_un" data-l="Item 2 · Unidade"></td><td><input id="fu_fin_pi2_min" data-l="Item 2 · Mín."></td><td><input id="fu_fin_pi2_nom" data-l="Item 2 · Nominal"></td><td><input id="fu_fin_pi2_max" data-l="Item 2 · Máx."></td><td><input id="fu_fin_pi2_ctl" data-l="Item 2 · Controle"></td><td><input id="fu_fin_pi2_frq" data-l="Item 2 · Frequência"></td></tr>
-                        <tr><td>3</td><td><input id="fu_fin_pi3_car" data-l="Item 3 · Característica"></td><td><input id="fu_fin_pi3_un" data-l="Item 3 · Unidade"></td><td><input id="fu_fin_pi3_min" data-l="Item 3 · Mín."></td><td><input id="fu_fin_pi3_nom" data-l="Item 3 · Nominal"></td><td><input id="fu_fin_pi3_max" data-l="Item 3 · Máx."></td><td><input id="fu_fin_pi3_ctl" data-l="Item 3 · Controle"></td><td><input id="fu_fin_pi3_frq" data-l="Item 3 · Frequência"></td></tr>
-                        <tr><td>4</td><td><input id="fu_fin_pi4_car" data-l="Item 4 · Característica"></td><td><input id="fu_fin_pi4_un" data-l="Item 4 · Unidade"></td><td><input id="fu_fin_pi4_min" data-l="Item 4 · Mín."></td><td><input id="fu_fin_pi4_nom" data-l="Item 4 · Nominal"></td><td><input id="fu_fin_pi4_max" data-l="Item 4 · Máx."></td><td><input id="fu_fin_pi4_ctl" data-l="Item 4 · Controle"></td><td><input id="fu_fin_pi4_frq" data-l="Item 4 · Frequência"></td></tr>
-                        <tr><td>5</td><td><input id="fu_fin_pi5_car" data-l="Item 5 · Característica"></td><td><input id="fu_fin_pi5_un" data-l="Item 5 · Unidade"></td><td><input id="fu_fin_pi5_min" data-l="Item 5 · Mín."></td><td><input id="fu_fin_pi5_nom" data-l="Item 5 · Nominal"></td><td><input id="fu_fin_pi5_max" data-l="Item 5 · Máx."></td><td><input id="fu_fin_pi5_ctl" data-l="Item 5 · Controle"></td><td><input id="fu_fin_pi5_frq" data-l="Item 5 · Frequência"></td></tr>
-                        <tr><td>6</td><td><input id="fu_fin_pi6_car" data-l="Item 6 · Característica"></td><td><input id="fu_fin_pi6_un" data-l="Item 6 · Unidade"></td><td><input id="fu_fin_pi6_min" data-l="Item 6 · Mín."></td><td><input id="fu_fin_pi6_nom" data-l="Item 6 · Nominal"></td><td><input id="fu_fin_pi6_max" data-l="Item 6 · Máx."></td><td><input id="fu_fin_pi6_ctl" data-l="Item 6 · Controle"></td><td><input id="fu_fin_pi6_frq" data-l="Item 6 · Frequência"></td></tr>
-                        <tr><td>7</td><td><input id="fu_fin_pi7_car" data-l="Item 7 · Característica"></td><td><input id="fu_fin_pi7_un" data-l="Item 7 · Unidade"></td><td><input id="fu_fin_pi7_min" data-l="Item 7 · Mín."></td><td><input id="fu_fin_pi7_nom" data-l="Item 7 · Nominal"></td><td><input id="fu_fin_pi7_max" data-l="Item 7 · Máx."></td><td><input id="fu_fin_pi7_ctl" data-l="Item 7 · Controle"></td><td><input id="fu_fin_pi7_frq" data-l="Item 7 · Frequência"></td></tr>
-                        <tr><td>8</td><td><input id="fu_fin_pi8_car" data-l="Item 8 · Característica"></td><td><input id="fu_fin_pi8_un" data-l="Item 8 · Unidade"></td><td><input id="fu_fin_pi8_min" data-l="Item 8 · Mín."></td><td><input id="fu_fin_pi8_nom" data-l="Item 8 · Nominal"></td><td><input id="fu_fin_pi8_max" data-l="Item 8 · Máx."></td><td><input id="fu_fin_pi8_ctl" data-l="Item 8 · Controle"></td><td><input id="fu_fin_pi8_frq" data-l="Item 8 · Frequência"></td></tr>
-                    </table>
-                    <p style="font-size:10px; color:#94a3b8; margin:6px 0 0;">* Características críticas — devem ser verificadas a cada tirada.</p>
-                </div>
-
-                <div class="g-col g-col-12"><span class="lbl">Modo de Embalamento e Paletização Padrão</span><textarea class="inp" id="fu_fin_embalamento" rows="3" style="resize:vertical;" placeholder="Ex.: Embalar 500 peças no filme plástico para formar um pacote. Etiquetar e paletizar em pallet PBR 1000x1200 mm. Cada nível deve conter 11 pacotes, máximo 14 níveis…"></textarea></div>
-
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#191040;">FECHAMENTO DA PRODUÇÃO (preencher ao finalizar o produto)</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Data Produção</span><input class="inp" id="fu_fin_dt_prod" placeholder="dd/mm/aaaa"></div>
-                <div class="g-col g-col-5"><span class="lbl">Produzido Por</span><input class="inp" id="fu_fin_produzido"></div>
-                <div class="g-col g-col-4"><span class="lbl">Nº OP</span><input class="inp" id="fu_fin_op"></div>
-                <div id="fu-ac-final" style="display:contents;"></div>
             </div>
 
             <!-- SEÇÃO: EXPEDIÇÃO / ACONDICIONAMENTO (todos os campos da ficha individual) -->
@@ -7128,13 +7128,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     // ==========================================================================
     const FU_ETAPAS = [
         { key: 'solicitacao',   label: 'Solicitação de Produto', setor: 'Comercial' },
+        { key: 'final',         label: 'Ficha Técnica de Especificação do Produto', setor: 'Qualidade' },
         { key: 'ftmp',          label: 'Ficha Técnica de MP',    setor: 'Qualidade' },
         { key: 'cliche',        label: 'Solicitação de Clichê',  setor: 'Pré-Impressão' },
         { key: 'impressao',     label: 'Impressão',              setor: 'Impressão' },
         { key: 'laminacao',     label: 'Laminação',              setor: 'Laminação' },
         { key: 'rebobinadeira', label: 'Rebobinadeira',          setor: 'Rebobinadeira' },
         { key: 'corte',         label: 'Corte & Solda',          setor: 'Corte e Solda' },
-        { key: 'final',         label: 'Especificação Final',    setor: 'Qualidade' },
         { key: 'expedicao',     label: 'Expedição',              setor: 'Expedição' }
     ];
 
@@ -7169,8 +7169,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         return FU_ETAPAS.filter(e => marcadas.includes(e.key)); // sempre na ordem do POP
     }
 
-    // ---- Especificação Final de Produto Acabado ----
-    // Modelos por etapa final (dos formulários oficiais VCM/VBM/VEM). Puxam as
+    // ---- Ficha Técnica de Especificação do Produto (etapa 2) ----
+    // Modelos por tipo de produto (dos formulários oficiais VCM/VBM/VEM). Puxam as
     // medidas já preenchidas nas etapas — nada é digitado duas vezes.
     const FIN_MODELOS = {
         'Corte e Solda': ctx => [
@@ -7243,7 +7243,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             fuAutoCtrlInit();
             fuCepRestaurar();
         }
-        // Ao ativar a Especificação Final: preenche o que o sistema já sabe
+        // Ao ativar a Ficha Técnica de Especificação do Produto: preenche o que o sistema já sabe
         if (cb.value === 'final' && cb.checked) {
             const set = (id, v) => { const el = document.getElementById(id); if (el && !el.value.trim()) el.value = v; };
             set('fu_fin_dt_elab', new Date().toLocaleDateString('pt-BR'));
@@ -7603,7 +7603,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { key: 'laminacao',     pref: 'lam', cor: '#7c3aed', bg: '#f3ecfd', tit: 'AUTO CONTROLE LAMINAÇÃO',      obj: 'BOBINA',    sentido: 'sentido de laminação',        carac: CARAC_BOBINA('lam') },
         { key: 'rebobinadeira', pref: 'reb', cor: '#0891b2', bg: '#e0f2fe', tit: 'AUTO CONTROLE REBOBINADEIRA',  obj: 'BOBINA',    sentido: 'sentido que será rebobinado', carac: CARAC_BOBINA('reb') },
         { key: 'corte',         pref: 'cor', cor: '#0d9488', bg: '#e6f4f2', tit: 'AUTO CONTROLE CORTE & SOLDA',  obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento',   carac: CARAC_EMBAL('cor') },
-        { key: 'final',         pref: 'fin', cor: '#b45309', bg: '#fef3c7', tit: 'AUTO CONTROLE PRODUTO ACABADO', obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento',  carac: CARAC_EMBAL('fin') }
+        { key: 'final',         pref: 'fin', cor: '#b45309', bg: '#fef3c7', tit: 'ESPECIFICAÇÃO DO PRODUTO', obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento',  carac: CARAC_EMBAL('fin') }
     ];
     // Layout fiel à ficha oficial: UM quadro "IMAGEM DA ARTE" (medidas + desenho juntos)
     // e, ao lado, o SENTIDO DE DESBOBINAMENTO mostrando SOMENTE a opção escolhida, em tamanho grande.
