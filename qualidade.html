@@ -1234,8 +1234,7 @@
       <!-- MENU DO DEPARTAMENTO QUALIDADE -->
       <div id="navd-qualidade" class="navd">
         <div class="nav-section">Operação</div>
-        <button class="sys-nav-btn active" onclick="nav('comando')" id="nav-comando"><span class="nav-icon"><i class="fas fa-bolt"></i></span> Central de Comando</button>
-        <button class="sys-nav-btn" onclick="nav('dash')" id="nav-dash"><span class="nav-icon"><i class="fas fa-gauge-high"></i></span> Dashboard Geral</button>
+        <button class="sys-nav-btn active" onclick="nav('dash')" id="nav-dash"><span class="nav-icon"><i class="fas fa-gauge-high"></i></span> Dashboard Geral</button>
 
         <div class="sidebar-menu-item">
             <button class="sys-nav-btn" id="nav-form" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-file-lines"></i></span> Ficha de Parâmetro <span class="nav-caret">▸</span></button>
@@ -1256,7 +1255,6 @@
         </div>
 
         <button class="sys-nav-btn" onclick="nav('inspecao')" id="nav-inspecao"><span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Inspeção &amp; Liberação de Setup</button>
-        <button class="sys-nav-btn" onclick="nav('checklist-diario')" id="nav-checklist-diario"><span class="nav-icon"><i class="fas fa-clipboard-list"></i></span> Checklist Diário</button>
         <button class="sys-nav-btn" onclick="nav('controle-nc')" id="nav-controle-nc"><span class="nav-icon"><i class="fas fa-triangle-exclamation"></i></span> Controle de NCs</button>
         <button class="sys-nav-btn" onclick="nav('placas')" id="nav-placas"><span class="nav-icon"><i class="fas fa-sign-hanging"></i></span> Placas de Identificação</button>
         <button class="sys-nav-btn" onclick="alert('Em construção')"><span class="nav-icon"><i class="fas fa-list-check"></i></span> Apontamentos</button>
@@ -1280,6 +1278,7 @@
         <div class="sidebar-menu-item">
             <button class="sys-nav-btn" id="nav-gestao" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Gestão <span class="nav-caret">▸</span></button>
             <div class="sidebar-submenu">
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('comando')" id="nav-comando"><i class="fas fa-bolt" style="width:16px;"></i> Central de Comando</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('relatorios')" id="nav-relatorios"><i class="fas fa-chart-line" style="width:16px;"></i> Relatórios</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('indicadores')" id="nav-indicadores"><i class="fas fa-chart-column" style="width:16px;"></i> Indicadores</button>
                 <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('auditoria')" id="nav-auditoria"><i class="fas fa-clock-rotate-left" style="width:16px;"></i> Auditoria / Rastreabilidade</button>
@@ -1428,25 +1427,6 @@
     <!-- ==========================================================================
          CHECKLIST DIÁRIO — rotina da Qualidade (pontualidade + rondas de inspeção)
          ========================================================================== -->
-    <div id="view-checklist-diario" class="sys-view">
-        <div class="card-base" style="margin-bottom:16px;">
-            <div class="cmd-panel-t"><i class="fas fa-clipboard-list" style="color:var(--gold-deep);"></i> Check List de Tarefas Diárias</div>
-            <div class="cmd-panel-sub">Rotina diária do setor: pontualidade e as rondas de inspeção de processos por máquina, nos horários definidos. Marque <b>Feito</b> e, se fora do horário, <b>Atraso</b>.</div>
-            <div class="insp-top" style="align-items:center;">
-                <div class="insp-field"><label>Dia</label><input type="date" id="chk-data" onchange="renderChecklistDiario()"></div>
-                <div class="insp-field"><label>Responsável</label><input id="chk-resp" placeholder="Nome"></div>
-                <div class="insp-field" style="flex:1; min-width:220px;"><label>Progresso do dia</label>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="bar-track" style="flex:1;"><div class="bar-fill" id="chk-bar" style="width:0%; background:var(--gold);"></div></div>
-                        <b id="chk-pct" style="font-size:13px; color:var(--navy);">0%</b>
-                    </div>
-                </div>
-                <div class="insp-field"><label>&nbsp;</label><button class="action-btn-sec" onclick="imprimirChecklist()"><i class="fas fa-print"></i> Imprimir</button></div>
-            </div>
-        </div>
-        <div id="chk-blocos"></div>
-    </div>
-
     <!-- ===== CONTROLE DE NÃO CONFORMIDADES (clientes · internas · fornecedores) ===== -->
     <div id="view-controle-nc" class="sys-view">
         <div id="cnc-hero"></div>
@@ -2815,113 +2795,116 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         <div class="ficha-wrapper nc-theme">
             <div class="ficha-header-pdf">
                 <div class="ficha-title">
-                    <h2>Relatório de Não Conformidade <span class="badge-setor" style="background:#e11d48;">RNC</span></h2>
+                    <h2>Ficha de Não Conformidade <span class="badge-setor" style="background:#f59e0b;">FORNECEDOR</span></h2>
                     <p>REBRACIL - EMBALAGENS FLEXÍVEIS</p>
                 </div>
-                <div style="text-align:right;">
-                    <span class="lbl" style="justify-content:flex-end;">Nº RNC</span>
-                    <input class="inp" id="f_nc_numero" style="font-weight:800; font-size:15px; text-align:right; width:120px;" placeholder="0097.26">
+                <div style="text-align: right;">
+                    <span style="font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;">Nº RNC</span><br>
+                    <input type="text" id="lbl-codigo-nc-ficha" value="02.26" style="font-size: 18px; font-weight: bold; color: #111827; text-align: right; border: 1px dashed #cbd5e1; border-radius: 4px; padding: 2px 8px; width: 150px; outline: none; background: #f8fafc;">
                 </div>
             </div>
 
             <div class="grid-form">
                 <div class="section-title">IDENTIFICAÇÃO DO REGISTRO</div>
-                <div class="g-col g-col-3"><span class="lbl">Origem da não conformidade</span>
-                    <select class="inp" id="f_nc_origem" onchange="ncOrigemChange()">
-                        <option>Fornecedor</option>
-                        <option>Cliente</option>
-                        <option>Interna</option>
-                    </select>
-                </div>
-                <div class="g-col g-col-2"><span class="lbl">Data</span><input type="date" class="inp" id="f_nc_data"></div>
-                <div class="g-col g-col-4"><span class="lbl" id="f_nc_parte_lbl">Fornecedor</span><input class="inp" id="f_nc_parte" list="dl_nc_parte" autocomplete="off"><datalist id="dl_nc_parte"></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Tipo de Insumo/Serviço</span><input class="inp" id="f_nc_insumo" list="dl_nc_insumo" placeholder="Ex.: Bobinas"><datalist id="dl_nc_insumo"><option value="Bobinas"></option><option value="Etiquetas"></option><option value="Tintas"></option><option value="Adesivo"></option><option value="Clichê"></option><option value="Serviço"></option><option value="Produto acabado"></option></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Produto / Código</span><input class="inp" id="f_nc_produto" list="dl_mp" placeholder="Ex.: VCM-7545BL"></div>
-                <div class="g-col g-col-3" id="nc-campo-setor"><span class="lbl">Setor / Origem do problema</span><input class="inp" id="f_nc_setor" list="dl_nc_setor" placeholder="Ex.: Corte e Solda"><datalist id="dl_nc_setor"><option value="Impressão"></option><option value="Laminação"></option><option value="Rebobinadeira (Narita)"></option><option value="Corte e Solda"></option><option value="Expedição"></option><option value="Recebimento"></option><option value="Gestão de Fábrica"></option><option value="Qualidade"></option></datalist></div>
-                <div class="g-col g-col-3" id="nc-campo-unidade"><span class="lbl">Unidade / Filial do cliente</span><input class="inp" id="f_nc_unidade" placeholder="Ex.: Paulínia"></div>
+                <div class="g-col g-col-3"><span class="lbl">Data do Registro</span><input type="date" class="inp" id="f_nc_data"></div>
+                <div class="g-col g-col-5"><span class="lbl">Fornecedor</span><input class="inp" id="f_nc_parte" list="dl_nc_parte" placeholder="Ex: PHX"><datalist id="dl_nc_parte"></datalist></div>
+                <div class="g-col g-col-4"><span class="lbl">Tipo de Insumo/Serviço</span><input class="inp" id="f_nc_insumo" placeholder="Ex: Bobinas"></div>
+            </div>
+
+            <div class="grid-form">
+                <div class="section-title">DADOS DE RECEBIMENTO / NOTA FISCAL</div>
                 <div class="g-col g-col-2"><span class="lbl">Nota Fiscal</span><input class="inp" id="f_nc_nf"></div>
-                <div class="g-col g-col-2"><span class="lbl">Pedido / OP</span><input class="inp" id="f_nc_pedido"></div>
-                <div class="g-col g-col-2"><span class="lbl">Lote</span><input class="inp" id="f_nc_lote"></div>
-                <div class="g-col g-col-3"><span class="lbl">Motivo (categoria)</span><input class="inp" id="f_nc_motivo" list="dl_nc_motivo" placeholder="Ex.: Alta espessura"><datalist id="dl_nc_motivo"><option value="Alta espessura"></option><option value="Baixa espessura"></option><option value="Largura fora do padrão"></option><option value="Planicidade"></option><option value="Rugas e emendas"></option><option value="Falta de tratamento"></option><option value="Falha de impressão / cor"></option><option value="Falha no picote"></option><option value="Falha de solda"></option><option value="Medida errada"></option><option value="Identificação / rotulagem"></option><option value="Contaminação / sujidade"></option><option value="Atraso na entrega"></option></datalist></div>
-                <div class="g-col g-col-2"><span class="lbl">Qtd. defeituosa</span><input class="inp" id="f_nc_qtd" placeholder="Ex.: 102" oninput="ncPerc()"></div>
-                <div class="g-col g-col-2"><span class="lbl">Qtd. recebida / produzida</span><input class="inp" id="f_nc_qtd_total" placeholder="Ex.: 2.089" oninput="ncPerc()"></div>
-                <div class="g-col g-col-1"><span class="lbl">Un.</span><input class="inp" id="f_nc_un" value="KG" list="dl_unidade"></div>
-                <div class="g-col g-col-2"><span class="lbl">% do lote</span><input class="inp sys-readonly" id="f_nc_perc" readonly placeholder="auto"></div>
+                <div class="g-col g-col-2"><span class="lbl">Pedido</span><input class="inp" id="f_nc_pedido"></div>
+                <div class="g-col g-col-3"><span class="lbl">Código MP</span><input class="inp" id="f_nc_produto" list="dl_mp"></div>
+                <div class="g-col g-col-2"><span class="lbl">Data Recebimento</span><input type="date" class="inp" id="f_nc_data_receb"></div>
+                <div class="g-col g-col-2"><span class="lbl">Quantidade Recebida</span><input type="number" class="inp" id="f_nc_qtd_total"></div>
+                <div class="g-col g-col-1"><span class="lbl">Unidade</span><input class="inp" id="f_nc_un" placeholder="KG"></div>
             </div>
 
             <div class="grid-form">
-                <div class="section-title">DESCRIÇÃO DOS PROBLEMAS ENCONTRADOS</div>
-                <div class="g-col g-col-12"><textarea class="inp" id="f_nc_descricao" rows="4" style="resize:vertical;" placeholder="Descreva a ocorrência: o que foi encontrado, onde, quanto, impacto no processo ou no cliente…"></textarea></div>
+                <div class="section-title">DETALHES DA OCORRÊNCIA</div>
+                <div class="g-col g-col-12"><span class="lbl">Descrição dos Problemas Encontrados</span>
+                    <textarea class="inp" id="f_nc_descricao" style="min-height: 50px;"></textarea>
+                </div>
+                <div class="g-col g-col-12"><span class="lbl">Ação Imediata</span>
+                    <textarea class="inp" id="f_nc_acao_imediata" style="min-height: 50px;"></textarea>
+                </div>
             </div>
 
             <div class="grid-form">
-                <div class="section-title">AÇÃO IMEDIATA</div>
-                <div class="g-col g-col-12"><textarea class="inp" id="f_nc_acao_imediata" rows="3" style="resize:vertical;" placeholder="O que foi feito na hora: segregação, bloqueio do lote, reposição ao cliente, devolução…"></textarea></div>
+                <div class="section-title">DOCUMENTAÇÃO VISUAL DA OCORRÊNCIA</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD FOTO DO MATERIAL</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_nc_mat" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_nc_mat')">
+                        <span id="span_nc_mat" style="font-size: 11px; color:#64748b;">Nenhuma imagem.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_nc_mat').click()"><i class="fas fa-camera"></i> Inserir Foto</button>
+                        <div id="prev_nc_mat" class="img-preview-container"></div>
+                    </div>
+                </div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD FOTO DA ETIQUETA</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_nc_etq" accept="image/*" style="display:none;" onchange="previewImg(this, 'prev_nc_etq')">
+                        <span id="span_nc_etq" style="font-size: 11px; color:#64748b;">Nenhuma imagem.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_nc_etq').click()"><i class="fas fa-camera"></i> Inserir Etiqueta</button>
+                        <div id="prev_nc_etq" class="img-preview-container"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="grid-form">
                 <div class="section-title">PLANO DE AÇÃO</div>
-                <div class="g-col g-col-12" style="background:transparent; padding:0;">
-                    <table class="inner-table nc-plano">
-                        <thead><tr><th style="width:40px;">Nº</th><th>DESCRIÇÃO DA AÇÃO</th><th style="width:150px;">RESPONSÁVEL</th><th style="width:120px;">PRAZO</th><th style="width:120px;">STATUS</th></tr></thead>
-                        <tbody id="nc-plano-body"></tbody>
+                <div class="g-col g-col-12">
+                    <table class="inner-table">
+                        <tr><th>Nº</th><th>DESCRIÇÃO DA AÇÃO</th><th>RESPONSÁVEL</th><th>PRAZO</th></tr>
+                        <tr><td>1</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>2</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>3</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>4</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
+                        <tr><td>5</td><td><textarea></textarea></td><td><input></td><td><input></td></tr>
                     </table>
-                    <button type="button" class="cep-mais no-print" onclick="ncPlanoLinha()">+ adicionar ação</button>
-                    <input type="hidden" id="f_nc_plano">
                 </div>
             </div>
 
             <div class="grid-form">
-                <div class="section-title">EVIDÊNCIAS DA OCORRÊNCIA</div>
-                <div class="g-col g-col-12">
-                    <div class="no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
-                        <label class="action-btn-sec" style="cursor:pointer; margin:0;"><i class="fas fa-camera"></i> Anexar evidências
-                            <input type="file" multiple accept="image/*,.pdf" style="display:none;" onchange="ncAnexar(this)">
-                        </label>
-                        <span style="font-size:10.5px; color:#94a3b8;">Fotos do defeito, laudo, resposta do fornecedor — ficam no relatório e saem na impressão.</span>
+                <div class="section-title">ANEXOS DE EVIDÊNCIA E AVALIAÇÃO DO FORNECEDOR</div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD EVIDÊNCIAS 1 A 6</span>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+                        <div class="img-upload-box small"><input type="file" id="ev1" accept="image/*" style="display:none;" onchange="previewImg(this,'pev1')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev1').click()">Evidência 1</button><div id="pev1" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev2" accept="image/*" style="display:none;" onchange="previewImg(this,'pev2')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev2').click()">Evidência 2</button><div id="pev2" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev3" accept="image/*" style="display:none;" onchange="previewImg(this,'pev3')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev3').click()">Evidência 3</button><div id="pev3" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev4" accept="image/*" style="display:none;" onchange="previewImg(this,'pev4')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev4').click()">Evidência 4</button><div id="pev4" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev5" accept="image/*" style="display:none;" onchange="previewImg(this,'pev5')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev5').click()">Evidência 5</button><div id="pev5" class="img-preview-container"></div></div>
+                        <div class="img-upload-box small"><input type="file" id="ev6" accept="image/*" style="display:none;" onchange="previewImg(this,'pev6')"><button class="action-btn-sec" style="font-size:10px; padding:2px;" onclick="document.getElementById('ev6').click()">Evidência 6</button><div id="pev6" class="img-preview-container"></div></div>
                     </div>
-                    <div id="nc-anexos" class="sol-anexos"></div>
-                    <input type="hidden" id="f_nc_anexos">
                 </div>
-            </div>
-
-            <div class="grid-form" id="nc-bloco-forn">
-                <div class="section-title">RESPOSTA DO FORNECEDOR</div>
-                <div class="g-col g-col-4"><span class="lbl">Respondido por</span><input class="inp" id="f_nc_resp_forn"></div>
-                <div class="g-col g-col-4"><span class="lbl">Área representada</span><input class="inp" id="f_nc_area_forn"></div>
-                <div class="g-col g-col-4"><span class="lbl">Data da resposta</span><input type="date" class="inp" id="f_nc_data_resp"></div>
-                <div class="g-col g-col-12"><span class="lbl">Tratativa apresentada pelo fornecedor</span><textarea class="inp" id="f_nc_tratativa_forn" rows="2" style="resize:vertical;"></textarea></div>
+                <div class="g-col g-col-6">
+                    <span class="lbl" style="text-align: center;">UPLOAD RESPOSTA RNC (Fornecedor)</span>
+                    <div class="img-upload-box">
+                        <input type="file" id="file_nc_resp" accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="previewImg(this, 'prev_nc_resp')">
+                        <span id="span_nc_resp" style="font-size: 11px; color:#64748b;">Nenhuma resposta anexada.</span>
+                        <button class="action-btn-sec" style="margin-top:5px; padding:4px 8px; font-size:11px;" onclick="document.getElementById('file_nc_resp').click()"><i class="fas fa-paperclip"></i> Anexar Resposta</button>
+                        <div id="prev_nc_resp" class="img-preview-container"></div>
+                    </div>
+                </div>
+                <div class="g-col g-col-6"><span class="lbl">Respondido Por (Fornecedor)</span><input class="inp"></div>
+                <div class="g-col g-col-6"><span class="lbl">Área Representada</span><input class="inp"></div>
             </div>
 
             <div class="grid-form">
                 <div class="section-title">FECHAMENTO</div>
-                <div class="g-col g-col-3"><span class="lbl">Data de fechamento</span><input type="date" class="inp" id="f_nc_data_fech"></div>
-                <div class="g-col g-col-4"><span class="lbl">Responsável</span><input class="inp" id="f_nc_resp_fech"></div>
-                <div class="g-col g-col-3"><span class="lbl">Status</span>
+                <div class="g-col g-col-4"><span class="lbl">Data de Fechamento</span><input type="date" class="inp" id="f_nc_data_fech"></div>
+                <div class="g-col g-col-4"><span class="lbl">Responsável (Rebracil)</span><input class="inp" id="f_nc_resp_fech"></div>
+                <div class="g-col g-col-4"><span class="lbl">Status</span>
                     <select class="inp" id="f_nc_status" onchange="ncStatusChange()">
                         <option>Aberto</option>
-                        <option>Em andamento</option>
-                        <option>Aguardando fornecedor</option>
+                        <option>Em Andamento</option>
                         <option>Concluído</option>
-                        <option>Cancelado</option>
                     </select>
                 </div>
-                <div class="g-col g-col-2"><span class="lbl">Eficácia verificada</span><select class="inp" id="f_nc_eficacia"><option value="">--</option><option>Sim</option><option>Não</option><option>Em verificação</option></select></div>
-                <div class="g-col g-col-12"><span class="lbl">Verificação da eficácia / conclusão</span><textarea class="inp" id="f_nc_conclusao" rows="2" style="resize:vertical;" placeholder="O problema deixou de ocorrer? Como foi comprovado?"></textarea></div>
             </div>
-
-            <div class="grid-form">
-                <div class="section-title">PARTICIPANTES ENVOLVIDOS</div>
-                <div class="g-col g-col-12" style="background:transparent; padding:0;">
-                    <table class="inner-table nc-partic">
-                        <thead><tr><th style="width:40px;">Nº</th><th>NOME</th><th style="width:180px;">SETOR / FUNÇÃO</th><th style="width:230px;">ASSINATURA</th></tr></thead>
-                        <tbody id="nc-partic-body"></tbody>
-                    </table>
-                    <button type="button" class="cep-mais no-print" onclick="ncParticLinha()">+ adicionar participante</button>
-                    <input type="hidden" id="f_nc_participantes">
-                </div>
-            </div>
-
             
             <div class="system-control-panel">
                 <h4>🔒 Rastreabilidade e Auditoria do Sistema</h4>
@@ -4692,7 +4675,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') headerTitle = 'Central de Comando';
         else if(tela === 'inspecao') headerTitle = 'Inspeção & Liberação de Setup';
         else if(tela === 'parametros') headerTitle = 'Parâmetros de Qualidade';
-        else if(tela === 'checklist-diario') headerTitle = 'Checklist Diário';
         else if(tela === 'placas') headerTitle = 'Placas de Identificação — RGQ-130';
         else if(tela === 'controle-nc') headerTitle = 'Controle de Não Conformidades';
         else if(tela === 'regras-codigo') headerTitle = 'Configuração — Regras de Código por Etapa';
@@ -4741,7 +4723,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') renderComando();
         if(tela === 'inspecao') renderInspecaoView();
         if(tela === 'parametros') renderParametros();
-        if(tela === 'checklist-diario') renderChecklistDiario();
         if(tela === 'placas') renderPlacasView();
         if(tela === 'controle-nc') renderControleNC();
         if(tela === 'regras-codigo') renderRegrasCodigo();
@@ -8111,6 +8092,155 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         fuCepAvaliar(key);
     }
 
+    // ==========================================================================
+    // RNC — apoio à ficha de Não Conformidade + Controle de Não Conformidades
+    // ==========================================================================
+    function ncNum(v) { const n = parseFloat(String(v == null ? '' : v).replace(/\./g, '').replace(',', '.')); return isFinite(n) ? n : null; }
+    function ncCampo(id) { const el = document.getElementById(id); return el ? (el.value || '') : ''; }
+    function ncProximoNumero() {
+        const ano = String(new Date().getFullYear()).slice(-2);
+        const doAno = (RB.rncs || []).filter(r => (r.numero || '').endsWith('.' + ano));
+        const seq = doAno.reduce((m, r) => Math.max(m, parseInt((r.numero || '').split('.')[0], 10) || 0), 0) + 1;
+        return String(seq).padStart(2, '0') + '.' + ano;
+    }
+    function ncStatusChange() {
+        const s = ncCampo('f_nc_status');
+        if (s === 'Concluído') {
+            const d = document.getElementById('f_nc_data_fech'); if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+            const r = document.getElementById('f_nc_resp_fech'); if (r && !r.value) r.value = currentSessionUser;
+        }
+        histAcao(`RNC ${ncCampo('lbl-codigo-nc-ficha')} → ${s}`, { tela: 'form-nc-fornecedor' });
+    }
+    function ncInit(novo) {
+        const dl = document.getElementById('dl_nc_parte');
+        if (dl) dl.innerHTML = (RB.fornecedores || []).slice(0, 800).map(f => `<option value="${(f.razao || '').replace(/"/g, '&quot;')}"></option>`).join('');
+        if (novo) {
+            const l = document.getElementById('lbl-codigo-nc-ficha'); if (l) l.value = ncProximoNumero();
+            const d = document.getElementById('f_nc_data'); if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+            const r = document.getElementById('f_nc_resp_fech'); if (r && !r.value) r.value = currentSessionUser;
+        }
+    }
+    // Grava/atualiza o registro no Controle de Não Conformidades
+    function ncRegistrarControle(cod, statusClicado) {
+        RB.rncs = RB.rncs || [];
+        const numero = ncCampo('lbl-codigo-nc-ficha');
+        const qtd = ncNum(ncCampo('f_nc_qtd')), total = ncNum(ncCampo('f_nc_qtd_total'));
+        const reg = {
+            cod, numero, origem: ncCampo('f_nc_origem') || 'Fornecedor', data: ncCampo('f_nc_data'),
+            parte: ncCampo('f_nc_parte'), insumo: ncCampo('f_nc_insumo'), produto: ncCampo('f_nc_produto'),
+            setor: ncCampo('f_nc_setor'), unidade: ncCampo('f_nc_unidade'), nf: ncCampo('f_nc_nf'),
+            pedido: ncCampo('f_nc_pedido'), lote: ncCampo('f_nc_lote'), motivo: ncCampo('f_nc_motivo'),
+            qtd: ncCampo('f_nc_qtd'), qtdTotal: ncCampo('f_nc_qtd_total'), un: ncCampo('f_nc_un') || 'KG',
+            perc: (qtd !== null && total) ? (qtd / total * 100).toFixed(1).replace('.', ',') + '%' : '',
+            descricao: ncCampo('f_nc_descricao'), acaoImediata: ncCampo('f_nc_acao_imediata'),
+            dataFech: ncCampo('f_nc_data_fech'), respFech: ncCampo('f_nc_resp_fech'),
+            status: ncCampo('f_nc_status') || statusClicado, atualizadoEm: new Date().toISOString()
+        };
+        const i = RB.rncs.findIndex(x => x.cod === cod || (numero && x.numero === numero));
+        if (i > -1) RB.rncs[i] = Object.assign(RB.rncs[i], reg); else RB.rncs.unshift(reg);
+    }
+
+    // ---- Controle de Não Conformidades: consolida clientes, internas e fornecedores ----
+    let cncAba = 'Todas';
+    const CNC_ABAS = ['Todas', 'Cliente', 'Interna', 'Fornecedor'];
+    const CNC_COR = { Cliente: '#e11d48', Interna: '#f59e0b', Fornecedor: '#7c3aed' };
+    function cncFiltradas() {
+        const busca = ((document.getElementById('cnc-busca') || {}).value || '').toLowerCase();
+        const ano = (document.getElementById('cnc-ano') || {}).value || '';
+        const st = (document.getElementById('cnc-status') || {}).value || '';
+        return (RB.rncs || []).filter(r => {
+            if (cncAba !== 'Todas' && (r.origem || 'Fornecedor') !== cncAba) return false;
+            if (ano && (r.data || '').slice(0, 4) !== ano) return false;
+            if (st && r.status !== st) return false;
+            if (busca && ![r.numero, r.parte, r.produto, r.motivo, r.setor, r.descricao].join(' ').toLowerCase().includes(busca)) return false;
+            return true;
+        }).sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+    }
+    function cncAgrupar(arr, campo) {
+        const m = {};
+        arr.forEach(r => { const k = (r[campo] || '').trim() || '—'; m[k] = (m[k] || 0) + 1; });
+        return Object.entries(m).map(([label, v]) => ({ label, v })).sort((a, b) => b.v - a.v).slice(0, 8);
+    }
+    function renderControleNC() {
+        const tabs = document.getElementById('cnc-tabs');
+        if (tabs) tabs.innerHTML = CNC_ABAS.map(a => {
+            const n = a === 'Todas' ? (RB.rncs || []).length : (RB.rncs || []).filter(r => (r.origem || 'Fornecedor') === a).length;
+            const rot = a === 'Todas' ? 'Todas' : a === 'Fornecedor' ? 'Fornecedores' : a === 'Interna' ? 'Internas' : 'Clientes';
+            return `<div class="prog-tab ${a === cncAba ? 'sel' : ''}" onclick="cncSelAba('${a}')">${rot} <span style="opacity:.7; font-weight:400;">(${n})</span></div>`;
+        }).join('');
+        const selAno = document.getElementById('cnc-ano');
+        if (selAno) {
+            const anos = [...new Set((RB.rncs || []).map(r => (r.data || '').slice(0, 4)).filter(Boolean))].sort().reverse();
+            const atual = selAno.value;
+            selAno.innerHTML = '<option value="">Todos</option>' + anos.map(a => `<option>${a}</option>`).join('');
+            if (atual) selAno.value = atual;
+        }
+        const arr = cncFiltradas();
+        pageHero('cnc-hero', { grad: 'linear-gradient(135deg,#7f1d1d,#e11d48)', ic: 'triangle-exclamation', t: 'Controle de Não Conformidades',
+            s: 'Clientes, internas e fornecedores num só controle — cada RNC salva entra aqui automaticamente.',
+            stats: [{ v: arr.length, l: 'registros' }, { v: arr.filter(r => r.status !== 'Concluído' && r.status !== 'Cancelado').length, l: 'em aberto' }, { v: cncAba, l: 'filtro' }] });
+        const strip = document.getElementById('cnc-strip');
+        if (strip) {
+            const abertas = arr.filter(r => r.status !== 'Concluído' && r.status !== 'Cancelado').length;
+            const conc = arr.filter(r => r.status === 'Concluído').length;
+            const kgDef = arr.reduce((s, r) => s + (ncNum(r.qtd) || 0), 0);
+            strip.innerHTML = `<div class="cmd-mini" style="--c:#e11d48"><div class="l">Registros</div><div class="v">${arr.length}</div></div>
+                <div class="cmd-mini" style="--c:#f59e0b"><div class="l">Em aberto</div><div class="v">${abertas}</div></div>
+                <div class="cmd-mini" style="--c:#0d9488"><div class="l">Concluídas</div><div class="v">${conc}</div></div>
+                <div class="cmd-mini" style="--c:var(--gold)"><div class="l">Qtd. defeituosa</div><div class="v">${Math.round(kgDef).toLocaleString('pt-BR')}</div></div>`;
+        }
+        const g1 = document.getElementById('cnc-motivos');
+        if (g1) g1.innerHTML = gvBarsHorizontais(cncAgrupar(arr, 'motivo').map(d => ({ ...d, cor: '#e11d48' })), '');
+        const g2 = document.getElementById('cnc-setores');
+        if (g2) g2.innerHTML = gvBarsHorizontais(cncAgrupar(arr, cncAba === 'Fornecedor' ? 'parte' : 'setor').map(d => ({ ...d, cor: '#7c3aed' })), '');
+        const chip = document.getElementById('cnc-chip'); if (chip) chip.innerText = arr.length;
+        const tb = document.getElementById('tb-controle-nc'); if (!tb) return;
+        const stcls = s => s === 'Concluído' ? 'st-conc' : s === 'Em Andamento' || s === 'Em andamento' ? 'st-and' : 'st-pend';
+        tb.innerHTML = arr.length ? arr.map(r => `<tr class="row-ficha" onclick="cncAbrir('${(r.cod || '').replace(/'/g, '')}')">
+            <td>${r.data ? new Date(r.data + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}</td>
+            <td style="font-weight:800; color:#e11d48;">${r.numero || '—'}</td>
+            <td><span class="badge-status" style="background:${CNC_COR[r.origem] || '#7c3aed'}22; color:${CNC_COR[r.origem] || '#7c3aed'};">${r.origem || 'Fornecedor'}</span></td>
+            <td>${r.parte || '—'}</td><td>${r.produto || '—'}</td>
+            <td>${[r.setor, r.unidade].filter(Boolean).join(' · ') || '—'}</td>
+            <td>${[r.nf, r.lote].filter(Boolean).join(' / ') || '—'}</td>
+            <td>${r.motivo || r.insumo || '—'}</td>
+            <td style="text-align:right;">${r.qtd || '—'}</td><td style="text-align:right;">${r.qtdTotal || '—'}</td>
+            <td style="text-align:right; font-weight:700;">${r.perc || '—'}</td>
+            <td><span class="badge-status ${stcls(r.status)}">${r.status || 'Aberto'}</span></td>
+            <td style="text-align:center;" onclick="event.stopPropagation();">
+                <button class="mini-btn" title="Abrir" onclick="cncAbrir('${(r.cod || '').replace(/'/g, '')}')"><i class="fas fa-eye"></i></button>
+                <button class="mini-btn" style="color:#ef4444;" title="Remover" onclick="cncRemover('${(r.cod || '').replace(/'/g, '')}')">✕</button>
+            </td></tr>`).join('') : vazioTb(13, 'Nenhuma não conformidade registrada com esses filtros.');
+        renderIcons(tb);
+    }
+    function cncSelAba(a) {
+        cncAba = a;
+        const th = document.getElementById('cnc-th-parte');
+        if (th) th.textContent = a === 'Fornecedor' ? 'Fornecedor' : a === 'Interna' ? 'Cliente afetado' : 'Cliente / Fornecedor';
+        renderControleNC();
+    }
+    function cncAbrir(cod) { if (cod) abrirFicha('nc-fornecedor', cod); }
+    function cncRemover(cod) {
+        const r = (RB.rncs || []).find(x => x.cod === cod); if (!r) return;
+        if (!confirm(`Remover o registro da RNC ${r.numero || cod} do controle?`)) return;
+        histAcao(`Removeu RNC ${r.numero || cod} do controle`, { tela: 'controle-nc' });
+        RB.rncs = RB.rncs.filter(x => x.cod !== cod); rbSave(); renderControleNC();
+    }
+    function cncExportar() {
+        const arr = cncFiltradas();
+        if (!arr.length) { alert('Nada para exportar com esses filtros.'); return; }
+        const cols = [['data', 'Data'], ['numero', 'Nº registro'], ['origem', 'Origem'], ['parte', 'Cliente/Fornecedor'], ['produto', 'Código do produto'],
+            ['setor', 'Setor'], ['unidade', 'Unidade/Filial'], ['nf', 'NF'], ['lote', 'Lote'], ['pedido', 'Pedido'], ['motivo', 'Motivo'],
+            ['qtd', 'Qtd defeituosa'], ['qtdTotal', 'Qtd recebida/produzida'], ['un', 'Unidade'], ['perc', '% do lote'],
+            ['descricao', 'Descrição'], ['acaoImediata', 'Ação imediata'], ['status', 'Status'], ['dataFech', 'Data fechamento'], ['respFech', 'Responsável']];
+        const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+        const csv = [cols.map(c => esc(c[1])).join(';')].concat(arr.map(r => cols.map(c => esc(r[c[0]])).join(';'))).join('\n');
+        const a = document.createElement('a');
+        a.href = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
+        a.download = `Controle NC ${cncAba}.csv`; a.click();
+        toast(`${arr.length} registro(s) exportado(s).`);
+    }
+
     // ---- Checklist "Materiais Solicitados à Clicheria" (grava no campo oculto fu_cli_materiais) ----
     function fuMateriaisSync() {
         const v = [...document.querySelectorAll('#fu-cli-mats input:checked')].map(c => c.value).join(' · ');
@@ -8696,7 +8826,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 document.getElementById('prev_imp_arte').innerHTML = ''; document.getElementById('span_imp_arte').style.display = 'block';
                 document.getElementById('prev_imp_desb').innerHTML = ''; document.getElementById('span_imp_desb').style.display = 'block';
             } else if(tipo === 'nc-fornecedor') {
-                // a RNC usa a galeria de evidências (ncAnexos) — sem previews fixos
+                ['prev_nc_mat','prev_nc_etq','prev_nc_resp'].forEach(i => { const e = document.getElementById(i); if (e) e.innerHTML = ''; });
+                ['span_nc_mat','span_nc_etq','span_nc_resp'].forEach(i => { const e = document.getElementById(i); if (e) e.style.display = 'block'; });
             } else if(tipo === 'solicitacao-cliche') {
                 document.getElementById('prev_sol_croqui').innerHTML = ''; document.getElementById('span_sol_croqui').style.display = 'block';
             }
@@ -8710,11 +8841,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             if(document.getElementById(logId)) document.getElementById(logId).innerHTML = `[${dataStr}] Documento gerado em branco por ${currentSessionUser}.<br>`;
             
             if(tipo === 'nc-fornecedor') {
-                // limpa todos os campos da RNC pelo prefixo (inclui os criados depois)
                 document.querySelectorAll('#view-form-nc-fornecedor [id^="f_nc_"]').forEach(el => {
                     if (el.tagName === 'SELECT') el.selectedIndex = 0; else if ('value' in el) el.value = '';
                 });
-                document.getElementById('f_nc_un').value = 'KG';
                 ncAnexos = []; ncInit(true);
             }
             if(tipo === 'devolucao') {
