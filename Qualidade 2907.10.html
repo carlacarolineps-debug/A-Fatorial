@@ -594,6 +594,22 @@
     .ac-croqui { flex:1; display:flex; align-items:center; justify-content:center; padding:4px; min-height:320px; overflow:hidden; }
     .ac-croqui svg { width:100%; height:auto; max-height:400px; }
     .ac-croqui > span { font-size:11px; color:#94a3b8; text-align:center; padding:16px; }
+    /* ---- Solicitação de Produto: orientação para preencher sem dúvidas ---- */
+    .sol-abertura { grid-column:1 / -1; background:linear-gradient(135deg,#0f766e,#0d9488); color:#fff; border-radius:12px; padding:16px 18px; margin:2px 0 6px; }
+    .sol-abertura h5 { margin:0 0 8px; font-size:14px; font-weight:800; display:flex; align-items:center; gap:8px; }
+    .sol-abertura ol { margin:0; padding-left:20px; font-size:12px; line-height:1.65; }
+    .sol-abertura ol b { color:#fff; }
+    .sol-abertura .sol-tranq { margin-top:10px; background:rgba(255,255,255,.16); border-radius:8px; padding:8px 11px; font-size:11.5px; line-height:1.5; }
+    .sol-guia { grid-column:1 / -1; font-size:11.5px; color:#0f766e; background:#f0fdfa; border-left:3px solid #14b8a6; padding:7px 11px; margin:-2px 0 4px; line-height:1.5; }
+    .sol-guia b { color:#065f46; }
+    .sol-dica { display:block; font-size:10px; color:#94a3b8; margin-top:3px; line-height:1.35; }
+    .lbl .sol-opc { font-weight:400; color:#94a3b8; text-transform:none; letter-spacing:0; font-size:9px; }
+    .lbl .sol-obg { color:#e11d48; font-weight:800; }
+    .sol-conferir { grid-column:1 / -1; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .sol-pend { grid-column:1 / -1; font-size:12px; border-radius:10px; padding:11px 13px; line-height:1.6; }
+    .sol-pend.ok { background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; }
+    .sol-pend.falta { background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; }
+    .sol-pend ul { margin:6px 0 0; padding-left:20px; }
     /* ---- Solicitação de Produto: anexos, QR e ficha em branco ---- */
     .sol-anexos { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:10px; }
     .sol-anexo { display:flex; align-items:center; gap:9px; border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:#fff; }
@@ -608,6 +624,10 @@
     .sol-qr { display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px; }
     .sol-qr svg { border:1px solid var(--border); border-radius:8px; }
     .sol-qr-aviso { font-size:10px; color:#b45309; background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:6px 8px; margin-bottom:6px; line-height:1.35; }
+    .sol-abertura-print { border:1.5px solid #0f766e; border-radius:8px; padding:9px 12px; background:#f0fdfa; color:#0f766e; }
+    .sol-abertura-print h5 { margin:0 0 5px; font-size:11.5px; font-weight:800; }
+    .sol-abertura-print ol { margin:0; padding-left:17px; font-size:10px; line-height:1.5; color:#134e4a; }
+    .sol-abertura-print .sol-tranq { margin-top:6px; background:#ccfbf1; border-radius:6px; padding:5px 8px; font-size:9.5px; color:#134e4a; line-height:1.4; }
     .sol-linha { border-bottom:1px solid #94a3b8; height:17px; }
     .sol-linha.alta { height:40px; }
     .ac-medresumo { padding:6px 10px; font-size:11px; color:#64748b; display:flex; align-items:center; }
@@ -1965,7 +1985,17 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             <div class="grid-form fu-sec" id="fu-sec-solicitacao">
                 <div class="section-title" style="background:#0f766e;">ETAPA · SOLICITAÇÃO DE PRODUTO <span style="font-weight:400; font-size:10px; opacity:.85;">— preenchida pelo vendedor junto ao cliente</span> <span class="fu-cod-et" id="fu-cod-solicitacao"></span></div>
 
+                <div class="sol-abertura no-print">
+                    <h5><i class="fas fa-circle-check"></i> Como preencher esta ficha</h5>
+                    <ol>
+                        <li>Diga <b>o que vai ser embalado</b> e <b>como vai ser usado</b> — é o que define o material.</li>
+                        <li>Informe as <b>medidas e o tipo de embalagem</b>. Se tiver uma amostra ou a arte, <b>anexe</b>: vale mais que qualquer descrição.</li>
+                        <li>Diga <b>quanto</b> e <b>para quando</b> você precisa.</li>
+                    </ol>
+                    <div class="sol-tranq"><b>Não precisa saber de tudo.</b> Onde você não souber, escolha <b>“Não sei — Rebracil define”</b> ou deixe em branco: a nossa Qualidade completa e confirma com você. Só os campos marcados com <b style="color:#fecdd3;">*</b> são realmente necessários para começar.</div>
+                </div>
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">1 · DADOS DA SOLICITAÇÃO</span></div>
+                <div class="sol-guia">Quem está pedindo e para quando. <b>O número é gerado pelo sistema</b> — não precisa preencher.</div>
                 <div class="g-col g-col-3"><span class="lbl">Nº da Solicitação</span><input class="inp" id="fu_sol_numero" placeholder="Gerado ao salvar"></div>
                 <div class="g-col g-col-3"><span class="lbl">Data da Solicitação</span><input type="date" class="inp" id="fu_sol_data"></div>
                 <div class="g-col g-col-3"><span class="lbl">Vendedor / Representante</span><input class="inp" id="fu_sol_vendedor"></div>
@@ -1975,7 +2005,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Urgência</span><select class="inp" id="fu_sol_urgencia"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">2 · CLIENTE</span></div>
-                <div class="g-col g-col-5"><span class="lbl">Cliente / Razão Social</span><input class="inp" id="fu_sol_cliente" list="dl_clientes" autocomplete="off" onchange="fuSolClienteChange()"></div>
+                <div class="sol-guia">Escolha o cliente na lista: <b>CNPJ, contato e telefone entram sozinhos</b>. Se for cliente novo, digite o nome e complete o que souber.</div>
+                <div class="g-col g-col-5"><span class="lbl">Cliente / Razão Social <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_cliente" list="dl_clientes" autocomplete="off" onchange="fuSolClienteChange()"></div>
                 <div class="g-col g-col-3"><span class="lbl">CNPJ</span><input class="inp" id="fu_sol_cnpj"></div>
                 <div class="g-col g-col-4"><span class="lbl">Segmento</span><input class="inp" id="fu_sol_segmento" list="dl_segmentos"></div>
                 <div class="g-col g-col-4"><span class="lbl">Contato (nome)</span><input class="inp" id="fu_sol_contato"></div>
@@ -1983,14 +2014,15 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-4"><span class="lbl">E-mail</span><input class="inp" id="fu_sol_email"></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">3 · APLICAÇÃO — O QUE SERÁ EMBALADO <span style="font-weight:400; color:#94a3b8; font-size:9px;">(define material, barreira e resistência)</span></span></div>
-                <div class="g-col g-col-4"><span class="lbl">Produto do cliente</span><input class="inp" id="fu_sol_produto_cliente" placeholder="Ex.: Batata palito congelada"></div>
-                <div class="g-col g-col-2"><span class="lbl">Peso / volume por embalagem</span><input class="inp" id="fu_sol_peso_conteudo" placeholder="Ex.: 2 kg"></div>
-                <div class="g-col g-col-3"><span class="lbl">Forma de envase</span><input class="inp" id="fu_sol_envase" list="dl_sol_envase" placeholder="Manual / Automática"><datalist id="dl_sol_envase"><option value="Manual"></option><option value="Automática — vertical (VFFS)"></option><option value="Automática — horizontal (HFFS)"></option><option value="Automática — flowpack"></option><option value="Envasadora de líquidos"></option></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Máquina / modelo do cliente</span><input class="inp" id="fu_sol_maquina_cliente" placeholder="Marca e modelo"></div>
-                <div class="g-col g-col-3"><span class="lbl">Condição de uso</span><input class="inp" id="fu_sol_condicao" list="dl_sol_cond" placeholder="Ambiente / Refrigerado…"><datalist id="dl_sol_cond"><option value="Ambiente"></option><option value="Refrigerado"></option><option value="Congelado"></option><option value="Forno / micro-ondas"></option><option value="Autoclave"></option></datalist></div>
+                <div class="sol-guia">Este é o bloco <b>mais importante</b>: é o que o produto vai enfrentar (peso, frio, calor, tempo na prateleira) que determina o material e a espessura. Responda com o que o cliente falar, sem termos técnicos.</div>
+                <div class="g-col g-col-4"><span class="lbl">Produto do cliente <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_produto_cliente" placeholder="Ex.: Batata palito congelada"><span class="sol-dica">O que vai dentro da embalagem. Seja específico: “biscoito recheado”, “ração para cães”, “parafusos”.</span></div>
+                <div class="g-col g-col-2"><span class="lbl">Peso / volume por embalagem</span><input class="inp" id="fu_sol_peso_conteudo" placeholder="Ex.: 2 kg"><span class="sol-dica">Quanto pesa (ou quantos ml) em cada embalagem. Define a resistência.</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Forma de envase</span><input class="inp" id="fu_sol_envase" list="dl_sol_envase" placeholder="Manual / Automática"><datalist id="dl_sol_envase"><option value="Não sei — Rebracil define"></option><option value="Manual"></option><option value="Automática — vertical (VFFS)"></option><option value="Automática — horizontal (HFFS)"></option><option value="Automática — flowpack"></option><option value="Envasadora de líquidos"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Máquina / modelo do cliente</span><input class="inp" id="fu_sol_maquina_cliente" placeholder="Marca e modelo"><span class="sol-dica">Se o cliente envasa em máquina, a marca/modelo evita problema de deslizamento e solda.</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Condição de uso</span><input class="inp" id="fu_sol_condicao" list="dl_sol_cond" placeholder="Ambiente / Refrigerado…"><datalist id="dl_sol_cond"><option value="Não sei — Rebracil define"></option><option value="Ambiente"></option><option value="Refrigerado"></option><option value="Congelado"></option><option value="Forno / micro-ondas"></option><option value="Autoclave"></option></datalist></div>
                 <div class="g-col g-col-2"><span class="lbl">Temp. de envase (°C)</span><input class="inp" id="fu_sol_temp_envase" placeholder="Ex.: 25"></div>
-                <div class="g-col g-col-2"><span class="lbl">Shelf life desejado</span><input class="inp" id="fu_sol_shelf" placeholder="Ex.: 12 meses"></div>
-                <div class="g-col g-col-5"><span class="lbl">Necessidade de barreira</span><input class="inp" id="fu_sol_barreira" list="dl_sol_barreira" placeholder="Oxigênio / luz / umidade / aroma"><datalist id="dl_sol_barreira"><option value="Não requer"></option><option value="Barreira a oxigênio"></option><option value="Barreira a umidade"></option><option value="Barreira à luz"></option><option value="Barreira a aroma"></option><option value="Alta barreira (múltipla)"></option></datalist></div>
+                <div class="g-col g-col-2"><span class="lbl">Shelf life desejado</span><input class="inp" id="fu_sol_shelf" placeholder="Ex.: 12 meses"><span class="sol-dica">Quanto tempo o produto precisa durar dentro da embalagem.</span></div>
+                <div class="g-col g-col-5"><span class="lbl">Necessidade de barreira</span><input class="inp" id="fu_sol_barreira" list="dl_sol_barreira" placeholder="Precisa proteger de quê?"><span class="sol-dica">Em linguagem simples: o produto <b>estraga com ar</b> (oxigênio), <b>umidade</b>, <b>luz</b> ou <b>perde o cheiro</b>? Se não sabe, escolha “Não sei”.</span><datalist id="dl_sol_barreira"><option value="Não sei — Rebracil define"></option><option value="Não requer"></option><option value="Barreira a oxigênio"></option><option value="Barreira a umidade"></option><option value="Barreira à luz"></option><option value="Barreira a aroma"></option><option value="Alta barreira (múltipla)"></option></datalist></div>
                 <div class="g-col g-col-12"><span class="lbl">Requisitos legais / contato com alimento</span>
                     <div class="chips-fluxo" id="fu-sol-legais" style="margin:0;">
                         <label class="chip-et"><input type="checkbox" value="Contato direto com alimento" onchange="fuSolLegaisSync()"><span>Contato direto com alimento</span></label>
@@ -2003,16 +2035,17 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">4 · EMBALAGEM SOLICITADA — TIPO, MEDIDAS E MATERIAL</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Tipo de embalagem</span><input class="inp" id="fu_sol_tipo_emb" list="dl_sol_emb" placeholder="Saco / Bobina / Sacola…"><datalist id="dl_sol_emb"><option value="Bobina lisa"></option><option value="Bobina impressa"></option><option value="Saco 3 soldas"></option><option value="Saco 4 soldas"></option><option value="Saco fundo estrela"></option><option value="Sacola alça vazada"></option><option value="Sacola camiseta"></option><option value="Stand-up pouch"></option><option value="Filme técnico"></option><option value="Etiqueta / banderola"></option></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Material solicitado</span><input class="inp" id="fu_sol_material" list="dl_substratos" placeholder="PEBD / BOPP / PET…"></div>
-                <div class="g-col g-col-3"><span class="lbl">Estrutura (se laminado)</span><input class="inp" id="fu_sol_estrutura" list="dl_estrutura" placeholder="Ex.: BOPP 20 + PE 50"></div>
+                <div class="sol-guia">Se o cliente <b>já usa uma embalagem parecida</b>, informe as medidas dela — ou anexe uma amostra no bloco 8. Não sabe a espessura? Deixe em branco, nós calculamos.</div>
+                <div class="g-col g-col-3"><span class="lbl">Tipo de embalagem <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_tipo_emb" list="dl_sol_emb" placeholder="Saco / Bobina / Sacola…"><datalist id="dl_sol_emb"><option value="Bobina lisa"></option><option value="Bobina impressa"></option><option value="Saco 3 soldas"></option><option value="Saco 4 soldas"></option><option value="Saco fundo estrela"></option><option value="Sacola alça vazada"></option><option value="Sacola camiseta"></option><option value="Stand-up pouch"></option><option value="Filme técnico"></option><option value="Etiqueta / banderola"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Material solicitado</span><input class="inp" id="fu_sol_material" list="dl_substratos" placeholder="Se souber; senão deixe em branco"><span class="sol-dica">Material do filme. <b>Não é obrigatório</b> — nós indicamos o melhor a partir da aplicação.</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Estrutura (se laminado)</span><input class="inp" id="fu_sol_estrutura" list="dl_estrutura" placeholder="Só se o cliente já souber"><span class="sol-dica">Camadas do filme laminado. Campo técnico — <b>normalmente quem define é a Rebracil</b>.</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Aparência</span><input class="inp" id="fu_sol_aparencia" list="dl_sol_apar" placeholder="Transparente / Leitoso…"><datalist id="dl_sol_apar"><option value="Transparente"></option><option value="Leitoso"></option><option value="Branco"></option><option value="Perolizado"></option><option value="Metalizado"></option><option value="Fosco"></option><option value="Colorido"></option></datalist></div>
                 <div class="g-col g-col-2"><span class="lbl">Largura (mm)</span><input class="inp" id="fu_sol_largura" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
                 <div class="g-col g-col-2"><span class="lbl">Altura / Compr. (mm)</span><input class="inp" id="fu_sol_altura" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
                 <div class="g-col g-col-2"><span class="lbl">Sanfona (mm)</span><input class="inp" id="fu_sol_sanfona" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
                 <div class="g-col g-col-2"><span class="lbl">Aba / Fita (mm)</span><input class="inp" id="fu_sol_aba" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
-                <div class="g-col g-col-2"><span class="lbl">Espessura (micra)</span><input class="inp" id="fu_sol_espessura"></div>
-                <div class="g-col g-col-2"><span class="lbl">Tubete / diâmetro</span><input class="inp" id="fu_sol_tubete" list="dl_tubete"></div>
+                <div class="g-col g-col-2"><span class="lbl">Espessura (micra)</span><input class="inp" id="fu_sol_espessura" placeholder="Se souber"><span class="sol-dica">Em micra. Não sabe? Deixe em branco — calculamos pelo peso e uso.</span></div>
+                <div class="g-col g-col-2"><span class="lbl">Tubete / diâmetro</span><input class="inp" id="fu_sol_tubete" list="dl_tubete" placeholder="Só para bobina"><span class="sol-dica">Só quando for bobina: diâmetro do tubo central que a máquina do cliente aceita.</span></div>
                 <div class="g-col g-col-12"><span class="lbl">Acessórios e acabamentos</span>
                     <div class="chips-fluxo" id="fu-sol-acess" style="margin:0;">
                         <label class="chip-et"><input type="checkbox" value="Zíper" onchange="fuSolAcessSync()"><span>Zíper</span></label>
@@ -2031,30 +2064,39 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">5 · IMPRESSÃO E ARTE</span></div>
+                <div class="sol-guia">Só preencha se a embalagem for <b>impressa</b>. Se for lisa (sem impressão), marque “Não” em Impresso e pule este bloco.</div>
                 <div class="g-col g-col-2"><span class="lbl">Impresso?</span><select class="inp" id="fu_sol_impresso"><option>Sim</option><option>Não</option></select></div>
                 <div class="g-col g-col-2"><span class="lbl">Nº de cores</span><input class="inp" id="fu_sol_ncores" list="dl_1a4"></div>
-                <div class="g-col g-col-4"><span class="lbl">Cores / Pantone</span><input class="inp" id="fu_sol_cores" placeholder="Ex.: PANTONE 485C, 072C, Preto"></div>
-                <div class="g-col g-col-2"><span class="lbl">Tipo de impressão</span><input class="inp" id="fu_sol_tipo_imp" list="dl_sentido" placeholder="Interna / Externa"></div>
+                <div class="g-col g-col-4"><span class="lbl">Cores / Pantone</span><input class="inp" id="fu_sol_cores" placeholder="Ex.: PANTONE 485C, 072C, Preto"><span class="sol-dica">Se o cliente não tem o código Pantone, descreva as cores (“vermelho, azul e preto”) ou anexe a arte.</span></div>
+                <div class="g-col g-col-2"><span class="lbl">Tipo de impressão</span><input class="inp" id="fu_sol_tipo_imp" list="dl_sentido_imp" placeholder="Não sei — Rebracil define"><datalist id="dl_sentido_imp"><option value="Não sei — Rebracil define"></option><option value="Externa"></option><option value="Interna"></option></datalist><span class="sol-dica">Impressão por fora ou entre as camadas. <b>Quase sempre a Rebracil define.</b></span></div>
                 <div class="g-col g-col-2"><span class="lbl">Arte fornecida por</span><input class="inp" id="fu_sol_arte_por" list="dl_sol_artepor" placeholder="Cliente / Rebracil"><datalist id="dl_sol_artepor"><option value="Cliente (arquivo vetorial)"></option><option value="Rebracil (criação)"></option><option value="Agência do cliente"></option></datalist></div>
                 <div class="g-col g-col-4"><span class="lbl">Situação do clichê</span><input class="inp" id="fu_sol_cliche_sit" list="dl_sol_cliche" placeholder="Novo / Existente"><datalist id="dl_sol_cliche" ><option value="Clichê novo"></option><option value="Clichê existente (reaproveitar)"></option><option value="Alteração de clichê"></option><option value="Não se aplica"></option></datalist></div>
                 <div class="g-col g-col-4"><span class="lbl">Prova a aprovar</span><input class="inp" id="fu_sol_prova" list="dl_sol_prova" placeholder="Digital / Impressa"><datalist id="dl_sol_prova"><option value="Prova digital (GMG)"></option><option value="Prova impressa"></option><option value="Print tamanho real"></option><option value="Dispensa prova"></option></datalist></div>
                 <div class="g-col g-col-4"><span class="lbl">Código de barras / validade</span><input class="inp" id="fu_sol_codbarras" placeholder="EAN e área para data de validade"></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">6 · CROQUI DA EMBALAGEM SOLICITADA <span style="font-weight:400; color:#94a3b8; font-size:9px;">(anexe a arte ou a foto da amostra)</span></span></div>
+                <div class="sol-guia">O desenho é gerado com as medidas do bloco 4. <b>Anexar a arte ou a foto da amostra é o jeito mais seguro</b> de não haver dúvida.</div>
                 <div id="fu-ac-solicitacao" style="display:contents;"></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">7 · QUANTIDADES E COMERCIAL</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Quantidade estimada</span><input class="inp" id="fu_sol_qtd" placeholder="Ex.: 2.000 kg"></div>
+                <div class="sol-guia">Quantidade estimada e recorrência ajudam a definir preço e prazo. <b>Valores aproximados já servem.</b></div>
+                <div class="g-col g-col-3"><span class="lbl">Quantidade estimada <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_qtd" placeholder="Ex.: 2.000 kg ou 50.000 sacos"><span class="sol-dica">Um número aproximado já serve.</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Unidade</span><input class="inp" id="fu_sol_unidade" list="dl_unidade"></div>
                 <div class="g-col g-col-3"><span class="lbl">Frequência / recorrência</span><input class="inp" id="fu_sol_frequencia" list="dl_sol_freq" placeholder="Mensal / Trimestral…"><datalist id="dl_sol_freq"><option value="Pontual (uma vez)"></option><option value="Mensal"></option><option value="Bimestral"></option><option value="Trimestral"></option><option value="Semestral"></option></datalist></div>
                 <div class="g-col g-col-2"><span class="lbl">Previsão anual</span><input class="inp" id="fu_sol_previsao_ano" placeholder="Ex.: 24.000 kg"></div>
                 <div class="g-col g-col-2"><span class="lbl">Preço alvo (R$)</span><input class="inp" id="fu_sol_preco_alvo" placeholder="Se informado"></div>
-                <div class="g-col g-col-4"><span class="lbl">Acondicionamento desejado</span><input class="inp" id="fu_sol_acond" placeholder="Ex.: 10 kg por caixa, palete 1,20x1,00"></div>
+                <div class="g-col g-col-4"><span class="lbl">Acondicionamento desejado</span><input class="inp" id="fu_sol_acond" placeholder="Ex.: 10 kg por caixa"><span class="sol-dica">Como o cliente quer receber: em caixa, fardo, palete…</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Local de entrega</span><input class="inp" id="fu_sol_entrega"></div>
                 <div class="g-col g-col-4"><span class="lbl">Amostra do cliente recebida?</span><input class="inp" id="fu_sol_amostra" list="dl_sol_amostra" placeholder="Sim / Não"><datalist id="dl_sol_amostra"><option value="Sim — amostra física"></option><option value="Sim — foto/arquivo"></option><option value="Não"></option></datalist></div>
                 <div class="g-col g-col-12"><span class="lbl">Observações do cliente / detalhes que não podem se perder</span><textarea class="inp" id="fu_sol_obs" rows="2" style="resize:vertical;" placeholder="Particularidades, histórico, exigências específicas, problemas com o fornecedor atual…"></textarea></div>
 
+                <div class="g-col g-col-12 sol-conferir no-print">
+                    <button type="button" class="sys-btn-success" onclick="fuSolConferir()"><i class="fas fa-circle-check"></i> Conferir preenchimento</button>
+                    <span style="font-size:11px; color:#64748b;">Mostra em linguagem simples se falta algo essencial — antes de enviar à Qualidade.</span>
+                </div>
+                <div class="g-col g-col-12 no-print" id="fu-sol-pendencias"></div>
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">8 · ANEXOS DO CLIENTE <span style="font-weight:400; color:#94a3b8; font-size:9px;">(arte, especificação técnica, foto da amostra, laudo…)</span></span></div>
+                <div class="sol-guia">Arte, especificação técnica, laudo, foto da embalagem atual ou do concorrente. <b>Anexar evita idas e voltas.</b></div>
                 <div class="g-col g-col-12">
                     <div class="no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
                         <label class="action-btn-sec" style="cursor:pointer; margin:0;"><i class="fas fa-paperclip"></i> Anexar arquivos
@@ -2067,6 +2109,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">9 · ENVIAR AO VENDEDOR / PREENCHER COM O CLIENTE</span></div>
+                <div class="sol-guia">Escolha como o vendedor vai preencher: no celular (link/QR) ou no papel (ficha em branco).</div>
                 <div class="g-col g-col-8">
                     <div style="display:flex; gap:8px; flex-wrap:wrap;" class="no-print">
                         <button type="button" class="action-btn-sec" onclick="fuSolCopiarLink()"><i class="fas fa-link"></i> Copiar link do sistema</button>
@@ -7684,6 +7727,38 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const topo = document.getElementById('fu_cliente'); if (topo && !topo.value.trim() && nome) topo.value = nome;
         fuAtualizarResumo();
     }
+    // Conferência antes de enviar: fala com o vendedor em linguagem simples
+    function fuSolConferir() {
+        const v = id => (val(id) || '').trim();
+        const naoSei = t => /não sei/i.test(t || '');
+        const essenciais = [
+            { id: 'fu_sol_cliente',         q: 'Qual é o cliente?' },
+            { id: 'fu_sol_produto_cliente', q: 'O que vai ser embalado? (ex.: batata palito congelada)' },
+            { id: 'fu_sol_tipo_emb',        q: 'Que tipo de embalagem o cliente quer? (saco, bobina, sacola…)' },
+            { id: 'fu_sol_qtd',             q: 'Quanto o cliente pretende comprar? (um valor aproximado serve)' }
+        ];
+        const faltando = essenciais.filter(e => !v(e.id));
+        // recomendações: não travam, mas evitam idas e voltas
+        const bom = [];
+        if (!v('fu_sol_largura') && !v('fu_sol_altura') && !(fuSolAnexos || []).length)
+            bom.push('Informe as <b>medidas</b> (bloco 4) <b>ou</b> anexe uma amostra/arte (bloco 8) — sem isso não conseguimos dimensionar.');
+        if (!v('fu_sol_peso_conteudo')) bom.push('O <b>peso por embalagem</b> ajuda a definir a espessura.');
+        if (!v('fu_sol_condicao') || naoSei(v('fu_sol_condicao'))) bom.push('Saber se é <b>ambiente, refrigerado ou congelado</b> muda o material.');
+        if (!v('fu_sol_prazo')) bom.push('Um <b>prazo desejado</b> nos ajuda a priorizar.');
+        if (v('fu_sol_impresso') === 'Sim' && !v('fu_sol_cores') && !(fuSolAnexos || []).length)
+            bom.push('A embalagem é impressa: informe as <b>cores</b> ou anexe a <b>arte</b>.');
+        const box = document.getElementById('fu-sol-pendencias'); if (!box) return;
+        if (!faltando.length && !bom.length) {
+            box.innerHTML = `<div class="sol-pend ok"><b>✓ Tudo certo para enviar.</b> A Qualidade tem o necessário para analisar e, se faltar algum detalhe técnico, nós confirmamos com você.</div>`;
+        } else {
+            box.innerHTML = `<div class="sol-pend falta">
+                ${faltando.length ? `<b>Falta responder ${faltando.length === 1 ? 'isto' : 'estas ' + faltando.length + ' coisas'}:</b><ul>${faltando.map(f => `<li>${f.q}</li>`).join('')}</ul>` : '<b>Os pontos essenciais estão respondidos.</b>'}
+                ${bom.length ? `<div style="margin-top:8px;"><b>Se conseguir, isso evita idas e voltas:</b><ul>${bom.map(t => `<li>${t}</li>`).join('')}</ul></div>` : ''}
+                <div style="margin-top:8px; font-size:11px; opacity:.85;">Nada aqui impede o envio — onde o cliente não souber, deixe em branco ou marque “Não sei”.</div>
+            </div>`;
+        }
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     function fuSolLegaisSync() {
         const v = [...document.querySelectorAll('#fu-sol-legais input:checked')].map(c => c.value).join(' · ');
         const h = document.getElementById('fu_sol_legais'); if (h) h.value = v;
@@ -7762,7 +7837,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const sec = document.getElementById('fu-sec-solicitacao');
         const clone = sec.cloneNode(true);
         clone.classList.add('on'); clone.removeAttribute('id');
+        // as instruções são essenciais no papel: preserva a abertura antes de limpar o que é só de tela
+        const abertura = clone.querySelector('.sol-abertura');
+        const aberturaHTML = abertura ? abertura.innerHTML : '';
         clone.querySelectorAll('.no-print, .chips-fluxo').forEach(el => el.remove());
+        if (aberturaHTML) clone.insertAdjacentHTML('afterbegin', `<div class="g-col g-col-12 sol-abertura-print">${aberturaHTML}</div>`);
         clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
         clone.querySelectorAll('datalist, button').forEach(el => el.remove());
         // campos viram linhas para escrever
