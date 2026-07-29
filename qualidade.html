@@ -581,6 +581,33 @@
     .alert-row .a-pct { font-weight:800; font-size:14px; }
     .alert-empty { text-align:center; color:#16a34a; padding:24px; font-size:13px; font-weight:600; }
     .alert-empty i { font-size:30px; display:block; margin-bottom:8px; }
+    /* ---- AUTO CONTROLE: quadro único (medidas + arte) e sentido em destaque ---- */
+    .ac-panel { border:1px solid #9aa3b2; background:#fff; height:100%; display:flex; flex-direction:column; }
+    .ac-panel-t { color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; text-align:center; padding:5px 8px; }
+    .ac-meds { display:grid; grid-template-columns:repeat(4,1fr) auto; gap:0; border-bottom:1px solid #cbd5e1; }
+    .ac-meds > label { display:flex; flex-direction:column; border-right:1px solid #e2e8f0; padding:5px 8px; min-width:0; }
+    .ac-meds > label > span { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:#64748b; }
+    .ac-meds > label > input { border:none; background:transparent; padding:2px 0 0; font-size:13px; font-weight:700; color:#1e293b; width:100%; }
+    .ac-meds > label > input:focus { outline:none; background:#f8fafc; }
+    .ac-meds-acoes { display:flex; align-items:center; gap:6px; padding:5px 9px; }
+    .ac-croqui { flex:1; display:flex; align-items:center; justify-content:center; padding:6px; min-height:290px; overflow:hidden; }
+    .ac-croqui svg { width:100%; height:auto; max-height:330px; }
+    .ac-croqui > span { font-size:11px; color:#94a3b8; text-align:center; padding:16px; }
+    .ac-sentido { flex:1; display:flex; align-items:center; justify-content:center; padding:10px; }
+    .ac-sent-sel { text-align:center; width:100%; }
+    .ac-sent-sel img { width:100%; max-width:190px; height:auto; }
+    .ac-sent-nome { font-size:15px; font-weight:800; color:#1e293b; letter-spacing:.06em; margin-top:6px; }
+    .ac-sent-sub { font-size:10px; color:#94a3b8; margin-top:2px; }
+    .ac-sent-vazio { width:100%; text-align:center; }
+    .ac-sent-opts { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+    .ac-sent-mini { border:1.5px solid var(--border); border-radius:8px; padding:5px; cursor:pointer; background:#fff; transition:.13s; }
+    .ac-sent-mini:hover { border-color:var(--navy); box-shadow:0 3px 10px -3px rgba(0,0,0,.2); }
+    .ac-sent-mini img, .ac-sent-mini svg { width:100%; max-height:70px; height:auto; display:block; margin:0 auto; }
+    .ac-sent-mini span { display:block; font-size:10px; font-weight:700; color:#475569; margin-top:2px; }
+    .ac-sent-hint { font-size:10.5px; color:#94a3b8; margin-top:10px; line-height:1.35; }
+    .fu-page .ac-croqui { min-height:0; }
+    .fu-page .ac-croqui svg { max-height:82mm; }
+    .fu-page .ac-sent-sel img { max-width:44mm; }
     .cli-box { min-height: 320px; }
     .cli-box svg { max-height: 340px; }
     .cli-box img { border-radius: 6px; }
@@ -7139,10 +7166,17 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         host.querySelectorAll('.puxada-opt').forEach(o => o.classList.toggle('sel', o.dataset.val === v));
     }
     function fuPuxadaSel(campo, val, el) {
-        const cur = (document.getElementById(campo) || {}).value;
+        const alvo = document.getElementById(campo); if (!alvo) return;
+        const cur = alvo.value;
         const novo = cur === val ? '' : val; // clicar de novo desmarca
-        document.getElementById(campo).value = novo;
+        alvo.value = novo;
         fuPuxadaAplicar(campo);
+        // reflete no quadro AUTO CONTROLE da mesma etapa (mostra só a escolhida, grande)
+        const m = campo.match(/^fu_([a-z]+)_puxada$/);
+        if (m && typeof AUTOCTRL_ETAPAS !== 'undefined') {
+            const e = AUTOCTRL_ETAPAS.find(x => x.pref === m[1]);
+            if (e) fuAutoCtrlSentido(e.key);
+        }
         fuAtualizarResumo();
     }
 
@@ -7194,42 +7228,66 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         { key: 'corte',         pref: 'cor', cor: '#0d9488', bg: '#e6f4f2', tit: 'AUTO CONTROLE CORTE & SOLDA',  obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento' },
         { key: 'final',         pref: 'fin', cor: '#b45309', bg: '#fef3c7', tit: 'AUTO CONTROLE PRODUTO ACABADO', obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento' }
     ];
+    // Layout fiel à ficha oficial: UM quadro "IMAGEM DA ARTE" (medidas + desenho juntos)
+    // e, ao lado, o SENTIDO DE DESBOBINAMENTO mostrando SOMENTE a opção escolhida, em tamanho grande.
     function autoCtrlHTML(e) {
-        const p = e.pref, medLabel = e.obj === 'BOBINA' ? 'Largura (mm)' : 'Largura (mm)';
-        const alturaLabel = e.obj === 'BOBINA' ? 'Comprimento (mm)' : 'Altura / Comprimento (mm)';
-        return `<div class="g-col g-col-12 fu-grp" style="background:${e.bg};"><span class="lbl" style="color:${e.cor};">${e.tit} — IMAGEM DA ARTE, MEDIDAS E SENTIDO DE PUXADA</span></div>
-            <div class="g-col g-col-4">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                    <div><span class="lbl">${medLabel}</span><input class="inp" id="fu_${p}_ac_largura" inputmode="decimal" placeholder="Ex.: 315,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
-                    <div><span class="lbl">${alturaLabel}</span><input class="inp" id="fu_${p}_ac_altura" inputmode="decimal" placeholder="Ex.: 400,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
-                    <div><span class="lbl">Sanfona (mm)</span><input class="inp" id="fu_${p}_ac_sanfona" inputmode="decimal" placeholder="Ex.: 35,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
-                    <div><span class="lbl">Aba / Fita (mm)</span><input class="inp" id="fu_${p}_ac_aba" inputmode="decimal" placeholder="Ex.: 40,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
+        const p = e.pref;
+        const alturaLabel = e.obj === 'BOBINA' ? 'Comprimento' : 'Altura / Compr.';
+        return `<div class="g-col g-col-12 fu-grp" style="background:${e.bg};"><span class="lbl" style="color:${e.cor};">${e.tit}</span></div>
+            <div class="g-col g-col-8" style="padding:0;">
+                <div class="ac-panel">
+                    <div class="ac-panel-t" style="background:${e.cor};">IMAGEM DA ARTE — MEDIDAS (mm)</div>
+                    <div class="ac-meds">
+                        <label><span>Largura</span><input class="inp" id="fu_${p}_ac_largura" inputmode="decimal" placeholder="315,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <label><span>${alturaLabel}</span><input class="inp" id="fu_${p}_ac_altura" inputmode="decimal" placeholder="400,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <label><span>Sanfona</span><input class="inp" id="fu_${p}_ac_sanfona" inputmode="decimal" placeholder="35,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <label><span>Aba / Fita</span><input class="inp" id="fu_${p}_ac_aba" inputmode="decimal" placeholder="40,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <div class="ac-meds-acoes no-print">
+                            <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:5px 11px; font-size:11.5px;"><i class="fas fa-paperclip"></i> Anexar arte
+                                <input type="file" accept="image/*" style="display:none;" onchange="fuAutoCtrlUpload(this,'${e.key}')">
+                            </label>
+                            <button type="button" class="action-btn-sec" id="fu-${p}-ac-del" onclick="fuAutoCtrlRemover('${e.key}')" style="color:#ef4444; padding:5px 10px; font-size:11.5px; display:none;"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div id="fu-${p}-ac-croqui" class="ac-croqui" style="cursor:zoom-in;" onclick="fuAutoCtrlZoom('${e.key}')"></div>
+                    <input type="hidden" id="fu_${p}_ac_arte">
                 </div>
-                <div class="no-print" style="display:flex; gap:6px; align-items:center; margin-top:10px;">
-                    <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:5px 12px; font-size:12px;"><i class="fas fa-paperclip"></i> Anexar arte
-                        <input type="file" accept="image/*" style="display:none;" onchange="fuAutoCtrlUpload(this,'${e.key}')">
-                    </label>
-                    <button type="button" class="action-btn-sec no-print" id="fu-${p}-ac-del" onclick="fuAutoCtrlRemover('${e.key}')" style="color:#ef4444; padding:5px 11px; font-size:12px; display:none;"><i class="fas fa-trash"></i></button>
+            </div>
+            <div class="g-col g-col-4" style="padding:0;">
+                <div class="ac-panel">
+                    <div class="ac-panel-t" style="background:${e.cor};">SENTIDO DE DESBOBINAMENTO</div>
+                    <div id="fu-${p}-ac-sentido" class="ac-sentido"></div>
                 </div>
-                <p class="cli-med-nota no-print" style="margin-top:8px;">Preencha as medidas e <b>anexe a arte</b>: a imagem entra no croqui com as réguas em volta. Escolha ao lado o <b>${e.sentido}</b>.</p>
-                <input type="hidden" id="fu_${p}_ac_arte">
-            </div>
-            <div class="g-col g-col-4" style="padding:6px;">
-                <span class="lbl no-print" style="color:${e.cor};">Imagem da arte (medidas em volta)</span>
-                <div id="fu-${p}-ac-croqui" class="fu-croqui-box cli-box" style="cursor:zoom-in;" onclick="fuAutoCtrlZoom('${e.key}')"></div>
-            </div>
-            <div class="g-col g-col-4" style="padding:6px;">
-                <span class="lbl" style="color:${e.cor};">Sentido de puxada / desbobinamento</span>
-                <input type="hidden" id="fu_${p}_ac_puxada"><div class="puxada-host" data-campo="fu_${p}_ac_puxada"></div>
             </div>`;
+    }
+    // Mostra somente a puxada escolhida, grande (a escolha é feita no TIPO DE PUXADA da etapa)
+    function fuAutoCtrlSentido(key) {
+        const e = fuAutoCtrlCfg(key); if (!e) return;
+        const box = document.getElementById(`fu-${e.pref}-ac-sentido`); if (!box) return;
+        const campo = `fu_${e.pref}_puxada`;
+        const v = (document.getElementById(campo) || {}).value || '';
+        if (v && PUXADA_IMG[v]) {
+            box.innerHTML = `<div class="ac-sent-sel"><img src="${PUXADA_IMG[v]}" alt="Puxada ${v}"><div class="ac-sent-nome">${v.toUpperCase()}</div>
+                <div class="ac-sent-sub no-print">${e.sentido}</div></div>`;
+        } else {
+            box.innerHTML = `<div class="ac-sent-vazio">
+                <div class="ac-sent-opts">${PUXADAS.map(x => `<div class="ac-sent-mini" onclick="fuPuxadaSel('${campo}','${x.key}')" title="${x.key}">${puxadaSVG(x.key)}<span>${x.key}</span></div>`).join('')}</div>
+                <div class="ac-sent-hint no-print"><i class="fas fa-arrow-up"></i> Escolha o <b>Tipo de Puxada</b> — a opção selecionada aparece aqui em destaque.</div></div>`;
+        }
     }
     function fuAutoCtrlInit() {
         AUTOCTRL_ETAPAS.forEach(e => {
             const host = document.getElementById('fu-ac-' + e.key);
             if (host && !host.dataset.built) { host.innerHTML = autoCtrlHTML(e); host.dataset.built = '1'; renderIcons(host); }
+            // etapas sem seletor próprio no topo ganham o campo do sentido
+            if (!document.getElementById(`fu_${e.pref}_puxada`)) {
+                const hid = document.createElement('input'); hid.type = 'hidden'; hid.id = `fu_${e.pref}_puxada`;
+                (host || document.body).appendChild(hid);
+            }
             fuAutoCtrlCroqui(e.key);
         });
         fuPuxadaInit();
+        AUTOCTRL_ETAPAS.forEach(e => fuAutoCtrlSentido(e.key));
     }
     function fuAutoCtrlCfg(key) { return AUTOCTRL_ETAPAS.find(x => x.key === key); }
     function fuAutoCtrlUpload(input, key) {
