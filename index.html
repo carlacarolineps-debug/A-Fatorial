@@ -1174,10 +1174,81 @@ body.apresentacao #apr-banner{display:block;}
 .cli-rodape-data{font-size:11px;color:#71717a;}
 
 /* ═══ KANBAN OPERACIONAL (demandas + WhatsApp) ═══ */
+/* Paleta do kanban em tokens: no tema CLARO as cores são fechadas (contraste
+   no branco), no ESCURO viram neon. Toda cor do quadro usa estes tokens —
+   nenhum hex solto — então os dois temas ficam certos de uma vez. */
+:root{
+  --kb-c1:#d01a6f; --kb-c2:#9a6410; --kb-c3:#0d7a54; --kb-c4:#0f68b0;
+  --kb-c5:#6236d8; --kb-c6:#bd5311; --kb-c7:#0c7a6e; --kb-c8:#bd2b2b;
+  --kb-ouro:#8a6a1f;                      /* o dourado da marca, legível no branco */
+  --kb-neutro:var(--ink);                 /* números sem cor de destaque */
+  --kb-sobre:#ffffff;                     /* texto sobre a cor cheia */
+}
+body.theme-gamer{
+  --kb-c1:#ff5d9e; --kb-c2:#ffc24d; --kb-c3:#3ee89e; --kb-c4:#35c8ff;
+  --kb-c5:#a78bfa; --kb-c6:#ff9f5d; --kb-c7:#5de8c4; --kb-c8:#ff6b6b;
+  --kb-ouro:#e8c777;
+  --kb-neutro:var(--gold-soft);
+  --kb-sobre:#10121c;
+}
 .kb-top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;}
+
+/* ── cartão de boas-vindas ── */
+.kb-hello{position:relative;overflow:hidden;border-radius:var(--r);border:1px solid var(--line);padding:22px 24px;margin-bottom:18px;
+  background:linear-gradient(115deg,rgba(200,162,74,.14),rgba(216,27,116,.10) 55%,transparent);}
+body.theme-gamer .kb-hello{background:linear-gradient(115deg,rgba(53,200,255,.14),rgba(255,93,158,.12) 48%,rgba(20,28,44,.6));}
+.kb-hello::after{content:'';position:absolute;right:-60px;top:-70px;width:230px;height:230px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,162,74,.22),transparent 70%);pointer-events:none;}
+.kb-hello-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:relative;}
+.kb-hello h3{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em;color:var(--ink);font-family:var(--font-display,inherit);}
+.kb-hello p{margin:5px 0 0;font-size:13px;color:var(--ink-soft);line-height:1.5;}
+.kb-hello-av{width:52px;height:52px;border-radius:15px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:17px;background:var(--kb-ouro);color:var(--kb-sobre);box-shadow:0 8px 22px -10px rgba(0,0,0,.5);}
+.kb-hello-av img{width:100%;height:100%;object-fit:cover;}
+.kb-hello-acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+.kb-resumo{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:relative;}
+.kb-res{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:7px 13px;border-radius:20px;
+  background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);}
+.kb-res b{color:var(--kbc,var(--ink));font-size:14px;}
+.kb-res .dot{width:8px;height:8px;border-radius:50%;background:var(--kbc,var(--kb-ouro));}
+
+/* ── barra de progresso segmentada ── */
+.kb-prog{margin-top:16px;position:relative;}
+.kb-prog-bar{display:flex;height:11px;border-radius:20px;overflow:hidden;background:var(--line-soft);border:1px solid var(--line);}
+.kb-prog-seg{height:100%;transition:width .5s cubic-bezier(.22,1,.36,1);}
+.kb-prog-leg{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:11px;color:var(--ink-faint);}
+.kb-prog-leg span{display:inline-flex;align-items:center;gap:5px;}
+.kb-prog-leg i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+
+/* ── trilha de ondas ── */
+.kb-ondas{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.kb-onda{flex:1;min-width:132px;display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:var(--r-sm);cursor:pointer;
+  background:var(--panel);border:1px solid var(--line);font-family:inherit;text-align:left;transition:.2s;position:relative;}
+.kb-onda:hover{border-color:var(--kbc,var(--kb-ouro));transform:translateY(-2px);box-shadow:var(--shadow-lg,0 12px 26px -14px rgba(0,0,0,.4));}
+.kb-onda.on{border-color:var(--kbc,var(--kb-ouro));background:color-mix(in srgb,var(--kbc,var(--kb-ouro)) 9%,var(--panel));}
+.kb-onda-ring{width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;position:relative;
+  background:conic-gradient(var(--kbc,var(--kb-ouro)) calc(var(--p,0) * 1%), var(--line-soft) 0);}
+.kb-onda-ring::after{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--panel);}
+.kb-onda-ring b{position:relative;z-index:1;font-size:12px;font-weight:700;color:var(--kbc,var(--ink));}
+.kb-onda .nm{display:block;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.25;}
+.kb-onda .sb{display:block;font-size:10.5px;color:var(--ink-faint);margin-top:2px;}
+
+/* ── carga da equipe ── */
+.kb-carga-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);}
+.kb-carga-item:last-child{border-bottom:none;}
+.kb-carga-nm{width:132px;flex:none;display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--ink);}
+.kb-carga-bar{flex:1;display:flex;height:20px;border-radius:7px;overflow:hidden;background:var(--line-soft);min-width:90px;}
+.kb-carga-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--kb-sobre);transition:width .5s;}
+.kb-carga-tot{width:104px;flex:none;text-align:right;font-size:11px;color:var(--ink-faint);}
+
+/* ── avatares ── */
+.kb-av{width:22px;height:22px;border-radius:7px;flex:none;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;
+  font-size:9.5px;font-weight:700;background:var(--kbc,var(--kb-ouro));color:var(--kb-sobre);}
+.kb-av img{width:100%;height:100%;object-fit:cover;}
+.kb-av-g{width:34px;height:34px;border-radius:11px;font-size:12.5px;}
 .kb-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;}
 .kb-kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);padding:16px 18px;position:relative;overflow:hidden;}
-.kb-kpi::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kbc,var(--gold));opacity:.85;}
+.kb-kpi::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kbc,var(--kb-ouro));opacity:.85;}
 .kb-kpi .v{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.05;color:var(--kbc,var(--ink));font-family:var(--font-display,inherit);}
 .kb-kpi .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);margin-top:5px;font-weight:600;}
 .kb-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;}
@@ -1185,28 +1256,31 @@ body.apresentacao #apr-banner{display:block;}
 .kb-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px;}
 .kb-chip{font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);
   cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:.15s;white-space:nowrap;}
-.kb-chip:hover{border-color:var(--kbc,var(--gold));color:var(--ink);transform:translateY(-1px);}
-.kb-chip.on{background:var(--kbc,var(--gold));border-color:var(--kbc,var(--gold));color:#12121a;box-shadow:0 4px 14px -6px var(--kbc,var(--gold));}
+.kb-chip:hover{border-color:var(--kbc,var(--kb-ouro));color:var(--ink);transform:translateY(-1px);}
+.kb-chip.on{background:var(--kbc,var(--kb-ouro));border-color:var(--kbc,var(--kb-ouro));color:var(--kb-sobre);box-shadow:0 4px 14px -6px var(--kbc,var(--kb-ouro));}
 .kb-chip .n{font-size:10px;opacity:.75;font-weight:700;}
-.kb-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--kbc,var(--gold));}
-.kb-chip.on .dot{background:rgba(0,0,0,.45);}
+.kb-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--kbc,var(--kb-ouro));}
+.kb-chip.on .dot{background:var(--kb-sobre);opacity:.55;}
+.kb-chip.on .kb-av{background:rgba(255,255,255,.28);color:var(--kb-sobre);}
 .kb-board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(232px,1fr);gap:14px;align-items:start;overflow-x:auto;padding-bottom:8px;}
 .kb-board::-webkit-scrollbar{height:8px;}
 .kb-board::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
 .kb-board::-webkit-scrollbar-thumb:hover{background:var(--ink-faint);}
 .kb-col{background:var(--panel-soft);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;min-height:120px;transition:.18s;}
-.kb-col.drag{border-color:var(--kbc,var(--gold));background:var(--line-soft);box-shadow:inset 0 0 0 1px var(--kbc,var(--gold));}
+.kb-col.drag{border-color:var(--kbc,var(--kb-ouro));background:var(--line-soft);box-shadow:inset 0 0 0 1px var(--kbc,var(--kb-ouro));}
 .kb-col-h{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--line);}
-.kb-col-h .dot{width:9px;height:9px;border-radius:50%;background:var(--kbc,var(--gold));box-shadow:0 0 9px var(--kbc,var(--gold));}
+.kb-col-h{color:var(--kbc,var(--ink-soft));}
+.kb-col-h .dot{width:9px;height:9px;border-radius:50%;background:var(--kbc,var(--kb-ouro));}
+body.theme-gamer .kb-col-h .dot{box-shadow:0 0 9px var(--kbc,var(--kb-ouro));}
 .kb-col-h .n{margin-left:auto;background:var(--line-soft);color:var(--ink-soft);border-radius:20px;min-width:21px;height:21px;display:flex;align-items:center;justify-content:center;font-size:10.5px;}
-.kb-card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--kbc,var(--gold));border-radius:9px;padding:12px;margin-bottom:9px;cursor:grab;transition:.16s;position:relative;}
-.kb-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg,0 12px 26px -14px rgba(0,0,0,.5));border-color:var(--kbc,var(--gold));}
+.kb-card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--kbc,var(--kb-ouro));border-radius:9px;padding:12px;margin-bottom:9px;cursor:grab;transition:.16s;position:relative;}
+.kb-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg,0 12px 26px -14px rgba(0,0,0,.5));border-color:var(--kbc,var(--kb-ouro));}
 .kb-card.dragging{opacity:.45;cursor:grabbing;}
 .kb-card .t{font-size:13px;font-weight:600;line-height:1.35;color:var(--ink);margin-bottom:7px;padding-right:16px;}
 .kb-card .nt{font-size:11.5px;color:var(--ink-soft);line-height:1.45;margin-bottom:8px;}
 .kb-card .meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
 .kb-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--line-soft);color:var(--ink-soft);display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
-.kb-tag.pess{background:var(--kbc,var(--gold));color:#12121a;opacity:.92;}
+.kb-tag.pess{background:var(--kbc,var(--kb-ouro));color:var(--kb-sobre);padding:2px 8px 2px 3px;gap:5px;}
 .kb-tag.atraso{background:var(--bad-bg);color:var(--bad);}
 .kb-tag.hoje{background:var(--warn-bg);color:var(--warn);}
 .kb-card-acts{position:absolute;top:8px;right:8px;display:flex;gap:3px;opacity:0;transition:.15s;}
@@ -1217,10 +1291,20 @@ body.apresentacao #apr-banner{display:block;}
 .kb-empty{font-size:11.5px;color:var(--ink-faint);text-align:center;padding:16px 8px;border:1px dashed var(--line);border-radius:8px;}
 .kb-grupo{margin-bottom:22px;}
 .kb-grupo-h{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:11px 14px;border-radius:var(--r-sm);
-  background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--kbc,var(--gold));}
-.kb-grupo-h .av{width:30px;height:30px;border-radius:9px;background:var(--kbc,var(--gold));color:#12121a;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--kbc,var(--kb-ouro));}
 .kb-grupo-h .nm{font-weight:700;font-size:14px;color:var(--ink);}
 .kb-grupo-h .sb{font-size:11px;color:var(--ink-faint);}
+.kb-grupo-h .mini-bar{width:104px;height:7px;border-radius:20px;background:var(--line-soft);overflow:hidden;flex:none;}
+.kb-grupo-h .mini-bar i{display:block;height:100%;background:var(--kb-c3);border-radius:20px;transition:width .5s;}
+
+/* ── barra de prazo do card ── */
+.kb-prazo{height:4px;border-radius:20px;background:var(--line-soft);margin:9px 0 2px;overflow:hidden;}
+.kb-prazo i{display:block;height:100%;border-radius:20px;background:var(--kb-c3);transition:width .5s;}
+.kb-prazo.perto i{background:var(--kb-c2);}
+.kb-prazo.venceu i{background:var(--kb-c8);}
+.kb-card.feita .t{text-decoration:line-through;opacity:.72;}
+@keyframes kbPousou{0%{box-shadow:0 0 0 0 var(--kbc,var(--kb-ouro));}100%{box-shadow:0 0 0 14px transparent;}}
+.kb-card.pousou{animation:kbPousou .7s ease-out;}
 .kb-wa-log{max-height:280px;overflow-y:auto;}
 .kb-wa-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;}
 .kb-wa-item:last-child{border-bottom:none;}
@@ -2034,7 +2118,9 @@ body.apresentacao #apr-banner{display:block;}
         <p>Você cadastra a tarefa, escolhe o responsável e o sistema avisa a pessoa no WhatsApp na hora. Nada de demanda perdida em grupo, print ou "achei que era você quem ia fazer".</p>
       </div>
 
+      <div id="kb-saudacao"></div>
       <div class="kb-kpis" id="kb-kpis"></div>
+      <div id="kb-ondas"></div>
 
       <div class="card">
         <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Quadro de demandas
@@ -2057,6 +2143,14 @@ body.apresentacao #apr-banner{display:block;}
         <p class="hint" style="margin:2px 0 16px;">Arraste o card entre as colunas para mudar a etapa — quem é responsável recebe o aviso no WhatsApp automaticamente (se o evento estiver ligado abaixo).</p>
 
         <div id="kb-board"></div>
+      </div>
+
+      <!-- ============ CARGA DA EQUIPE ============ -->
+      <div class="card" id="kb-carga-card">
+        <div class="card-h">⚖ Carga da equipe — quem está com o quê
+          <span class="pill pill-mute" style="text-transform:none;letter-spacing:0;">Equilibre antes de sobrecarregar</span></div>
+        <p class="hint" style="margin:-8px 0 14px;">Cada barra é o total de demandas da pessoa, dividido pela etapa em que cada uma está. Clique no nome para ver só as dela.</p>
+        <div id="kb-carga"></div>
       </div>
 
       <!-- ============ INTEGRAÇÃO WHATSAPP ============ -->
@@ -8552,12 +8646,14 @@ body.apresentacao #apr-banner{display:block;}
            === BACKEND === no app real, tarefas e envios ficam no banco
            (tabelas tarefas / membros / envios), não no localStorage.
            ═══════════════════════════════════════════════════════════════ */
+        // As cores vêm dos tokens --kb-c1..c8 (definidos no CSS para cada tema),
+        // então o quadro nasce certo no claro e no escuro.
         const KB_ETAPAS=[
-          {id:'backlog',   nome:'Backlog',              cor:'#8b7cf6'},
-          {id:'afazer',    nome:'A fazer',              cor:'#35a0ff'},
-          {id:'fazendo',   nome:'Fazendo',              cor:'#ffc24d'},
-          {id:'revisao',   nome:'Revisão e aguardando', cor:'#ff8ab5'},
-          {id:'concluido', nome:'Concluído',            cor:'#3ee89e'}
+          {id:'backlog',   nome:'Backlog',              cor:'var(--kb-c5)'},
+          {id:'afazer',    nome:'A fazer',              cor:'var(--kb-c4)'},
+          {id:'fazendo',   nome:'Fazendo',              cor:'var(--kb-c2)'},
+          {id:'revisao',   nome:'Revisão e aguardando', cor:'var(--kb-c1)'},
+          {id:'concluido', nome:'Concluído',            cor:'var(--kb-c3)'}
         ];
         // as quatro opções do formulário, na mesma ordem do sistema original
         const KB_PRIORIDADES=[
@@ -8567,7 +8663,7 @@ body.apresentacao #apr-banner{display:block;}
           {v:'Pouco urgente', l:'🟢 Pouco urgente',cor:'var(--ok)'}
         ];
         const KB_ONDAS=['Onda 1','Onda 2','Onda 3','Onda 4'];
-        const KB_CORES=['#ff5d9e','#ffc24d','#3ee89e','#35e6ff','#8b7cf6','#ff8f5d','#5de8c4','#ff6b6b'];
+        const KB_CORES=['var(--kb-c1)','var(--kb-c4)','var(--kb-c3)','var(--kb-c5)','var(--kb-c6)','var(--kb-c7)','var(--kb-c2)','var(--kb-c8)'];
         const KB_MSG_PADRAO={
           criada:'Olá {{nome}}! 👋\n\nVocê recebeu uma nova demanda:\n\n📌 *{{tarefa}}*\n🎯 Prioridade: {{prioridade}}\n📂 {{area}} · {{onda}}\n📅 Prazo: {{prazo}}\n\n{{notas}}\n\nEla já está em "{{etapa}}" no kanban. Bora? 🚀',
           etapa:'Oi {{nome}}! 🔄\n\nA demanda *{{tarefa}}* mudou de etapa e agora está em *{{etapa}}*.\n\n🎯 Prioridade: {{prioridade}}\n📅 Prazo: {{prazo}}',
@@ -8596,13 +8692,19 @@ body.apresentacao #apr-banner{display:block;}
         /* pessoas que podem receber demanda: colaboradores ativos + gestão */
         function kbPessoas(){
           let lista=(DB.colaboradores||[]).filter(c=>c.ativo!==false).map((c,i)=>({
-            id:c.id, nome:c.apelido||c.nome, nomeCompleto:c.nome, cargo:c.cargo||'', area:c.area||'', cor:KB_CORES[i%KB_CORES.length]
+            id:c.id, nome:c.apelido||c.nome, nomeCompleto:c.nome, cargo:c.cargo||'', area:c.area||'',
+            foto:c.foto||(c.dossie&&c.dossie.foto)||'', cor:KB_CORES[i%KB_CORES.length]
           }));
-          lista.push({id:'admin', nome:ADMIN_USER.apelido||ADMIN_USER.nome, nomeCompleto:ADMIN_USER.nome, cargo:ADMIN_USER.cargo, area:'Gestão', cor:'var(--gold)'});
+          lista.push({id:'admin', nome:ADMIN_USER.apelido||ADMIN_USER.nome, nomeCompleto:ADMIN_USER.nome, cargo:ADMIN_USER.cargo, area:'Gestão', foto:ADMIN_USER.foto||'', cor:'var(--kb-ouro)'});
           return lista;
         }
-        function kbPessoa(id){ return kbPessoas().find(p=>p.id===id)||{id:'', nome:'Sem responsável', cargo:'', area:'', cor:'var(--ink-faint)'}; }
+        function kbPessoa(id){ return kbPessoas().find(p=>p.id===id)||{id:'', nome:'Sem responsável', cargo:'', area:'', foto:'', cor:'var(--ink-faint)'}; }
         function kbIniciais(nome){ return String(nome||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase(); }
+        /* Avatar da pessoa: foto de perfil quando existe, iniciais quando não. */
+        function kbAv(p, grande){
+          return `<span class="kb-av${grande?' kb-av-g':''}" style="--kbc:${p.cor};">${
+            p.foto?`<img src="${kbEsc(p.foto)}" alt="">`:kbIniciais(p.nome)}</span>`;
+        }
         function kbNumero(id){ return String(KANBAN.contatos[id]||'').replace(/\D/g,''); }
         function kbPrioridade(v){ return KB_PRIORIDADES.find(p=>p.v===v)||KB_PRIORIDADES[0]; }
         function kbEtapa(id){ return KB_ETAPAS.find(e=>e.id===id)||KB_ETAPAS[0]; }
@@ -8641,6 +8743,7 @@ body.apresentacao #apr-banner{display:block;}
         /* ===== FILTRO / VISÃO ===== */
         function kbSetFiltro(k,v){ KANBAN.filtro[k]=v; if(k==='resp') _kbRespAuto=true; kbRender(); }
         function kbFiltroResp(id){ KANBAN.filtro.resp=(KANBAN.filtro.resp===id?'':id); _kbRespAuto=true; kbRender(); }
+        function kbFiltroOnda(o){ KANBAN.filtro.onda=(KANBAN.filtro.onda===o?'':o); kbRender(); }
         function kbLimparFiltros(){ KANBAN.filtro={busca:'',resp:'',area:'',onda:'',prio:''}; _kbRespAuto=true; kbRender(); }
         function kbToggleVisao(){ KANBAN.visao=(KANBAN.visao==='etapa'?'resp':'etapa'); kbRender(); }
         function kbFiltradas(){
@@ -8662,7 +8765,7 @@ body.apresentacao #apr-banner{display:block;}
           // colaborador entra vendo as demandas dele (pode limpar o filtro depois)
           if(!_kbRespAuto && AUTH.user && AUTH.user.papel==='colaborador'){ KANBAN.filtro.resp=AUTH.user.id; _kbRespAuto=true; }
           let waCard=document.getElementById('kb-wa'); if(waCard) waCard.style.display=kbEhAdmin()?'':'none';
-          kbRenderKpis(); kbRenderFiltros(); kbRenderChips(); kbRenderBoard();
+          kbRenderSaudacao(); kbRenderKpis(); kbRenderOndas(); kbRenderFiltros(); kbRenderChips(); kbRenderBoard(); kbRenderCarga();
           if(kbEhAdmin()){ kbWaCfgRender(); kbRenderContatos(); kbRenderLog(); }
           let bv=document.getElementById('kb-btn-visao'); if(bv) bv.innerHTML=(KANBAN.visao==='etapa'?'👥 Ver por responsável':'▦ Ver por etapa');
           let st=document.getElementById('kb-wa-status');
@@ -8670,6 +8773,97 @@ body.apresentacao #apr-banner{display:block;}
             st.innerHTML=(m==='auto'?'📲 WhatsApp automático (API oficial)':m==='link'?'📲 WhatsApp por link direto':'🔕 Avisos desligados');
             st.className='pill '+(m==='off'?'pill-mute':m==='auto'?'pill-ok':'pill-info'); st.style.textTransform='none'; st.style.letterSpacing='0';
           }
+        }
+        /* ── cartão de boas-vindas: quem entrou, como está o dia dele ── */
+        function kbSaudacaoHora(){ let h=new Date().getHours(); return h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'; }
+        function kbRenderSaudacao(){
+          let box=document.getElementById('kb-saudacao'); if(!box) return;
+          let u=AUTH.user||{}, ehCol=u.papel==='colaborador';
+          let pessoa=ehCol?kbPessoa(u.id):{nome:u.apelido||u.nome||ADMIN_USER.apelido, foto:u.foto||ADMIN_USER.foto||'', cor:'var(--gold)'};
+          let L=ehCol?KANBAN.tarefas.filter(t=>t.respId===u.id):KANBAN.tarefas;
+          let h=kbHojeISO();
+          let abertas=L.filter(t=>t.etapa!=='concluido').length;
+          let feitas=L.filter(t=>t.etapa==='concluido').length;
+          let atras=L.filter(t=>t.etapa!=='concluido'&&t.termino&&t.termino<h).length;
+          let hoje=L.filter(t=>t.etapa!=='concluido'&&t.termino===h).length;
+          let semDono=ehCol?0:L.filter(t=>!t.respId).length;
+          let frase=atras?`Você tem <b style="color:var(--bad);">${atras} demanda${atras>1?'s':''} atrasada${atras>1?'s':''}</b> — comece por elas. Dá para avisar no WhatsApp em um clique.`
+            :hoje?`<b>${hoje} demanda${hoje>1?'s':''} vence${hoje>1?'m':''} hoje.</b> Nada atrasado por enquanto — mantenha o ritmo.`
+            :abertas?`${abertas} demanda${abertas>1?'s':''} em aberto e nada atrasado. Operação em dia. 👏`
+            :`Nenhuma demanda em aberto. Quadro limpo! 🎉`;
+          const res=(v,l,cor)=>`<span class="kb-res" style="--kbc:${cor};"><span class="dot"></span><b>${v}</b> ${l}</span>`;
+          box.innerHTML=`<div class="kb-hello">
+            <div class="kb-hello-top">
+              <span class="kb-hello-av" style="background:${pessoa.cor};">${pessoa.foto?`<img src="${kbEsc(pessoa.foto)}" alt="">`:kbIniciais(pessoa.nome)}</span>
+              <div>
+                <h3>${kbSaudacaoHora()}, ${kbEsc(String(pessoa.nome||'').split(' ')[0])} 👋</h3>
+                <p>${frase}</p>
+              </div>
+              <span class="kb-hello-acts">
+                ${atras&&kbEhAdmin()?`<button class="btn btn-ghost btn-sm" onclick="kbCobrarAtrasadas()">⏰ Cobrar atrasadas</button>`:''}
+                <button class="btn btn-gold btn-sm" onclick="kbNova()">+ Nova tarefa</button>
+              </span>
+            </div>
+            <div class="kb-resumo">
+              ${res(abertas,'em aberto','var(--kb-c4)')}
+              ${res(hoje,'vencem hoje','var(--kb-c2)')}
+              ${res(atras,'atrasadas','var(--kb-c8)')}
+              ${res(feitas,'concluídas','var(--kb-c3)')}
+              ${semDono?res(semDono,'sem responsável','var(--ink-faint)'):''}
+            </div>
+            ${kbBarraProgresso(L)}
+          </div>`;
+        }
+        /* barra segmentada: quanto do quadro está em cada etapa */
+        function kbBarraProgresso(L){
+          if(!L.length) return '';
+          let segs='', leg='';
+          KB_ETAPAS.forEach(e=>{
+            let n=L.filter(t=>t.etapa===e.id).length; if(!n) return;
+            segs+=`<span class="kb-prog-seg" style="width:${(n/L.length*100).toFixed(2)}%;background:${e.cor};" title="${e.nome}: ${n}"></span>`;
+            leg+=`<span><i style="background:${e.cor};"></i>${e.nome} · <b>${n}</b></span>`;
+          });
+          return `<div class="kb-prog"><div class="kb-prog-bar">${segs}</div><div class="kb-prog-leg">${leg}</div></div>`;
+        }
+        /* ── trilha de ondas: cada onda com o próprio anel de progresso ── */
+        function kbRenderOndas(){
+          let box=document.getElementById('kb-ondas'); if(!box) return;
+          const cores=['var(--kb-c5)','var(--kb-c4)','var(--kb-c2)','var(--kb-c1)','var(--kb-c7)'];
+          let itens=KB_ONDAS.map((o,i)=>{
+            let L=KANBAN.tarefas.filter(t=>t.onda===o);
+            let ok=L.filter(t=>t.etapa==='concluido').length;
+            let pct=L.length?Math.round(ok/L.length*100):0;
+            return `<button class="kb-onda ${KANBAN.filtro.onda===o?'on':''}" style="--kbc:${cores[i%cores.length]};" onclick="kbFiltroOnda('${o}')" title="Ver só a ${o}">
+              <span class="kb-onda-ring" style="--p:${pct};"><b>${i+1}</b></span>
+              <span><span class="nm">${o}</span><span class="sb">${L.length?ok+' de '+L.length+' pronta'+(ok===1?'':'s')+' · '+pct+'%':'sem demanda'}</span></span>
+            </button>`;
+          }).join('');
+          box.innerHTML='<div class="kb-ondas">'+itens+'</div>';
+        }
+        /* ── carga da equipe: barra proporcional, dividida por etapa ── */
+        function kbRenderCarga(){
+          let box=document.getElementById('kb-carga'); if(!box) return;
+          let grupos=kbPessoas().map(p=>({p, L:KANBAN.tarefas.filter(t=>t.respId===p.id)})).filter(x=>x.L.length);
+          let semDono=KANBAN.tarefas.filter(t=>!t.respId);
+          if(!grupos.length&&!semDono.length){ box.innerHTML='<div class="kb-empty">Nenhuma demanda distribuída ainda.</div>'; return; }
+          let max=Math.max(1,...grupos.map(x=>x.L.length));
+          let h=kbHojeISO();
+          box.innerHTML=grupos.sort((a,b)=>b.L.length-a.L.length).map(x=>{
+            let segs=KB_ETAPAS.map(e=>{
+              let n=x.L.filter(t=>t.etapa===e.id).length;
+              return n?`<span class="kb-carga-seg" style="width:${(n/x.L.length*100).toFixed(2)}%;background:${e.cor};" title="${e.nome}: ${n}">${n}</span>`:'';
+            }).join('');
+            let abertas=x.L.filter(t=>t.etapa!=='concluido').length;
+            let atras=x.L.filter(t=>t.etapa!=='concluido'&&t.termino&&t.termino<h).length;
+            return `<div class="kb-carga-item">
+              <span class="kb-carga-nm" style="cursor:pointer;" onclick="kbFiltroResp('${x.p.id}')" title="Filtrar as demandas de ${kbEsc(x.p.nome)}">${kbAv(x.p)}${kbEsc(x.p.nome)}</span>
+              <span class="kb-carga-bar" style="max-width:${Math.round(x.L.length/max*100)}%;">${segs}</span>
+              <span class="kb-carga-tot">${abertas} em aberto${atras?' · <b style="color:var(--bad);">'+atras+' atrasada'+(atras>1?'s':'')+'</b>':''}</span>
+            </div>`;
+          }).join('')+(semDono.length?`<div class="kb-carga-item">
+              <span class="kb-carga-nm" style="color:var(--ink-faint);">⚠ Sem responsável</span>
+              <span class="kb-carga-bar"><span class="kb-carga-seg" style="width:100%;background:var(--line);color:var(--ink-soft);">${semDono.length}</span></span>
+              <span class="kb-carga-tot">precisa de dono</span></div>`:'');
         }
         function kbRenderKpis(){
           let box=document.getElementById('kb-kpis'); if(!box) return;
@@ -8679,11 +8873,11 @@ body.apresentacao #apr-banner{display:block;}
           let atraso=L.filter(t=>t.etapa!=='concluido'&&t.termino&&t.termino<kbHojeISO()).length;
           let pct=total?Math.round(feitas/total*100):0;
           const tile=(v,l,cor)=>`<div class="kb-kpi" style="--kbc:${cor};"><div class="v">${v}</div><div class="l">${l}</div></div>`;
-          box.innerHTML=tile(total,'Total de demandas','var(--gold)')
-            +tile(fazendo,'Em andamento','#ffc24d')
-            +tile(feitas,'Concluídas','#3ee89e')
-            +tile(atraso,'Em atraso',atraso?'var(--bad)':'var(--ink-faint)')
-            +tile(pct+'%','Conclusão','#35e6ff');
+          box.innerHTML=tile(total,'Total de demandas','var(--kb-neutro)')
+            +tile(fazendo,'Em andamento','var(--kb-c2)')
+            +tile(feitas,'Concluídas','var(--kb-c3)')
+            +tile(atraso,'Em atraso',atraso?'var(--kb-c8)':'var(--ink-faint)')
+            +tile(pct+'%','Conclusão','var(--kb-c4)');
         }
         function kbRenderFiltros(){
           const sel=(id,ops,val)=>{ let el=document.getElementById(id); if(el){ el.innerHTML=ops; el.value=val; } };
@@ -8696,15 +8890,15 @@ body.apresentacao #apr-banner{display:block;}
           let box=document.getElementById('kb-chips-resp'); if(!box) return;
           box.innerHTML=kbPessoas().map(p=>{
             let n=KANBAN.tarefas.filter(t=>t.respId===p.id && t.etapa!=='concluido').length;
-            return `<button class="kb-chip ${KANBAN.filtro.resp===p.id?'on':''}" style="--kbc:${p.cor};" onclick="kbFiltroResp('${p.id}')" title="${kbEsc(p.cargo)}">
-              <span class="dot"></span>${kbEsc(p.nome)}<span class="n">${n}</span></button>`;
-          }).join('')+`<button class="kb-chip ${KANBAN.filtro.resp===''?'on':''}" onclick="kbFiltroResp('')">Todo mundo<span class="n">${KANBAN.tarefas.filter(t=>t.etapa!=='concluido').length}</span></button>`;
+            return `<button class="kb-chip ${KANBAN.filtro.resp===p.id?'on':''}" style="--kbc:${p.cor};padding:4px 12px 4px 4px;" onclick="kbFiltroResp('${p.id}')" title="${kbEsc(p.cargo)}">
+              ${kbAv(p)}${kbEsc(p.nome)}<span class="n">${n}</span></button>`;
+          }).join('')+`<button class="kb-chip ${KANBAN.filtro.resp===''?'on':''}" style="--kbc:var(--kb-ouro);" onclick="kbFiltroResp('')">Todo mundo<span class="n">${KANBAN.tarefas.filter(t=>t.etapa!=='concluido').length}</span></button>`;
         }
         function kbCard(t){
           let p=kbPessoa(t.respId), pr=kbPrioridade(t.prioridade), h=kbHojeISO();
           let atrasada=t.etapa!=='concluido'&&t.termino&&t.termino<h, hoje=t.etapa!=='concluido'&&t.termino===h;
           let idx=KB_ETAPAS.findIndex(e=>e.id===t.etapa);
-          return `<div class="kb-card" style="--kbc:${p.cor};" draggable="true" ondragstart="kbDragStart(event,'${t.id}')" ondragend="kbDragEnd(event)" ondblclick="kbEditar('${t.id}')">
+          return `<div class="kb-card ${t.etapa==='concluido'?'feita':''}" data-id="${t.id}" style="--kbc:${p.cor};" draggable="true" ondragstart="kbDragStart(event,'${t.id}')" ondragend="kbDragEnd(event)" ondblclick="kbEditar('${t.id}')">
             <div class="kb-card-acts">
               ${idx>0?`<button class="kb-mini" onclick="event.stopPropagation();kbMover('${t.id}','${KB_ETAPAS[idx-1].id}')" title="Voltar etapa">‹</button>`:''}
               ${idx<KB_ETAPAS.length-1?`<button class="kb-mini" onclick="event.stopPropagation();kbMover('${t.id}','${KB_ETAPAS[idx+1].id}')" title="Avançar etapa">›</button>`:''}
@@ -8715,13 +8909,25 @@ body.apresentacao #apr-banner{display:block;}
             <div class="t">${kbEsc(t.titulo)}</div>
             ${t.notas?`<div class="nt">${kbEsc(t.notas).slice(0,120)}${(t.notas||'').length>120?'…':''}</div>`:''}
             <div class="meta">
-              <span class="kb-tag pess" style="--kbc:${p.cor};">${kbEsc(p.nome)}</span>
+              <span class="kb-tag pess" style="--kbc:${p.cor};">${kbAv(p)}${kbEsc(p.nome)}</span>
               ${t.prioridade?`<span class="kb-tag" style="color:${pr.cor};">${pr.l}</span>`:''}
               ${t.area?`<span class="kb-tag">${kbEsc(t.area)}</span>`:''}
               ${t.onda?`<span class="kb-tag">${kbEsc(t.onda)}</span>`:''}
               ${t.termino?`<span class="kb-tag ${atrasada?'atraso':hoje?'hoje':''}">${atrasada?'⚠ venceu':hoje?'⏰ hoje':'📅'} ${kbDataBR(t.termino)}</span>`:''}
             </div>
+            ${kbPrazoBar(t)}
           </div>`;
+        }
+        /* Régua de prazo: quanto do tempo combinado já passou. */
+        function kbPrazoBar(t){
+          if(t.etapa==='concluido'||!t.termino) return '';
+          let h=kbHojeISO();
+          if(t.termino<h) return '<div class="kb-prazo venceu"><i style="width:100%"></i></div>';
+          let ini=t.inicio&&t.inicio<t.termino?t.inicio:h;
+          let dia=v=>new Date(v+'T00:00:00').getTime();
+          let total=Math.max(1,(dia(t.termino)-dia(ini))/86400000);
+          let pct=Math.max(4,Math.min(100,Math.round((dia(h)-dia(ini))/86400000/total*100)));
+          return `<div class="kb-prazo ${pct>=75?'perto':''}"><i style="width:${pct}%"></i></div>`;
         }
         function kbColuna(etapa, tarefas){
           return `<div class="kb-col" style="--kbc:${etapa.cor};" ondragover="kbDragOver(event,this)" ondragleave="kbDragLeave(event,this)" ondrop="kbDrop(event,this,'${etapa.id}')">
@@ -8744,11 +8950,15 @@ body.apresentacao #apr-banner{display:block;}
           if(!pessoas.length){ box.innerHTML='<div class="kb-empty" style="padding:30px;">Nenhuma demanda com os filtros atuais.</div>'; return; }
           box.innerHTML=pessoas.map(p=>{
             let dela=L.filter(t=>t.respId===p.id), abertas=dela.filter(t=>t.etapa!=='concluido').length;
+            let feitas=dela.length-abertas, pct=dela.length?Math.round(feitas/dela.length*100):0;
             return `<div class="kb-grupo">
               <div class="kb-grupo-h" style="--kbc:${p.cor};">
-                <div class="av">${kbIniciais(p.nome)}</div>
+                ${kbAv(p,true)}
                 <div><div class="nm">Tarefas de ${kbEsc(p.nome)}</div><div class="sb">${kbEsc(p.cargo)} — ${abertas} em aberto de ${dela.length}</div></div>
-                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="kbCobrarPessoa('${p.id}')">📲 Avisar no WhatsApp</button>
+                <div style="margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <span style="font-size:11px;color:var(--ink-faint);display:flex;align-items:center;gap:8px;"><span class="mini-bar"><i style="width:${pct}%"></i></span>${pct}%</span>
+                  <button class="btn btn-ghost btn-sm" onclick="kbCobrarPessoa('${p.id}')">📲 Avisar no WhatsApp</button>
+                </div>
               </div>
               <div class="kb-board">${KB_ETAPAS.map(e=>kbColuna(e, dela.filter(t=>t.etapa===e.id))).join('')}</div>
             </div>`;
@@ -8770,6 +8980,8 @@ body.apresentacao #apr-banner{display:block;}
           let t=KANBAN.tarefas.find(x=>x.id===id); if(!t||t.etapa===etapaId) return;
           t.etapa=etapaId; t.atualizadoEm=Date.now();
           kbSalvarLS(); kbRender();
+          // pulsa o card que acabou de pousar na nova coluna
+          setTimeout(()=>{ let el=document.querySelector('.kb-card[data-id="'+id+'"]'); if(el){ el.classList.add('pousou'); setTimeout(()=>el.classList.remove('pousou'),760); } },20);
           let et=kbEtapa(etapaId);
           if(etapaId==='concluido'){ if(typeof SOUND!=='undefined') SOUND.play('success'); }
           notify('equipe','▦ Demanda em "'+et.nome+'"','"'+t.titulo+'" — responsável: '+kbPessoa(t.respId).nome+'.','kanban',true);
@@ -8925,7 +9137,7 @@ body.apresentacao #apr-banner{display:block;}
         function kbWaCfgRender(){
           let box=document.getElementById('kb-wa-cfg'); if(!box) return;
           const W=KANBAN.wa;
-          const modoBtn=(v,l,d)=>`<button class="kb-chip ${W.modo===v?'on':''}" style="--kbc:var(--gold);padding:9px 14px;" onclick="kbWaSet('modo','${v}')" title="${d}">${l}</button>`;
+          const modoBtn=(v,l,d)=>`<button class="kb-chip ${W.modo===v?'on':''}" style="--kbc:var(--kb-ouro);padding:9px 14px;" onclick="kbWaSet('modo','${v}')" title="${d}">${l}</button>`;
           const ev=(k,l)=>`<label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;">
             <input type="checkbox" ${W.eventos[k]?'checked':''} onchange="kbWaSet('ev.${k}',this.checked)"> ${l}</label>`;
           box.innerHTML=`

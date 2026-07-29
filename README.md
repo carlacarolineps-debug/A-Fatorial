@@ -232,6 +232,18 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - **Cobranças**: 📲 no card avisa uma demanda; "Avisar no WhatsApp" no bloco
       da pessoa cobra tudo que ela tem em aberto; "Cobrar todas as atrasadas"
       varre o quadro inteiro. `kbCobrar`, `kbCobrarPessoa`, `kbCobrarAtrasadas`.
+    - **Visual do quadro**: cartão de boas-vindas com saudação pela hora, resumo
+      do dia e **barra segmentada** do quadro por etapa (`kbRenderSaudacao`,
+      `kbBarraProgresso`); **trilha de ondas** com anel de progresso que filtra
+      ao clicar (`kbRenderOndas`); **carga da equipe** em barras proporcionais
+      divididas por etapa (`kbRenderCarga`); **avatares com a foto de perfil**
+      de cada pessoa (`kbAv`); **régua de prazo** no card mostrando quanto do
+      tempo combinado já passou (`kbPrazoBar`); e pulso no card ao soltar numa
+      nova coluna.
+    - **Tema claro e escuro**: as cores do quadro saem dos tokens `--kb-c1..c8`,
+      `--kb-ouro`, `--kb-neutro` e `--kb-sobre`, definidos duas vezes no CSS —
+      fechadas no tema claro, neon no escuro. Nenhuma cor fixa no JavaScript,
+      então o quadro nasce legível nos dois (contraste medido ≥ 4,9:1).
     - **No sino**: alerta de demandas atrasadas e das que vencem hoje.
     - O colaborador entra vendo **as demandas dele** e não enxerga o painel de
       configuração do WhatsApp. Dados em `localStorage` chave `af_kanban`
