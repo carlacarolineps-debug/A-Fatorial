@@ -593,6 +593,14 @@
     .ac-croqui { flex:1; display:flex; align-items:center; justify-content:center; padding:4px; min-height:320px; overflow:hidden; }
     .ac-croqui svg { width:100%; height:auto; max-height:400px; }
     .ac-croqui > span { font-size:11px; color:#94a3b8; text-align:center; padding:16px; }
+    .ac-carac { width:100%; border-collapse:collapse; }
+    .ac-carac th { background:#f1f5f9; border:1px solid #cbd5e1; font-size:10px; font-weight:800; color:#334155; text-align:right; padding:4px 7px; width:42%; text-transform:none; letter-spacing:0; }
+    .ac-carac td { border:1px solid #cbd5e1; padding:0; }
+    .ac-carac td input { border:none; background:transparent; width:100%; padding:4px 7px; font-size:11.5px; color:#1e293b; font-weight:600; }
+    .ac-carac td input:focus { outline:none; background:#f8fafc; }
+    .ac-atencao { border-top:1px solid #cbd5e1; padding:8px 10px; text-align:center; }
+    .ac-atencao b { display:block; font-size:12px; font-weight:800; color:#1e293b; letter-spacing:.06em; margin-bottom:3px; }
+    .ac-atencao span { font-size:9.5px; color:#475569; line-height:1.35; display:block; }
     .ac-sentido { flex:1; display:flex; align-items:center; justify-content:center; padding:10px; }
     .ac-sent-sel { text-align:center; width:100%; }
     .ac-sent-sel img { width:100%; max-width:250px; height:auto; }
@@ -1869,6 +1877,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <datalist id="dl_corona"><option value="38"></option><option value="40"></option><option value="42"></option></datalist>
                 <datalist id="dl_tratamento"><option value="Somente um lado"></option><option value="Ambos os Lados"></option><option value="Não se Aplica"></option></datalist>
                 <datalist id="dl_sentido"><option value="Externo"></option><option value="Interno"></option><option value="Cabeça"></option><option value="Pé"></option></datalist>
+                <datalist id="dl_sentido_desb"><option value="Lateral esquerda"></option><option value="Lateral direita"></option><option value="Externo"></option><option value="Interno"></option></datalist>
                 <datalist id="dl_tintas"><option value="BRANCO"></option><option value="AMARELO"></option><option value="MAGENTA"></option><option value="CYAN"></option><option value="PRETO"></option><option value="VERDE"></option><option value="LARANJA"></option><option value="VERNIZ"></option></datalist>
                 <datalist id="dl_duplaface"><option value="ALTA"></option><option value="MÉDIA"></option><option value="MÉDIA BAIXA"></option><option value="BAIXA"></option></datalist>
                 <datalist id="dl_anilox"><option value="160"></option><option value="S"></option><option value="XS"></option><option value="M1"></option><option value="M2"></option></datalist>
@@ -2042,15 +2051,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     </table>
                 </div>
 
-                <div class="g-col g-col-12" style="background:#f8fafc;"><span class="lbl" style="color:#1d4ed8;">CARACTERÍSTICAS DA BOBINA (AUTO CONTROLE)</span></div>
-                <div class="g-col g-col-2"><span class="lbl">Largura</span><input class="inp" id="fu_imp_ac_largura" value="700,00 +/- 10,00 mm"></div>
-                <div class="g-col g-col-2"><span class="lbl">Espessura</span><input class="inp" id="fu_imp_ac_espessura" value="0,060 +/- 5,00 mm"></div>
-                <div class="g-col g-col-2"><span class="lbl">Tratamento</span><input class="inp" id="fu_imp_ac_tratamento" value="Somente um lado" list="dl_tratamento"></div>
-                <div class="g-col g-col-2"><span class="lbl">Aspecto Visual</span><input class="inp" id="fu_imp_ac_aspecto" value="Conforme amostra padrão" readonly style="background:#eef2f7; cursor:default;"></div>
-                <div class="g-col g-col-2"><span class="lbl">Tubete</span><input class="inp" id="fu_imp_ac_tubete" value='3" polegadas' list="dl_tubete"></div>
-                <div class="g-col g-col-2"><span class="lbl">Aderência</span><input class="inp" id="fu_imp_ac_aderencia" value="38 +/- 2 Dynas"></div>
-                <div class="g-col g-col-12" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Aspecto Visual: na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b> como "Conforme amostra padrão".</span></div>
                 <div id="fu-ac-impressao" style="display:contents;"></div>
+                <div class="g-col g-col-12 no-print" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Aspecto Visual: na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b> como "Conforme amostra padrão".</span></div>
             </div>
 
             <!-- SEÇÃO: LAMINAÇÃO (todos os campos da ficha individual) -->
@@ -7221,12 +7223,28 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     // AUTO CONTROLE por etapa — imagem da arte com medidas + sentido de puxada
     // (mesmo bloco das fichas oficiais de Impressão, Laminação, Rebobinadeira e Corte & Solda)
     // ==========================================================================
+    const CARAC_BOBINA = p => [
+        { l: 'Largura',       id: `fu_${p}_ac_largura`,    v: '890,00 +/- 10,00 mm' },
+        { l: 'Espessura',     id: `fu_${p}_ac_espessura`,  v: '0,035 +/- 5,00 mm' },
+        { l: 'Tratamento',    id: `fu_${p}_ac_tratamento`, v: 'Somente um lado', list: 'dl_tratamento' },
+        { l: 'Aspecto Visual', id: `fu_${p}_ac_aspecto`,   v: 'De acordo amostra padrão', ro: true },
+        { l: 'Tubete',        id: `fu_${p}_ac_tubete`,     v: '3&quot; polegadas', list: 'dl_tubete' },
+        { l: 'Aderência',     id: `fu_${p}_ac_aderencia`,  v: '38 +/- 2 Dynas' }
+    ];
+    const CARAC_EMBAL = p => [
+        { l: 'Largura',        id: `fu_${p}_ac_largura`,   ph: 'Ex.: 315,00 +/- 10,00 mm' },
+        { l: 'Comprimento',    id: `fu_${p}_ac_compr`,     ph: 'Ex.: 400,00 +/- 10,00 mm' },
+        { l: 'Sanfona',        id: `fu_${p}_ac_sanf`,      ph: 'Ex.: 35,00 / N/A', list: 'dl_na' },
+        { l: 'Aba',            id: `fu_${p}_ac_abac`,      ph: 'Ex.: 40,00 / N/A', list: 'dl_na' },
+        { l: 'Espessura',      id: `fu_${p}_ac_espessura`, ph: 'Ex.: 0,070 +/- 5,00 mm' },
+        { l: 'Aspecto Visual', id: `fu_${p}_ac_aspecto`,   v: 'De acordo amostra padrão', ro: true }
+    ];
     const AUTOCTRL_ETAPAS = [
-        { key: 'impressao',     pref: 'imp', cor: '#1d4ed8', bg: '#eaf0fb', tit: 'AUTO CONTROLE IMPRESSÃO',      obj: 'BOBINA',    sentido: 'sentido que será impresso' },
-        { key: 'laminacao',     pref: 'lam', cor: '#7c3aed', bg: '#f3ecfd', tit: 'AUTO CONTROLE LAMINAÇÃO',      obj: 'BOBINA',    sentido: 'sentido de laminação' },
-        { key: 'rebobinadeira', pref: 'reb', cor: '#0891b2', bg: '#e0f2fe', tit: 'AUTO CONTROLE REBOBINADEIRA',  obj: 'BOBINA',    sentido: 'sentido que será rebobinado' },
-        { key: 'corte',         pref: 'cor', cor: '#0d9488', bg: '#e6f4f2', tit: 'AUTO CONTROLE CORTE & SOLDA',  obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento' },
-        { key: 'final',         pref: 'fin', cor: '#b45309', bg: '#fef3c7', tit: 'AUTO CONTROLE PRODUTO ACABADO', obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento' }
+        { key: 'impressao',     pref: 'imp', cor: '#1d4ed8', bg: '#eaf0fb', tit: 'AUTO CONTROLE IMPRESSÃO',      obj: 'BOBINA',    sentido: 'sentido que será impresso',   carac: CARAC_BOBINA('imp') },
+        { key: 'laminacao',     pref: 'lam', cor: '#7c3aed', bg: '#f3ecfd', tit: 'AUTO CONTROLE LAMINAÇÃO',      obj: 'BOBINA',    sentido: 'sentido de laminação',        carac: CARAC_BOBINA('lam') },
+        { key: 'rebobinadeira', pref: 'reb', cor: '#0891b2', bg: '#e0f2fe', tit: 'AUTO CONTROLE REBOBINADEIRA',  obj: 'BOBINA',    sentido: 'sentido que será rebobinado', carac: CARAC_BOBINA('reb') },
+        { key: 'corte',         pref: 'cor', cor: '#0d9488', bg: '#e6f4f2', tit: 'AUTO CONTROLE CORTE & SOLDA',  obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento',   carac: CARAC_EMBAL('cor') },
+        { key: 'final',         pref: 'fin', cor: '#b45309', bg: '#fef3c7', tit: 'AUTO CONTROLE PRODUTO ACABADO', obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento',  carac: CARAC_EMBAL('fin') }
     ];
     // Layout fiel à ficha oficial: UM quadro "IMAGEM DA ARTE" (medidas + desenho juntos)
     // e, ao lado, o SENTIDO DE DESBOBINAMENTO mostrando SOMENTE a opção escolhida, em tamanho grande.
@@ -7238,10 +7256,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="ac-panel">
                     <div class="ac-panel-t" style="background:${e.cor};">IMAGEM DA ARTE — MEDIDAS (mm)</div>
                     <div class="ac-meds">
-                        <label><span>Largura</span><input class="inp" id="fu_${p}_ac_largura" inputmode="decimal" placeholder="315,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
-                        <label><span>${alturaLabel}</span><input class="inp" id="fu_${p}_ac_altura" inputmode="decimal" placeholder="400,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
-                        <label><span>Sanfona</span><input class="inp" id="fu_${p}_ac_sanfona" inputmode="decimal" placeholder="35,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
-                        <label><span>Aba / Fita</span><input class="inp" id="fu_${p}_ac_aba" inputmode="decimal" placeholder="40,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <label><span>Largura</span><input class="inp" id="fu_${p}_cq_largura" inputmode="decimal" placeholder="315,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <label><span>${alturaLabel}</span><input class="inp" id="fu_${p}_cq_altura" inputmode="decimal" placeholder="400,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <label><span>Sanfona</span><input class="inp" id="fu_${p}_cq_sanfona" inputmode="decimal" placeholder="35,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
+                        <label><span>Aba / Fita</span><input class="inp" id="fu_${p}_cq_aba" inputmode="decimal" placeholder="40,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
                         <div class="ac-meds-acoes no-print">
                             <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:5px 11px; font-size:11.5px;"><i class="fas fa-paperclip"></i> Anexar arte
                                 <input type="file" accept="image/*" style="display:none;" onchange="fuAutoCtrlUpload(this,'${e.key}')">
@@ -7250,13 +7268,17 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                         </div>
                     </div>
                     <div id="fu-${p}-ac-croqui" class="ac-croqui" style="cursor:zoom-in;" onclick="fuAutoCtrlZoom('${e.key}')"></div>
-                    <input type="hidden" id="fu_${p}_ac_arte">
+                    <input type="hidden" id="fu_${p}_cq_arte">
                 </div>
             </div>
             <div class="g-col g-col-4" style="padding:0;">
                 <div class="ac-panel">
-                    <div class="ac-panel-t" style="background:${e.cor};">SENTIDO DE DESBOBINAMENTO</div>
+                    <div class="ac-panel-t" style="background:${e.cor};">CARACTERÍSTICA DA ${e.obj}</div>
+                    <table class="ac-carac">${(e.carac || []).map(cp => `<tr><th>${cp.l}</th><td><input class="inp" id="${cp.id}"${cp.ro ? ' readonly style="background:#eef2f7; cursor:default;"' : ''}${cp.list ? ` list="${cp.list}"` : ''}${cp.v ? ` value="${cp.v}"` : ''}${cp.ph ? ` placeholder="${cp.ph}"` : ''}></td></tr>`).join('')}
+                        <tr><th>Sentido desbobinamento</th><td><input class="inp" id="fu_${p}_ac_sentido_txt" placeholder="Ex.: Lateral esquerda" list="dl_sentido_desb"></td></tr>
+                    </table>
                     <div id="fu-${p}-ac-sentido" class="ac-sentido"></div>
+                    <div class="ac-atencao"><b>ATENÇÃO</b><span>Para a execução da produção, a amostra retirada deve ser aprovada pelo Controle de Qualidade.</span></div>
                 </div>
             </div>`;
     }
@@ -7294,12 +7316,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const file = input.files && input.files[0]; if (!file) return;
         if (!/^image\//.test(file.type)) { alert('Selecione um arquivo de imagem.'); return; }
         const e = fuAutoCtrlCfg(key); const r = new FileReader();
-        r.onload = ev => { const h = document.getElementById(`fu_${e.pref}_ac_arte`); if (h) h.value = ev.target.result; fuAutoCtrlCroqui(key); fuAtualizarResumo(); };
+        r.onload = ev => { const h = document.getElementById(`fu_${e.pref}_cq_arte`); if (h) h.value = ev.target.result; fuAutoCtrlCroqui(key); fuAtualizarResumo(); };
         r.readAsDataURL(file); input.value = '';
     }
-    function fuAutoCtrlRemover(key) { const e = fuAutoCtrlCfg(key); const h = document.getElementById(`fu_${e.pref}_ac_arte`); if (h) h.value = ''; fuAutoCtrlCroqui(key); }
+    function fuAutoCtrlRemover(key) { const e = fuAutoCtrlCfg(key); const h = document.getElementById(`fu_${e.pref}_cq_arte`); if (h) h.value = ''; fuAutoCtrlCroqui(key); }
     function fuAutoCtrlZoom(key) {
-        const e = fuAutoCtrlCfg(key); const h = document.getElementById(`fu_${e.pref}_ac_arte`);
+        const e = fuAutoCtrlCfg(key); const h = document.getElementById(`fu_${e.pref}_cq_arte`);
         if (!h || !h.value) return;
         const bkp = document.getElementById('fu_cli_arte_img');
         // reaproveita o lightbox: injeta a imagem desta etapa
@@ -7322,12 +7344,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function fuAutoCtrlCroqui(key) {
         const e = fuAutoCtrlCfg(key); if (!e) return;
         const box = document.getElementById(`fu-${e.pref}-ac-croqui`); if (!box) return;
-        const art = (document.getElementById(`fu_${e.pref}_ac_arte`) || {}).value || '';
+        const art = (document.getElementById(`fu_${e.pref}_cq_arte`) || {}).value || '';
         const del = document.getElementById(`fu-${e.pref}-ac-del`); if (del) del.style.display = art ? '' : 'none';
         const num = id => { const el = document.getElementById(id); return el ? (parseFloat((el.value || '').replace(',', '.')) || 0) : 0; };
         box.innerHTML = croquiSVG({
-            L: num(`fu_${e.pref}_ac_largura`), A: num(`fu_${e.pref}_ac_altura`),
-            S: num(`fu_${e.pref}_ac_sanfona`), B: num(`fu_${e.pref}_ac_aba`),
+            L: num(`fu_${e.pref}_cq_largura`), A: num(`fu_${e.pref}_cq_altura`),
+            S: num(`fu_${e.pref}_cq_sanfona`), B: num(`fu_${e.pref}_cq_aba`),
             art, cor: e.cor, titulo: e.obj === 'BOBINA' ? 'IMAGEM DA ARTE — BOBINA' : 'IMAGEM DA ARTE — EMBALAGEM',
             vazio: 'Preencha as medidas e anexe a arte —<br>a imagem entra aqui com as réguas em volta.'
         });
