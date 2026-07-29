@@ -612,6 +612,22 @@
     .sol-linha.alta { height:40px; }
     .ac-medresumo { padding:6px 10px; font-size:11px; color:#64748b; display:flex; align-items:center; }
     .ac-medresumo b { margin-left:5px; color:#1e293b; }
+    /* ---- Controle Estatístico do Processo (Impressão) ---- */
+    .cep-tol input { text-align:center; font-weight:700; }
+    .cep-head { display:flex; align-items:center; gap:10px; background:#1d4ed8; color:#fff; padding:5px 10px; font-size:10.5px; font-weight:800; letter-spacing:.05em; }
+    .cep-head .cep-resumo { margin-left:auto; font-weight:600; letter-spacing:0; font-size:10.5px; background:#fff; color:#334155; padding:2px 9px; border-radius:999px; }
+    .cep-head .mini-btn { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.3); color:#fff; }
+    .cep-tab { font-size:11.5px; }
+    .cep-tab thead th { background:#eaf0fb; color:#1d4ed8; font-size:9.5px; }
+    .cep-tab .cep-n { text-align:center; font-weight:700; color:#64748b; background:#f8fafc; }
+    .cep-tab input { text-align:center; }
+    .cep-tab input.cep-fora { background:#fee2e2; color:#b91c1c; font-weight:800; }
+    .cep-st { text-align:center; font-weight:800; font-size:10px; color:#cbd5e1; }
+    .cep-st.ok { color:#16a34a; background:#f0fdf4; }
+    .cep-st.nok { color:#dc2626; background:#fef2f2; }
+    .cep-mais { width:100%; border:1px dashed var(--border); background:#f8fafc; color:#475569; border-radius:8px; padding:7px; font-size:11.5px; cursor:pointer; margin-top:4px; }
+    .cep-mais:hover { background:#eef2f7; border-color:#94a3b8; }
+    .cep-legenda { font-size:10px; color:#94a3b8; padding:6px 2px; line-height:1.4; }
     .ft-tab .ft-k { background:#f8fafc; font-weight:700; color:#334155; text-align:left; padding-left:8px; }
     .ft-tab .ft-u { background:#f8fafc; font-size:10px; color:#64748b; text-align:center; font-weight:600; }
     .ac-carac { width:100%; border-collapse:collapse; }
@@ -1224,12 +1240,7 @@
         <div class="sidebar-menu-item">
             <button class="sys-nav-btn" id="nav-form" onclick="toggleSubmenu(this)"><span class="nav-icon"><i class="fas fa-file-lines"></i></span> Ficha de Parâmetro <span class="nav-caret">▸</span></button>
             <div class="sidebar-submenu">
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px; color:#c5a880; font-weight:700;" onclick="abrirFicha('ficha-unica')"><i class="fas fa-bolt" style="width:16px;"></i> Ficha Única (todas as etapas)</button>
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-solicitacao-cliche')"><i class="fas fa-stamp" style="width:16px;"></i> Solicitação de Clichê</button>
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-impressao')"><i class="fas fa-print" style="width:16px;"></i> Impressão</button>
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-laminacao')"><i class="fas fa-layer-group" style="width:16px;"></i> Laminação</button>
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-corte')"><i class="fas fa-scissors" style="width:16px;"></i> Corte &amp; Solda</button>
-                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="nav('form-rebobinadeira')"><i class="fas fa-rotate" style="width:16px;"></i> Rebobinadeira</button>
+                <button class="sys-nav-btn" style="padding-left:20px; font-size:12px; color:#c5a880; font-weight:700;" onclick="abrirFicha('ficha-unica')"><i class="fas fa-bolt" style="width:16px;"></i> Ficha de Parâmetros (todas as etapas)</button>
 
                 <div class="sidebar-menu-item">
                     <button class="sys-nav-btn" style="padding-left:20px; font-size:12px;" onclick="toggleSubmenu(this)"><i class="fas fa-triangle-exclamation" style="width:16px;"></i> Não Conformidade <span class="nav-caret">▸</span></button>
@@ -1303,12 +1314,7 @@
             <div class="sys-menu-item" id="hdr-nova-ficha">
                 <button class="sys-btn-success" style="padding: 8px 16px;"><i class="fas fa-plus"></i> Nova Ficha <i class="fas fa-caret-down"></i></button>
                 <div class="sys-submenu sys-submenu-bottom-left">
-                    <button class="sys-submenu-btn" style="color:#c5a880; font-weight:700;" onclick="abrirFicha('ficha-unica')"><i class="fas fa-bolt" style="width:16px;"></i> Ficha Única (todas as etapas)</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('solicitacao-cliche')"><i class="fas fa-stamp" style="width:16px;"></i> Solicitação de Clichê</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('impressao')"><i class="fas fa-print" style="width:16px;"></i> Impressão</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('laminacao')"><i class="fas fa-layer-group" style="width:16px;"></i> Laminação</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('corte')"><i class="fas fa-scissors" style="width:16px;"></i> Corte &amp; Solda</button>
-                    <button class="sys-submenu-btn" onclick="abrirFicha('rebobinadeira')"><i class="fas fa-rotate" style="width:16px;"></i> Rebobinadeira</button>
+                    <button class="sys-submenu-btn" style="color:#c5a880; font-weight:700;" onclick="abrirFicha('ficha-unica')"><i class="fas fa-bolt" style="width:16px;"></i> Ficha de Parâmetros (todas as etapas)</button>
                     <button class="sys-submenu-btn" onclick="abrirFicha('nc-fornecedor')"><i class="fas fa-triangle-exclamation" style="width:16px;"></i> NC Fornecedor</button>
                     <button class="sys-submenu-btn" onclick="abrirFicha('devolucao')"><i class="fas fa-arrow-rotate-left" style="width:16px;"></i> Devolução</button>
                 </div>
@@ -1865,7 +1871,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         <div class="ficha-wrapper">
             <div class="ficha-header-pdf">
                 <div class="ficha-title">
-                    <h2>Ficha Única de Parâmetros <span class="badge-setor" style="background:#c5a880; color:#191040;">TODAS AS ETAPAS · TESTE</span></h2>
+                    <h2>Ficha de Parâmetros <span class="badge-setor" style="background:#c5a880; color:#191040;">TODAS AS ETAPAS · TESTE</span></h2>
                     <p>REBRACIL - EMBALAGENS FLEXÍVEIS · Um documento, todo o processo do produto</p>
                 </div>
                 <div style="text-align: right;">
@@ -1877,7 +1883,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             <!-- Barra de reaproveitamento inteligente -->
             <div class="fu-reuse" id="fu-reuse">
                 <i class="fas fa-lightbulb"></i>
-                <span>Já existe uma Ficha Única para <b id="fu-reuse-prod">este produto</b>. Quer carregar os parâmetros da última versão e só ajustar o que mudou?</span>
+                <span>Já existe uma ficha para <b id="fu-reuse-prod">este produto</b>. Quer carregar os parâmetros da última versão e só ajustar o que mudou?</span>
                 <button class="action-btn-sec" style="padding:5px 12px; font-size:11px;" onclick="fuCarregarAnterior()"><i class="fas fa-rotate"></i> Carregar parâmetros</button>
                 <button class="btn-ic" title="Dispensar" onclick="document.getElementById('fu-reuse').style.display='none'"><i class="fas fa-xmark"></i></button>
             </div>
@@ -1904,6 +1910,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <datalist id="dl_corona"><option value="38"></option><option value="40"></option><option value="42"></option></datalist>
                 <datalist id="dl_tratamento"><option value="Somente um lado"></option><option value="Ambos os Lados"></option><option value="Não se Aplica"></option></datalist>
                 <datalist id="dl_sentido"><option value="Externo"></option><option value="Interno"></option><option value="Cabeça"></option><option value="Pé"></option></datalist>
+                <datalist id="dl_cnc"><option value="C"></option><option value="NC"></option></datalist>
                 <datalist id="dl_sentido_desb"><option value="Lateral esquerda"></option><option value="Lateral direita"></option><option value="Externo"></option><option value="Interno"></option></datalist>
                 <datalist id="dl_tintas"><option value="BRANCO"></option><option value="AMARELO"></option><option value="MAGENTA"></option><option value="CYAN"></option><option value="PRETO"></option><option value="VERDE"></option><option value="LARANJA"></option><option value="VERNIZ"></option></datalist>
                 <datalist id="dl_duplaface"><option value="ALTA"></option><option value="MÉDIA"></option><option value="MÉDIA BAIXA"></option><option value="BAIXA"></option></datalist>
@@ -2258,6 +2265,55 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
 
                 <div id="fu-ac-impressao" style="display:contents;"></div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#eaf0fb;"><span class="lbl" style="color:#1d4ed8;">CONTROLE ESTATÍSTICO DO PROCESSO — IMPRESSÃO <span style="font-weight:400; color:#94a3b8; font-size:9px;">(rastreabilidade das amostras)</span></span></div>
+                <div class="g-col g-col-12" style="background:transparent; padding:0;">
+                    <table class="inner-table cep-tol">
+                        <tr>
+                            <th class="grp-th" colspan="3">NOMINAL</th>
+                            <th class="grp-th" colspan="2">TOLERÂNCIA LARGURA</th>
+                            <th class="grp-th" colspan="2">TOLERÂNCIA PASSO</th>
+                            <th class="grp-th" colspan="2">TOLERÂNCIA ESPESSURA</th>
+                        </tr>
+                        <tr>
+                            <th>Largura</th><th>Passo</th><th>Espessura</th>
+                            <th>Mínimo</th><th>Máximo</th><th>Mínimo</th><th>Máximo</th><th>Mínimo</th><th>Máximo</th>
+                        </tr>
+                        <tr>
+                            <td><input id="fu_cep_larg_nom" data-l="Largura Nominal" placeholder="890" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_passo_nom" data-l="Passo Nominal" placeholder="315" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_esp_nom" data-l="Espessura Nominal" placeholder="0,035" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_larg_min" data-l="Largura Mín" placeholder="880" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_larg_max" data-l="Largura Máx" placeholder="900" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_passo_min" data-l="Passo Mín" placeholder="312" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_passo_max" data-l="Passo Máx" placeholder="318" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_esp_min" data-l="Espessura Mín" placeholder="0,030" oninput="fuCepAvaliar()"></td>
+                            <td><input id="fu_cep_esp_max" data-l="Espessura Máx" placeholder="0,040" oninput="fuCepAvaliar()"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="g-col g-col-12" style="background:transparent; padding:0;">
+                    <div class="cep-head">
+                        <span>RASTREABILIDADE — AMOSTRAS</span>
+                        <span class="cep-resumo no-print" id="fu-cep-resumo"></span>
+                        <button type="button" class="mini-btn no-print" onclick="fuCepLinhas(5)" title="Adicionar 5 amostras">+5</button>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="inner-table cep-tab">
+                            <thead><tr>
+                                <th style="width:52px;">Amostra</th><th style="width:104px;">Data</th><th style="width:78px;">Hora</th>
+                                <th style="width:56px;">Maq.</th><th style="width:82px;">OP</th>
+                                <th style="width:82px;">Espessura</th><th style="width:78px;">Largura</th><th style="width:70px;">Passo</th>
+                                <th style="width:88px;">Tratamento</th><th style="width:80px;">Cent. Arte</th><th style="width:92px;">Aspecto</th>
+                                <th style="width:98px;">Status</th>
+                            </tr></thead>
+                            <tbody id="fu-cep-body"></tbody>
+                        </table>
+                    </div>
+                    <button type="button" id="fu-cep-mais" class="cep-mais no-print" onclick="fuCepExpandir()">+ mostrar as demais amostras</button>
+                    <div class="cep-legenda no-print">C = Conforme · NC = Não conforme. O <b>status é calculado</b> comparando espessura, largura e passo com as tolerâncias acima — fora da faixa fica <b>REPROVADO</b> em vermelho.</div>
+                    <input type="hidden" id="fu_cep_amostras">
+                </div>
                 <div class="g-col g-col-12 no-print" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Aspecto Visual: na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b> como "Conforme amostra padrão".</span></div>
             </div>
 
@@ -4653,7 +4709,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if(tela === 'comando') headerTitle = 'Central de Comando';
         else if(tela === 'inspecao') headerTitle = 'Inspeção & Liberação de Setup';
         else if(tela === 'parametros') headerTitle = 'Parâmetros de Qualidade';
-        else if(tela === 'checklist-diario') headerTitle = 'Checklist Diário — Rotina da Qualidade';
+        else if(tela === 'checklist-diario') headerTitle = 'Checklist Diário';
         else if(tela === 'placas') headerTitle = 'Placas de Identificação — RGQ-130';
         else if(tela === 'regras-codigo') headerTitle = 'Configuração — Regras de Código por Etapa';
         else if(tela === 'importar') headerTitle = 'Configuração — Importar dados';
@@ -4676,7 +4732,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else if(tela === 'log-separacao') headerTitle = 'Logística — Separação & Expedição';
         else if(tela === 'dash') headerTitle = 'Dashboard Geral';
         else if(tela === 'calendario') headerTitle = 'Produção — Fila e Calendário';
-        else if(tela === 'form-ficha-unica') headerTitle = 'Ficha Única de Parâmetros — Todas as Etapas';
+        else if(tela === 'form-ficha-unica') headerTitle = 'Ficha de Parâmetros — Todas as Etapas';
         else if(tela === 'form-corte') headerTitle = 'Ficha de Parâmetro — Corte & Solda';
         else if(tela === 'form-impressao') headerTitle = 'Ficha de Parâmetro — Impressão';
         else if(tela === 'form-laminacao') headerTitle = 'Ficha de Parâmetro — Laminação';
@@ -4770,6 +4826,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             fuCliCroqui();
             fuCliArteRender();
             fuAutoCtrlInit();
+            fuCepRestaurar();
             fuPuxadaInit();
             fuAtualizarResumo();
         }
@@ -7209,6 +7266,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if (sec) sec.classList.toggle('on', cb.checked);
         // Ao ativar a Solicitação de Clichê: preenche elaborador e desenha o croqui
         if (cb.value === 'solicitacao' && cb.checked) { fuAutoCtrlInit(); fuSolSemear(); fuSolRestaurar(); fuAutoCtrlCroqui('solicitacao'); }
+        if (cb.value === 'impressao' && cb.checked) { fuCepRestaurar(); }
         if (cb.value === 'ftmp' && cb.checked) { fuAutoCtrlInit(); fuAutoCtrlCroqui('ftmp'); }
         if (cb.value === 'cliche' && cb.checked) {
             const el = document.getElementById('fu_cli_elaborado');
@@ -7216,6 +7274,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             fuCliCroqui();
             fuCliArteRender();
             fuAutoCtrlInit();
+            fuCepRestaurar();
         }
         // Ao ativar a Especificação Final: preenche o que o sistema já sabe
         if (cb.value === 'final' && cb.checked) {
@@ -7922,6 +7981,108 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         });
     }
 
+    // ==========================================================================
+    // CONTROLE ESTATÍSTICO DO PROCESSO — IMPRESSÃO (planilha CONTROLE IMPRESSÃO)
+    // 30 amostras com rastreabilidade; o status sai das tolerâncias informadas.
+    // ==========================================================================
+    const CEP_TOTAL = 30;
+    function cepNum(v) { const n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isFinite(n) ? n : null; }
+    function fuCepLinhaHTML(i) {
+        return `<tr data-am="${i}">
+            <td class="cep-n">${i}</td>
+            <td><input type="date" data-c="data" data-l="Data ${i}" oninput="fuCepAvaliar()"></td>
+            <td><input type="time" data-c="hora" data-l="Hora ${i}" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="maq" data-l="Máq ${i}" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="op" data-l="OP ${i}" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="esp" data-l="Espessura ${i}" inputmode="decimal" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="larg" data-l="Largura ${i}" inputmode="decimal" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="passo" data-l="Passo ${i}" inputmode="decimal" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="trat" data-l="Tratamento ${i}" list="dl_cnc" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="cent" data-l="Cent. Arte ${i}" list="dl_cnc" oninput="fuCepAvaliar()"></td>
+            <td><input data-c="asp" data-l="Aspecto ${i}" list="dl_cnc" oninput="fuCepAvaliar()"></td>
+            <td class="cep-st" data-c="status">—</td>
+        </tr>`;
+    }
+    const CEP_VISIVEL = 10;   // mostra 10 linhas; as demais aparecem sob demanda
+    function fuCepInit() {
+        const tb = document.getElementById('fu-cep-body'); if (!tb || tb.dataset.built) return;
+        let h = ''; for (let i = 1; i <= CEP_TOTAL; i++) h += fuCepLinhaHTML(i);
+        tb.innerHTML = h; tb.dataset.built = '1'; tb.dataset.n = CEP_TOTAL;
+        fuCepCompactar();
+    }
+    // Esconde as linhas vazias além das primeiras, para a ficha não ficar quilométrica
+    function fuCepCompactar() {
+        const tb = document.getElementById('fu-cep-body'); if (!tb || tb.dataset.expandido === '1') return;
+        let ultimaComDado = 0;
+        tb.querySelectorAll('tr').forEach(tr => {
+            const preench = [...tr.querySelectorAll('[data-c]')].some(el => 'value' in el && (el.value || '').trim());
+            if (preench) ultimaComDado = parseInt(tr.dataset.am, 10);
+        });
+        const limite = Math.max(CEP_VISIVEL, ultimaComDado + 2);
+        let ocultas = 0;
+        tb.querySelectorAll('tr').forEach(tr => {
+            const n = parseInt(tr.dataset.am, 10);
+            const esconder = n > limite;
+            tr.style.display = esconder ? 'none' : '';
+            if (esconder) ocultas++;
+        });
+        const btn = document.getElementById('fu-cep-mais');
+        if (btn) { btn.style.display = ocultas ? '' : 'none'; btn.textContent = `+ mostrar as ${ocultas} amostras restantes`; }
+    }
+    function fuCepExpandir() {
+        const tb = document.getElementById('fu-cep-body'); if (!tb) return;
+        tb.dataset.expandido = '1';
+        tb.querySelectorAll('tr').forEach(tr => tr.style.display = '');
+        const btn = document.getElementById('fu-cep-mais'); if (btn) btn.style.display = 'none';
+    }
+    function fuCepLinhas(qtd) {
+        const tb = document.getElementById('fu-cep-body'); if (!tb) return;
+        let n = parseInt(tb.dataset.n || CEP_TOTAL, 10);
+        let h = ''; for (let i = n + 1; i <= n + qtd; i++) h += fuCepLinhaHTML(i);
+        tb.insertAdjacentHTML('beforeend', h); tb.dataset.n = n + qtd; fuCepAvaliar();
+    }
+    function fuCepAvaliar() {
+        const tb = document.getElementById('fu-cep-body'); if (!tb) return;
+        const g = id => cepNum((document.getElementById(id) || {}).value);
+        const lim = { espMin: g('fu_cep_esp_min'), espMax: g('fu_cep_esp_max'), largMin: g('fu_cep_larg_min'), largMax: g('fu_cep_larg_max'), passoMin: g('fu_cep_passo_min'), passoMax: g('fu_cep_passo_max') };
+        let preench = 0, aprov = 0, reprov = 0;
+        const amostras = [];
+        tb.querySelectorAll('tr').forEach(tr => {
+            const get = c => (tr.querySelector(`[data-c="${c}"]`) || {}).value || '';
+            const esp = cepNum(get('esp')), larg = cepNum(get('larg')), passo = cepNum(get('passo'));
+            const textos = ['trat', 'cent', 'asp'].map(get);
+            const temAlgo = [get('data'), get('hora'), get('maq'), get('op')].some(Boolean) || esp !== null || larg !== null || passo !== null;
+            const cel = tr.querySelector('.cep-st');
+            tr.querySelectorAll('[data-c="esp"],[data-c="larg"],[data-c="passo"]').forEach(i => i.classList.remove('cep-fora'));
+            if (!temAlgo) { cel.textContent = '—'; cel.className = 'cep-st'; return; }
+            preench++;
+            const fora = [];
+            const chk = (v, min, max, campo) => { if (v === null) return; if ((min !== null && v < min) || (max !== null && v > max)) { fora.push(campo); const el = tr.querySelector(`[data-c="${campo}"]`); if (el) el.classList.add('cep-fora'); } };
+            chk(esp, lim.espMin, lim.espMax, 'esp'); chk(larg, lim.largMin, lim.largMax, 'larg'); chk(passo, lim.passoMin, lim.passoMax, 'passo');
+            const naoConf = textos.some(t => /^nc$/i.test((t || '').trim()));
+            const ok = fora.length === 0 && !naoConf;
+            cel.textContent = ok ? 'APROVADO' : 'REPROVADO';
+            cel.className = 'cep-st ' + (ok ? 'ok' : 'nok');
+            ok ? aprov++ : reprov++;
+            amostras.push({ n: tr.dataset.am, data: get('data'), hora: get('hora'), maq: get('maq'), op: get('op'), esp: get('esp'), larg: get('larg'), passo: get('passo'), trat: get('trat'), cent: get('cent'), asp: get('asp'), status: cel.textContent });
+        });
+        const h = document.getElementById('fu_cep_amostras'); if (h) h.value = JSON.stringify(amostras);
+        fuCepCompactar();
+        const r = document.getElementById('fu-cep-resumo');
+        if (r) r.innerHTML = preench ? `${preench} amostra(s) · <b style="color:#16a34a;">${aprov} aprovada(s)</b>${reprov ? ` · <b style="color:#dc2626;">${reprov} reprovada(s)</b>` : ''}` : 'nenhuma amostra lançada';
+    }
+    function fuCepRestaurar() {
+        fuCepInit();
+        const h = document.getElementById('fu_cep_amostras');
+        let arr = []; try { arr = h && h.value ? JSON.parse(h.value) : []; } catch (e) { arr = []; }
+        const tb = document.getElementById('fu-cep-body'); if (!tb) return;
+        arr.forEach(a => {
+            const tr = tb.querySelector(`tr[data-am="${a.n}"]`); if (!tr) return;
+            Object.keys(a).forEach(k => { const el = tr.querySelector(`[data-c="${k}"]`); if (el && 'value' in el) el.value = a[k] || ''; });
+        });
+        fuCepAvaliar();
+    }
+
     // ---- Checklist "Materiais Solicitados à Clicheria" (grava no campo oculto fu_cli_materiais) ----
     function fuMateriaisSync() {
         const v = [...document.querySelectorAll('#fu-cli-mats input:checked')].map(c => c.value).join(' · ');
@@ -8086,6 +8247,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         fuCliCroqui();
         fuCliArteRender();
         fuAutoCtrlInit();
+        fuCepRestaurar();
         fuPuxadaInit();
         fuAtualizarResumo();
     }
