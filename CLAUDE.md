@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2907.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2907.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,35 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A Apostila ganha a força visual das Trilhas, e o isotipo volta a existir (2907.02)
+A Carla: "mas pode ficar distribuído de uma forma que chame mais a atenção
+como fez em trilhas".
+
+**1. Bandas em vez de lista.** A área usa agora a mesma linguagem dos módulos
+(`.mod-band` + `.mod-marca` + `.mod-title` + pílula de progresso): os manuais
+viraram **três cadernos** (A fundação, páginas 1 a 77; O comportamento, 78 a
+154; A liderança aplicada, 155 a 214), cada um com isotipo, faixa de páginas e
+contador de lidos. As 30 ferramentas viraram **cinco frentes** numeradas com
+contador por frente, e os desafios viraram **três níveis** em banda, com os
+pontos em jogo no rótulo e a banda da faixa atual destacada em ouro.
+
+**2. Um herói que abre a área.** Selo em medalhão, "216 páginas", o placar de
+quatro números (capítulos, ferramentas, pontos e dias do ciclo) clicáveis, e o
+bloco **"o que a apostila cobra hoje"** com o botão da pendência da vez (dia do
+ciclo, desafio ou ferramenta). Quando não há nada em aberto, ele diz isso e
+manda para o treino. No celular o selo e o carimbo de páginas ficam na primeira
+linha e o título ganha a linha inteira.
+
+**3. O bug que estava apagando o isotipo do app inteiro.** `shieldSvg` gerava os
+gradientes sempre com os mesmos ids (`obG`, `obGl`, `obGb`, `obGd`). Com id
+repetido, **todo** `url(#obG)` da página aponta para a primeira definição, que
+mora no medalhão da marca no topo, e esse medalhão fica `display:none` em toda
+tela interna. Gradiente definido dentro de elemento oculto não pinta: o escudo
+virava um borrão preto nas bandas das Trilhas, nas telas de cadeado, no
+questionário e na Apostila. Agora cada isotipo carrega ids únicos
+(`svg.replace(/obG/g,'obG'+(++shieldSeq))`) e o ouro voltou em todos os
+tamanhos, em todas as telas.
 
 ### O plano baixado também perdeu a sigla (2907.01)
 A Carla achou a sigla "OB" ainda viva no cabeçalho do **plano de ação que a
