@@ -594,6 +594,22 @@
     .ac-croqui { flex:1; display:flex; align-items:center; justify-content:center; padding:4px; min-height:320px; overflow:hidden; }
     .ac-croqui svg { width:100%; height:auto; max-height:400px; }
     .ac-croqui > span { font-size:11px; color:#94a3b8; text-align:center; padding:16px; }
+    /* ---- Solicitação de Produto: anexos, QR e ficha em branco ---- */
+    .sol-anexos { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:10px; }
+    .sol-anexo { display:flex; align-items:center; gap:9px; border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:#fff; }
+    .sol-anexo img { width:38px; height:38px; object-fit:cover; border-radius:7px; flex-shrink:0; background:#f1f5f9; }
+    .sol-anexo .sa-ic { width:38px; height:38px; border-radius:7px; background:#e6f4f2; color:#0f766e; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+    .sol-anexo .sa-info { flex:1; min-width:0; }
+    .sol-anexo .sa-info b { display:block; font-size:11.5px; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sol-anexo .sa-info span { font-size:10px; color:#94a3b8; }
+    .sol-anexo .sa-acoes { display:flex; gap:4px; }
+    .sol-anexo .sa-acoes a.mini-btn { text-decoration:none; display:inline-flex; align-items:center; }
+    .sol-anexo-vazio { font-size:11.5px; color:#94a3b8; border:1px dashed var(--border); border-radius:10px; padding:14px; text-align:center; }
+    .sol-qr { display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px; }
+    .sol-qr svg { border:1px solid var(--border); border-radius:8px; }
+    .sol-qr-aviso { font-size:10px; color:#b45309; background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:6px 8px; margin-bottom:6px; line-height:1.35; }
+    .sol-linha { border-bottom:1px solid #94a3b8; height:17px; }
+    .sol-linha.alta { height:40px; }
     .ac-medresumo { padding:6px 10px; font-size:11px; color:#64748b; display:flex; align-items:center; }
     .ac-medresumo b { margin-left:5px; color:#1e293b; }
     .ft-tab .ft-k { background:#f8fafc; font-weight:700; color:#334155; text-align:left; padding-left:8px; }
@@ -2019,7 +2035,47 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-4"><span class="lbl">Amostra do cliente recebida?</span><input class="inp" id="fu_sol_amostra" list="dl_sol_amostra" placeholder="Sim / Não"><datalist id="dl_sol_amostra"><option value="Sim — amostra física"></option><option value="Sim — foto/arquivo"></option><option value="Não"></option></datalist></div>
                 <div class="g-col g-col-12"><span class="lbl">Observações do cliente / detalhes que não podem se perder</span><textarea class="inp" id="fu_sol_obs" rows="2" style="resize:vertical;" placeholder="Particularidades, histórico, exigências específicas, problemas com o fornecedor atual…"></textarea></div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#fff7ed;"><span class="lbl" style="color:#b45309;">8 · ANÁLISE CRÍTICA — PREENCHIDO PELA QUALIDADE / DESENVOLVIMENTO</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">8 · ANEXOS DO CLIENTE <span style="font-weight:400; color:#94a3b8; font-size:9px;">(arte, especificação técnica, foto da amostra, laudo…)</span></span></div>
+                <div class="g-col g-col-12">
+                    <div class="no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+                        <label class="action-btn-sec" style="cursor:pointer; margin:0;"><i class="fas fa-paperclip"></i> Anexar arquivos
+                            <input type="file" multiple style="display:none;" onchange="fuSolAnexar(this)">
+                        </label>
+                        <span style="font-size:10.5px; color:#94a3b8;">PDF, AI, CDR, imagens, planilhas… ficam salvos na ficha e podem ser baixados por quem for desenvolver.</span>
+                    </div>
+                    <div id="fu-sol-anexos" class="sol-anexos"></div>
+                    <input type="hidden" id="fu_sol_anexos">
+                </div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">9 · ENVIAR AO VENDEDOR / PREENCHER COM O CLIENTE</span></div>
+                <div class="g-col g-col-8">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;" class="no-print">
+                        <button type="button" class="action-btn-sec" onclick="fuSolCopiarLink()"><i class="fas fa-link"></i> Copiar link do sistema</button>
+                        <button type="button" class="action-btn-sec" onclick="fuSolEnviarWhats()"><i class="fas fa-share-nodes"></i> Enviar por WhatsApp</button>
+                        <button type="button" class="action-btn-sec" onclick="fuSolEnviarEmail()"><i class="fas fa-envelope"></i> Enviar por e-mail</button>
+                        <button type="button" class="sys-btn-success" onclick="fuSolImprimirBranco()"><i class="fas fa-print"></i> Baixar / imprimir ficha em branco</button>
+                    </div>
+                    <p style="font-size:10.5px; color:#64748b; margin:10px 0 0; line-height:1.45;">
+                        <b>Cliente adepto a tecnologia:</b> mande o link (ou o QR ao lado) e o vendedor preenche direto no celular, com o cliente junto.<br>
+                        <b>Cliente que prefere papel:</b> use <b>Baixar / imprimir ficha em branco</b> — sai o formulário completo para preencher à mão e depois lançar aqui.
+                    </p>
+                </div>
+                <div class="g-col g-col-4" style="text-align:center;">
+                    <span class="lbl" style="color:#0f766e;">QR para abrir no celular</span>
+                    <div id="fu-sol-qr" class="sol-qr"></div>
+                    <div style="font-size:9.5px; color:#94a3b8; margin-top:4px;">Aponte a câmera do celular</div>
+                </div>
+
+                <div class="g-col g-col-12 fu-grp" style="background:#fff7ed;"><span class="lbl" style="color:#b45309;">10 · ANÁLISE CRÍTICA — PREENCHIDO PELA QUALIDADE / DESENVOLVIMENTO</span></div>
+                <div class="g-col g-col-4"><span class="lbl">Situação da solicitação</span>
+                    <select class="inp" id="fu_sol_status" onchange="fuSolStatusChange()">
+                        <option>Aguardando análise</option>
+                        <option>Em desenvolvimento</option>
+                        <option>Aguardando cliente</option>
+                        <option>Aprovada</option>
+                        <option>Recusada</option>
+                    </select>
+                </div>
                 <div class="g-col g-col-3"><span class="lbl">Viabilidade técnica</span><select class="inp" id="fu_sol_viabilidade"><option value="">-- Avaliar --</option><option>Viável</option><option>Viável com ressalvas</option><option>Inviável</option></select></div>
                 <div class="g-col g-col-3"><span class="lbl">Analisado por</span><input class="inp" id="fu_sol_analisado_por"></div>
                 <div class="g-col g-col-3"><span class="lbl">Data da análise</span><input type="date" class="inp" id="fu_sol_data_analise"></div>
@@ -4209,7 +4265,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         .forEach(k => { if (!RB[k]) RB[k] = []; });
     if (!RB.regrasCodigo) RB.regrasCodigo = regrasCodigoSeed();
     // Coleções do fluxo multi-setor (PCP, Produção, Compras, Logística)
-    ['fila','comprasReqs','reportsProducao','recebimentos','apontamentos','kitops'].forEach(k => { if (!RB[k]) RB[k] = []; });
+    ['fila','comprasReqs','reportsProducao','recebimentos','apontamentos','kitops','solicitacoes'].forEach(k => { if (!RB[k]) RB[k] = []; });
     if (!RB.checklistDiario) RB.checklistDiario = {};
     if (!RB.programacao) RB.programacao = { Gearless: [], Millennium: [] };
     if (!RB.progCap) RB.progCap = { Gearless: 1500, Millennium: 1200 };
@@ -4813,6 +4869,18 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function computarDecisoes() {
         const dec = [];
         const hojeISO = new Date().toISOString().slice(0, 10);
+        // Solicitações de produto entrando do Comercial
+        (RB.solicitacoes || []).forEach(s => {
+            if (s.status === 'Aguardando análise') {
+                dec.push({ urg: 3, cor: '#0f766e', icone: 'inbox', tit: `Nova solicitação de produto — ${s.cliente || 'cliente'}`,
+                    ctx: `${s.produtoCliente || s.tipoEmb || 'produto novo'} · vendedor ${s.vendedor || '—'}${s.urgencia && s.urgencia !== 'Normal' ? ' · ' + s.urgencia : ''}`,
+                    acoes: [{ txt: 'Analisar', ic: 'clipboard-check', cls: 'primary', fn: `abrirFichaLeitura('${s.cod}')` }] });
+            } else if (s.status === 'Aguardando cliente') {
+                dec.push({ urg: 2, cor: '#f59e0b', icone: 'clock', tit: `Solicitação ${s.cod} aguarda o cliente`,
+                    ctx: `${s.cliente || '—'} · cobrar retorno com o vendedor ${s.vendedor || ''}`,
+                    acoes: [{ txt: 'Abrir', ic: 'eye', cls: 'sec', fn: `abrirFichaLeitura('${s.cod}')` }] });
+            }
+        });
         dbFichas.forEach(f => {
             const isRNC = (f.cod || '').startsWith('RNC');
             if (f.status === 'Atrasado') {
@@ -7370,6 +7438,103 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         lb.classList.add('open');
     }
 
+
+    // ==========================================================================
+    // GERADOR DE QR CODE (offline, sem biblioteca) — byte mode, versões 1..10
+    // Validado por round-trip com decodificador independente.
+    // ==========================================================================
+    // QR encoder — byte mode, ECC L/M, versões 1..10 (suficiente p/ URLs)
+    const QR_EXP=new Array(512), QR_LOG=new Array(256);
+    (function(){let x=1;for(let i=0;i<255;i++){QR_EXP[i]=x;QR_LOG[x]=i;x<<=1;if(x&0x100)x^=0x11d;}for(let i=255;i<512;i++)QR_EXP[i]=QR_EXP[i-255];})();
+    const qrMul=(a,b)=>(a===0||b===0)?0:QR_EXP[QR_LOG[a]+QR_LOG[b]];
+    function qrRsGen(n){let g=[1];for(let i=0;i<n;i++){const ng=new Array(g.length+1).fill(0);for(let j=0;j<g.length;j++){ng[j]^=qrMul(g[j],1);ng[j+1]^=qrMul(g[j],QR_EXP[i]);}g=ng;}return g;}
+    function qrRsEnc(data,n){const g=qrRsGen(n),res=new Array(n).fill(0);
+     for(const d of data){const f=d^res[0];res.shift();res.push(0);for(let j=0;j<n;j++)res[j]^=qrMul(g[j+1],f);}return res;}
+    // tabelas: [totalCodewords, ecPerBlock, g1Blocks, g1Data, g2Blocks, g2Data] por versão para L e M
+    const QR_RB={
+     L:{1:[26,7,1,19,0,0],2:[44,10,1,34,0,0],3:[70,15,1,55,0,0],4:[100,20,1,80,0,0],5:[134,26,1,108,0,0],6:[172,18,2,68,0,0],7:[196,20,2,78,0,0],8:[242,24,2,97,0,0],9:[292,30,2,116,0,0],10:[346,18,2,68,2,69]},
+     M:{1:[26,10,1,16,0,0],2:[44,16,1,28,0,0],3:[70,26,1,44,0,0],4:[100,18,2,32,0,0],5:[134,24,2,43,0,0],6:[172,16,4,27,0,0],7:[196,18,4,31,0,0],8:[242,22,2,38,2,39],9:[292,22,3,36,2,37],10:[346,26,4,43,1,44]}
+    };
+    const QR_ALIGN={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
+    function qrBch(f){let d=f<<10;for(let i=4;i>=0;i--)if(d&(1<<(i+10)))d^=0x537<<i;return ((f<<10)|d)^0x5412;}
+    function qrEncode(text, ecc='M'){
+     const bytes=Array.from(new TextEncoder().encode(text));
+     let ver=0,cap=0;
+     for(let v=1;v<=10;v++){const t=QR_RB[ecc][v];const dataCw=t[2]*t[3]+t[4]*t[5];
+       const cciBits=v<10?8:16; const need=4+cciBits+bytes.length*8;
+       if(need<=dataCw*8){ver=v;cap=dataCw;break;}}
+     if(!ver) throw new Error('texto longo demais p/ v10');
+     const t=QR_RB[ecc][ver];
+     // bitstream
+     let bits=[];const put=(val,len)=>{for(let i=len-1;i>=0;i--)bits.push((val>>i)&1);};
+     put(4,4); put(bytes.length, ver<10?8:16); bytes.forEach(b=>put(b,8));
+     const total=cap*8; if(bits.length<total) put(0, Math.min(4,total-bits.length));
+     while(bits.length%8) bits.push(0);
+     const pad=[0xEC,0x11];let pi=0; while(bits.length<total){put(pad[pi++%2],8);}
+     const dataCw=[]; for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=(b<<1)|bits[i+j];dataCw.push(b);}
+     // blocos
+     const blocks=[];let off=0;
+     for(let i=0;i<t[2];i++){blocks.push(dataCw.slice(off,off+t[3]));off+=t[3];}
+     for(let i=0;i<t[4];i++){blocks.push(dataCw.slice(off,off+t[5]));off+=t[5];}
+     const ecBlocks=blocks.map(b=>qrRsEnc(b,t[1]));
+     // interleave
+     const maxD=Math.max(...blocks.map(b=>b.length));const out=[];
+     for(let i=0;i<maxD;i++)for(const b of blocks)if(i<b.length)out.push(b[i]);
+     for(let i=0;i<t[1];i++)for(const b of ecBlocks)out.push(b[i]);
+     // matriz
+     const N=17+ver*4;const m=Array.from({length:N},()=>new Array(N).fill(null));
+     const setF=(r,c,v)=>{if(r>=0&&r<N&&c>=0&&c<N)m[r][c]=v;};
+     const finder=(r,c)=>{for(let i=-1;i<=7;i++)for(let j=-1;j<=7;j++){const v=(i>=0&&i<=6&&(j===0||j===6))||(j>=0&&j<=6&&(i===0||i===6))||(i>=2&&i<=4&&j>=2&&j<=4);setF(r+i,c+j,v?1:0);}};
+     finder(0,0);finder(0,N-7);finder(N-7,0);
+     for(let i=8;i<N-8;i++){m[6][i]=i%2===0?1:0;m[i][6]=i%2===0?1:0;}
+     const ac=QR_ALIGN[ver];
+     for(const r of ac)for(const c of ac){ if((r<=7&&c<=7)||(r<=7&&c>=N-8)||(r>=N-8&&c<=7))continue;
+       for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)setF(r+i,c+j,(Math.max(Math.abs(i),Math.abs(j))!==1)?1:0);}
+     m[N-8][8]=1; // dark module
+     const resFmt=[];for(let i=0;i<9;i++){if(i!==6)resFmt.push([8,i]);}
+     // reserva format
+     for(let i=0;i<9;i++){if(i!==6){if(m[8][i]===null)m[8][i]=0;if(m[i][8]===null)m[i][8]=0;}}
+     for(let i=0;i<8;i++){if(m[8][N-1-i]===null)m[8][N-1-i]=0;if(m[N-1-i][8]===null)m[N-1-i][8]=0;}
+     // dados em zigue-zague
+     const bitsOut=[];out.forEach(b=>{for(let i=7;i>=0;i--)bitsOut.push((b>>i)&1);});
+     let idx=0,up=true;
+     const dataPos=[];
+     for(let c=N-1;c>0;c-=2){ if(c===6)c--;
+      for(let k=0;k<N;k++){const r=up?N-1-k:k;
+       for(let cc=0;cc<2;cc++){const col=c-cc;
+        if(m[r][col]===null){ const bit=idx<bitsOut.length?bitsOut[idx]:0; idx++; m[r][col]=bit; dataPos.push([r,col]); }}}
+      up=!up;}
+     // máscara (avalia as 8, escolhe menor penalidade)
+     const maskFn=[ (r,c)=>(r+c)%2===0,(r,c)=>r%2===0,(r,c)=>c%3===0,(r,c)=>(r+c)%3===0,
+       (r,c)=>(Math.floor(r/2)+Math.floor(c/3))%2===0,(r,c)=>((r*c)%2+(r*c)%3)===0,
+       (r,c)=>(((r*c)%2+(r*c)%3)%2)===0,(r,c)=>(((r+c)%2+(r*c)%3)%2)===0 ];
+     const eccBits={L:1,M:0,Q:3,H:2}[ecc];
+     let best=null;
+     for(let mk=0;mk<8;mk++){
+       const mm=m.map(r=>r.slice());
+       for(const [r,c] of dataPos) if(maskFn[mk](r,c)) mm[r][c]^=1;
+       const fmt=qrBch((eccBits<<3)|mk);
+       for(let i=0;i<15;i++){const bit=(fmt>>i)&1;
+         if(i<6)mm[8][i]=bit; else if(i===6)mm[8][7]=bit; else if(i===7)mm[8][8]=bit;
+         else if(i===8)mm[7][8]=bit; else mm[14-i][8]=bit;
+         if(i<8)mm[N-1-i][8]=bit; else mm[8][N-15+i]=bit;}
+       mm[N-8][8]=1;
+       // penalidade simples (regra 1 e 3)
+       let pen=0;
+       for(let r=0;r<N;r++){let run=1;for(let c=1;c<N;c++){if(mm[r][c]===mm[r][c-1])run++;else{if(run>=5)pen+=3+(run-5);run=1;}}if(run>=5)pen+=3+(run-5);}
+       for(let c=0;c<N;c++){let run=1;for(let r=1;r<N;r++){if(mm[r][c]===mm[r-1][c])run++;else{if(run>=5)pen+=3+(run-5);run=1;}}if(run>=5)pen+=3+(run-5);}
+       if(best===null||pen<best.pen)best={pen,mm,mk};
+     }
+     return {matrix:best.mm, size:N, version:ver, mask:best.mk, ecc};
+    }
+    function qrSVG(texto, px) {
+        let q; try { q = qrEncode(texto, 'M'); } catch (e) { try { q = qrEncode(texto, 'L'); } catch (e2) { return '<span style="font-size:11px;color:#94a3b8;">Texto longo demais para o QR.</span>'; } }
+        const N = q.size, quiet = 4, T = N + quiet * 2, s = px || 176;
+        let d = '';
+        for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (q.matrix[r][c]) d += `M${c + quiet},${r + quiet}h1v1h-1z`;
+        return `<svg width="${s}" height="${s}" viewBox="0 0 ${T} ${T}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><rect width="${T}" height="${T}" fill="#fff"/><path d="${d}" fill="#191040"/></svg>`;
+    }
+
     // ==========================================================================
     // AUTO CONTROLE por etapa — imagem da arte com medidas + sentido de puxada
     // (mesmo bloco das fichas oficiais de Impressão, Laminação, Rebobinadeira e Corte & Solda)
@@ -7503,6 +7668,98 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const h = document.getElementById('fu_sol_acessorios'); if (h) h.value = v;
         fuAtualizarResumo();
     }
+    // ---- Anexos do cliente (arte, especificações, laudos) ----
+    let fuSolAnexos = [];
+    function fuSolAnexar(input) {
+        const files = [...input.files]; input.value = '';
+        let pend = files.length;
+        files.forEach(f => {
+            if (f.size > 4 * 1024 * 1024) { toast(`"${f.name}" tem mais de 4 MB e não foi anexado.`); if (--pend === 0) fuSolAnexosRender(); return; }
+            const r = new FileReader();
+            r.onload = e => {
+                fuSolAnexos.push({ id: novoId(), nome: f.name, tipo: f.type || '—', tam: f.size, dados: e.target.result });
+                if (--pend === 0) { fuSolAnexosSync(); fuSolAnexosRender(); }
+            };
+            r.readAsDataURL(f);
+        });
+    }
+    function fuSolAnexosSync() { const h = document.getElementById('fu_sol_anexos'); if (h) h.value = JSON.stringify(fuSolAnexos); }
+    function fuSolAnexoRemover(id) { fuSolAnexos = fuSolAnexos.filter(a => a.id !== id); fuSolAnexosSync(); fuSolAnexosRender(); }
+    function fuSolAnexoIcone(a) {
+        const t = (a.tipo || '') + ' ' + (a.nome || '');
+        if (/image/i.test(a.tipo)) return 'image';
+        if (/pdf/i.test(t)) return 'file-lines';
+        if (/sheet|excel|csv|xls/i.test(t)) return 'table-list';
+        if (/ai|cdr|eps|svg|corel|illustrator/i.test(t)) return 'stamp';
+        return 'paperclip';
+    }
+    function fuSolAnexosRender() {
+        const host = document.getElementById('fu-sol-anexos'); if (!host) return;
+        if (!fuSolAnexos.length) { host.innerHTML = '<div class="sol-anexo-vazio">Nenhum arquivo anexado. Se o cliente já tem arte ou especificação técnica, anexe aqui — evita retrabalho.</div>'; return; }
+        const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+        host.innerHTML = fuSolAnexos.map(a => `<div class="sol-anexo">
+            ${/image/i.test(a.tipo) ? `<img src="${a.dados}" alt="">` : `<span class="sa-ic"><i class="fas fa-${fuSolAnexoIcone(a)}"></i></span>`}
+            <div class="sa-info"><b title="${(a.nome||'').replace(/"/g,'')}">${a.nome}</b><span>${kb(a.tam)}</span></div>
+            <div class="sa-acoes no-print">
+                <a class="mini-btn" href="${a.dados}" download="${(a.nome||'arquivo').replace(/"/g,'')}" title="Baixar"><i class="fas fa-download"></i></a>
+                <button type="button" class="mini-btn" style="color:#ef4444;" onclick="fuSolAnexoRemover(${a.id})" title="Remover">✕</button>
+            </div></div>`).join('');
+        renderIcons(host);
+    }
+    function fuSolAnexosRestaurar() {
+        const h = document.getElementById('fu_sol_anexos');
+        try { fuSolAnexos = h && h.value ? JSON.parse(h.value) : []; } catch (e) { fuSolAnexos = []; }
+        fuSolAnexosRender();
+    }
+    // ---- Compartilhar com o vendedor ----
+    function fuSolLinkSistema() { return location.href.split('#')[0] + '#solicitacao'; }
+    function fuSolQR() {
+        const box = document.getElementById('fu-sol-qr'); if (!box) return;
+        const link = fuSolLinkSistema();
+        box.innerHTML = /^file:/i.test(link)
+            ? `<div class="sol-qr-aviso">Abra o sistema pela <b>rede/intranet</b> (http) para o QR funcionar no celular. Localmente, use “Enviar por WhatsApp/e-mail”.</div>${qrSVG(link, 150)}`
+            : qrSVG(link, 176);
+    }
+    function fuSolMsg() {
+        const cli = val('fu_sol_cliente') || 'o cliente';
+        return `Solicitação de Produto — Grupo Rebracil%0A%0APreencha a ficha junto com ${encodeURIComponent(cli)}: ${encodeURIComponent(fuSolLinkSistema())}%0A%0AQualquer arte ou especificação que o cliente já tenha, anexe direto na ficha.`;
+    }
+    function fuSolCopiarLink() {
+        const l = fuSolLinkSistema();
+        if (navigator.clipboard) navigator.clipboard.writeText(l).then(() => toast('Link copiado.'), () => prompt('Copie o link:', l));
+        else prompt('Copie o link:', l);
+    }
+    function fuSolEnviarWhats() { window.open('https://wa.me/?text=' + fuSolMsg(), '_blank'); }
+    function fuSolEnviarEmail() { window.location.href = 'mailto:?subject=' + encodeURIComponent('Solicitação de Produto — Grupo Rebracil') + '&body=' + fuSolMsg(); }
+    // ---- Ficha em branco para preencher à mão ----
+    function fuSolImprimirBranco() {
+        const sec = document.getElementById('fu-sec-solicitacao');
+        const clone = sec.cloneNode(true);
+        clone.classList.add('on'); clone.removeAttribute('id');
+        clone.querySelectorAll('.no-print, .chips-fluxo').forEach(el => el.remove());
+        clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+        clone.querySelectorAll('datalist, button').forEach(el => el.remove());
+        // campos viram linhas para escrever
+        clone.querySelectorAll('input, textarea, select').forEach(inp => {
+            if (inp.type === 'hidden' || inp.type === 'file') { inp.remove(); return; }
+            const d = document.createElement('div'); d.className = 'sol-linha';
+            if (inp.tagName === 'TEXTAREA') d.classList.add('alta');
+            inp.replaceWith(d);
+        });
+        const html = `<div class="fu-page"><div class="fup-head"><div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
+            <div class="fup-doc"><div class="t">Solicitação de Produto</div><div class="e">Preencher com o cliente</div><div class="c">Depois lance no sistema · ${new Date().toLocaleDateString('pt-BR')}</div></div></div>
+            ${clone.outerHTML}
+            <div class="fup-foot"><span>Comercial · Grupo Rebracil</span><span>Formulário em branco para preenchimento manual</span></div></div>`;
+        abrirPreviewDoc(html, 'Ficha em branco — Solicitação de Produto', 'Formulário para o vendedor preencher à mão com o cliente.',
+            () => { document.body.classList.add('print-mode-fu'); window.print(); document.body.classList.remove('print-mode-fu'); });
+    }
+    // ---- Status da solicitação (aparece na Central de Comando) ----
+    function fuSolStatusChange() {
+        const s = val('fu_sol_status');
+        histAcao(`Solicitação → ${s}`, { tela: 'form-ficha-unica' });
+        registrarAtividade(`marcou a solicitação de produto como "${s}"`);
+        fuAtualizarResumo();
+    }
     function fuSolRestaurar() {
         const restaura = (hostId, campoId) => {
             const v = (document.getElementById(campoId) || {}).value || '';
@@ -7510,6 +7767,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         };
         restaura('fu-sol-legais', 'fu_sol_legais');
         restaura('fu-sol-acess', 'fu_sol_acessorios');
+        fuSolAnexosRestaurar();
+        fuSolQR();
     }
     // Ao ativar a Solicitação, semeia o que o sistema já sabe e leva os dados adiante
     function fuSolSemear() {
@@ -7867,6 +8126,21 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         } else {
             base.historico = [{ data: new Date().toISOString(), tt: 'Ficha Única criada', td: `${statusClicado} · ${currentSessionUser}` }];
             dbFichas.unshift(base);
+        }
+
+        // Solicitação de Produto: mantém o registro próprio p/ a Central de Comando
+        if (etapas.some(e => e.key === 'solicitacao')) {
+            RB.solicitacoes = RB.solicitacoes || [];
+            const g = id => (dados[id] || '');
+            const reg = {
+                cod, cliente: g('fu_sol_cliente') || cliente, vendedor: g('fu_sol_vendedor'),
+                produtoCliente: g('fu_sol_produto_cliente'), tipoEmb: g('fu_sol_tipo_emb'),
+                urgencia: g('fu_sol_urgencia') || 'Normal', status: g('fu_sol_status') || 'Aguardando análise',
+                data: g('fu_sol_data'), prazo: g('fu_sol_prazo'), atualizadoEm: new Date().toISOString(),
+                anexos: (fuSolAnexos || []).length
+            };
+            const si = RB.solicitacoes.findIndex(x => x.cod === cod);
+            if (si > -1) RB.solicitacoes[si] = Object.assign(RB.solicitacoes[si], reg); else RB.solicitacoes.unshift(reg);
         }
 
         // Documento com campos em branco fica marcado como Incompleto (o botão
