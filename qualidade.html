@@ -2023,6 +2023,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-2"><span class="lbl">Tubete</span><input class="inp" id="fu_imp_ac_tubete" value='3" polegadas' list="dl_tubete"></div>
                 <div class="g-col g-col-2"><span class="lbl">Aderência</span><input class="inp" id="fu_imp_ac_aderencia" value="38 +/- 2 Dynas"></div>
                 <div class="g-col g-col-12" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Aspecto Visual: na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b> como "Conforme amostra padrão".</span></div>
+                <div id="fu-ac-impressao" style="display:contents;"></div>
             </div>
 
             <!-- SEÇÃO: LAMINAÇÃO (todos os campos da ficha individual) -->
@@ -2044,6 +2045,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-4"><span class="lbl">Ancoragem / Delaminação</span><input class="inp" id="fu_lam_ancoragem" value="Sem delaminação" list="dl_conforme"></div>
                 <div class="g-col g-col-4"><span class="lbl">Aspecto (túnel / bolhas)</span><input class="inp" id="fu_lam_aspecto" value="Sem túnel, sem bolhas" list="dl_conforme"></div>
                 <div class="g-col g-col-4"><span class="lbl">Bobina Final (mm)</span><input class="inp" id="fu_lam_bobina_final"></div>
+                <div id="fu-ac-laminacao" style="display:contents;"></div>
             </div>
 
             <!-- SEÇÃO: REBOBINADEIRA (todos os campos da ficha individual) -->
@@ -2066,6 +2068,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-4"><span class="lbl">Identificação / Etiqueta</span><input class="inp" id="fu_reb_etiqueta" value="OK" list="dl_conforme"></div>
                 <div class="g-col g-col-12 fu-grp" style="background:#e0f2fe;"><span class="lbl" style="color:#0891b2;">TIPO DE PUXADA <span style="font-weight:400; color:#94a3b8; font-size:9px;">(sentido que será rebobinado)</span></span></div>
                 <div class="g-col g-col-12"><input type="hidden" id="fu_reb_puxada"><div class="puxada-host" data-campo="fu_reb_puxada"></div></div>
+                <div id="fu-ac-rebobinadeira" style="display:contents;"></div>
             </div>
 
             <!-- SEÇÃO: CORTE & SOLDA (todos os campos da ficha individual) -->
@@ -2134,6 +2137,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Solda — 2º Tipo</span><input class="inp" id="fu_cor_solda2" value="N/A" list="dl_na"></div>
                 <div class="g-col g-col-8"><span class="lbl">Aspecto Visual</span><input class="inp" id="fu_cor_aspecto" value="De acordo amostra padrão (isento de sujidades, riscos e desalinhamento)" readonly style="background:#eef2f7; cursor:default;"></div>
                 <div class="g-col g-col-12" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Para a execução da produção, a amostra retirada deve ser aprovada pelo Controle de Qualidade. Na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b>.</span></div>
+                <div id="fu-ac-corte" style="display:contents;"></div>
             </div>
 
             <!-- SEÇÃO: ESPECIFICAÇÃO FINAL DE PRODUTO ACABADO (etapa final da Qualidade) -->
@@ -2166,6 +2170,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Data Produção</span><input class="inp" id="fu_fin_dt_prod" placeholder="dd/mm/aaaa"></div>
                 <div class="g-col g-col-5"><span class="lbl">Produzido Por</span><input class="inp" id="fu_fin_produzido"></div>
                 <div class="g-col g-col-4"><span class="lbl">Nº OP</span><input class="inp" id="fu_fin_op"></div>
+                <div id="fu-ac-final" style="display:contents;"></div>
             </div>
 
             <!-- SEÇÃO: EXPEDIÇÃO / ACONDICIONAMENTO (todos os campos da ficha individual) -->
@@ -4532,6 +4537,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 .map(px => `<option value="${(px.codigo||'').replace(/"/g,'&quot;')}">${(px.descricao||'').slice(0,70).replace(/"/g,'&quot;')}</option>`).join('');
             fuCliCroqui();
             fuCliArteRender();
+            fuAutoCtrlInit();
             fuPuxadaInit();
             fuAtualizarResumo();
         }
@@ -6961,6 +6967,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             if (el && !el.value.trim()) el.value = currentSessionUser;
             fuCliCroqui();
             fuCliArteRender();
+            fuAutoCtrlInit();
         }
         // Ao ativar a Especificação Final: preenche o que o sistema já sabe
         if (cb.value === 'final' && cb.checked) {
@@ -7176,83 +7183,164 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         lb.classList.add('open');
     }
 
-    // ---- Croqui de medidas: desenha a embalagem (com a ARTE embutida) e as réguas de cotagem em volta ----
-    function fuCliCroqui() {
-        const box = document.getElementById('fu-cli-croqui');
-        if (!box) return;
-        const num = id => { const el = document.getElementById(id); return el ? (parseFloat((el.value || '').replace(',', '.')) || 0) : 0; };
-        const L = num('fu_cli_med_largura'), A = num('fu_cli_med_altura'), S = num('fu_cli_med_sanfona'), B = num('fu_cli_med_aba');
-        const fmt = v => (v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' mm' : '—');
-        const art = (document.getElementById('fu_cli_arte_img') || {}).value || '';
-        const del = document.getElementById('fu-cli-arte-del'); if (del) del.style.display = art ? '' : 'none';
-
-        if (!L && !A && !art) {
-            box.innerHTML = '<span style="font-size:11px; color:#94a3b8; padding:20px; text-align:center;">Preencha Largura e Altura e <b>anexe a arte</b><br>— a imagem entra no croqui com as réguas de medição em volta.</span>';
-            return;
+    // ==========================================================================
+    // AUTO CONTROLE por etapa — imagem da arte com medidas + sentido de puxada
+    // (mesmo bloco das fichas oficiais de Impressão, Laminação, Rebobinadeira e Corte & Solda)
+    // ==========================================================================
+    const AUTOCTRL_ETAPAS = [
+        { key: 'impressao',     pref: 'imp', cor: '#1d4ed8', bg: '#eaf0fb', tit: 'AUTO CONTROLE IMPRESSÃO',      obj: 'BOBINA',    sentido: 'sentido que será impresso' },
+        { key: 'laminacao',     pref: 'lam', cor: '#7c3aed', bg: '#f3ecfd', tit: 'AUTO CONTROLE LAMINAÇÃO',      obj: 'BOBINA',    sentido: 'sentido de laminação' },
+        { key: 'rebobinadeira', pref: 'reb', cor: '#0891b2', bg: '#e0f2fe', tit: 'AUTO CONTROLE REBOBINADEIRA',  obj: 'BOBINA',    sentido: 'sentido que será rebobinado' },
+        { key: 'corte',         pref: 'cor', cor: '#0d9488', bg: '#e6f4f2', tit: 'AUTO CONTROLE CORTE & SOLDA',  obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento' },
+        { key: 'final',         pref: 'fin', cor: '#b45309', bg: '#fef3c7', tit: 'AUTO CONTROLE PRODUTO ACABADO', obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento' }
+    ];
+    function autoCtrlHTML(e) {
+        const p = e.pref, medLabel = e.obj === 'BOBINA' ? 'Largura (mm)' : 'Largura (mm)';
+        const alturaLabel = e.obj === 'BOBINA' ? 'Comprimento (mm)' : 'Altura / Comprimento (mm)';
+        return `<div class="g-col g-col-12 fu-grp" style="background:${e.bg};"><span class="lbl" style="color:${e.cor};">${e.tit} — IMAGEM DA ARTE, MEDIDAS E SENTIDO DE PUXADA</span></div>
+            <div class="g-col g-col-4">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div><span class="lbl">${medLabel}</span><input class="inp" id="fu_${p}_ac_largura" inputmode="decimal" placeholder="Ex.: 315,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
+                    <div><span class="lbl">${alturaLabel}</span><input class="inp" id="fu_${p}_ac_altura" inputmode="decimal" placeholder="Ex.: 400,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
+                    <div><span class="lbl">Sanfona (mm)</span><input class="inp" id="fu_${p}_ac_sanfona" inputmode="decimal" placeholder="Ex.: 35,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
+                    <div><span class="lbl">Aba / Fita (mm)</span><input class="inp" id="fu_${p}_ac_aba" inputmode="decimal" placeholder="Ex.: 40,00" oninput="fuAutoCtrlCroqui('${e.key}')"></div>
+                </div>
+                <div class="no-print" style="display:flex; gap:6px; align-items:center; margin-top:10px;">
+                    <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:5px 12px; font-size:12px;"><i class="fas fa-paperclip"></i> Anexar arte
+                        <input type="file" accept="image/*" style="display:none;" onchange="fuAutoCtrlUpload(this,'${e.key}')">
+                    </label>
+                    <button type="button" class="action-btn-sec no-print" id="fu-${p}-ac-del" onclick="fuAutoCtrlRemover('${e.key}')" style="color:#ef4444; padding:5px 11px; font-size:12px; display:none;"><i class="fas fa-trash"></i></button>
+                </div>
+                <p class="cli-med-nota no-print" style="margin-top:8px;">Preencha as medidas e <b>anexe a arte</b>: a imagem entra no croqui com as réguas em volta. Escolha ao lado o <b>${e.sentido}</b>.</p>
+                <input type="hidden" id="fu_${p}_ac_arte">
+            </div>
+            <div class="g-col g-col-4" style="padding:6px;">
+                <span class="lbl no-print" style="color:${e.cor};">Imagem da arte (medidas em volta)</span>
+                <div id="fu-${p}-ac-croqui" class="fu-croqui-box cli-box" style="cursor:zoom-in;" onclick="fuAutoCtrlZoom('${e.key}')"></div>
+            </div>
+            <div class="g-col g-col-4" style="padding:6px;">
+                <span class="lbl" style="color:${e.cor};">Sentido de puxada / desbobinamento</span>
+                <input type="hidden" id="fu_${p}_ac_puxada"><div class="puxada-host" data-campo="fu_${p}_ac_puxada"></div>
+            </div>`;
+    }
+    function fuAutoCtrlInit() {
+        AUTOCTRL_ETAPAS.forEach(e => {
+            const host = document.getElementById('fu-ac-' + e.key);
+            if (host && !host.dataset.built) { host.innerHTML = autoCtrlHTML(e); host.dataset.built = '1'; renderIcons(host); }
+            fuAutoCtrlCroqui(e.key);
+        });
+        fuPuxadaInit();
+    }
+    function fuAutoCtrlCfg(key) { return AUTOCTRL_ETAPAS.find(x => x.key === key); }
+    function fuAutoCtrlUpload(input, key) {
+        const file = input.files && input.files[0]; if (!file) return;
+        if (!/^image\//.test(file.type)) { alert('Selecione um arquivo de imagem.'); return; }
+        const e = fuAutoCtrlCfg(key); const r = new FileReader();
+        r.onload = ev => { const h = document.getElementById(`fu_${e.pref}_ac_arte`); if (h) h.value = ev.target.result; fuAutoCtrlCroqui(key); fuAtualizarResumo(); };
+        r.readAsDataURL(file); input.value = '';
+    }
+    function fuAutoCtrlRemover(key) { const e = fuAutoCtrlCfg(key); const h = document.getElementById(`fu_${e.pref}_ac_arte`); if (h) h.value = ''; fuAutoCtrlCroqui(key); }
+    function fuAutoCtrlZoom(key) {
+        const e = fuAutoCtrlCfg(key); const h = document.getElementById(`fu_${e.pref}_ac_arte`);
+        if (!h || !h.value) return;
+        const bkp = document.getElementById('fu_cli_arte_img');
+        // reaproveita o lightbox: injeta a imagem desta etapa
+        let lb = document.getElementById('cli-lightbox');
+        if (!lb) { const tmp = document.createElement('input'); tmp.id = 'fu_cli_arte_img'; }
+        fuCliArteZoomSrc(h.value);
+    }
+    function fuCliArteZoomSrc(src) {
+        let lb = document.getElementById('cli-lightbox');
+        if (!lb) {
+            lb = document.createElement('div'); lb.id = 'cli-lightbox'; lb.className = 'cli-lightbox';
+            lb.innerHTML = '<button class="cli-lb-close" title="Fechar (Esc)">&times;</button><img alt="Arte ampliada">';
+            lb.addEventListener('click', ev => { if (ev.target === lb || ev.target.classList.contains('cli-lb-close')) lb.classList.remove('open'); });
+            document.addEventListener('keydown', ev => { if (ev.key === 'Escape') lb.classList.remove('open'); });
+            document.body.appendChild(lb);
         }
-        // Área de desenho e escala proporcional
+        lb.querySelector('img').src = src; lb.classList.add('open');
+    }
+    // Desenha o croqui de uma etapa (mesma lógica do Clichê, com a arte embutida)
+    function fuAutoCtrlCroqui(key) {
+        const e = fuAutoCtrlCfg(key); if (!e) return;
+        const box = document.getElementById(`fu-${e.pref}-ac-croqui`); if (!box) return;
+        const art = (document.getElementById(`fu_${e.pref}_ac_arte`) || {}).value || '';
+        const del = document.getElementById(`fu-${e.pref}-ac-del`); if (del) del.style.display = art ? '' : 'none';
+        const num = id => { const el = document.getElementById(id); return el ? (parseFloat((el.value || '').replace(',', '.')) || 0) : 0; };
+        box.innerHTML = croquiSVG({
+            L: num(`fu_${e.pref}_ac_largura`), A: num(`fu_${e.pref}_ac_altura`),
+            S: num(`fu_${e.pref}_ac_sanfona`), B: num(`fu_${e.pref}_ac_aba`),
+            art, cor: e.cor, titulo: e.obj === 'BOBINA' ? 'IMAGEM DA ARTE — BOBINA' : 'IMAGEM DA ARTE — EMBALAGEM',
+            vazio: 'Preencha as medidas e anexe a arte —<br>a imagem entra aqui com as réguas em volta.'
+        });
+    }
+
+    // ---- Croqui de medidas: desenha a embalagem (com a ARTE embutida) e as réguas de cotagem em volta ----
+    // Gerador genérico do croqui: retângulo do produto com a ARTE embutida e as réguas de cotagem em volta.
+    // Usado pela Solicitação de Clichê e pelo AUTO CONTROLE de cada etapa.
+    function croquiSVG(o) {
+        const L = o.L || 0, A = o.A || 0, S = o.S || 0, B = o.B || 0;
+        const art = o.art || '', cor = o.cor || '#191040';
+        const fmt = v => (v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' mm' : '—');
+        if (!L && !A && !art) return `<span style="font-size:11px; color:#94a3b8; padding:20px; text-align:center;">${o.vazio || 'Preencha as medidas para gerar o croqui.'}</span>`;
         const W = 440, H = 340, padL = 78, padR = 48, padT = 54, padB = 66;
         const availW = W - padL - padR, availH = H - padT - padB;
         let rw, rh, sc;
-        if (L && A) {
-            sc = Math.min(availW / L, availH / A);
-            rw = L * sc; rh = A * sc;
-        } else {
-            // sem as duas medidas: usa um retângulo retrato padrão só para posicionar a arte
-            rh = availH; rw = Math.min(availW, availH * 0.78);
-            sc = L ? rw / L : (A ? rh / A : rw / 100);
-        }
-        const x0 = padL + (availW - rw) / 2, y0 = padT + (availH - rh) / 2;
-        const x1 = x0 + rw, y1 = y0 + rh;
-
-        // Marcador de cota (setas) reutilizável
-        const svg = [];
-        svg.push(`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Inter, Arial, sans-serif">`);
-        svg.push(`<defs><marker id="cotaArrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="#191040" stroke-width="1"/></marker></defs>`);
+        if (L && A) { sc = Math.min(availW / L, availH / A); rw = L * sc; rh = A * sc; }
+        else { rh = availH; rw = Math.min(availW, availH * 0.78); sc = L ? rw / L : (A ? rh / A : rw / 100); }
+        const x0 = padL + (availW - rw) / 2, y0 = padT + (availH - rh) / 2, x1 = x0 + rw, y1 = y0 + rh;
+        const svg = [`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Inter, Arial, sans-serif">`];
+        const uid = 'cq' + Math.abs((o.titulo || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0));
+        svg.push(`<defs><marker id="${uid}a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="${cor}" stroke-width="1"/></marker></defs>`);
         svg.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`);
-        // Embalagem — com a arte embutida quando houver, senão o retângulo do croqui
         if (art) {
-            svg.push(`<clipPath id="cliArtClip"><rect x="${x0}" y="${y0}" width="${rw}" height="${rh}"/></clipPath>`);
-            svg.push(`<image href="${art}" xlink:href="${art}" x="${x0}" y="${y0}" width="${rw}" height="${rh}" preserveAspectRatio="xMidYMid meet" clip-path="url(#cliArtClip)"/>`);
-            svg.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="none" stroke="#191040" stroke-width="1.5"/>`);
+            svg.push(`<clipPath id="${uid}c"><rect x="${x0}" y="${y0}" width="${rw}" height="${rh}"/></clipPath>`);
+            svg.push(`<image href="${art}" xlink:href="${art}" x="${x0}" y="${y0}" width="${rw}" height="${rh}" preserveAspectRatio="xMidYMid meet" clip-path="url(#${uid}c)"/>`);
+            svg.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="none" stroke="${cor}" stroke-width="1.5"/>`);
         } else {
-            svg.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="#f1f5f9" stroke="#191040" stroke-width="1.5"/>`);
+            svg.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="#f1f5f9" stroke="${cor}" stroke-width="1.5"/>`);
         }
-        // Sanfona (dobras laterais tracejadas)
         if (S > 0) {
             const sw = Math.min(S * sc, rw / 3);
             svg.push(`<line x1="${x0 + sw}" y1="${y0}" x2="${x0 + sw}" y2="${y1}" stroke="#0d9488" stroke-width="1" stroke-dasharray="4 3"/>`);
             svg.push(`<line x1="${x1 - sw}" y1="${y0}" x2="${x1 - sw}" y2="${y1}" stroke="#0d9488" stroke-width="1" stroke-dasharray="4 3"/>`);
             svg.push(`<text x="${x0 + sw / 2}" y="${y0 + rh / 2}" font-size="7" fill="#0d9488" text-anchor="middle" transform="rotate(-90 ${x0 + sw / 2} ${y0 + rh / 2})">SANFONA ${fmt(S)}</text>`);
         }
-        // Aba / fita (faixa superior tracejada)
         if (B > 0) {
             const bh = Math.min(B * sc, rh / 4);
             svg.push(`<line x1="${x0}" y1="${y0 + bh}" x2="${x1}" y2="${y0 + bh}" stroke="#be123c" stroke-width="1" stroke-dasharray="4 3"/>`);
             svg.push(`<text x="${x0 + rw / 2}" y="${y0 + bh - 2}" font-size="7" fill="#be123c" text-anchor="middle">ABA / FITA ${fmt(B)}</text>`);
         }
-        // Cota horizontal (largura) — abaixo
         if (L) {
             const cy = y1 + 28;
             svg.push(`<line x1="${x0}" y1="${y1 + 6}" x2="${x0}" y2="${cy + 6}" stroke="#94a3b8" stroke-width=".6"/>`);
             svg.push(`<line x1="${x1}" y1="${y1 + 6}" x2="${x1}" y2="${cy + 6}" stroke="#94a3b8" stroke-width=".6"/>`);
-            svg.push(`<line x1="${x0}" y1="${cy}" x2="${x1}" y2="${cy}" stroke="#191040" stroke-width="1" marker-start="url(#cotaArrow)" marker-end="url(#cotaArrow)"/>`);
+            svg.push(`<line x1="${x0}" y1="${cy}" x2="${x1}" y2="${cy}" stroke="${cor}" stroke-width="1" marker-start="url(#${uid}a)" marker-end="url(#${uid}a)"/>`);
             svg.push(`<rect x="${(x0 + x1) / 2 - 34}" y="${cy - 8}" width="68" height="14" fill="#fff"/>`);
-            svg.push(`<text x="${(x0 + x1) / 2}" y="${cy + 2}" font-size="9" font-weight="700" fill="#191040" text-anchor="middle">${fmt(L)}</text>`);
+            svg.push(`<text x="${(x0 + x1) / 2}" y="${cy + 2}" font-size="9" font-weight="700" fill="${cor}" text-anchor="middle">${fmt(L)}</text>`);
         }
-        // Cota vertical (altura) — à esquerda
         if (A) {
             const cx = x0 - 30;
             svg.push(`<line x1="${x0 - 6}" y1="${y0}" x2="${cx - 6}" y2="${y0}" stroke="#94a3b8" stroke-width=".6"/>`);
             svg.push(`<line x1="${x0 - 6}" y1="${y1}" x2="${cx - 6}" y2="${y1}" stroke="#94a3b8" stroke-width=".6"/>`);
-            svg.push(`<line x1="${cx}" y1="${y0}" x2="${cx}" y2="${y1}" stroke="#191040" stroke-width="1" marker-start="url(#cotaArrow)" marker-end="url(#cotaArrow)"/>`);
+            svg.push(`<line x1="${cx}" y1="${y0}" x2="${cx}" y2="${y1}" stroke="${cor}" stroke-width="1" marker-start="url(#${uid}a)" marker-end="url(#${uid}a)"/>`);
             svg.push(`<rect x="${cx - 8}" y="${(y0 + y1) / 2 - 34}" width="14" height="68" fill="#fff"/>`);
-            svg.push(`<text x="${cx}" y="${(y0 + y1) / 2}" font-size="9" font-weight="700" fill="#191040" text-anchor="middle" transform="rotate(-90 ${cx} ${(y0 + y1) / 2})">${fmt(A)}</text>`);
+            svg.push(`<text x="${cx}" y="${(y0 + y1) / 2}" font-size="9" font-weight="700" fill="${cor}" text-anchor="middle" transform="rotate(-90 ${cx} ${(y0 + y1) / 2})">${fmt(A)}</text>`);
         }
-        // Título
-        svg.push(`<text x="${W / 2}" y="20" font-size="10" font-weight="800" fill="#8a6d1a" text-anchor="middle" letter-spacing="1">CROQUI DA EMBALAGEM</text>`);
+        svg.push(`<text x="${W / 2}" y="20" font-size="10" font-weight="800" fill="${cor}" text-anchor="middle" letter-spacing="1">${o.titulo || 'CROQUI'}</text>`);
         svg.push(`</svg>`);
-        box.innerHTML = svg.join('');
+        return svg.join('');
+    }
+    function fuCliCroqui() {
+        const box = document.getElementById('fu-cli-croqui'); if (!box) return;
+        const num = id => { const el = document.getElementById(id); return el ? (parseFloat((el.value || '').replace(',', '.')) || 0) : 0; };
+        const art = (document.getElementById('fu_cli_arte_img') || {}).value || '';
+        const del = document.getElementById('fu-cli-arte-del'); if (del) del.style.display = art ? '' : 'none';
+        box.innerHTML = croquiSVG({
+            L: num('fu_cli_med_largura'), A: num('fu_cli_med_altura'), S: num('fu_cli_med_sanfona'), B: num('fu_cli_med_aba'),
+            art, cor: '#8a6d1a', titulo: 'CROQUI DA EMBALAGEM',
+            vazio: 'Preencha Largura e Altura e <b>anexe a arte</b><br>— a imagem entra no croqui com as réguas em volta.'
+        });
     }
 
     // ---- Checklist "Materiais Solicitados à Clicheria" (grava no campo oculto fu_cli_materiais) ----
@@ -7418,6 +7506,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         fuMateriaisRestaurar();
         fuCliCroqui();
         fuCliArteRender();
+        fuAutoCtrlInit();
         fuPuxadaInit();
         fuAtualizarResumo();
     }
