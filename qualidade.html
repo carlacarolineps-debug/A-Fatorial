@@ -526,14 +526,15 @@
     .page-hero .ph-stat b { display:block; font-size:20px; font-weight:800; line-height:1.1; }
     .page-hero .ph-stat span { font-size:10.5px; opacity:.8; text-transform:uppercase; letter-spacing:.05em; }
     @media (max-width:820px){ .page-hero .ph-stats { display:none; } }
-    /* ---- Desfazer/Refazer global ---- */
-    .hist-dock { position:fixed; right:20px; bottom:20px; z-index:3500; display:flex; align-items:center; gap:8px; background:rgba(25,16,64,.96); color:#fff; border-radius:14px; padding:8px 10px; box-shadow:0 12px 34px -8px rgba(0,0,0,.55); backdrop-filter:blur(6px); }
-    .hist-dock button { border:none; background:rgba(255,255,255,.12); color:#fff; width:38px; height:38px; border-radius:10px; cursor:pointer; font-size:15px; transition:.13s; display:flex; align-items:center; justify-content:center; }
-    .hist-dock button:hover:not(:disabled) { background:var(--gold); color:var(--navy); }
-    .hist-dock button:disabled { opacity:.3; cursor:default; }
-    .hist-dock .hd-label { font-size:11px; max-width:190px; line-height:1.25; }
-    .hist-dock .hd-label b { display:block; font-size:9px; text-transform:uppercase; letter-spacing:.06em; opacity:.6; font-weight:800; }
-    .hist-dock .hd-txt { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; }
+    /* ---- Desfazer/Refazer — barra compacta no cabeçalho (não sobrepõe nada) ---- */
+    .hist-bar { display:flex; align-items:center; gap:2px; background:#f1f5f9; border:1px solid var(--border); border-radius:10px; padding:3px 5px; }
+    .hist-bar button { border:none; background:transparent; color:#475569; width:30px; height:28px; border-radius:7px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:.12s; }
+    .hist-bar button:hover:not(:disabled) { background:var(--navy); color:#fff; }
+    .hist-bar button:disabled { opacity:.32; cursor:default; }
+    .hist-sep { width:1px; height:18px; background:#cbd5e1; margin:0 4px; }
+    .hist-saved { display:flex; align-items:center; justify-content:center; width:28px; height:28px; color:#0d9488; font-size:14px; }
+    .hist-saved.saving { color:#f59e0b; }
+    @media (max-width:820px){ .hist-bar { display:none; } }
     @keyframes histFlash { 0%{ box-shadow:0 0 0 0 rgba(197,168,128,.9), 0 0 0 4px rgba(197,168,128,.55); background:rgba(197,168,128,.28); } 100%{ box-shadow:0 0 0 0 rgba(197,168,128,0); background:transparent; } }
     .hist-flash { animation:histFlash 2.1s ease-out; border-radius:8px; }
     .hist-toast { position:fixed; left:50%; top:22px; transform:translateX(-50%); z-index:3600; background:var(--navy); color:#fff; padding:11px 20px; border-radius:12px; font-size:13px; font-weight:600; box-shadow:0 10px 30px -8px rgba(0,0,0,.5); display:flex; align-items:center; gap:10px; opacity:0; transition:opacity .2s, transform .2s; pointer-events:none; }
@@ -1293,6 +1294,12 @@
                 </div>
             </div>
 
+            <div class="hist-bar" id="hist-bar">
+                <button id="hist-undo-btn" onclick="histUndo()" title="Desfazer (Ctrl+Z)"><i class="fas fa-rotate-left"></i></button>
+                <button id="hist-redo-btn" onclick="histRedo()" title="Refazer (Ctrl+Shift+Z)"><i class="fas fa-rotate-right"></i></button>
+                <span class="hist-sep"></span>
+                <span class="hist-saved" id="hist-saved" title="Alterações salvas neste navegador"><i class="fas fa-cloud-arrow-up"></i></span>
+            </div>
             <button class="action-btn-sec" style="gap:6px;" onclick="irParaHub()" title="Voltar ao portal de painéis"><i class="fas fa-right-left"></i> Trocar Painel</button>
             <div style="font-size: 17px; color: #64748b; margin-left:4px; cursor:pointer;" onclick="alert('Nenhuma nova notificação.')"><i class="fas fa-bell"></i></div>
             <div class="sys-menu-item">
@@ -2149,10 +2156,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Pressão Disp. 3 (Bar)</span><input class="inp" id="fu_cor_cp3" value="N/A" list="dl_na"></div>
                 <div class="g-col g-col-3"><span class="lbl">Pressão Disp. 4 (Bar)</span><input class="inp" id="fu_cor_cp4" value="N/A" list="dl_na"></div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">AUTO CONTROLE — CARACTERÍSTICA DA EMBALAGEM</span></div>
-                <div class="g-col g-col-4"><span class="lbl">Largura x Comprimento</span><input class="inp" id="fu_cor_medida" value="270 x 350 mm (+/- 10)"></div>
-                <div class="g-col g-col-4"><span class="lbl">Espessura (mm)</span><input class="inp" id="fu_cor_espessura" value="0,120 +/- 0,010"></div>
-                <div class="g-col g-col-4"><span class="lbl">Sanfona / Aba</span><input class="inp" id="fu_cor_sanfona" value="N/A / N/A" list="dl_na"></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0d9488;">ACESSÓRIOS E ACABAMENTOS <span style="font-weight:400; color:#94a3b8; font-size:9px;">(medidas e aspecto ficam no Auto Controle abaixo)</span></span></div>
                 <div class="g-col g-col-4"><span class="lbl">Alça — Tipo</span><input class="inp" id="fu_cor_alca_tipo" placeholder="Ex.: Vazada / N/A"></div>
                 <div class="g-col g-col-4"><span class="lbl">Alça — Dimensões</span><input class="inp" id="fu_cor_alca_dim" placeholder="Ex.: N/A"></div>
                 <div class="g-col g-col-4"><span class="lbl">Alça — Altura</span><input class="inp" id="fu_cor_alca_altura" placeholder="Ex.: 40,00"></div>
@@ -2164,7 +2168,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Furação — Quantidade</span><input class="inp" id="fu_cor_furacao_qtd" value="N/A" list="dl_na"></div>
                 <div class="g-col g-col-3"><span class="lbl">Solda — 1º Tipo</span><input class="inp" id="fu_cor_solda1" placeholder="Ex.: Lateral"></div>
                 <div class="g-col g-col-3"><span class="lbl">Solda — 2º Tipo</span><input class="inp" id="fu_cor_solda2" value="N/A" list="dl_na"></div>
-                <div class="g-col g-col-8"><span class="lbl">Aspecto Visual</span><input class="inp" id="fu_cor_aspecto" value="De acordo amostra padrão (isento de sujidades, riscos e desalinhamento)" readonly style="background:#eef2f7; cursor:default;"></div>
                 <div class="g-col g-col-12" style="background:#fef9c3; border-top:1px solid #fde047;"><span style="font-size:11px; color:#854d0e; font-weight:600;">⚠ Para a execução da produção, a amostra retirada deve ser aprovada pelo Controle de Qualidade. Na ausência de amostra padrão, utilizar <b>CMYK</b> ou <b>Pantone</b>.</span></div>
                 <div id="fu-ac-corte" style="display:contents;"></div>
             </div>
@@ -3663,6 +3666,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         'gauge-high': '<path d="M12 14l3-3"/><path d="M3.5 14a9 9 0 1 1 17 0"/><circle cx="12" cy="14" r="1.4"/>',
         'calendar-days': '<rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2M14.5 17h2"/>',
         'rotate': '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3.5v5h-5"/>',
+        'rotate-left': '<path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3.5v5h5"/>',
+        'rotate-right': '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3.5v5h-5"/>',
+        'cloud-arrow-up': '<path d="M6.5 18.5a4 4 0 0 1 .4-8 6 6 0 0 1 11.5 1.6 3.5 3.5 0 0 1-.4 6.9z"/><path d="M12 16.5v-6"/><path d="M9.5 12.5 12 10l2.5 2.5"/>',
         'file-lines': '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 16.5h6"/>',
         'industry': '<path d="M3 21h18"/><path d="M4 21V10l6 4V10l6 4V6l4 2v11"/>',
         'list-check': '<path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 6l1.2 1.2L7.5 5M4 12l1.2 1.2L7.5 11M4 18l1.2 1.2L7.5 17"/>',
@@ -3936,23 +3942,19 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         histFlash(meta); histToast('redo', meta && meta.label); histUpdateDock();
     }
     function histUpdateDock() {
-        let dock = document.getElementById('hist-dock');
-        if (!dock) {
-            dock = document.createElement('div'); dock.id = 'hist-dock'; dock.className = 'hist-dock';
-            dock.innerHTML = `<button id="hist-undo-btn" title="Desfazer (Ctrl+Z)" onclick="histUndo()"><i class="fas fa-rotate-left"></i></button>
-                <div class="hd-label"><b id="hist-mode">Histórico</b><span class="hd-txt" id="hist-txt">—</span></div>
-                <button id="hist-redo-btn" title="Refazer (Ctrl+Shift+Z)" onclick="histRedo()"><i class="fas fa-rotate-right"></i></button>`;
-            document.body.appendChild(dock);
-        }
+        const bu = document.getElementById('hist-undo-btn'), br = document.getElementById('hist-redo-btn');
+        if (!bu || !br) return;
         const podeUndo = histIndex > 0, podeRedo = histIndex < histStack.length - 1;
-        document.getElementById('hist-undo-btn').disabled = !podeUndo;
-        document.getElementById('hist-redo-btn').disabled = !podeRedo;
-        const modo = document.getElementById('hist-mode'), txt = document.getElementById('hist-txt');
-        if (podeRedo) { modo.innerText = 'Refazer →'; txt.innerText = (histMeta[histIndex + 1] || {}).label || '—'; }
-        else if (podeUndo) { modo.innerText = 'Desfazer'; txt.innerText = (histMeta[histIndex] || {}).label || '—'; }
-        else { modo.innerText = 'Histórico'; txt.innerText = 'nenhuma ação ainda'; }
-        // esconde na tela de login
-        dock.style.display = document.getElementById('login-overlay') && document.getElementById('login-overlay').style.display !== 'none' ? 'none' : 'flex';
+        bu.disabled = !podeUndo; br.disabled = !podeRedo;
+        // o próprio título do botão conta o que será desfeito/refeito (sem poluir a tela)
+        bu.title = podeUndo ? `Desfazer: ${(histMeta[histIndex] || {}).label || '—'} (Ctrl+Z)` : 'Nada para desfazer';
+        br.title = podeRedo ? `Refazer: ${(histMeta[histIndex + 1] || {}).label || '—'} (Ctrl+Shift+Z)` : 'Nada para refazer';
+        // indicador de salvo: pisca em âmbar ao gravar e volta ao verde
+        const sv = document.getElementById('hist-saved');
+        if (sv && histIndex > 0) {
+            sv.classList.add('saving'); sv.title = 'Salvando…';
+            clearTimeout(sv._tm); sv._tm = setTimeout(() => { sv.classList.remove('saving'); sv.title = 'Alterações salvas neste navegador'; }, 700);
+        }
     }
     function histInit() {
         histStack = [JSON.stringify(RB)]; histMeta = [{ label: 'Estado inicial', focus: null }]; histIndex = 0; histReady = true;
@@ -4265,7 +4267,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
     function logout() {
         registrarAtividade('encerrou a sessão');
-        const dock = document.getElementById('hist-dock'); if (dock) dock.style.display = 'none';
         sessaoUser = null; deptoAtual = null;
         try { localStorage.removeItem(SESSAO_KEY); } catch(e) {}
         document.getElementById('hub-portal').classList.remove('show');
