@@ -1287,6 +1287,19 @@ body.apresentacao #apr-banner{display:block;}
     <button class="nav-item" onclick="go('futuro')" id="n-futuro"><span class="ic">◆</span> Simulador de futuro</button>
     <button class="nav-item" onclick="go('plano')" id="n-plano"><span class="ic">◈</span> Planejamento estratégico</button>
 
+    <div class="nav-group">Organização | Produtividade | Foco</div>
+    <button class="nav-item" onclick="go('og')" id="n-og"><span class="ic">◱</span> Painel da organização</button>
+    <button class="nav-item" onclick="go('ogplanner')" id="n-ogplanner"><span class="ic">▤</span> Planner</button>
+    <button class="nav-item" onclick="go('oghabitos')" id="n-oghabitos"><span class="ic">✓</span> Hábitos</button>
+    <button class="nav-item" onclick="go('ogtarefas')" id="n-ogtarefas"><span class="ic">☰</span> Tarefas</button>
+    <button class="nav-item" onclick="go('ogclientes')" id="n-ogclientes"><span class="ic">◉</span> Clientes</button>
+    <button class="nav-item" onclick="go('ogprojetos')" id="n-ogprojetos"><span class="ic">▩</span> Projetos</button>
+    <button class="nav-item" onclick="go('ogleads')" id="n-ogleads"><span class="ic">◈</span> Leads</button>
+    <button class="nav-item" onclick="go('ogmetas')" id="n-ogmetas"><span class="ic">◎</span> Metas e setup</button>
+    <button class="nav-item" onclick="go('ogconteudo')" id="n-ogconteudo"><span class="ic">✎</span> Conteúdo e portfólio</button>
+    <button class="nav-item" onclick="go('ogfin')" id="n-ogfin"><span class="ic">❖</span> Financeiro (Notion)</button>
+    <button class="nav-item" onclick="go('ogestrutura')" id="n-ogestrutura"><span class="ic">⌗</span> Estrutura</button>
+
     <div class="nav-group">Visão do cliente</div>
     <button class="nav-item" onclick="go('portal')" id="n-portal"><span class="ic">◐</span> Portal do cliente</button>
 
@@ -2080,6 +2093,324 @@ body.apresentacao #apr-banner{display:block;}
       </div>
     </section>
 
+    <!-- ============ ORGANIZAÇÃO (estrutura do Notion) ============ -->
+    <section class="view" id="v-og">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Organização | Produtividade | Foco</span>
+        <h2>O Notion inteiro, <b>sem o peso morto</b>.</h2>
+        <p>Este painel é o que era a database <b>Resumo</b> — uma linha só, ligada a todas as outras por relation, com ~60 rollups em cima. Aqui é uma agregação: <code>ogResumo()</code>. Nada é digitado duas vezes.</p>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="og-k-rec">R$ 0</div><div class="l">Receitas do mês</div></div>
+        <div class="kpi"><div class="v" id="og-k-des">R$ 0</div><div class="l">Despesas do mês</div></div>
+        <div class="kpi"><div class="v" id="og-k-luc">R$ 0</div><div class="l">Lucro do mês</div></div>
+        <div class="kpi"><div class="v" id="og-k-ano">R$ 0</div><div class="l">Lucro do ano</div></div>
+      </div>
+      <div class="card"><div class="card-h">Meta de lucro</div><div id="og-meta-bar"></div></div>
+      <div class="card">
+        <div class="card-h">Tudo o que a Resumo agregava — clique para abrir</div>
+        <div class="kpis" id="og-grade" style="grid-template-columns:repeat(4,1fr);margin-bottom:0;"></div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogplanner">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Planner</span>
+        <h2>Dia, semana e mês <b>na mesma tabela</b>.</h2>
+        <p>No Notion eram três databases separadas, com três vocabulários de status. "Em andamento" (Semana) e "Em progresso" (Mês) eram o mesmo estado — agora são um enum só.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Entradas do planner
+          <span style="float:right;display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="ogNovoPlanner('Dia')">+ Dia</button>
+            <button class="btn btn-ghost btn-sm" onclick="ogNovoPlanner('Semana')">+ Semana</button>
+            <button class="btn btn-gold btn-sm" onclick="ogNovoPlanner('Mês')">+ Mês</button>
+          </span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Nome</th><th>Período</th><th>Início</th><th>Status</th><th>Notas</th><th></th></tr></thead>
+            <tbody id="og-planner-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-oghabitos">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Hábitos</span>
+        <h2>Hábitos são <b>registros</b>, não colunas.</h2>
+        <p id="og-hab-aviso"></p>
+      </div>
+      <div class="card">
+        <div class="card-h">Rastreador — marque o que fez
+          <span style="float:right;display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="ogRegistrarHoje()">Registrar hoje</button>
+            <button class="btn btn-gold btn-sm" onclick="ogNovoHabito()">+ Novo hábito</button>
+          </span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr id="og-hab-cab"></tr></thead><tbody id="og-hab-body"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">Gerenciar hábitos — renomeie, desative, mude a cor</div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Nome</th><th>Frequência</th><th style="text-align:center;">Ativo</th><th>Cor</th><th></th></tr></thead>
+            <tbody id="og-hab-gest"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogtarefas">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Tarefas</span>
+        <h2>Duas databases, <b>uma tabela</b>.</h2>
+        <p>O Notion tinha <code>Tarefas</code> e <code>Tarefas (widget)</code> — vocabulários diferentes para a mesma coisa. A coluna "Origem" mostra de qual cada registro veio.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Tarefas
+          <span style="float:right;"><button class="btn btn-gold btn-sm" onclick="ogNovaTarefa()">+ Nova tarefa</button></span></div>
+        <div id="og-tar-filtros" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th style="text-align:center;">✓</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Tag</th><th>Prazo</th><th>Responsável</th><th>Origem</th><th></th></tr></thead>
+            <tbody id="og-tar-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogclientes">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Clientes</span>
+        <h2>A carteira, <b>com o que ela rendeu</b>.</h2>
+        <p>O total por cliente é a soma dos projetos — no Notion era um rollup. Aqui é calculado na hora.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Clientes
+          <span style="float:right;"><button class="btn btn-gold btn-sm" onclick="ogNovoCliente()">+ Novo cliente</button></span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Empresa</th><th>Contato</th><th>E-mail</th><th>Telefone</th><th>Cidade</th><th>Status</th><th>Fonte</th><th style="text-align:center;">Projetos</th><th style="text-align:right;">Total</th><th></th></tr></thead>
+            <tbody id="og-cli-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogprojetos">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Projetos</span>
+        <h2>Projetos, reuniões e <b>a prova do resultado</b>.</h2>
+        <p>Cada projeto puxa suas tarefas e faturas. As reuniões e o feedback do cliente ficam ligados ao projeto, como eram no Notion.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Projetos
+          <span style="float:right;"><button class="btn btn-gold btn-sm" onclick="ogNovoProjeto()">+ Novo projeto</button></span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Nome</th><th>Cliente</th><th>Status</th><th>Tipo</th><th style="text-align:right;">Valor</th><th>Início</th><th>Término</th><th style="text-align:center;">Tarefas</th><th style="text-align:center;">Faturas</th><th></th></tr></thead>
+            <tbody id="og-prj-body"></tbody></table>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="c6"><div class="card" style="margin:0;">
+          <div class="card-h">Reuniões
+            <span style="float:right;"><button class="btn btn-ghost btn-sm" onclick="ogNovaReuniao()">+ Reunião</button></span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl"><thead><tr><th>Título</th><th>Tipo</th><th>Status</th><th>Data</th><th>Projeto</th><th></th></tr></thead>
+              <tbody id="og-reu-body"></tbody></table>
+          </div>
+        </div></div>
+        <div class="c6"><div class="card" style="margin:0;">
+          <div class="card-h">Feedback do cliente</div>
+          <div style="overflow-x:auto;">
+            <table class="tbl"><thead><tr><th>Título</th><th style="text-align:center;">Nota</th><th>Comentário</th><th>Projeto</th><th></th></tr></thead>
+              <tbody id="og-fbk-body"></tbody></table>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogleads">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Leads</span>
+        <h2>Os dois CRMs, <b>finalmente um só</b>.</h2>
+        <p>O Notion tinha <code>Leads</code> com 6 etapas e outro <code>Leads</code> legado com 5 status. Os registros marcados em laranja vieram do legado — o status deles é interpretação, não equivalência exata.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Funil por etapa</div>
+        <div id="og-lead-funil" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+      </div>
+      <div class="card">
+        <div class="card-h">Leads
+          <span style="float:right;"><button class="btn btn-gold btn-sm" onclick="ogNovoLead()">+ Novo lead</button></span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Nome</th><th>Contato</th><th>Etapa</th><th>Status</th><th>Canal</th><th style="text-align:right;">Valor</th><th>Fechamento</th><th></th></tr></thead>
+            <tbody id="og-lead-body"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">Stats do funil — a database <code>Stats</code> do Notion</div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Indicador</th><th style="text-align:right;">Valor</th><th>Referência</th><th></th></tr></thead>
+            <tbody id="og-stat-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogmetas">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Metas e setup</span>
+        <h2>O que você prometeu <b>para si mesma</b>.</h2>
+        <p>Arraste o progresso: ao chegar em 100% a meta vira "Alcançada" sozinha — a regra que no Notion era uma fórmula.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Metas
+          <span style="float:right;"><button class="btn btn-gold btn-sm" onclick="ogNovaMeta()">+ Nova meta</button></span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Meta</th><th>Status</th><th>Progresso</th><th>Prazo</th><th></th></tr></thead>
+            <tbody id="og-met-body"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">Setup do negócio</div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Etapa</th><th>Status</th><th>Concluída em</th><th></th></tr></thead>
+            <tbody id="og-setup-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogconteudo">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Conteúdo e portfólio</span>
+        <h2>Da ideia ao <b>case publicado</b>.</h2>
+        <p>As databases <code>Postagens</code> e <code>Portfolio Project</code> do Notion.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Postagens
+          <span style="float:right;"><button class="btn btn-gold btn-sm" onclick="ogNovaPostagem()">+ Nova postagem</button></span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Título</th><th>Pauta</th><th>Status</th><th>Plataformas</th><th>Agendada</th><th>Publicada</th><th></th></tr></thead>
+            <tbody id="og-pst-body"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">Portfólio
+          <span style="float:right;"><button class="btn btn-ghost btn-sm" onclick="ogNovoPortfolio()">+ Novo case</button></span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Nome</th><th>Resumo</th><th>Status</th><th>Publicado em</th><th></th></tr></thead>
+            <tbody id="og-pf-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogfin">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Financeiro do Notion</span>
+        <h2>Receita, despesa e <b>a meta de lucro</b>.</h2>
+        <p>As colunas <code>Total Janeiro</code>…<code>Total Dezembro</code> não existem: o mês é agregado a partir dos lançamentos. A fatura por hora calcula o total pela planilha de horas, como a fórmula do Notion fazia.</p>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="og-f-rec">R$ 0</div><div class="l">Receitas do mês</div></div>
+        <div class="kpi"><div class="v" id="og-f-des">R$ 0</div><div class="l">Despesas do mês</div></div>
+        <div class="kpi"><div class="v" id="og-f-luc">R$ 0</div><div class="l">Lucro do mês</div></div>
+        <div class="kpi"><div class="v" id="og-f-ano">R$ 0</div><div class="l">Lucro do ano</div></div>
+      </div>
+      <div class="grid">
+        <div class="c6"><div class="card" style="margin:0;">
+          <div class="card-h">Receitas
+            <span style="float:right;"><button class="btn btn-ghost btn-sm" onclick="ogNovaReceita()">+ Receita</button></span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl"><thead><tr><th>Descrição</th><th style="text-align:right;">Valor</th><th>Data</th><th>Categoria</th><th>Recorrência</th><th style="text-align:center;">Recebido</th><th></th></tr></thead>
+              <tbody id="og-rec-body"></tbody></table>
+          </div>
+        </div></div>
+        <div class="c6"><div class="card" style="margin:0;">
+          <div class="card-h">Despesas
+            <span style="float:right;"><button class="btn btn-ghost btn-sm" onclick="ogNovaDespesa()">+ Despesa</button></span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl"><thead><tr><th>Descrição</th><th style="text-align:right;">Valor</th><th>Data</th><th>Categoria</th><th>Recorrência</th><th style="text-align:center;">Pago</th><th></th></tr></thead>
+              <tbody id="og-des-body"></tbody></table>
+          </div>
+        </div></div>
+      </div>
+      <div class="card">
+        <div class="card-h">Faturas
+          <span style="float:right;"><button class="btn btn-ghost btn-sm" onclick="ogNovaFatura()">+ Fatura</button></span></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Número</th><th>Tipo</th><th style="text-align:right;">Valor total</th><th>Entrega</th><th>Status</th><th style="text-align:center;">Pago</th><th>Projeto</th><th></th></tr></thead>
+            <tbody id="og-fat-body"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">Planilha de horas — alimenta a fatura por hora</div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>Descrição</th><th>Data</th><th style="text-align:right;">Horas</th><th style="text-align:right;">Valor/h</th><th style="text-align:right;">Custo</th><th>Fatura</th><th></th></tr></thead>
+            <tbody id="og-ph-body"></tbody></table>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="c6"><div class="card" style="margin:0;">
+          <div class="card-h">Categorias
+            <span style="float:right;display:flex;gap:6px;">
+              <button class="btn btn-ghost btn-sm" onclick="ogNovaCategoria('receita')">+ Receita</button>
+              <button class="btn btn-ghost btn-sm" onclick="ogNovaCategoria('despesa')">+ Despesa</button>
+            </span></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl"><thead><tr><th>Tipo</th><th>Nome</th><th style="text-align:right;">Total</th><th></th></tr></thead>
+              <tbody id="og-cat-body"></tbody></table>
+          </div>
+        </div></div>
+        <div class="c6"><div class="card" style="margin:0;">
+          <div class="card-h">Meses e ano — o Overview Financeiro</div>
+          <div style="overflow-x:auto;">
+            <table class="tbl"><thead><tr><th>Mês</th><th style="text-align:center;">Ref.</th><th style="text-align:right;">Receitas</th><th style="text-align:right;">Despesas</th><th style="text-align:right;">Lucro</th><th style="text-align:right;">Meta</th><th>Progresso</th></tr></thead>
+              <tbody id="og-mes-body"></tbody></table>
+          </div>
+          <div style="height:14px;"></div>
+          <div style="overflow-x:auto;">
+            <table class="tbl"><thead><tr><th>Ano</th><th style="text-align:center;">Ref.</th><th style="text-align:right;">Lucro</th><th style="text-align:right;">Meta</th><th style="text-align:center;">Meses</th><th style="text-align:right;">Média/mês</th><th>Progresso</th></tr></thead>
+              <tbody id="og-ano-body"></tbody></table>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <section class="view" id="v-ogestrutura">
+      <div class="in-hero">
+        <span class="in-hero-badge">✦ Estrutura</span>
+        <h2>O que saiu do Notion e <b>o que ocupou o lugar</b>.</h2>
+        <p>Os 28 models que este módulo carrega, com a contagem real de registros. O 29º — <code>NotionIdMap</code> — só existe na migração de verdade, para ela ser idempotente.</p>
+      </div>
+      <div class="card">
+        <div class="card-h">Decisões — o riscado saiu de propósito</div>
+        <div style="overflow-x:auto;">
+          <table class="tbl"><thead><tr><th>No Notion</th><th></th><th>Aqui</th></tr></thead>
+            <tbody id="og-fus-body"></tbody></table>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="c6"><div class="card" style="margin:0;">
+          <div class="card-h">Models e registros
+            <span style="float:right;"><button class="btn btn-ghost btn-sm" onclick="ogReset()">Restaurar exemplo</button></span></div>
+          <div style="overflow-x:auto;max-height:520px;overflow-y:auto;">
+            <table class="tbl"><thead><tr><th>Model</th><th>Coleção</th><th style="text-align:right;">Registros</th></tr></thead>
+              <tbody id="og-est-body"></tbody></table>
+          </div>
+        </div></div>
+        <div class="c6">
+          <div class="card">
+            <div class="card-h">Arquivos — tabela polimórfica</div>
+            <div style="overflow-x:auto;">
+              <table class="tbl"><thead><tr><th>Nome</th><th>Tipo</th><th>Entidade</th><th>Tamanho</th><th></th></tr></thead>
+                <tbody id="og-arq-body"></tbody></table>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-h">Usuários</div>
+            <div style="overflow-x:auto;">
+              <table class="tbl"><thead><tr><th>Nome</th><th>E-mail</th><th>Papel</th><th style="text-align:center;">Ativo</th><th></th></tr></thead>
+                <tbody id="og-usr-body"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div><!-- /scroll -->
 </div><!-- /main -->
 
@@ -2429,8 +2760,9 @@ body.apresentacao #apr-banner{display:block;}
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dono','dash','funil','propostas','kanban','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
-          colaborador:['colaborador','funil','propostas','kanban'],
+          admin:      ['dono','dash','funil','propostas','kanban','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe',
+                       'og','ogplanner','oghabitos','ogtarefas','ogclientes','ogprojetos','ogleads','ogmetas','ogconteudo','ogfin','ogestrutura'],
+          colaborador:['colaborador','funil','propostas','kanban','ogplanner','oghabitos','ogtarefas'],
           cliente:    ['portal']
         };
         // Configuração de acesso editável em "Equipe e acessos" e persistida no navegador.
@@ -2451,7 +2783,13 @@ body.apresentacao #apr-banner{display:block;}
         // novidade). Se o admin desligar depois, continua desligada.
         try{
           let feitas=JSON.parse(localStorage.getItem('af_perm_migr')||'[]');
-          [{v:'kanban', papeis:['admin','colaborador']}].forEach(nova=>{
+          [{v:'kanban', papeis:['admin','colaborador']},
+           {v:'og', papeis:['admin']},{v:'ogplanner', papeis:['admin','colaborador']},
+           {v:'oghabitos', papeis:['admin','colaborador']},{v:'ogtarefas', papeis:['admin','colaborador']},
+           {v:'ogclientes', papeis:['admin']},{v:'ogprojetos', papeis:['admin']},
+           {v:'ogleads', papeis:['admin']},{v:'ogmetas', papeis:['admin']},
+           {v:'ogconteudo', papeis:['admin']},{v:'ogfin', papeis:['admin']},
+           {v:'ogestrutura', papeis:['admin']}].forEach(nova=>{
             if(feitas.includes(nova.v)) return;
             nova.papeis.forEach(p=>{ if(PERMISSOES[p] && !PERMISSOES[p].includes(nova.v)) PERMISSOES[p].push(nova.v); });
             feitas.push(nova.v);
@@ -2799,7 +3137,18 @@ body.apresentacao #apr-banner{display:block;}
           rh:['Gestão de <b>RH</b>','People analytics — sua visão completa da equipe'],
           kanban:['Kanban <b>operacional</b>','Demandas da equipe — com aviso no WhatsApp'],
           catalogo:['Catálogo de <b>serviços</b>','Base de cálculo'],
-          equipe:['Equipe e <b>acessos</b>','Pessoas']
+          equipe:['Equipe e <b>acessos</b>','Pessoas'],
+          og:['Painel da <b>organização</b>','O que era a database Resumo — agora uma agregação'],
+          ogplanner:['<b>Planner</b>','Dia, semana e mês na mesma tabela'],
+          oghabitos:['<b>Hábitos</b>','Registros, não colunas fixas'],
+          ogtarefas:['<b>Tarefas</b>','Fusão de Tarefas + Tarefas (widget)'],
+          ogclientes:['<b>Clientes</b>','A carteira e o que ela rendeu'],
+          ogprojetos:['<b>Projetos</b>','Projetos, reuniões e feedback'],
+          ogleads:['<b>Leads</b>','Os dois CRMs unificados'],
+          ogmetas:['Metas e <b>setup</b>','Compromissos e etapas do negócio'],
+          ogconteudo:['Conteúdo e <b>portfólio</b>','Da ideia ao case publicado'],
+          ogfin:['Financeiro <b>do Notion</b>','Receita, despesa, fatura e meta de lucro'],
+          ogestrutura:['<b>Estrutura</b>','Os models e as decisões de modelagem']
         };
         function go(v){
           // === guard de permissão (o backend DEVE revalidar isto também) ===
@@ -2834,6 +3183,7 @@ body.apresentacao #apr-banner{display:block;}
           if(v==='dono' && typeof renderDono==='function') renderDono();
           if(v==='futuro' && typeof renderFuturo==='function') renderFuturo();
           if(v==='equipe'){ renderUsuarios(); renderPermissoes(); if(typeof renderBrand==='function') renderBrand(); }
+          if(v.indexOf('og')===0 && typeof ogRenderAtual==='function'){ OG_VIEW=v; ogRenderAtual(); }
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
 
@@ -4045,7 +4395,11 @@ body.apresentacao #apr-banner{display:block;}
         const PERM_TELAS=[
           {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},{k:'kanban',l:'Kanban operacional'},{k:'futuro',l:'Simulador de futuro'},
           {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'plano',l:'Planejamento estratégico'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
-          {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
+          {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'},
+          {k:'og',l:'Painel da organização'},{k:'ogplanner',l:'Planner'},{k:'oghabitos',l:'Hábitos'},
+          {k:'ogtarefas',l:'Tarefas'},{k:'ogclientes',l:'Clientes'},{k:'ogprojetos',l:'Projetos'},
+          {k:'ogleads',l:'Leads'},{k:'ogmetas',l:'Metas e setup'},{k:'ogconteudo',l:'Conteúdo e portfólio'},
+          {k:'ogfin',l:'Financeiro (Notion)'},{k:'ogestrutura',l:'Estrutura'}
         ];
         const PERM_PAPEIS=[
           {k:'admin',l:'Admin / Gestão',ic:'♛'},{k:'colaborador',l:'Colaborador',ic:'⚔️'},{k:'cliente',l:'Cliente',ic:'◐'}
@@ -8526,7 +8880,7 @@ body.apresentacao #apr-banner{display:block;}
         function relatorioFechar(){ document.getElementById('rel-ov').classList.remove('on'); }
 
         /* ===== BACKUP / RESTAURAÇÃO ===== */
-        const BACKUP_KEYS=['af_permissoes','af_perm_migr','af_usuarios','af_fin','af_plano','af_brand','af_kanban','af_som','af_vol','af_tema'];
+        const BACKUP_KEYS=['af_permissoes','af_perm_migr','af_usuarios','af_fin','af_plano','af_brand','af_kanban','af_som','af_vol','af_tema','af_org'];
         function backupExportar(){
           let dados={}; BACKUP_KEYS.forEach(k=>{ let v=localStorage.getItem(k); if(v!=null) dados[k]=v; });
           let pacote={app:'A! Fatorial', versao:1, data:new Date().toISOString(), dados};
@@ -9035,6 +9389,954 @@ body.apresentacao #apr-banner{display:block;}
         });
         // tema salvo (claro/escuro) + estado dos botões
         try{ if(localStorage.getItem('af_tema')==='claro') document.body.classList.remove('theme-gamer'); }catch(e){}
+        /* ════════════════════════════════════════════════════════════════════
+           ORGANIZAÇÃO — a estrutura que substitui o Notion
+           "Grupo A! | Organização | Produtividade | Foco"
+
+           Os 29 models do schema Prisma (grupo-a-sistema/prisma/schema.prisma)
+           rodando aqui em localStorage, para ver a estrutura funcionando sem
+           precisar de Postgres.
+
+           Os rótulos dos enums são os EXATOS que existiam no Notion — é o que
+           o @map do Prisma guarda. Ver grupo-a-sistema/docs/MAPA-NOTION.md.
+
+           NÃO existe entidade "Resumo": ogResumo() é uma função de agregação.
+           NÃO existem propriedades "Etiqueta *": eram rótulos de UI.
+           ════════════════════════════════════════════════════════════════════ */
+
+        const OG_ENUM = {
+          statusCliente: ['Ativo', 'Inativo'],
+          fonteCliente: ['LinkedIn', 'Site'],
+          // O rótulo "Linkedln" (com L) está grafado assim no Notion. Preservado.
+          canalLead: ['Instagram', 'WhatsApp', 'Indicação', 'Linkedln', 'Site', 'Parceiros', 'Outros'],
+          fonteLeadLegado: ['Website', 'Instagram', 'Indicação', 'LinkedIn'],
+          etapaLead: ['Descoberta', 'Diagnóstico', 'Apresentação', 'Proposta', 'Follow-up', 'Fechamento'],
+          statusLead: ['Lead', 'Qualificação', 'Negociação', 'Proposta', 'Fechamento Ganho', 'Fechamento Perdido'],
+          statusProjeto: ['Não iniciado', 'Onboarding', 'Pesquisa', 'Em andamento', 'Off boarding', 'Feito'],
+          tipoProjeto: ['Website', 'Branding', 'Marketing', 'Outros'],
+          statusTarefa: ['A fazer', 'Em andamento', 'Completa'],
+          prioridadeTarefa: ['Baixa', 'Média', 'Alta'],
+          tagTarefa: ['Financeiro', 'Projetos', 'Vendas', 'Marketing', 'Outros'],
+          origemTarefa: ['Tarefas', 'Tarefas (widget)'],
+          tipoFatura: ['Preço fixo', 'Preço por hora'],
+          statusFatura: ['Rascunho', 'Emitida', 'Paga', 'Vencida'],
+          // Os 3 vocabulários do planner colapsados: "Semana" usava "Em andamento"
+          // e "Mês" usava "Em progresso" — mesmo estado.
+          statusPlanner: ['Não planejado', 'Planejado', 'Em andamento', 'Concluído'],
+          periodoPlanner: ['Dia', 'Semana', 'Mês'],
+          statusProposta: ['Rascunho', 'Enviada', 'Aceita', 'Recusada', 'Expirada'],
+          statusContrato: ['Rascunho', 'Em revisão', 'Assinado', 'Encerrado', 'Cancelado'],
+          statusMeta: ['Não iniciada', 'Em andamento', 'Alcançada', 'Não alcançada'],
+          statusPostagem: ['Ideia', 'Produção', 'Agendado', 'Publicado'],
+          plataformaPostagem: ['Instagram', 'LinkedIn', 'Facebook', 'TikTok', 'YouTube', 'Blog'],
+          statusReuniao: ['Agendada', 'Realizada', 'Cancelada'],
+          tipoReuniao: ['Kickoff', 'Acompanhamento', 'Apresentação', 'Encerramento', 'Interna'],
+          statusPortfolio: ['Rascunho', 'Publicado', 'Arquivado'],
+          statusEtapaSetup: ['Não iniciada', 'Em andamento', 'Feita'],
+          frequenciaHabito: ['Diário', 'Semanal'],
+          recorrencia: ['Único', 'Mensal', 'Anual'],
+          papelUsuario: ['Admin', 'Gestor', 'Colaborador', 'Cliente'],
+          tipoEntidade: ['Cliente', 'Projeto', 'Tarefa', 'Lead', 'Proposta', 'Contrato', 'Fatura', 'Postagem', 'Projeto de portfólio', 'Reunião', 'Meta', 'Planner'],
+          tipoArquivo: ['Capa', 'PDF', 'Mídia', 'Outro']
+        };
+
+        /* ── helpers de data (fuso do negócio: America/Sao_Paulo) ───────────── */
+        function ogHoje(){ let d=new Date(); return ogISO(d); }
+        function ogISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+        function ogDe(iso){ if(!iso) return null; let p=String(iso).split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+        function ogMaisDias(iso,n){ let d=ogDe(iso)||new Date(); d.setDate(d.getDate()+n); return ogISO(d); }
+        function ogBR(iso){ if(!iso) return '—'; let p=String(iso).split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+        function ogSegunda(iso){ let d=ogDe(iso)||new Date(); let w=(d.getDay()+6)%7; d.setDate(d.getDate()-w); return ogISO(d); }
+        function ogMesIni(iso){ let d=ogDe(iso)||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'; }
+        function ogNoMes(iso,ref){ if(!iso) return false; return String(iso).slice(0,7)===String(ref||ogHoje()).slice(0,7); }
+        function ogNaSemana(iso,ref){ if(!iso) return false; let i=ogSegunda(ref||ogHoje()); return iso>=i && iso<=ogMaisDias(i,6); }
+        function ogNoAno(iso,ref){ if(!iso) return false; return String(iso).slice(0,4)===String(ref||ogHoje()).slice(0,4); }
+        function ogId(p){ return p+'_'+Math.random().toString(36).slice(2,9); }
+
+        /* ── dados iniciais ─────────────────────────────────────────────────
+           Espelham a forma real das databases do Notion. Não são decoração:
+           todo campo aqui existe no schema Prisma. */
+        function ogSeed(){
+          const hoje=ogHoje(), sem=ogSegunda(hoje), mes=ogMesIni(hoje);
+          const ano=+hoje.slice(0,4), mesN=+hoje.slice(5,7);
+          const cli1=ogId('cli'), cli2=ogId('cli'), cli3=ogId('cli');
+          const prj1=ogId('prj'), prj2=ogId('prj'), prj3=ogId('prj');
+          const fat1=ogId('fat'), fat2=ogId('fat');
+          const cr1=ogId('cr'), cr2=ogId('cr'), cd1=ogId('cd'), cd2=ogId('cd'), cd3=ogId('cd');
+          const mf1=ogId('mf'), ma1=ogId('ma');
+          const h1=ogId('hab'), h2=ogId('hab'), h3=ogId('hab'), h4=ogId('hab'), h5=ogId('hab');
+          const reg1=ogId('reg'), reg2=ogId('reg');
+          const lead1=ogId('lead'), lead2=ogId('lead'), lead3=ogId('lead');
+          const pst1=ogId('pst');
+
+          return {
+            clientes:[
+              {id:cli1, nomeEmpresa:'Padaria Pão de Ouro', contatoPessoal:'Marcos Silva', email:'marcos@paodeouro.com.br', telefone:'(11) 98877-1234', cnpj:'12.345.678/0001-90', cpf:'', endereco:'Av. Portugal, 480', cidade:'Santo André', uf:'SP', cep:'09040-000', status:'Ativo', fonte:'Site', ultimoProjeto:ogMaisDias(hoje,-40), capaUrl:''},
+              {id:cli2, nomeEmpresa:'Auto Center Veloz', contatoPessoal:'Rita Nunes', email:'rita@autoveloz.com.br', telefone:'(11) 97766-2200', cnpj:'23.456.789/0001-01', cpf:'', endereco:'R. das Oficinas, 77', cidade:'Mauá', uf:'SP', cep:'09310-000', status:'Ativo', fonte:'LinkedIn', ultimoProjeto:ogMaisDias(hoje,-8), capaUrl:''},
+              {id:cli3, nomeEmpresa:'Studio Bella Estética', contatoPessoal:'Bella Rocha', email:'contato@studiobella.com.br', telefone:'(11) 96655-3311', cnpj:'34.567.890/0001-12', cpf:'', endereco:'R. Oscar Freire, 1200', cidade:'São Paulo', uf:'SP', cep:'01426-000', status:'Inativo', fonte:'Site', ultimoProjeto:ogMaisDias(hoje,-300), capaUrl:''}
+            ],
+            leads:[
+              {id:lead1, nome:'Rede Farma Popular', contatoPessoal:'Dr. Aluísio', email:'aluisio@farmapopular.com', telefone:'(11) 95544-8899', cnpj:'45.678.901/0001-23', etapa:'Diagnóstico', status:'Negociação', canal:'Indicação', fonteLegado:'', valorEstimado:28000, dataContato:ogMaisDias(hoje,-12), dataInicio:ogMaisDias(hoje,-12), dataFechamento:'', fechado:false, observacoes:'Quer reestruturar 3 lojas.', clienteId:''},
+              {id:lead2, nome:'Transportes Bandeirante', contatoPessoal:'Seu Zé', email:'ze@bandeirante.com', telefone:'(11) 94433-7788', cnpj:'', etapa:'Apresentação', status:'Proposta', canal:'Linkedln', fonteLegado:'', valorEstimado:15500, dataContato:ogMaisDias(hoje,-5), dataInicio:ogMaisDias(hoje,-5), dataFechamento:'', fechado:false, observacoes:'', clienteId:''},
+              // Registro vindo do CRM legado — status é interpretação. Ver MAPA-NOTION §8.
+              {id:lead3, nome:'Mercadinho Bom Preço', contatoPessoal:'Dona Cida', email:'cida@bompreco.com', telefone:'', cnpj:'', etapa:'', status:'Fechamento Ganho', canal:'', fonteLegado:'Indicação', valorEstimado:9800, dataContato:ogMaisDias(hoje,-25), dataInicio:'', dataFechamento:ogMaisDias(hoje,-3), fechado:true, observacoes:'Era "Convertido" no CRM legado.', clienteId:cli2}
+            ],
+            leadStats:[
+              {id:ogId('st'), rotulo:'Taxa de conversão do trimestre', valor:34, referencia:mes, leadId:''},
+              {id:ogId('st'), rotulo:'Ticket médio fechado', valor:17650, referencia:mes, leadId:''}
+            ],
+            propostas:[
+              {id:ogId('prop'), titulo:'Reestruturação — Rede Farma Popular', status:'Enviada', valor:28000, enviadaEm:ogMaisDias(hoje,-4), respondidaEm:'', validaAte:ogMaisDias(hoje,10), observacoes:'', capaUrl:'', clienteId:'', leadId:lead1},
+              {id:ogId('prop'), titulo:'Diagnóstico — Auto Center Veloz', status:'Aceita', valor:12000, enviadaEm:ogMaisDias(hoje,-30), respondidaEm:ogMaisDias(hoje,-22), validaAte:'', observacoes:'', capaUrl:'', clienteId:cli2, leadId:''}
+            ],
+            contratos:[
+              {id:ogId('ctr'), titulo:'Contrato anual — Auto Center Veloz', status:'Assinado', valor:12000, assinadoEm:ogMaisDias(hoje,-20), inicioVigencia:ogMaisDias(hoje,-20), fimVigencia:ogMaisDias(hoje,345), link:'', clienteId:cli2, propostaId:''}
+            ],
+            projetos:[
+              {id:prj1, nome:'Virada de chave — Padaria Pão de Ouro', status:'Em andamento', tipos:['Marketing','Branding'], valor:18000, inicio:ogMaisDias(hoje,-45), termino:ogMaisDias(hoje,30), link:'', texto:'', capaUrl:'', clienteId:cli1, propostaId:'', contratoId:''},
+              {id:prj2, nome:'Diagnóstico operacional — Auto Center Veloz', status:'Pesquisa', tipos:['Outros'], valor:12000, inicio:ogMaisDias(hoje,-18), termino:ogMaisDias(hoje,12), link:'', texto:'', capaUrl:'', clienteId:cli2, propostaId:'', contratoId:''},
+              {id:prj3, nome:'Identidade visual — Studio Bella', status:'Feito', tipos:['Branding','Website'], valor:9500, inicio:ogMaisDias(hoje,-320), termino:ogMaisDias(hoje,-260), link:'', texto:'', capaUrl:'', clienteId:cli3, propostaId:'', contratoId:''}
+            ],
+            tarefas:[
+              {id:ogId('tar'), titulo:'Fechar cronograma da virada de chave', notas:'Alinhar com o Marcos por WhatsApp.', status:'Em andamento', prioridade:'Alta', tag:'Projetos', prazo:ogMaisDias(hoje,2), concluida:false, concluidaEm:'', origem:'Tarefas', projetoId:prj1, leadId:'', postagemId:'', responsavel:'Carla Caroline'},
+              {id:ogId('tar'), titulo:'Enviar NF de setembro', notas:'', status:'A fazer', prioridade:'Alta', tag:'Financeiro', prazo:ogMaisDias(hoje,-3), concluida:false, concluidaEm:'', origem:'Tarefas', projetoId:'', leadId:'', postagemId:'', responsavel:'Karen'},
+              {id:ogId('tar'), titulo:'Follow-up Farma Popular', notas:'', status:'A fazer', prioridade:'Média', tag:'Vendas', prazo:ogMaisDias(hoje,1), concluida:false, concluidaEm:'', origem:'Tarefas', projetoId:'', leadId:lead1, postagemId:'', responsavel:'Carla Caroline'},
+              {id:ogId('tar'), titulo:'Levantar dados do diagnóstico', notas:'', status:'Completa', prioridade:'Média', tag:'Projetos', prazo:ogMaisDias(hoje,-6), concluida:true, concluidaEm:ogMaisDias(hoje,-6), origem:'Tarefas', projetoId:prj2, leadId:'', postagemId:'', responsavel:'Beatriz'},
+              // Vinda da database "Tarefas (widget)" — vocabulário diferente, mesma tabela.
+              {id:ogId('tar'), titulo:'Revisar post do Instagram', notas:'', status:'Em andamento', prioridade:'Alta', tag:'Marketing', prazo:ogMaisDias(hoje,3), concluida:false, concluidaEm:'', origem:'Tarefas (widget)', projetoId:'', leadId:'', postagemId:pst1, responsavel:'Enzo Labadessa'},
+              {id:ogId('tar'), titulo:'Organizar pasta de contratos', notas:'', status:'A fazer', prioridade:'Baixa', tag:'Outros', prazo:'', concluida:false, concluidaEm:'', origem:'Tarefas (widget)', projetoId:'', leadId:'', postagemId:'', responsavel:''}
+            ],
+            reunioes:[
+              {id:ogId('reu'), titulo:'Kickoff — Padaria Pão de Ouro', tipo:'Kickoff', status:'Realizada', inicio:ogMaisDias(hoje,-44), fim:'', local:'Google Meet', pauta:'Escopo e cronograma', notas:'', projetoId:prj1},
+              {id:ogId('reu'), titulo:'Acompanhamento mensal — Auto Center', tipo:'Acompanhamento', status:'Agendada', inicio:ogMaisDias(hoje,4), fim:'', local:'Presencial', pauta:'Indicadores do mês', notas:'', projetoId:prj2}
+            ],
+            feedbacks:[
+              {id:ogId('fb'), titulo:'Studio Bella — entrega final', nota:5, comentario:'Superou o esperado, identidade ficou impecável.', recebidoEm:ogMaisDias(hoje,-255), projetoId:prj3}
+            ],
+            faturas:[
+              {id:fat1, numero:'NF-2026-041', tipo:'Preço fixo', status:'Emitida', precoFixo:9000, emitidaEm:ogMaisDias(hoje,-10), dataEntrega:ogMaisDias(hoje,5), pago:false, pagoEm:'', pdfUrl:'', capaUrl:'', projetoId:prj1},
+              {id:fat2, numero:'NF-2026-038', tipo:'Preço por hora', status:'Paga', precoFixo:0, emitidaEm:ogMaisDias(hoje,-35), dataEntrega:ogMaisDias(hoje,-20), pago:true, pagoEm:ogMaisDias(hoje,-19), pdfUrl:'', capaUrl:'', projetoId:prj2}
+            ],
+            planilhaHoras:[
+              {id:ogId('ph'), descricao:'Diagnóstico — entrevistas', data:ogMaisDias(hoje,-30), horas:12, valorHora:250, faturaId:fat2},
+              {id:ogId('ph'), descricao:'Diagnóstico — relatório', data:ogMaisDias(hoje,-26), horas:8, valorHora:250, faturaId:fat2}
+            ],
+            categoriasReceita:[
+              {id:cr1, nome:'Consultoria', cor:'#1d8a5f'},
+              {id:cr2, nome:'Recorrência', cor:'#2f6dbf'}
+            ],
+            categoriasDespesa:[
+              {id:cd1, nome:'Folha', cor:'#bd3b3b'},
+              {id:cd2, nome:'Ferramentas', cor:'#b5791a'},
+              {id:cd3, nome:'Impostos', cor:'#71717a'}
+            ],
+            receitas:[
+              {id:ogId('rec'), descricao:'Padaria Pão de Ouro — parcela 2/4', valor:4500, data:ogMaisDias(hoje,-6), recebido:true, recorrencia:'Único', observacoes:'', categoriaId:cr1, mesId:mf1, projetoId:prj1, faturaId:fat1},
+              {id:ogId('rec'), descricao:'Auto Center Veloz — diagnóstico', valor:5000, data:ogMaisDias(hoje,-19), recebido:true, recorrencia:'Único', observacoes:'', categoriaId:cr1, mesId:mf1, projetoId:prj2, faturaId:fat2},
+              {id:ogId('rec'), descricao:'Mentoria mensal — carteira', valor:3200, data:ogMaisDias(hoje,-2), recebido:true, recorrencia:'Mensal', observacoes:'', categoriaId:cr2, mesId:mf1, projetoId:'', faturaId:''}
+            ],
+            despesas:[
+              {id:ogId('des'), descricao:'Folha da equipe', valor:8600, data:ogMaisDias(hoje,-5), pago:true, recorrencia:'Mensal', observacoes:'', categoriaId:cd1, mesId:mf1},
+              {id:ogId('des'), descricao:'Assinaturas (Canva, Notion, Google)', valor:420, data:ogMaisDias(hoje,-5), pago:true, recorrencia:'Mensal', observacoes:'', categoriaId:cd2, mesId:mf1},
+              {id:ogId('des'), descricao:'Simples Nacional', valor:1180, data:ogMaisDias(hoje,-4), pago:false, recorrencia:'Mensal', observacoes:'', categoriaId:cd3, mesId:mf1}
+            ],
+            mesesFinanceiros:[
+              {id:mf1, nome:'Mês corrente', ano:ano, mes:mesN, metaLucro:6000, moeda:'BRL', capaUrl:'', metaAnualId:ma1}
+            ],
+            metasAnuais:[
+              {id:ma1, nome:String(ano), ano:ano, metaLucro:72000, moeda:'BRL', texto:'Ano de consolidar a carteira recorrente.', capaUrl:''}
+            ],
+            metas:[
+              {id:ogId('met'), titulo:'Fechar 12 contratos no ano', descricao:'', status:'Em andamento', progresso:58, prazo:ano+'-12-31', concluidaEm:''},
+              {id:ogId('met'), titulo:'Documentar os 5 processos críticos', descricao:'', status:'Em andamento', progresso:40, prazo:ogMaisDias(hoje,20), concluidaEm:''},
+              {id:ogId('met'), titulo:'Migrar o Notion para o sistema', descricao:'', status:'Alcançada', progresso:100, prazo:ogMaisDias(hoje,-1), concluidaEm:ogMaisDias(hoje,-1)},
+              {id:ogId('met'), titulo:'Lançar a landing nova', descricao:'', status:'Em andamento', progresso:15, prazo:ogMaisDias(hoje,-9), concluidaEm:''}
+            ],
+            planner:[
+              {id:ogId('pl'), nome:'Hoje', periodo:'Dia', status:'Planejado', inicio:hoje, fim:'', notas:'Focar no cronograma da Padaria.', capaUrl:'', paiId:''},
+              {id:ogId('pl'), nome:'Amanhã', periodo:'Dia', status:'Não planejado', inicio:ogMaisDias(hoje,1), fim:'', notas:'', capaUrl:'', paiId:''},
+              {id:ogId('pl'), nome:'Semana atual', periodo:'Semana', status:'Em andamento', inicio:sem, fim:ogMaisDias(sem,6), notas:'', capaUrl:'', paiId:''},
+              {id:ogId('pl'), nome:'Mês corrente', periodo:'Mês', status:'Em andamento', inicio:mes, fim:'', notas:'', capaUrl:'', paiId:''}
+            ],
+            /* Hábitos: no Notion eram 5 checkboxes fixos (Hábito 1..5).
+               Aqui são registros — dá para criar o sexto. */
+            habitos:[
+              {id:h1, nome:'Ler 20 minutos', descricao:'', frequencia:'Diário', ativo:true, ordem:0, cor:'#d4af5e'},
+              {id:h2, nome:'Caminhar 30 min', descricao:'', frequencia:'Diário', ativo:true, ordem:1, cor:'#1d8a5f'},
+              {id:h3, nome:'Revisar as metas', descricao:'', frequencia:'Semanal', ativo:true, ordem:2, cor:'#2f6dbf'},
+              {id:h4, nome:'Sem celular após 22h', descricao:'', frequencia:'Diário', ativo:true, ordem:3, cor:'#b5791a'},
+              {id:h5, nome:'Planejar o dia seguinte', descricao:'', frequencia:'Diário', ativo:true, ordem:4, cor:'#bd3b3b'}
+            ],
+            registrosHabito:[
+              {id:reg1, nome:'', data:hoje, plannerSemanaId:''},
+              {id:reg2, nome:'', data:ogMaisDias(hoje,-1), plannerSemanaId:''}
+            ],
+            marcacoes:[
+              {id:ogId('mc'), registroId:reg1, habitoId:h1, feito:true, anotacao:''},
+              {id:ogId('mc'), registroId:reg1, habitoId:h2, feito:true, anotacao:''},
+              {id:ogId('mc'), registroId:reg1, habitoId:h3, feito:false, anotacao:''},
+              {id:ogId('mc'), registroId:reg1, habitoId:h4, feito:true, anotacao:''},
+              {id:ogId('mc'), registroId:reg1, habitoId:h5, feito:false, anotacao:''},
+              {id:ogId('mc'), registroId:reg2, habitoId:h1, feito:true, anotacao:''},
+              {id:ogId('mc'), registroId:reg2, habitoId:h2, feito:true, anotacao:''},
+              {id:ogId('mc'), registroId:reg2, habitoId:h3, feito:true, anotacao:''},
+              {id:ogId('mc'), registroId:reg2, habitoId:h4, feito:true, anotacao:''},
+              {id:ogId('mc'), registroId:reg2, habitoId:h5, feito:true, anotacao:''}
+            ],
+            postagens:[
+              {id:pst1, titulo:'5 sinais de que sua operação está travando', pauta:'Dores de gestão', legenda:'', status:'Agendado', plataformas:['Instagram','LinkedIn'], agendadaPara:ogMaisDias(hoje,3), publicadaEm:'', link:'', capaUrl:''},
+              {id:ogId('pst'), titulo:'Case: virada de chave em 90 dias', pauta:'Prova social', legenda:'', status:'Publicado', plataformas:['Instagram'], agendadaPara:ogMaisDias(hoje,-9), publicadaEm:ogMaisDias(hoje,-9), link:'', capaUrl:''},
+              {id:ogId('pst'), titulo:'O que é Arquitetura de Lucro', pauta:'Autoridade', legenda:'', status:'Ideia', plataformas:['Blog'], agendadaPara:'', publicadaEm:'', link:'', capaUrl:''}
+            ],
+            portfolio:[
+              {id:ogId('pf'), nome:'Studio Bella — identidade completa', resumo:'Branding, papelaria e site.', status:'Publicado', publicadoEm:ogMaisDias(hoje,-250), link:'', capaUrl:''},
+              {id:ogId('pf'), nome:'Padaria Pão de Ouro — reposicionamento', resumo:'Em produção.', status:'Rascunho', publicadoEm:'', link:'', capaUrl:''}
+            ],
+            setup:[
+              {id:ogId('sp'), nome:'CNPJ e contrato social', descricao:'', status:'Feita', ordem:0, concluidaEm:ogMaisDias(hoje,-400)},
+              {id:ogId('sp'), nome:'Conta bancária PJ', descricao:'', status:'Feita', ordem:1, concluidaEm:ogMaisDias(hoje,-395)},
+              {id:ogId('sp'), nome:'Contrato padrão revisado', descricao:'', status:'Feita', ordem:2, concluidaEm:ogMaisDias(hoje,-200)},
+              {id:ogId('sp'), nome:'Emissor de NF configurado', descricao:'', status:'Em andamento', ordem:3, concluidaEm:''},
+              {id:ogId('sp'), nome:'Política de preços documentada', descricao:'', status:'Não iniciada', ordem:4, concluidaEm:''}
+            ],
+            arquivos:[
+              {id:ogId('arq'), nome:'contrato-auto-center.pdf', url:'#', tipo:'PDF', mimeType:'application/pdf', tamanhoBytes:184320, tipoEntidade:'Contrato', entidadeId:''},
+              {id:ogId('arq'), nome:'capa-padaria.jpg', url:'#', tipo:'Capa', mimeType:'image/jpeg', tamanhoBytes:98304, tipoEntidade:'Projeto', entidadeId:prj1},
+              {id:ogId('arq'), nome:'NF-2026-041.pdf', url:'#', tipo:'PDF', mimeType:'application/pdf', tamanhoBytes:76800, tipoEntidade:'Fatura', entidadeId:fat1}
+            ],
+            usuarios:[
+              {id:ogId('usr'), nome:'Carla Caroline', email:'carla@afatorialsolucoes.com.br', papel:'Admin', ativo:true, avatarUrl:''},
+              {id:ogId('usr'), nome:'Karen', email:'karen@afatorialsolucoes.com.br', papel:'Gestor', ativo:true, avatarUrl:''},
+              {id:ogId('usr'), nome:'Beatriz', email:'beatriz@afatorialsolucoes.com.br', papel:'Colaborador', ativo:true, avatarUrl:''},
+              {id:ogId('usr'), nome:'Enzo Labadessa', email:'enzo@afatorialsolucoes.com.br', papel:'Colaborador', ativo:true, avatarUrl:''}
+            ],
+            configuracoes:[
+              {chave:'fuso', valor:'America/Sao_Paulo', descricao:'Fuso do negócio'},
+              {chave:'moeda', valor:'BRL', descricao:'Moeda padrão'}
+            ]
+          };
+        }
+
+        let OG=null;
+
+        function ogCarregar(){
+          try{
+            let raw=localStorage.getItem('af_org');
+            if(raw){ OG=JSON.parse(raw); }
+          }catch(e){ OG=null; }
+          if(!OG || !OG.clientes){ OG=ogSeed(); ogSalvar(); }
+          // garante que chaves novas apareçam em bases antigas
+          let base=ogSeed();
+          Object.keys(base).forEach(k=>{ if(!OG[k]) OG[k]=[]; });
+        }
+        function ogSalvar(){ try{ localStorage.setItem('af_org', JSON.stringify(OG)); }catch(e){} }
+        function ogReset(){
+          if(!confirm('Restaurar os dados de exemplo da Organização? O que você alterou aqui será perdido.')) return;
+          OG=ogSeed(); ogSalvar(); ogRenderAtual();
+        }
+
+        /* ── CRUD genérico ──────────────────────────────────────────────────── */
+        function ogLista(ent){ return (OG&&OG[ent])||[]; }
+        function ogAchar(ent,id){ return ogLista(ent).find(x=>x.id===id)||null; }
+        function ogSet(ent,id,campo,valor){
+          let r=ogAchar(ent,id); if(!r) return;
+          if(typeof r[campo]==='number') valor=parseMoney(valor);
+          if(typeof r[campo]==='boolean') valor=!!valor;
+          r[campo]=valor;
+          // regras de coerência que o schema expressa com defaults
+          if(ent==='tarefas'&&campo==='status'){ r.concluida=(valor==='Completa'); r.concluidaEm=r.concluida?ogHoje():''; }
+          if(ent==='tarefas'&&campo==='concluida'){ r.status=valor?'Completa':'A fazer'; r.concluidaEm=valor?ogHoje():''; }
+          if(ent==='metas'&&campo==='progresso'){ r.progresso=Math.max(0,Math.min(100,parseInt(valor)||0)); if(r.progresso>=100){ r.status='Alcançada'; r.concluidaEm=r.concluidaEm||ogHoje(); } }
+          if(ent==='faturas'&&campo==='pago'){ r.status=valor?'Paga':'Emitida'; r.pagoEm=valor?ogHoje():''; }
+          ogSalvar(); ogRenderAtual();
+        }
+        function ogRemover(ent,id,rotulo){
+          if(!confirm('Excluir '+(rotulo||'este registro')+'?')) return;
+          OG[ent]=ogLista(ent).filter(x=>x.id!==id);
+          if(ent==='habitos') OG.marcacoes=ogLista('marcacoes').filter(m=>m.habitoId!==id);
+          if(ent==='registrosHabito') OG.marcacoes=ogLista('marcacoes').filter(m=>m.registroId!==id);
+          ogSalvar(); ogRenderAtual();
+        }
+
+        /* ── ogResumo(): substitui a database "Resumo" do Notion ─────────────
+           Lá era uma linha só, ligada a todas as outras databases, com ~60
+           rollups — e toda database carregava uma property "Resumo" obrigatória
+           só para alimentá-la. Aqui é uma agregação. */
+        function ogResumo(){
+          const hoje=ogHoje();
+          const T=ogLista('tarefas'), L=ogLista('leads'), P=ogLista('projetos'), C=ogLista('clientes');
+          const R=ogLista('receitas'), D=ogLista('despesas'), F=ogLista('faturas'), M=ogLista('metas');
+          const soma=(a,f)=>a.reduce((s,x)=>s+(+f(x)||0),0);
+          const recMes=soma(R.filter(r=>ogNoMes(r.data)),r=>r.valor);
+          const desMes=soma(D.filter(d=>ogNoMes(d.data)),d=>d.valor);
+          const recAno=soma(R.filter(r=>ogNoAno(r.data)),r=>r.valor);
+          const desAno=soma(D.filter(d=>ogNoAno(d.data)),d=>d.valor);
+          const mf=ogLista('mesesFinanceiros').find(m=>m.ano===+hoje.slice(0,4)&&m.mes===+hoje.slice(5,7));
+          const metaLucro=mf?(+mf.metaLucro||0):0;
+          const lucroMes=recMes-desMes;
+          const habAtivos=ogLista('habitos').filter(h=>h.ativo);
+          const regHoje=ogLista('registrosHabito').find(r=>r.data===hoje);
+          const feitosHoje=regHoje?ogLista('marcacoes').filter(m=>m.registroId===regHoje.id&&m.feito&&habAtivos.some(h=>h.id===m.habitoId)).length:0;
+          const plan=(per,ini)=>{ let e=ogLista('planner').find(p=>p.periodo===per&&p.inicio===ini); return !!e&&e.status!=='Não planejado'; };
+          const setup=ogLista('setup');
+          const pst=ogLista('postagens');
+          return {
+            clientes:{total:C.length, ativos:C.filter(c=>c.status==='Ativo').length},
+            projetos:{total:P.length, emAndamento:P.filter(p=>p.status==='Em andamento').length, finalizados:P.filter(p=>p.status==='Feito').length},
+            tarefas:{total:T.length, pendentes:T.filter(t=>!t.concluida).length,
+              vencidas:T.filter(t=>!t.concluida&&t.prazo&&t.prazo<hoje).length,
+              concluidasSemana:T.filter(t=>t.concluida&&ogNaSemana(t.concluidaEm)).length},
+            leads:{total:L.length,
+              abertos:L.filter(l=>l.status!=='Fechamento Ganho'&&l.status!=='Fechamento Perdido').length,
+              ganhosNoMes:L.filter(l=>l.status==='Fechamento Ganho'&&ogNoMes(l.dataFechamento)).length,
+              valorEmAberto:soma(L.filter(l=>l.status!=='Fechamento Ganho'&&l.status!=='Fechamento Perdido'),l=>l.valorEstimado)},
+            financeiro:{recMes:recMes, desMes:desMes, lucroMes:lucroMes, metaLucro:metaLucro,
+              progresso:metaLucro>0?Math.max(0,lucroMes/metaLucro):0,
+              recAno:recAno, desAno:desAno, lucroAno:recAno-desAno},
+            faturas:{total:F.length, pagas:F.filter(f=>f.pago).length,
+              venceEsteMes:F.filter(f=>!f.pago&&ogNoMes(f.dataEntrega)).length,
+              progresso:F.length?F.filter(f=>f.pago).length/F.length:0},
+            metas:{total:M.length, alcancadas:M.filter(m=>m.status==='Alcançada').length,
+              vencidas:M.filter(m=>m.status!=='Alcançada'&&m.prazo&&m.prazo<hoje).length},
+            conteudo:{publicadosNoMes:pst.filter(p=>p.status==='Publicado'&&ogNoMes(p.publicadaEm)).length,
+              agendadosNaSemana:pst.filter(p=>p.status==='Agendado'&&ogNaSemana(p.agendadaPara)).length},
+            habitos:{ativos:habAtivos.length, feitosHoje:feitosHoje,
+              taxaHoje:habAtivos.length?feitosHoje/habAtivos.length:0},
+            planner:{hoje:plan('Dia',hoje), semana:plan('Semana',ogSegunda(hoje)), mes:plan('Mês',ogMesIni(hoje))},
+            setup:{total:setup.length, feitas:setup.filter(s=>s.status==='Feita').length,
+              progresso:setup.length?setup.filter(s=>s.status==='Feita').length/setup.length:0},
+            reunioes:{proximas:ogLista('reunioes').filter(r=>r.status==='Agendada'&&r.inicio>=hoje).length},
+            portfolio:{total:ogLista('portfolio').length, publicados:ogLista('portfolio').filter(p=>p.status==='Publicado').length}
+          };
+        }
+
+        /* ── helpers de UI ──────────────────────────────────────────────────── */
+        function ogEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        function ogPct(v){ return Math.round((+v||0)*100)+'%'; }
+        function ogTomStatus(v){
+          const ok=['Ativo','Feito','Completa','Concluído','Alcançada','Paga','Publicado','Assinado','Aceita','Feita','Fechamento Ganho','Realizada'];
+          const warn=['Em andamento','Em progresso','Pesquisa','Onboarding','Planejado','Agendado','Enviada','Emitida','Produção','Negociação','Proposta','Em revisão','Agendada'];
+          const bad=['Inativo','Vencida','Não alcançada','Recusada','Cancelada','Fechamento Perdido','Expirada'];
+          if(ok.includes(v)) return 'ok'; if(warn.includes(v)) return 'warn'; if(bad.includes(v)) return 'bad'; return 'neutro';
+        }
+        function ogPill(v){
+          if(!v) return '<span style="color:var(--ink-faint);">—</span>';
+          let t=ogTomStatus(v);
+          let cor={ok:'var(--ok)',warn:'var(--warn)',bad:'var(--bad)',neutro:'var(--ink-soft)'}[t];
+          let bg={ok:'var(--ok-bg)',warn:'var(--warn-bg)',bad:'var(--bad-bg)',neutro:'var(--line-soft)'}[t];
+          return '<span class="pill" style="background:'+bg+';color:'+cor+';">'+ogEsc(v)+'</span>';
+        }
+        function ogSelect(ent,id,campo,opcoes,vazio){
+          let r=ogAchar(ent,id); let atual=r?r[campo]:'';
+          let o=(vazio?'<option value="">—</option>':'')+opcoes.map(v=>'<option value="'+ogEsc(v)+'"'+(v===atual?' selected':'')+'>'+ogEsc(v)+'</option>').join('');
+          return '<select class="inp" style="padding:6px 8px;font-size:12px;width:auto;min-width:120px;" onchange="ogSet(\''+ent+'\',\''+id+'\',\''+campo+'\',this.value)">'+o+'</select>';
+        }
+        function ogTexto(ent,id,campo,ph,largura){
+          let r=ogAchar(ent,id); let v=r?(r[campo]==null?'':r[campo]):'';
+          return '<input class="inp" style="padding:6px 8px;font-size:12px;width:'+(largura||'100%')+';" value="'+ogEsc(v)+'" placeholder="'+ogEsc(ph||'')+'" onchange="ogSet(\''+ent+'\',\''+id+'\',\''+campo+'\',this.value)">';
+        }
+        function ogData(ent,id,campo){
+          let r=ogAchar(ent,id); let v=r?(r[campo]||''):'';
+          return '<input type="date" class="inp" style="padding:6px 8px;font-size:12px;width:auto;" value="'+ogEsc(v)+'" onchange="ogSet(\''+ent+'\',\''+id+'\',\''+campo+'\',this.value)">';
+        }
+        function ogNum(ent,id,campo){
+          let r=ogAchar(ent,id); let v=r?(+r[campo]||0):0;
+          return '<input class="inp" style="padding:6px 8px;font-size:12px;width:110px;text-align:right;" value="'+fmtMoney(v)+'" onblur="ogSet(\''+ent+'\',\''+id+'\',\''+campo+'\',this.value)">';
+        }
+        function ogDel(ent,id,rot){
+          return '<button class="btn btn-ghost btn-sm" title="Excluir" onclick="ogRemover(\''+ent+'\',\''+id+'\',\''+ogEsc(rot||'').replace(/'/g,"\\'")+'\')">✕</button>';
+        }
+        function ogVazio(n,msg){ return '<tr><td colspan="'+n+'" style="text-align:center;color:var(--ink-faint);padding:26px;">'+msg+'</td></tr>'; }
+        function ogBarra(v,rot){
+          let p=Math.min(100,Math.max(0,Math.round((+v||0)*100)));
+          return '<div style="margin-top:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);margin-bottom:4px;"><span>'+ogEsc(rot||'')+'</span><span>'+p+'%</span></div>'+
+            '<div style="height:6px;background:var(--line-soft);border-radius:99px;overflow:hidden;"><div style="height:100%;width:'+p+'%;background:var(--gold-grad);border-radius:99px;"></div></div></div>';
+        }
+        function ogNomeCliente(id){ let c=ogAchar('clientes',id); return c?c.nomeEmpresa:'—'; }
+        function ogNomeProjeto(id){ let p=ogAchar('projetos',id); return p?p.nome:'—'; }
+        function ogOpcoesCliente(){ return ogLista('clientes').map(c=>c.nomeEmpresa); }
+
+        /* ── despacho ───────────────────────────────────────────────────────── */
+        let OG_VIEW='og';
+        function ogRenderAtual(){
+          const mapa={og:ogRenderPainel, ogplanner:ogRenderPlanner, oghabitos:ogRenderHabitos,
+            ogtarefas:ogRenderTarefas, ogclientes:ogRenderClientes, ogprojetos:ogRenderProjetos,
+            ogleads:ogRenderLeads, ogmetas:ogRenderMetas, ogconteudo:ogRenderConteudo,
+            ogfin:ogRenderFin, ogestrutura:ogRenderEstrutura};
+          (mapa[OG_VIEW]||ogRenderPainel)();
+        }
+
+        /* ── 1. PAINEL (o Resumo do Notion, como agregação) ─────────────────── */
+        function ogRenderPainel(){
+          const r=ogResumo(); const el=id=>document.getElementById(id);
+          const kpi=(id,v)=>{ let e=el(id); if(e) e.textContent=v; };
+          kpi('og-k-rec', brl(r.financeiro.recMes));
+          kpi('og-k-des', brl(r.financeiro.desMes));
+          kpi('og-k-luc', brl(r.financeiro.lucroMes));
+          kpi('og-k-ano', brl(r.financeiro.lucroAno));
+          let bar=el('og-meta-bar');
+          if(bar) bar.innerHTML = r.financeiro.metaLucro>0
+            ? ogBarra(r.financeiro.progresso,'Meta de lucro do mês — '+brl(r.financeiro.metaLucro))
+            : '<div style="font-size:12px;color:var(--ink-faint);">Sem meta de lucro definida para este mês.</div>';
+
+          const cartao=(rot,val,det,tom,ir)=>{
+            let cor=tom==='ok'?'var(--ok)':tom==='bad'?'var(--bad)':tom==='warn'?'var(--warn)':'var(--ink)';
+            return '<div class="kpi"'+(ir?' style="cursor:pointer;" onclick="go(\''+ir+'\')"':'')+'>'+
+              '<div class="v" style="color:'+cor+';">'+val+'</div><div class="l">'+rot+'</div>'+
+              (det?'<div style="font-size:11px;color:var(--ink-faint);margin-top:4px;">'+det+'</div>':'')+'</div>';
+          };
+          let g=el('og-grade');
+          if(g) g.innerHTML=
+            cartao('Clientes ativos', r.clientes.ativos, r.clientes.total+' no total','neutro','ogclientes')+
+            cartao('Leads abertos', r.leads.abertos, brl(r.leads.valorEmAberto)+' em aberto','neutro','ogleads')+
+            cartao('Ganhos no mês', r.leads.ganhosNoMes, '', r.leads.ganhosNoMes>0?'ok':'neutro','ogleads')+
+            cartao('Faturas a vencer', r.faturas.venceEsteMes, r.faturas.pagas+'/'+r.faturas.total+' pagas', r.faturas.venceEsteMes>0?'warn':'neutro','ogfin')+
+            cartao('Tarefas pendentes', r.tarefas.pendentes, '','neutro','ogtarefas')+
+            cartao('Tarefas vencidas', r.tarefas.vencidas, '', r.tarefas.vencidas>0?'bad':'ok','ogtarefas')+
+            cartao('Concluídas na semana', r.tarefas.concluidasSemana, '','ok','ogtarefas')+
+            cartao('Projetos em andamento', r.projetos.emAndamento, r.projetos.finalizados+' finalizados','neutro','ogprojetos')+
+            cartao('Planejamento de hoje', r.planner.hoje?'Feito':'Pendente','', r.planner.hoje?'ok':'warn','ogplanner')+
+            cartao('Planejamento da semana', r.planner.semana?'Feito':'Pendente','', r.planner.semana?'ok':'warn','ogplanner')+
+            cartao('Hábitos de hoje', r.habitos.feitosHoje+'/'+r.habitos.ativos, ogPct(r.habitos.taxaHoje),
+              r.habitos.ativos>0&&r.habitos.feitosHoje===r.habitos.ativos?'ok':'neutro','oghabitos')+
+            cartao('Metas alcançadas', r.metas.alcancadas+'/'+r.metas.total,
+              r.metas.vencidas>0?r.metas.vencidas+' vencidas':'', r.metas.vencidas>0?'warn':'neutro','ogmetas')+
+            cartao('Publicados no mês', r.conteudo.publicadosNoMes, r.conteudo.agendadosNaSemana+' agendados na semana','neutro','ogconteudo')+
+            cartao('Portfólio publicado', r.portfolio.publicados, r.portfolio.total+' projetos','neutro','ogconteudo')+
+            cartao('Reuniões por vir', r.reunioes.proximas, '','neutro','ogprojetos')+
+            cartao('Setup do negócio', r.setup.feitas+'/'+r.setup.total, ogPct(r.setup.progresso),'neutro','ogestrutura');
+        }
+
+        /* ── 2. PLANNER (Dia + Semana + Mês numa tabela só) ─────────────────── */
+        function ogRenderPlanner(){
+          let b=document.getElementById('og-planner-body'); if(!b) return;
+          let l=ogLista('planner').slice().sort((a,c)=>(a.inicio||'').localeCompare(c.inicio||''));
+          b.innerHTML = l.length? l.map(p=>'<tr>'+
+            '<td>'+ogTexto('planner',p.id,'nome','Nome')+'</td>'+
+            '<td>'+ogSelect('planner',p.id,'periodo',OG_ENUM.periodoPlanner)+'</td>'+
+            '<td>'+ogData('planner',p.id,'inicio')+'</td>'+
+            '<td>'+ogSelect('planner',p.id,'status',OG_ENUM.statusPlanner)+'</td>'+
+            '<td>'+ogTexto('planner',p.id,'notas','—')+'</td>'+
+            '<td style="text-align:right;">'+ogDel('planner',p.id,'esta entrada do planner')+'</td></tr>').join('')
+            : ogVazio(6,'Nenhuma entrada. Crie a de hoje no botão acima.');
+        }
+        function ogNovoPlanner(periodo){
+          const hoje=ogHoje();
+          const ini = periodo==='Semana'?ogSegunda(hoje): periodo==='Mês'?ogMesIni(hoje): hoje;
+          if(ogLista('planner').some(p=>p.periodo===periodo&&p.inicio===ini)){
+            alert('Já existe uma entrada de '+periodo+' começando em '+ogBR(ini)+'.'); return;
+          }
+          OG.planner.push({id:ogId('pl'), nome:periodo==='Dia'?'Dia '+ogBR(hoje):periodo==='Semana'?'Semana de '+ogBR(ini):'Mês '+ini.slice(0,7),
+            periodo:periodo, status:'Não planejado', inicio:ini, fim:periodo==='Semana'?ogMaisDias(ini,6):'', notas:'', capaUrl:'', paiId:''});
+          ogSalvar(); ogRenderPlanner();
+        }
+
+        /* ── 3. HÁBITOS (o ponto da mudança: registros, não colunas) ─────────── */
+        function ogRenderHabitos(){
+          const hoje=ogHoje();
+          let ativos=ogLista('habitos').filter(h=>h.ativo).sort((a,b)=>(a.ordem||0)-(b.ordem||0));
+          let regs=ogLista('registrosHabito').slice().sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,14);
+
+          let av=document.getElementById('og-hab-aviso');
+          if(av) av.innerHTML='No Notion eram <b>5 checkboxes fixos</b> — <code>Hábito 1</code> a <code>Hábito 5</code>. '+
+            'Aqui são registros: você tem <b>'+ativos.length+'</b> e pode criar o próximo agora, sem mexer em schema nenhum.';
+
+          let cab=document.getElementById('og-hab-cab');
+          if(cab) cab.innerHTML='<th style="min-width:110px;">Data</th>'+ativos.map(h=>
+            '<th style="text-align:center;"><span style="color:'+ogEsc(h.cor||'var(--gold-deep)')+';">'+ogEsc(h.nome)+'</span>'+
+            '<div style="font-weight:400;font-size:10px;color:var(--ink-faint);text-transform:none;letter-spacing:0;">'+ogEsc(h.frequencia)+'</div></th>').join('')+
+            '<th style="text-align:center;">Taxa</th><th></th>';
+
+          let b=document.getElementById('og-hab-body');
+          if(b) b.innerHTML = regs.length? regs.map(r=>{
+            let feitos=0;
+            let cels=ativos.map(h=>{
+              let m=ogLista('marcacoes').find(x=>x.registroId===r.id&&x.habitoId===h.id);
+              let on=!!(m&&m.feito); if(on) feitos++;
+              return '<td style="text-align:center;"><input type="checkbox"'+(on?' checked':'')+
+                ' style="width:17px;height:17px;cursor:pointer;accent-color:'+ogEsc(h.cor||'#d4af5e')+';"'+
+                ' onchange="ogMarcar(\''+r.id+'\',\''+h.id+'\',this.checked)"></td>';
+            }).join('');
+            let taxa=ativos.length?feitos/ativos.length:0;
+            let cor=taxa===1?'var(--ok)':taxa>=.5?'var(--warn)':'var(--ink-faint)';
+            return '<tr'+(r.data===hoje?' style="background:var(--warn-bg);"':'')+'>'+
+              '<td><b>'+ogBR(r.data)+'</b>'+(r.data===hoje?' <span style="font-size:10px;color:var(--gold-deep);">hoje</span>':'')+'</td>'+
+              cels+'<td style="text-align:center;color:'+cor+';font-weight:600;">'+feitos+'/'+ativos.length+'</td>'+
+              '<td style="text-align:right;">'+ogDel('registrosHabito',r.id,'o registro de '+ogBR(r.data))+'</td></tr>';
+          }).join('') : ogVazio(ativos.length+3,'Nenhum dia registrado. Clique em "Registrar hoje".');
+
+          let g=document.getElementById('og-hab-gest');
+          if(g) g.innerHTML=ogLista('habitos').sort((a,b)=>(a.ordem||0)-(b.ordem||0)).map(h=>'<tr>'+
+            '<td>'+ogTexto('habitos',h.id,'nome','Nome do hábito')+'</td>'+
+            '<td>'+ogSelect('habitos',h.id,'frequencia',OG_ENUM.frequenciaHabito)+'</td>'+
+            '<td style="text-align:center;"><input type="checkbox"'+(h.ativo?' checked':'')+' style="width:16px;height:16px;cursor:pointer;" onchange="ogSet(\'habitos\',\''+h.id+'\',\'ativo\',this.checked)"></td>'+
+            '<td><input type="color" value="'+ogEsc(h.cor||'#d4af5e')+'" style="width:38px;height:26px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:none;" onchange="ogSet(\'habitos\',\''+h.id+'\',\'cor\',this.value)"></td>'+
+            '<td style="text-align:right;">'+ogDel('habitos',h.id,'o hábito "'+h.nome+'"')+'</td></tr>').join('');
+        }
+        function ogMarcar(regId,habId,valor){
+          let m=ogLista('marcacoes').find(x=>x.registroId===regId&&x.habitoId===habId);
+          if(m) m.feito=!!valor;
+          else OG.marcacoes.push({id:ogId('mc'), registroId:regId, habitoId:habId, feito:!!valor, anotacao:''});
+          ogSalvar(); ogRenderHabitos();
+        }
+        function ogRegistrarHoje(){
+          const hoje=ogHoje();
+          if(ogLista('registrosHabito').some(r=>r.data===hoje)){ alert('O dia de hoje já está registrado.'); return; }
+          OG.registrosHabito.push({id:ogId('reg'), nome:'', data:hoje, plannerSemanaId:''});
+          ogSalvar(); ogRenderHabitos();
+        }
+        function ogNovoHabito(){
+          let n=prompt('Nome do novo hábito:'); if(!n||!n.trim()) return;
+          let ordem=ogLista('habitos').reduce((m,h)=>Math.max(m,h.ordem||0),0)+1;
+          const cores=['#d4af5e','#1d8a5f','#2f6dbf','#b5791a','#bd3b3b','#7c3aed','#0891b2'];
+          OG.habitos.push({id:ogId('hab'), nome:n.trim(), descricao:'', frequencia:'Diário', ativo:true, ordem:ordem, cor:cores[ordem%cores.length]});
+          ogSalvar(); ogRenderHabitos();
+        }
+
+        /* ── 4. TAREFAS (fusão das duas databases) ──────────────────────────── */
+        let OG_TAR_FILTRO='todas';
+        function ogFiltroTarefas(f){ OG_TAR_FILTRO=f; ogRenderTarefas(); }
+        function ogRenderTarefas(){
+          const hoje=ogHoje();
+          let l=ogLista('tarefas').slice();
+          if(OG_TAR_FILTRO==='pendentes') l=l.filter(t=>!t.concluida);
+          if(OG_TAR_FILTRO==='vencidas') l=l.filter(t=>!t.concluida&&t.prazo&&t.prazo<hoje);
+          if(OG_TAR_FILTRO==='widget') l=l.filter(t=>t.origem==='Tarefas (widget)');
+          l.sort((a,b)=>(a.concluida?1:0)-(b.concluida?1:0)||(a.prazo||'9999').localeCompare(b.prazo||'9999'));
+
+          let fb=document.getElementById('og-tar-filtros');
+          if(fb) fb.innerHTML=[['todas','Todas'],['pendentes','Pendentes'],['vencidas','Vencidas'],['widget','Vindas do widget']]
+            .map(([k,r])=>'<button class="btn '+(OG_TAR_FILTRO===k?'btn-gold':'btn-ghost')+' btn-sm" onclick="ogFiltroTarefas(\''+k+'\')">'+r+'</button>').join(' ');
+
+          let b=document.getElementById('og-tar-body');
+          if(b) b.innerHTML = l.length? l.map(t=>{
+            let atrasada=!t.concluida&&t.prazo&&t.prazo<hoje;
+            return '<tr'+(t.concluida?' style="opacity:.55;"':'')+'>'+
+            '<td style="text-align:center;"><input type="checkbox"'+(t.concluida?' checked':'')+' style="width:16px;height:16px;cursor:pointer;" onchange="ogSet(\'tarefas\',\''+t.id+'\',\'concluida\',this.checked)"></td>'+
+            '<td>'+ogTexto('tarefas',t.id,'titulo','Título')+
+              (t.projetoId?'<div style="font-size:10px;color:var(--ink-faint);margin-top:3px;">↳ '+ogEsc(ogNomeProjeto(t.projetoId))+'</div>':'')+'</td>'+
+            '<td>'+ogSelect('tarefas',t.id,'status',OG_ENUM.statusTarefa)+'</td>'+
+            '<td>'+ogSelect('tarefas',t.id,'prioridade',OG_ENUM.prioridadeTarefa,true)+'</td>'+
+            '<td>'+ogSelect('tarefas',t.id,'tag',OG_ENUM.tagTarefa,true)+'</td>'+
+            '<td>'+ogData('tarefas',t.id,'prazo')+(atrasada?'<div style="font-size:10px;color:var(--bad);font-weight:600;margin-top:3px;">atrasada</div>':'')+'</td>'+
+            '<td>'+ogTexto('tarefas',t.id,'responsavel','—','120px')+'</td>'+
+            '<td style="font-size:10px;color:var(--ink-faint);">'+ogEsc(t.origem)+'</td>'+
+            '<td style="text-align:right;">'+ogDel('tarefas',t.id,'a tarefa "'+t.titulo+'"')+'</td></tr>';
+          }).join('') : ogVazio(9,'Nenhuma tarefa neste filtro.');
+        }
+        function ogNovaTarefa(){
+          OG.tarefas.unshift({id:ogId('tar'), titulo:'Nova tarefa', notas:'', status:'A fazer', prioridade:'Média',
+            tag:'Outros', prazo:ogHoje(), concluida:false, concluidaEm:'', origem:'Tarefas',
+            projetoId:'', leadId:'', postagemId:'', responsavel:''});
+          ogSalvar(); ogRenderTarefas();
+        }
+
+        /* ── 5. CLIENTES ────────────────────────────────────────────────────── */
+        function ogRenderClientes(){
+          let b=document.getElementById('og-cli-body'); if(!b) return;
+          let l=ogLista('clientes');
+          b.innerHTML = l.length? l.map(c=>{
+            let prj=ogLista('projetos').filter(p=>p.clienteId===c.id);
+            let total=prj.reduce((s,p)=>s+(+p.valor||0),0);
+            return '<tr>'+
+            '<td>'+ogTexto('clientes',c.id,'nomeEmpresa','Nome da empresa')+'</td>'+
+            '<td>'+ogTexto('clientes',c.id,'contatoPessoal','Contato')+'</td>'+
+            '<td>'+ogTexto('clientes',c.id,'email','e-mail')+'</td>'+
+            '<td>'+ogTexto('clientes',c.id,'telefone','telefone','130px')+'</td>'+
+            '<td>'+ogTexto('clientes',c.id,'cidade','cidade','110px')+'</td>'+
+            '<td>'+ogSelect('clientes',c.id,'status',OG_ENUM.statusCliente)+'</td>'+
+            '<td>'+ogSelect('clientes',c.id,'fonte',OG_ENUM.fonteCliente,true)+'</td>'+
+            '<td style="text-align:center;">'+prj.length+'</td>'+
+            '<td style="text-align:right;font-weight:600;">'+brl(total)+'</td>'+
+            '<td style="text-align:right;">'+ogDel('clientes',c.id,'o cliente "'+c.nomeEmpresa+'"')+'</td></tr>';
+          }).join('') : ogVazio(10,'Nenhum cliente cadastrado.');
+        }
+        function ogNovoCliente(){
+          OG.clientes.unshift({id:ogId('cli'), nomeEmpresa:'Novo cliente', contatoPessoal:'', email:'', telefone:'',
+            cnpj:'', cpf:'', endereco:'', cidade:'', uf:'', cep:'', status:'Ativo', fonte:'', ultimoProjeto:'', capaUrl:''});
+          ogSalvar(); ogRenderClientes();
+        }
+
+        /* ── 6. PROJETOS ────────────────────────────────────────────────────── */
+        function ogRenderProjetos(){
+          let b=document.getElementById('og-prj-body');
+          if(b){
+            let l=ogLista('projetos');
+            b.innerHTML = l.length? l.map(p=>{
+              let tar=ogLista('tarefas').filter(t=>t.projetoId===p.id);
+              let fat=ogLista('faturas').filter(f=>f.projetoId===p.id);
+              return '<tr>'+
+              '<td>'+ogTexto('projetos',p.id,'nome','Nome do projeto')+'</td>'+
+              '<td>'+ogEsc(ogNomeCliente(p.clienteId))+'</td>'+
+              '<td>'+ogSelect('projetos',p.id,'status',OG_ENUM.statusProjeto)+'</td>'+
+              '<td style="font-size:11px;">'+(p.tipos&&p.tipos.length?p.tipos.map(t=>'<span class="pill" style="background:var(--line-soft);color:var(--ink-soft);">'+ogEsc(t)+'</span>').join(' '):'—')+'</td>'+
+              '<td style="text-align:right;">'+ogNum('projetos',p.id,'valor')+'</td>'+
+              '<td>'+ogData('projetos',p.id,'inicio')+'</td>'+
+              '<td>'+ogData('projetos',p.id,'termino')+'</td>'+
+              '<td style="text-align:center;">'+tar.filter(t=>!t.concluida).length+'/'+tar.length+'</td>'+
+              '<td style="text-align:center;">'+fat.filter(f=>f.pago).length+'/'+fat.length+'</td>'+
+              '<td style="text-align:right;">'+ogDel('projetos',p.id,'o projeto "'+p.nome+'"')+'</td></tr>';
+            }).join('') : ogVazio(10,'Nenhum projeto.');
+          }
+          let rb=document.getElementById('og-reu-body');
+          if(rb){
+            let l=ogLista('reunioes').slice().sort((a,c)=>(c.inicio||'').localeCompare(a.inicio||''));
+            rb.innerHTML = l.length? l.map(r=>'<tr>'+
+              '<td>'+ogTexto('reunioes',r.id,'titulo','Título')+'</td>'+
+              '<td>'+ogSelect('reunioes',r.id,'tipo',OG_ENUM.tipoReuniao,true)+'</td>'+
+              '<td>'+ogSelect('reunioes',r.id,'status',OG_ENUM.statusReuniao)+'</td>'+
+              '<td>'+ogData('reunioes',r.id,'inicio')+'</td>'+
+              '<td>'+ogEsc(ogNomeProjeto(r.projetoId))+'</td>'+
+              '<td style="text-align:right;">'+ogDel('reunioes',r.id,'esta reunião')+'</td></tr>').join('')
+              : ogVazio(6,'Nenhuma reunião.');
+          }
+          let fb=document.getElementById('og-fbk-body');
+          if(fb){
+            let l=ogLista('feedbacks');
+            fb.innerHTML = l.length? l.map(f=>'<tr>'+
+              '<td>'+ogTexto('feedbacks',f.id,'titulo','Título')+'</td>'+
+              '<td style="text-align:center;">'+'★'.repeat(Math.max(0,Math.min(5,+f.nota||0)))+'</td>'+
+              '<td>'+ogTexto('feedbacks',f.id,'comentario','—')+'</td>'+
+              '<td>'+ogEsc(ogNomeProjeto(f.projetoId))+'</td>'+
+              '<td style="text-align:right;">'+ogDel('feedbacks',f.id,'este feedback')+'</td></tr>').join('')
+              : ogVazio(5,'Nenhum feedback.');
+          }
+        }
+        function ogNovoProjeto(){
+          OG.projetos.unshift({id:ogId('prj'), nome:'Novo projeto', status:'Não iniciado', tipos:[], valor:0,
+            inicio:ogHoje(), termino:'', link:'', texto:'', capaUrl:'', clienteId:(ogLista('clientes')[0]||{}).id||'', propostaId:'', contratoId:''});
+          ogSalvar(); ogRenderProjetos();
+        }
+        function ogNovaReuniao(){
+          OG.reunioes.unshift({id:ogId('reu'), titulo:'Nova reunião', tipo:'Acompanhamento', status:'Agendada',
+            inicio:ogHoje(), fim:'', local:'', pauta:'', notas:'', projetoId:''});
+          ogSalvar(); ogRenderProjetos();
+        }
+
+        /* ── 7. LEADS (fusão dos dois CRMs) ─────────────────────────────────── */
+        function ogRenderLeads(){
+          let l=ogLista('leads');
+          let fun=document.getElementById('og-lead-funil');
+          if(fun){
+            fun.innerHTML=OG_ENUM.etapaLead.map(e=>{
+              let itens=l.filter(x=>x.etapa===e);
+              let v=itens.reduce((s,x)=>s+(+x.valorEstimado||0),0);
+              return '<div style="flex:1;min-width:130px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;">'+
+                '<div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-faint);">'+ogEsc(e)+'</div>'+
+                '<div style="font-size:20px;font-weight:700;margin:4px 0 2px;">'+itens.length+'</div>'+
+                '<div style="font-size:11px;color:var(--ink-soft);">'+brl(v)+'</div></div>';
+            }).join('');
+          }
+          let b=document.getElementById('og-lead-body');
+          if(b) b.innerHTML = l.length? l.map(x=>'<tr>'+
+            '<td>'+ogTexto('leads',x.id,'nome','Nome')+
+              (x.fonteLegado?'<div style="font-size:10px;color:var(--warn);margin-top:3px;">CRM legado · '+ogEsc(x.fonteLegado)+'</div>':'')+'</td>'+
+            '<td>'+ogTexto('leads',x.id,'contatoPessoal','Contato','120px')+'</td>'+
+            '<td>'+ogSelect('leads',x.id,'etapa',OG_ENUM.etapaLead,true)+'</td>'+
+            '<td>'+ogSelect('leads',x.id,'status',OG_ENUM.statusLead)+'</td>'+
+            '<td>'+ogSelect('leads',x.id,'canal',OG_ENUM.canalLead,true)+'</td>'+
+            '<td style="text-align:right;">'+ogNum('leads',x.id,'valorEstimado')+'</td>'+
+            '<td>'+ogData('leads',x.id,'dataFechamento')+'</td>'+
+            '<td style="text-align:right;">'+ogDel('leads',x.id,'o lead "'+x.nome+'"')+'</td></tr>').join('')
+            : ogVazio(8,'Nenhum lead.');
+          let sb=document.getElementById('og-stat-body');
+          if(sb){
+            let s=ogLista('leadStats');
+            sb.innerHTML = s.length? s.map(x=>'<tr>'+
+              '<td>'+ogTexto('leadStats',x.id,'rotulo','Indicador')+'</td>'+
+              '<td style="text-align:right;">'+ogNum('leadStats',x.id,'valor')+'</td>'+
+              '<td>'+ogData('leadStats',x.id,'referencia')+'</td>'+
+              '<td style="text-align:right;">'+ogDel('leadStats',x.id,'este indicador')+'</td></tr>').join('')
+              : ogVazio(4,'Nenhum indicador.');
+          }
+        }
+        function ogNovoLead(){
+          OG.leads.unshift({id:ogId('lead'), nome:'Novo lead', contatoPessoal:'', email:'', telefone:'', cnpj:'',
+            etapa:'Descoberta', status:'Lead', canal:'', fonteLegado:'', valorEstimado:0,
+            dataContato:ogHoje(), dataInicio:ogHoje(), dataFechamento:'', fechado:false, observacoes:'', clienteId:''});
+          ogSalvar(); ogRenderLeads();
+        }
+
+        /* ── 8. METAS ───────────────────────────────────────────────────────── */
+        function ogRenderMetas(){
+          const hoje=ogHoje();
+          let b=document.getElementById('og-met-body'); if(!b) return;
+          let l=ogLista('metas');
+          b.innerHTML = l.length? l.map(m=>{
+            let venc=m.status!=='Alcançada'&&m.prazo&&m.prazo<hoje;
+            return '<tr>'+
+            '<td>'+ogTexto('metas',m.id,'titulo','Meta')+'</td>'+
+            '<td>'+ogSelect('metas',m.id,'status',OG_ENUM.statusMeta)+'</td>'+
+            '<td style="min-width:170px;">'+
+              '<input type="range" min="0" max="100" value="'+(+m.progresso||0)+'" style="width:110px;vertical-align:middle;accent-color:var(--gold);" oninput="ogSet(\'metas\',\''+m.id+'\',\'progresso\',this.value)">'+
+              '<span style="font-size:12px;font-weight:600;margin-left:8px;">'+(+m.progresso||0)+'%</span></td>'+
+            '<td>'+ogData('metas',m.id,'prazo')+(venc?'<div style="font-size:10px;color:var(--bad);font-weight:600;margin-top:3px;">vencida</div>':'')+'</td>'+
+            '<td style="text-align:right;">'+ogDel('metas',m.id,'a meta "'+m.titulo+'"')+'</td></tr>';
+          }).join('') : ogVazio(5,'Nenhuma meta.');
+
+          let sb=document.getElementById('og-setup-body');
+          if(sb){
+            let s=ogLista('setup').slice().sort((a,c)=>(a.ordem||0)-(c.ordem||0));
+            sb.innerHTML = s.length? s.map(x=>'<tr>'+
+              '<td>'+ogTexto('setup',x.id,'nome','Etapa')+'</td>'+
+              '<td>'+ogSelect('setup',x.id,'status',OG_ENUM.statusEtapaSetup)+'</td>'+
+              '<td>'+ogData('setup',x.id,'concluidaEm')+'</td>'+
+              '<td style="text-align:right;">'+ogDel('setup',x.id,'esta etapa')+'</td></tr>').join('')
+              : ogVazio(4,'Nenhuma etapa.');
+          }
+        }
+        function ogNovaMeta(){
+          OG.metas.unshift({id:ogId('met'), titulo:'Nova meta', descricao:'', status:'Não iniciada',
+            progresso:0, prazo:ogMaisDias(ogHoje(),30), concluidaEm:''});
+          ogSalvar(); ogRenderMetas();
+        }
+
+        /* ── 9. CONTEÚDO E PORTFÓLIO ────────────────────────────────────────── */
+        function ogRenderConteudo(){
+          let b=document.getElementById('og-pst-body');
+          if(b){
+            let l=ogLista('postagens');
+            b.innerHTML = l.length? l.map(p=>'<tr>'+
+              '<td>'+ogTexto('postagens',p.id,'titulo','Título')+'</td>'+
+              '<td>'+ogTexto('postagens',p.id,'pauta','Pauta','120px')+'</td>'+
+              '<td>'+ogSelect('postagens',p.id,'status',OG_ENUM.statusPostagem)+'</td>'+
+              '<td style="font-size:11px;">'+(p.plataformas&&p.plataformas.length?p.plataformas.map(x=>'<span class="pill" style="background:var(--line-soft);color:var(--ink-soft);">'+ogEsc(x)+'</span>').join(' '):'—')+'</td>'+
+              '<td>'+ogData('postagens',p.id,'agendadaPara')+'</td>'+
+              '<td>'+ogData('postagens',p.id,'publicadaEm')+'</td>'+
+              '<td style="text-align:right;">'+ogDel('postagens',p.id,'a postagem "'+p.titulo+'"')+'</td></tr>').join('')
+              : ogVazio(7,'Nenhuma postagem.');
+          }
+          let pb=document.getElementById('og-pf-body');
+          if(pb){
+            let l=ogLista('portfolio');
+            pb.innerHTML = l.length? l.map(p=>'<tr>'+
+              '<td>'+ogTexto('portfolio',p.id,'nome','Nome')+'</td>'+
+              '<td>'+ogTexto('portfolio',p.id,'resumo','Resumo')+'</td>'+
+              '<td>'+ogSelect('portfolio',p.id,'status',OG_ENUM.statusPortfolio)+'</td>'+
+              '<td>'+ogData('portfolio',p.id,'publicadoEm')+'</td>'+
+              '<td style="text-align:right;">'+ogDel('portfolio',p.id,'"'+p.nome+'"')+'</td></tr>').join('')
+              : ogVazio(5,'Nenhum projeto no portfólio.');
+          }
+        }
+        function ogNovaPostagem(){
+          OG.postagens.unshift({id:ogId('pst'), titulo:'Nova postagem', pauta:'', legenda:'', status:'Ideia',
+            plataformas:['Instagram'], agendadaPara:'', publicadaEm:'', link:'', capaUrl:''});
+          ogSalvar(); ogRenderConteudo();
+        }
+        function ogNovoPortfolio(){
+          OG.portfolio.unshift({id:ogId('pf'), nome:'Novo case', resumo:'', status:'Rascunho', publicadoEm:'', link:'', capaUrl:''});
+          ogSalvar(); ogRenderConteudo();
+        }
+
+        /* ── 10. FINANCEIRO (o do Notion: Receita/Despesa/Mês/Fatura) ───────── */
+        function ogRenderFin(){
+          const r=ogResumo();
+          const set=(id,v)=>{ let e=document.getElementById(id); if(e) e.textContent=v; };
+          set('og-f-rec', brl(r.financeiro.recMes));
+          set('og-f-des', brl(r.financeiro.desMes));
+          set('og-f-luc', brl(r.financeiro.lucroMes));
+          set('og-f-ano', brl(r.financeiro.lucroAno));
+
+          let rb=document.getElementById('og-rec-body');
+          if(rb){
+            let l=ogLista('receitas').slice().sort((a,c)=>(c.data||'').localeCompare(a.data||''));
+            rb.innerHTML = l.length? l.map(x=>'<tr>'+
+              '<td>'+ogTexto('receitas',x.id,'descricao','Descrição')+'</td>'+
+              '<td style="text-align:right;">'+ogNum('receitas',x.id,'valor')+'</td>'+
+              '<td>'+ogData('receitas',x.id,'data')+'</td>'+
+              '<td>'+ogSelect('receitas',x.id,'categoriaId',ogLista('categoriasReceita').map(c=>c.id),true).replace(/>([a-z]{2}_[a-z0-9]+)</g,(m,id)=>{ let c=ogAchar('categoriasReceita',id); return '>'+(c?ogEsc(c.nome):id)+'<'; })+'</td>'+
+              '<td>'+ogSelect('receitas',x.id,'recorrencia',OG_ENUM.recorrencia)+'</td>'+
+              '<td style="text-align:center;"><input type="checkbox"'+(x.recebido?' checked':'')+' style="width:16px;height:16px;cursor:pointer;" onchange="ogSet(\'receitas\',\''+x.id+'\',\'recebido\',this.checked)"></td>'+
+              '<td style="text-align:right;">'+ogDel('receitas',x.id,'esta receita')+'</td></tr>').join('')
+              : ogVazio(7,'Nenhuma receita.');
+          }
+          let db_=document.getElementById('og-des-body');
+          if(db_){
+            let l=ogLista('despesas').slice().sort((a,c)=>(c.data||'').localeCompare(a.data||''));
+            db_.innerHTML = l.length? l.map(x=>'<tr>'+
+              '<td>'+ogTexto('despesas',x.id,'descricao','Descrição')+'</td>'+
+              '<td style="text-align:right;">'+ogNum('despesas',x.id,'valor')+'</td>'+
+              '<td>'+ogData('despesas',x.id,'data')+'</td>'+
+              '<td>'+ogSelect('despesas',x.id,'categoriaId',ogLista('categoriasDespesa').map(c=>c.id),true).replace(/>([a-z]{2}_[a-z0-9]+)</g,(m,id)=>{ let c=ogAchar('categoriasDespesa',id); return '>'+(c?ogEsc(c.nome):id)+'<'; })+'</td>'+
+              '<td>'+ogSelect('despesas',x.id,'recorrencia',OG_ENUM.recorrencia)+'</td>'+
+              '<td style="text-align:center;"><input type="checkbox"'+(x.pago?' checked':'')+' style="width:16px;height:16px;cursor:pointer;" onchange="ogSet(\'despesas\',\''+x.id+'\',\'pago\',this.checked)"></td>'+
+              '<td style="text-align:right;">'+ogDel('despesas',x.id,'esta despesa')+'</td></tr>').join('')
+              : ogVazio(7,'Nenhuma despesa.');
+          }
+          let fb=document.getElementById('og-fat-body');
+          if(fb){
+            let l=ogLista('faturas');
+            fb.innerHTML = l.length? l.map(f=>{
+              let horas=ogLista('planilhaHoras').filter(h=>h.faturaId===f.id);
+              let custoHoras=horas.reduce((s,h)=>s+(+h.horas||0)*(+h.valorHora||0),0);
+              let total=f.tipo==='Preço fixo'?(+f.precoFixo||0):custoHoras;
+              return '<tr>'+
+              '<td>'+ogTexto('faturas',f.id,'numero','Número','120px')+'</td>'+
+              '<td>'+ogSelect('faturas',f.id,'tipo',OG_ENUM.tipoFatura)+'</td>'+
+              '<td style="text-align:right;">'+brl(total)+
+                (f.tipo==='Preço por hora'?'<div style="font-size:10px;color:var(--ink-faint);">'+horas.reduce((s,h)=>s+(+h.horas||0),0)+'h apontadas</div>':'')+'</td>'+
+              '<td>'+ogData('faturas',f.id,'dataEntrega')+'</td>'+
+              '<td>'+ogPill(f.status)+'</td>'+
+              '<td style="text-align:center;"><input type="checkbox"'+(f.pago?' checked':'')+' style="width:16px;height:16px;cursor:pointer;" onchange="ogSet(\'faturas\',\''+f.id+'\',\'pago\',this.checked)"></td>'+
+              '<td>'+ogEsc(ogNomeProjeto(f.projetoId))+'</td>'+
+              '<td style="text-align:right;">'+ogDel('faturas',f.id,'a fatura '+f.numero)+'</td></tr>';
+            }).join('') : ogVazio(8,'Nenhuma fatura.');
+          }
+          let cb=document.getElementById('og-cat-body');
+          if(cb){
+            let rows=ogLista('categoriasReceita').map(c=>{
+              let t=ogLista('receitas').filter(r=>r.categoriaId===c.id).reduce((s,r)=>s+(+r.valor||0),0);
+              return '<tr><td><span class="pill" style="background:var(--ok-bg);color:var(--ok);">Receita</span></td>'+
+                '<td>'+ogTexto('categoriasReceita',c.id,'nome','Categoria')+'</td>'+
+                '<td style="text-align:right;font-weight:600;">'+brl(t)+'</td>'+
+                '<td style="text-align:right;">'+ogDel('categoriasReceita',c.id,'a categoria "'+c.nome+'"')+'</td></tr>';
+            }).concat(ogLista('categoriasDespesa').map(c=>{
+              let t=ogLista('despesas').filter(d=>d.categoriaId===c.id).reduce((s,d)=>s+(+d.valor||0),0);
+              return '<tr><td><span class="pill" style="background:var(--bad-bg);color:var(--bad);">Despesa</span></td>'+
+                '<td>'+ogTexto('categoriasDespesa',c.id,'nome','Categoria')+'</td>'+
+                '<td style="text-align:right;font-weight:600;">'+brl(t)+'</td>'+
+                '<td style="text-align:right;">'+ogDel('categoriasDespesa',c.id,'a categoria "'+c.nome+'"')+'</td></tr>';
+            }));
+            cb.innerHTML=rows.length?rows.join(''):ogVazio(4,'Nenhuma categoria.');
+          }
+          let mb=document.getElementById('og-mes-body');
+          if(mb){
+            let l=ogLista('mesesFinanceiros');
+            mb.innerHTML = l.length? l.map(m=>{
+              let rec=ogLista('receitas').filter(r=>r.mesId===m.id).reduce((s,r)=>s+(+r.valor||0),0);
+              let des=ogLista('despesas').filter(d=>d.mesId===m.id).reduce((s,d)=>s+(+d.valor||0),0);
+              let lucro=rec-des, meta=+m.metaLucro||0;
+              return '<tr>'+
+              '<td>'+ogTexto('mesesFinanceiros',m.id,'nome','Mês')+'</td>'+
+              '<td style="text-align:center;">'+m.mes+'/'+m.ano+'</td>'+
+              '<td style="text-align:right;color:var(--ok);">'+brl(rec)+'</td>'+
+              '<td style="text-align:right;color:var(--bad);">'+brl(des)+'</td>'+
+              '<td style="text-align:right;font-weight:700;">'+brl(lucro)+'</td>'+
+              '<td style="text-align:right;">'+ogNum('mesesFinanceiros',m.id,'metaLucro')+'</td>'+
+              '<td style="min-width:130px;">'+(meta>0?ogBarra(lucro/meta,''):'—')+'</td></tr>';
+            }).join('') : ogVazio(7,'Nenhum mês.');
+          }
+          let ab=document.getElementById('og-ano-body');
+          if(ab){
+            let l=ogLista('metasAnuais');
+            ab.innerHTML = l.length? l.map(a=>{
+              let meses=ogLista('mesesFinanceiros').filter(m=>m.metaAnualId===a.id);
+              let ids=meses.map(m=>m.id);
+              let rec=ogLista('receitas').filter(r=>ids.includes(r.mesId)).reduce((s,r)=>s+(+r.valor||0),0);
+              let des=ogLista('despesas').filter(d=>ids.includes(d.mesId)).reduce((s,d)=>s+(+d.valor||0),0);
+              let lucro=rec-des, meta=+a.metaLucro||0;
+              return '<tr>'+
+              '<td>'+ogTexto('metasAnuais',a.id,'nome','Ano')+'</td>'+
+              '<td style="text-align:center;">'+a.ano+'</td>'+
+              '<td style="text-align:right;font-weight:700;">'+brl(lucro)+'</td>'+
+              '<td style="text-align:right;">'+ogNum('metasAnuais',a.id,'metaLucro')+'</td>'+
+              '<td style="text-align:center;">'+meses.length+'</td>'+
+              '<td style="text-align:right;">'+brl(meses.length?lucro/meses.length:0)+'</td>'+
+              '<td style="min-width:130px;">'+(meta>0?ogBarra(lucro/meta,''):'—')+'</td></tr>';
+            }).join('') : ogVazio(7,'Nenhuma meta anual.');
+          }
+          let hb=document.getElementById('og-ph-body');
+          if(hb){
+            let l=ogLista('planilhaHoras');
+            hb.innerHTML = l.length? l.map(h=>{
+              let f=ogAchar('faturas',h.faturaId);
+              return '<tr>'+
+              '<td>'+ogTexto('planilhaHoras',h.id,'descricao','Descrição')+'</td>'+
+              '<td>'+ogData('planilhaHoras',h.id,'data')+'</td>'+
+              '<td style="text-align:right;">'+ogNum('planilhaHoras',h.id,'horas')+'</td>'+
+              '<td style="text-align:right;">'+ogNum('planilhaHoras',h.id,'valorHora')+'</td>'+
+              '<td style="text-align:right;font-weight:600;">'+brl((+h.horas||0)*(+h.valorHora||0))+'</td>'+
+              '<td>'+(f?ogEsc(f.numero):'—')+'</td>'+
+              '<td style="text-align:right;">'+ogDel('planilhaHoras',h.id,'este apontamento')+'</td></tr>';
+            }).join('') : ogVazio(7,'Nenhum apontamento de horas.');
+          }
+        }
+        function ogNovaReceita(){
+          let mf=ogLista('mesesFinanceiros')[0]||{};
+          OG.receitas.unshift({id:ogId('rec'), descricao:'Nova receita', valor:0, data:ogHoje(), recebido:false,
+            recorrencia:'Único', observacoes:'', categoriaId:(ogLista('categoriasReceita')[0]||{}).id||'', mesId:mf.id||'', projetoId:'', faturaId:''});
+          ogSalvar(); ogRenderFin();
+        }
+        function ogNovaDespesa(){
+          let mf=ogLista('mesesFinanceiros')[0]||{};
+          OG.despesas.unshift({id:ogId('des'), descricao:'Nova despesa', valor:0, data:ogHoje(), pago:false,
+            recorrencia:'Único', observacoes:'', categoriaId:(ogLista('categoriasDespesa')[0]||{}).id||'', mesId:mf.id||''});
+          ogSalvar(); ogRenderFin();
+        }
+        function ogNovaFatura(){
+          OG.faturas.unshift({id:ogId('fat'), numero:'NF-000', tipo:'Preço fixo', status:'Rascunho', precoFixo:0,
+            emitidaEm:ogHoje(), dataEntrega:ogMaisDias(ogHoje(),15), pago:false, pagoEm:'', pdfUrl:'', capaUrl:'', projetoId:''});
+          ogSalvar(); ogRenderFin();
+        }
+        function ogNovaCategoria(tipo){
+          let n=prompt('Nome da categoria de '+(tipo==='receita'?'receita':'despesa')+':'); if(!n||!n.trim()) return;
+          let ent=tipo==='receita'?'categoriasReceita':'categoriasDespesa';
+          OG[ent].push({id:ogId(tipo==='receita'?'cr':'cd'), nome:n.trim(), cor:tipo==='receita'?'#1d8a5f':'#bd3b3b'});
+          ogSalvar(); ogRenderFin();
+        }
+
+        /* ── 11. ESTRUTURA (o mapa da modelagem) ────────────────────────────── */
+        function ogRenderEstrutura(){
+          const contagem=[
+            ['clientes','Cliente'],['leads','Lead'],['leadStats','LeadStat'],['propostas','Proposta'],
+            ['contratos','Contrato'],['projetos','Projeto'],['tarefas','Tarefa'],['reunioes','Reuniao'],
+            ['feedbacks','Feedback'],['faturas','Fatura'],['planilhaHoras','PlanilhaHoras'],
+            ['categoriasReceita','CategoriaReceita'],['categoriasDespesa','CategoriaDespesa'],
+            ['receitas','Receita'],['despesas','Despesa'],['mesesFinanceiros','MesFinanceiro'],
+            ['metasAnuais','MetaAnual'],['metas','Meta'],['planner','PlannerEntrada'],
+            ['habitos','Habito'],['registrosHabito','RegistroHabito'],['marcacoes','MarcacaoHabito'],
+            ['postagens','Postagem'],['portfolio','ProjetoPortfolio'],['setup','EtapaSetup'],
+            ['arquivos','Arquivo'],['usuarios','Usuario'],['configuracoes','Configuracao']
+          ];
+          let b=document.getElementById('og-est-body');
+          if(b) b.innerHTML=contagem.map(([k,m])=>'<tr>'+
+            '<td style="font-family:var(--font-mono);font-size:12px;">'+m+'</td>'+
+            '<td style="font-size:11px;color:var(--ink-soft);">'+k+'</td>'+
+            '<td style="text-align:right;font-weight:600;">'+ogLista(k).length+'</td></tr>').join('')+
+            '<tr style="background:var(--line-soft);"><td style="font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);">NotionIdMap</td>'+
+            '<td style="font-size:11px;color:var(--ink-faint);">só na migração real</td><td style="text-align:right;color:var(--ink-faint);">—</td></tr>';
+
+          const fusoes=[
+            ['database <code>Resumo</code> · ~60 rollups','<code>ogResumo()</code> — uma agregação','Existia só porque o Notion não agrega globalmente. Toda database carregava uma property <code>Resumo</code> obrigatória para alimentá-la.'],
+            ['~35 props <code>Etiqueta *</code>','texto nos componentes','Espaçadores de layout e fórmulas que concatenavam número com substantivo.'],
+            ['~40 relations <code>Relacionado a X (Y)</code>','removidas','Órfãs de databases duplicadas na cópia do template. Nenhuma tinha dado.'],
+            ['<code>Total Janeiro</code> … <code>Total Dezembro</code>','agregação por mês','Eram fórmulas repetidas nas databases financeiras.'],
+            ['<code>Tarefas</code> + <code>Tarefas (widget)</code>','<code>Tarefa</code>','Vocabulários diferentes: "Alta 🔥" e "Alta" colapsaram. O campo <code>origem</code> guarda a procedência.'],
+            ['<code>Leads</code> (6 etapas) + <code>Leads</code> (5 status)','<code>Lead</code>','Dois CRMs paralelos. <code>Convertido → Fechamento Ganho</code> é interpretação.'],
+            ['3 vocabulários do planner','<code>StatusPlanner</code>','"Em andamento" (Semana) e "Em progresso" (Mês) eram o mesmo estado.'],
+            ['<code>Hábito 1</code> … <code>Hábito 5</code>','<code>Habito</code> + <code>RegistroHabito</code> + <code>MarcacaoHabito</code>','Checkboxes fixos viraram registros — dá para ter quantos quiser.'],
+            ['<code>Capa</code> · <code>PDF da Fatura</code> · <code>Arquivos e mídia</code>','<code>Arquivo</code> polimórfico','Com <code>capaUrl</code> mantido como atalho para a capa principal.']
+          ];
+          let f=document.getElementById('og-fus-body');
+          if(f) f.innerHTML=fusoes.map(([fora,dentro,nota])=>'<tr>'+
+            '<td style="color:var(--ink-faint);text-decoration:line-through;font-size:12px;">'+fora+'</td>'+
+            '<td style="font-size:16px;color:var(--ink-faint);text-align:center;">→</td>'+
+            '<td style="font-size:12px;font-weight:600;">'+dentro+'<div style="font-weight:400;font-size:11px;color:var(--ink-soft);margin-top:3px;">'+nota+'</div></td></tr>').join('');
+
+          let ab=document.getElementById('og-arq-body');
+          if(ab){
+            let l=ogLista('arquivos');
+            ab.innerHTML = l.length? l.map(a=>'<tr>'+
+              '<td style="font-family:var(--font-mono);font-size:11px;">'+ogEsc(a.nome)+'</td>'+
+              '<td>'+ogPill(a.tipo)+'</td>'+
+              '<td style="font-size:11px;">'+ogEsc(a.tipoEntidade)+'</td>'+
+              '<td style="font-size:11px;color:var(--ink-faint);">'+Math.round((+a.tamanhoBytes||0)/1024)+' KB</td>'+
+              '<td style="text-align:right;">'+ogDel('arquivos',a.id,'o arquivo '+a.nome)+'</td></tr>').join('')
+              : ogVazio(5,'Nenhum arquivo.');
+          }
+          let ub=document.getElementById('og-usr-body');
+          if(ub){
+            let l=ogLista('usuarios');
+            ub.innerHTML = l.length? l.map(u=>'<tr>'+
+              '<td>'+ogTexto('usuarios',u.id,'nome','Nome')+'</td>'+
+              '<td>'+ogTexto('usuarios',u.id,'email','e-mail')+'</td>'+
+              '<td>'+ogSelect('usuarios',u.id,'papel',OG_ENUM.papelUsuario)+'</td>'+
+              '<td style="text-align:center;"><input type="checkbox"'+(u.ativo?' checked':'')+' style="width:16px;height:16px;cursor:pointer;" onchange="ogSet(\'usuarios\',\''+u.id+'\',\'ativo\',this.checked)"></td>'+
+              '<td style="text-align:right;">'+ogDel('usuarios',u.id,'o usuário '+u.nome)+'</td></tr>').join('')
+              : ogVazio(5,'Nenhum usuário.');
+          }
+        }
+
         atualizarTemaBtn();
         // som: atualiza o botão e destrava o áudio no primeiro gesto do usuário
         atualizarSomBtn();
@@ -9052,6 +10354,8 @@ body.apresentacao #apr-banner{display:block;}
         if(typeof renderPortal==='function') renderPortal();
         if(typeof gerarAlertasInteligentes==='function') gerarAlertasInteligentes();
         if(typeof renderNotif==='function') renderNotif();
+        ogCarregar();
+        if(typeof ogRenderPainel==='function') ogRenderPainel();
         document.getElementById('top-sub').innerHTML='Ecossistema estratégico — '+nowStr();
     </script>
 <div id="hovercard"></div>
