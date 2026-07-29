@@ -1996,11 +1996,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 </div>
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">1 · DADOS DA SOLICITAÇÃO</span></div>
                 <div class="sol-guia">Quem está pedindo e para quando. <b>O número é gerado pelo sistema</b> — não precisa preencher.</div>
-                <div class="g-col g-col-3"><span class="lbl">Nº da Solicitação <span class="sol-opc">(sistema)</span></span><input class="inp sys-readonly" id="fu_sol_numero" readonly placeholder="Gerado ao salvar"></div>
+                <div class="g-col g-col-3"><span class="lbl">Nº da Solicitação</span><input class="inp" id="fu_sol_numero" placeholder="Gerado ao salvar"></div>
                 <div class="g-col g-col-3"><span class="lbl">Data da Solicitação</span><input type="date" class="inp" id="fu_sol_data"></div>
                 <div class="g-col g-col-3"><span class="lbl">Vendedor / Representante</span><input class="inp" id="fu_sol_vendedor"></div>
                 <div class="g-col g-col-3"><span class="lbl">Prazo desejado pelo cliente</span><input type="date" class="inp" id="fu_sol_prazo"></div>
                 <div class="g-col g-col-6"><span class="lbl">Tipo de solicitação</span><input class="inp" id="fu_sol_tipo" list="dl_sol_tipo" placeholder="Selecione"><datalist id="dl_sol_tipo"><option value="Produto novo (desenvolvimento)"></option><option value="Alteração de produto existente"></option><option value="Cópia de amostra / concorrente"></option><option value="Reposição / repetição"></option><option value="Orçamento / viabilidade"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Código similar existente</span><input class="inp" id="fu_sol_similar" list="dl_mp" placeholder="Se houver, ex.: VCM-7394"></div>
                 <div class="g-col g-col-3"><span class="lbl">Urgência</span><select class="inp" id="fu_sol_urgencia"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">2 · CLIENTE</span></div>
@@ -2107,10 +2108,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <input type="hidden" id="fu_sol_anexos">
                 </div>
 
-                <div class="g-col g-col-12 fu-grp no-print" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">COMO O VENDEDOR VAI PREENCHER <span style="font-weight:400; color:#94a3b8; font-size:9px;">(uso interno — não é campo da ficha)</span></span></div>
-                <div class="sol-guia no-print"><b>Uso interno.</b> Escolha como o vendedor vai preencher com o cliente: no celular (link/QR) ou no papel (ficha em branco).</div>
-                <div class="g-col g-col-8 no-print">
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">9 · ENVIAR AO VENDEDOR / PREENCHER COM O CLIENTE</span></div>
+                <div class="sol-guia">Escolha como o vendedor vai preencher: no celular (link/QR) ou no papel (ficha em branco).</div>
+                <div class="g-col g-col-8">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;" class="no-print">
                         <button type="button" class="action-btn-sec" onclick="fuSolCopiarLink()"><i class="fas fa-link"></i> Copiar link do sistema</button>
                         <button type="button" class="action-btn-sec" onclick="fuSolEnviarWhats()"><i class="fas fa-share-nodes"></i> Enviar por WhatsApp</button>
                         <button type="button" class="action-btn-sec" onclick="fuSolEnviarEmail()"><i class="fas fa-envelope"></i> Enviar por e-mail</button>
@@ -2121,18 +2122,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                         <b>Cliente que prefere papel:</b> use <b>Baixar / imprimir ficha em branco</b> — sai o formulário completo para preencher à mão e depois lançar aqui.
                     </p>
                 </div>
-                <div class="g-col g-col-4 no-print" style="text-align:center;">
+                <div class="g-col g-col-4" style="text-align:center;">
                     <span class="lbl" style="color:#0f766e;">QR para abrir no celular</span>
                     <div id="fu-sol-qr" class="sol-qr"></div>
                     <div style="font-size:9.5px; color:#94a3b8; margin-top:4px;">Aponte a câmera do celular</div>
                 </div>
 
-            </div>
-
-            <!-- SEÇÃO: FICHA TÉCNICA DE ESPECIFICAÇÃO DO PRODUTO (etapa 2 — define o produto) -->
-            <div class="grid-form fu-sec" id="fu-sec-final">
-                <div class="section-title" style="background:#191040;">ETAPA · FICHA TÉCNICA DE ESPECIFICAÇÃO DO PRODUTO <span class="fu-cod-et" id="fu-cod-final"></span></div>
-                <div class="g-col g-col-12 fu-grp" style="background:#fff7ed;"><span class="lbl" style="color:#b45309;">ANÁLISE DA SOLICITAÇÃO — USO INTERNO DA QUALIDADE</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#fff7ed;"><span class="lbl" style="color:#b45309;">10 · ANÁLISE CRÍTICA — PREENCHIDO PELA QUALIDADE / DESENVOLVIMENTO</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Situação da solicitação</span>
                     <select class="inp" id="fu_sol_status" onchange="fuSolStatusChange()">
                         <option>Aguardando análise</option>
@@ -2143,12 +2139,16 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     </select>
                 </div>
                 <div class="g-col g-col-3"><span class="lbl">Viabilidade técnica</span><select class="inp" id="fu_sol_viabilidade"><option value="">-- Avaliar --</option><option>Viável</option><option>Viável com ressalvas</option><option>Inviável</option></select></div>
-                <div class="g-col g-col-3"><span class="lbl">Código similar existente</span><input class="inp" id="fu_sol_similar" list="dl_mp" placeholder="Se houver, ex.: VCM-7394"></div>
                 <div class="g-col g-col-3"><span class="lbl">Analisado por</span><input class="inp" id="fu_sol_analisado_por"></div>
                 <div class="g-col g-col-3"><span class="lbl">Data da análise</span><input type="date" class="inp" id="fu_sol_data_analise"></div>
                 <div class="g-col g-col-3"><span class="lbl">Necessita amostra piloto?</span><select class="inp" id="fu_sol_piloto"><option>Sim</option><option>Não</option></select></div>
                 <div class="g-col g-col-12"><span class="lbl">Parecer técnico / o que falta definir</span><textarea class="inp" id="fu_sol_parecer" rows="2" style="resize:vertical;" placeholder="Estrutura sugerida, restrições de máquina, testes necessários, pendências com o cliente…"></textarea></div>
-                <div class="g-col g-col-12" style="background:#ecfdf5; border-top:1px solid #a7f3d0;"><span style="font-size:11px; color:#065f46; font-weight:600;">✓ Este bloco é <b>interno</b>: não aparece na ficha que o vendedor preenche com o cliente. Ao aprovar, os dados alimentam a <b>Ficha Técnica de MP</b> e a <b>Solicitação de Clichê</b>.</span></div>
+                <div class="g-col g-col-12" style="background:#ecfdf5; border-top:1px solid #a7f3d0;"><span style="font-size:11px; color:#065f46; font-weight:600;">✓ Ao aprovar esta solicitação, os dados alimentam automaticamente a <b>Ficha Técnica de MP</b> e a <b>Solicitação de Clichê</b> — sem redigitar.</span></div>
+            </div>
+
+            <!-- SEÇÃO: FICHA TÉCNICA DE ESPECIFICAÇÃO DO PRODUTO (etapa 2 — define o produto) -->
+            <div class="grid-form fu-sec" id="fu-sec-final">
+                <div class="section-title" style="background:#191040;">ETAPA · FICHA TÉCNICA DE ESPECIFICAÇÃO DO PRODUTO <span class="fu-cod-et" id="fu-cod-final"></span></div>
                 <div class="g-col g-col-3"><span class="lbl">Modelo do produto</span><select class="inp" id="fu_fin_modelo" onchange="fuFinModelo()"><option value=""></option><option>Corte e Solda</option><option>Rebobinadeira</option><option>Narita</option></select></div>
                 <div class="g-col g-col-2"><span class="lbl">Revisão</span><input class="inp" id="fu_fin_revisao" value="00"></div>
                 <div class="g-col g-col-2"><span class="lbl">Data Elaboração</span><input class="inp" id="fu_fin_dt_elab" placeholder="dd/mm/aaaa"></div>
@@ -7626,7 +7626,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     ];
     const AUTOCTRL_ETAPAS = [
         { key: 'solicitacao',   pref: 'sol', cor: '#0f766e', bg: '#e6f4f2', tit: 'CROQUI DA EMBALAGEM SOLICITADA', obj: 'EMBALAGEM', sentido: 'sentido de desbobinamento',
-          semTitulo: true, medFrom: { L: 'fu_sol_largura', A: 'fu_sol_altura', S: 'fu_sol_sanfona', B: 'fu_sol_aba' }, carac: [
+          medFrom: { L: 'fu_sol_largura', A: 'fu_sol_altura', S: 'fu_sol_sanfona', B: 'fu_sol_aba' }, carac: [
             { l: 'Tipo',        id: 'fu_sol_ac_tipo',      ph: 'Ex.: Saco 3 soldas' },
             { l: 'Largura',     id: 'fu_sol_ac_largura',   ph: 'Ex.: 315,00 mm' },
             { l: 'Comprimento', id: 'fu_sol_ac_compr',     ph: 'Ex.: 400,00 mm' },
@@ -7653,7 +7653,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function autoCtrlHTML(e) {
         const p = e.pref;
         const alturaLabel = e.obj === 'BOBINA' ? 'Comprimento' : 'Altura / Compr.';
-        return `${e.semTitulo ? '' : `<div class="g-col g-col-12 fu-grp" style="background:${e.bg};"><span class="lbl" style="color:${e.cor};">${e.tit}</span></div>`}
+        return `<div class="g-col g-col-12 fu-grp" style="background:${e.bg};"><span class="lbl" style="color:${e.cor};">${e.tit}</span></div>
             <div class="g-col g-col-8" style="padding:0;">
                 <div class="ac-panel">
                     <div class="ac-panel-t" style="background:${e.cor};">IMAGEM DA ARTE${e.medFrom ? '' : ' — MEDIDAS (mm)'}</div>
