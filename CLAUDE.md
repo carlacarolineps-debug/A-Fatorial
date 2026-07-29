@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2807.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 2907.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,15 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O plano baixado também perdeu a sigla (2907.01)
+A Carla achou a sigla "OB" ainda viva no cabeçalho do **plano de ação que a
+carta baixa** (`bPlanDownload`, o `.html` autônomo). Aquele arquivo tem
+cabeçalho próprio e ficou de fora do passe de 2807.02. Agora ele usa a mesma
+linguagem da folha de impressão: wordmark "Operação Blindada" em serifa com a
+assinatura embaixo, o selo **OPB** discreto à direita e o fio de ouro na base.
+Varredura confirmou que não sobrou nenhum "OB" visível no produto: as
+ocorrências restantes são todas o namespace `window.OB` do motor Supabase.
 
 ### A apostila oficial entra no sistema (2807.03)
 A Carla mandou os três cadernos da apostila oficial (216 páginas em PDF) e
