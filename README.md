@@ -285,6 +285,26 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       entrada em `TITLES`), e valores em reais quebravam em duas linhas no card —
       agora usam a variante `.ui-stat-v.grana`.
 
+28. **Portal do colaborador no mesmo padrão** — a tela era a mais destoante
+    (moldura "gamer" com cantos, ciano fixo e uma barra lateral com 20 links
+    empilhados). Agora usa os mesmos componentes das outras telas:
+    - **Hero** com foto, saudação, nível/XP em texto e **anel do nível**;
+      **stat cards** de Power, XP, troféus, jornada, missões e dias de saga.
+      `renderPlayerCard` (reescrita sobre `uiHero`/`uiStats`).
+    - **Navegação em três partes**, no lugar da lista gigante: controle
+      segmentado (Central · Missões · Evolução · Saga), a **jornada de
+      integração como trilha** de 10 passos (concluída ✓, liberada, bloqueada 🔒)
+      e chips para o desenvolvimento contínuo. `renderColaborador`.
+    - A Central deixou de repetir nível e jornada (já estão no hero e na
+      trilha) e passou a mostrar 4 stat cards próprios.
+    - **Tema claro**: o portal usa a paleta clara (o fundo imersivo escuro e o
+      ciano só valem no tema escuro) e o ciano acompanha a cor do sistema.
+    - Corrigidos três defeitos: o hero mostrava XP/nível **antes** de creditar
+      as etapas concluídas (340 XP contra 580); etapas **já concluídas ficavam
+      com cadeado** se uma etapa anterior estivesse em aberto (`colAbaLiberada`);
+      e o fundo fixo do portal **cobria a barra lateral** — invisível no tema
+      escuro, gritante no claro (`.side` ganhou `z-index`).
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio

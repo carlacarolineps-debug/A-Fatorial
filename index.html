@@ -453,7 +453,9 @@ h1,h2,h3,.in-hero h2,.pt-hero h1{font-family:var(--font-display);letter-spacing:
 .side{
   width:272px;
   background:var(--dark-grad);
-  position:relative;
+  /* acima do fundo imersivo do portal do colaborador, que é fixo e cobriria
+     a barra lateral (no tema escuro passava despercebido; no claro, não) */
+  position:relative; z-index:5;
   border-right:1px solid rgba(255,255,255,.06);
   box-shadow:inset -1px 0 0 rgba(255,255,255,.03);
 }
@@ -882,7 +884,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
 
 /* ═══ JORNADA: menu lateral (barra própria dentro do portal) ═══ */
-.gamer .gmr-layout{display:grid;grid-template-columns:248px 1fr;gap:18px;align-items:start;}
+.gamer .gmr-layout{display:block;}
 .gamer .gmr-content{min-width:0;}
 .gamer .col-subnav{
   flex-direction:column;align-items:stretch;gap:2px;max-height:calc(100vh - 64px);overflow-y:auto;
@@ -1184,6 +1186,13 @@ body[data-accent="magenta"]{  --gold:#d81b8c; --gold-bright:#ff6bc0; --gold-deep
 body[data-accent="violeta"]{  --gold:#7141e8; --gold-bright:#a684ff; --gold-deep:#4f2bb0; --gold-soft:#dcccff; --aur-a:rgba(166,132,255,.14); --aur-b:rgba(113,65,232,.11); }
 body[data-accent="oceano"]{   --gold:#1878d4; --gold-bright:#63b3f7; --gold-deep:#0f5497; --gold-soft:#c3e0fb; --aur-a:rgba(99,179,247,.14); --aur-b:rgba(24,120,212,.11); }
 body[data-accent="esmeralda"]{--gold:#0e9b73; --gold-bright:#4fd8ac; --gold-deep:#0a6d51; --gold-soft:#bff0de; --aur-a:rgba(79,216,172,.13); --aur-b:rgba(14,155,115,.11); }
+/* O ciano do portal do colaborador acompanha a cor escolhida (no dourado,
+   segue o ciano original). Precisa alcançar .gamer, que declara --neon. */
+body[data-accent="vinho"],body[data-accent="vinho"] .gamer{         --neon:#ff8ab5; --neon-deep:#d81b74; --neon-dim:rgba(255,138,181,.5); }
+body[data-accent="magenta"],body[data-accent="magenta"] .gamer{     --neon:#ff6bc0; --neon-deep:#d81b8c; --neon-dim:rgba(255,107,192,.5); }
+body[data-accent="violeta"],body[data-accent="violeta"] .gamer{     --neon:#a684ff; --neon-deep:#7141e8; --neon-dim:rgba(166,132,255,.5); }
+body[data-accent="oceano"],body[data-accent="oceano"] .gamer{       --neon:#63b3f7; --neon-deep:#1878d4; --neon-dim:rgba(99,179,247,.5); }
+body[data-accent="esmeralda"],body[data-accent="esmeralda"] .gamer{ --neon:#4fd8ac; --neon-deep:#0e9b73; --neon-dim:rgba(79,216,172,.5); }
 /* O gradiente precisa ser declarado no BODY: um custom property declarado
    no :root ja resolve os var() dele no :root, ignorando a cor escolhida. */
 body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(--gold-deep)); }
@@ -1206,6 +1215,24 @@ body.theme-gamer[data-accent="esmeralda"]{ --gold-deep:#7fe8c6; }
 .ap-cor:hover{transform:translateY(-2px) scale(1.06);}
 .ap-cor.on{border-color:var(--ink);box-shadow:0 0 0 3px var(--panel),0 0 0 5px color-mix(in srgb,var(--ink) 22%,transparent);}
 .ap-cor.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.5);}
+
+/* No tema CLARO o portal do colaborador usa a paleta clara: o fundo
+   imersivo escuro e o ciano neon só fazem sentido no tema escuro.
+   Fica depois das cores de destaque para vencer por ordem de origem. */
+body:not(.theme-gamer) .gamer{
+  --neon:var(--gold-deep); --neon-deep:var(--gold-deep); --neon-dim:color-mix(in srgb,var(--gold) 45%,transparent);
+  --gmr-panel:var(--panel); --gmr-line:color-mix(in srgb,var(--gold) 28%,transparent); --gmr-line-soft:var(--line);
+  --gmr-ink:var(--ink); --gmr-ink-soft:var(--ink-soft); --gmr-ink-faint:var(--ink-faint);
+  color:var(--ink);
+}
+body:not(.theme-gamer) .gamer .gmr-bg{
+  background:
+    radial-gradient(900px 600px at 82% -8%, color-mix(in srgb,var(--gold) 13%,transparent), transparent 60%),
+    radial-gradient(700px 500px at 8% 108%, color-mix(in srgb,var(--kb-c5) 9%,transparent), transparent 58%),
+    var(--panel-soft);
+}
+body:not(.theme-gamer) .gamer .gmr-bg::before{opacity:.22;}
+body:not(.theme-gamer) .gamer .gmr-bg::after{display:none;}
 
 /* ═══════════════════════════════════════════════════════════════════
    COMPONENTES VISUAIS COMPARTILHADOS (prefixo ui-) + KANBAN
@@ -1271,6 +1298,16 @@ body.theme-gamer .ui-donut::after{background:#101828;}
 .ui-donut-in{position:relative;z-index:1;text-align:center;}
 .ui-donut-in b{display:block;font-family:var(--font-display);font-size:36px;font-weight:800;letter-spacing:-.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;}
 .ui-donut-in span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--ink-faint);margin-top:5px;font-weight:700;}
+
+/* ── BARRA DE NAVEGAÇÃO DE SEÇÃO (portal do colaborador) ── */
+.ui-navbar{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px 20px;margin-bottom:var(--kb-gap,16px);}
+.ui-navbar-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+.ui-navbar-sb{font-size:11.5px;color:var(--ink-faint);}
+.ui-navbar-tit{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);margin:16px 0 10px;}
+.ui-navbar .ui-trilha{background:none;border:none;border-radius:0;padding:4px 0 0;margin:0;}
+.ui-troca select{padding:9px 13px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;outline:none;}
+.ui-troca select:hover{border-color:var(--gold);}
 
 /* ── STAT CARDS ── */
 .ui-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:var(--kb-gap);margin-bottom:var(--kb-gap);}
@@ -1977,8 +2014,9 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
       <div class="gmr-bg"></div>
       <div id="col-playercard"></div>
 
+      <div class="ui-stats" id="col-stats"></div>
+      <div id="col-nav"></div>
       <div class="gmr-layout">
-        <aside class="col-subnav" id="col-subnav"></aside>
         <div class="gmr-content">
       <div id="col-pane-dash" class="col-pane on"></div>
       <div id="col-pane-missoes" class="col-pane"></div>
@@ -3066,7 +3104,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           satisfacao:['Satisfação e <b>depoimentos</b>','Etapas 13-14 — prova real'],
           financeiro:['Fluxo de <b>caixa</b>','Gestão financeira'],
           portal:['Portal do <b>cliente</b>','Área de membros — visão do cliente'],
-          colaborador:['Portal do <b>colaborador</b>','Desenvolvimento humano — visão de quem faz acontecer'],
+          colaborador:['Portal do <b>colaborador</b>','Sua jornada de desenvolvimento'],
           rh:['Gestão de <b>RH</b>','People analytics — sua visão completa da equipe'],
           kanban:['Kanban <b>operacional</b>','Demandas da equipe — com aviso no WhatsApp'],
           catalogo:['Catálogo de <b>serviços</b>','Base de cálculo'],
@@ -4926,7 +4964,9 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           // livres sempre; liga dentro de missões sempre
           if(COL_ABAS_LIVRES.some(a=>a[0]===k)||k==='liga') return true;
           let ji=COL_JORNADA.findIndex(j=>j.k===k);
-          if(ji>=0){ return ji<=colJornadaIdx(c); } // libera até a atual
+          // libera até a etapa atual E qualquer etapa já concluída — o que já foi
+          // feito não pode voltar a ficar trancado só porque uma anterior ficou em aberto
+          if(ji>=0){ return ji<=colJornadaIdx(c) || COL_JORNADA[ji].check(c); }
           // abas pós-jornada: só quando jornada completa
           if(COL_ABAS_POS.some(a=>a[0]===k)) return colJornadaCompleta(c);
           return true;
@@ -4941,34 +4981,41 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         function renderColaborador(){
           let c=colAtualObj();
           c._jornada=c._jornada||{}; c._jornadaXP=c._jornadaXP||{};
+          colJornadaSync(c);   // credita o XP das etapas já concluídas antes de desenhar
           renderPlayerCard(c);
-          let jIdx=colJornadaIdx(c);
-          // monta subnav com seções e cadeados
-          let sn=document.getElementById('col-subnav');
-          let html='';
-          // grupo 1: HUD livre
-          COL_ABAS_LIVRES.forEach(a=>{ html+=colSubnavBtn(c,a[0],a[1]); });
-          // separador
-          html+='<span class="col-subnav-sep">Jornada de integração</span>';
-          // grupo 2: jornada (com cadeados)
-          COL_JORNADA.forEach((j,i)=>{
-            let lib=i<=jIdx, done=j.check(c);
-            html+=colSubnavBtn(c,j.k,j.l,!lib,done);
-          });
-          // grupo 3: pós-jornada
-          let posLib=colJornadaCompleta(c);
-          html+='<span class="col-subnav-sep">'+(posLib?'Desenvolvimento contínuo':'🔒 Libera ao concluir a jornada')+'</span>';
-          COL_ABAS_POS.forEach(a=>{ html+=colSubnavBtn(c,a[0],a[1],!posLib); });
-          sn.innerHTML=html;
+          let box=document.getElementById('col-nav');
+          if(box){
+            let jIdx=colJornadaIdx(c), posLib=colJornadaCompleta(c);
+            // 1) as quatro áreas livres, em controle segmentado
+            let seg='<span class="ui-seg">'+COL_ABAS_LIVRES.map(a=>
+              `<button class="${colAba===a[0]?'on':''}" onclick="colIr('${a[0]}')">${a[1]}</button>`).join('')+'</span>';
+            // 2) a jornada de integração como trilha de passos
+            const cores=['var(--kb-c5)','var(--kb-c4)','var(--kb-c2)','var(--kb-c1)','var(--kb-c7)','var(--kb-c3)','var(--kb-c6)'];
+            let trilha=uiTrilha(COL_JORNADA.map((j,i)=>{
+              let done=j.check(c), lib=colAbaLiberada(c,j.k);
+              return {nome:j.l.replace(/^[^ ]+ /,''), cor:lib?cores[i%cores.length]:'var(--ink-faint)',
+                pct:done?100:(lib?12:0), done, on:colAba===j.k,
+                marca:done?'✓':(lib?i+1:'🔒'),
+                sb:done?'concluída<br>+'+j.xp+' XP':(lib?'liberada agora':'bloqueada'),
+                click:lib?`colIr('${j.k}')`:'colBloqueado()',
+                title:lib?(done?'Concluída — '+j.titulo:'Abrir: '+j.titulo):'Bloqueada — conclua as etapas anteriores'};
+            }));
+            // 3) o que abre depois da jornada, em chips
+            let chips='<div class="kb-chips" style="margin:0;">'+COL_ABAS_POS.map(a=>
+              posLib?`<button class="kb-chip simples ${colAba===a[0]?'on':''}" style="--kbc:var(--kb-ouro);" onclick="colIr('${a[0]}')">${a[1]}</button>`
+                    :`<button class="kb-chip simples" style="opacity:.45;" onclick="colBloqueado()" title="Libera ao concluir a jornada">🔒 ${a[1].replace(/^[^ ]+ /,'')}</button>`
+            ).join('')+'</div>';
+            box.innerHTML=`<div class="ui-navbar">
+                <div class="ui-navbar-top">${seg}<span class="ui-navbar-sb">${posLib?'Desenvolvimento contínuo liberado ✓':'🔒 Conclua a jornada para liberar o desenvolvimento contínuo'}</span></div>
+                <div class="ui-navbar-tit">Jornada de integração</div>
+                ${trilha}
+                <div class="ui-navbar-tit">Recursos</div>
+                ${chips}
+              </div>`;
+          }
           // se a aba atual está bloqueada, volta pra central
           if(!colAbaLiberada(c,colAba)) colAba='dash';
           colIr(colAba);
-        }
-        function colSubnavBtn(c,k,label,bloq,done){
-          if(bloq) return `<button class="lock" onclick="colBloqueado()" title="Bloqueado">🔒 ${label.replace(/^[^ ]+ /,'')}</button>`;
-          let cls=(k===colAba?'on':'')+(done?' done':'');
-          let mark=done?'<span class="done-tick">✓</span>':'';
-          return `<button class="${cls}" onclick="colIr('${k}')">${label}${mark}</button>`;
         }
         function colBloqueado(){ alert('🔒 Esta etapa ainda está bloqueada!\n\nConclua as etapas anteriores da sua jornada de integração para desbloqueá-la. Cada etapa concluída te dá XP e abre a próxima.'); }
         // concede XP de todas as etapas já concluídas (uma vez cada) e detecta jornada completa
@@ -4986,39 +5033,40 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         };
         function renderPlayerCard(c){
           let cont=document.getElementById('col-playercard'); if(!cont)return;
-          let ini=(c.nome||'?').split(' ').map(x=>x[0]).slice(0,2).join('');
           let nivel=colNivel(c.gam.xp), pct=colXPpct(c.gam.xp);
           let classe=null;
           if(c.tracos){ let dom=Object.keys(c.tracos.pct).sort((a,b)=>c.tracos.pct[b]-c.tracos.pct[a])[0]; classe=RPG_CLASSE[dom]; }
           let admDias=Math.max(0,Math.floor((Date.now()-new Date(c.admissao+'T00:00').getTime())/86400000));
           let score=(typeof rhScoreGeral==='function')?rhScoreGeral(c):null;
-          // anel SVG do avatar
-          let ringSvg=`<svg class="ring" viewBox="0 0 96 96"><circle cx="48" cy="48" r="44" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="3"/><circle cx="48" cy="48" r="44" fill="none" stroke="var(--xp)" stroke-width="3" stroke-linecap="round" stroke-dasharray="${2*Math.PI*44}" stroke-dashoffset="${2*Math.PI*44*(1-pct/100)}" transform="rotate(-90 48 48)" style="filter:drop-shadow(0 0 6px var(--xp));transition:stroke-dashoffset .8s"/></svg>`;
-          cont.innerHTML=`
-            <div class="gmr-player">
-              <span class="gmr-corner tl"></span><span class="gmr-corner tr"></span><span class="gmr-corner bl"></span><span class="gmr-corner br"></span>
-              <div class="gmr-player-in">
-                <div class="gmr-avatar">${ringSvg}<div class="face" ${c.foto?`style="background-image:url('${c.foto}');background-size:cover;background-position:center;"`:''}>${c.foto?'':ini}</div><div class="lvbadge">${nivel}</div></div>
-                <div class="gmr-id">
-                  <div class="sel-wrap"><span class="who">◢ Perfil do colaborador</span>
-                    <select id="col-sel" onchange="colTrocar(this.value)">${DB.colaboradores.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${x.apelido||x.nome}</option>`).join('')}</select>
-                    ${(AUTH.user&&AUTH.user.papel==='colaborador'&&AUTH.user.id===c.id)?`<button class="btn btn-ghost btn-sm" style="margin-left:8px;" onclick="meuPerfilAbrir()">✎ Meu perfil</button>`:''}</div>
-                  <div class="gmr-name">${c.apelido||c.nome}</div>
-                  <div class="gmr-class">${classe?`${classe.ic} Classe: <b>${classe.nome}</b>`:'🔍 Classe: <b>a descobrir</b> — faça o teste de Traços'}　·　${c.cargo}${(c.apelido&&c.apelido!==c.nome)?`　·　${c.nome}`:''}</div>
-                  <div class="gmr-xpbar">
-                    <div class="top"><span>NÍVEL ${nivel}</span><span><b>${c.gam.xp} XP</b> · faltam ${100-pct} p/ nível ${nivel+1}</span></div>
-                    <div class="gmr-xptrack"><div class="gmr-xpfill" style="width:${pct}%;"></div></div>
-                  </div>
-                  ${(function(){ let nb=COL_BADGES.find(b=>!c.gam.badges.includes(b.k)); return `<div class="gmr-nextbadge">${nb?`🎯 Próxima conquista: <b>${nb.ic} ${nb.l}</b>`:'🏆 <b>Todas as conquistas desbloqueadas!</b>'}</div>`; })()}
-                </div>
-                <div class="gmr-vitals">
-                  ${score!=null?`<div class="gmr-vital neon"><div class="vv">${score}</div><div class="vl">Power</div></div>`:''}
-                  <div class="gmr-vital gold"><div class="vv">${c.gam.badges.length}</div><div class="vl">Troféus</div></div>
-                  <div class="gmr-vital"><div class="vv">${admDias}</div><div class="vl">Dias de saga</div></div>
-                  <div class="gmr-vital"><div class="vv">${c.objetivos.length}</div><div class="vl">Missões</div></div>
-                </div>
-              </div>
-            </div>`;
+          let jIdx=colJornadaIdx(c), feitas=COL_JORNADA.filter(j=>j.check(c)).length;
+          let pctJ=Math.round(feitas/COL_JORNADA.length*100);
+          let nb=COL_BADGES.find(b=>!c.gam.badges.includes(b.k));
+          let eu=(AUTH.user&&AUTH.user.papel==='colaborador'&&AUTH.user.id===c.id);
+          let missAtivas=(c.missoes||[]).filter(m=>m.status==='ativa').length;
+          let frase=`<b>Nível ${nivel}</b> · ${c.gam.xp} XP acumulados, faltam ${100-pct} para o nível ${nivel+1}. `
+            +(nb?`Próxima conquista: <b>${nb.ic} ${nb.l}</b>.`:`<b>Todas as conquistas desbloqueadas.</b> 🏆`)
+            +(pctJ<100?` Sua jornada de integração está em ${pctJ}%.`:` Jornada de integração completa. 🎉`);
+          cont.innerHTML=uiHero({
+            eyebrow:'♛ Portal do colaborador · sua jornada',
+            pessoa:{nome:c.apelido||c.nome, cargo:(classe?classe.ic+' '+classe.nome+' · ':'')+(c.cargo||''), foto:c.foto||(c.dossie&&c.dossie.foto)||'', cor:'var(--gold)'},
+            titulo:`${kbSaudacaoHora()}, <b>${uiEsc((c.apelido||c.nome||'').split(' ')[0])}</b>.`,
+            texto:frase,
+            acoes:[
+              eu?`<button class="btn btn-gold btn-sm" onclick="meuPerfilAbrir()">✎ Meu perfil</button>`:'',
+              missAtivas?`<button class="btn btn-ghost btn-sm" onclick="colIr('missoes')">⚔️ ${missAtivas} ${missAtivas>1?'missões ativas':'missão ativa'}</button>`:'',
+              (!eu&&DB.colaboradores.length>1)?`<span class="ui-troca"><select id="col-sel" onchange="colTrocar(this.value)">${DB.colaboradores.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${uiEsc(x.apelido||x.nome)}</option>`).join('')}</select></span>`:''
+            ],
+            donut:{pct, valor:nivel, label:'nível · '+pct+'%'}
+          });
+          let bs=document.getElementById('col-stats');
+          if(bs) bs.innerHTML=uiStats([
+            score!=null?{cor:'var(--kb-c4)', ic:'⚡', label:'Power', valor:score, pe:'entregas, prazo e qualidade'}:null,
+            {cor:'var(--kb-neutro)', ic:'✦', label:'XP acumulado', valor:c.gam.xp, pe:'nível '+nivel+' · '+pct+'% para o próximo'},
+            {cor:'var(--kb-c2)', ic:'🏆', label:'Troféus', valor:c.gam.badges.length+'/'+COL_BADGES.length, pe:nb?'próxima: '+nb.l:'coleção completa'},
+            {cor:'var(--kb-c3)', ic:'◈', label:'Jornada de integração', valor:pctJ+'%', pe:feitas+' de '+COL_JORNADA.length+' etapas'},
+            {cor:'var(--kb-c5)', ic:'⚔️', label:'Missões ativas', valor:missAtivas, pe:(c.missoes||[]).filter(m=>m.status==='concluida').length+' concluídas'},
+            {cor:'var(--kb-c1)', ic:'♡', label:'Dias de saga', valor:admDias, pe:'desde '+(c.admissao||'').split('-').reverse().join('/')}
+          ]);
         }
         function colTrocar(id){ colAtual=id; colAba='dash'; renderColaborador(); }
         function colIr(aba){
@@ -5026,11 +5074,12 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           colJornadaSync(c); // concede XP de etapas recém-concluídas
           if(!colAbaLiberada(c,aba)){ colBloqueado(); return; }
           colAba=aba;
-          document.querySelectorAll('#col-subnav button').forEach(b=>b.classList.remove('on'));
           document.querySelectorAll('.col-pane').forEach(p=>p.classList.remove('on'));
           let pane=document.getElementById('col-pane-'+aba); if(pane)pane.classList.add('on');
-          // re-aplica 'on' no botão certo (subnav tem cadeados, índice não bate)
-          document.querySelectorAll('#col-subnav button').forEach(b=>{ if(b.getAttribute('onclick')==="colIr('"+aba+"')") b.classList.add('on'); });
+          // marca a seção atual nos três lugares da navegação (segmentado, trilha e chips)
+          document.querySelectorAll('#col-nav .ui-seg button, #col-nav .ui-passo, #col-nav .kb-chip').forEach(b=>{
+            b.classList.toggle('on', (b.getAttribute('onclick')||'')==="colIr('"+aba+"')");
+          });
           let fn={dash:colDash,missoes:colMissoes,evolucao:colEvolucao,saga:colSaga,liga:colLiga,boasvindas:colBoasVindas,quemsoeu:colQuemSouEu,regras:colRegras,trilha:colTrilha,
             disc:colDISC,tracos:colTracos,pda:colPDA,cultura:colCultura,competencias:colCompetencias,pdi:colPDI,crescimento:colCrescimento,
             objetivos:colObjetivos,gamificacao:colGamificacao,feedback:colFeedback,wiki:colWiki,docs:colDocs}[aba];
@@ -5133,30 +5182,13 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           let feitas=etapas.filter(e=>e[1]).length, totalE=etapas.length;
           let admDias=Math.max(0,Math.floor((Date.now()-new Date(c.admissao+'T00:00').getTime())/86400000));
           document.getElementById('col-pane-dash').innerHTML=`
-            <div class="grid">
-              <div class="c4" style="margin:0;">
-                <div class="col-card" style="text-align:center;">
-                  <div class="col-card-h" style="justify-content:center;">Seu nível</div>
-                  <div class="gam-ring" style="--pct:${pct}%;margin:0 auto;"><div class="inner"><div class="lv">${nivel}</div><div class="lvl">nível</div></div></div>
-                  <div style="margin-top:12px;font-size:13px;"><b>${c.gam.xp} XP</b> · faltam ${100-pct} p/ subir</div>
-                  <div style="font-size:11px;color:var(--ink-faint);margin-top:4px;">${c.gam.badges.length}/${COL_BADGES.length} conquistas</div>
-                </div>
-              </div>
-              <div class="c8" style="margin:0;">
-                <div class="col-card">
-                  <div class="col-card-h">Sua jornada de integração</div>
-                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span>${feitas} de ${totalE} etapas</span><span style="color:var(--gold-deep);font-weight:700;">${Math.round(feitas/totalE*100)}%</span></div>
-                  <div class="obj-prog" style="margin:0 0 16px;"><div style="width:${Math.round(feitas/totalE*100)}%;"></div></div>
-                  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;">
-                    ${etapas.map(e=>`<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:${e[1]?'var(--ink)':'var(--ink-soft)'};"><span style="width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;background:${e[1]?'var(--ok)':'var(--line)'};color:${e[1]?'#fff':'var(--ink-faint)'};">${e[1]?'✓':''}</span>${e[0]}</div>`).join('')}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="grid">
-              <div class="c4" style="margin:0;"><div class="col-card" style="text-align:center;"><div style="font-size:30px;font-weight:300;color:var(--gold-deep);">${admDias}</div><div style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.5px;">dias de casa</div></div></div>
-              <div class="c4" style="margin:0;"><div class="col-card" style="text-align:center;"><div style="font-size:30px;font-weight:300;color:var(--gold-deep);">${c.objetivos.length}</div><div style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.5px;">objetivos ativos</div></div></div>
-              <div class="c4" style="margin:0;"><div class="col-card" style="text-align:center;"><div style="font-size:30px;font-weight:300;color:var(--gold-deep);">${c.feedbacks.length}</div><div style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.5px;">feedbacks recebidos</div></div></div>
+            <div class="ui-stats">
+              ${uiStats([
+                {cor:'var(--kb-c3)', ic:'✓', label:'Perfil preenchido', valor:Math.round(feitas/totalE*100)+'%', pe:feitas+' de '+totalE+' itens do seu cadastro'},
+                {cor:'var(--kb-c5)', ic:'♛', label:'Objetivos ativos', valor:c.objetivos.length, pe:c.objetivos.length?'acompanhe em Objetivos & metas':'defina o primeiro objetivo'},
+                {cor:'var(--kb-c1)', ic:'↺', label:'Feedbacks recebidos', valor:c.feedbacks.length, pe:c.feedbacks.length?'último de '+(c.feedbacks[0].de||'gestão'):'ainda sem feedback registrado'},
+                {cor:'var(--kb-c2)', ic:'🏆', label:'Conquistas', valor:c.gam.badges.length+'/'+COL_BADGES.length, pe:'troféus desbloqueados'}
+              ])}
             </div>
             <div class="col-card">
               <div class="col-card-h">Próximos passos sugeridos</div>
