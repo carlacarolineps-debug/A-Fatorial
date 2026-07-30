@@ -1789,29 +1789,37 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
     <div><b>FATORIAL</b><span>Arquitetura de Lucro</span></div>
   </div>
   <nav class="side-nav">
-    <div class="nav-group">Operação interna</div>
+    <div class="nav-group">Meu dia</div>
     <button class="nav-item" onclick="go('dono')" id="n-dono"><span class="ic">★</span> Visão do dono</button>
     <button class="nav-item on" onclick="go('dash')" id="n-dash"><span class="ic">◳</span> Gestão à vista</button>
+
+    <div class="nav-group">Comercial</div>
     <button class="nav-item" onclick="go('funil')" id="n-funil"><span class="ic">◎</span> Esteira comercial <span class="step-n">1-14</span></button>
     <button class="nav-item" onclick="go('propostas')" id="n-propostas"><span class="ic">✦</span> Propostas e rastreio</button>
-    <button class="nav-item" onclick="go('kanban')" id="n-kanban"><span class="ic">▦</span> Kanban operacional</button>
     <button class="nav-item" onclick="go('prestadores')" id="n-prestadores"><span class="ic">◱</span> Prestadores e leads</button>
-    <button class="nav-item" onclick="go('meusleads')" id="n-meusleads"><span class="ic">🎯</span> Meus leads</button>
-    <button class="nav-item" onclick="go('financeiro')" id="n-financeiro"><span class="ic">❖</span> Fluxo de caixa e DRE</button>
-    <button class="nav-item" onclick="go('fin360')" id="n-fin360"><span class="ic">◇</span> Centro Financeiro 360</button>
-    <button class="nav-item" onclick="go('futuro')" id="n-futuro"><span class="ic">◆</span> Simulador de futuro</button>
     <button class="nav-item" onclick="go('plano')" id="n-plano"><span class="ic">◈</span> Planejamento estratégico</button>
 
-    <div class="nav-group">Visão do cliente</div>
-    <button class="nav-item" onclick="go('portal')" id="n-portal"><span class="ic">◐</span> Portal do cliente</button>
+    <div class="nav-group">Meu trabalho</div>
+    <button class="nav-item" onclick="go('meusleads')" id="n-meusleads"><span class="ic">🎯</span> Meus leads</button>
 
-    <div class="nav-group">Visão do colaborador</div>
+    <div class="nav-group">Entrega e operação</div>
+    <button class="nav-item" onclick="go('kanban')" id="n-kanban"><span class="ic">▦</span> Kanban operacional</button>
+    <button class="nav-item" onclick="go('entregaveis')" id="n-entregaveis"><span class="ic">✓</span> Auditoria de entregáveis</button>
+    <button class="nav-item" onclick="go('satisfacao')" id="n-satisfacao"><span class="ic">♡</span> Satisfação e depoimentos</button>
+
+    <div class="nav-group">Financeiro</div>
+    <button class="nav-item" onclick="go('fin360')" id="n-fin360"><span class="ic">◇</span> Centro Financeiro 360</button>
+    <button class="nav-item" onclick="go('financeiro')" id="n-financeiro"><span class="ic">❖</span> Fluxo de caixa e DRE</button>
+    <button class="nav-item" onclick="go('futuro')" id="n-futuro"><span class="ic">◆</span> Simulador de futuro</button>
+
+    <div class="nav-group">Pessoas</div>
     <button class="nav-item" onclick="go('colaborador')" id="n-colaborador"><span class="ic">♛</span> Portal do colaborador</button>
-
-    <div class="nav-group">Gestão de pessoas</div>
     <button class="nav-item" onclick="go('rh')" id="n-rh"><span class="ic">◈</span> Gestão de RH</button>
 
-    <div class="nav-group">Ecossistema</div>
+    <div class="nav-group">Cliente</div>
+    <button class="nav-item" onclick="go('portal')" id="n-portal"><span class="ic">◐</span> Portal do cliente</button>
+
+    <div class="nav-group">Configuração</div>
     <button class="nav-item" onclick="go('catalogo')" id="n-catalogo"><span class="ic">≣</span> Catálogo de serviços</button>
     <button class="nav-item" onclick="go('equipe')" id="n-equipe"><span class="ic">⚙</span> Equipe e acessos</button>
   </nav>
@@ -3070,7 +3078,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dono','dash','funil','propostas','kanban','prestadores','meusleads','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
+          admin:      ['dono','dash','funil','propostas','kanban','prestadores','meusleads','entregaveis','satisfacao','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
           colaborador:['colaborador','funil','propostas','kanban','meusleads'],
           cliente:    ['portal']
         };
@@ -3177,13 +3185,13 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
         // do usuário logado, SEM navegar (usado ao editar permissões ao vivo).
         function atualizarNavVisibilidade(){
-          const navMap={dono:'n-dono',dash:'n-dash',funil:'n-funil',propostas:'n-propostas',kanban:'n-kanban',prestadores:'n-prestadores',meusleads:'n-meusleads',financeiro:'n-financeiro',fin360:'n-fin360',futuro:'n-futuro',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
+          const navMap={dono:'n-dono',dash:'n-dash',funil:'n-funil',propostas:'n-propostas',kanban:'n-kanban',prestadores:'n-prestadores',meusleads:'n-meusleads',entregaveis:'n-entregaveis',satisfacao:'n-satisfacao',financeiro:'n-financeiro',fin360:'n-fin360',futuro:'n-futuro',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
           Object.keys(navMap).forEach(v=>{ let el=document.getElementById(navMap[v]); if(el) el.style.display=AUTH.can(v)?'':'none'; });
           // "Meus leads" é a página de quem trabalha por resultado
           let mlEl=document.getElementById('n-meusleads');
           if(mlEl){
             let u=AUTH.user, c=(u&&u.papel==='colaborador')?DB.colaboradores.find(x=>x.id===u.id):null;
-            let mostra = AUTH.can('meusleads') && (u&&u.papel==='admin' ? true : (typeof ehPrestador==='function'&&ehPrestador(c)));
+            let mostra = AUTH.can('meusleads') && (typeof ehPrestador==='function') && ehPrestador(c);
             mlEl.style.display = mostra ? '' : 'none';
           }
           // esconde grupos de nav vazios
@@ -3455,6 +3463,9 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           colaborador:['Portal do <b>colaborador</b>','Sua jornada de desenvolvimento'],
           rh:['Gestão de <b>RH</b>','People analytics — sua visão completa da equipe'],
           kanban:['Kanban <b>operacional</b>','Demandas da equipe — com aviso no WhatsApp'],
+          fin360:['Centro <b>Financeiro 360</b>','Pessoal e empresa no mesmo lugar'],
+          futuro:['Simulador de <b>futuro</b>','Cenários de 6 meses a 10 anos'],
+          plano:['Planejamento <b>estratégico</b>','Metas de venda ligadas ao caixa'],
           prestadores:['Prestadores e <b>leads</b>','Distribuição, follow-up e ganhos por resultado'],
           meusleads:['Meus <b>leads</b>','Pegue, contate e acompanhe — o seu resultado'],
           catalogo:['Catálogo de <b>serviços</b>','Base de cálculo'],
@@ -3489,7 +3500,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(v==='dash') renderDash();
           if(v==='kanban' && typeof kbRender==='function') kbRender();
           if(v==='prestadores' && typeof leadRenderGestao==='function') leadRenderGestao();
-          if(v==='meusleads' && typeof leadRenderPagina==='function') leadRenderPagina();
+          if(v==='meusleads' && typeof leadRenderPagina==='function'){ if(AUTH.user&&AUTH.user.papel==='colaborador') _leadPreview=null; leadRenderPagina(); }
           if(v==='fin360' && typeof finRender==='function') finRender();
           if(v==='plano' && typeof planoRender==='function') planoRender();
           if(v==='dono' && typeof renderDono==='function') renderDono();
@@ -4806,7 +4817,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
         /* ===== CONFIGURADOR DE PERMISSÕES (Equipe e acessos) ===== */
         const PERM_TELAS=[
-          {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},{k:'kanban',l:'Kanban operacional'},{k:'prestadores',l:'Prestadores e leads'},{k:'meusleads',l:'Meus leads (prestador)'},{k:'futuro',l:'Simulador de futuro'},
+          {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},{k:'kanban',l:'Kanban operacional'},{k:'prestadores',l:'Prestadores e leads'},{k:'meusleads',l:'Meus leads (prestador)'},{k:'entregaveis',l:'Auditoria de entregáveis'},{k:'satisfacao',l:'Satisfação e depoimentos'},{k:'futuro',l:'Simulador de futuro'},
           {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'plano',l:'Planejamento estratégico'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
           {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
         ];
@@ -10666,15 +10677,26 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             </div>`;
         }
 
+        /* A gestão pode espiar o painel de um vendedor sem virar ele: a
+           página abre em modo prévia, com aviso e botão de voltar. */
+        let _leadPreview=null;
+        function leadPreview(id){ _leadPreview=id; go('meusleads'); }
+        function leadPreviewSair(){ _leadPreview=null; go('prestadores'); }
+        function leadPessoaDaPagina(){
+          if(_leadPreview && (!AUTH.user||AUTH.user.papel==='admin')) return DB.colaboradores.find(c=>c.id===_leadPreview);
+          return colAtualObj();
+        }
+
         /* ── PÁGINA "MEUS LEADS" (menu próprio, foco total) ── */
         function leadRenderPagina(){
           let box=document.getElementById('ml-body'); if(!box) return;
           leadRecolherAtrasados();
-          let c=(AUTH.user&&AUTH.user.papel==='colaborador')?colAtualObj():colAtualObj();
+          let c=leadPessoaDaPagina();
+          let ehPrevia=!!(_leadPreview && (!AUTH.user||AUTH.user.papel==='admin'));
           if(!c || !ehPrestador(c)){
             document.getElementById('ml-hero').innerHTML='';
             document.getElementById('ml-stats').innerHTML='';
-            box.innerHTML='<div class="kb-empty" style="padding:34px;">Esta página é de quem trabalha por resultado. Marque o vínculo da pessoa em <b>Equipe e acessos</b>.</div>';
+            box.innerHTML='<div class="kb-empty" style="padding:34px;">Esta é a tela do vendedor. Para acompanhar a equipe, use <b>Prestadores e leads</b>.</div>';
             return;
           }
           let eu=c.id;
@@ -10713,6 +10735,9 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             {cor:'var(--kb-c1)', ic:'📞', label:'Contatos hoje', valor:hoje+'/'+meta, pe:hoje>=meta?'meta batida ✓':'faltam '+(meta-hoje)}
           ]);
           box.innerHTML=`
+            ${ehPrevia?`<div class="dec-opiniao" style="display:flex;align-items:center;gap:12px;">
+              <b>👁 Prévia:</b> você está vendo o painel como <b>${uiEsc(c.apelido||c.nome)}</b> vê.
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="leadPreviewSair()">← Voltar para a gestão</button></div>`:''}
             <div class="card">
               <div class="card-h">Seu ritmo de hoje</div>
               <div class="lead-ritmo">
@@ -10762,6 +10787,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
               <span class="prest-col">${g.length}<small>fechou</small></span>
               <span class="prest-col">${brl(g.reduce((a,l)=>a+(l.valor||0),0))}<small>gerado</small></span>
               <span class="prest-col">${brl(g.reduce((a,l)=>a+(l.valor||0)*com,0))}<small>comissão</small></span>
+              <button class="btn btn-ghost btn-sm" onclick="leadPreview('${c.id}')" title="Abrir o painel como ${uiEsc(c.apelido||c.nome)} vê">👁 Ver o painel dele</button>
             </div>`;
           }).join('')||'<div class="kb-empty">Nenhum prestador por resultado cadastrado. Marque o vínculo em Equipe e acessos.</div>';
           box.innerHTML=`

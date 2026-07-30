@@ -444,6 +444,26 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     sobrava uma caixa vazia de 200px. Os rótulos saíram para HTML e, sem dados,
     entra um aviso explicando como o gráfico começa a subir.
 
+43. **Separação entre gestão e vendedor** — "Meus leads" é a tela de quem
+    vende; sumiu do menu do admin. Você acompanha por **Prestadores e leads**,
+    onde cada linha tem **"👁 Ver o painel dele"**: abre a tela do vendedor em
+    modo prévia, com aviso no topo e botão de voltar. `leadPreview`.
+
+44. **Revisão e reorganização do sistema** — auditoria automática de menu,
+    telas, títulos e permissões, papel por papel:
+    - **Menu reagrupado por assunto** (antes eram 11 itens soltos em "Operação
+      interna"): Meu dia · Comercial · Meu trabalho · Entrega e operação ·
+      Financeiro · Pessoas · Cliente · Configuração. Grupos vazios somem
+      sozinhos conforme a permissão de cada perfil.
+    - **Duas telas estavam órfãs** — *Auditoria de entregáveis* e *Satisfação e
+      depoimentos* existiam mas não tinham item de menu nem entrada no
+      configurador de permissões; só dava para chegar nelas por botão.
+    - **Três telas sem título na barra de topo** (Centro Financeiro 360,
+      Simulador de futuro e Planejamento estratégico) mostravam só a data.
+    - Auditoria final: 17 telas no admin, 5 no vendedor, 4 no colaborador
+      contratado e 1 no cliente — nenhuma tela sem menu, nenhum menu sem tela,
+      nenhum título faltando e nenhum erro de console em 27 aberturas.
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio
