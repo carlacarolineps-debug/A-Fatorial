@@ -356,6 +356,55 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       colaborador a navegação subiu para antes dos números — a trilha da
       jornada agora aparece sem rolar.
 
+34. **Catálogo explicado** — os 77 serviços e os 8 grupos ganharam uma
+    explicação curta ("o que é / o que o cliente recebe"), visível na tabela do
+    catálogo e na hora de montar a proposta. Passando o mouse, um **resumo
+    completo** aparece: preço, carga, valor da hora, CNAE da NF, quanto já foi
+    vendido e com o que costuma ir junto. Serviço novo tem campo próprio de
+    descrição. `CAT_DESC`, `CAT_GRUPOS_DESC`, `catDesc`, `hcServico`.
+
+35. **Assistente de decisão que começa pronto** — em vez de campo em branco, o
+    "e se eu...?" abre com **decisões montadas a partir dos seus números**
+    (contratar pelo salário médio da equipe, fechar mais 1 do serviço com maior
+    meta, cortar 10% do custo fixo, reajustar a tabela em 5%, comprar
+    equipamento, subir o pró-labore) — cada uma já simulada, com o impacto em 5
+    anos no próprio cartão. E abre com uma **leitura**: qual delas mais melhora
+    o caixa e qual mais pesa. `decSugestoes`, `decRanking`, `decSimularSugestao`.
+
+36. **Os painéis se conversam** — toda notificação recalcula a faixa "Próximo
+    passo". Ações do cliente que antes morriam na tela dele agora avisam a
+    gestão: documento anexado, entrega aprovada e avaliação recebida (com
+    alerta quando a nota vem baixa). Documento sem conferência e entrega
+    aprovada sem avaliação entram na fila de próximos passos.
+
+37. **Prestadores por resultado + distribuição de leads** (nav "Prestadores e
+    leads", admin; aba "🎯 Meus leads" no portal de quem é autônomo)
+    - **Vínculo e autorização**: em Equipe e acessos você marca quem trabalha
+      por resultado e **quais contratos cada um pode representar** (Medical ·
+      A! Saúde, Consultoria, Franquias, Treinamentos), além da comissão e da
+      meta de contatos por dia. O painel de cada pessoa mostra **só o que você
+      liberou** — quem representa consultoria PJ não enxerga lead PF da Medical.
+      `CONTRATOS`, `podeRepresentar`, `prestConfigHTML`.
+    - **Painel de distribuição com trava**: quem pega o lead o tira do painel
+      dos outros; um segundo prestador que tente pegar recebe o aviso de que já
+      saiu. Lead pego e **sem contato em 24h volta sozinho** para a fila, então
+      nenhum contato fica parado. `leadPegar`, `leadRecolherAtrasados`.
+    - **Contador visual do dia**: bolinhas que acendem a cada contato
+      registrado, com a meta da pessoa; na gestão, a mesma fila por prestador.
+      `leadContatosDoDia`.
+    - **Carteira e follow-up**: WhatsApp em um clique, registro do que
+      aconteceu, data do próximo passo e aviso de retorno atrasado.
+    - **Base de contatos**: nome, WhatsApp, e-mail, telefone, cidade e endereço,
+      **separada automaticamente** — primeiro por natureza (PF / PJ) e dentro
+      dela por segmento, com exportação CSV por bloco. `leadBaseHTML`,
+      `LEAD_SEGMENTOS`, `leadExportar`.
+    - **Ganhos**: comissão calculada sobre o que a pessoa fechou.
+    - **Treinamentos**: material para estudar quando quiser e agenda dos
+      próximos ao vivo, com aviso de quantos dias faltam. `treinoProximos`.
+    - Tudo alimenta a faixa "Próximo passo" dos dois lados: o prestador vê o
+      lead que precisa contatar antes de perder; você vê lead parado no painel
+      e lead pego sem contato.
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio
