@@ -1334,17 +1334,24 @@ body.theme-gamer .ui-donut::after{background:#101828;}
 @media(max-width:1300px){ .ui-stats.n5{grid-template-columns:repeat(3,1fr);} }
 @media(max-width:1120px){ .ui-stats.n4,.ui-stats.n5,.ui-stats.n6{grid-template-columns:repeat(2,1fr);} }
 @media(max-width:700px){ .ui-stats,.ui-stats.n4,.ui-stats.n5,.ui-stats.n6{grid-template-columns:1fr;} }
-.ui-stat{position:relative;overflow:hidden;padding:20px;border-radius:20px;background:var(--panel);border:1px solid var(--line);
+.ui-stat{position:relative;overflow:hidden;padding:20px;border-radius:20px;border:1px solid var(--line);
+  background:radial-gradient(130% 100% at 100% 0%, color-mix(in srgb,var(--kbc) 9%,transparent), transparent 62%),var(--panel);
   box-shadow:var(--shadow);transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s,border-color .22s;}
 .ui-stat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--kbc) 48%,var(--line));
   box-shadow:0 18px 40px -22px color-mix(in srgb,var(--kbc) 70%,transparent),var(--shadow-lg);}
-.ui-stat::before{content:'';position:absolute;inset:0 0 auto;height:3px;background:var(--kbc);opacity:.9;}
+.ui-stat::before{content:'';position:absolute;inset:0 0 auto;height:3px;
+  background:linear-gradient(90deg,var(--kbc),color-mix(in srgb,var(--kbc) 15%,transparent));}
+.ui-stat::after{content:'';position:absolute;right:-30px;bottom:-38px;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--kbc) 12%,transparent),transparent 68%);pointer-events:none;}
+.ui-stat.vazio{opacity:.78;}
 .ui-stat-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.ui-stat-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;
-  background:color-mix(in srgb,var(--kbc) var(--kb-tint),var(--panel-soft));color:var(--kbc);}
+.ui-stat-ic{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;
+  background:linear-gradient(140deg,color-mix(in srgb,var(--kbc) 26%,var(--panel)),color-mix(in srgb,var(--kbc) 7%,var(--panel)));
+  color:var(--kbc);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--kbc) 24%,transparent),0 4px 10px -6px color-mix(in srgb,var(--kbc) 70%,transparent);}
 .ui-stat-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--ink-faint);line-height:1.3;}
 .ui-stat-v.grana{font-size:clamp(19px,2vw,27px);letter-spacing:-.03em;white-space:nowrap;}
 .ui-stat-v{font-family:var(--font-display);font-size:40px;font-weight:800;letter-spacing:-.045em;line-height:1;color:var(--kbc);font-variant-numeric:tabular-nums;}
+.ui-stat-v.txt{font-size:16px;font-weight:600;letter-spacing:0;line-height:1.35;color:var(--ink-soft);font-family:var(--font-body);padding:6px 0 5px;}
 .ui-stat-f{font-size:11.5px;color:var(--ink-soft);margin-top:10px;display:flex;align-items:center;gap:6px;}
 .ui-spark{display:flex;align-items:flex-end;gap:2px;height:16px;}
 .ui-spark i{width:4px;border-radius:2px;background:var(--kbc);opacity:.32;}
@@ -1525,6 +1532,101 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
 }
 @media(hover:none){ .kb-card-acts{opacity:1;transform:none;} }
 
+/* ═══ ESCALA COMPACTA — notebook (largura ≤1500px ou altura ≤820px) ═══
+   O visual foi desenhado em tela grande. Num monitor de 1366×640 o hero
+   (326px) e os cards (304px) comiam a tela inteira e a navegação começava
+   em y=703, fora da área visível. Aqui tudo encolhe junto: espaçamento,
+   hero, anel, cards e barra de topo. */
+@media(max-width:1500px),(max-height:820px){
+  #v-kanban,#v-dash,#v-dono,#v-colaborador{--kb-gap:12px;}
+  .ui-hero{padding:20px 22px;border-radius:20px;}
+  .ui-hero h2{font-size:clamp(21px,2.3vw,29px);}
+  .ui-hero p{font-size:13px;margin-top:9px;line-height:1.5;}
+  .ui-hero-grid{gap:18px;}
+  .ui-hero-user{margin-bottom:12px;gap:10px;}
+  .ui-hero-acts{margin-top:15px;}
+  .ui-eyebrow{margin-bottom:12px;padding:5px 11px;font-size:10px;}
+  .ui-av-xg{width:42px;height:42px;border-radius:13px;font-size:15px;}
+  .ui-donut{width:112px;height:112px;}
+  .ui-donut::after{inset:10px;}
+  .ui-donut-in b{font-size:26px;}
+  .ui-donut-in span{font-size:8.5px;margin-top:3px;}
+  .ui-stat{padding:14px 16px;border-radius:16px;}
+  .ui-stat-h{margin-bottom:9px;gap:8px;}
+  .ui-stat-ic{width:28px;height:28px;border-radius:9px;font-size:13px;}
+  .ui-stat-v{font-size:29px;}
+  .ui-stat-v.grana{font-size:clamp(17px,1.6vw,22px);}
+  .ui-stat-f{font-size:11px;margin-top:8px;}
+  .ui-navbar{padding:14px 16px;border-radius:16px;}
+  .ui-navbar-tit{margin:12px 0 8px;}
+  #v-kanban .card,#v-dash .card,#v-dono .card,#v-colaborador .card,#v-colaborador .col-card{padding:18px 20px;}
+  .topbar{padding-top:12px;padding-bottom:12px;}
+  .notif-bell{width:34px;height:34px;font-size:14px;}
+  .in-hero{padding:22px 24px;}
+}
+
+/* Monitor baixo (≤720px de área útil): o selo do topo do hero é decorativo
+   e repete o título da barra de topo — sai para o conteúdo caber. */
+@media(max-height:720px){
+  .ui-hero .ui-eyebrow{display:none;}
+  .ui-hero{padding:18px 22px;}
+  .ui-hero-user{margin-bottom:10px;}
+  .ui-hero-acts{margin-top:13px;}
+  .ui-stat{padding:13px 15px;}
+  .ui-stat-v{font-size:27px;}
+/* ═══ PRÓXIMO PASSO — a faixa que diz o que fazer agora ═══ */
+.prox{position:relative;z-index:20;margin:0;padding:0 38px;}
+.prox-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px;padding:12px 16px;border-radius:14px;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--gold) 16%,var(--panel)),var(--panel) 62%);
+  border:1px solid color-mix(in srgb,var(--gold) 34%,var(--line));box-shadow:var(--shadow);}
+.prox-in.calmo{background:var(--panel);border-color:var(--line);}
+.prox-selo{display:inline-flex;align-items:center;gap:6px;flex:none;font-size:9.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--kb-sobre);background:var(--gold-deep);padding:5px 10px;border-radius:20px;}
+.prox-in.calmo .prox-selo{background:var(--kb-c3);}
+.prox-txt{flex:1;min-width:180px;font-size:13.5px;color:var(--ink);line-height:1.4;}
+.prox-txt b{font-weight:700;}
+.prox-txt span{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+.prox-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.prox-mais{background:none;border:1px solid var(--line);color:var(--ink-soft);font-family:inherit;font-size:11.5px;font-weight:600;
+  padding:8px 12px;border-radius:10px;cursor:pointer;transition:.16s;white-space:nowrap;}
+.prox-mais:hover{border-color:var(--gold);color:var(--ink);}
+.prox-lista{margin-top:9px;border-radius:14px;border:1px solid var(--line);background:var(--panel);overflow:hidden;display:none;}
+.prox-lista.on{display:block;animation:fade .2s;}
+.prox-item{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid var(--line);cursor:pointer;transition:.14s;}
+.prox-item:last-child{border-bottom:none;}
+.prox-item:hover{background:color-mix(in srgb,var(--gold) 8%,transparent);}
+.prox-item .ic{width:30px;height:30px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;
+  background:color-mix(in srgb,var(--kbc,var(--gold)) 16%,transparent);color:var(--kbc,var(--gold-deep));}
+.prox-item .tt{flex:1;font-size:12.5px;color:var(--ink);line-height:1.4;}
+.prox-item .tt span{display:block;font-size:11px;color:var(--ink-faint);margin-top:1px;}
+.prox-item .vai{font-size:11px;font-weight:700;color:var(--gold-deep);white-space:nowrap;}
+@media(max-width:1500px),(max-height:820px){
+  .prox{padding:0 26px;}
+  .prox-in{margin-top:10px;padding:10px 13px;gap:10px;}
+  .prox-txt{font-size:12.5px;}
+}
+@media(max-width:820px){ .prox{padding:0 16px;} .prox-txt{min-width:120px;} }
+/* dica curta embaixo de cada campo do formulário */
+.f-dica{font-size:10.5px;color:var(--ink-faint);line-height:1.45;margin-top:4px;display:block;}
+.f-dica b{color:var(--ink-soft);font-weight:600;}
+#m-tarefa .modal-card{max-width:620px;}
+#m-tarefa .grid{gap:14px;}
+/* ── SELETOR EM PÍLULAS — substitui emoji dentro de <select>, que fica amador ── */
+.ui-opts{display:flex;gap:7px;flex-wrap:wrap;}
+.ui-opt{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:20px;cursor:pointer;font-family:inherit;
+  font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);transition:.16s;white-space:nowrap;}
+.ui-opt:hover{border-color:var(--kbc,var(--gold));color:var(--ink);transform:translateY(-1px);}
+.ui-opt .pt{width:9px;height:9px;border-radius:50%;background:var(--kbc,var(--ink-faint));flex:none;}
+.ui-opt.on{border-color:var(--kbc,var(--gold));background:color-mix(in srgb,var(--kbc,var(--gold)) 13%,var(--panel));color:var(--ink);
+  box-shadow:0 6px 16px -10px var(--kbc,var(--gold));}
+.ui-opt.on .pt{box-shadow:0 0 0 3px color-mix(in srgb,var(--kbc,var(--gold)) 28%,transparent);}
+.ui-opt small{font-weight:500;color:var(--ink-faint);}
+/* modal alto em tela baixa: rola por dentro e o rodapé fica fixo,
+   senão o botão Salvar cai fora da tela num monitor de 640px */
+.modal-card{max-height:88vh;overflow-y:auto;}
+.modal-card .modal-acts{position:sticky;bottom:0;background:var(--panel);padding:14px 0 2px;margin-top:18px;
+  border-top:1px solid var(--line);}
+body.theme-gamer .modal-card .modal-acts{background:#101828;}
 </style>
 </head>
 <body class="theme-gamer">
@@ -1634,6 +1736,9 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
     </div>
   </header>
 
+  <!-- ============ PRÓXIMO PASSO — sempre no mesmo lugar, em toda tela ============ -->
+  <div class="prox" id="prox"></div>
+
   <div class="scroll">
 
     <!-- ============ VISÃO DO DONO ============ -->
@@ -1711,11 +1816,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
               <option>Prospecção ativa</option><option>Cliente recorrente</option><option>Outro</option>
             </select></div>
           <div class="c4 f"><span class="lbl">Temperatura do lead</span>
-            <select class="inp" id="f-temp">
-              <option value="frio">🔵 Frio — explorando</option>
-              <option value="morno" selected>🟡 Morno — interessado</option>
-              <option value="quente">🔴 Quente — pronto p/ fechar</option>
-            </select></div>
+            <div id="f-temp-box"></div></div>
           <div class="c4 f"><span class="lbl">Status de validação</span>
             <div class="inp" id="f-valid-status" style="display:flex;align-items:center;background:var(--panel-soft);font-size:12px;color:var(--ink-soft);">Preencha os campos obrigatórios *</div></div>
         </div>
@@ -2046,8 +2147,8 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
       <div class="gmr-bg"></div>
       <div id="col-playercard"></div>
 
-      <div class="ui-stats" id="col-stats"></div>
       <div id="col-nav"></div>
+      <div class="ui-stats" id="col-stats"></div>
       <div class="gmr-layout">
         <div class="gmr-content">
       <div id="col-pane-dash" class="col-pane on"></div>
@@ -2308,6 +2409,25 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         <input type="file" accept="image/*" id="brand-logo-file" style="display:none">
       </div>
 
+      <!-- ============ INTEGRAÇÃO WHATSAPP ============ -->
+      <div class="card" id="kb-wa">
+        <div class="card-h">📲 Integração com WhatsApp — quem faz, fica sabendo
+          <span class="pill pill-mute" style="text-transform:none;letter-spacing:0;">Notificação de demandas</span></div>
+        <p class="hint" style="margin:-8px 0 18px;">Escolha como a equipe é avisada. O modo <b>link direto</b> funciona sem nenhuma configuração. O modo <b>automático</b> envia sozinho pela API oficial da Meta (WhatsApp Cloud API), através do seu servidor — a pasta <code>backend/</code> deste projeto traz esse servidor pronto.</p>
+        <div id="kb-wa-cfg"></div>
+
+        <div style="border-top:1px solid var(--line);margin-top:22px;padding-top:18px;">
+          <div class="ap-tit">Números da equipe</div>
+          <p class="hint" style="margin:0 0 14px;">É para onde o aviso vai. Use o formato internacional, só números: <b>5511999999999</b> (55 + DDD + número).</p>
+          <div id="kb-wa-contatos"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--line);margin-top:22px;padding-top:18px;">
+          <div class="ap-tit" style="display:flex;align-items:center;gap:10px;">Histórico de avisos enviados
+            <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="kbLimparEnvios()">Limpar histórico</button></div>
+          <div class="kb-wa-log" id="kb-wa-log"></div>
+        </div>
+      </div>
       <!-- ============ BACKUP / RESTAURAÇÃO ============ -->
       <div class="card" id="equipe-backup">
         <div class="card-h">💾 Backup e restauração do sistema</div>
@@ -2328,7 +2448,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
 
       <div class="card">
         <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Quadro de demandas
-          <span class="pill pill-info" style="text-transform:none;letter-spacing:0;" id="kb-wa-status">📲 WhatsApp</span>
+          <button class="pill pill-info" style="text-transform:none;letter-spacing:0;border:none;cursor:pointer;font-family:inherit;" id="kb-wa-status" onclick="go('equipe');setTimeout(()=>{let e=document.getElementById('kb-wa');if(e)e.scrollIntoView({behavior:'smooth'});},120);" title="Configurar em Equipe e acessos">📲 WhatsApp</button>
           <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <span class="ui-seg" id="kb-visao"></span>
             <button class="btn btn-gold btn-sm" onclick="kbNova()">+ Nova tarefa</button>
@@ -2357,25 +2477,6 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         <div id="kb-carga"></div>
       </div>
 
-      <!-- ============ INTEGRAÇÃO WHATSAPP ============ -->
-      <div class="card" id="kb-wa">
-        <div class="card-h">📲 Integração com WhatsApp — quem faz, fica sabendo
-          <span class="pill pill-mute" style="text-transform:none;letter-spacing:0;">Notificação de demandas</span></div>
-        <p class="hint" style="margin:-8px 0 18px;">Escolha como a equipe é avisada. O modo <b>link direto</b> funciona sem nenhuma configuração. O modo <b>automático</b> envia sozinho pela API oficial da Meta (WhatsApp Cloud API), através do seu servidor — a pasta <code>backend/</code> deste projeto traz esse servidor pronto.</p>
-        <div id="kb-wa-cfg"></div>
-
-        <div style="border-top:1px solid var(--line);margin-top:22px;padding-top:18px;">
-          <div class="ap-tit">Números da equipe</div>
-          <p class="hint" style="margin:0 0 14px;">É para onde o aviso vai. Use o formato internacional, só números: <b>5511999999999</b> (55 + DDD + número).</p>
-          <div id="kb-wa-contatos"></div>
-        </div>
-
-        <div style="border-top:1px solid var(--line);margin-top:22px;padding-top:18px;">
-          <div class="ap-tit" style="display:flex;align-items:center;gap:10px;">Histórico de avisos enviados
-            <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="kbLimparEnvios()">Limpar histórico</button></div>
-          <div class="kb-wa-log" id="kb-wa-log"></div>
-        </div>
-      </div>
     </section>
 
   </div><!-- /scroll -->
@@ -2473,18 +2574,27 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
     <input type="hidden" id="kb-f-id">
     <span class="lbl">Título da tarefa</span>
     <input class="inp" id="kb-f-titulo" placeholder="Ex: Gravar 4 reels da campanha de julho" onkeydown="if(event.key==='Enter')kbSalvar()">
-    <div class="grid" style="margin-top:10px;">
-      <div class="c6 f"><span class="lbl">Etapa</span><select class="inp" id="kb-f-etapa"></select></div>
-      <div class="c6 f"><span class="lbl">Onda</span><select class="inp" id="kb-f-onda-m"></select></div>
-      <div class="c6 f"><span class="lbl">Prioridade</span><select class="inp" id="kb-f-prio-m"></select></div>
-      <div class="c6 f"><span class="lbl">Responsável</span><select class="inp" id="kb-f-resp"></select></div>
-      <div class="c6 f"><span class="lbl">Área</span><select class="inp" id="kb-f-area-m"></select></div>
-      <div class="c6 f"><span class="lbl">&nbsp;</span><input class="inp" id="kb-f-area-nova" placeholder="Nome da nova área" style="display:none;"></div>
-      <div class="c6 f"><span class="lbl">Início</span><input type="date" class="inp" id="kb-f-inicio"></div>
-      <div class="c6 f"><span class="lbl">Término</span><input type="date" class="inp" id="kb-f-termino"></div>
+    <span class="f-dica">Comece com um verbo — <b>Gravar</b>, <b>Enviar</b>, <b>Revisar</b>. Quem ler tem que saber o que fazer sem perguntar.</span>
+    <div class="grid" style="margin-top:14px;">
+      <div class="c6 f"><span class="lbl">Etapa</span><select class="inp" id="kb-f-etapa"></select>
+        <span class="f-dica">Onde a demanda está agora. Ela nasce em <b>A fazer</b> e você arrasta no quadro conforme anda.</span></div>
+      <div class="c6 f"><span class="lbl">Onda — lote de trabalho</span><select class="inp" id="kb-f-onda-m"></select>
+        <span class="f-dica">Agrupa o que acontece junto: <b>Onda 1</b> é o que entra primeiro, <b>Onda 2</b> o bloco seguinte. Serve para não fazer tudo ao mesmo tempo. Não usa lotes? Deixe <b>Sem onda</b>.</span></div>
+      <div class="c12 f"><span class="lbl">Prioridade</span><div id="kb-f-prio-box"></div>
+        <span class="f-dica">Define a ordem do dia da equipe — e a cor da etiqueta no card.</span></div>
+      <div class="c6 f"><span class="lbl">Responsável</span><select class="inp" id="kb-f-resp"></select>
+        <span class="f-dica">Quem vai fazer. <b>É essa pessoa que recebe o aviso no WhatsApp.</b></span></div>
+      <div class="c6 f"><span class="lbl">Área</span><select class="inp" id="kb-f-area-m">
+        </select><input class="inp" id="kb-f-area-nova" placeholder="Nome da nova área" style="display:none;margin-top:8px;">
+        <span class="f-dica">Setor a que a demanda pertence (Conteúdo, Operação...). Serve para filtrar o quadro depois.</span></div>
+      <div class="c6 f"><span class="lbl">Início</span><input type="date" class="inp" id="kb-f-inicio">
+        <span class="f-dica">Quando o trabalho começa. Pode deixar hoje.</span></div>
+      <div class="c6 f"><span class="lbl">Término — o prazo</span><input type="date" class="inp" id="kb-f-termino">
+        <span class="f-dica"><b>É a data combinada de entrega.</b> É por ela que o sistema avisa "vence hoje" e cobra atraso.</span></div>
     </div>
-    <span class="lbl" style="margin-top:10px;">Notas</span>
+    <span class="lbl" style="margin-top:14px;">Notas</span>
     <textarea class="inp" id="kb-f-notas" rows="3" placeholder="Contexto, links, o que precisa estar pronto..."></textarea>
+    <span class="f-dica">O que a pessoa precisa saber para entregar sem te perguntar: link do material, referência, o que conta como pronto.</span>
     <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;">
       <input type="checkbox" id="kb-f-avisar" checked> 📲 Avisar o responsável no WhatsApp ao salvar
     </label>
@@ -2818,6 +2928,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           can(view){ if(!this.user)return false; return (PERMISSOES[this.user.papel]||[]).includes(view); },
           logout(){
             this.user=null;
+            let pb=document.getElementById('prox'); if(pb) pb.innerHTML='';
             // === BACKEND === invalidar token/sessão no servidor
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('login-enter').style.display='none';
@@ -2886,6 +2997,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         }
         function aplicarPerfil(){
           let u=AUTH.currentUser(); if(!u)return;
+          setTimeout(()=>{ if(typeof renderProx==='function') renderProx(); },60);
           // identidade na topbar (nome/apelido + foto)
           document.getElementById('top-user-rl').innerText=u.rl;
           aplicarTopbarIdentidade();
@@ -3174,7 +3286,9 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           if(v==='plano' && typeof planoRender==='function') planoRender();
           if(v==='dono' && typeof renderDono==='function') renderDono();
           if(v==='futuro' && typeof renderFuturo==='function') renderFuturo();
-          if(v==='equipe'){ renderUsuarios(); renderPermissoes(); if(typeof renderBrand==='function') renderBrand(); }
+          if(v==='equipe'){ renderUsuarios(); renderPermissoes(); if(typeof renderBrand==='function') renderBrand();
+            if(typeof kbWaCfgRender==='function'){ kbWaCfgRender(); kbRenderContatos(); kbRenderLog(); } }
+          if(typeof renderProx==='function') renderProx();
         }
         function nowStr(){ return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}); }
 
@@ -4090,7 +4204,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
               <div><b>Cliente:</b> ${g('f-razao').value}</div>
               <div><b>Decisor:</b> ${g('f-decisor').value}</div>
               <div><b>Origem:</b> ${g('f-origem').value}</div>
-              <div><b>Temperatura:</b> ${g('f-temp').options[g('f-temp').selectedIndex].text}</div>
+              <div><b>Temperatura:</b> ${(F_TEMPS.find(t=>t.v===g('f-temp').value)||{l:'—',d:''}).l} — ${(F_TEMPS.find(t=>t.v===g('f-temp').value)||{d:''}).d}</div>
               <div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:8px;"><b>Serviços (${servs.length}):</b> ${servs.join(', ')}</div>
               <div><b>Equipe:</b> ${eqp.join(', ')}</div>
               <div><b>Duração:</b> ${g('f-meses').value||'?'} meses</div>
@@ -7687,10 +7801,17 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         function abrirNotif(id){ let n=DB.notifs.find(x=>x.id===id); if(n){ n.lida=true; renderNotif(); if(n.irPara) go(n.irPara); document.getElementById('notif-panel').classList.remove('on'); } }
         function marcarLidas(){ DB.notifs.forEach(n=>n.lida=true); renderNotif(); }
 
+        // valor curto para caber no rótulo do gráfico (263.305,20 -> "263 mil")
+        function brlCurto(v){
+          v=Math.abs(v||0);
+          if(v>=1000000) return (v/1000000).toFixed(1).replace('.',',')+' mi';
+          if(v>=1000)    return (v/1000).toFixed(v>=100000?0:1).replace('.',',')+' mil';
+          return (typeof brl==='function'?brl(v).replace('R$ ',''):String(Math.round(v)));
+        }
         // mini-gráfico de barras reutilizável (rótulo + valor + barra proporcional)
         function miniBars(itens, corPos, corNeg){
           let max=Math.max(1,...itens.map(i=>Math.abs(i.v)));
-          return `<div style="display:flex;gap:8px;align-items:flex-end;height:110px;">${itens.map(i=>{let h=Math.round(Math.abs(i.v)/max*100);let pos=i.v>=0;let cor=i.cor||(pos?(corPos||'var(--ok)'):(corNeg||'var(--bad)'));return `<div style="flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;height:100%;"><div style="font-size:9.5px;color:${cor};margin-bottom:3px;white-space:nowrap;">${i.t2||''}</div><div style="height:${h}%;min-height:3px;border-radius:5px 5px 0 0;background:${cor};opacity:.85;"></div><div style="font-size:9.5px;color:var(--ink-faint);margin-top:5px;">${i.t}</div></div>`;}).join('')}</div>`;
+          return `<div style="display:flex;gap:8px;align-items:flex-end;height:110px;">${itens.map(i=>{let h=Math.round(Math.abs(i.v)/max*100);let pos=i.v>=0;let cor=i.cor||(pos?(corPos||'var(--ok)'):(corNeg||'var(--bad)'));return `<div style="flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;height:100%;" title="${(i.t||'')+': '+(i.tf||i.t2||'')}"><div style="font-size:9.5px;color:${cor};margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.t2||''}</div><div style="height:${h}%;min-height:3px;border-radius:5px 5px 0 0;background:${cor};opacity:.85;"></div><div style="font-size:9.5px;color:var(--ink-faint);margin-top:5px;">${i.t}</div></div>`;}).join('')}</div>`;
         }
         function renderDashCharts(){
           let box=document.getElementById('dash-charts'); if(!box)return;
@@ -7700,11 +7821,11 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           if(typeof FIN360!=='undefined' && FIN360.lancamentos.length){
             let pm={}; FIN360.lancamentos.forEach(l=>{ let mk=(l.data||'').slice(0,7); if(mk) pm[mk]=(pm[mk]||0)+l.valor; });
             let ms=Object.keys(pm).sort().slice(-6);
-            chart1=miniBars(ms.map(m=>({t:NOME[m.slice(5)]||m.slice(5), v:round2(pm[m]), t2:brl(Math.abs(pm[m])).replace('R$ ','')})));
+            chart1=miniBars(ms.map(m=>({t:NOME[m.slice(5)]||m.slice(5), v:round2(pm[m]), t2:brlCurto(pm[m]), tf:brl(pm[m])})));
           }
           // 2) Caixa projetado (próx. 6 meses)
           let chart2='<div style="color:var(--ink-faint);font-size:12px;">—</div>';
-          if(typeof finProjMeses==='function'){ let L=finProjMeses(6).linhas; chart2=miniBars(L.map(x=>({t:x.label.split(' ')[0], v:x.saldo, t2:brl(Math.abs(x.saldo)).replace('R$ ','')}))); }
+          if(typeof finProjMeses==='function'){ let L=finProjMeses(6).linhas; chart2=miniBars(L.map(x=>({t:x.label.split(' ')[0], v:x.saldo, t2:brlCurto(x.saldo), tf:brl(x.saldo)}))); }
           // 3) Metas de venda (atingido %)
           let chart3='<div style="color:var(--ink-faint);font-size:12px;">Crie metas no Planejamento.</div>';
           if(typeof PLANO!=='undefined' && PLANO.metas.length){
@@ -8982,10 +9103,10 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         ];
         // as quatro opções do formulário, na mesma ordem do sistema original
         const KB_PRIORIDADES=[
-          {v:'',              l:'Sem prioridade',  cor:'var(--ink-faint)'},
-          {v:'Urgente',       l:'🔴 Urgente',      cor:'var(--bad)'},
-          {v:'Médio',         l:'🟡 Médio',        cor:'var(--warn)'},
-          {v:'Pouco urgente', l:'🟢 Pouco urgente',cor:'var(--ok)'}
+          {v:'',              l:'Sem prioridade',  d:'',                cor:'var(--ink-faint)'},
+          {v:'Urgente',       l:'Urgente',         d:'é para hoje',     cor:'var(--kb-c8)'},
+          {v:'Médio',         l:'Médio',           d:'esta semana',     cor:'var(--kb-c2)'},
+          {v:'Pouco urgente', l:'Pouco urgente',   d:'quando abrir espaço', cor:'var(--kb-c3)'}
         ];
         const KB_ONDAS=['Onda 1','Onda 2','Onda 3','Onda 4'];
         const KB_CORES=['var(--kb-c1)','var(--kb-c4)','var(--kb-c3)','var(--kb-c5)','var(--kb-c6)','var(--kb-c7)','var(--kb-c2)','var(--kb-c8)'];
@@ -9090,10 +9211,9 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           if(!document.getElementById('kb-board')) return;
           // colaborador entra vendo as demandas dele (pode limpar o filtro depois)
           if(!_kbRespAuto && AUTH.user && AUTH.user.papel==='colaborador'){ KANBAN.filtro.resp=AUTH.user.id; _kbRespAuto=true; }
-          let waCard=document.getElementById('kb-wa'); if(waCard) waCard.style.display=kbEhAdmin()?'':'none';
           kbRenderHero(); kbRenderStats(); kbRenderTrilha(); kbRenderVisao();
           kbRenderFiltros(); kbRenderChips(); kbRenderBoard(); kbRenderCarga();
-          if(kbEhAdmin()){ kbWaCfgRender(); kbRenderContatos(); kbRenderLog(); }
+          // o painel do WhatsApp vive em Equipe e acessos (só admin configura)
           let st=document.getElementById('kb-wa-status');
           if(st){ let m=KANBAN.wa.modo;
             st.innerHTML=(m==='auto'?'📲 WhatsApp automático (API oficial)':m==='link'?'📲 WhatsApp por link direto':'🔕 Avisos desligados');
@@ -9122,6 +9242,27 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           };
         }
         function kbFimSemana(){ let d=new Date(); d.setDate(d.getDate()+(7-(d.getDay()||7))); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+        /* Seletor em pílulas: guarda o valor num input escondido e devolve
+           um grupo de botões com bolinha colorida. Emoji dentro de <select>
+           nativo fica com cara de amador — isto resolve. */
+        function uiOpts(id, opcoes, valor, aoMudar){
+          return `<input type="hidden" id="${id}" value="${uiEsc(valor)}">
+            <div class="ui-opts" data-alvo="${id}">${opcoes.map(o=>`
+              <button type="button" class="ui-opt ${o.v===valor?'on':''}" style="--kbc:${o.cor||'var(--gold)'};"
+                onclick="uiOptSet('${id}','${o.v}'${aoMudar?",'"+aoMudar+"'":''})">
+                <span class="pt"></span>${uiEsc(o.l)}${o.d?` <small>${uiEsc(o.d)}</small>`:''}
+              </button>`).join('')}</div>`;
+        }
+        function uiOptSet(id, v, aoMudar){
+          let inp=document.getElementById(id); if(!inp) return;
+          inp.value=v;
+          let grupo=document.querySelector('.ui-opts[data-alvo="'+id+'"]');
+          if(grupo) grupo.querySelectorAll('.ui-opt').forEach(b=>{
+            b.classList.toggle('on', (b.getAttribute('onclick')||'').includes("'"+v+"'"));
+          });
+          if(aoMudar){ try{ (new Function(aoMudar))(); }catch(e){} }
+        }
+
         /* ═══════════════════════════════════════════════════════════════
            COMPONENTES VISUAIS COMPARTILHADOS
            Montam o hero, os stat cards e a trilha usados pelo Kanban, pela
@@ -9152,9 +9293,10 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         }
         /* itens: {cor, ic, label, valor, pe} */
         function uiStat(i){
-          return `<div class="ui-stat" style="--kbc:${i.cor||'var(--gold)'};">
+          let vazio=i.texto||i.valor===0||i.valor==='0'||i.valor==='0%';
+          return `<div class="ui-stat${vazio?' vazio':''}" style="--kbc:${i.cor||'var(--gold)'};">
             <div class="ui-stat-h"><span class="ui-stat-ic">${i.ic||'◆'}</span><span class="ui-stat-l">${i.label||''}</span></div>
-            <div class="ui-stat-v${i.money?' grana':''}">${i.valor}</div>
+            <div class="ui-stat-v${i.money?' grana':''}${i.texto?' txt':''}">${i.valor}</div>
             <div class="ui-stat-f">${i.pe||''}</div></div>`;
         }
         function uiStats(itens){ return itens.filter(Boolean).map(uiStat).join(''); }
@@ -9380,7 +9522,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         function kbMover(id, etapaId){
           let t=KANBAN.tarefas.find(x=>x.id===id); if(!t||t.etapa===etapaId) return;
           t.etapa=etapaId; t.atualizadoEm=Date.now();
-          kbSalvarLS(); kbRender();
+          kbSalvarLS(); kbRender(); if(typeof renderProx==='function') renderProx();
           // pulsa o card que acabou de pousar na nova coluna
           setTimeout(()=>{ let el=document.querySelector('.kb-card[data-id="'+id+'"]'); if(el){ el.classList.add('pousou'); setTimeout(()=>el.classList.remove('pousou'),760); } },20);
           let et=kbEtapa(etapaId);
@@ -9394,7 +9536,8 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           const set=(id,html,val)=>{ let el=document.getElementById(id); if(el){ el.innerHTML=html; el.value=val||''; } };
           set('kb-f-etapa', KB_ETAPAS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join(''), t.etapa||'afazer');
           set('kb-f-onda-m', '<option value="">Sem onda</option>'+KB_ONDAS.map(o=>`<option value="${o}">${o}</option>`).join(''), t.onda||'');
-          set('kb-f-prio-m', KB_PRIORIDADES.map(p=>`<option value="${p.v}">${p.l}</option>`).join(''), t.prioridade||'');
+          let cxPrio=document.getElementById('kb-f-prio-box');
+          if(cxPrio) cxPrio.innerHTML=uiOpts('kb-f-prio-m', KB_PRIORIDADES.map(p=>({v:p.v, l:p.l.replace(/^[^\w]+\s*/,''), d:p.d||'', cor:p.cor})), t.prioridade||'');
           set('kb-f-resp', '<option value="">Sem responsável</option>'+kbPessoas().map(p=>`<option value="${p.id}">${kbEsc(p.nome)} — ${kbEsc(p.cargo)}</option>`).join(''), t.respId||'');
           set('kb-f-area-m', '<option value="">Sem área</option>'+KANBAN.areas.map(a=>`<option value="${kbEsc(a)}">${kbEsc(a)}</option>`).join('')+'<option value="__nova">+ Nova área...</option>', t.area||'');
           let el=document.getElementById('kb-f-area-m');
@@ -9449,7 +9592,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
             var respAntigo=t.respId, etapaAntiga=t.etapa;
             Object.assign(t, dados);
           }
-          kbSalvarLS(); kbFechar(); kbRender();
+          kbSalvarLS(); kbFechar(); kbRender(); if(typeof renderProx==='function') renderProx();
           if(typeof SOUND!=='undefined') SOUND.play(novo?'request':'xp');
           let p=kbPessoa(t.respId);
           notify('equipe', novo?'▦ Nova demanda criada':'▦ Demanda atualizada', '"'+t.titulo+'" — '+p.nome+(t.termino?' · prazo '+kbDataBR(t.termino):''), 'kanban', true);
@@ -9611,6 +9754,132 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         }
         function kbLimparEnvios(){ if(!confirm('Limpar o histórico de avisos enviados?')) return; KANBAN.envios=[]; kbSalvarLS(); kbRenderLog(); }
 
+        /* ═══════════════════════════════════════════════════════════════
+           PRÓXIMO PASSO — o sistema diz o que fazer agora
+           Varre os dados reais (kanban, entregas, propostas, caixa, metas,
+           jornada) e devolve as ações pendentes em ordem de urgência. A faixa
+           fica no mesmo lugar em todas as telas: ninguém precisa procurar.
+           ═══════════════════════════════════════════════════════════════ */
+        let _proxAberto=false;
+        function proxPassos(){
+          let L=[], u=AUTH.user||{}, pode=v=>!AUTH.user||AUTH.can(v);
+          const add=(peso,ic,cor,tit,desc,botao,acao)=>L.push({peso,ic,cor,tit,desc,botao,acao});
+          try{
+            // ── quem é colaborador vê o caminho dele ──
+            if(u.papel==='colaborador'){
+              let minhas=(typeof KANBAN!=='undefined')?KANBAN.tarefas.filter(t=>t.respId===u.id&&t.etapa!=='concluido'):[];
+              let h=(typeof kbHojeISO==='function')?kbHojeISO():'';
+              let atras=minhas.filter(t=>t.termino&&t.termino<h), hoje=minhas.filter(t=>t.termino===h);
+              if(atras.length) add(1,'⏰','var(--kb-c8)','Você tem '+atras.length+' demanda'+(atras.length>1?'s':'')+' atrasada'+(atras.length>1?'s':''),
+                '"'+atras[0].titulo+'" passou do prazo. Resolva ou combine um novo prazo.','Ver no quadro',"go('kanban')");
+              if(hoje.length) add(2,'📅','var(--kb-c2)',hoje.length+' demanda'+(hoje.length>1?'s':'')+' vence'+(hoje.length>1?'m':'')+' hoje',
+                '"'+hoje[0].titulo+'" precisa sair hoje.','Abrir o quadro',"go('kanban')");
+              let c=(typeof colAtualObj==='function')?colAtualObj():null;
+              if(c&&typeof colJornadaIdx==='function'){
+                let i=colJornadaIdx(c);
+                if(i<COL_JORNADA.length) add(3,'◈','var(--kb-c5)','Sua próxima etapa: '+COL_JORNADA[i].l.replace(/^[^ ]+ /,''),
+                  'Concluir libera '+COL_JORNADA[i].xp+' XP e a próxima etapa da jornada.','Fazer agora',"go('colaborador');colIr('"+COL_JORNADA[i].k+"')");
+              }
+              if(c){
+                let ativas=(c.missoes||[]).filter(m=>m.status==='ativa');
+                if(ativas.length) add(5,'⚔️','var(--kb-c1)',ativas.length+' missão'+(ativas.length>1?'ões':'')+' em andamento',
+                  '"'+ativas[0].titulo+'" — '+(ativas[0].progresso||0)+'% concluída.','Ver missões',"go('colaborador');colIr('missoes')");
+                if(!c.objetivos.length) add(7,'♛','var(--kb-c4)','Você ainda não definiu um objetivo',
+                  'Diga o que quer conquistar e o sistema te mostra o caminho.','Definir objetivo',"go('colaborador');colIr('objetivos')");
+              }
+            }
+            // ── quem é cliente vê o que depende dele ──
+            else if(u.papel==='cliente'){
+              let p=DB.propostas.find(x=>x.dealId===u.id);
+              if(p&&p.status!=='aprovada') add(1,'✦','var(--kb-c2)','Sua proposta está esperando aprovação',
+                'Revise o escopo e aprove para o time começar.','Ver proposta',"go('portal')");
+              add(6,'◐','var(--kb-c4)','Acompanhe seu projeto','Veja entregas, prazos e o que já foi aprovado.','Abrir portal',"go('portal')");
+            }
+            // ── gestão ──
+            else {
+              if(typeof kbAtrasadas==='function'){
+                let a=kbAtrasadas();
+                if(a.length) add(1,'⏰','var(--kb-c8)','Cobre '+a.length+' demanda'+(a.length>1?'s':'')+' atrasada'+(a.length>1?'s':''),
+                  '"'+a[0].titulo+'" — '+(typeof kbPessoa==='function'?kbPessoa(a[0].respId).nome:'sem responsável')+'. O aviso sai no WhatsApp em um clique.',
+                  'Cobrar agora',"go('kanban')");
+              }
+              if(typeof entStats==='function'){
+                let st=entStats();
+                if(st.aguard) add(2,'★','var(--kb-c2)',st.aguard+' entrega'+(st.aguard>1?'s':'')+' esperando você aprovar',
+                  'Enquanto não aprova, o cliente não avança na esteira.','Revisar',"go('entregaveis')");
+              }
+              if(typeof listaSolicitacoes==='function'){
+                let n=listaSolicitacoes().filter(x=>x.status==='novo');
+                if(n.length) add(3,'📥','var(--kb-c3)',n.length+' pedido'+(n.length>1?'s':'')+' de cliente sem resposta',
+                  n[0].cliente+' pediu "'+n[0].servico+'". Vire isso em proposta.','Atender',"go('propostas')");
+              }
+              if(typeof KANBAN!=='undefined'){
+                let sem=KANBAN.tarefas.filter(t=>!t.respId&&t.etapa!=='concluido');
+                if(sem.length) add(4,'⚠','var(--kb-c6)',sem.length+' demanda'+(sem.length>1?'s':'')+' sem responsável',
+                  'Demanda sem dono não anda. Defina quem faz.','Distribuir',"go('kanban')");
+              }
+              if(DB.propostas){
+                let na=DB.propostas.filter(p=>p.status!=='aprovada'&&(p.views||0)===0);
+                if(na.length) add(5,'✉','var(--kb-c4)',na.length+' proposta'+(na.length>1?'s':'')+' que o cliente nem abriu',
+                  'Um follow-up em 24h muda a taxa de fechamento.','Ver propostas',"go('propostas')");
+              }
+              if(typeof finProjMeses==='function'&&typeof FIN360!=='undefined'){
+                let neg=finProjMeses(6).linhas.find(x=>x.saldo<0);
+                if(neg) add(6,'❖','var(--kb-c8)','Seu caixa fica negativo em '+neg.label,
+                  'Projeção de '+brl(neg.saldo)+'. Antecipe recebimentos ou corte custos.','Abrir o financeiro',"go('fin360')");
+              }
+              if(typeof PLANO!=='undefined'&&typeof planoMetaFechados==='function'){
+                let paradas=PLANO.metas.filter(m=>m.tipo==='venda'&&planoMetaFechados(m)===0);
+                if(paradas.length) add(7,'🎯','var(--kb-c5)',paradas.length+' meta'+(paradas.length>1?'s':'')+' de venda sem nenhum fechamento',
+                  '"'+paradas[0].servico+'" ainda não vendeu. Coloque clientes no funil.','Ver metas',"go('plano')");
+              }
+              if(typeof KANBAN!=='undefined'&&typeof kbHojeISO==='function'){
+                let hoje=KANBAN.tarefas.filter(t=>t.etapa!=='concluido'&&t.termino===kbHojeISO());
+                if(hoje.length) add(8,'📅','var(--kb-c2)',hoje.length+' demanda'+(hoje.length>1?'s':'')+' vence'+(hoje.length>1?'m':'')+' hoje',
+                  'Confirme com quem está tocando antes que vire atraso.','Ver o quadro',"go('kanban')");
+                let semZap=kbPessoas().filter(p=>!kbNumero(p.id));
+                if(semZap.length&&KANBAN.wa.modo!=='off') add(9,'📲','var(--kb-c1)',semZap.length+' pessoa'+(semZap.length>1?'s':'')+' sem WhatsApp cadastrado',
+                  semZap.map(p=>p.nome).slice(0,3).join(', ')+' não recebe aviso de demanda.','Cadastrar',"go('kanban')");
+              }
+            }
+          }catch(e){}
+          // nada pendente: sugere o próximo movimento em vez de deixar a tela muda
+          if(!L.length){
+            if(pode('funil')) add(20,'◎','var(--kb-c3)','Tudo em dia — nada esperando por você',
+              'Bom momento para colocar um cliente novo na esteira.','Abrir a esteira',"go('funil')");
+            else add(20,'✓','var(--kb-c3)','Tudo em dia por aqui','Nada pendente com o seu nome agora.','Ver meu portal',"go('colaborador')");
+          }
+          return L.sort((a,b)=>a.peso-b.peso);
+        }
+        function renderProx(){
+          let box=document.getElementById('prox'); if(!box) return;
+          if(!AUTH.user){ box.innerHTML=''; return; }
+          let L=proxPassos(), p=L[0], resto=L.slice(1,6);
+          let calmo=p.peso>=20;
+          box.innerHTML=`<div class="prox-in ${calmo?'calmo':''}">
+              <span class="prox-selo">${calmo?'✓ em dia':'▶ agora'}</span>
+              <div class="prox-txt"><b>${p.ic} ${p.tit}</b><span>${p.desc}</span></div>
+              <div class="prox-acts">
+                <button class="btn btn-gold btn-sm" onclick="proxFazer(0)">${p.botao} →</button>
+                ${resto.length?`<button class="prox-mais" onclick="proxToggle()">${_proxAberto?'ocultar':'+'+resto.length+' depois'} ${_proxAberto?'▴':'▾'}</button>`:''}
+              </div>
+            </div>
+            ${resto.length?`<div class="prox-lista ${_proxAberto?'on':''}">${resto.map((x,i)=>`
+              <div class="prox-item" style="--kbc:${x.cor};" onclick="proxFazer(${i+1})">
+                <span class="ic">${x.ic}</span>
+                <span class="tt"><b>${x.tit}</b><span>${x.desc}</span></span>
+                <span class="vai">${x.botao} →</span>
+              </div>`).join('')}</div>`:''}`;
+        }
+        function proxToggle(){ _proxAberto=!_proxAberto; renderProx(); }
+        function proxFazer(i){
+          let L=proxPassos(), p=L[i]; if(!p) return;
+          _proxAberto=false;
+          try{ (new Function(p.acao))(); }catch(e){}
+          if(typeof SOUND!=='undefined') SOUND.play('xp');
+          setTimeout(renderProx,150);
+        }
+
         /* ===== ALERTAS INTELIGENTES (sino) ===== */
         function gerarAlertasInteligentes(){
           try{
@@ -9631,7 +9900,20 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           }catch(e){}
         }
 
+        /* pílulas de temperatura do lead (no lugar do select com emoji) */
+        const F_TEMPS=[
+          {v:'frio',  l:'Frio',  d:'explorando',        cor:'var(--kb-c4)'},
+          {v:'morno', l:'Morno', d:'interessado',       cor:'var(--kb-c2)'},
+          {v:'quente',l:'Quente',d:'pronto p/ fechar',  cor:'var(--kb-c8)'}
+        ];
+        function renderTempLead(){
+          let box=document.getElementById('f-temp-box'); if(!box) return;
+          let atual=(document.getElementById('f-temp')||{}).value||'morno';
+          box.innerHTML=uiOpts('f-temp', F_TEMPS, atual);
+        }
+
         /* ===== INIT ===== */
+        if(typeof renderTempLead==='function') renderTempLead();
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
         if(typeof kbInit==='function') kbInit();
         if(typeof finInit==='function') finInit();

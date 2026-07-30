@@ -320,6 +320,42 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       (anel menor, fontes menores) e cabem sem rolar.
     - Corrigida a pontuação dupla "Chegou!." no texto do hero.
 
+30. **"Próximo passo" — o sistema diz o que fazer** (faixa fixa abaixo da barra
+    de topo, em todas as telas). Varre os dados reais e mostra a ação mais
+    urgente com um botão que leva direto ao lugar; o "+N depois" abre a fila.
+    Cada perfil vê o que é dele: a gestão vê demandas atrasadas, entregas a
+    aprovar, pedidos de cliente, caixa projetado negativo e metas sem
+    fechamento; o colaborador vê a próxima etapa da jornada e as demandas
+    dele; o cliente vê a proposta esperando aprovação. Quando não há nada
+    pendente, sugere o próximo movimento em vez de ficar mudo.
+    `proxPassos`, `renderProx`, `proxFazer`.
+
+31. **Formulário que ninguém precisa adivinhar** — cada campo da nova tarefa
+    ganhou uma dica curta embaixo, incluindo o que é **Onda** (lote de
+    trabalho: "Onda 1 é o que entra primeiro, Onda 2 o bloco seguinte").
+    Prioridade e Temperatura do lead deixaram de ser `<select>` com emoji
+    (ficava amador) e viraram **pílulas com bolinha colorida e descrição**:
+    Urgente *é para hoje*, Médio *esta semana*. Componente `uiOpts`/`uiOptSet`.
+
+32. **Configuração do WhatsApp só nas configurações** — o painel de
+    integração, mensagens, números da equipe e histórico saiu do Kanban e
+    passou para **Equipe e acessos**, tela que só o admin/gestor acessa. No
+    Kanban ficou o selo de status, que leva à configuração em um clique.
+
+33. **Ajustes de acabamento**
+    - Stat cards ganharam tinta suave no canto, ícone com relevo e topo em
+      degradê; cards zerados ficam com opacidade menor para o olho ir ao que
+      importa. Valor em texto ("ainda sem nota") não herda mais o espaçamento
+      negativo dos números — antes saía "aindasemnota".
+    - Rótulos dos gráficos vazavam do card (`263.305,20`): agora saem curtos
+      ("263 mil") com o valor cheio no tooltip. `brlCurto`.
+    - Modal alto rola por dentro e o rodapé com **Salvar** fica fixo: numa tela
+      de 640px o botão ficava fora da área visível.
+    - Escala compacta para notebook (≤1500px ou ≤820px de altura): hero, anel,
+      cards, espaçamento e barra de topo encolhem juntos. No portal do
+      colaborador a navegação subiu para antes dos números — a trilha da
+      jornada agora aparece sem rolar.
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio
