@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 2907.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 3007.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,59 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A condução, a cor por área e o movimento (3007.01)
+A Carla: "quero que o sistema ajude o usuário a pensar e navegar, não dá para
+ser solto"; "pense nas cores do sistema completo para ficar bonito, sexy,
+moderno e agradável, não quero visual cansativo"; "coloque movimento, use
+transições, inclua direcionamento após concluir para seguir para a próxima
+etapa, as pessoas têm preguiça, então precisa ser conduzida de verdade".
+
+**1. Nada termina em toast: a tela "feito, e agora" (`okFeito`).** Toda
+conclusão passou a abrir uma tela com quatro partes: o visto que se desenha
+(SVG `stroke-dashoffset`), o selo do que foi feito, o XP que sobe contando, a
+lista do que aquilo alimentou (pilar do EMC, cofre, plano) e, em destaque, **o
+próximo passo com botão grande**, vindo do mentor (`czProx` filtra a regra que
+acabou de ser cumprida, para não repetir o que ela já fez). Ligado em: ação do
+Plano concluída, sessão do treino, protocolo de 5 dias fechado, prova guardada,
+check-in da semana, fechamento de ciclo, reflexão no Diário, dia do ciclo de 30
+dias e desafio entregue.
+Quando o fluxo já termina com um documento na tela (ferramenta, ferramenta do
+líder, plano da carta, teste profundo), a conclusão **não abre modal por cima**:
+o próximo passo entra embaixo do documento (`czDocProx`/`czDocProxNo`). Era o
+erro da primeira versão: o `okFeito` ficava na fila esperando o modal fechar e
+aparecia fora de contexto.
+
+**2. Nenhuma tela termina sem saída: o rodapé "e agora" (`czRodape`).** As 13
+telas internas passaram a terminar com um bloco de condução: a ação da vez, o
+porquê em voz de mentoria, o botão, a área e o tempo, mais dois atalhos em
+"depois disso". Ele **aponta para frente**: se a ação da vez mora naquela mesma
+tela, o rodapé oferece a seguinte. Instalado por `czInstalar()`, que envolve as
+13 funções de render, então o bloco sobrevive à troca de aba dentro da área
+(Plano, Apostila, Treino, Gestão), que não passa pelo `go()`.
+
+**3. Dentro da aula também se conduz (`czAulaSegue`).** Marcar um passo abre o
+seguinte, rola até ele e acende a linha por 2 segundos. Quando os passos
+terminam, a tela empurra para o quiz com o aviso do que falta para a trilha
+fechar. Antes, marcar a aula deixava a pessoa parada na mesma tela.
+
+**4. A cor do sistema, com significado.** A base saiu do marrom para carbono
+neutro e profundo (`--ink:#0b0a0c`, `--ink-2:#141317`, `--ink-3:#1d1c22`), e o
+fundo perdeu os gradientes quentes fixos: quem pinta agora é o **acento da
+área**. Quatro famílias, uma por frente do método: **ouro** (Início, Trilhas,
+Plano, Ferramentas, Conquistas), **verde jade** (Meu Treino e A Apostila, o
+pilar Comportamento), **violeta** (A Bússola e o Diário, o pilar Mentalidade) e
+**aço azul** (Gestão, Pesquisas, O Ano, Comunidade, A Mentora). `czArea(view)`
+marca `body[data-area]` e o acento pinta o rótulo, a âncora do título, a aba
+ativa, o fio do topo, a aurora do fundo e os blocos de condução. A pessoa passa
+a saber onde está pela cor. O ouro segue sendo a marca: isotipo, botão primário
+e o que mede.
+
+**5. Movimento.** Barra de progresso que cresce da esquerda (`czGrow` em
+`transform:scaleX`, funciona mesmo com largura inline), pílulas e selos que
+entram com pop, visto que se desenha, XP que conta, seta que anda no hover,
+cartão que sobe, aurora que faz transição de 1,1s ao trocar de área e a cascata
+de entrada de tela que já existia. Tudo dentro de `prefers-reduced-motion`.
 
 ### A Apostila ganha a força visual das Trilhas, e o isotipo volta a existir (2907.02)
 A Carla: "mas pode ficar distribuído de uma forma que chame mais a atenção
