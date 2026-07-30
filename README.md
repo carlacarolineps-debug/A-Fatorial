@@ -240,6 +240,13 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       de cada pessoa (`kbAv`); **régua de prazo** no card mostrando quanto do
       tempo combinado já passou (`kbPrazoBar`); e pulso no card ao soltar numa
       nova coluna.
+    - **Padrão visual do quadro**: hero com gradiente da marca, saudação e
+      **anel de conclusão**; **stat cards** com número grande, ícone e nota de
+      contexto; **trilha de ondas** em passos conectados; colunas tingidas com
+      a cor da própria etapa e botão "+ demanda aqui"; cards com avatar,
+      prioridade em pílula, chips de área/onda e rodapé de prazo ("faltam 4d",
+      "1d de atraso"). Funções `kbRenderHero`, `kbRenderStats`,
+      `kbRenderTrilha`, `kbColuna`, `kbCard`, `kbCardFoot`.
     - **Tema claro e escuro**: as cores do quadro saem dos tokens `--kb-c1..c8`,
       `--kb-ouro`, `--kb-neutro` e `--kb-sobre`, definidos duas vezes no CSS —
       fechadas no tema claro, neon no escuro. Nenhuma cor fixa no JavaScript,
@@ -248,6 +255,17 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     - O colaborador entra vendo **as demandas dele** e não enxerga o painel de
       configuração do WhatsApp. Dados em `localStorage` chave `af_kanban`
       (incluída no backup).
+
+26. **Aparência do sistema (botão 🎨 na barra de topo)** — abre um painel com
+    **tema** (escuro/claro) e **cor do sistema**: Dourado A!, Vinho, Magenta,
+    Violeta, Oceano e Esmeralda. A cor reescreve os tokens `--gold*` no `<body>`,
+    e como o app inteiro usa `var(--gold)`, **todas as telas** trocam de
+    personalidade de uma vez — menu, botões, gráficos, portal do cliente e
+    propostas. Fica salvo em `localStorage` (`af_accent`) e entra no backup.
+    `AP_CORES`, `apAplicarCor`, `apRender`, `apInit`.
+    - Detalhe técnico: `--gold-grad` é declarado no `body`, não no `:root` —
+      um custom property declarado no `:root` já resolve os `var()` dele ali,
+      e o gradiente continuaria dourado depois da troca de cor.
 
 ## Integração com o WhatsApp (pasta `backend/`)
 

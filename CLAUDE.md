@@ -9,7 +9,8 @@ Ao finalizar qualquer trabalho, além de commitar e enviar para a branch,
 Grupo A! <DDMM>.<VV>.html
 ```
 
-- `DDMM` — dia e mês da entrega (ex.: 28 de julho → `2807`)
+- `DDMM` — dia e mês da entrega no **horário de Brasília** (ex.: 28 de julho →
+  `2807`); o servidor roda em UTC, então confira o dia local antes de nomear
 - `VV` — número da versão do dia, com dois dígitos, começando em `01`
   (a segunda entrega do mesmo dia é `.02`, e assim por diante)
 
