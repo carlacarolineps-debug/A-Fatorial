@@ -426,6 +426,24 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
     do lado errado. Agora o corte é feito no próprio texto (fim + reticências),
     com o valor completo no tooltip.
 
+40. **"Meus leads" virou página no menu** — quem trabalha por resultado abre
+    direto no que importa, sem passar pelo portal de desenvolvimento. A página
+    tem hero com o foco do dia (o que está sem contato, o retorno atrasado ou
+    quanto falta para a meta), stat cards, régua de contatos, painel de
+    distribuição e a carteira. O item só aparece para quem tem vínculo "por
+    resultado". `leadRenderPagina`, `v-meusleads`.
+
+41. **Bug crítico de CSS corrigido** — faltava o `}` de fechamento do bloco
+    `@media(max-height:720px)`, e **todas as 128 regras seguintes** (leads,
+    prestadores, base de contatos, treinamentos e o briefing) eram descartadas
+    pelo navegador: os cartões apareciam como texto solto. Fechado o bloco, o
+    módulo inteiro voltou a renderizar.
+
+42. **Gráfico "XP por semana"** — o SVG usava `preserveAspectRatio="none"`, que
+    estica junto os rótulos e os números (ficavam borrados), e sem XP no período
+    sobrava uma caixa vazia de 200px. Os rótulos saíram para HTML e, sem dados,
+    entra um aviso explicando como o gráfico começa a subir.
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio

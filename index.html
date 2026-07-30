@@ -1576,6 +1576,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
   .ui-hero-acts{margin-top:13px;}
   .ui-stat{padding:13px 15px;}
   .ui-stat-v{font-size:27px;}
+}
 /* ═══ PRÓXIMO PASSO — a faixa que diz o que fazer agora ═══ */
 .prox{position:relative;z-index:20;margin:0;padding:0 38px;}
 .prox-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px;padding:12px 16px;border-radius:14px;
@@ -1738,6 +1739,10 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 .brief-numero span{font-size:12px;color:var(--ink-soft);line-height:1.45;}
 .brief-nao{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-faint);cursor:pointer;}
 .brief-dica{font-size:11.5px;color:var(--ink-faint);line-height:1.55;border-top:1px solid var(--line);padding-top:12px;margin-top:4px;}
+/* rótulos do gráfico de XP em HTML: dentro do SVG com preserveAspectRatio
+   "none" eles esticam junto com o desenho e ficam borrados */
+.xp-rot{display:flex;margin-top:6px;}
+.xp-rot span{flex:1;text-align:center;font-size:10px;color:var(--ink-faint);font-weight:600;}
 </style>
 </head>
 <body class="theme-gamer">
@@ -1791,6 +1796,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
     <button class="nav-item" onclick="go('propostas')" id="n-propostas"><span class="ic">✦</span> Propostas e rastreio</button>
     <button class="nav-item" onclick="go('kanban')" id="n-kanban"><span class="ic">▦</span> Kanban operacional</button>
     <button class="nav-item" onclick="go('prestadores')" id="n-prestadores"><span class="ic">◱</span> Prestadores e leads</button>
+    <button class="nav-item" onclick="go('meusleads')" id="n-meusleads"><span class="ic">🎯</span> Meus leads</button>
     <button class="nav-item" onclick="go('financeiro')" id="n-financeiro"><span class="ic">❖</span> Fluxo de caixa e DRE</button>
     <button class="nav-item" onclick="go('fin360')" id="n-fin360"><span class="ic">◇</span> Centro Financeiro 360</button>
     <button class="nav-item" onclick="go('futuro')" id="n-futuro"><span class="ic">◆</span> Simulador de futuro</button>
@@ -2563,6 +2569,13 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
       </div>
     </section>
 
+    <!-- ============ MEUS LEADS (prestador) ============ -->
+    <section class="view" id="v-meusleads">
+      <div id="ml-hero"></div>
+      <div class="ui-stats" id="ml-stats"></div>
+      <div id="ml-body"></div>
+    </section>
+
     <!-- ============ PRESTADORES E LEADS ============ -->
     <section class="view" id="v-prestadores">
       <div class="in-hero">
@@ -3057,8 +3070,8 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dono','dash','funil','propostas','kanban','prestadores','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
-          colaborador:['colaborador','funil','propostas','kanban'],
+          admin:      ['dono','dash','funil','propostas','kanban','prestadores','meusleads','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
+          colaborador:['colaborador','funil','propostas','kanban','meusleads'],
           cliente:    ['portal']
         };
         // Configuração de acesso editável em "Equipe e acessos" e persistida no navegador.
@@ -3164,8 +3177,15 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
         // do usuário logado, SEM navegar (usado ao editar permissões ao vivo).
         function atualizarNavVisibilidade(){
-          const navMap={dono:'n-dono',dash:'n-dash',funil:'n-funil',propostas:'n-propostas',kanban:'n-kanban',prestadores:'n-prestadores',financeiro:'n-financeiro',fin360:'n-fin360',futuro:'n-futuro',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
+          const navMap={dono:'n-dono',dash:'n-dash',funil:'n-funil',propostas:'n-propostas',kanban:'n-kanban',prestadores:'n-prestadores',meusleads:'n-meusleads',financeiro:'n-financeiro',fin360:'n-fin360',futuro:'n-futuro',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
           Object.keys(navMap).forEach(v=>{ let el=document.getElementById(navMap[v]); if(el) el.style.display=AUTH.can(v)?'':'none'; });
+          // "Meus leads" é a página de quem trabalha por resultado
+          let mlEl=document.getElementById('n-meusleads');
+          if(mlEl){
+            let u=AUTH.user, c=(u&&u.papel==='colaborador')?DB.colaboradores.find(x=>x.id===u.id):null;
+            let mostra = AUTH.can('meusleads') && (u&&u.papel==='admin' ? true : (typeof ehPrestador==='function'&&ehPrestador(c)));
+            mlEl.style.display = mostra ? '' : 'none';
+          }
           // esconde grupos de nav vazios
           document.querySelectorAll('.side-nav .nav-group').forEach(g=>{
             let proximos=[]; let n=g.nextElementSibling;
@@ -3436,6 +3456,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           rh:['Gestão de <b>RH</b>','People analytics — sua visão completa da equipe'],
           kanban:['Kanban <b>operacional</b>','Demandas da equipe — com aviso no WhatsApp'],
           prestadores:['Prestadores e <b>leads</b>','Distribuição, follow-up e ganhos por resultado'],
+          meusleads:['Meus <b>leads</b>','Pegue, contate e acompanhe — o seu resultado'],
           catalogo:['Catálogo de <b>serviços</b>','Base de cálculo'],
           equipe:['Equipe e <b>acessos</b>','Pessoas']
         };
@@ -3468,6 +3489,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(v==='dash') renderDash();
           if(v==='kanban' && typeof kbRender==='function') kbRender();
           if(v==='prestadores' && typeof leadRenderGestao==='function') leadRenderGestao();
+          if(v==='meusleads' && typeof leadRenderPagina==='function') leadRenderPagina();
           if(v==='fin360' && typeof finRender==='function') finRender();
           if(v==='plano' && typeof planoRender==='function') planoRender();
           if(v==='dono' && typeof renderDono==='function') renderDono();
@@ -4784,7 +4806,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
         /* ===== CONFIGURADOR DE PERMISSÕES (Equipe e acessos) ===== */
         const PERM_TELAS=[
-          {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},{k:'kanban',l:'Kanban operacional'},{k:'prestadores',l:'Prestadores e leads'},{k:'futuro',l:'Simulador de futuro'},
+          {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},{k:'kanban',l:'Kanban operacional'},{k:'prestadores',l:'Prestadores e leads'},{k:'meusleads',l:'Meus leads (prestador)'},{k:'futuro',l:'Simulador de futuro'},
           {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'plano',l:'Planejamento estratégico'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
           {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
         ];
@@ -5398,7 +5420,6 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         function colAbaLiberada(c,k){
           // livres sempre; liga dentro de missões sempre
           if(COL_ABAS_LIVRES.some(a=>a[0]===k)||k==='liga'||k==='treinos') return true;
-          if(k==='leads') return ehPrestador(c);
           let ji=COL_JORNADA.findIndex(j=>j.k===k);
           // libera até a etapa atual E qualquer etapa já concluída — o que já foi
           // feito não pode voltar a ficar trancado só porque uma anterior ficou em aberto
@@ -5425,7 +5446,6 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             // 1) as quatro áreas livres, em controle segmentado
             // quem trabalha por resultado ganha o painel de leads e ganhos
             let abas=COL_ABAS_LIVRES.slice();
-            if(ehPrestador(c)) abas=[['leads','🎯 Meus leads']].concat(abas);
             abas=abas.concat([['treinos','🎓 Treinamentos']]);
             let seg='<span class="ui-seg">'+abas.map(a=>
               `<button class="${colAba===a[0]?'on':''}" onclick="colIr('${a[0]}')">${a[1]}</button>`).join('')+'</span>';
@@ -5520,7 +5540,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           document.querySelectorAll('#col-nav .ui-seg button, #col-nav .ui-passo, #col-nav .kb-chip').forEach(b=>{
             b.classList.toggle('on', (b.getAttribute('onclick')||'')==="colIr('"+aba+"')");
           });
-          let fn={leads:leadRenderPrestador,treinos:treinoRender,dash:colDash,missoes:colMissoes,evolucao:colEvolucao,saga:colSaga,liga:colLiga,boasvindas:colBoasVindas,quemsoeu:colQuemSouEu,regras:colRegras,trilha:colTrilha,
+          let fn={treinos:treinoRender,dash:colDash,missoes:colMissoes,evolucao:colEvolucao,saga:colSaga,liga:colLiga,boasvindas:colBoasVindas,quemsoeu:colQuemSouEu,regras:colRegras,trilha:colTrilha,
             disc:colDISC,tracos:colTracos,pda:colPDA,cultura:colCultura,competencias:colCompetencias,pdi:colPDI,crescimento:colCrescimento,
             objetivos:colObjetivos,gamificacao:colGamificacao,feedback:colFeedback,wiki:colWiki,docs:colDocs}[aba];
           if(fn)fn();
@@ -6681,7 +6701,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             let h=s.xp/maxXP*100;
             return `<g>
               <rect x="${i*bw+bw*0.2}" y="${100-h}" width="${bw*0.6}" height="${h}" rx="1.5" fill="url(#xpgrad)" opacity="${s.xp>0?1:0.25}"/>
-              ${s.xp>0?`<text x="${i*bw+bw*0.5}" y="${100-h-3}" font-size="4.5" fill="#d4af5e" text-anchor="middle" font-family="monospace">${s.xp}</text>`:''}
+
             </g>`;
           }).join('');
           // linha acumulada
@@ -6691,12 +6711,14 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             <div class="col-card">
               <div class="col-card-h">📈 XP ganho por semana</div>
               <p style="font-size:12px;color:var(--gmr-ink-soft);margin:-8px 0 14px;">Sua evolução nas últimas 8 semanas. Cada missão, conquista e ação credita pontos.</p>
-              <svg viewBox="0 0 100 108" style="width:100%;height:200px;" preserveAspectRatio="none">
+              ${semanas.every(s=>!s.xp)
+                ? `<div class="kb-empty" style="padding:26px;">Ainda sem XP nas últimas 8 semanas. Conclua uma etapa da jornada ou uma missão e o gráfico começa a subir.</div>`
+                : `<svg viewBox="0 0 100 100" style="width:100%;height:170px;display:block;" preserveAspectRatio="none">
                 <defs><linearGradient id="xpgrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0d68a"/><stop offset="100%" stop-color="#a8842f"/></linearGradient></defs>
                 <line x1="0" y1="100" x2="100" y2="100" stroke="rgba(120,160,200,.25)" stroke-width="0.4"/>
                 ${bars}
-                ${semanas.map((s,i)=>`<text x="${i*bw+bw*0.5}" y="106" font-size="3.5" fill="#5d7088" text-anchor="middle">${s.label}</text>`).join('')}
               </svg>
+              <div class="xp-rot">${semanas.map(s=>`<span>${s.label}</span>`).join('')}</div>`}
             </div>
             <div class="grid">
               <div class="c6" style="margin:0;"><div class="col-card" style="height:100%;">
@@ -10644,6 +10666,77 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             </div>`;
         }
 
+        /* ── PÁGINA "MEUS LEADS" (menu próprio, foco total) ── */
+        function leadRenderPagina(){
+          let box=document.getElementById('ml-body'); if(!box) return;
+          leadRecolherAtrasados();
+          let c=(AUTH.user&&AUTH.user.papel==='colaborador')?colAtualObj():colAtualObj();
+          if(!c || !ehPrestador(c)){
+            document.getElementById('ml-hero').innerHTML='';
+            document.getElementById('ml-stats').innerHTML='';
+            box.innerHTML='<div class="kb-empty" style="padding:34px;">Esta página é de quem trabalha por resultado. Marque o vínculo da pessoa em <b>Equipe e acessos</b>.</div>';
+            return;
+          }
+          let eu=c.id;
+          let livres=leadsVisiveis(c);
+          let meus=DB.leads.filter(l=>l.dono===eu&&l.status!=='livre');
+          let emMao=meus.filter(l=>l.status==='meu'||l.status==='agendado');
+          let ganhos=meus.filter(l=>l.status==='ganho');
+          let hoje=leadContatosDoDia(eu), meta=leadMeta(c);
+          let pct=Math.min(100,Math.round(hoje/meta*100));
+          let com=(c.comissaoPct||10)/100;
+          let ganhoMes=ganhos.reduce((a,l)=>a+(l.valor||0)*com,0);
+          let semContato=emMao.filter(l=>!l.ultimoContato);
+          let semRetorno=emMao.filter(l=>l.proximaAcao&&l.proximaAcao<leadHoje());
+          let p=kbPessoa(eu);
+          let frase = semContato.length
+            ? `Você pegou <b style="color:var(--bad);">${semContato.length} lead${semContato.length>1?'s':''} e ainda não falou</b> com ${semContato.length>1?'eles':'ele'}. Em ${LEAD_SLA_H}h volta para o painel de todo mundo.`
+            : semRetorno.length ? `<b>${semRetorno.length} retorno${semRetorno.length>1?'s':''} atrasado${semRetorno.length>1?'s':''}.</b> Quem prometeu retorno e some, perde a venda.`
+            : hoje>=meta ? `Meta do dia batida: <b style="color:var(--kb-c3);">${hoje} contatos</b>. Cada um a mais é comissão a mais.`
+            : `Faltam <b>${meta-hoje} contatos</b> para a sua meta de hoje. ${livres.length?livres.length+' lead'+(livres.length>1?'s esperando':' esperando')+' no painel.':'Peça mais leads à gestão.'}`;
+          document.getElementById('ml-hero').innerHTML=uiHero({
+            eyebrow:'🎯 Meus leads · trabalho por resultado',
+            pessoa:{nome:c.apelido||c.nome, cargo:contratosDe(c).map(k=>contratoDe(k).l).join(' · ')||'sem contrato liberado', foto:c.foto||'', cor:p.cor},
+            titulo:`${kbSaudacaoHora()}, <b>${uiEsc((c.apelido||c.nome).split(' ')[0])}</b>.`,
+            texto:frase,
+            acoes:[
+              livres.length?`<button class="btn btn-gold btn-sm" onclick="document.getElementById('ml-painel').scrollIntoView({behavior:'smooth'})">Pegar lead do painel (${livres.length})</button>`:'',
+              emMao.length?`<button class="btn btn-ghost btn-sm" onclick="document.getElementById('ml-carteira').scrollIntoView({behavior:'smooth'})">Minha carteira (${emMao.length})</button>`:'',
+              `<button class="btn btn-ghost btn-sm" onclick="leadNovo()">+ Cadastrar contato</button>`
+            ],
+            donut:{pct, valor:hoje+'/'+meta, label:'contatos hoje'}
+          });
+          uiStatsRender(document.getElementById('ml-stats'),[
+            {cor:'var(--kb-c4)', ic:'🎯', label:'No painel para pegar', valor:livres.length, pe:livres.length?'clique e é seu':'nada livre agora'},
+            {cor:'var(--kb-c2)', ic:'📇', label:'Na minha mão', valor:emMao.length, pe:semRetorno.length?semRetorno.length+' com retorno atrasado':'todos em dia'},
+            {cor:'var(--kb-c3)', ic:'💰', label:'Ganho do mês', valor:brl(ganhoMes), money:true, pe:ganhos.length+' fechamento'+(ganhos.length===1?'':'s')+' · comissão '+Math.round(com*100)+'%'},
+            {cor:'var(--kb-c1)', ic:'📞', label:'Contatos hoje', valor:hoje+'/'+meta, pe:hoje>=meta?'meta batida ✓':'faltam '+(meta-hoje)}
+          ]);
+          box.innerHTML=`
+            <div class="card">
+              <div class="card-h">Seu ritmo de hoje</div>
+              <div class="lead-ritmo">
+                <div class="lead-ritmo-barra"><i style="width:${pct}%;background:${hoje>=meta?'var(--kb-c3)':'var(--kb-c2)'};"></i></div>
+                <div class="lead-ritmo-pts">${Array.from({length:meta},(_,i)=>`<span class="${i<hoje?'on':''}"></span>`).join('')}</div>
+                <div style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;">
+                  ${hoje>=meta?'<b style="color:var(--kb-c3);">Meta batida.</b> Todo contato daqui para frente é bônus.'
+                   :`<b>${hoje} de ${meta} contatos.</b> Cada um leva menos de 5 minutos.`}
+                </div>
+              </div>
+            </div>
+            <div class="card" id="ml-painel">
+              <div class="card-h" style="display:flex;align-items:center;gap:10px;">Painel de distribuição — quem pegar, leva
+                <span class="pill pill-info" style="margin-left:auto;text-transform:none;letter-spacing:0;">${livres.length} disponíve${livres.length===1?'l':'is'}</span></div>
+              <p class="hint" style="margin:-8px 0 16px;">Assim que você pega, o lead sai do painel de todo mundo — ninguém liga duas vezes para o mesmo contato. Se não falar com ele em ${LEAD_SLA_H}h, ele volta para cá.</p>
+              <div class="lead-grid">${livres.length?livres.map(l=>leadCard(l,'painel')).join(''):'<div class="kb-empty">Nenhum lead livre nos contratos que você representa. Assim que entrar um novo, aparece aqui.</div>'}</div>
+            </div>
+            <div class="card" id="ml-carteira">
+              <div class="card-h">Minha carteira — follow-up</div>
+              ${semRetorno.length?`<div class="dec-opiniao" style="margin-bottom:14px;"><b>⚠ ${semRetorno.length} retorno${semRetorno.length>1?'s':''} atrasado${semRetorno.length>1?'s':''}:</b> ${semRetorno.map(l=>uiEsc(l.nome)).slice(0,3).join(', ')}. Comece por eles.</div>`:''}
+              <div class="lead-grid">${meus.length?meus.map(l=>leadCard(l,'meus')).join(''):'<div class="kb-empty">Você ainda não pegou nenhum lead. Escolha um no painel acima.</div>'}</div>
+            </div>`;
+        }
+
         /* ── PAINEL DA GESTÃO ── */
         function leadRenderGestao(){
           let box=document.getElementById('prest-body'); if(!box) return;
@@ -10702,6 +10795,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             </div>`;
         }
         function leadRender(){
+          if(document.getElementById('ml-body')&&document.getElementById('v-meusleads').classList.contains('on')) leadRenderPagina();
           if(document.getElementById('col-pane-leads')&&colAba==='leads') leadRenderPrestador();
           if(document.getElementById('prest-body')) leadRenderGestao();
           if(typeof renderProx==='function') renderProx();
