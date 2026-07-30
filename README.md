@@ -405,6 +405,27 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       lead que precisa contatar antes de perder; você vê lead parado no painel
       e lead pego sem contato.
 
+38. **Briefing de entrada — "por onde eu começo hoje?"** (abre ao entrar; o
+    botão 🧭 no topo reabre quando você quiser)
+    - **O que mudou desde a sua última entrada**: leads novos, demandas
+      criadas, demandas concluídas e negócios fechados enquanto você esteve
+      fora. `briefNovidades`, guardado em `af_ultimo_acesso`.
+    - **O número que importa hoje**: para a gestão, quanto falta para a meta do
+      plano; para o prestador, contatos feitos contra a meta do dia; para o
+      colaborador, quantas demandas estão com o nome dele. `briefNumero`.
+    - **Três primeiros passos, na ordem** (nunca mais que três — lista grande
+      paralisa), cada um com estimativa de tempo e clique que já leva à tela.
+    - **Primeira entrada** explica onde ficam as coisas (menu, faixa "Agora",
+      🎨 e 🔔) em vez de despejar tarefa em quem ainda não conhece o sistema.
+    - "Não mostrar de novo hoje" e fechar clicando fora — o aviso não prende
+      ninguém. `briefingAbrir`, `briefingIr`, `af_brief_dia`.
+
+39. **Correção na barra de topo** — o cargo do colaborador ("Analista de
+    Marketing · Marketing / Conteúdo") era cortado **pelo começo**, aparecendo
+    "ARKETING …": o texto é alinhado à direita e o `text-overflow` do CSS corta
+    do lado errado. Agora o corte é feito no próprio texto (fim + reticências),
+    com o valor completo no tooltip.
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio

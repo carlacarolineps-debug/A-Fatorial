@@ -1305,9 +1305,9 @@ body.theme-gamer .ui-donut::after{background:#101828;}
 .topbar h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .topbar .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52vw;}
 .topbar .who{min-width:0;}
-.topbar .who .nm,.topbar .who .rl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px;}
+.topbar .who .nm,.topbar .who .rl{white-space:nowrap;overflow:hidden;max-width:210px;}
 @media(max-width:1400px){
-  .topbar .who .nm,.topbar .who .rl{max-width:150px;}
+  .topbar .who .nm,.topbar .who .rl{max-width:160px;}
   .som-vol{width:70px;}
 }
 @media(max-width:1150px){
@@ -1710,6 +1710,34 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 .tr-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--gold) 14%,transparent);font-size:15px;}
 .tr-tx{flex:1;min-width:150px;font-size:13px;color:var(--ink);font-weight:600;}
 .tr-tx span{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;margin-top:2px;line-height:1.45;}
+/* ═══ BRIEFING DE ENTRADA — por onde começar ═══ */
+.brief-top{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+.brief-top .av{width:48px;height:48px;border-radius:15px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:17px;background:var(--kb-ouro);color:var(--kb-sobre);}
+.brief-top .av img{width:100%;height:100%;object-fit:cover;}
+.brief-top h3{margin:0;font-family:var(--font-display);font-size:21px;letter-spacing:-.02em;}
+.brief-top .sub{font-size:12px;color:var(--ink-faint);margin-top:2px;}
+.brief-frase{font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:12px 0 16px;}
+.brief-frase b{color:var(--ink);}
+.brief-novo{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.brief-novo span{font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:20px;background:color-mix(in srgb,var(--kbc,var(--gold)) 13%,transparent);
+  color:var(--ink);border:1px solid color-mix(in srgb,var(--kbc,var(--gold)) 30%,transparent);}
+.brief-tit{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);margin:0 0 10px;}
+.brief-passo{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:var(--panel);
+  margin-bottom:8px;cursor:pointer;transition:.16s;text-align:left;width:100%;font-family:inherit;}
+.brief-passo:hover{border-color:var(--gold);transform:translateX(2px);}
+.brief-passo.um{border-color:color-mix(in srgb,var(--gold) 45%,var(--line));background:color-mix(in srgb,var(--gold) 8%,var(--panel));}
+.brief-passo .n{width:26px;height:26px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;
+  background:color-mix(in srgb,var(--kbc,var(--gold)) 18%,transparent);color:var(--kbc,var(--gold-deep));}
+.brief-passo .tx{flex:1;font-size:12.5px;color:var(--ink);line-height:1.4;font-weight:600;}
+.brief-passo .tx span{display:block;font-size:11px;color:var(--ink-faint);font-weight:400;margin-top:2px;}
+.brief-passo .tempo{font-size:10px;font-weight:700;color:var(--ink-faint);white-space:nowrap;}
+.brief-numero{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:13px;margin-bottom:16px;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--gold) 14%,var(--panel)),var(--panel) 70%);border:1px solid color-mix(in srgb,var(--gold) 28%,var(--line));}
+.brief-numero b{font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--gold-deep);line-height:1;}
+.brief-numero span{font-size:12px;color:var(--ink-soft);line-height:1.45;}
+.brief-nao{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-faint);cursor:pointer;}
+.brief-dica{font-size:11.5px;color:var(--ink-faint);line-height:1.55;border-top:1px solid var(--line);padding-top:12px;margin-top:4px;}
 </style>
 </head>
 <body class="theme-gamer">
@@ -1793,6 +1821,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
       </div>
     </div>
     <div class="who">
+      <button class="notif-bell" onclick="briefingAbrir(true)" title="Por onde começar hoje" aria-label="Por onde começar">🧭</button>
       <button class="notif-bell" id="ap-btn" onclick="apToggle()" title="Aparência — tema e cor do sistema" aria-label="Aparência">🎨</button>
       <button class="notif-bell" id="tema-btn" onclick="alternarTema()" title="Tema claro/escuro" aria-label="Tema">🌙</button>
       <button class="notif-bell" id="apr-btn" onclick="toggleApresentacao()" title="Modo apresentação (oculta valores sensíveis) — atalho Alt+P" aria-label="Modo apresentação">🎤</button>
@@ -2674,6 +2703,19 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
   </div>
 </div>
 
+<div class="modal" id="m-brief" onclick="if(event.target===this)briefingFechar()">
+  <div class="modal-card" style="max-width:620px;">
+    <div id="brief-body"></div>
+    <div class="modal-acts" style="justify-content:space-between;">
+      <label class="brief-nao"><input type="checkbox" id="brief-nao-hoje"> Não mostrar de novo hoje</label>
+      <span style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="briefingFechar()">Ver depois</button>
+        <button class="btn btn-gold" id="brief-cta" onclick="briefingComecar()">Começar →</button>
+      </span>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="m-lead">
   <div class="modal-card" style="max-width:640px;">
     <h3 id="lead-modal-titulo">Novo contato</h3>
@@ -3053,7 +3095,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           login(papel, id){
             let u={papel};
             if(papel==='admin'){ u.id='admin'; u.nome=ADMIN_USER.nome; u.rl=ADMIN_USER.cargo; u.apelido=ADMIN_USER.apelido; u.foto=ADMIN_USER.foto; u.av=(ADMIN_USER.nome||'CC').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase(); }
-            else if(papel==='colaborador'){ let c=DB.colaboradores.find(x=>x.id===id)||DB.colaboradores[0]; u.id=c.id; u.nome=c.nome; u.rl=c.cargo+' · '+c.area; u.apelido=c.apelido||c.nome.split(' ')[0]; u.foto=c.foto||''; u.av=c.nome.split(' ').map(x=>x[0]).slice(0,2).join(''); }
+            else if(papel==='colaborador'){ let c=DB.colaboradores.find(x=>x.id===id)||DB.colaboradores[0]; u.id=c.id; u.nome=c.nome; u.rl=c.cargo||''; u.rlCompleto=(c.cargo||'')+(c.area?' · '+c.area:''); u.apelido=c.apelido||c.nome.split(' ')[0]; u.foto=c.foto||''; u.av=c.nome.split(' ').map(x=>x[0]).slice(0,2).join(''); }
             else if(papel==='cliente'){ let p=DB.propostas.find(x=>x.dealId===id)||DB.propostas[0]; if(p){u.id=p.dealId; u.nome=p.decisor||p.empresa; u.rl=p.empresa+' · Cliente'; u.av=(p.empresa||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();} else {u.id=null;u.nome='Cliente';u.rl='Cliente';u.av='CL';} u.apelido=u.nome; u.foto=''; }
             this.user=u;
             // === BACKEND === aqui você guardaria o token retornado (ex: sessionStorage no app real)
@@ -3116,6 +3158,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           aplicarPerfil();
           document.getElementById('login-screen').classList.add('hidden');
           if(typeof SOUND!=='undefined'){ SOUND.ensure(); setTimeout(()=>SOUND.play('welcome'),120); }
+          setTimeout(()=>{ if(typeof briefingAbrir==='function') briefingAbrir(); },700);
         }
         // aplica visibilidade de nav + identidade + redireciona para a primeira view permitida
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
@@ -3135,7 +3178,12 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           let u=AUTH.currentUser(); if(!u)return;
           setTimeout(()=>{ if(typeof renderProx==='function') renderProx(); },60);
           // identidade na topbar (nome/apelido + foto)
-          document.getElementById('top-user-rl').innerText=u.rl;
+          // corte no texto (com reticências no fim). O CSS alinha à direita, e
+          // text-overflow ali cortaria o começo — "ARKETING …" em vez de "Analista…"
+          let rlEl=document.getElementById('top-user-rl');
+          let rlTxt=u.rl||'';
+          rlEl.innerText = rlTxt.length>26 ? rlTxt.slice(0,25).trim()+'…' : rlTxt;
+          rlEl.title = u.rlCompleto||rlTxt;
           aplicarTopbarIdentidade();
           // mostra/esconde itens de nav conforme permissão
           atualizarNavVisibilidade();
@@ -4973,6 +5021,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(u){ AUTH.user.foto=u.foto; AUTH.user.apelido=u.apelido; if(typeof aplicarTopbarIdentidade==='function') aplicarTopbarIdentidade(); }
         }
         function aplicarTopbarIdentidade(){
+          // (nome curto: o corte também é feito no texto, não pelo CSS)
           let u=AUTH.user; if(!u)return;
           let nomeEl=document.getElementById('top-user-nome'); if(nomeEl) nomeEl.innerText=u.apelido||u.nome;
           let avEl=document.getElementById('top-user-av');
@@ -9403,7 +9452,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         function relatorioFechar(){ document.getElementById('rel-ov').classList.remove('on'); }
 
         /* ===== BACKUP / RESTAURAÇÃO ===== */
-        const BACKUP_KEYS=['af_permissoes','af_perm_migr','af_usuarios','af_fin','af_plano','af_brand','af_kanban','af_leads','af_treinos','af_som','af_vol','af_tema','af_accent'];
+        const BACKUP_KEYS=['af_permissoes','af_perm_migr','af_brief_dia','af_ultimo_acesso','af_usuarios','af_fin','af_plano','af_brand','af_kanban','af_leads','af_treinos','af_som','af_vol','af_tema','af_accent'];
         function backupExportar(){
           let dados={}; BACKUP_KEYS.forEach(k=>{ let v=localStorage.getItem(k); if(v!=null) dados[k]=v; });
           let pacote={app:'A! Fatorial', versao:1, data:new Date().toISOString(), dados};
@@ -9514,11 +9563,11 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           const hoje=new Date();
           const d=n=>{ let x=new Date(hoje); x.setDate(x.getDate()+n); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
           KANBAN.tarefas=[
-            {id:'t1', titulo:'Gravar 4 reels da campanha de julho', etapa:'fazendo',   onda:'Onda 1', prioridade:'Urgente',       respId:'c1', area:'Conteúdo',   inicio:d(-3), termino:d(1),  notas:'Roteiros aprovados. Gravar em bloco na quinta.',                        criadoEm:Date.now(), ordem:1},
-            {id:'t2', titulo:'Fechar checklist de onboarding do cliente novo', etapa:'afazer', onda:'Onda 1', prioridade:'Médio', respId:'c2', area:'Operação',   inicio:d(0),  termino:d(4),  notas:'Usar o modelo da esteira, etapa 11.',                                     criadoEm:Date.now(), ordem:2},
-            {id:'t3', titulo:'Responder pendências de suporte da semana', etapa:'revisao',  onda:'Onda 2', prioridade:'Pouco urgente', respId:'c3', area:'Atendimento', inicio:d(-2), termino:d(-1), notas:'Faltam 3 tickets aguardando retorno do cliente.',                    criadoEm:Date.now(), ordem:3},
-            {id:'t4', titulo:'Revisar precificação dos serviços do catálogo', etapa:'backlog', onda:'Onda 3', prioridade:'',       respId:'admin', area:'Gestão',    inicio:'',    termino:d(20), notas:'Comparar margem por serviço antes do próximo trimestre.',                criadoEm:Date.now(), ordem:4},
-            {id:'t5', titulo:'Publicar os 3 posts do calendário de conteúdo', etapa:'concluido', onda:'Onda 1', prioridade:'Médio', respId:'c1', area:'Conteúdo',   inicio:d(-8), termino:d(-2), notas:'Feito e aprovado.',                                                      criadoEm:Date.now(), ordem:5}
+            {id:'t1', titulo:'Gravar 4 reels da campanha de julho', etapa:'fazendo',   onda:'Onda 1', prioridade:'Urgente',       respId:'c1', area:'Conteúdo',   inicio:d(-3), termino:d(1),  notas:'Roteiros aprovados. Gravar em bloco na quinta.',                        criadoEm:Date.now()-9*86400000, ordem:1},
+            {id:'t2', titulo:'Fechar checklist de onboarding do cliente novo', etapa:'afazer', onda:'Onda 1', prioridade:'Médio', respId:'c2', area:'Operação',   inicio:d(0),  termino:d(4),  notas:'Usar o modelo da esteira, etapa 11.',                                     criadoEm:Date.now()-7*86400000, ordem:2},
+            {id:'t3', titulo:'Responder pendências de suporte da semana', etapa:'revisao',  onda:'Onda 2', prioridade:'Pouco urgente', respId:'c3', area:'Atendimento', inicio:d(-2), termino:d(-1), notas:'Faltam 3 tickets aguardando retorno do cliente.',                    criadoEm:Date.now()-6*86400000, ordem:3},
+            {id:'t4', titulo:'Revisar precificação dos serviços do catálogo', etapa:'backlog', onda:'Onda 3', prioridade:'',       respId:'admin', area:'Gestão',    inicio:'',    termino:d(20), notas:'Comparar margem por serviço antes do próximo trimestre.',                criadoEm:Date.now()-5*86400000, ordem:4},
+            {id:'t5', titulo:'Publicar os 3 posts do calendário de conteúdo', etapa:'concluido', onda:'Onda 1', prioridade:'Médio', respId:'c1', area:'Conteúdo',   inicio:d(-8), termino:d(-2), notas:'Feito e aprovado.',                                                      criadoEm:Date.now()-11*86400000, ordem:5}
           ];
           kbSeq=6;
         }
@@ -10789,6 +10838,105 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         function prestConfigRender(){
           let b=document.getElementById('prest-config'); if(b) b.innerHTML=prestConfigHTML();
         }
+
+        /* ═══════════════════════════════════════════════════════════════
+           BRIEFING DE ENTRADA — "por onde eu começo hoje?"
+           Aparece ao entrar, com três coisas: o que mudou desde a última vez
+           que você abriu, o número que importa hoje e os 3 primeiros passos
+           (não mais que isso — lista grande paralisa).
+           ═══════════════════════════════════════════════════════════════ */
+        function briefUltimoAcesso(){
+          try{ return parseInt(localStorage.getItem('af_ultimo_acesso')||'0')||0; }catch(e){ return 0; }
+        }
+        function briefMarcarAcesso(){ try{ localStorage.setItem('af_ultimo_acesso', String(Date.now())); }catch(e){} }
+        /* o que aconteceu enquanto você estava fora */
+        function briefNovidades(ts){
+          let L=[];
+          if(!ts) return L;
+          try{
+            let leads=(DB.leads||[]).filter(l=>new Date(l.entrouEm||0).getTime()>ts).length;
+            if(leads) L.push({ic:'🎯', t:leads+' lead'+(leads>1?'s novos':' novo')+' no painel', cor:'var(--kb-c4)'});
+            let novas=(KANBAN.tarefas||[]).filter(t=>(t.criadoEm||0)>ts).length;
+            if(novas) L.push({ic:'▦', t:novas+' demanda'+(novas>1?'s criadas':' criada'), cor:'var(--kb-c5)'});
+            let feitas=(KANBAN.tarefas||[]).filter(t=>t.etapa==='concluido'&&(t.atualizadoEm||0)>ts).length;
+            if(feitas) L.push({ic:'✓', t:feitas+' demanda'+(feitas>1?'s concluídas':' concluída'), cor:'var(--kb-c3)'});
+            let fech=(DB.leads||[]).filter(l=>l.status==='ganho'&&new Date(l.fechadoEm||0).getTime()>ts).length;
+            if(fech) L.push({ic:'💰', t:fech+' negócio'+(fech>1?'s fechados':' fechado'), cor:'var(--kb-c3)'});
+          }catch(e){}
+          return L;
+        }
+        /* o número que a pessoa precisa ter na cabeça hoje */
+        function briefNumero(){
+          let u=AUTH.user||{};
+          try{
+            if(u.papel==='colaborador'){
+              let c=colAtualObj();
+              if(c&&ehPrestador(c)){
+                let feitos=leadContatosDoDia(c.id), meta=leadMeta(c);
+                return {v:feitos+'/'+meta, t:'contatos hoje. '+(feitos>=meta?'Meta batida — cada contato a mais é comissão a mais.':'Faltam '+(meta-feitos)+' para bater sua meta do dia.')};
+              }
+              let minhas=(KANBAN.tarefas||[]).filter(t=>t.respId===u.id&&t.etapa!=='concluido').length;
+              return {v:minhas, t:'demanda'+(minhas===1?'':'s')+' com o seu nome agora.'};
+            }
+            if(u.papel==='cliente') return null;
+            // gestão: quanto falta para a meta de vendas do plano
+            let proj=0,real=0;
+            (PLANO.metas||[]).forEach(m=>{ proj+=planoMetaProj(m); real+=planoMetaReal(m); });
+            if(proj>0){
+              let falta=Math.max(0,round2(proj-real));
+              return {v:brl(falta), t:falta>0?'é o que falta para fechar a meta do plano. Cada proposta na rua encurta isso.':'meta do plano batida. Hora de repactuar o próximo alvo.'};
+            }
+          }catch(e){}
+          return null;
+        }
+        function briefingHTML(){
+          let u=AUTH.user||{};
+          let pessoa=(u.papel==='colaborador')?kbPessoa(u.id):{nome:u.apelido||u.nome, foto:u.foto, cor:'var(--kb-ouro)'};
+          let passos=proxPassos().slice(0,3);
+          let nov=briefNovidades(briefUltimoAcesso());
+          let num=briefNumero();
+          const tempo=p=>p.peso<=2?'~5 min':p.peso<=5?'~10 min':'quando der';
+          let primeiraVez=!briefUltimoAcesso();
+          return `<div class="brief-top">
+              <span class="av" style="background:${pessoa.cor||'var(--kb-ouro)'};">${pessoa.foto?`<img src="${uiEsc(pessoa.foto)}" alt="">`:uiIniciais(pessoa.nome)}</span>
+              <div><h3>${kbSaudacaoHora()}, ${uiEsc(String(pessoa.nome||'').split(' ')[0])}.</h3>
+                <div class="sub">${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})}</div></div>
+            </div>
+            <div class="brief-frase">${primeiraVez
+              ? 'Esta é a sua primeira entrada. O menu da esquerda guarda as telas; a faixa <b>“Agora”</b>, no topo, sempre mostra o que fazer em seguida — você nunca precisa procurar.'
+              : (nov.length?'Enquanto você esteve fora, isso mudou:':'Nada mudou desde a sua última entrada.')}</div>
+            ${nov.length?`<div class="brief-novo">${nov.map(n=>`<span style="--kbc:${n.cor};">${n.ic} ${n.t}</span>`).join('')}</div>`:''}
+            ${num?`<div class="brief-numero"><b>${num.v}</b><span>${num.t}</span></div>`:''}
+            <p class="brief-tit">Por onde começar${passos.length>1?' — na ordem':''}</p>
+            ${passos.map((p,i)=>`<button class="brief-passo ${i===0?'um':''}" style="--kbc:${p.cor};" onclick="briefingIr(${i})">
+                <span class="n">${i+1}</span>
+                <span class="tx">${uiEsc(p.tit)}<span>${uiEsc(p.desc)}</span></span>
+                <span class="tempo">${tempo(p)}</span>
+              </button>`).join('')}
+            <div class="brief-dica">${primeiraVez
+              ? 'Dica: o botão 🎨 no topo muda a cor e o tema do sistema inteiro. E o 🔔 guarda tudo o que aconteceu.'
+              : 'Você pode fechar isto e seguir pela faixa “Agora”, que fica sempre no topo com a mesma lista.'}</div>`;
+        }
+        function briefingAbrir(forcar){
+          if(!AUTH.user) return;
+          let hoje=(typeof kbHojeISO==='function')?kbHojeISO():new Date().toISOString().slice(0,10);
+          let visto=''; try{ visto=localStorage.getItem('af_brief_dia')||''; }catch(e){}
+          if(!forcar && visto===hoje) return;      // já viu hoje e pediu para não repetir
+          let body=document.getElementById('brief-body'); if(!body) return;
+          body.innerHTML=briefingHTML();
+          let cta=document.getElementById('brief-cta');
+          let passos=proxPassos();
+          if(cta) cta.innerText=passos.length?(passos[0].botao+' →'):'Começar →';
+          document.getElementById('m-brief').classList.add('on');
+        }
+        function briefingFechar(){
+          let nao=document.getElementById('brief-nao-hoje');
+          if(nao&&nao.checked){ try{ localStorage.setItem('af_brief_dia',(typeof kbHojeISO==='function')?kbHojeISO():''); }catch(e){} }
+          document.getElementById('m-brief').classList.remove('on');
+          briefMarcarAcesso();
+        }
+        function briefingIr(i){ briefingFechar(); setTimeout(()=>proxFazer(i),120); }
+        function briefingComecar(){ briefingIr(0); }
 
         /* ===== ALERTAS INTELIGENTES (sino) ===== */
         function gerarAlertasInteligentes(){
