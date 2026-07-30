@@ -267,6 +267,24 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       um custom property declarado no `:root` já resolve os `var()` dele ali,
       e o gradiente continuaria dourado depois da troca de cor.
 
+27. **Mesmo padrão visual na Gestão à vista e na Visão do dono** — o hero, os
+    stat cards e a trilha que nasceram no Kanban viraram **componentes
+    compartilhados** (`uiHero`, `uiStat`/`uiStats`, `uiTrilha`, `uiSpark`, classes
+    com prefixo `ui-`). Mexer neles muda as três telas de uma vez.
+    - **Gestão à vista**: hero com saudação e **anel de progresso da esteira**;
+      6 stat cards (contratos, faturamento, a receber, aguardando você,
+      satisfação, demandas em aberto); e a **esteira virou trilha** — cada etapa
+      é um passo com quantos clientes estão nela, e clicar abre o funil.
+      `renderDashHero`, `renderDashTrilha`.
+    - **Visão do dono**: hero com o número que precisa virar hoje (resultado
+      negativo, meta batida ou quanto falta) e anel da meta de vendas; stat cards
+      de receita projetada, vendas realizadas, resultado, valuation e mistura
+      PF/PJ. As ações (relatório PDF, recalcular alertas) subiram para o hero.
+      `renderDonoHero`.
+    - Corrigido: a **Visão do dono não tinha título na barra de topo** (faltava a
+      entrada em `TITLES`), e valores em reais quebravam em duas linhas no card —
+      agora usam a variante `.ui-stat-v.grana`.
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio

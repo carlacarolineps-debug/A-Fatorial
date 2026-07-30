@@ -1208,7 +1208,10 @@ body.theme-gamer[data-accent="esmeralda"]{ --gold-deep:#7fe8c6; }
 .ap-cor.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.5);}
 
 /* ═══════════════════════════════════════════════════════════════════
-   KANBAN OPERACIONAL — demandas da equipe + aviso no WhatsApp
+   COMPONENTES VISUAIS COMPARTILHADOS (prefixo ui-) + KANBAN
+   O hero, os stat cards, a trilha, os avatares e o controle segmentado
+   nasceram no Kanban e hoje são usados também na Gestão à vista e na
+   Visão do dono. Um lugar só para mexer no visual das três telas.
    Paleta em tokens (--kb-c1..c8): fechada no tema claro, neon no
    escuro. Nenhuma cor fixa no JavaScript, então os dois temas nascem
    legíveis (contraste medido ≥ 4,9:1).
@@ -1235,82 +1238,83 @@ body.theme-gamer{
 #v-kanban .card{padding:24px;}
 
 /* ── HERO: saudação + progresso, num bloco só ── */
-.kb-hero{position:relative;overflow:hidden;border-radius:24px;padding:30px 32px;margin-bottom:var(--kb-gap);
+.ui-hero{position:relative;overflow:hidden;border-radius:24px;padding:30px 32px;margin-bottom:var(--kb-gap);
   border:1px solid var(--line);
   background:
     radial-gradient(700px 320px at 88% -30%, color-mix(in srgb,var(--gold) 30%,transparent), transparent 70%),
     radial-gradient(520px 300px at 6% 120%, color-mix(in srgb,var(--kb-c5) 20%,transparent), transparent 68%),
     var(--panel);
 }
-body.theme-gamer .kb-hero{border-color:color-mix(in srgb,var(--gold) 26%,var(--line));
+body.theme-gamer .ui-hero{border-color:color-mix(in srgb,var(--gold) 26%,var(--line));
   background:
     radial-gradient(760px 340px at 88% -35%, color-mix(in srgb,var(--gold) 34%,transparent), transparent 68%),
     radial-gradient(560px 320px at 4% 125%, color-mix(in srgb,var(--kb-c1) 24%,transparent), transparent 66%),
     linear-gradient(150deg,rgba(22,30,48,.96),rgba(12,18,30,.99));}
-.kb-hero-grid{display:flex;gap:28px;align-items:center;flex-wrap:wrap;position:relative;z-index:1;}
-.kb-hero-txt{flex:1;min-width:260px;}
-.kb-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;
+.ui-hero-grid{display:flex;gap:28px;align-items:center;flex-wrap:wrap;position:relative;z-index:1;}
+.ui-hero-txt{flex:1;min-width:260px;}
+.ui-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;
   color:var(--gold-deep);background:color-mix(in srgb,var(--gold) 14%,transparent);border:1px solid color-mix(in srgb,var(--gold) 34%,transparent);
   padding:6px 13px;border-radius:30px;margin-bottom:16px;}
-.kb-hero h2{margin:0;font-family:var(--font-display);font-size:clamp(25px,3.4vw,38px);line-height:1.08;letter-spacing:-.035em;font-weight:800;color:var(--ink);}
-.kb-hero h2 b{background:linear-gradient(100deg,var(--gold-bright),var(--gold) 55%,var(--gold-deep));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;}
-.kb-hero p{margin:12px 0 0;font-size:14px;line-height:1.6;color:var(--ink-soft);max-width:58ch;}
-.kb-hero p b{color:var(--ink);}
-.kb-hero-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
-.kb-hero-user{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
-.kb-hero-user .nm{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3;}
-.kb-hero-user .rl{display:block;font-size:11px;color:var(--ink-faint);margin-top:2px;}
+.ui-hero h2{margin:0;font-family:var(--font-display);font-size:clamp(25px,3.4vw,38px);line-height:1.08;letter-spacing:-.035em;font-weight:800;color:var(--ink);}
+.ui-hero h2 b{background:linear-gradient(100deg,var(--gold-bright),var(--gold) 55%,var(--gold-deep));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;}
+.ui-hero p{margin:12px 0 0;font-size:14px;line-height:1.6;color:var(--ink-soft);max-width:58ch;}
+.ui-hero p b{color:var(--ink);}
+.ui-hero-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+.ui-hero-user{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.ui-hero-user .nm{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+.ui-hero-user .rl{display:block;font-size:11px;color:var(--ink-faint);margin-top:2px;}
 /* donut de conclusão */
-.kb-donut{width:158px;height:158px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;
+.ui-donut{width:158px;height:158px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;
   background:conic-gradient(var(--gold) calc(var(--p,0)*3.6deg), color-mix(in srgb,var(--ink) 12%,transparent) 0);}
-.kb-donut::after{content:'';position:absolute;inset:13px;border-radius:50%;background:var(--panel);}
-body.theme-gamer .kb-donut::after{background:#101828;}
-.kb-donut-in{position:relative;z-index:1;text-align:center;}
-.kb-donut-in b{display:block;font-family:var(--font-display);font-size:36px;font-weight:800;letter-spacing:-.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;}
-.kb-donut-in span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--ink-faint);margin-top:5px;font-weight:700;}
+.ui-donut::after{content:'';position:absolute;inset:13px;border-radius:50%;background:var(--panel);}
+body.theme-gamer .ui-donut::after{background:#101828;}
+.ui-donut-in{position:relative;z-index:1;text-align:center;}
+.ui-donut-in b{display:block;font-family:var(--font-display);font-size:36px;font-weight:800;letter-spacing:-.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;}
+.ui-donut-in span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--ink-faint);margin-top:5px;font-weight:700;}
 
 /* ── STAT CARDS ── */
-.kb-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:var(--kb-gap);margin-bottom:var(--kb-gap);}
-.kb-stat{position:relative;overflow:hidden;padding:20px;border-radius:20px;background:var(--panel);border:1px solid var(--line);
+.ui-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:var(--kb-gap);margin-bottom:var(--kb-gap);}
+.ui-stat{position:relative;overflow:hidden;padding:20px;border-radius:20px;background:var(--panel);border:1px solid var(--line);
   box-shadow:var(--shadow);transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s,border-color .22s;}
-.kb-stat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--kbc) 48%,var(--line));
+.ui-stat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--kbc) 48%,var(--line));
   box-shadow:0 18px 40px -22px color-mix(in srgb,var(--kbc) 70%,transparent),var(--shadow-lg);}
-.kb-stat::before{content:'';position:absolute;inset:0 0 auto;height:3px;background:var(--kbc);opacity:.9;}
-.kb-stat-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.kb-stat-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;
+.ui-stat::before{content:'';position:absolute;inset:0 0 auto;height:3px;background:var(--kbc);opacity:.9;}
+.ui-stat-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ui-stat-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;
   background:color-mix(in srgb,var(--kbc) var(--kb-tint),var(--panel-soft));color:var(--kbc);}
-.kb-stat-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--ink-faint);line-height:1.3;}
-.kb-stat-v{font-family:var(--font-display);font-size:40px;font-weight:800;letter-spacing:-.045em;line-height:1;color:var(--kbc);font-variant-numeric:tabular-nums;}
-.kb-stat-f{font-size:11.5px;color:var(--ink-soft);margin-top:10px;display:flex;align-items:center;gap:6px;}
-.kb-spark{display:flex;align-items:flex-end;gap:2px;height:16px;}
-.kb-spark i{width:4px;border-radius:2px;background:var(--kbc);opacity:.32;}
-.kb-spark i.on{opacity:.95;}
+.ui-stat-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--ink-faint);line-height:1.3;}
+.ui-stat-v.grana{font-size:clamp(19px,2vw,27px);letter-spacing:-.03em;white-space:nowrap;}
+.ui-stat-v{font-family:var(--font-display);font-size:40px;font-weight:800;letter-spacing:-.045em;line-height:1;color:var(--kbc);font-variant-numeric:tabular-nums;}
+.ui-stat-f{font-size:11.5px;color:var(--ink-soft);margin-top:10px;display:flex;align-items:center;gap:6px;}
+.ui-spark{display:flex;align-items:flex-end;gap:2px;height:16px;}
+.ui-spark i{width:4px;border-radius:2px;background:var(--kbc);opacity:.32;}
+.ui-spark i.on{opacity:.95;}
 
 /* ── TRILHA DE ONDAS ── */
-.kb-trilha{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;padding:22px 24px;margin-bottom:var(--kb-gap);
+.ui-trilha{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;padding:22px 24px;margin-bottom:var(--kb-gap);
   background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow-x:auto;}
-.kb-passo{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 8px;background:none;border:none;
+.ui-passo{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 8px;background:none;border:none;
   font-family:inherit;cursor:pointer;min-width:118px;}
-.kb-passo::before{content:'';position:absolute;top:23px;left:0;right:0;height:3px;background:var(--line);z-index:0;}
-.kb-passo:first-child::before{left:50%;}
-.kb-passo:last-child::before{right:50%;}
-.kb-passo.done::before{background:color-mix(in srgb,var(--kbc) 55%,var(--line));}
-.kb-passo-ring{position:relative;z-index:1;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+.ui-passo::before{content:'';position:absolute;top:23px;left:0;right:0;height:3px;background:var(--line);z-index:0;}
+.ui-passo:first-child::before{left:50%;}
+.ui-passo:last-child::before{right:50%;}
+.ui-passo.done::before{background:color-mix(in srgb,var(--kbc) 55%,var(--line));}
+.ui-passo-ring{position:relative;z-index:1;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   background:conic-gradient(var(--kbc) calc(var(--p,0)*3.6deg), color-mix(in srgb,var(--ink) 11%,transparent) 0);transition:.2s;}
-.kb-passo-ring::after{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--panel);border:1px solid var(--line);}
-.kb-passo-ring b{position:relative;z-index:2;font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--kbc);}
-.kb-passo:hover .kb-passo-ring{transform:scale(1.09);}
-.kb-passo.on .kb-passo-ring{box-shadow:0 0 0 4px color-mix(in srgb,var(--kbc) 26%,transparent);}
-.kb-passo .nm{font-size:12.5px;font-weight:700;color:var(--ink);}
-.kb-passo.on .nm{color:var(--kbc);}
-.kb-passo .sb{font-size:10.5px;color:var(--ink-faint);text-align:center;line-height:1.4;}
+.ui-passo-ring::after{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--panel);border:1px solid var(--line);}
+.ui-passo-ring b{position:relative;z-index:2;font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--kbc);}
+.ui-passo:hover .ui-passo-ring{transform:scale(1.09);}
+.ui-passo.on .ui-passo-ring{box-shadow:0 0 0 4px color-mix(in srgb,var(--kbc) 26%,transparent);}
+.ui-passo .nm{font-size:12.5px;font-weight:700;color:var(--ink);}
+.ui-passo.on .nm{color:var(--kbc);}
+.ui-passo .sb{font-size:10.5px;color:var(--ink-faint);text-align:center;line-height:1.4;}
 
 /* ── TOOLBAR ── */
 .kb-tool{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
-.kb-seg{display:inline-flex;padding:3px;border-radius:12px;background:var(--panel-soft);border:1px solid var(--line);}
-.kb-seg button{padding:7px 14px;border:none;background:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:600;
+.ui-seg{display:inline-flex;padding:3px;border-radius:12px;background:var(--panel-soft);border:1px solid var(--line);}
+.ui-seg button{padding:7px 14px;border:none;background:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:600;
   color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.16s;}
-.kb-seg button.on{background:var(--panel);color:var(--gold-deep);box-shadow:var(--shadow);}
+.ui-seg button.on{background:var(--panel);color:var(--gold-deep);box-shadow:var(--shadow);}
 .kb-campo{position:relative;flex:1;min-width:210px;}
 .kb-campo input{width:100%;padding:11px 14px 11px 38px;border-radius:12px;border:1px solid var(--line);background:var(--panel);
   color:var(--ink);font-family:inherit;font-size:13px;outline:none;transition:.18s;}
@@ -1330,7 +1334,7 @@ body.theme-gamer .kb-donut::after{background:#101828;}
 .kb-chip .n{font-size:10.5px;font-weight:700;opacity:.72;background:color-mix(in srgb,var(--ink) 8%,transparent);
   padding:1px 7px;border-radius:20px;}
 .kb-chip.on .n{background:rgba(255,255,255,.25);opacity:.95;}
-.kb-chip.on .kb-av{background:rgba(255,255,255,.3);color:var(--kb-sobre);}
+.kb-chip.on .ui-av{background:rgba(255,255,255,.3);color:var(--kb-sobre);}
 .kb-chip.simples{padding:7px 14px;}
 
 /* ── QUADRO ── */
@@ -1417,11 +1421,11 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
 .kb-carga-tot{width:132px;flex:none;text-align:right;font-size:11.5px;color:var(--ink-faint);}
 
 /* ── AVATARES ── */
-.kb-av{width:24px;height:24px;border-radius:8px;flex:none;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;
+.ui-av{width:24px;height:24px;border-radius:8px;flex:none;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;
   font-size:9.5px;font-weight:800;background:var(--kbc,var(--kb-ouro));color:var(--kb-sobre);}
-.kb-av img{width:100%;height:100%;object-fit:cover;}
-.kb-av-g{width:44px;height:44px;border-radius:14px;font-size:15px;box-shadow:0 0 0 3px color-mix(in srgb,var(--kbc) 22%,transparent);}
-.kb-av-xg{width:54px;height:54px;border-radius:17px;font-size:19px;box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 22%,transparent);}
+.ui-av img{width:100%;height:100%;object-fit:cover;}
+.ui-av-g{width:44px;height:44px;border-radius:14px;font-size:15px;box-shadow:0 0 0 3px color-mix(in srgb,var(--kbc) 22%,transparent);}
+.ui-av-xg{width:54px;height:54px;border-radius:17px;font-size:19px;box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 22%,transparent);}
 
 /* ── WHATSAPP ── */
 .kb-wa-log{max-height:300px;overflow-y:auto;}
@@ -1445,8 +1449,8 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
   .kb-board{grid-auto-flow:row;grid-auto-columns:auto;overflow-x:visible;}
   .kb-card{cursor:default;}
   .kb-card-acts{opacity:1;transform:none;}
-  .kb-hero{padding:24px 20px;}
-  .kb-donut{width:126px;height:126px;}
+  .ui-hero{padding:24px 20px;}
+  .ui-donut{width:126px;height:126px;}
   .kb-carga-nm{width:118px;}
   .kb-carga-tot{width:auto;}
 }
@@ -1565,27 +1569,16 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
 
     <!-- ============ VISÃO DO DONO ============ -->
     <section class="view" id="v-dono">
-      <div class="in-hero">
-        <span class="in-hero-badge">★ Visão do dono · cockpit executivo</span>
-        <h2>Tudo o que importa, <b>numa tela só</b>.</h2>
-        <p>Saúde financeira, metas de venda e quanto vale o negócio — com o que fazer hoje. O resumo que conecta o Centro Financeiro, o Planejamento e o valuation.</p>
-      </div>
+      <div id="dono-hero"></div>
+      <div class="ui-stats" id="dono-stats"></div>
       <div id="dono-body"></div>
     </section>
 
     <!-- ============ DASHBOARD ============ -->
     <section class="view on" id="v-dash">
-      <div class="in-hero">
-        <span class="in-hero-badge">✦ Gestão à vista · Grupo A! Fatorial</span>
-        <h2>Aqui o trabalho vira <b>resultado mensurável</b>.</h2>
-        <p>Cada cliente que entra percorre uma esteira desenhada de ponta a ponta. Você não improvisa: você executa uma estrutura que já foi pensada para dar certo — e é isso que entregamos.</p>
-        <div class="in-hero-stats">
-          <div class="in-hero-stat"><div class="v"><b id="k-ativos">0</b></div><div class="l">Contratos ativos</div></div>
-          <div class="in-hero-stat"><div class="v" id="k-fat"><b>R$ 0</b></div><div class="l">Faturamento bruto</div></div>
-          <div class="in-hero-stat"><div class="v"><b id="k-aprovacoes">0</b></div><div class="l">Aguardando você ★</div></div>
-          <div class="in-hero-stat"><div class="v"><b id="k-sat">—</b></div><div class="l">Satisfação média</div></div>
-        </div>
-      </div>
+      <div id="dash-hero"></div>
+      <div class="ui-stats" id="dash-stats"></div>
+      <div id="dash-trilha"></div>
 
       <div class="in-pillars">
         <div class="in-pillar"><div class="ic">🗺️</div><div><div class="t">Esteira de 14 etapas</div><div class="d">Do primeiro contato à prova real, nada se perde no caminho.</div></div></div>
@@ -2260,14 +2253,14 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
     <!-- ============ KANBAN OPERACIONAL ============ -->
     <section class="view" id="v-kanban">
       <div id="kb-hero"></div>
-      <div class="kb-stats" id="kb-stats"></div>
+      <div class="ui-stats" id="kb-stats"></div>
       <div id="kb-trilha"></div>
 
       <div class="card">
         <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Quadro de demandas
           <span class="pill pill-info" style="text-transform:none;letter-spacing:0;" id="kb-wa-status">📲 WhatsApp</span>
           <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <span class="kb-seg" id="kb-visao"></span>
+            <span class="ui-seg" id="kb-visao"></span>
             <button class="btn btn-gold btn-sm" onclick="kbNova()">+ Nova tarefa</button>
           </span>
         </div>
@@ -3064,6 +3057,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
 
         /* ===== NAVEGAÇÃO ===== */
         const TITLES={
+          dono:['Visão do <b>dono</b>','Cockpit executivo — o que importa hoje'],
           dash:['Gestão <b>à vista</b>','Ecossistema estratégico'],
           funil:['Esteira <b>comercial</b>','Do cadastro à prova real — 14 etapas conectadas'],
           propostas:['Propostas e <b>rastreio</b>','Inteligência comercial'],
@@ -7658,14 +7652,66 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
             <div class="c4" style="margin:0;"><div class="card" style="margin:0 0 18px;"><div class="card-h" style="display:flex;align-items:center;gap:8px;">💼 Metas de venda<button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="go('plano')">→</button></div>${chart3}</div></div>
           </div>`;
         }
+        /* ── GESTÃO À VISTA: hero, stat cards e a esteira como trilha ── */
+        function renderDashHero(){
+          let box=document.getElementById('dash-hero'); if(!box) return;
+          let u=AUTH.user||{}, st=entStats();
+          let pessoa={nome:u.apelido||u.nome||ADMIN_USER.apelido, cargo:u.rl||ADMIN_USER.cargo, foto:u.foto||ADMIN_USER.foto||'', cor:'var(--gold)'};
+          // quanto da esteira o negócio em andamento já percorreu
+          let idx=deal?ETAPAS.findIndex(e=>e.k===deal.etapa):-1;
+          let pctEsteira=deal?(deal.etapa==='concluido'?100:Math.round((idx+1)/ETAPAS.length*100)):0;
+          let kbAtras=(typeof kbAtrasadas==='function')?kbAtrasadas().length:0;
+          let frase=st.aguard?`<b>${st.aguard} ${st.aguard>1?'entregas aguardam':'entrega aguarda'} sua aprovação</b>. Enquanto isso, a esteira segue rodando.`
+            :kbAtras?`A esteira está limpa, mas o kanban tem <b style="color:var(--bad);">${kbAtras} demanda${kbAtras>1?'s':''} atrasada${kbAtras>1?'s':''}</b>.`
+            :deal?`<b>${uiEsc(deal.cliente)}</b> está na etapa <b>${uiEsc(ETAPAS[idx]?ETAPAS[idx].l:deal.etapa)}</b> da esteira. Nada esperando por você.`
+            :`Nenhum cliente na esteira agora. Comece uma proposta no funil e o processo se encarrega do resto.`;
+          box.innerHTML=uiHero({
+            eyebrow:'✦ Gestão à vista · Grupo A! Fatorial',
+            pessoa,
+            titulo:`${kbSaudacaoHora()}, <b>${uiEsc(String(pessoa.nome||'').split(' ')[0])}</b>.`,
+            texto:frase,
+            acoes:[
+              `<button class="btn btn-gold btn-sm" onclick="go('funil')">◎ Abrir a esteira</button>`,
+              st.aguard?`<button class="btn btn-ghost btn-sm" onclick="go('entregaveis')">★ Aprovar ${st.aguard} ${st.aguard>1?'entregas':'entrega'}</button>`:'',
+              kbAtras?`<button class="btn btn-ghost btn-sm" onclick="go('kanban')">⏰ ${kbAtras} demanda${kbAtras>1?'s':''} atrasada${kbAtras>1?'s':''}</button>`:''
+            ],
+            donut:{pct:pctEsteira, label:'da esteira'}
+          });
+          let bs=document.getElementById('dash-stats');
+          if(bs){
+            let recAberto=0;
+            (DB.recebiveis||[]).forEach(r=>(r.parcelas||[]).forEach(p=>{ if(!p.pago) recAberto+=p.valor||0; }));
+            let kbAbertas=(typeof KANBAN!=='undefined')?KANBAN.tarefas.filter(t=>t.etapa!=='concluido').length:0;
+            bs.innerHTML=uiStats([
+              {cor:'var(--kb-neutro)', ic:'◳', label:'Contratos ativos', valor:DB.kpis.ativos, pe:DB.propostas.length+' proposta'+(DB.propostas.length===1?'':'s')+' na base'},
+              {cor:'var(--kb-c3)', ic:'❖', label:'Faturamento bruto', valor:brl(DB.fin.bruto), money:true, pe:'impostos '+brl(DB.fin.impostos)},
+              {cor:'var(--kb-c4)', ic:'◷', label:'A receber', valor:brl(recAberto), money:true, pe:recAberto?'parcelas em aberto':'nada em aberto'},
+              {cor:st.aguard?'var(--kb-c2)':'var(--ink-faint)', ic:'★', label:'Aguardando você', valor:st.aguard, pe:st.aguard?'entregas para revisar':'nada pendente'},
+              {cor:'var(--kb-c1)', ic:'♡', label:'Satisfação média', valor:st.media==='—'?'<span style="font-size:19px;color:var(--ink-faint);">ainda sem nota</span>':st.media, pe:st.total+' entregável'+(st.total===1?'':'is')},
+              {cor:'var(--kb-c5)', ic:'▦', label:'Demandas em aberto', valor:kbAbertas, pe:'<b style="cursor:pointer;color:var(--gold-deep);" onclick="go(\'kanban\')">abrir o kanban →</b>'}
+            ]);
+          }
+        }
+        /* a esteira de 14 etapas virou trilha: cada passo mostra quem está nele */
+        function renderDashTrilha(){
+          let box=document.getElementById('dash-trilha'); if(!box) return;
+          const cores=['var(--kb-c5)','var(--kb-c4)','var(--kb-c2)','var(--kb-c1)','var(--kb-c7)','var(--kb-c3)','var(--kb-c6)'];
+          let atual=deal?ETAPAS.findIndex(e=>e.k===deal.etapa):-1;
+          let concluido=deal&&deal.etapa==='concluido';
+          box.innerHTML=uiTrilha(ETAPAS.map((e,i)=>{
+            let quantos=DB.propostas.filter(p=>p.etapa===e.k).length;
+            let passou=concluido||(atual>=0&&i<atual);
+            return {nome:e.l, cor:cores[i%cores.length], pct:passou?100:(i===atual?60:0),
+              on:i===atual&&!concluido, done:passou,
+              sb:quantos?quantos+' cliente'+(quantos>1?'s':'')+' aqui':(i===atual?'etapa atual':'—'),
+              click:"go('funil')", title:'Etapa '+(i+1)+' — '+e.l};
+          }));
+        }
         function renderDash(){
           if(typeof renderMomentosWidget==='function') renderMomentosWidget();
           if(typeof renderDashCharts==='function') renderDashCharts();
-          let st=entStats();
-          document.getElementById('k-ativos').innerText=DB.kpis.ativos;
-          document.getElementById('k-fat').innerText=brl(DB.fin.bruto);
-          document.getElementById('k-aprovacoes').innerText=st.aguard;
-          document.getElementById('k-sat').innerText=st.media;
+          if(typeof renderDashHero==='function') renderDashHero();
+          if(typeof renderDashTrilha==='function') renderDashTrilha();
           // pipeline
           let pip=document.getElementById('dash-pipeline');
           if(deal){ let idx=ETAPAS.findIndex(e=>e.k===deal.etapa); let lbl=deal.etapa==='concluido'?'Concluído':ETAPAS[idx]?.l||deal.etapa;
@@ -8699,8 +8745,47 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         }
 
         /* ===== VISÃO DO DONO — cockpit executivo (financeiro + metas + valuation) ===== */
+        /* ── VISÃO DO DONO: hero executivo + stat cards ── */
+        function renderDonoHero(){
+          let box=document.getElementById('dono-hero'); if(!box) return;
+          let u=AUTH.user||{};
+          let pessoa={nome:u.apelido||u.nome||ADMIN_USER.apelido, cargo:u.rl||ADMIN_USER.cargo, foto:u.foto||ADMIN_USER.foto||'', cor:'var(--gold)'};
+          let r=(typeof finResumo==='function'&&typeof FIN360!=='undefined')?finResumo(FIN360.lancamentos):{ent:0,sai:0,saldo:0,mistura:0,porCtx:{pessoal:0,empresa:0}};
+          let fat=(typeof FIN360!=='undefined'?FIN360.faturamentoAnual:0)||0;
+          let vMin=round2(fat*0.8), vMax=round2(fat*1.5);
+          let proj=0,real=0,fech=0,abertos=0;
+          if(typeof PLANO!=='undefined'){ PLANO.metas.forEach(m=>{ proj+=planoMetaProj(m); real+=planoMetaReal(m); fech+=planoMetaFechados(m);
+            (m.clientes||[]).forEach(c=>{ if(c.status==='ofereci'||c.status==='negociando')abertos++; }); }); }
+          let pctv=proj>0?Math.min(100,Math.round(real/proj*100)):0;
+          let falta=Math.max(0,round2(proj-real));
+          let frase=r.saldo<0?`Seu resultado financeiro está <b style="color:var(--bad);">negativo em ${brl(Math.abs(r.saldo))}</b>. É o primeiro número a virar.`
+            :pctv>=100?`Meta de vendas <b style="color:var(--ok);">batida</b> — ${brl(real)} realizados. Hora de repactuar o próximo alvo.`
+            :falta?`Faltam <b>${brl(falta)}</b> para fechar a meta do plano. ${abertos?abertos+' proposta'+(abertos>1?'s':'')+' em aberto pode'+(abertos>1?'m':'')+' resolver isso.':'Coloque novas propostas na rua.'}`
+            :`Cadastre metas no Planejamento para acompanhar o quanto falta para o seu alvo.`;
+          box.innerHTML=uiHero({
+            eyebrow:'★ Visão do dono · cockpit executivo',
+            pessoa,
+            titulo:`Tudo o que importa, <b>numa tela só</b>.`,
+            texto:frase,
+            acoes:[
+              `<button class="btn btn-gold btn-sm" onclick="relatorioDono()">📄 Relatório executivo (PDF)</button>`,
+              `<button class="btn btn-ghost btn-sm" onclick="gerarAlertasInteligentes();renderNotif();toggleNotif();">🔔 Recalcular alertas</button>`,
+              `<button class="btn btn-ghost btn-sm" onclick="go('fin360')">◇ Centro Financeiro</button>`
+            ],
+            donut:{pct:pctv, label:'da meta de vendas'}
+          });
+          let bs=document.getElementById('dono-stats');
+          if(bs) bs.innerHTML=uiStats([
+            {cor:'var(--kb-neutro)', ic:'◈', label:'Receita projetada', valor:brl(proj), money:true, pe:'somando as metas do plano'},
+            {cor:'var(--kb-c3)', ic:'✓', label:'Vendas realizadas', valor:brl(real), money:true, pe:fech+' fechamento'+(fech===1?'':'s')+(abertos?' · '+abertos+' em aberto':'')},
+            {cor:r.saldo>=0?'var(--kb-c4)':'var(--kb-c8)', ic:r.saldo>=0?'❖':'⚠', label:'Resultado financeiro', valor:brl(r.saldo), money:true, pe:'entradas '+brl(r.ent)+' · saídas '+brl(r.sai)},
+            {cor:'var(--kb-c5)', ic:'◆', label:'Quanto vale o negócio', valor:brl(vMin), money:true, pe:'até '+brl(vMax)+' (0,8 a 1,5× o faturamento)'},
+            {cor:'var(--kb-c1)', ic:'⇄', label:'Mistura PF / PJ', valor:brl(r.mistura), money:true, pe:r.mistura?'separe o que é seu do que é da empresa':'contas separadas ✓'}
+          ]);
+        }
         function renderDono(){
           let box=document.getElementById('dono-body'); if(!box)return;
+          renderDonoHero();
           let r=(typeof finResumo==='function'&&typeof FIN360!=='undefined')?finResumo(FIN360.lancamentos):{ent:0,sai:0,saldo:0,mistura:0,porCtx:{pessoal:0,empresa:0}};
           let saldoPF=round2(r.porCtx.pessoal||0), saldoEmp=round2(r.porCtx.empresa||0);
           let fat=(typeof FIN360!=='undefined'?FIN360.faturamentoAnual:0)||0, vMin=round2(fat*0.8), vMax=round2(fat*1.5);
@@ -8715,14 +8800,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           let metasFin=(typeof FIN360!=='undefined'?FIN360.metas:[]).slice(0,3).map(m=>{ let pct=m.alvo>0?Math.min(100,Math.round((m.atual||0)/m.alvo*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>🎯 ${m.nome}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--gold-grad);"></div></div></div>`; }).join('');
           let metasVen=(typeof PLANO!=='undefined'?PLANO.metas:[]).slice(0,4).map(m=>{ let p=planoMetaProj(m),rl=planoMetaReal(m),pct=p>0?Math.min(100,Math.round(rl/p*100)):0; return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>💼 ${m.servico}</span><b>${pct}%</b></div><div style="height:7px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#35e6ff,#0bb6d6);"></div></div></div>`; }).join('');
           box.innerHTML=`
-            <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;"><button class="btn btn-ghost btn-sm" onclick="gerarAlertasInteligentes();renderNotif();toggleNotif();">🔔 Recalcular alertas</button><button class="btn btn-gold btn-sm" onclick="relatorioDono()">📄 Relatório executivo (PDF)</button></div>
             <div class="card"><div class="card-h">📝 Resumo da sua situação — em uma olhada</div><p style="font-size:13.5px;line-height:1.75;color:var(--ink);">${resumoNatural()}</p></div>
-            <div class="kpis">
-              <div class="kpi"><div class="v" style="color:var(--gold-bright);">${brl(proj)}</div><div class="l">Receita projetada (metas)</div></div>
-              <div class="kpi"><div class="v" style="color:var(--ok);">${brl(real)}</div><div class="l">Vendas realizadas</div></div>
-              <div class="kpi ${r.saldo>=0?'':'hot'}"><div class="v" style="color:${r.saldo>=0?'var(--ok)':'var(--bad)'};">${brl(r.saldo)}</div><div class="l">Resultado financeiro</div></div>
-              <div class="kpi hot"><div class="v" style="color:var(--gold-bright);font-size:18px;">${brl(vMin)}<span style="color:var(--ink-faint);font-size:12px;"> a </span>${brl(vMax)}</div><div class="l">Quanto vale o negócio</div></div>
-            </div>
             <div class="card">
               <div class="card-h">🧭 Conselho do dia</div>
               ${consHTML}
@@ -8885,7 +8963,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
         function kbIniciais(nome){ return String(nome||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase(); }
         /* Avatar da pessoa: foto de perfil quando existe, iniciais quando não. */
         function kbAv(p, grande){
-          return `<span class="kb-av${grande?' kb-av-g':''}" style="--kbc:${p.cor};">${
+          return `<span class="ui-av${grande?' ui-av-g':''}" style="--kbc:${p.cor};">${
             p.foto?`<img src="${kbEsc(p.foto)}" alt="">`:kbIniciais(p.nome)}</span>`;
         }
         function kbNumero(id){ return String(KANBAN.contatos[id]||'').replace(/\D/g,''); }
@@ -8980,6 +9058,59 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           };
         }
         function kbFimSemana(){ let d=new Date(); d.setDate(d.getDate()+(7-(d.getDay()||7))); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+        /* ═══════════════════════════════════════════════════════════════
+           COMPONENTES VISUAIS COMPARTILHADOS
+           Montam o hero, os stat cards e a trilha usados pelo Kanban, pela
+           Gestão à vista e pela Visão do dono. Mexer aqui muda as três.
+           ═══════════════════════════════════════════════════════════════ */
+        function uiEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        function uiIniciais(nome){ return String(nome||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase(); }
+        /* o.pessoa {nome,cargo,foto,cor} · o.donut {pct,label} · o.acoes [html] */
+        function uiHero(o){
+          let p=o.pessoa;
+          return `<div class="ui-hero">
+            <div class="ui-hero-grid">
+              <div class="ui-hero-txt">
+                ${o.eyebrow?`<span class="ui-eyebrow">${o.eyebrow}</span>`:''}
+                ${p?`<div class="ui-hero-user">
+                  <span class="ui-av ui-av-xg" style="--kbc:${p.cor||'var(--gold)'};">${p.foto?`<img src="${uiEsc(p.foto)}" alt="">`:uiIniciais(p.nome)}</span>
+                  <span><span class="nm">${uiEsc(p.nome)}</span><span class="rl">${uiEsc(p.cargo||'')}</span></span>
+                </div>`:''}
+                <h2>${o.titulo||''}</h2>
+                ${o.texto?`<p>${o.texto}</p>`:''}
+                ${(o.acoes&&o.acoes.length)?`<div class="ui-hero-acts">${o.acoes.filter(Boolean).join('')}</div>`:''}
+              </div>
+              ${o.donut?`<div class="ui-donut" style="--p:${Math.max(0,Math.min(100,o.donut.pct))};">
+                <span class="ui-donut-in"><b>${o.donut.valor!==undefined?o.donut.valor:o.donut.pct+'%'}</b><span>${o.donut.label||''}</span></span>
+              </div>`:''}
+            </div>
+          </div>`;
+        }
+        /* itens: {cor, ic, label, valor, pe} */
+        function uiStat(i){
+          return `<div class="ui-stat" style="--kbc:${i.cor||'var(--gold)'};">
+            <div class="ui-stat-h"><span class="ui-stat-ic">${i.ic||'◆'}</span><span class="ui-stat-l">${i.label||''}</span></div>
+            <div class="ui-stat-v${i.money?' grana':''}">${i.valor}</div>
+            <div class="ui-stat-f">${i.pe||''}</div></div>`;
+        }
+        function uiStats(itens){ return itens.filter(Boolean).map(uiStat).join(''); }
+        /* barrinhas proporcionais: [{v, cor, t}] */
+        function uiSpark(vals){
+          let max=Math.max(1,...vals.map(x=>x.v));
+          return '<span class="ui-spark">'+vals.map(x=>
+            `<i class="${x.v?'on':''}" style="height:${Math.max(3,Math.round(x.v/max*16))}px;background:${x.cor};" title="${uiEsc(x.t||'')}: ${x.v}"></i>`).join('')+'</span>';
+        }
+        /* passos: {nome, sb, pct, cor, on, done, marca, click, title} */
+        function uiTrilha(passos){
+          return '<div class="ui-trilha">'+passos.map((p,i)=>
+            `<button class="ui-passo ${p.on?'on':''} ${p.done?'done':''}" style="--kbc:${p.cor};--p:${p.pct||0};"
+              ${p.click?`onclick="${p.click}"`:''} title="${uiEsc(p.title||p.nome)}">
+              <span class="ui-passo-ring"><b>${p.marca!==undefined?p.marca:(p.done?'✓':i+1)}</b></span>
+              <span class="nm">${uiEsc(p.nome)}</span>
+              <span class="sb">${p.sb||''}</span>
+            </button>`).join('')+'</div>';
+        }
+
         function kbRenderHero(){
           let box=document.getElementById('kb-hero'); if(!box) return;
           let u=AUTH.user||{}, ehCol=u.papel==='colaborador';
@@ -8990,67 +9121,47 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
             :c.hoje?`<b>${c.hoje} demanda${c.hoje>1?'s':''} vence${c.hoje>1?'m':''} hoje</b> e nada está atrasado. Mantenha o ritmo.`
             :c.abertas?`<b>${c.abertas} demanda${c.abertas>1?'s':''} em aberto</b> e nada atrasado. A operação está no controle. 👏`
             :`Nenhuma demanda em aberto. Quadro limpo — hora de puxar o próximo ciclo. 🎉`;
-          box.innerHTML=`<div class="kb-hero">
-            <div class="kb-hero-grid">
-              <div class="kb-hero-txt">
-                <span class="kb-eyebrow">▦ Kanban operacional · demandas da equipe</span>
-                <div class="kb-hero-user">
-                  <span class="kb-av kb-av-xg" style="--kbc:${p.cor};">${p.foto?`<img src="${kbEsc(p.foto)}" alt="">`:kbIniciais(p.nome)}</span>
-                  <span><span class="nm">${kbEsc(p.nome)}</span><span class="rl">${kbEsc(p.cargo||'')}</span></span>
-                </div>
-                <h2>${kbSaudacaoHora()}, <b>${kbEsc(String(p.nome||'').split(' ')[0])}</b>.</h2>
-                <p>${frase}</p>
-                <div class="kb-hero-acts">
-                  <button class="btn btn-gold btn-sm" onclick="kbNova()">+ Nova tarefa</button>
-                  ${c.atras&&kbEhAdmin()?`<button class="btn btn-ghost btn-sm" onclick="kbCobrarAtrasadas()">⏰ Cobrar as ${c.atras} atrasadas</button>`:''}
-                  ${c.semDono?`<button class="btn btn-ghost btn-sm" onclick="kbFiltroResp('')">⚠ ${c.semDono} sem responsável</button>`:''}
-                </div>
-              </div>
-              <div class="kb-donut" style="--p:${pct};">
-                <span class="kb-donut-in"><b>${pct}%</b><span>concluído</span></span>
-              </div>
-            </div>
-          </div>`;
+          box.innerHTML=uiHero({
+            eyebrow:'▦ Kanban operacional · demandas da equipe',
+            pessoa:p,
+            titulo:`${kbSaudacaoHora()}, <b>${kbEsc(String(p.nome||'').split(' ')[0])}</b>.`,
+            texto:frase,
+            acoes:[
+              `<button class="btn btn-gold btn-sm" onclick="kbNova()">+ Nova tarefa</button>`,
+              c.atras&&kbEhAdmin()?`<button class="btn btn-ghost btn-sm" onclick="kbCobrarAtrasadas()">⏰ Cobrar as ${c.atras} atrasadas</button>`:'',
+              c.semDono?`<button class="btn btn-ghost btn-sm" onclick="kbFiltroResp('')">⚠ ${c.semDono} sem responsável</button>`:''
+            ],
+            donut:{pct, label:'concluído'}
+          });
         }
 
-        /* ── STAT CARDS ── */
-        function kbSparkEtapas(L){
-          let max=Math.max(1,...KB_ETAPAS.map(e=>L.filter(t=>t.etapa===e.id).length));
-          return '<span class="kb-spark">'+KB_ETAPAS.map(e=>{
-            let n=L.filter(t=>t.etapa===e.id).length;
-            return `<i class="${n?'on':''}" style="height:${Math.max(3,Math.round(n/max*16))}px;background:${e.cor};" title="${e.nome}: ${n}"></i>`;
-          }).join('')+'</span>';
-        }
         function kbRenderStats(){
           let box=document.getElementById('kb-stats'); if(!box) return;
           let L=kbFiltradas(), c=kbContagens(L);
           let pct=c.total?Math.round(c.feitas/c.total*100):0;
-          const st=(cor,ic,label,valor,pe)=>`<div class="kb-stat" style="--kbc:${cor};">
-            <div class="kb-stat-h"><span class="kb-stat-ic">${ic}</span><span class="kb-stat-l">${label}</span></div>
-            <div class="kb-stat-v">${valor}</div>
-            <div class="kb-stat-f">${pe}</div></div>`;
-          box.innerHTML=
-             st('var(--kb-neutro)','▦','Total de demandas',c.total, kbSparkEtapas(L)+(c.total?'<span>nas 5 etapas</span>':'<span>nenhuma ainda</span>'))
-            +st('var(--kb-c2)','◷','Em andamento',c.andamento, c.revisao?`${c.revisao} aguardando revisão`:'nada aguardando revisão')
-            +st('var(--kb-c3)','✓','Concluídas',c.feitas, `${pct}% do quadro`)
-            +st(c.atras?'var(--kb-c8)':'var(--ink-faint)','⚠','Em atraso',c.atras, c.atras?'precisa de cobrança hoje':'tudo dentro do prazo')
-            +st('var(--kb-c4)','📅','Vencem esta semana',c.semana, c.hoje?`${c.hoje} ${c.hoje>1?'vencem':'vence'} hoje`:'nada para hoje');
+          let spark=uiSpark(KB_ETAPAS.map(e=>({v:L.filter(t=>t.etapa===e.id).length, cor:e.cor, t:e.nome})));
+          box.innerHTML=uiStats([
+            {cor:'var(--kb-neutro)', ic:'▦', label:'Total de demandas', valor:c.total, pe:spark+(c.total?'<span>nas 5 etapas</span>':'<span>nenhuma ainda</span>')},
+            {cor:'var(--kb-c2)', ic:'◷', label:'Em andamento', valor:c.andamento, pe:c.revisao?c.revisao+' aguardando revisão':'nada aguardando revisão'},
+            {cor:'var(--kb-c3)', ic:'✓', label:'Concluídas', valor:c.feitas, pe:pct+'% do quadro'},
+            {cor:c.atras?'var(--kb-c8)':'var(--ink-faint)', ic:'⚠', label:'Em atraso', valor:c.atras, pe:c.atras?'precisa de cobrança hoje':'tudo dentro do prazo'},
+            {cor:'var(--kb-c4)', ic:'📅', label:'Vencem esta semana', valor:c.semana, pe:c.hoje?c.hoje+(c.hoje>1?' vencem hoje':' vence hoje'):'nada para hoje'}
+          ]);
         }
 
         /* ── TRILHA DE ONDAS: passos conectados que filtram o quadro ── */
         function kbRenderTrilha(){
           let box=document.getElementById('kb-trilha'); if(!box) return;
           const cores=['var(--kb-c5)','var(--kb-c4)','var(--kb-c2)','var(--kb-c1)','var(--kb-c7)'];
-          box.innerHTML='<div class="kb-trilha">'+KB_ONDAS.map((o,i)=>{
+          box.innerHTML=uiTrilha(KB_ONDAS.map((o,i)=>{
             let L=KANBAN.tarefas.filter(t=>t.onda===o);
             let ok=L.filter(t=>t.etapa==='concluido').length;
             let pct=L.length?Math.round(ok/L.length*100):0;
-            return `<button class="kb-passo ${KANBAN.filtro.onda===o?'on':''} ${pct===100&&L.length?'done':''}" style="--kbc:${cores[i%cores.length]};--p:${pct};" onclick="kbFiltroOnda('${o}')" title="Ver só a ${o}">
-              <span class="kb-passo-ring"><b>${pct===100&&L.length?'✓':i+1}</b></span>
-              <span class="nm">${o}</span>
-              <span class="sb">${L.length?ok+'/'+L.length+' pronta'+(ok===1?'':'s')+'<br>'+pct+'% concluído':'sem demanda'}</span>
-            </button>`;
-          }).join('')+'</div>';
+            return {nome:o, cor:cores[i%cores.length], pct,
+              on:KANBAN.filtro.onda===o, done:!!(L.length&&pct===100),
+              sb:L.length?ok+'/'+L.length+' pronta'+(ok===1?'':'s')+'<br>'+pct+'% concluído':'sem demanda',
+              click:`kbFiltroOnda('${o}')`, title:'Ver só a '+o};
+          }));
         }
 
         /* ── CARGA DA EQUIPE ── */
