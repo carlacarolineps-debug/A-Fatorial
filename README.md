@@ -305,6 +305,21 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
       e o fundo fixo do portal **cobria a barra lateral** — invisível no tema
       escuro, gritante no claro (`.side` ganhou `z-index`).
 
+29. **Dimensionamento em telas de notebook (1280–1440px)** — o visual foi
+    desenhado em tela larga e quebrava em 1366px:
+    - **Barra de topo**: o subtítulo e o cargo do usuário quebravam em duas
+      linhas e a barra crescia de 64 para 84px. Agora os textos ficam em uma
+      linha com reticências; abaixo de 1150px o nome/cargo somem e fica o
+      avatar, e o controle de volume some.
+    - **Stat cards**: com 6 cards a grade fazia 5 + 1, deixando um card órfão.
+      O contêiner agora recebe a classe da quantidade (`.n4`…`.n6` via
+      `uiStatsRender`) e a grade escolhe colunas que fecham as linhas — em
+      1366px: 3 + 3 para seis cards e 5 em linha para cinco.
+    - **Trilha**: os 10 passos da jornada somavam 1180px em um espaço de
+      976px e sumiam na rolagem. Abaixo de 1500px os passos encolhem
+      (anel menor, fontes menores) e cabem sem rolar.
+    - Corrigida a pontuação dupla "Chegou!." no texto do hero.
+
 ## Integração com o WhatsApp (pasta `backend/`)
 
 O modo **link direto** funciona sozinho, sem servidor. Para o envio

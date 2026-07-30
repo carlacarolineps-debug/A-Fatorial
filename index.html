@@ -1299,6 +1299,21 @@ body.theme-gamer .ui-donut::after{background:#101828;}
 .ui-donut-in b{display:block;font-family:var(--font-display);font-size:36px;font-weight:800;letter-spacing:-.04em;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;}
 .ui-donut-in span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--ink-faint);margin-top:5px;font-weight:700;}
 
+/* ── BARRA DE TOPO: uma linha só, sempre ── */
+.topbar h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52vw;}
+.topbar .who{min-width:0;}
+.topbar .who .nm,.topbar .who .rl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px;}
+@media(max-width:1400px){
+  .topbar .who .nm,.topbar .who .rl{max-width:150px;}
+  .som-vol{width:70px;}
+}
+@media(max-width:1150px){
+  .topbar .sub{max-width:38vw;}
+  .som-vol{display:none;}
+  .topbar .who>div:not(.av){display:none;}   /* nome/cargo saem; o avatar fica */
+}
+
 /* ── BARRA DE NAVEGAÇÃO DE SEÇÃO (portal do colaborador) ── */
 .ui-navbar{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px 20px;margin-bottom:var(--kb-gap,16px);}
 .ui-navbar-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
@@ -1311,6 +1326,14 @@ body.theme-gamer .ui-donut::after{background:#101828;}
 
 /* ── STAT CARDS ── */
 .ui-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:var(--kb-gap);margin-bottom:var(--kb-gap);}
+/* O número de colunas segue a quantidade de cards (classe n3..n6), senão
+   sobra um card sozinho na segunda linha em telas de 1366px. */
+.ui-stats.n5{grid-template-columns:repeat(5,1fr);}
+.ui-stats.n6{grid-template-columns:repeat(3,1fr);}
+@media(min-width:1660px){ .ui-stats.n6{grid-template-columns:repeat(6,1fr);} }
+@media(max-width:1300px){ .ui-stats.n5{grid-template-columns:repeat(3,1fr);} }
+@media(max-width:1120px){ .ui-stats.n4,.ui-stats.n5,.ui-stats.n6{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:700px){ .ui-stats,.ui-stats.n4,.ui-stats.n5,.ui-stats.n6{grid-template-columns:1fr;} }
 .ui-stat{position:relative;overflow:hidden;padding:20px;border-radius:20px;background:var(--panel);border:1px solid var(--line);
   box-shadow:var(--shadow);transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s,border-color .22s;}
 .ui-stat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--kbc) 48%,var(--line));
@@ -1328,10 +1351,19 @@ body.theme-gamer .ui-donut::after{background:#101828;}
 .ui-spark i.on{opacity:.95;}
 
 /* ── TRILHA DE ONDAS ── */
-.ui-trilha{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:0;padding:22px 24px;margin-bottom:var(--kb-gap);
+.ui-trilha{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(112px,1fr);gap:0;padding:22px 24px;margin-bottom:var(--kb-gap);
   background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow-x:auto;}
+/* em telas de notebook os passos encolhem em vez de sumir na rolagem */
+@media(max-width:1500px){
+  .ui-trilha{grid-auto-columns:minmax(86px,1fr);padding:20px 16px;}
+  .ui-passo{padding:0 3px;}
+  .ui-passo-ring{width:40px;height:40px;}
+  .ui-passo::before{top:20px;}
+  .ui-passo .nm{font-size:11.5px;}
+  .ui-passo .sb{font-size:9.5px;}
+}
 .ui-passo{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 8px;background:none;border:none;
-  font-family:inherit;cursor:pointer;min-width:118px;}
+  font-family:inherit;cursor:pointer;min-width:0;}
 .ui-passo::before{content:'';position:absolute;top:23px;left:0;right:0;height:3px;background:var(--line);z-index:0;}
 .ui-passo:first-child::before{left:50%;}
 .ui-passo:last-child::before{right:50%;}
@@ -5044,7 +5076,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           let eu=(AUTH.user&&AUTH.user.papel==='colaborador'&&AUTH.user.id===c.id);
           let missAtivas=(c.missoes||[]).filter(m=>m.status==='ativa').length;
           let frase=`<b>Nível ${nivel}</b> · ${c.gam.xp} XP acumulados, faltam ${100-pct} para o nível ${nivel+1}. `
-            +(nb?`Próxima conquista: <b>${nb.ic} ${nb.l}</b>.`:`<b>Todas as conquistas desbloqueadas.</b> 🏆`)
+            +(nb?`Próxima conquista: <b>${nb.ic} ${nb.l}</b>${/[!?.]$/.test(nb.l)?'':'.'}`:`<b>Todas as conquistas desbloqueadas.</b> 🏆`)
             +(pctJ<100?` Sua jornada de integração está em ${pctJ}%.`:` Jornada de integração completa. 🎉`);
           cont.innerHTML=uiHero({
             eyebrow:'♛ Portal do colaborador · sua jornada',
@@ -5059,7 +5091,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
             donut:{pct, valor:nivel, label:'nível · '+pct+'%'}
           });
           let bs=document.getElementById('col-stats');
-          if(bs) bs.innerHTML=uiStats([
+          uiStatsRender(bs,[
             score!=null?{cor:'var(--kb-c4)', ic:'⚡', label:'Power', valor:score, pe:'entregas, prazo e qualidade'}:null,
             {cor:'var(--kb-neutro)', ic:'✦', label:'XP acumulado', valor:c.gam.xp, pe:'nível '+nivel+' · '+pct+'% para o próximo'},
             {cor:'var(--kb-c2)', ic:'🏆', label:'Troféus', valor:c.gam.badges.length+'/'+COL_BADGES.length, pe:nb?'próxima: '+nb.l:'coleção completa'},
@@ -5182,7 +5214,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           let feitas=etapas.filter(e=>e[1]).length, totalE=etapas.length;
           let admDias=Math.max(0,Math.floor((Date.now()-new Date(c.admissao+'T00:00').getTime())/86400000));
           document.getElementById('col-pane-dash').innerHTML=`
-            <div class="ui-stats">
+            <div class="ui-stats n4">
               ${uiStats([
                 {cor:'var(--kb-c3)', ic:'✓', label:'Perfil preenchido', valor:Math.round(feitas/totalE*100)+'%', pe:feitas+' de '+totalE+' itens do seu cadastro'},
                 {cor:'var(--kb-c5)', ic:'♛', label:'Objetivos ativos', valor:c.objetivos.length, pe:c.objetivos.length?'acompanhe em Objetivos & metas':'defina o primeiro objetivo'},
@@ -7714,7 +7746,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
             let recAberto=0;
             (DB.recebiveis||[]).forEach(r=>(r.parcelas||[]).forEach(p=>{ if(!p.pago) recAberto+=p.valor||0; }));
             let kbAbertas=(typeof KANBAN!=='undefined')?KANBAN.tarefas.filter(t=>t.etapa!=='concluido').length:0;
-            bs.innerHTML=uiStats([
+            uiStatsRender(bs,[
               {cor:'var(--kb-neutro)', ic:'◳', label:'Contratos ativos', valor:DB.kpis.ativos, pe:DB.propostas.length+' proposta'+(DB.propostas.length===1?'':'s')+' na base'},
               {cor:'var(--kb-c3)', ic:'❖', label:'Faturamento bruto', valor:brl(DB.fin.bruto), money:true, pe:'impostos '+brl(DB.fin.impostos)},
               {cor:'var(--kb-c4)', ic:'◷', label:'A receber', valor:brl(recAberto), money:true, pe:recAberto?'parcelas em aberto':'nada em aberto'},
@@ -8807,7 +8839,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
             donut:{pct:pctv, label:'da meta de vendas'}
           });
           let bs=document.getElementById('dono-stats');
-          if(bs) bs.innerHTML=uiStats([
+          uiStatsRender(bs,[
             {cor:'var(--kb-neutro)', ic:'◈', label:'Receita projetada', valor:brl(proj), money:true, pe:'somando as metas do plano'},
             {cor:'var(--kb-c3)', ic:'✓', label:'Vendas realizadas', valor:brl(real), money:true, pe:fech+' fechamento'+(fech===1?'':'s')+(abertos?' · '+abertos+' em aberto':'')},
             {cor:r.saldo>=0?'var(--kb-c4)':'var(--kb-c8)', ic:r.saldo>=0?'❖':'⚠', label:'Resultado financeiro', valor:brl(r.saldo), money:true, pe:'entradas '+brl(r.ent)+' · saídas '+brl(r.sai)},
@@ -9126,6 +9158,14 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
             <div class="ui-stat-f">${i.pe||''}</div></div>`;
         }
         function uiStats(itens){ return itens.filter(Boolean).map(uiStat).join(''); }
+        /* Desenha os cards E marca no contêiner quantos são (.n5, .n6...),
+           para a grade escolher um número de colunas que não deixe card órfão. */
+        function uiStatsRender(box, itens){
+          if(!box) return;
+          itens=itens.filter(Boolean);
+          box.className='ui-stats n'+itens.length;
+          box.innerHTML=itens.map(uiStat).join('');
+        }
         /* barrinhas proporcionais: [{v, cor, t}] */
         function uiSpark(vals){
           let max=Math.max(1,...vals.map(x=>x.v));
@@ -9172,7 +9212,7 @@ body.theme-gamer .kb-col-h .dot{box-shadow:0 0 10px var(--kbc);}
           let L=kbFiltradas(), c=kbContagens(L);
           let pct=c.total?Math.round(c.feitas/c.total*100):0;
           let spark=uiSpark(KB_ETAPAS.map(e=>({v:L.filter(t=>t.etapa===e.id).length, cor:e.cor, t:e.nome})));
-          box.innerHTML=uiStats([
+          uiStatsRender(box,[
             {cor:'var(--kb-neutro)', ic:'▦', label:'Total de demandas', valor:c.total, pe:spark+(c.total?'<span>nas 5 etapas</span>':'<span>nenhuma ainda</span>')},
             {cor:'var(--kb-c2)', ic:'◷', label:'Em andamento', valor:c.andamento, pe:c.revisao?c.revisao+' aguardando revisão':'nada aguardando revisão'},
             {cor:'var(--kb-c3)', ic:'✓', label:'Concluídas', valor:c.feitas, pe:pct+'% do quadro'},
