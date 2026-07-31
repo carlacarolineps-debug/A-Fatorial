@@ -499,6 +499,13 @@ no [README do backend](backend/README.md).
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
+- **Vendas / metas**: `VENDAS` (estado, chave `af_vendas`), `vendasInit`,
+  `vendasRender`, `vendasMetaSugerida`, `vdFunil` (etapas do funil),
+  `vdVazamento` (onde vaza), `vdMotivos`, `vdComp` (comparação entre meses).
+- **Leads**: `DB.leads` (chave `af_leads`), `leadEuId` (quem está agindo),
+  `leadPegar` (trava de exclusividade), `leadEntregar` (distribuição),
+  `leadStatus` + `leadPerdaSalvar` (motivo da perda), `leadCard` (modos
+  `painel`, `meus` e `gestao`), `leadSemearHistorico`.
 - **Kanban / WhatsApp**: `KANBAN` (estado), `KB_ETAPAS` (colunas),
   `KB_PRIORIDADES`, `KB_MSG_PADRAO` (textos das mensagens), `kbInit`,
   `kbRender`, `kbSalvar`, `kbMover`, `kbNotificar` (envio) e `kbWaCfgRender`
@@ -506,3 +513,55 @@ no [README do backend](backend/README.md).
 - **Usuários / acessos**: `ADMIN_USER`, `normalizaUsuarios`, `salvarUsuarios`,
   `renderUsuarios`, `usuarioSalvar`, `colaboradorNovo` (persistência em
   `localStorage` chave `af_usuarios`; em produção, isso vai para o backend).
+
+45. **Vendas e metas — a área comercial** (`v-vendas`, `vendasRender`). É a
+    tela que responde, nesta ordem: **quanto falta**, **por que falta** e **o
+    que fazer agora**. Primeiro item do grupo Comercial, só para a gestão.
+    - **Placar da meta** — meta do mês, fechado, o que falta em reais **e em
+      número de contratos** ("faltam R$ 3.200 = 1 fechamento do seu tamanho
+      médio"), e o que já está em negociação. A barra tem uma **marca cinza**
+      no ponto do mês em que você está: se a barra dourada está atrás da marca,
+      você está atrasada — dá para ver sem ler número nenhum.
+    - **Funil em barras** — Leads recebidos → Assumidos → Contatados →
+      Reunião/proposta → Fecharam. Cada degrau mostra a **taxa de passagem** e
+      quantos pararam ali, e o pior degrau ganha o selo **"o funil vaza aqui"**.
+      É o que explica o resultado: não adianta buscar mais lead se a perda está
+      na proposta.
+    - **"Por que o mês está assim"** — leitura em texto, calculada: ritmo
+      contra o calendário, onde o funil vaza, maior motivo de perda, leads
+      parados no painel e a comparação com o mês anterior.
+    - **Motivo de perda** — ao marcar "não fechou", abre um modal com os
+      motivos (preço, momento, concorrente, sumiu, perfil, outro) e um campo de
+      detalhe. Vira o gráfico "Por que perdemos". `LEAD_MOTIVOS`,
+      `leadPerdaAbrir`, `leadPerdaSalvar`.
+    - **Comparação entre períodos** — fechado, nº de vendas, taxa e ticket
+      médio contra o mês anterior. Indicador que já é percentual compara em
+      **pontos**, não em porcentagem de porcentagem.
+    - **Meta sugerida, não campo em branco** — nasce da meta do trimestre do
+      Planejamento; sem ela, da média do que você vem fechando **mais 20%**;
+      depois do faturamento médio da empresa. `vendasMetaSugerida`.
+    - **O que voltou para a sua mão**: a meta de contatos do dia com a régua de
+      bolinhas, o **painel de leads livres com "Pegar para mim"** e a **sua
+      carteira** com WhatsApp, registrar contato, mudar status e devolver.
+
+46. **A gestão também pega e distribui lead** — os cartões do painel eram só
+    leitura para quem é admin (apareciam sem botão nenhum). Agora têm **"Pegar
+    para mim"**, **"Entregar"** e edição, tanto em *Vendas e metas* quanto em
+    *Prestadores e leads*. O modal de entrega mostra quem está **liberado em
+    cada contrato** — quem não está aparece marcado, com o motivo, em vez de
+    sumir da lista. `leadEntregar`, `leadEntregarOpcoes`.
+
+47. **Quem é "você" ao pegar um lead** — o admin herdava a identidade do
+    colaborador selecionado no portal, então o lead que ela pegava ia para
+    outra pessoa. `leadEuId()` resolve a identidade pelo contexto: dentro do
+    portal vale a pessoa mostrada; fora dele, quem está logado.
+
+48. **Histórico de vendas na base** — sem fechamentos e perdas anteriores, o
+    funil, a taxa de conversão, os motivos de perda e a comparação entre meses
+    nasciam zerados e a tela não ensinava nada. O sistema semeia um histórico
+    do mês atual e do anterior (e migra quem já usava, uma única vez).
+    `leadSemearHistorico`, chave `af_leads_hist`.
+
+49. **A meta do mês entra no "Agora" e no briefing** — quando você está atrás
+    do ritmo, o primeiro passo do dia passa a ser quanto falta e quantos
+    fechamentos isso representa; e o ritmo de contatos entra logo abaixo.
