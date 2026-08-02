@@ -575,7 +575,7 @@ no [README do backend](backend/README.md).
     do ritmo, o primeiro passo do dia passa a ser quanto falta e quantos
     fechamentos isso representa; e o ritmo de contatos entra logo abaixo.
 
-## A rede de prestadores — versão 3108
+## A rede de prestadores — versão 0208
 
 O sistema deixou de ser só a gestão da Carla e virou a plataforma do grupo:
 **8 marcas**, **8 contratos**, uma rede de prestadores autônomos e um mercado
