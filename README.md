@@ -499,6 +499,15 @@ no [README do backend](backend/README.md).
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
+- **Rede / contratos**: `MARCAS`, `CONTRATOS`, `ESCOPOS`, `PREST_NIVEIS`,
+  `contratoTexto` (o contrato padrão), `D4`/`d4Enviar`/`d4Assinar` (assinatura),
+  `prestLiberado` (a trava geral), `prestAbrir` (configuração da pessoa),
+  `prestRender` (tela da rede), `redeMigrar` (migração para autônomo).
+- **Demandas**: `DB.demandas` (chave `af_demandas`), `demVisivelPara` (quem vê
+  o quê), `demPegar`/`demPausar`/`demEntregarSalvar`/`demAprovar`,
+  `demSegundos`/`demPctTempo` (o relógio), `demRenderGestao`/`demRenderPortal`.
+- **Parceiras e cadastro público**: `DB.parceiras`, `DB.candidatos` (chave
+  `af_rede`), `parceiraRender`, `candAprovar`, `cadAbrir`/`cadEnviarPrestador`.
 - **Vendas / metas**: `VENDAS` (estado, chave `af_vendas`), `vendasInit`,
   `vendasRender`, `vendasMetaSugerida`, `vdFunil` (etapas do funil),
   `vdVazamento` (onde vaza), `vdMotivos`, `vdComp` (comparação entre meses).
@@ -565,3 +574,88 @@ no [README do backend](backend/README.md).
 49. **A meta do mês entra no "Agora" e no briefing** — quando você está atrás
     do ritmo, o primeiro passo do dia passa a ser quanto falta e quantos
     fechamentos isso representa; e o ritmo de contatos entra logo abaixo.
+
+## A rede de prestadores — versão 3108
+
+O sistema deixou de ser só a gestão da Carla e virou a plataforma do grupo:
+**8 marcas**, **8 contratos**, uma rede de prestadores autônomos e um mercado
+de trabalho interno. Nada roda antes do contrato assinado.
+
+50. **As marcas do grupo** (`MARCAS`) — Grupo A! Fatorial, A! Saúde, A! Fatorial
+    Representações, A! Treinamentos, A! Multiplicadora, PGE, A! Start Talk e
+    Carla Caroline. Cada **contrato** (`CONTRATOS`) pertence a uma marca e tem
+    tipo (PF/PJ) e comissão base própria. Toda demanda, todo lead e todo
+    relatório sabem de qual negócio são.
+
+51. **Todo mundo é autônomo** — não existe mais CLT no sistema. A migração
+    (`redeMigrar`) converte quem já estava cadastrado, deduz um **escopo** da
+    área da pessoa, libera contratos coerentes e gera o contrato para
+    assinatura. Ninguém é assinado no lugar da pessoa.
+
+52. **Contrato de prestação de serviços padrão** (`contratoTexto`) — um modelo
+    só, 11 cláusulas: objeto (montado a partir do **escopo** escolhido),
+    autonomia e ausência de vínculo (art. 593 do CC), remuneração (hora e/ou
+    comissão), representação autorizada (só os contratos liberados),
+    obrigações, confidencialidade e LGPD, propriedade intelectual, não
+    concorrência, vigência e rescisão, assinatura eletrônica (MP 2.200-2 e Lei
+    14.063/2020) e foro. Dá para ler na íntegra e imprimir em PDF.
+
+53. **D4Sign** (`D4`, `d4Enviar`, `d4Assinar`) — dois modos, como no WhatsApp:
+    **simulado** roda o fluxo inteiro sem credencial nenhuma; **oficial** manda
+    o contrato pela ponte do backend (`/d4sign/enviar`, `/d4sign/status/:uuid`,
+    `/d4sign/webhook`), com a chave guardada no servidor, nunca no navegador.
+    `prestLiberado()` é a trava: **sem assinatura, a pessoa não vê lead nem
+    demanda** — e o portal dela explica exatamente isso.
+
+54. **Central de demandas** (`v-demandas`) — o mercado de trabalho interno.
+    A demanda nasce sua ou de uma empresa parceira, mostra **escopo, prazo,
+    entregáveis, requisitos e quanto vale** antes de alguém decidir, e some do
+    mural de todos quando é pega. Dois tipos: **por tempo** (o relógio conta e
+    você paga as horas reais) e **por resultado** (valor fechado na entrega).
+    Fluxo completo: mural → pegar → cronômetro (pausa e retoma) → entregar com
+    checklist → conferência → aprovar com nota → pagar.
+
+55. **O relógio** (`demSegundos`, `demPctTempo`) — cada demanda soma sessões de
+    trabalho. Se o navegador fecha com o relógio rodando, a sessão encerra no
+    último ponto conhecido (`demFechaSessoesOrfas`) — o tempo não infla
+    sozinho. Na entrega, a gestão vê **tempo real contra o estimado**.
+
+56. **Níveis da rede** (`PREST_NIVEIS`) — Bronze, Prata, Ouro e Diamante, por
+    quanto a pessoa **já ganhou**. Não é enfeite: cada faixa vale **pontos a
+    mais de comissão em tudo** (`comissaoDe` soma o bônus) e **abre as demandas
+    antes** (`DEM_JANELA_H`: Bronze espera 12h, Diamante vê na hora). O portal
+    mostra quanto falta para a próxima faixa e o que ela destrava.
+
+57. **Empresas parceiras** (`v-parceiras`) — a empresa se cadastra, você
+    aprova, e as demandas dela caem em **triagem**. Você libera para o mural, a
+    sua rede executa e você fica com a margem — terceirização para dentro, sem
+    contratar ninguém.
+
+58. **Cadastro público** (`#cadastro`) — duas portas na tela de entrada:
+    *quero prestar serviço* e *minha empresa quer enviar demandas*. Prestador
+    cai em Rede de prestadores para aprovação (`candAprovar` cria o acesso);
+    empresa cai em Empresas parceiras. O link é copiável em um clique
+    (`cadLinkCopiar`) para mandar no WhatsApp ou no rodapé do site.
+
+59. **Desempenho por contrato, por pessoa e por negócio** (`v-rede`) —
+    contrato: leads, fechamentos, conversão, receita e **quantos da rede estão
+    liberados** (contrato sem ninguém assinado aparece marcado, porque é
+    receita que não tem quem vá buscar); pessoa: ganho total e do mês,
+    negócios, demandas, nota média e pontualidade; negócio: receita, custo da
+    rede e **margem por marca**.
+
+60. **Portal do prestador reconstruído** — quatro abas de trabalho antes de
+    tudo: **⚔ Demandas** (mural + execução + histórico), **🎯 Meus leads**,
+    **💰 Meus ganhos** e **📄 Meu contrato**.
+    - *Meus ganhos* mostra o que a pessoa normalmente não olha: comissão parada
+      na carteira, contatos pegos e não feitos, retornos atrasados, valor
+      disponível no mural, **valor por hora real**, nota média, pontualidade,
+      projeção do mês no ritmo atual, quanto falta para a próxima faixa e o que
+      ela vale — e o extrato linha a linha do que compôs o ganho.
+    - *Meu contrato* traduz o contrato em seis blocos em português claro e
+      mostra as faixas da rede com o que cada uma destrava.
+
+61. **Tudo conectado ao "Agora"** — entrega esperando conferência, cadastro
+    novo, empresa querendo entrar, demanda em triagem, prestador sem contrato,
+    demanda atrasada: cada um vira um passo na faixa do topo e no briefing de
+    entrada, com o botão que leva direto ao lugar certo.

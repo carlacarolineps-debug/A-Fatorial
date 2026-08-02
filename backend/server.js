@@ -139,12 +139,104 @@ app.post('/api/whatsapp', async (req, res) => {
   }
 });
 
+/* ═══════════════════════════════════════════════════════════════════════
+   D4SIGN — assinatura eletrônica do contrato de prestação de serviços
+   O sistema manda o HTML do contrato + quem assina; a ponte cria o
+   documento no cofre, cadastra o signatário e envia para assinatura.
+   A chave da D4Sign fica AQUI, nunca no navegador.
+   Docs: https://docapi.d4sign.com.br/
+   ═══════════════════════════════════════════════════════════════════════ */
+const D4_TOKEN  = process.env.D4SIGN_TOKEN  || '';   // tokenAPI
+const D4_CRIPTO = process.env.D4SIGN_CRIPTO || '';   // cryptKey
+const D4_COFRE  = process.env.D4SIGN_COFRE  || '';   // uuid_safe padrão
+const D4_URL    = process.env.D4SIGN_URL    || 'https://secure.d4sign.com.br/api/v1';
+
+function d4qs() {
+  return `?tokenAPI=${encodeURIComponent(D4_TOKEN)}&cryptKey=${encodeURIComponent(D4_CRIPTO)}`;
+}
+async function d4(caminho, corpo) {
+  const r = await fetch(D4_URL + caminho + d4qs(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(corpo || {})
+  });
+  const txt = await r.text();
+  let j; try { j = JSON.parse(txt); } catch { j = { bruto: txt }; }
+  if (!r.ok) throw new Error((j && (j.message || j.error)) || `D4Sign respondeu ${r.status}`);
+  return j;
+}
+
+app.post('/d4sign/enviar', async (req, res) => {
+  if (!autorizado(req)) return res.status(401).json({ erro: 'Chave de acesso inválida.' });
+  if (!D4_TOKEN || !D4_CRIPTO) return res.status(500).json({ erro: 'Configure D4SIGN_TOKEN e D4SIGN_CRIPTO no .env.' });
+
+  const { nome, email, html, titulo, cofre } = req.body || {};
+  if (!nome || !email || !html) return res.status(400).json({ erro: 'Faltam nome, email ou o conteúdo do contrato.' });
+
+  const uuidSafe = cofre || D4_COFRE;
+  if (!uuidSafe) return res.status(400).json({ erro: 'Informe o UUID do cofre (D4SIGN_COFRE no .env ou no painel do sistema).' });
+
+  try {
+    // 1) cria o documento a partir do HTML
+    const doc = await d4(`/documents/${uuidSafe}/uploadbinary`, {
+      base64_binary_file: Buffer.from(
+        `<html><head><meta charset="utf-8"></head><body>${html}</body></html>`, 'utf8'
+      ).toString('base64'),
+      mime_type: 'text/html',
+      name: (titulo || `Contrato - ${nome}`).replace(/[\\/:*?"<>|]/g, '-') + '.html'
+    });
+    const uuid = doc.uuid || doc.uuid_document;
+    if (!uuid) throw new Error('A D4Sign não devolveu o identificador do documento.');
+
+    // 2) cadastra quem assina
+    await d4(`/documents/${uuid}/createlist`, {
+      signers: [{ email, act: '1', foreign: '0', certificadoicpbr: '0', assinatura_presencial: '0' }]
+    });
+
+    // 3) manda para assinatura
+    await d4(`/documents/${uuid}/sendtosigner`, {
+      message: `Olá ${nome}, segue o contrato de prestação de serviços para assinatura.`,
+      skip_email: '0', workflow: '0'
+    });
+
+    console.log(`[d4sign] contrato enviado para ${email} uuid=${uuid}`);
+    res.json({ ok: true, uuid });
+  } catch (e) {
+    console.error('[d4sign] erro:', e.message);
+    res.status(502).json({ erro: 'Não consegui falar com a D4Sign: ' + e.message });
+  }
+});
+
+// consulta o estado da assinatura (o sistema chama para atualizar o cartão)
+app.get('/d4sign/status/:uuid', async (req, res) => {
+  if (!autorizado(req)) return res.status(401).json({ erro: 'Chave de acesso inválida.' });
+  try {
+    const r = await fetch(`${D4_URL}/documents/${req.params.uuid}${d4qs()}`);
+    const j = await r.json();
+    const d = Array.isArray(j) ? j[0] : j;
+    // statusId 4 = finalizado/assinado na D4Sign
+    res.json({ ok: true, status: d && d.statusName, assinado: String(d && d.statusId) === '4', bruto: d });
+  } catch (e) {
+    res.status(502).json({ erro: 'Não consegui consultar a D4Sign: ' + e.message });
+  }
+});
+
+// webhook: a D4Sign avisa quando o contrato é assinado
+// Cadastre esta URL em Configurações > Webhook no painel da D4Sign.
+app.post('/d4sign/webhook', (req, res) => {
+  const { uuid, type_post, message } = req.body || {};
+  console.log(`[d4sign] webhook uuid=${uuid} evento=${type_post || message || '?'}`);
+  // === BACKEND === aqui você grava no banco: contrato assinado -> libera o prestador
+  res.json({ ok: true });
+});
+
 app.get('/health', (_req, res) => {
   res.json({
     ok: true,
     modo: MENSAGEM_MODO,
     template: TEMPLATE_NAME,
-    configurado: Boolean(WHATSAPP_TOKEN && PHONE_ID)
+    configurado: Boolean(WHATSAPP_TOKEN && PHONE_ID),
+    d4sign: Boolean(D4_TOKEN && D4_CRIPTO)
   });
 });
 
