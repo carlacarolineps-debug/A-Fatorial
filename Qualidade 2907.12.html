@@ -255,6 +255,7 @@
     
     .grid-form { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1px; background: #333; border: 1px solid #333; margin-bottom: 20px; }
     .g-col { background: #fff; padding: 5px 8px; display: flex; flex-direction: column; justify-content: center; }
+    .g-fill { padding:0; }   /* célula branca que fecha a sobra da linha */
     .g-col-1{grid-column: span 1;} .g-col-2{grid-column: span 2;} .g-col-3{grid-column: span 3;} .g-col-4{grid-column: span 4;} .g-col-5{grid-column: span 5;} .g-col-6{grid-column: span 6;} .g-col-7{grid-column: span 7;} .g-col-8{grid-column: span 8;} .g-col-10{grid-column: span 10;} .g-col-12{grid-column: span 12;}
     
     .section-title { grid-column: span 12; background: #0b2c5c; color: #fff; font-size: 11px; font-weight: bold; text-align: center; padding: 6px; text-transform: uppercase; letter-spacing: 1px;}
@@ -603,6 +604,24 @@
     .sol-ent-opt b { display:block; font-size:11.5px; color:#1e293b; }
     .sol-ent-opt span { display:block; font-size:9px; color:#94a3b8; line-height:1.25; margin-top:1px; }
     .sol-ent-hint { font-size:10px; color:#94a3b8; margin-top:7px; line-height:1.35; text-align:center; }
+    /* Bloco 9: as três vias de envio da ficha para o cliente */
+    .sol-envio-vias { display:flex; flex-direction:column; gap:7px; }
+    .sol-via { display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:#fff; }
+    .sol-via .sv-n { width:22px; height:22px; flex:none; border-radius:50%; background:#0f766e; color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+    .sol-via .sv-txt { flex:1; min-width:0; }
+    .sol-via .sv-txt b { display:block; font-size:12px; color:#1e293b; }
+    .sol-via .sv-txt span { display:block; font-size:10px; color:#94a3b8; line-height:1.35; margin-top:1px; }
+    .sol-via button { flex:none; }
+    .sol-import { margin-top:9px; border:1.5px dashed #14b8a6; border-radius:10px; padding:10px; background:#f0fdfa; }
+    .sol-import b { font-size:11.5px; color:#0f766e; display:block; margin-bottom:5px; }
+    .sol-import textarea { width:100%; border:1px solid var(--border); border-radius:7px; padding:7px; font-family:ui-monospace,Menlo,monospace; font-size:10px; resize:vertical; }
+    .sol-import .si-acoes { display:flex; gap:7px; flex-wrap:wrap; margin-top:7px; }
+    .sol-qr-aviso { font-size:10.5px; color:#8a6d1a; background:#fdfaf3; border:1px solid #eadfbf; border-radius:9px; padding:9px 10px; line-height:1.45; text-align:left; }
+    /* Bloco 10: fechado até a solicitação do cliente chegar completa */
+    .sol-lock { display:flex !important; flex-direction:row !important; align-items:center; gap:9px; background:#fff7ed; font-size:11px; color:#b45309; }
+    .sol-lock i { font-size:13px; }
+    .sol-lock span { flex:1; line-height:1.4; }
+    #fu-sol-analise.travado .g-col:not(.sol-lock):not(.g-fill) { opacity:.45; }
     .sol-ent-lead { font-size:11px; color:#0f766e; font-weight:700; text-align:center; line-height:1.4; margin-bottom:9px; }
     .sol-ent-lead span { display:block; font-weight:500; color:#94a3b8; font-size:9.5px; margin-top:2px; }
     /* ---- Solicitação de Produto: orientação para preencher sem dúvidas ---- */
@@ -1932,8 +1951,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             </div>
 
             <div class="grid-form">
-                <div class="section-title">1 · IDENTIFICAÇÃO (CADASTROS BASE) <span style="font-weight:400; font-size:10px; opacity:.85;">— uso interno da Qualidade</span></div>
-                <div class="sol-guia" style="border-left-color:#c5a880; background:#fdfaf3; color:#8a6d1a;"><b>O cliente não preenche este bloco.</b> Ele é o cadastro interno da ficha. Numa <b>Solicitação de Produto</b>, o cliente e o produto vêm do que o vendedor informou no bloco 2 e 3 — a Qualidade só confere e completa o código.</div>
+                <div id="fu-bloco1" style="display:contents;">
+                <div class="section-title">1 · IDENTIFICAÇÃO (CADASTROS BASE) <span style="font-weight:400; font-size:10px; opacity:.85;">(uso interno da Qualidade)</span></div>
+                <div class="sol-guia" style="border-left-color:#c5a880; background:#fdfaf3; color:#8a6d1a;"><b>O cliente não preenche este bloco.</b> Ele é o cadastro interno da ficha. Numa <b>Solicitação de Produto</b>, o cliente e o produto vêm do que o vendedor informou no bloco 2 e 3. A Qualidade só confere e completa o código.</div>
                 <div class="g-col g-col-6">
                     <span class="lbl">Cliente * <span style="font-weight:400; color:#94a3b8; font-size:10px;">(digite para buscar ou cadastrar)</span></span>
                     <input class="inp" id="fu_cliente" list="dl_clientes" autocomplete="off" placeholder="Digite o nome do cliente…" onchange="fichaClienteChange('ficha-unica')">
@@ -1946,6 +1966,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Segmento</span><input class="inp" id="fu_segmento" list="dl_segmentos"><datalist id="dl_segmentos"><option value="ALIMENTÍCIO"></option><option value="HIGIENE E LIMPEZA"></option><option value="AGRÍCOLA"></option><option value="INDUSTRIAL"></option><option value="PET"></option></datalist></div>
                 <div class="g-col g-col-3"><span class="lbl">Unidade</span><input class="inp" id="fu_unidade" value="KG" list="dl_unidade"></div>
                 <div class="g-col g-col-3"><span class="lbl">Prioridade</span><select class="inp" id="fu_prioridade"><option>Normal</option><option>Alta</option><option>Urgente</option><option>Baixa</option></select></div>
+                </div>
 
                 <!-- Listas compartilhadas: campos de preenchimento + seleção em toda a ficha -->
                 <datalist id="dl_unidade"><option value="KG"></option><option value="UN"></option><option value="MIL"></option><option value="M"></option></datalist>
@@ -1995,67 +2016,62 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 
             <!-- SEÇÃO: SOLICITAÇÃO DE NOVO PRODUTO (briefing do vendedor com o cliente) -->
             <div class="grid-form fu-sec" id="fu-sec-solicitacao">
-                <div class="section-title" style="background:#0f766e;">ETAPA · SOLICITAÇÃO DE PRODUTO <span style="font-weight:400; font-size:10px; opacity:.85;">— preenchida pelo vendedor junto ao cliente</span> <span class="fu-cod-et" id="fu-cod-solicitacao"></span></div>
+                <div class="section-title" style="background:#0f766e;">ETAPA · SOLICITAÇÃO DE PRODUTO <span style="font-weight:400; font-size:10px; opacity:.85;">(preenchida pelo vendedor junto ao cliente)</span> <span class="fu-cod-et" id="fu-cod-solicitacao"></span></div>
 
                 <div class="sol-abertura no-print">
                     <h5><i class="fas fa-circle-check"></i> Como preencher esta ficha</h5>
                     <ol>
-                        <li>Diga <b>o que vai ser embalado</b> e <b>como vai ser usado</b> — é o que define o material.</li>
+                        <li>Diga <b>o que vai ser embalado</b> e <b>como vai ser usado</b>. É o que define o material.</li>
                         <li>Informe as <b>medidas e o tipo de embalagem</b>. Se tiver uma amostra ou a arte, <b>anexe</b>: vale mais que qualquer descrição.</li>
                         <li>Diga <b>quanto</b> e <b>para quando</b> você precisa.</li>
                     </ol>
-                    <div class="sol-tranq"><b>Não precisa saber de tudo.</b> Onde você não souber, escolha <b>“Não sei — Rebracil define”</b> ou deixe em branco: a nossa Qualidade completa e confirma com você. Só os campos marcados com <b style="color:#fecdd3;">*</b> são realmente necessários para começar.</div>
+                    <div class="sol-tranq"><b>Não precisa saber de tudo.</b> Onde você não souber, escolha <b>“Não sei”</b> ou deixe em branco: a nossa Qualidade completa e confirma com você. Só os campos marcados com <b style="color:#fecdd3;">*</b> são realmente necessários para começar.</div>
                 </div>
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">1 · DADOS DA SOLICITAÇÃO</span></div>
-                <div class="sol-guia">Quem está pedindo e para quando. <b>O número é gerado pelo sistema</b> — não precisa preencher.</div>
+                <div class="sol-guia">Quem está pedindo e para quando. <b>O número é gerado pelo sistema</b>, não precisa preencher.</div>
                 <div class="g-col g-col-3"><span class="lbl">Nº da Solicitação</span><input class="inp" id="fu_sol_numero" placeholder="Gerado ao salvar"></div>
                 <div class="g-col g-col-3"><span class="lbl">Data da Solicitação</span><input type="date" class="inp" id="fu_sol_data"></div>
                 <div class="g-col g-col-3"><span class="lbl">Vendedor / Representante</span><input class="inp" id="fu_sol_vendedor"></div>
                 <div class="g-col g-col-3"><span class="lbl">Prazo desejado pelo cliente</span><input type="date" class="inp" id="fu_sol_prazo"></div>
-                <div class="g-col g-col-6"><span class="lbl">Tipo de solicitação</span><input class="inp" id="fu_sol_tipo" list="dl_sol_tipo" placeholder="Selecione"><datalist id="dl_sol_tipo"><option value="Produto novo (desenvolvimento)"></option><option value="Alteração de produto existente"></option><option value="Cópia de amostra / concorrente"></option><option value="Reposição / repetição"></option><option value="Orçamento / viabilidade"></option></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Código similar existente</span><input class="inp" id="fu_sol_similar" list="dl_mp" placeholder="Se houver, ex.: VCM-7394"></div>
-                <div class="g-col g-col-3"><span class="lbl">Urgência</span><select class="inp" id="fu_sol_urgencia"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div>
+                <div class="g-col g-col-8"><span class="lbl">Tipo de solicitação</span><input class="inp" id="fu_sol_tipo" list="dl_sol_tipo" placeholder="Selecione"><datalist id="dl_sol_tipo"><option value="Produto novo (desenvolvimento)"></option><option value="Alteração de produto existente"></option><option value="Reposição / repetição"></option><option value="Orçamento / viabilidade"></option></datalist></div>
+                <div class="g-col g-col-4"><span class="lbl">Urgência</span><select class="inp" id="fu_sol_urgencia"><option>Normal</option><option>Alta</option><option>Urgente</option></select></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">2 · CLIENTE</span></div>
-                <div class="sol-guia">Escolha o cliente na lista: <b>CNPJ, contato e telefone entram sozinhos</b>. Se for cliente novo, digite o nome e complete o que souber.</div>
-                <div class="g-col g-col-5"><span class="lbl">Cliente / Razão Social <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_cliente" list="dl_clientes" autocomplete="off" onchange="fuSolClienteChange()"></div>
+                <div class="sol-guia">Dados de quem está pedindo. Preencha o que souber; o essencial é o nome e um contato.</div>
+                <div class="g-col g-col-5"><span class="lbl">Cliente / Razão Social <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_cliente" autocomplete="off" onchange="fuSolClienteChange()"></div>
                 <div class="g-col g-col-3"><span class="lbl">CNPJ</span><input class="inp" id="fu_sol_cnpj"></div>
                 <div class="g-col g-col-4"><span class="lbl">Segmento</span><input class="inp" id="fu_sol_segmento" list="dl_segmentos"></div>
                 <div class="g-col g-col-4"><span class="lbl">Contato (nome)</span><input class="inp" id="fu_sol_contato"></div>
                 <div class="g-col g-col-4"><span class="lbl">Telefone</span><input class="inp" id="fu_sol_telefone"></div>
                 <div class="g-col g-col-4"><span class="lbl">E-mail</span><input class="inp" id="fu_sol_email"></div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">3 · APLICAÇÃO — O QUE SERÁ EMBALADO <span style="font-weight:400; color:#94a3b8; font-size:9px;">(define material, barreira e resistência)</span></span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">3 · APLICAÇÃO · O QUE SERÁ EMBALADO <span style="font-weight:400; color:#94a3b8; font-size:9px;">(define material, barreira e resistência)</span></span></div>
                 <div class="sol-guia">Este é o bloco <b>mais importante</b>: é o que o produto vai enfrentar (peso, frio, calor, tempo na prateleira) que determina o material e a espessura. Responda com o que o cliente falar, sem termos técnicos.</div>
                 <div class="g-col g-col-4"><span class="lbl">Produto do cliente <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_produto_cliente" placeholder="Ex.: Batata palito congelada"><span class="sol-dica">O que vai dentro da embalagem. Seja específico: “biscoito recheado”, “ração para cães”, “parafusos”.</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Peso / volume por embalagem</span><input class="inp" id="fu_sol_peso_conteudo" placeholder="Ex.: 2 kg"><span class="sol-dica">Quanto pesa (ou quantos ml) em cada embalagem. Define a resistência.</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Condição de uso</span><input class="inp" id="fu_sol_condicao" list="dl_sol_cond" placeholder="Ambiente / Refrigerado…"><datalist id="dl_sol_cond"><option value="Não sei — Rebracil define"></option><option value="Ambiente"></option><option value="Refrigerado"></option><option value="Congelado"></option><option value="Forno / micro-ondas"></option><option value="Autoclave"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Condição de uso</span><input class="inp" id="fu_sol_condicao" list="dl_sol_cond" placeholder="Ambiente / Refrigerado…"><datalist id="dl_sol_cond"><option value="Não sei"></option><option value="Ambiente"></option><option value="Refrigerado"></option><option value="Congelado"></option><option value="Forno / micro-ondas"></option><option value="Autoclave"></option></datalist></div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">4 · EMBALAGEM SOLICITADA — TIPO, MEDIDAS E MATERIAL</span></div>
-                <div class="sol-guia">Se o cliente <b>já usa uma embalagem parecida</b>, informe as medidas dela — ou anexe uma amostra no bloco 8. Não sabe a espessura? Deixe em branco, nós calculamos.</div>
-                <div class="g-col g-col-3"><span class="lbl">Tipo de embalagem <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_tipo_emb" list="dl_sol_emb" placeholder="Saco / Bobina / Sacola…"><datalist id="dl_sol_emb"><option value="Bobina lisa"></option><option value="Bobina impressa"></option><option value="Saco 3 soldas"></option><option value="Saco 4 soldas"></option><option value="Saco fundo estrela"></option><option value="Sacola alça vazada"></option><option value="Sacola camiseta"></option><option value="Stand-up pouch"></option><option value="Filme técnico"></option><option value="Etiqueta / banderola"></option></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Material solicitado</span><input class="inp" id="fu_sol_material" list="dl_substratos" placeholder="Se souber; senão deixe em branco"><span class="sol-dica">Material do filme. <b>Não é obrigatório</b> — nós indicamos o melhor a partir da aplicação.</span></div>
-                <div class="g-col g-col-3"><span class="lbl">Estrutura (se laminado)</span><input class="inp" id="fu_sol_estrutura" list="dl_estrutura" placeholder="Só se o cliente já souber"><span class="sol-dica">Camadas do filme laminado. Campo técnico — <b>normalmente quem define é a Rebracil</b>.</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">4 · EMBALAGEM SOLICITADA · TIPO, MEDIDAS E MATERIAL</span></div>
+                <div class="sol-guia">Se o cliente <b>já usa uma embalagem parecida</b>, informe as medidas dela, ou anexe uma amostra no bloco 8. Não sabe a espessura? Deixe em branco, nós calculamos.</div>
+                <div class="g-col g-col-3"><span class="lbl">Tipo de embalagem <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_tipo_emb" list="dl_sol_emb" placeholder="Bobina / Saco / Sacola / Etiqueta"><datalist id="dl_sol_emb"><option value="Bobina lisa"></option><option value="Bobina impressa"></option><option value="Bobina laminada lisa"></option><option value="Bobina laminada impressa"></option><option value="Saco liso"></option><option value="Saco impresso"></option><option value="Saco com zíper"></option><option value="Saco com fita adesiva"></option><option value="Sacola lisa"></option><option value="Sacola impressa"></option><option value="Sacola alça vazada"></option><option value="Sacola camiseta"></option><option value="Etiqueta em bobina"></option><option value="Filme tubular"></option></datalist></div>
+                <div class="g-col g-col-3"><span class="lbl">Material solicitado</span><input class="inp" id="fu_sol_material" list="dl_substratos" placeholder="Se souber; senão deixe em branco"><span class="sol-dica">Material do filme. <b>Não é obrigatório</b>, nós indicamos o melhor a partir da aplicação.</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Estrutura (se laminado)</span><input class="inp" id="fu_sol_estrutura" list="dl_estrutura" placeholder="Só se o cliente já souber"><span class="sol-dica">Camadas do filme laminado. Campo técnico, <b>normalmente quem define é a Rebracil</b>.</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Aparência</span><input class="inp" id="fu_sol_aparencia" list="dl_sol_apar" placeholder="Transparente / Leitoso…"><datalist id="dl_sol_apar"><option value="Transparente"></option><option value="Leitoso"></option><option value="Branco"></option><option value="Perolizado"></option><option value="Metalizado"></option><option value="Fosco"></option><option value="Colorido"></option></datalist></div>
                 <div class="g-col g-col-2"><span class="lbl">Largura (mm)</span><input class="inp" id="fu_sol_largura" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
                 <div class="g-col g-col-2"><span class="lbl">Altura / Compr. (mm)</span><input class="inp" id="fu_sol_altura" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
                 <div class="g-col g-col-2"><span class="lbl">Sanfona (mm)</span><input class="inp" id="fu_sol_sanfona" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
                 <div class="g-col g-col-2"><span class="lbl">Aba / Fita (mm)</span><input class="inp" id="fu_sol_aba" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
-                <div class="g-col g-col-2"><span class="lbl">Espessura (micra)</span><input class="inp" id="fu_sol_espessura" placeholder="Se souber"><span class="sol-dica">Em micra. Não sabe? Deixe em branco — calculamos pelo peso e uso.</span></div>
+                <div class="g-col g-col-2"><span class="lbl">Espessura (micra)</span><input class="inp" id="fu_sol_espessura" placeholder="Se souber"><span class="sol-dica">Em micra. Não sabe? Deixe em branco, calculamos pelo peso e uso.</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Tubete / diâmetro</span><input class="inp" id="fu_sol_tubete" list="dl_tubete" placeholder="Só para bobina"><span class="sol-dica">Só quando for bobina: diâmetro do tubo central que a máquina do cliente aceita.</span></div>
                 <div class="g-col g-col-12"><span class="lbl">Acessórios e acabamentos</span>
                     <div class="chips-fluxo" id="fu-sol-acess" style="margin:0;">
                         <label class="chip-et"><input type="checkbox" value="Zíper" onchange="fuSolAcessSync()"><span>Zíper</span></label>
                         <label class="chip-et"><input type="checkbox" value="Fita adesiva" onchange="fuSolAcessSync()"><span>Fita adesiva</span></label>
-                        <label class="chip-et"><input type="checkbox" value="Válvula" onchange="fuSolAcessSync()"><span>Válvula</span></label>
                         <label class="chip-et"><input type="checkbox" value="Furação / ventilação" onchange="fuSolAcessSync()"><span>Furação / ventilação</span></label>
-                        <label class="chip-et"><input type="checkbox" value="Euro furo" onchange="fuSolAcessSync()"><span>Euro furo</span></label>
                         <label class="chip-et"><input type="checkbox" value="Alça" onchange="fuSolAcessSync()"><span>Alça</span></label>
-                        <label class="chip-et"><input type="checkbox" value="Picote / serrilha" onchange="fuSolAcessSync()"><span>Picote / serrilha</span></label>
                         <label class="chip-et"><input type="checkbox" value="Fotocélula (olho mágico)" onchange="fuSolAcessSync()"><span>Fotocélula</span></label>
                         <label class="chip-et"><input type="checkbox" value="Antiestático" onchange="fuSolAcessSync()"><span>Antiestático</span></label>
                         <label class="chip-et"><input type="checkbox" value="Aditivo UV" onchange="fuSolAcessSync()"><span>Aditivo UV</span></label>
-                        <label class="chip-et"><input type="checkbox" value="Resina reciclada (PCR)" onchange="fuSolAcessSync()"><span>Reciclado (PCR)</span></label>
                     </div>
                     <input type="hidden" id="fu_sol_acessorios">
                 </div>
@@ -2075,19 +2091,19 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="sol-guia">Quantidade estimada e recorrência ajudam a definir preço e prazo. <b>Valores aproximados já servem.</b></div>
                 <div class="g-col g-col-3"><span class="lbl">Quantidade estimada <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_qtd" placeholder="Ex.: 2.000 kg ou 50.000 sacos"><span class="sol-dica">Um número aproximado já serve.</span></div>
                 <div class="g-col g-col-2"><span class="lbl">Unidade</span><input class="inp" id="fu_sol_unidade" list="dl_unidade"></div>
-                <div class="g-col g-col-5"><span class="lbl">Frequência de produção</span><input class="inp" id="fu_sol_frequencia" list="dl_sol_freq" placeholder="Ex.: 2.000 kg todo mês"><datalist id="dl_sol_freq"><option value="Uma vez só (pontual)"></option><option value="Todo mês"></option><option value="A cada 2 meses"></option><option value="A cada 3 meses (trimestral)"></option><option value="A cada 6 meses"></option><option value="Uma vez por ano"></option></datalist><span class="sol-dica">De quanto em quanto tempo o cliente costuma pedir e quanto pede por vez — <b>uma estimativa basta</b>. Ex.: “2.000 kg todo mês”, “50.000 sacos por trimestre”.</span></div>
+                <div class="g-col g-col-5"><span class="lbl">Frequência de produção</span><input class="inp" id="fu_sol_frequencia" list="dl_sol_freq" placeholder="Ex.: 2.000 kg todo mês"><datalist id="dl_sol_freq"><option value="Uma vez só (pontual)"></option><option value="Todo mês"></option><option value="A cada 2 meses"></option><option value="A cada 3 meses (trimestral)"></option><option value="A cada 6 meses"></option><option value="Uma vez por ano"></option></datalist><span class="sol-dica">De quanto em quanto tempo o cliente costuma pedir e quanto pede por vez. <b>Uma estimativa basta</b>. Ex.: “2.000 kg todo mês”, “50.000 sacos por trimestre”.</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Acondicionamento desejado</span><input class="inp" id="fu_sol_acond" placeholder="Ex.: 10 kg por caixa"><span class="sol-dica">Como o cliente quer receber: em caixa, fardo, palete…</span></div>
                 <div class="g-col g-col-4"><span class="lbl">Local de entrega</span><input class="inp" id="fu_sol_entrega"></div>
-                <div class="g-col g-col-4"><span class="lbl">Amostra do cliente recebida?</span><input class="inp" id="fu_sol_amostra" list="dl_sol_amostra" placeholder="Sim / Não"><datalist id="dl_sol_amostra"><option value="Sim — amostra física"></option><option value="Sim — foto/arquivo"></option><option value="Não"></option></datalist></div>
+                <div class="g-col g-col-4"><span class="lbl">Amostra do cliente recebida?</span><input class="inp" id="fu_sol_amostra" list="dl_sol_amostra" placeholder="Sim / Não"><datalist id="dl_sol_amostra"><option value="Sim, amostra física"></option><option value="Sim, foto/arquivo"></option><option value="Não"></option></datalist></div>
                 <div class="g-col g-col-12"><span class="lbl">Observações do cliente / detalhes que não podem se perder</span><textarea class="inp" id="fu_sol_obs" rows="2" style="resize:vertical;" placeholder="Particularidades, histórico, exigências específicas, problemas com o fornecedor atual…"></textarea></div>
 
                 <div class="g-col g-col-12 sol-conferir no-print">
                     <button type="button" class="sys-btn-success" onclick="fuSolConferir()"><i class="fas fa-circle-check"></i> Conferir preenchimento</button>
-                    <span style="font-size:11px; color:#64748b;">Mostra em linguagem simples se falta algo essencial — antes de enviar à Qualidade.</span>
+                    <span style="font-size:11px; color:#64748b;">Mostra em linguagem simples se falta algo essencial, antes de enviar à Qualidade.</span>
                 </div>
                 <div class="g-col g-col-12 no-print" id="fu-sol-pendencias"></div>
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">8 · ANEXOS DO CLIENTE <span style="font-weight:400; color:#94a3b8; font-size:9px;">(arte, especificação técnica, foto da amostra, laudo…)</span></span></div>
-                <div class="sol-guia">Arte, especificação técnica, laudo, foto da embalagem atual ou do concorrente. <b>Anexar evita idas e voltas.</b></div>
+                <div class="sol-guia">Arte, especificação técnica, laudo ou foto da embalagem atual. <b>Anexar evita idas e voltas.</b></div>
                 <div class="g-col g-col-12">
                     <div class="no-print" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
                         <label class="action-btn-sec" style="cursor:pointer; margin:0;"><i class="fas fa-paperclip"></i> Anexar arquivos
@@ -2099,27 +2115,44 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     <input type="hidden" id="fu_sol_anexos">
                 </div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">9 · ENVIAR AO VENDEDOR / PREENCHER COM O CLIENTE</span></div>
-                <div class="sol-guia">Escolha como o vendedor vai preencher: no celular (link/QR) ou no papel (ficha em branco).</div>
-                <div class="g-col g-col-8">
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;" class="no-print">
-                        <button type="button" class="action-btn-sec" onclick="fuSolCopiarLink()"><i class="fas fa-link"></i> Copiar link do sistema</button>
-                        <button type="button" class="action-btn-sec" onclick="fuSolEnviarWhats()"><i class="fas fa-share-nodes"></i> Enviar por WhatsApp</button>
-                        <button type="button" class="action-btn-sec" onclick="fuSolEnviarEmail()"><i class="fas fa-envelope"></i> Enviar por e-mail</button>
-                        <button type="button" class="sys-btn-success" onclick="fuSolImprimirBranco()"><i class="fas fa-print"></i> Baixar / imprimir ficha em branco</button>
+                <div class="g-col g-col-12 fu-grp" id="fu-sol-b9" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">9 · ENVIAR A FICHA PARA O CLIENTE</span></div>
+                <div class="sol-guia" id="fu-sol-b9-guia">Gere a <b>ficha do cliente</b>: um arquivo que abre sozinho em qualquer celular ou computador, <b>sem acesso ao sistema e sem a carteira de clientes</b>. O cliente preenche, devolve o arquivo de resposta e a Qualidade importa com um clique.</div>
+                <div class="g-col g-col-7">
+                    <div class="sol-envio-vias no-print">
+                        <div class="sol-via">
+                            <div class="sv-n">1</div>
+                            <div class="sv-txt"><b>Ficha do cliente (arquivo)</b><span>Gera um arquivo único que abre em qualquer celular ou computador, mesmo sem internet. Não leva a base da Rebracil nem os blocos internos.</span></div>
+                            <button type="button" class="sys-btn-success" onclick="fuSolGerarFichaCliente()"><i class="fas fa-file-arrow-down"></i> Gerar ficha do cliente</button>
+                        </div>
+                        <div class="sol-via">
+                            <div class="sv-n">2</div>
+                            <div class="sv-txt"><b>Cliente devolve a resposta</b><span>Ele clica em “Finalizar” na ficha e recebe um arquivo (ou um código) para mandar de volta por WhatsApp ou e-mail.</span></div>
+                            <button type="button" class="action-btn-sec" onclick="fuSolAbrirImportar()"><i class="fas fa-file-import"></i> Importar resposta do cliente</button>
+                        </div>
+                        <div class="sol-via">
+                            <div class="sv-n">3</div>
+                            <div class="sv-txt"><b>Cliente que prefere papel</b><span>Sai o formulário completo em branco para preencher à mão e depois lançar aqui.</span></div>
+                            <button type="button" class="action-btn-sec" onclick="fuSolImprimirBranco()"><i class="fas fa-print"></i> Imprimir ficha em branco</button>
+                        </div>
                     </div>
-                    <p style="font-size:10.5px; color:#64748b; margin:10px 0 0; line-height:1.45;">
-                        <b>Cliente adepto a tecnologia:</b> mande o link (ou o QR ao lado) e o vendedor preenche direto no celular, com o cliente junto.<br>
-                        <b>Cliente que prefere papel:</b> use <b>Baixar / imprimir ficha em branco</b> — sai o formulário completo para preencher à mão e depois lançar aqui.
-                    </p>
+                    <div id="fu-sol-importar" class="sol-import no-print" style="display:none;">
+                        <b>Colar o código que o cliente devolveu</b>
+                        <textarea id="fu_sol_resposta" rows="3" placeholder="Cole aqui o código RBQ que o cliente enviou…"></textarea>
+                        <div class="si-acoes">
+                            <button type="button" class="sys-btn-success" onclick="fuSolImportarResposta()"><i class="fas fa-check"></i> Preencher a ficha com a resposta</button>
+                            <label class="action-btn-sec" style="cursor:pointer;"><i class="fas fa-folder-open"></i> Escolher arquivo .rbq<input type="file" accept=".rbq,.json,.txt" style="display:none;" onchange="fuSolImportarArquivo(this)"></label>
+                            <button type="button" class="action-btn-sec" onclick="document.getElementById('fu-sol-importar').style.display='none';">Fechar</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="g-col g-col-4" style="text-align:center;">
-                    <span class="lbl" style="color:#0f766e;">QR para abrir no celular</span>
+                <div class="g-col g-col-5" style="text-align:center;">
+                    <span class="lbl" style="color:#0f766e;">Abrir a ficha no celular</span>
                     <div id="fu-sol-qr" class="sol-qr"></div>
-                    <div style="font-size:9.5px; color:#94a3b8; margin-top:4px;">Aponte a câmera do celular</div>
                 </div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#fff7ed;"><span class="lbl" style="color:#b45309;">10 · ANÁLISE CRÍTICA — PREENCHIDO PELA QUALIDADE / DESENVOLVIMENTO</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#fff7ed;"><span class="lbl" style="color:#b45309;">10 · ANÁLISE CRÍTICA · PREENCHIDO PELA QUALIDADE / DESENVOLVIMENTO</span></div>
+                <div id="fu-sol-analise" style="display:contents;">
+                <div class="g-col g-col-12 sol-lock no-print" id="fu-sol-lock"><i class="fas fa-lock"></i><span id="fu-sol-lock-txt">Bloco fechado: a análise só começa depois que a solicitação do cliente chega completa.</span><button type="button" class="action-btn-sec" id="fu-sol-lock-btn" onclick="fuSolAbrirAnalise()" style="display:none;"><i class="fas fa-lock-open"></i> Iniciar análise</button></div>
                 <div class="g-col g-col-4"><span class="lbl">Situação da solicitação</span>
                     <select class="inp" id="fu_sol_status" onchange="fuSolStatusChange()">
                         <option>Aguardando análise</option>
@@ -2134,7 +2167,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-3"><span class="lbl">Data da análise</span><input type="date" class="inp" id="fu_sol_data_analise"></div>
                 <div class="g-col g-col-3"><span class="lbl">Necessita amostra piloto?</span><select class="inp" id="fu_sol_piloto"><option>Sim</option><option>Não</option></select></div>
                 <div class="g-col g-col-12"><span class="lbl">Parecer técnico / o que falta definir</span><textarea class="inp" id="fu_sol_parecer" rows="2" style="resize:vertical;" placeholder="Estrutura sugerida, restrições de máquina, testes necessários, pendências com o cliente…"></textarea></div>
-                <div class="g-col g-col-12" style="background:#ecfdf5; border-top:1px solid #a7f3d0;"><span style="font-size:11px; color:#065f46; font-weight:600;">✓ Ao aprovar esta solicitação, os dados alimentam automaticamente a <b>Ficha Técnica de MP</b> e a <b>Solicitação de Clichê</b> — sem redigitar.</span></div>
+                </div>
+                <div class="g-col g-col-12" style="background:#ecfdf5; border-top:1px solid #a7f3d0;"><span style="font-size:11px; color:#065f46; font-weight:600;">✓ Ao aprovar esta solicitação, os dados alimentam automaticamente a <b>Ficha Técnica de MP</b> e a <b>Solicitação de Clichê</b>, sem redigitar.</span></div>
             </div>
 
             <!-- SEÇÃO: FICHA TÉCNICA DE ESPECIFICAÇÃO DO PRODUTO (etapa 2 — define o produto) -->
@@ -4706,7 +4740,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         }
 
         document.getElementById('view-'+tela).classList.add('active');
-        
+        gridFecharVaziosBreve(document.getElementById('view-'+tela));
+
         let headerTitle = 'Ficha de Produção';
         if(tela === 'comando') headerTitle = 'Central de Comando';
         else if(tela === 'inspecao') headerTitle = 'Inspeção & Liberação de Setup';
@@ -5689,7 +5724,84 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const tit = { clientes: 'cad-cli-titulo', fornecedores: 'cad-for-titulo', produtos: 'cad-prod-titulo', cliches: 'cad-cli2-titulo', setores: 'cad-set-titulo' }[tipo];
         const te = document.getElementById(tit); if (te) te.innerText = 'Novo ' + { clientes: 'Cliente', fornecedores: 'Fornecedor', produtos: 'Produto', cliches: 'Clichê', setores: 'Setor / Área' }[tipo];
     }
-    const val = id => (document.getElementById(id) || {}).value || '';
+    const val = id => { const e = document.getElementById(id); return e ? (e.value || e.dataset.dlPrev || '') : ''; };
+
+    // ---------------------------------------------------------------------
+    // Campos com lista de opções (datalist): o navegador só oferece o que
+    // combina com o texto já digitado, então trocar de opção obrigava a apagar
+    // antes. Ao focar, guardamos o valor e limpamos o campo — a lista inteira
+    // reaparece; se o usuário sair sem escolher outra, o valor volta sozinho.
+    // ---------------------------------------------------------------------
+    function dlEhLista(el) { return el instanceof HTMLInputElement && el.getAttribute('list') && !el.readOnly && !el.disabled; }
+    document.addEventListener('focusin', e => {
+        const el = e.target;
+        if (!dlEhLista(el) || !el.value) return;
+        el.dataset.dlPrev = el.value;
+        el.value = '';
+    });
+    document.addEventListener('focusout', e => {
+        const el = e.target;
+        if (!dlEhLista(el) || !('dlPrev' in el.dataset)) return;
+        const prev = el.dataset.dlPrev;
+        delete el.dataset.dlPrev;
+        if (!el.value && prev) { el.value = prev; }               // saiu sem trocar: devolve o que estava
+        else if (el.value !== prev) el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    // Se algo for salvo com um campo ainda em foco, devolve o valor antes de ler
+    // ---------------------------------------------------------------------
+    // O fundo escuro do .grid-form é o que desenha as linhas do formulário.
+    // Quando uma linha não chega ao fim da grade, esse fundo aparece como um
+    // retângulo preto. Aqui medimos cada linha e fechamos a sobra com uma
+    // célula branca do tamanho exato que faltava.
+    // ---------------------------------------------------------------------
+    function gridFecharVazios(escopo) {
+        (escopo || document).querySelectorAll('.grid-form').forEach(gf => {
+            gf.querySelectorAll('.g-fill').forEach(f => f.remove());
+            if (!gf.offsetWidth) return;                       // seção fechada: nada a medir
+            const cs = getComputedStyle(gf);
+            const gap = parseFloat(cs.columnGap) || 0;
+            const bordaE = parseFloat(cs.borderLeftWidth) || 0, bordaD = parseFloat(cs.borderRightWidth) || 0;
+            const r = gf.getBoundingClientRect();
+            const dentroE = r.left + bordaE, dentroD = r.right - bordaD;
+            const colW = (dentroD - dentroE - gap * 11) / 12;
+            if (colW <= 0) return;
+            // itens reais da grade (inclui filhos de wrappers display:contents)
+            const itens = [];
+            const varrer = el => [...el.children].forEach(f => {
+                if (f.tagName === 'DATALIST' || f.tagName === 'SCRIPT') return;
+                if (getComputedStyle(f).display === 'contents') { varrer(f); return; }
+                if (f.offsetWidth || f.offsetHeight) itens.push(f);
+            });
+            varrer(gf);
+            const linhas = new Map();
+            itens.forEach(el => {
+                const b = el.getBoundingClientRect();
+                const y = Math.round(b.top);
+                const at = linhas.get(y) || { fim: dentroE, ultimo: null };
+                if (b.right > at.fim) { at.fim = b.right; at.ultimo = el; }
+                linhas.set(y, at);
+            });
+            linhas.forEach(at => {
+                const falta = dentroD - at.fim;
+                if (falta < colW * 0.4 || !at.ultimo) return;      // sobra irrelevante
+                const span = Math.max(1, Math.min(12, Math.round((falta + gap) / (colW + gap))));
+                const fill = document.createElement('div');
+                fill.className = 'g-col g-fill';
+                fill.style.gridColumn = 'span ' + span;
+                at.ultimo.after(fill);
+            });
+        });
+    }
+    let _gridTimer = null;
+    function gridFecharVaziosBreve(escopo) { clearTimeout(_gridTimer); _gridTimer = setTimeout(() => gridFecharVazios(escopo), 60); }
+    window.addEventListener('resize', () => gridFecharVaziosBreve());
+
+    function dlFlush() {
+        document.querySelectorAll('input[data-dl-prev]').forEach(el => {
+            if (!el.value) el.value = el.dataset.dlPrev;
+            delete el.dataset.dlPrev;
+        });
+    }
     function salvarCliente() {
         if (!val('cli-razao').trim()) { alert('Informe a Razão Social.'); return; }
         cadSalvar('clientes', { id: +val('cli-id') || 0, razao: val('cli-razao').trim(), cnpj: val('cli-cnpj').trim(), contato: val('cli-contato').trim(), telefone: val('cli-telefone').trim(), email: val('cli-email').trim(), status: val('cli-status') });
@@ -7291,7 +7403,18 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 if (sel.value && !document.getElementById('fu_fin_pi1_car').value.trim()) fuFinModelo();
             }
         }
+        fuBloco1Visivel();
+        if (cb.value === 'solicitacao') fuSolAnaliseLock();
         fuAtualizarResumo();
+        gridFecharVaziosBreve();
+    }
+    // O bloco 1 é cadastro interno: some da tela quando a ficha é só a Solicitação de Produto,
+    // que é a versão que o vendedor abre junto com o cliente.
+    function fuBloco1Visivel() {
+        const b1 = document.getElementById('fu-bloco1'); if (!b1) return;
+        const sel = [...document.querySelectorAll('#fu-fluxo input:checked')].map(c => c.value);
+        const soSolicitacao = sel.length === 1 && sel[0] === 'solicitacao';
+        b1.style.display = soSolicitacao ? 'none' : 'contents';
     }
 
     // ---- Cilindros Anilox (LPC + BCM) ----
@@ -7645,7 +7768,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="ac-panel">
                     <div class="ac-panel-t" style="background:${e.cor};">IMAGEM DA ARTE${e.medFrom ? '' : ' — MEDIDAS (mm)'}</div>
                     <div class="ac-meds" style="grid-template-columns:${e.medFrom ? '1fr auto' : 'repeat(4,1fr) auto'};">
-                        ${e.medFrom ? `<div class="ac-medresumo">Medidas informadas acima: <b id="fu-${p}-ac-medresumo">—</b></div>` : `
+                        ${e.medFrom ? `<div class="ac-medresumo">Medidas informadas acima: <b id="fu-${p}-ac-medresumo">a preencher</b></div>` : `
                         <label><span>Largura</span><input class="inp" id="fu_${p}_cq_largura" inputmode="decimal" placeholder="315,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
                         <label><span>${alturaLabel}</span><input class="inp" id="fu_${p}_cq_altura" inputmode="decimal" placeholder="400,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
                         <label><span>Sanfona</span><input class="inp" id="fu_${p}_cq_sanfona" inputmode="decimal" placeholder="35,00" oninput="fuAutoCtrlCroqui('${e.key}')"></label>
@@ -7690,12 +7813,12 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function fuSolEntregaHTML(campo) {
         const v = (document.getElementById(campo) || {}).value || '';
         return `<div class="sol-entrega">
-            <div class="sol-ent-lead">Em que <b>formato</b> o cliente quer receber o material?<span class="no-print">Clique numa opção. Se ainda não sabe, deixe sem marcar — a Rebracil indica a melhor forma.</span></div>
+            <div class="sol-ent-lead">Em que <b>formato</b> o cliente quer receber o material?<span class="no-print">Clique numa opção. Se ainda não sabe, deixe sem marcar: a Rebracil indica a melhor forma.</span></div>
             <div class="sol-entrega-grid">${FORMAS_ENTREGA.map(f => `
                 <div class="sol-ent-opt${v === f.k ? ' sel' : ''}" onclick="fuSolEntregaSel('${campo}','${f.k}')" title="${f.d}">
                     <i class="fas fa-${f.ic}"></i><b>${f.k}</b><span>${f.d}</span>
                 </div>`).join('')}</div>
-            <div class="sol-ent-hint${v ? '' : ' no-print'}">${v ? `Selecionado: <b>${v}</b> — ${(FORMAS_ENTREGA.find(f => f.k === v) || {}).d || ''}` : 'Nenhuma forma marcada ainda.'}</div>
+            <div class="sol-ent-hint${v ? '' : ' no-print'}">${v ? `Selecionado: <b>${v}</b> · ${(FORMAS_ENTREGA.find(f => f.k === v) || {}).d || ''}` : 'Nenhuma forma marcada ainda.'}</div>
         </div>`;
     }
     function fuAutoCtrlSentido(key) {
@@ -7736,10 +7859,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function fuAutoCtrlCfg(key) { return AUTOCTRL_ETAPAS.find(x => x.key === key); }
     // Solicitação de Produto: puxa os dados do cliente da base ao selecionar
     function fuSolClienteChange() {
+        // A carteira de clientes NÃO é exposta aqui: esta ficha é preenchida junto com o
+        // cliente, então nada de lista nem de puxar CNPJ/contato de outra empresa da base.
         const nome = (val('fu_sol_cliente') || '').trim();
-        const c = RB.clientes.find(x => (x.razao || '').toLowerCase() === nome.toLowerCase() || (x.razaoSocial || '').toLowerCase() === nome.toLowerCase());
         const set = (id, v) => { const el = document.getElementById(id); if (el && !el.value.trim() && v) el.value = v; };
-        if (c) { set('fu_sol_cnpj', c.cnpj); set('fu_sol_segmento', c.segmento); set('fu_sol_contato', c.contato); set('fu_sol_telefone', c.telefone); set('fu_sol_email', c.email); }
         set('fu_sol_vendedor', currentSessionUser);
         const d = document.getElementById('fu_sol_data'); if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
         // espelha o cliente no topo da ficha, para não redigitar
@@ -7827,17 +7950,29 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         fuSolAnexosRender();
     }
     // ---- Compartilhar com o vendedor ----
+    // =====================================================================
+    // FICHA DO CLIENTE — o cliente não entra no sistema.
+    // Geramos um arquivo HTML autônomo com apenas o formulário: sem login,
+    // sem carteira de clientes, sem os blocos internos. Ele preenche, clica em
+    // "Finalizar" e recebe um código/arquivo de resposta que a Qualidade
+    // importa aqui com um clique — nada é redigitado.
+    // =====================================================================
+    function fuSolHospedado() { return /^https?:$/i.test(location.protocol); }
     function fuSolLinkSistema() { return location.href.split('#')[0] + '#solicitacao'; }
     function fuSolQR() {
         const box = document.getElementById('fu-sol-qr'); if (!box) return;
+        if (!fuSolHospedado()) {
+            // Rodando do arquivo local: um QR apontaria para o caminho do PC de quem gerou.
+            box.innerHTML = `<div class="sol-qr-aviso"><b>QR indisponível neste modo.</b> O sistema está aberto direto do arquivo, então o endereço não existe para outro aparelho.<br><br>Para o cliente, use <b>“Gerar ficha do cliente”</b> ao lado: o arquivo abre em qualquer celular, mesmo sem internet.<br><br>Publicando o sistema na <b>rede/intranet</b> (http), o QR aparece aqui automaticamente.</div>`;
+            return;
+        }
         const link = fuSolLinkSistema();
-        box.innerHTML = /^file:/i.test(link)
-            ? `<div class="sol-qr-aviso">Abra o sistema pela <b>rede/intranet</b> (http) para o QR funcionar no celular. Localmente, use “Enviar por WhatsApp/e-mail”.</div>${qrSVG(link, 150)}`
-            : qrSVG(link, 176);
+        box.innerHTML = qrSVG(link, 168) + `<div style="font-size:9.5px; color:#94a3b8; margin-top:4px;">Aponte a câmera do celular</div>
+            <div style="font-size:9.5px; color:#b45309; margin-top:5px; line-height:1.35;">Este QR abre o sistema. Use só dentro da rede da Rebracil; para o cliente, mande a <b>ficha do cliente</b>.</div>`;
     }
-    function fuSolMsg() {
+    function fuSolMsg(texto) {
         const cli = val('fu_sol_cliente') || 'o cliente';
-        return `Solicitação de Produto — Grupo Rebracil%0A%0APreencha a ficha junto com ${encodeURIComponent(cli)}: ${encodeURIComponent(fuSolLinkSistema())}%0A%0AQualquer arte ou especificação que o cliente já tenha, anexe direto na ficha.`;
+        return texto || `Solicitação de Produto — Grupo Rebracil%0A%0APreencha a ficha junto com ${encodeURIComponent(cli)}: ${encodeURIComponent(fuSolLinkSistema())}`;
     }
     function fuSolCopiarLink() {
         const l = fuSolLinkSistema();
@@ -7845,9 +7980,325 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         else prompt('Copie o link:', l);
     }
     function fuSolEnviarWhats() { window.open('https://wa.me/?text=' + fuSolMsg(), '_blank'); }
-    function fuSolEnviarEmail() { window.location.href = 'mailto:?subject=' + encodeURIComponent('Solicitação de Produto — Grupo Rebracil') + '&body=' + fuSolMsg(); }
+    function fuSolEnviarEmail() { window.location.href = 'mailto:?subject=' + encodeURIComponent('Solicitação de Produto - Grupo Rebracil') + '&body=' + fuSolMsg(); }
+
+    // Datalists preenchidos em tempo de execução com dados da empresa: nunca vão para o cliente
+    const DL_INTERNAS = ['dl_clientes', 'dl_produtos', 'dl_fornecedores', 'dl_mp', 'dl_cliches', 'dl_setores', 'dl_colaboradores', 'dl_usuarios'];
+
+    function fuSolCamposCliente() {
+        // Tudo que é do cliente vive no bloco 1 ao 8 da etapa; o 9 e o 10 são internos.
+        const sec = document.getElementById('fu-sec-solicitacao');
+        const b9 = document.getElementById('fu-sol-b9');
+        const ids = [];
+        let interno = false;
+        [...sec.querySelectorAll('*')].forEach(el => {
+            if (el === b9) interno = true;
+            if (interno || !el.id || !/^fu_sol_/.test(el.id)) return;
+            if (el.matches('input, select, textarea')) ids.push(el.id);
+        });
+        return ids;
+    }
+
+    function fuSolGerarFichaCliente() {
+        const sec = document.getElementById('fu-sec-solicitacao');
+        const clone = sec.cloneNode(true);
+        clone.className = 'grid-form'; clone.removeAttribute('id');
+        // corta tudo do bloco 9 em diante (envio e análise interna)
+        const b9 = clone.querySelector('#fu-sol-b9');
+        if (b9) { let n = b9; const mortos = []; while (n) { mortos.push(n); n = n.nextElementSibling; } mortos.forEach(x => x.remove()); }
+        // o croqui e o painel de entrega dependem do motor do sistema: viram blocos simples
+        const ac = clone.querySelector('#fu-ac-solicitacao');
+        if (ac) ac.innerHTML = `<div class="g-col g-col-12" id="cli-entrega-host"></div>`;
+        // nada de dados da Rebracil viajando junto
+        clone.querySelectorAll('input[list]').forEach(inp => {
+            const alvo = inp.getAttribute('list');
+            if (DL_INTERNAS.includes(alvo) || !document.getElementById(alvo)) { inp.removeAttribute('list'); return; }
+            if (!clone.querySelector('#' + alvo)) {
+                const dl = document.getElementById(alvo).cloneNode(true);
+                if (dl.querySelectorAll('option').length > 60) { inp.removeAttribute('list'); return; }
+                inp.after(dl);
+            }
+        });
+        DL_INTERNAS.forEach(id => { const d = clone.querySelector('#' + id); if (d) d.remove(); });
+        // sem botões nem ganchos do sistema
+        clone.querySelectorAll('button, .no-print').forEach(el => el.remove());
+        clone.querySelectorAll('*').forEach(el => {
+            [...el.attributes].filter(a => /^on/i.test(a.name)).forEach(a => el.removeAttribute(a.name));
+        });
+        clone.querySelectorAll('input[type="file"]').forEach(el => el.remove());
+        // valores já digitados pelo vendedor vão preenchidos
+        const orig = fuSolCamposCliente();
+        orig.forEach(id => {
+            const de = document.getElementById(id), para = clone.querySelector('#' + id);
+            if (!de || !para) return;
+            if (para.tagName === 'SELECT') { [...para.options].forEach(o => { o.selected = (o.value || o.text) === de.value; }); }
+            else if (para.tagName === 'TEXTAREA') para.textContent = de.value;
+            else para.setAttribute('value', de.value);
+        });
+        clone.querySelectorAll('input[type="checkbox"]').forEach(cb => { if (cb.checked) cb.setAttribute('checked', 'checked'); });
+
+        const estilo = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
+        const cliente = (val('fu_sol_cliente') || 'Cliente').trim();
+        const vendedor = (val('fu_sol_vendedor') || currentSessionUser || '').trim();
+        const hoje = new Date().toLocaleDateString('pt-BR');
+        const formas = JSON.stringify(FORMAS_ENTREGA);
+        const campos = JSON.stringify(orig);
+
+        const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitação de Produto - Grupo Rebracil</title>
+<style>${estilo}
+body { margin:0; background:#f1f5f9; font-family:'Inter',Arial,sans-serif; }
+.cli-wrap, .cli-wrap * { box-sizing:border-box; }
+.cli-wrap { max-width:1100px; margin:0 auto; padding:14px 12px 120px; }
+.cli-top { background:linear-gradient(135deg,#191040,#2a1a63); color:#fff; border-radius:14px; padding:18px 20px; margin-bottom:14px; }
+.cli-top h1 { margin:0; font-size:19px; letter-spacing:.04em; }
+.cli-top p { margin:6px 0 0; font-size:12.5px; opacity:.85; line-height:1.5; }
+.cli-top .marca { font-size:11px; letter-spacing:.22em; color:#c5a880; font-weight:800; margin-bottom:6px; }
+.cli-bar { position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid #e2e8f0; padding:10px 14px; display:flex; gap:9px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 -6px 20px rgba(0,0,0,.07); z-index:50; }
+.cli-bar .aviso { font-size:11px; color:#64748b; flex:1; min-width:200px; }
+.cli-btn { border:none; border-radius:9px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; background:#0f766e; color:#fff; }
+.cli-btn.sec { background:#fff; color:#334155; border:1px solid #cbd5e1; }
+.cli-ok { display:none; background:#ecfdf5; border:1.5px solid #6ee7b7; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
+.cli-ok b { color:#065f46; font-size:14px; display:block; margin-bottom:6px; }
+.cli-ok textarea { width:100%; height:80px; font-family:ui-monospace,Menlo,monospace; font-size:10px; border:1px solid #a7f3d0; border-radius:8px; padding:8px; }
+.cli-anex { border:1.5px dashed #94a3b8; border-radius:10px; padding:12px; text-align:center; background:#fff; }
+.cli-anex input { display:block; margin:8px auto 0; font-size:12px; }
+.cli-lista { font-size:11.5px; color:#334155; margin-top:8px; text-align:left; }
+.cli-falta { background:#fef3c7; border:1px solid #fcd34d; color:#92400e; border-radius:10px; padding:10px 12px; font-size:12px; margin-bottom:12px; display:none; line-height:1.5; }
+</style></head><body>
+<div class="cli-wrap">
+  <div class="cli-top">
+    <div class="marca">GRUPO REBRACIL · EMBALAGENS FLEXÍVEIS</div>
+    <h1>Solicitação de Produto</h1>
+    <p>Preencha o que souber sobre a embalagem que você precisa. <b>Nenhum campo técnico é obrigatório</b> — nossa equipe completa o resto e confirma com você.<br>
+    Cliente: <b>${cliente.replace(/</g, '&lt;')}</b> · Vendedor responsável: <b>${vendedor.replace(/</g, '&lt;')}</b> · Enviado em ${hoje}</p>
+  </div>
+  <div class="cli-falta" id="cli-falta"></div>
+  <div class="cli-ok" id="cli-ok">
+    <b>Pronto! Agora é só devolver a resposta ao vendedor.</b>
+    <div style="font-size:12px; color:#065f46; margin-bottom:7px;">O arquivo <b>resposta-rebracil.rbq</b> já foi baixado. Se preferir, copie o código abaixo e mande por WhatsApp ou e-mail.</div>
+    <textarea id="cli-codigo" readonly></textarea>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+      <button class="cli-btn" onclick="cliCopiar()">Copiar código</button>
+      <button class="cli-btn sec" onclick="cliBaixar()">Baixar de novo</button>
+      <button class="cli-btn sec" onclick="cliWhats()">Enviar por WhatsApp</button>
+      <button class="cli-btn sec" onclick="cliEmail()">Enviar por e-mail</button>
+    </div>
+  </div>
+  ${clone.outerHTML}
+  <div class="cli-anex" style="margin-top:14px;">
+    <b style="font-size:13px; color:#0f766e;">Tem arte, foto da embalagem atual ou uma especificação?</b>
+    <div style="font-size:11.5px; color:#64748b; margin-top:3px;">Anexe aqui. Uma foto já ajuda muito e evita idas e voltas.</div>
+    <input type="file" id="cli-arquivos" multiple onchange="cliAnexar(this)">
+    <div class="cli-lista" id="cli-lista"></div>
+  </div>
+</div>
+<div class="cli-bar">
+  <span class="aviso">Não precisa preencher tudo. Ao terminar, clique em Finalizar e devolva o arquivo ao vendedor.</span>
+  <button class="cli-btn sec" onclick="window.print()">Imprimir</button>
+  <button class="cli-btn" onclick="cliFinalizar()">Finalizar e gerar resposta</button>
+</div>
+<script>
+const CAMPOS = ${campos};
+const FORMAS = ${formas};
+const CLIENTE = ${JSON.stringify(cliente)};
+let ANEXOS = [];
+function el(id) { return document.getElementById(id); }
+// "Como você recebe o material" — mesmas opções da ficha da Rebracil
+(function entrega() {
+  const host = el('cli-entrega-host'); if (!host) return;
+  const atual = (el('fu_sol_forma_entrega') || {}).value || '';
+  host.innerHTML = '<span class="lbl" style="color:#0f766e;">Como você quer receber o material?</span>' +
+    '<div class="sol-entrega"><div class="sol-entrega-grid" id="cli-ent-grid"></div>' +
+    '<div class="sol-ent-hint">Se ainda não sabe, deixe sem marcar.</div></div>' +
+    '<input type="hidden" id="fu_sol_forma_entrega" value="' + atual.replace(/"/g, '&quot;') + '">';
+  const g = el('cli-ent-grid');
+  g.innerHTML = FORMAS.map(f => '<div class="sol-ent-opt" data-k="' + f.k + '"><b>' + f.k + '</b><span>' + f.d + '</span></div>').join('');
+  g.querySelectorAll('.sol-ent-opt').forEach(o => o.onclick = () => {
+    const k = o.dataset.k, h = el('fu_sol_forma_entrega');
+    h.value = h.value === k ? '' : k;
+    g.querySelectorAll('.sol-ent-opt').forEach(x => x.classList.toggle('sel', x.dataset.k === h.value));
+  });
+  g.querySelectorAll('.sol-ent-opt').forEach(x => x.classList.toggle('sel', x.dataset.k === atual));
+})();
+function cliFecharVazios() {
+  document.querySelectorAll('.grid-form').forEach(gf => {
+    gf.querySelectorAll('.g-fill').forEach(f => f.remove());
+    if (!gf.offsetWidth) return;
+    const cs = getComputedStyle(gf), gap = parseFloat(cs.columnGap) || 0;
+    const r = gf.getBoundingClientRect();
+    const dentroE = r.left + (parseFloat(cs.borderLeftWidth) || 0), dentroD = r.right - (parseFloat(cs.borderRightWidth) || 0);
+    const colW = (dentroD - dentroE - gap * 11) / 12; if (colW <= 0) return;
+    const linhas = new Map(), itens = [];
+    const varrer = e2 => [...e2.children].forEach(f => {
+      if (f.tagName === 'DATALIST' || f.tagName === 'SCRIPT') return;
+      if (getComputedStyle(f).display === 'contents') { varrer(f); return; }
+      if (f.offsetWidth || f.offsetHeight) itens.push(f);
+    });
+    varrer(gf);
+    itens.forEach(e2 => { const b = e2.getBoundingClientRect(), y = Math.round(b.top);
+      const at = linhas.get(y) || { fim: dentroE, ultimo: null };
+      if (b.right > at.fim) { at.fim = b.right; at.ultimo = e2; } linhas.set(y, at); });
+    linhas.forEach(at => { const falta = dentroD - at.fim;
+      if (falta < colW * 0.4 || !at.ultimo) return;
+      const d = document.createElement('div'); d.className = 'g-col g-fill';
+      d.style.gridColumn = 'span ' + Math.max(1, Math.min(12, Math.round((falta + gap) / (colW + gap))));
+      at.ultimo.after(d); });
+  });
+}
+cliFecharVazios();
+window.addEventListener('resize', () => setTimeout(cliFecharVazios, 60));
+function cliAnexar(inp) {
+  [...inp.files].forEach(f => {
+    if (f.size > 4 * 1024 * 1024) { alert('"' + f.name + '" tem mais de 4 MB e não foi anexado.'); return; }
+    const r = new FileReader();
+    r.onload = e => { ANEXOS.push({ nome: f.name, tipo: f.type || '', dados: e.target.result }); cliLista(); };
+    r.readAsDataURL(f);
+  });
+  inp.value = '';
+}
+function cliLista() {
+  el('cli-lista').innerHTML = ANEXOS.length
+    ? ANEXOS.map((a, i) => '• ' + a.nome + ' <a href="#" onclick="ANEXOS.splice(' + i + ',1);cliLista();return false;" style="color:#ef4444;">remover</a>').join('<br>')
+    : '';
+}
+function cliColeta() {
+  const d = {};
+  CAMPOS.forEach(id => { const e = el(id); if (e && e.value) d[id] = e.value; });
+  const ac = [...document.querySelectorAll('#fu-sol-acess input:checked')].map(c => c.value);
+  return { v: 1, origem: 'ficha-cliente', cliente: CLIENTE, data: new Date().toISOString(), campos: d, acessorios: ac, anexos: ANEXOS };
+}
+function cliCodigo() { return 'RBQ1:' + btoa(unescape(encodeURIComponent(JSON.stringify(cliColeta())))); }
+let _cod = '';
+function cliFinalizar() {
+  const falta = [];
+  if (!(el('fu_sol_cliente') || {}).value) falta.push('o nome da sua empresa');
+  if (!(el('fu_sol_produto_cliente') || {}).value) falta.push('o que vai ser embalado');
+  if (falta.length) {
+    const f = el('cli-falta');
+    f.style.display = 'block';
+    f.innerHTML = '<b>Falta pouco:</b> informe ' + falta.join(' e ') + '. O resto pode ficar em branco.';
+    f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  el('cli-falta').style.display = 'none';
+  _cod = cliCodigo();
+  el('cli-codigo').value = _cod;
+  el('cli-ok').style.display = 'block';
+  cliBaixar();
+  el('cli-ok').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function cliBaixar() {
+  if (!_cod) _cod = cliCodigo();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([_cod], { type: 'text/plain' }));
+  a.download = 'resposta-rebracil.rbq'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function cliCopiar() {
+  const t = el('cli-codigo'); t.select();
+  if (navigator.clipboard) navigator.clipboard.writeText(t.value).then(() => alert('Código copiado.'), () => document.execCommand('copy'));
+  else { document.execCommand('copy'); alert('Código copiado.'); }
+}
+function cliWhats() { window.open('https://wa.me/?text=' + encodeURIComponent('Solicitação de Produto - Grupo Rebracil\\n\\n' + _cod), '_blank'); }
+function cliEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('Solicitação de Produto - Grupo Rebracil') + '&body=' + encodeURIComponent(_cod); }
+<\/script></body></html>`;
+
+        const nome = 'Solicitacao Rebracil - ' + (cliente || 'cliente').replace(/[^\w\s-]/g, '').trim() + '.html';
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+        a.download = nome; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        registrarAtividade(`gerou a ficha do cliente para ${cliente}`);
+        toast('Ficha do cliente gerada. Mande o arquivo por WhatsApp ou e-mail.');
+    }
+
+    // ---- Volta da resposta do cliente ----
+    function fuSolAbrirImportar() {
+        const b = document.getElementById('fu-sol-importar');
+        b.style.display = b.style.display === 'none' ? 'block' : 'none';
+        if (b.style.display === 'block') document.getElementById('fu_sol_resposta').focus();
+    }
+    function fuSolImportarArquivo(inp) {
+        const f = inp.files && inp.files[0]; if (!f) return;
+        const r = new FileReader();
+        r.onload = e => { document.getElementById('fu_sol_resposta').value = e.target.result; inp.value = ''; fuSolImportarResposta(); };
+        r.readAsText(f);
+    }
+    function fuSolImportarResposta() {
+        const bruto = (document.getElementById('fu_sol_resposta').value || '').trim();
+        if (!bruto) { alert('Cole o código que o cliente devolveu ou escolha o arquivo .rbq.'); return; }
+        let d;
+        try {
+            const b64 = bruto.replace(/^RBQ1:/, '').replace(/\s+/g, '');
+            d = JSON.parse(decodeURIComponent(escape(atob(b64))));
+        } catch (e) { alert('Não consegui ler esse código. Peça ao cliente para reenviar o arquivo .rbq inteiro.'); return; }
+        if (!d || !d.campos) { alert('O código não tem respostas dentro.'); return; }
+
+        const cb = document.querySelector('#fu-fluxo input[value="solicitacao"]');
+        if (cb && !cb.checked) { cb.checked = true; fuToggleEtapa(cb); }
+        let n = 0;
+        Object.keys(d.campos).forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.value = d.campos[id]; n++;
+        });
+        if (d.acessorios) {
+            document.querySelectorAll('#fu-sol-acess input').forEach(c => { c.checked = d.acessorios.includes(c.value); });
+            fuSolAcessSync();
+        }
+        if (d.anexos && d.anexos.length) {
+            d.anexos.forEach(a => fuSolAnexos.push({ id: novoId(), nome: a.nome, tipo: a.tipo, tam: (a.dados || '').length * 0.75, dados: a.dados }));
+            fuSolAnexosSync(); fuSolAnexosRender();
+        }
+        document.getElementById('fu_sol_resposta').value = '';
+        document.getElementById('fu-sol-importar').style.display = 'none';
+        fuAutoCtrlCroqui('solicitacao'); fuAutoCtrlSentido('solicitacao');
+        fuSolAnaliseLock(); fuAtualizarResumo(); gridFecharVaziosBreve();
+        histAcao('Resposta do cliente importada', { tela: 'form-ficha-unica', campo: 'fu_sol_cliente' });
+        registrarAtividade(`importou a resposta do cliente ${d.cliente || ''} (${n} campos, ${(d.anexos || []).length} anexo(s))`);
+        toast(`Resposta importada: ${n} campo(s)${(d.anexos || []).length ? ` e ${d.anexos.length} anexo(s)` : ''}.`);
+    }
+
+    // ---- Bloco 10: só abre depois que a solicitação do cliente chega ----
+    let _solAnaliseAberta = false;
+    document.addEventListener('input', e => {
+        if (e.target && /^fu_sol_(cliente|produto_cliente|tipo_emb|qtd)$/.test(e.target.id)) fuSolAnaliseLock();
+    });
+    function fuSolAnaliseLock() {
+        const box = document.getElementById('fu-sol-analise'); if (!box) return;
+        const txt = document.getElementById('fu-sol-lock-txt'), btn = document.getElementById('fu-sol-lock-btn');
+        const essenciais = [
+            ['fu_sol_cliente', 'quem está pedindo'],
+            ['fu_sol_produto_cliente', 'o que será embalado'],
+            ['fu_sol_tipo_emb', 'o tipo de embalagem'],
+            ['fu_sol_qtd', 'a quantidade estimada']
+        ];
+        const faltam = essenciais.filter(([id]) => !(val(id) || '').trim()).map(([, r]) => r);
+        const pronta = faltam.length === 0;
+        const liberado = pronta && _solAnaliseAberta;
+        box.classList.toggle('travado', !liberado);
+        box.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = !liberado; });
+        if (btn) btn.style.display = pronta && !_solAnaliseAberta ? '' : 'none';
+        gridFecharVaziosBreve();
+        if (!txt) return;
+        if (liberado) txt.innerHTML = '<b>Análise em andamento.</b> Preencha o parecer e mude a situação conforme a avaliação avança.';
+        else if (pronta) txt.innerHTML = '<b>Solicitação recebida e completa.</b> Clique em <b>Iniciar análise</b> para abrir a avaliação técnica.';
+        else txt.innerHTML = `<b>Bloco fechado.</b> A análise técnica só começa com a solicitação do cliente completa. Ainda falta: <b>${faltam.join(', ')}</b>.`;
+    }
+    function fuSolAbrirAnalise() {
+        _solAnaliseAberta = true;
+        const d = document.getElementById('fu_sol_data_analise'); if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+        const a = document.getElementById('fu_sol_analisado_por'); if (a && !a.value.trim()) a.value = currentSessionUser;
+        fuSolAnaliseLock();
+        registrarAtividade('iniciou a análise crítica da solicitação de produto');
+        histAcao('Análise crítica iniciada', { tela: 'form-ficha-unica', campo: 'fu_sol_viabilidade' });
+    }
+
     // ---- Ficha em branco para preencher à mão ----
     function fuSolImprimirBranco() {
+        dlFlush();
         const sec = document.getElementById('fu-sec-solicitacao');
         const clone = sec.cloneNode(true);
         clone.classList.add('on'); clone.removeAttribute('id');
@@ -7958,11 +8409,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const S = num(mf ? mf.S : `fu_${e.pref}_cq_sanfona`), B = num(mf ? mf.B : `fu_${e.pref}_cq_aba`);
         if (mf) {
             const r = document.getElementById(`fu-${e.pref}-ac-medresumo`);
-            if (r) r.textContent = (L || A) ? `${L || '—'} × ${A || '—'} mm${S ? ' · sanfona ' + S : ''}${B ? ' · aba ' + B : ''}` : '—';
+            if (r) r.textContent = (L || A) ? `${L || '?'} × ${A || '?'} mm${S ? ' · sanfona ' + S : ''}${B ? ' · aba ' + B : ''}` : 'a preencher';
         }
         box.innerHTML = croquiSVG({
             L, A, S, B,
-            art, cor: e.cor, titulo: e.obj === 'BOBINA' ? 'IMAGEM DA ARTE — BOBINA' : 'IMAGEM DA ARTE — EMBALAGEM',
+            art, cor: e.cor, titulo: e.obj === 'BOBINA' ? 'IMAGEM DA ARTE · BOBINA' : 'IMAGEM DA ARTE · EMBALAGEM',
             vazio: 'Preencha as medidas e anexe a arte —<br>a imagem entra aqui com as réguas em volta.'
         });
     }
@@ -8498,6 +8949,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
 
     function salvarFichaUnica(statusClicado) {
+        dlFlush();
         // Numa Solicitação de Produto o cliente/vendedor não preenche o cadastro do topo:
         // herda o que foi informado na própria solicitação (produto ainda não existe no cadastro).
         const solAtiva = [...document.querySelectorAll('#fu-fluxo input:checked')].some(c => c.value === 'solicitacao');
@@ -8506,7 +8958,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             if (cTopo && !cTopo.value.trim()) cTopo.value = (val('fu_sol_cliente') || '').trim();
             if (pTopo && !pTopo.value.trim()) {
                 const desc = (val('fu_sol_produto_cliente') || '').trim(), tipo = (val('fu_sol_tipo_emb') || '').trim();
-                if (desc || tipo) pTopo.value = [tipo, desc].filter(Boolean).join(' — ');
+                if (desc || tipo) pTopo.value = [tipo, desc].filter(Boolean).join(' · ');
             }
         }
         const cliente = document.getElementById('fu_cliente').value.trim();
@@ -8766,6 +9218,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     }
 
     function fuImprimir() {
+        dlFlush();
         const keys = [...document.querySelectorAll('#fu-print-lista input:checked')].map(c => c.value);
         if (!keys.length) { alert('Selecione pelo menos uma etapa.'); return; }
         document.getElementById('modal-fu-print').style.display = 'none';
@@ -8827,12 +9280,18 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                         <div class="c">Ficha Única ${cod} · POP-QUA-001</div>
                     </div>
                 </div>
-                <table class="fup-meta">
+                ${et.key === 'solicitacao'
+                    // A solicitação é o papel que vai para o cliente: nada de cadastro interno no cabeçalho
+                    ? `<table class="fup-meta">
+                    <tr><th>Cliente</th><th>Produto do cliente</th><th>Vendedor</th><th>Emissão</th></tr>
+                    <tr><td>${g('fu_sol_cliente')}</td><td>${g('fu_sol_produto_cliente')}</td><td>${g('fu_sol_vendedor')}</td><td>${emitido}</td></tr>
+                </table>`
+                    : `<table class="fup-meta">
                     <tr><th>Cliente</th><th>Produto</th><th>Código da Etapa</th><th>Prioridade</th></tr>
                     <tr><td>${g('fu_cliente')}</td><td>${g('fu_produto')}</td><td>${codEt}</td><td>${g('fu_prioridade')}</td></tr>
                     <tr><th>Cód. Semi Acabado</th><th>Segmento</th><th>Unidade</th><th>Emissão</th></tr>
                     <tr><td>${g('fu_semi')}</td><td>${g('fu_segmento')}</td><td>${g('fu_unidade')}</td><td>${emitido}</td></tr>
-                </table>
+                </table>`}
                 <div class="fup-fluxo"><b style="margin-right:4px; font-size:9px; text-transform:uppercase; color:#444;">Fluxo do produto:</b>${cadeia}</div>
                 ${fuSecaoHTML(et.key, null, codEt)}
                 ${et.key === 'final' ? fuSecaoHTML('expedicao', null, '') : ''}
