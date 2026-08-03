@@ -697,3 +697,25 @@ vem depois — e leva ao próximo com um clique.
     portal** para quem presta serviço; "Entregar" chama-se **Meu projeto** para
     o cliente. Etapas sem permissão somem da trilha, e a área inteira some do
     menu quando a pessoa não tem acesso a nenhuma delas.
+
+66. **Todo mundo trabalha por resultado — a distinção acabou.** Não existe
+    mais "contratado" contra "por resultado" no sistema: `prestadores()`
+    devolve todo mundo que está ativo, `ehPrestador()` é sempre verdadeiro e o
+    seletor de vínculo saiu (virou só ativar/desativar a pessoa). O que
+    diferencia uma pessoa da outra é o **escopo**, os **contratos liberados** e
+    o **nível** — nunca o tipo de vínculo.
+
+67. **"Meus leads" saiu do menu e virou aba do portal.** Era o último item solto
+    fora das áreas e duplicava a aba que já existia em *Meu portal*. A tela
+    continua existindo como **etapa oculta** da área "A rede" — é a superfície
+    que a gestão abre em "👁 Painel dele". O que trava o painel agora é o
+    **contrato não assinado**, não o tipo de vínculo, e a tela diz isso.
+
+68. **A trilha sumia no tema claro.** `.area-rail` usava `var(--bg)`, que é o
+    fundo do documento e é quase preto **nos dois temas** — no claro dava texto
+    escuro sobre fundo escuro. Passou a usar `var(--panel)`, a superfície de
+    verdade. Junto: a etapa não visitada levava duas atenuações somadas
+    (opacidade 0,55 **mais** cor apagada) e quase desaparecia; agora a
+    diferença é só de cor e peso. Contraste medido: mínimo **6,02:1** no claro
+    e **6,88:1** no escuro, etapa atual em 18,49 e 14,92 — bem acima dos 4,5:1
+    exigidos.
