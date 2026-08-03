@@ -2254,7 +2254,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="section-title" style="background:#191040;">2 · FLUXO DE PROCESSOS — MARQUE AS ETAPAS INCLUSAS <span style="float:right; font-weight:400; font-size:9px; opacity:.8;">barra fixa — acompanha a rolagem</span></div>
                 <div class="g-col g-col-12" style="padding-bottom:8px;">
                     <div class="chips-fluxo" id="fu-fluxo">
-                        <label class="chip-et"><input type="checkbox" value="solicitacao" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Solicitação de Produto</span></label>
                         <label class="chip-et" style="border-color:#c5a880;"><input type="checkbox" value="final" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Ficha Técnica de Especificação do Produto</span></label>
                         <label class="chip-et"><input type="checkbox" value="ftmp" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Ficha Técnica de MP</span></label>
                         <label class="chip-et"><input type="checkbox" value="cliche" onchange="fuToggleEtapa(this)"><span onclick="fuIrEtapa(event, this)">Solicitação de Clichê</span></label>
@@ -2275,7 +2274,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="sol-guia" style="border-left-color:#191040; background:#f5f6fb; color:#2a2160;">Esta ficha nasce da <b>Solicitação de Produto</b>: a Qualidade confirma o que o cliente pediu, emite como <b>laudo de aprovação</b> e, com o <b>aceite do cliente</b>, a compra da matéria-prima é liberada automaticamente.</div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#f5f6fb;"><span class="lbl" style="color:#191040;">O QUE O CLIENTE PEDIU <span style="font-weight:400; color:#94a3b8; font-size:9px;">(vem da Solicitação de Produto — confira antes de emitir)</span></span></div>
-                <div class="g-col g-col-12" id="fu-fin-origem"><div class="fin-origem-vazio">Ative a etapa <b>Solicitação de Produto</b> ou importe a resposta do cliente para trazer os dados automaticamente.</div></div>
+                <div class="g-col g-col-12" id="fu-fin-origem"><div class="fin-origem-vazio">Abra esta ficha pelo botão <b>Gerar especificação</b> da tela <b>Solicitação de Produto</b>, ou importe ali a resposta do cliente, para os dados virem sozinhos.</div></div>
 
                 <div class="g-col g-col-3"><span class="lbl">Modelo do produto</span><select class="inp" id="fu_fin_modelo" onchange="fuFinModelo()"><option value=""></option><option>Corte e Solda</option><option>Rebobinadeira</option><option>Narita</option></select></div>
                 <div class="g-col g-col-2"><span class="lbl">Revisão</span><input class="inp" id="fu_fin_revisao" value="00"></div>
@@ -7525,8 +7524,6 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function fuToggleEtapa(cb) {
         const sec = document.getElementById('fu-sec-' + cb.value);
         if (sec) sec.classList.toggle('on', cb.checked);
-        // Ao ativar a Solicitação de Clichê: preenche elaborador e desenha o croqui
-        if (cb.value === 'solicitacao' && cb.checked) { fuAutoCtrlInit(); fuSolSemear(); fuSolRestaurar(); fuAutoCtrlCroqui('solicitacao'); }
         if (cb.value === 'impressao' && cb.checked) { fuCepRestaurar('imp'); }
         if (cb.value === 'corte' && cb.checked) { fuCepRestaurar('cor'); }
         if (cb.value === 'ftmp' && cb.checked) { fuAutoCtrlInit(); fuAutoCtrlCroqui('ftmp'); }
@@ -7550,20 +7547,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 if (sel.value && !document.getElementById('fu_fin_pi1_car').value.trim()) fuFinModelo();
             }
         }
-        fuBloco1Visivel();
-        if (cb.value === 'solicitacao') fuSolAnaliseLock();
         fuAtualizarResumo();
         gridFecharVaziosBreve();
     }
-    // O bloco 1 é cadastro interno: some da tela quando a ficha é só a Solicitação de Produto,
-    // que é a versão que o vendedor abre junto com o cliente.
-    function fuBloco1Visivel() {
-        const b1 = document.getElementById('fu-bloco1'); if (!b1) return;
-        const sel = [...document.querySelectorAll('#fu-fluxo input:checked')].map(c => c.value);
-        const soSolicitacao = sel.length === 1 && sel[0] === 'solicitacao';
-        b1.style.display = soSolicitacao ? 'none' : 'contents';
-    }
-
     // ---- Cilindros Anilox (LPC + BCM) ----
     function renderCadAnilox() {
         const tb = document.getElementById('tb-cad-anilox'); if (!tb) return;
@@ -8583,7 +8569,7 @@ function cliEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('S
         const host = document.getElementById('fu-fin-origem'); if (!host) return;
         const itens = FIN_ORIGEM.map(c => ({ l: c.l, v: (val(c.id) || '').trim() }));
         if (!itens.some(i => i.v)) {
-            host.innerHTML = '<div class="fin-origem-vazio">Ative a etapa <b>Solicitação de Produto</b> ou importe a resposta do cliente para trazer os dados automaticamente.</div>';
+            host.innerHTML = '<div class="fin-origem-vazio">Abra esta ficha pelo botão <b>Gerar especificação</b> da tela <b>Solicitação de Produto</b>, ou importe ali a resposta do cliente, para os dados virem sozinhos.</div>';
             return;
         }
         host.innerHTML = `<div class="fin-origem">${itens.map(i =>
@@ -8723,7 +8709,7 @@ function cliEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('S
     function fuFinEmitirLaudo() {
         dlFlush();
         const d = fuFinLaudoDados();
-        if (!d.origem.length) { alert('Traga primeiro os dados da solicitação: ative a etapa Solicitação de Produto ou importe a resposta do cliente.'); return; }
+        if (!d.origem.length) { alert('Traga primeiro os dados da solicitação: abra esta ficha pelo botão "Gerar especificação" da tela Solicitação de Produto.'); return; }
         const estilo = [...document.querySelectorAll('style')].map(x => x.textContent).join('\n');
         const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9831,10 +9817,9 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
 
     function salvarFichaUnica(statusClicado) {
         dlFlush();
-        // Numa Solicitação de Produto o cliente/vendedor não preenche o cadastro do topo:
-        // herda o que foi informado na própria solicitação (produto ainda não existe no cadastro).
-        const solAtiva = [...document.querySelectorAll('#fu-fluxo input:checked')].some(c => c.value === 'solicitacao');
-        if (solAtiva) {
+        // Ficha nascida de uma Solicitação de Produto: o cadastro do topo herda o que o
+        // cliente informou, porque o produto ainda não existe no cadastro interno.
+        if ((val('fu_sol_cliente') || '').trim()) {
             const cTopo = document.getElementById('fu_cliente'), pTopo = document.getElementById('fu_produto');
             if (cTopo && !cTopo.value.trim()) cTopo.value = (val('fu_sol_cliente') || '').trim();
             if (pTopo && !pTopo.value.trim()) {
@@ -10146,13 +10131,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
                         <div class="c">Ficha Única ${cod} · POP-QUA-001</div>
                     </div>
                 </div>
-                ${et.key === 'solicitacao'
-                    // A solicitação é o papel que vai para o cliente: nada de cadastro interno no cabeçalho
-                    ? `<table class="fup-meta">
-                    <tr><th>Cliente</th><th>Produto do cliente</th><th>Vendedor</th><th>Emissão</th></tr>
-                    <tr><td>${g('fu_sol_cliente')}</td><td>${g('fu_sol_produto_cliente')}</td><td>${g('fu_sol_vendedor')}</td><td>${emitido}</td></tr>
-                </table>`
-                    : `<table class="fup-meta">
+                ${`<table class="fup-meta">
                     <tr><th>Cliente</th><th>Produto</th><th>Código da Etapa</th><th>Prioridade</th></tr>
                     <tr><td>${g('fu_cliente')}</td><td>${g('fu_produto')}</td><td>${codEt}</td><td>${g('fu_prioridade')}</td></tr>
                     <tr><th>Cód. Semi Acabado</th><th>Segmento</th><th>Unidade</th><th>Emissão</th></tr>
