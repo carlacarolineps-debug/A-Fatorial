@@ -680,6 +680,16 @@
     #fu-sol-analise.travado .g-col:not(.sol-lock):not(.g-fill) { opacity:.45; }
     .sol-ent-lead { font-size:11px; color:#0f766e; font-weight:700; text-align:center; line-height:1.4; margin-bottom:9px; }
     .sol-ent-lead span { display:block; font-weight:500; color:#94a3b8; font-size:9.5px; margin-top:2px; }
+    /* ---- Barra de ações da Solicitação: fica no rodapé da ficha ---- */
+    .ficha-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+        margin-top:16px; padding:14px 16px; background:#fff;
+        border:1px solid var(--border); border-radius:12px; box-shadow:0 6px 18px rgba(15,23,42,.06); }
+    .ficha-actions > button { flex:0 0 auto; }
+    @media (max-width:860px) {
+        .ficha-actions { position:sticky; bottom:0; z-index:20; }
+        .ficha-actions > div[style*="flex:1"] { display:none; }
+        .ficha-actions > button { flex:1 1 46%; justify-content:center; }
+    }
     /* ---- Solicitação de Produto: orientação para preencher sem dúvidas ---- */
     .sol-abertura { grid-column:1 / -1; background:linear-gradient(135deg,#0f766e,#0d9488); color:#fff; border-radius:12px; padding:16px 18px; margin:2px 0 6px; }
     .sol-abertura h5 { margin:0 0 8px; font-size:14px; font-weight:800; display:flex; align-items:center; gap:8px; }
@@ -4680,8 +4690,17 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const s = document.getElementById('login-pass').value || '';
         const erro = document.getElementById('login-erro');
         if (!u || !s) { erro.innerText = 'Informe usuário e senha.'; erro.style.display = 'block'; return; }
-        const user = RB.usuarios.find(x => ((x.usuario || '').toLowerCase() === u || (x.nome || '').toLowerCase() === u) && String(x.senha) === String(s));
-        if (!user) { erro.innerText = 'Usuário ou senha inválidos.'; erro.style.display = 'block'; return; }
+        // base antiga ou restaurada sem a lista: repõe os acessos em vez de travar todo mundo do lado de fora
+        if (!Array.isArray(RB.usuarios) || !RB.usuarios.length) { RB.usuarios = usuariosSeed; rbSave(); }
+        const bate = x => (x.usuario || '').toLowerCase() === u || (x.nome || '').toLowerCase() === u;
+        const achado = RB.usuarios.find(bate);
+        const user = RB.usuarios.find(x => bate(x) && String(x.senha) === String(s));
+        if (!user) {
+            erro.innerHTML = achado
+                ? `Senha incorreta para <b>${achado.nome}</b>.`
+                : `Usuário <b>${u}</b> não existe. Cadastrados: <b>${RB.usuarios.map(x => x.usuario || x.nome).join(', ')}</b>.`;
+            erro.style.display = 'block'; return;
+        }
         erro.style.display = 'none';
         document.getElementById('login-pass').value = '';
         aplicarSessao(user);
@@ -9132,6 +9151,9 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
             RB = pacote.dados;
             ['fichas','retrabalhos','entregas','inspecoes','atividades','clientes','fornecedores','produtos','cliches','setores','auditoria','colaboradores','pedidos','solicitacoes','comprasReqs','recebimentos','reportsProducao']
                 .forEach(k => { if (!Array.isArray(RB[k])) RB[k] = []; });
+            // uma cópia sem acessos trancaria todo mundo do lado de fora
+            if (!Array.isArray(RB.usuarios) || !RB.usuarios.length) RB.usuarios = usuariosSeed;
+            if (!Array.isArray(RB.regrasCodigo) || !RB.regrasCodigo.length) RB.regrasCodigo = regrasCodigoSeed();
             if (typeof dbFichas !== 'undefined') { dbFichas.length = 0; (pacote.fichas || []).forEach(x => dbFichas.push(x)); }
             try { localStorage.setItem(RB_KEY, JSON.stringify(RB)); } catch (err) { alert('A cópia é maior que o espaço do navegador. Restauração cancelada.'); return; }
             registrarAtividade(`restaurou a cópia de segurança de ${dt}`);
