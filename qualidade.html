@@ -74,6 +74,28 @@
     /* ==========================================================================
        ESTILOS GERAIS DO SISTEMA ERP E TIPOGRAFIA
        ========================================================================== */
+    /* ==========================================================================
+       PADRÃO VISUAL REBRACIL  ·  guia de design do sistema
+       --------------------------------------------------------------------------
+       CHROME (moldura da marca): navy #191040 + dourado #c5a880.
+         · Sidebar, cabeçalho de página e HERO de cada módulo são SEMPRE navy.
+         · A cor do módulo entra só como ACENTO (chip do ícone + barra do hero),
+           nunca como fundo inteiro — evita o efeito "arco-íris" entre telas.
+       HERO (.page-hero): um por tela, via pageHero({accent, ic, t, s, stats}).
+         O hero é dono do título; os painéis abaixo NÃO repetem o título.
+       ACENTOS SEMÂNTICOS (usar com parcimônia, só p/ significado):
+         success/avançar #0d9488 · alerta #f59e0b · perigo #e11d48 · info #1d4ed8.
+       BOTÕES: um primário por bloco.
+         .sys-btn-primary = navy   → confirmar/salvar a ação principal
+         .sys-btn-success = teal   → AVANÇAR no fluxo (enviar/aprovar/liberar)
+         .action-btn-sec  = outline→ ações secundárias (limpar, rascunho)
+         perigo (vermelho)         → só destrutivo (remover/excluir)
+         Barra de ações: .ficha-actions (secundários à esq., primário à dir.).
+       CARD-TITLE: ícone + texto à ESQUERDA; chip/busca vão à direita (margin
+         auto). Nunca space-between (empurrava ícone e texto p/ lados opostos).
+       TOKENS de forma abaixo (raio, sombra, espaço) — use-os em vez de valores
+       soltos para manter a página coesa.
+       ========================================================================== */
     :root {
         --primary: #191040;      /* Azul-marinho NEXUS (Menu / cabeçalhos) */
         --primary-soft: #2a1d63; /* Azul-marinho claro (gradientes) */
@@ -92,6 +114,14 @@
         --paper-tint: #fbfaf7;   /* Tom papel (gradiente de cards) */
         --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
         --font-body: 'Inter', 'Segoe UI', Tahoma, system-ui, sans-serif;
+        /* Padrão de forma — raio, sombra e espaçamento */
+        --radius-sm: 8px; --radius: 11px; --radius-lg: 14px;
+        --shadow-card: 0 6px 18px rgba(15,23,42,.06);
+        --shadow-hero: 0 8px 22px -12px rgba(20,16,64,.55);
+        --space-1: 6px; --space-2: 10px; --space-3: 16px; --space-4: 22px;
+        /* Acentos de módulo (chip do hero) */
+        --mod-pcp: #3b82f6; --mod-apont: #f97316; --mod-kit: #8b5cf6;
+        --mod-nc: #f43f5e; --mod-fila: #14b8a6; --mod-gv: #c5a880;
     }
 
     #app-sistema-gestao { font-family: var(--font-body); background-color: var(--bg-light); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
@@ -177,7 +207,8 @@
        ========================================================================== */
     .card-base { background: #fff; border-radius: 14px; box-shadow: 0 2px 6px rgba(16,24,40,0.05), 0 1px 2px rgba(16,24,40,0.04); border: 1px solid var(--border); padding: 20px; transition: box-shadow 0.3s ease, border-color 0.3s ease;}
     .card-base:hover { box-shadow: 0 10px 24px -8px rgba(25,16,64,0.12), 0 2px 6px rgba(16,24,40,0.04); }
-    .card-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
+    .card-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: flex-start; align-items: center; gap: 8px; }
+    .card-title > .gold-chip, .card-title > .input-search { margin-left: auto; }
 
     .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
     /* Card KPI — assinatura NEXUS: barra de acento à esquerda + elevação no hover */
@@ -517,9 +548,11 @@
     .fcard[draggable="true"] { cursor:grab; }
     .fcard.dragging { opacity:.5; }
     /* ---- Cabeçalho de página (identidade visual por tela do PCP) ---- */
-    .page-hero { display:flex; align-items:center; gap:16px; border-radius:14px; padding:16px 20px; margin-bottom:16px; color:#fff; position:relative; overflow:hidden; box-shadow:0 8px 22px -12px rgba(20,16,64,.55); }
-    .page-hero::after { content:''; position:absolute; right:-30px; top:-46px; width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.09); }
-    .page-hero .ph-ic { width:50px; height:50px; border-radius:14px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:21px; flex-shrink:0; position:relative; z-index:1; }
+    .page-hero { display:flex; align-items:center; gap:16px; border-radius:14px; padding:16px 20px 16px 24px; margin-bottom:16px; color:#fff; position:relative; overflow:hidden;
+        background:linear-gradient(120deg, #191040 0%, #221a52 60%, #191040 100%); box-shadow:0 8px 22px -12px rgba(20,16,64,.55); }
+    .page-hero::before { content:''; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--ph-accent, var(--gold)); }
+    .page-hero::after { content:''; position:absolute; right:-30px; top:-46px; width:170px; height:170px; border-radius:50%; background:radial-gradient(circle, color-mix(in srgb, var(--ph-accent, #fff) 30%, transparent), transparent 68%); }
+    .page-hero .ph-ic { width:50px; height:50px; border-radius:14px; background:var(--ph-accent, rgba(255,255,255,.18)); box-shadow:0 4px 14px -4px rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; font-size:21px; flex-shrink:0; position:relative; z-index:1; }
     .page-hero .ph-txt { position:relative; z-index:1; min-width:0; }
     .page-hero .ph-t { font-size:18px; font-weight:800; letter-spacing:.01em; }
     .page-hero .ph-s { font-size:12px; opacity:.86; margin-top:2px; }
@@ -1551,8 +1584,7 @@
         <div id="cnc-hero"></div>
         <div class="cmd-strip" id="cnc-strip" style="grid-template-columns:repeat(4,1fr);"></div>
         <div class="card-base" style="margin-bottom:14px;">
-            <div class="card-title"><i class="fas fa-triangle-exclamation" style="color:#e11d48;"></i> Controle de Não Conformidades</div>
-            <div class="cmd-panel-sub">Consolida os três controles (Clientes · Internas · Fornecedores) num só lugar. Cada RNC aberta na ficha entra aqui automaticamente.</div>
+            <div class="cmd-panel-sub" style="margin-top:2px;">Consolida os três controles (Clientes · Internas · Fornecedores) num só lugar. Cada RNC aberta na ficha entra aqui automaticamente.</div>
             <div class="prog-tabs" id="cnc-tabs"></div>
             <div style="display:flex; gap:12px; align-items:end; flex-wrap:wrap; margin-top:10px;">
                 <div class="insp-field" style="flex:1; min-width:220px;"><label>Buscar</label><input id="cnc-busca" placeholder="Nº, cliente/fornecedor, produto, motivo…" onkeyup="renderControleNC()"></div>
@@ -3396,7 +3428,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     <div id="view-pcp-fila" class="sys-view">
         <div id="pcp-fila-hero"></div>
         <div class="card-base" style="margin-bottom:16px;">
-            <div class="card-title"><i class="fas fa-calendar-days" style="color:#2563eb;"></i> Fila &amp; Calendário de Produção <span style="font-size:11px; color:#64748b; font-weight:normal;">— o mesmo quadro que a Qualidade e a Produção enxergam</span></div>
+
             <div class="cmd-panel-sub">Sequência e linha do tempo das OPs por máquina. Clique num cartão para abrir a ficha. É o mesmo modelo de fila usado nos painéis de Qualidade e Produção.</div>
             <div id="pcp-fila-board"></div>
         </div>
@@ -3476,8 +3508,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     <div id="view-pcp-programacao" class="sys-view">
         <div id="prog-hero"></div>
         <div class="card-base" style="margin-bottom:14px;">
-            <div class="card-title"><i class="fas fa-table-list" style="color:#2563eb;"></i> Programação das Rotativas</div>
-            <div class="cmd-panel-sub">Sequência de produção por máquina impressora rotativa. Preencha as quantidades e as datas de início — o sistema calcula os <b>dias</b> (pela capacidade/dia), o <b>término</b> e o <b>% realizado</b>. Ordem editável.</div>
+            <div class="cmd-panel-sub" style="margin-top:2px;">Sequência de produção por máquina impressora rotativa. Preencha as quantidades e as datas de início — o sistema calcula os <b>dias</b> (pela capacidade/dia), o <b>término</b> e o <b>% realizado</b>. Ordem editável.</div>
             <div class="prog-tabs" id="prog-tabs"></div>
             <div style="display:flex; gap:16px; align-items:end; flex-wrap:wrap; margin-top:10px;">
                 <div class="insp-field"><label>Capacidade (kg/dia)</label><input type="number" id="prog-cap" style="width:120px;" onchange="progSetCap(this.value)"></div>
@@ -3508,7 +3539,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     <div id="view-pcp-apontamentos" class="sys-view">
         <div id="apo-hero"></div>
         <div class="card-base" style="margin-bottom:14px;">
-            <div class="card-title"><i class="fas fa-stopwatch" style="color:#2563eb;"></i> Apontamentos de Produção — Rotativas</div>
+
             <div class="cmd-panel-sub">Registro por intervalo: máquina, operadores, OP, código do apontamento (produção/parada), produção em metros e kg, aparas e horas. A hora total é calculada.</div>
             <div class="quick-form">
                 <div class="qf g-col-1"><span class="lbl">Dia</span><input class="inp" id="apo-dia" type="number" min="1" max="31"></div>
@@ -3551,7 +3582,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     <div id="view-pcp-kitop" class="sys-view">
         <div id="kit-hero"></div>
         <div class="card-base" style="margin-bottom:14px;">
-            <div class="card-title"><i class="fas fa-folder-open" style="color:#2563eb;"></i> Kit da Ordem de Produção</div>
+
             <div class="cmd-panel-sub">Monte o kit de documentos que acompanha a OP no chão de fábrica: <b>Capa (Principal)</b>, <b>Solicitação de MP</b>, <b>Controle de Paradas</b> e <b>Fechamento da OP</b>. Preencha o cabeçalho e imprima o kit.</div>
             <div class="quick-form">
                 <div class="qf g-col-2"><span class="lbl">Nº OP</span><input class="inp" id="kit-op" placeholder="Ex.: 1151/0"></div>
@@ -3625,7 +3656,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     <div id="view-comercial-pedidos" class="sys-view">
         <div class="cmd-strip" id="com-strip" style="grid-template-columns:repeat(3,1fr);"></div>
         <div class="card-base" style="margin-bottom:16px;">
-            <div class="card-title" id="com-titulo">Novo Pedido / Proposta</div>
+            <div class="card-title" id="com-titulo"><i class="fas fa-file-circle-plus" style="color:var(--primary);"></i> Novo Pedido / Proposta</div>
             <div class="cmd-panel-sub">Usa os cadastros compartilhados (clientes e produtos). Ao enviar, cria o registro na fila da Qualidade — o passo 6.1 do POP (Recebimento e Análise do Pedido).</div>
             <div class="quick-form">
                 <div class="qf g-col-3"><span class="lbl">Nº Pedido</span><input class="inp" id="ped-numero" placeholder="Ex: PV-1024"></div>
@@ -3636,9 +3667,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="qf g-col-3"><span class="lbl">Tem impressão?</span><select class="inp" id="ped-impressao"><option>Sim</option><option>Não</option></select></div>
                 <div class="qf g-col-12"><span class="lbl">Especificações / observações</span><input class="inp" id="ped-espec" placeholder="Medidas, material, cores, laminação..."></div>
             </div>
-            <div style="text-align:right;"><input type="hidden" id="ped-id">
-                <button class="action-btn-sec" style="margin-right:8px;" onclick="pedLimpar()">Limpar</button>
-                <button class="sys-btn-primary" onclick="salvarPedido()"><i class="fas fa-floppy-disk"></i> Salvar Pedido</button>
+            <div class="ficha-actions"><input type="hidden" id="ped-id">
+                <button class="action-btn-sec" onclick="pedLimpar()"><i class="fas fa-xmark" style="color:#ef4444;"></i> Limpar</button>
+                <div style="flex:1;"></div>
+                <button class="action-btn-sec" onclick="salvarPedido()"><i class="fas fa-floppy-disk"></i> Salvar rascunho</button>
                 <button class="sys-btn-success" onclick="salvarPedido(true)"><i class="fas fa-paper-plane"></i> Salvar e enviar à Qualidade</button>
             </div>
         </div>
@@ -6284,7 +6316,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if (prod) { const a = prod.value; prod.innerHTML = '<option value="">-- Selecione --</option>' + RB.produtos.slice(0, 500).map(p => `<option value="${(p.descricao||'').replace(/"/g,'&quot;')}">${p.codigo ? p.codigo + ' · ' : ''}${p.descricao}</option>`).join('') + '<option value="__novo__">➕ Novo produto…</option>'; if (a && a !== '__novo__') prod.value = a;
             prod.onchange = () => { if (prod.value === '__novo__') { prod.value = ''; abrirQuickCad('produtos', o => { renderPedidoSelects(); prod.value = o.descricao; }); } }; }
     }
-    function pedLimpar() { ['ped-numero','ped-cliente','ped-prazo','ped-produto','ped-qtd','ped-espec','ped-id'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; }); document.getElementById('ped-impressao').selectedIndex = 0; document.getElementById('com-titulo').innerText = 'Novo Pedido / Proposta'; }
+    function pedLimpar() { ['ped-numero','ped-cliente','ped-prazo','ped-produto','ped-qtd','ped-espec','ped-id'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; }); document.getElementById('ped-impressao').selectedIndex = 0; document.getElementById('com-titulo').innerHTML = '<i class="fas fa-file-circle-plus" style="color:var(--primary);"></i> Novo Pedido / Proposta'; }
     function salvarPedido(enviar) {
         const cliente = val('ped-cliente'), produto = val('ped-produto');
         if (!cliente || cliente === '__novo__') { alert('Selecione o cliente.'); return; }
@@ -6309,7 +6341,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         alert(`Pedido ${cod} enviado à Qualidade.\nEle já aparece na Central de Comando da Qualidade como decisão (Recebimento e Análise do Pedido — POP 6.1).`);
     }
     function enviarPedidoPorId(id) { const p = RB.pedidos.find(x => x.id === id); if (p) { enviarPedidoQualidade(p); renderComercialPedidos(); } }
-    function pedEditar(id) { const p = RB.pedidos.find(x => x.id === id); if (!p) return; renderPedidoSelects(); const set = (f, v) => { const e = document.getElementById(f); if (e) e.value = v == null ? '' : v; }; set('ped-id', p.id); set('ped-numero', p.numero); set('ped-cliente', p.cliente); set('ped-prazo', p.prazo); set('ped-produto', p.produto); set('ped-qtd', p.qtd); set('ped-impressao', p.impressao); set('ped-espec', p.espec); document.getElementById('com-titulo').innerText = 'Editar pedido ' + p.numero; }
+    function pedEditar(id) { const p = RB.pedidos.find(x => x.id === id); if (!p) return; renderPedidoSelects(); const set = (f, v) => { const e = document.getElementById(f); if (e) e.value = v == null ? '' : v; }; set('ped-id', p.id); set('ped-numero', p.numero); set('ped-cliente', p.cliente); set('ped-prazo', p.prazo); set('ped-produto', p.produto); set('ped-qtd', p.qtd); set('ped-impressao', p.impressao); set('ped-espec', p.espec); document.getElementById('com-titulo').innerHTML = '<i class="fas fa-pen-to-square" style="color:var(--primary);"></i> Editar pedido ' + p.numero; }
     function renderComercialPedidos() {
         renderPedidoSelects();
         const enviados = RB.pedidos.filter(p => p.status === 'Enviado à Qualidade').length;
@@ -6401,7 +6433,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const all = pcpProgAll(), pend = all.filter(x => (x.pct || 0) < 100);
         const atras = pend.filter(x => x.entrega && x.termino && x.termino > x.entrega).length;
         const prox = pend[0];
-        pageHero('pcp-fila-hero', { grad: 'linear-gradient(135deg,#0f766e,#0d9488)', ic: 'calendar-days', t: 'Fila & Calendário de Produção',
+        pageHero('pcp-fila-hero', { accent: '#14b8a6', ic: 'calendar-days', t: 'Fila & Calendário de Produção',
             s: 'Sequência e datas das OPs — arraste no calendário para reprogramar. Mesmo quadro da Qualidade e da Produção.',
             stats: [{ v: pend.length, l: 'a produzir' }, { v: atras, l: 'em atraso' }, { v: prox ? (prox.op || prox.sku || '—') : '—', l: 'próxima OP' }] });
         renderFilaBoard('pcp-fila-board', null);
@@ -6478,7 +6510,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         {
             const lista = RB.programacao[progMaq] || [];
             const prog = lista.reduce((s, x) => s + progNum(x.qtProg), 0);
-            pageHero('prog-hero', { grad: 'linear-gradient(135deg,#1e3a8a,#2563eb)', ic: 'table-list', t: 'Programação das Rotativas',
+            pageHero('prog-hero', { accent: '#3b82f6', ic: 'table-list', t: 'Programação das Rotativas',
                 s: 'Planilha de sequenciamento por máquina — quantidades, datas e capacidade. Os dias e o término são calculados.',
                 stats: [{ v: progMaq, l: 'máquina' }, { v: lista.length, l: 'OPs' }, { v: Math.round(prog).toLocaleString('pt-BR'), l: 'kg programados' }] });
         }
@@ -6566,7 +6598,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             const arr = RB.apontamentos || [];
             const soma = k => arr.reduce((s, x) => s + progNum(x[k]), 0);
             const paradaMin = arr.filter(a => a.cod && !/99 - Produção/.test(a.cod) && !/^R /.test(a.cod)).reduce((s, a) => s + minutosDe(a.total), 0);
-            pageHero('apo-hero', { grad: 'linear-gradient(135deg,#7c2d12,#ea580c)', ic: 'stopwatch', t: 'Apontamentos de Produção',
+            pageHero('apo-hero', { accent: '#f97316', ic: 'stopwatch', t: 'Apontamentos de Produção',
                 s: 'Registro por intervalo: produção, paradas e horas de cada OP nas rotativas. A hora total é calculada.',
                 stats: [{ v: arr.length, l: 'registros' }, { v: Math.round(soma('mt')).toLocaleString('pt-BR'), l: 'metros' }, { v: Math.round(paradaMin / 60) + 'h', l: 'paradas' }] });
         }
@@ -6626,7 +6658,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         {
             const hoje = new Date().toISOString().slice(0, 10);
             const doHoje = RB.kitops.filter(k => (k.data || '').slice(0, 10) === hoje || (k.criadoEm || '').slice(0, 10) === hoje).length;
-            pageHero('kit-hero', { grad: 'linear-gradient(135deg,#4c1d95,#7c3aed)', ic: 'folder-open', t: 'Kit da Ordem de Produção',
+            pageHero('kit-hero', { accent: '#8b5cf6', ic: 'folder-open', t: 'Kit da Ordem de Produção',
                 s: 'Monte e imprima os documentos que acompanham a OP no chão de fábrica: capa, MP, paradas e fechamento.',
                 stats: [{ v: RB.kitops.length, l: 'kits gerados' }, { v: doHoje, l: 'hoje' }, { v: KIT_DOCS.length, l: 'folhas/kit' }] });
         }
@@ -6813,7 +6845,9 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function pageHero(id, cfg) {
         const el = document.getElementById(id); if (!el) return;
         const stats = (cfg.stats || []).map(s => `<div class="ph-stat"><b>${s.v}</b><span>${s.l}</span></div>`).join('');
-        el.innerHTML = `<div class="page-hero" style="background:${cfg.grad};">
+        // Padrão Rebracil: o hero é sempre navy; a cor do módulo entra só como acento (chip + barra).
+        const accent = cfg.accent || (cfg.grad ? (cfg.grad.match(/#[0-9a-fA-F]{6}/g) || []).slice(-1)[0] : null) || 'var(--gold)';
+        el.innerHTML = `<div class="page-hero" style="--ph-accent:${accent};">
             <div class="ph-ic"><i class="fas fa-${cfg.ic}"></i></div>
             <div class="ph-txt"><div class="ph-t">${cfg.t}</div><div class="ph-s">${cfg.s}</div></div>
             <div class="ph-stats">${stats}</div></div>`;
@@ -7084,7 +7118,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         const atrasadas = pend.filter(x => x.entrega && x.termino && x.termino > x.entrega).length;
         const noPrazo = pend.length ? Math.round((pend.length - atrasadas) / pend.length * 100) : 100;
         const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
-        pageHero('gv-hero', { grad: 'linear-gradient(135deg,#191040,#3b2f7a)', ic: 'chart-line', t: 'Gestão à Vista — PCP',
+        pageHero('gv-hero', { accent: '#c5a880', ic: 'chart-line', t: 'Gestão à Vista — PCP',
             s: 'O que está rodando agora em cada máquina, o que exige decisão e como a fábrica está performando.',
             stats: [{ v: pend.length, l: 'OPs abertas' }, { v: atrasadas, l: 'em atraso' }, { v: dispon + '%', l: 'disponibilidade' }] });
         set('pcp-cockpit', PROG_MAQS.map(pcpMachineCard).join(''));
@@ -9082,7 +9116,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
     function renderSolicitacoes() {
         const arr = RB.solicitacoes;
         pageHero('hero-solicitacao', {
-            grad: 'linear-gradient(135deg,#0f766e,#0d9488)', ic: 'inbox', t: 'Solicitação de Produto',
+            accent: '#14b8a6', ic: 'inbox', t: 'Solicitação de Produto',
             s: 'O documento que o cliente preenche. Gere a ficha, receba a resposta e transforme em especificação.',
             stats: [
                 { v: arr.length, l: 'Solicitações' },
@@ -9613,7 +9647,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
             if (atual) selAno.value = atual;
         }
         const arr = cncFiltradas();
-        pageHero('cnc-hero', { grad: 'linear-gradient(135deg,#7f1d1d,#e11d48)', ic: 'triangle-exclamation', t: 'Controle de Não Conformidades',
+        pageHero('cnc-hero', { accent: '#f43f5e', ic: 'triangle-exclamation', t: 'Controle de Não Conformidades',
             s: 'Clientes, internas e fornecedores num só controle — cada RNC salva entra aqui automaticamente.',
             stats: [{ v: arr.length, l: 'registros' }, { v: arr.filter(r => r.status !== 'Concluído' && r.status !== 'Cancelado').length, l: 'em aberto' }, { v: cncAba, l: 'filtro' }] });
         const strip = document.getElementById('cnc-strip');
