@@ -639,6 +639,7 @@
     .lau-croqui svg { width:100%; max-width:470px; height:auto; }
     .cli-arte-nota { font-size:10.5px; color:#0f766e; background:#f0fdfa; border-radius:7px; padding:4px 8px; line-height:1.35; }
     .cli-arte-nota:empty { display:none; }
+    .cli-arte-nota.arte-alerta { color:#8a4b0a; background:#fef6e7; }
     /* Ficha Técnica de Especificação: origem, aprovação do cliente e liberação da MP */
     .fin-origem-vazio { font-size:11.5px; color:#94a3b8; padding:4px 0; }
     .fin-origem { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:7px; }
@@ -2437,6 +2438,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                         </div>
                         <div id="fu-cli-croqui" class="ac-croqui" style="cursor:zoom-in;" onclick="fuCliArteZoom()"></div>
                         <div id="fu-cli-arte-nota" class="cli-arte-nota no-print"></div>
+                        <div id="fu-cli-arte-prop" class="cli-arte-nota no-print"></div>
                         <input type="hidden" id="fu_cli_arte_img">
                     </div>
                 </div>
@@ -7932,6 +7934,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                         </div>
                     </div>
                     <div id="fu-${p}-ac-croqui" class="ac-croqui" style="cursor:zoom-in;" onclick="fuAutoCtrlZoom('${e.key}')"></div>
+                    <div id="fu-${p}-ac-nota" class="cli-arte-nota no-print"></div>
                     <input type="hidden" id="fu_${p}_cq_arte">
                 </div>
             </div>
@@ -9266,6 +9269,26 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         lb.querySelector('img').src = src; lb.classList.add('open');
     }
     // Desenha o croqui de uma etapa (mesma lógica do Clichê, com a arte embutida)
+    // O croqui estica a arte para a medida cotada. Se o arquivo veio em outra
+    // proporção, quem manda é a medida — mas a Qualidade precisa saber, senão pede
+    // arte errada ao cliente e a produção recebe um arquivo que não fecha.
+    function artProporcaoAviso(hostId, art, L, A) {
+        const el = document.getElementById(hostId); if (!el) return;
+        const limpar = () => { el.innerHTML = ''; el.classList.remove('arte-alerta'); };
+        if (!art || !L || !A) { limpar(); return; }
+        const img = new Image();
+        img.onload = () => {
+            const w = img.naturalWidth, h = img.naturalHeight; if (!w || !h) return;
+            const arte = w / h, medida = L / A;
+            if (Math.abs(arte - medida) / medida <= 0.03) { limpar(); return; }
+            const prop = v => v >= 1 ? `${v.toFixed(2).replace('.', ',')} : 1` : `1 : ${(1 / v).toFixed(2).replace('.', ',')}`;
+            el.innerHTML = `<i class="fas fa-triangle-exclamation"></i> A arte foi <b>ajustada para ${L} × ${A} mm</b>. O arquivo veio em ${prop(arte)} e a medida pede ${prop(medida)} — peça a arte no tamanho da embalagem, senão a produção recebe um fechamento que não bate.`;
+            el.classList.add('arte-alerta');
+            renderIcons(el);
+        };
+        img.onerror = limpar;
+        img.src = art;
+    }
     function fuAutoCtrlCroqui(key) {
         const e = fuAutoCtrlCfg(key); if (!e) return;
         const box = document.getElementById(`fu-${e.pref}-ac-croqui`); if (!box) return;
@@ -9286,6 +9309,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
             art, cor: e.cor, titulo: e.obj === 'BOBINA' ? 'IMAGEM DA ARTE · BOBINA' : 'IMAGEM DA ARTE · EMBALAGEM',
             vazio: 'Preencha as medidas e anexe a arte —<br>a imagem entra aqui com as réguas em volta.'
         });
+        artProporcaoAviso(`fu-${e.pref}-ac-nota`, art, L, A);
     }
 
     // ---- Croqui de medidas: desenha a embalagem (com a ARTE embutida) e as réguas de cotagem em volta ----
@@ -9308,7 +9332,9 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         svg.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`);
         if (art) {
             svg.push(`<clipPath id="${uid}c"><rect x="${x0}" y="${y0}" width="${rw}" height="${rh}"/></clipPath>`);
-            svg.push(`<image href="${art}" xlink:href="${art}" x="${x0}" y="${y0}" width="${rw}" height="${rh}" preserveAspectRatio="xMidYMid meet" clip-path="url(#${uid}c)"/>`);
+            // A régua cota a arte, não a moldura: a imagem preenche a medida informada.
+            // Se sobrasse faixa branca aqui, a produção rodaria o material com essa faixa.
+            svg.push(`<image href="${art}" xlink:href="${art}" x="${x0}" y="${y0}" width="${rw}" height="${rh}" preserveAspectRatio="none" clip-path="url(#${uid}c)"/>`);
             svg.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="none" stroke="${cor}" stroke-width="1.5"/>`);
         } else {
             svg.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="#f1f5f9" stroke="${cor}" stroke-width="1.5"/>`);
@@ -9357,6 +9383,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
             art, cor: '#8a6d1a', titulo: 'CROQUI DA EMBALAGEM',
             vazio: 'Preencha Largura e Altura e <b>anexe a arte</b><br>— a imagem entra no croqui com as réguas em volta.'
         });
+        artProporcaoAviso('fu-cli-arte-prop', art, num('fu_cli_med_largura'), num('fu_cli_med_altura'));
     }
 
     // ==========================================================================
