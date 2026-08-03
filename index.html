@@ -2034,6 +2034,13 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 .ar-passo.antes .tx{color:var(--ink);}
 .ar-passo.on .tx{color:var(--ink);font-weight:800;}
 .ar-passo .tx small{display:block;font-size:10px;font-weight:500;color:var(--ink-faint);margin-top:1px;}
+.ar-div{flex:none;width:1px;align-self:stretch;margin:2px 12px;background:var(--line);}
+.ar-previa{position:relative;display:flex;align-items:center;gap:7px;padding:5px 12px;border:1px dashed var(--line);
+  background:none;border-radius:9px;cursor:pointer;font-family:inherit;white-space:nowrap;flex:none;
+  font-size:12px;font-weight:600;color:var(--ink-faint);transition:.16s;}
+.ar-previa .oi{font-size:11px;opacity:.85;}
+.ar-previa:hover{border-color:var(--c);color:var(--ink);}
+.ar-previa.on{border-style:solid;border-color:var(--c);color:var(--ink);background:color-mix(in srgb,var(--c) 10%,transparent);}
 .ar-set{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);border-radius:9px;
   padding:6px 12px;font-size:11.5px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:.16s;}
 .ar-set:hover{border-color:var(--c);color:var(--c);}
@@ -13121,18 +13128,21 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
              {v:'demandas',    l:'Demandas',       d:'mural, execução e aprovação'},
              {v:'kanban',      l:'Quadro da equipe',d:'o que está andando'},
              {v:'entregaveis', l:'Conferência',    d:'aprovar o que foi entregue'},
-             {v:'portal',      l:'Portal do cliente',d:'o que ele vê'},
-             {v:'satisfacao',  l:'Satisfação',     d:'nota e depoimento'}
+             {v:'satisfacao',  l:'Satisfação',     d:'nota e depoimento'},
+             {v:'portal',      l:'Portal do cliente', d:'a tela do cliente', previa:true, dono:'cliente',
+              prev:'Ver como o cliente vê'}
            ]},
           {k:'rede', l:'A rede', ic:'◱', cor:'var(--kb-c5)',
            lCol:'Meu portal', fraseCol:'Sua jornada, suas demandas, seus ganhos e o seu contrato.',
            sub:'quem faz o trabalho', subCol:'jornada, demandas e ganhos', frase:'De quem se cadastra até quanto cada um recebe.',
            passos:[
              {v:'rede',        l:'Prestadores',    d:'cadastro, contrato e nível'},
-             {v:'meusleads',   l:'Painel de leads',d:'a tela de quem vende', oculto:true},
              {v:'parceiras',   l:'Empresas parceiras',d:'quem manda trabalho'},
-             {v:'colaborador', l:'Portal da pessoa',d:'o que ela vê e faz'},
-             {v:'rh',          l:'Pessoas',        d:'perfil, clima e evolução'}
+             {v:'rh',          l:'Pessoas',        d:'perfil, clima e evolução'},
+             {v:'colaborador', l:'Portal da pessoa', d:'a tela de quem presta serviço', previa:true, dono:'colaborador',
+              prev:'Ver como a pessoa vê'},
+             {v:'meusleads',   l:'Painel de leads', d:'a tela de quem vende', previa:true, dono:'colaborador',
+              prev:'Ver o painel de leads'}
            ]},
           {k:'dinheiro', l:'O dinheiro', ic:'❖', cor:'var(--kb-c4)',
            sub:'caixa, DRE e futuro', frase:'Do que entrou hoje até onde a empresa chega em dez anos.',
@@ -13163,14 +13173,24 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(pa==='cliente'&&a.fraseCli) return a.fraseCli;
           return a.frase;
         }
-        function areaPassosLiberados(a){ return a.passos.filter(p=>!p.oculto && (!AUTH.user||AUTH.can(p.v))); }
-        /* etapas ocultas existem (têm tela, título e permissão) mas não entram
-           na trilha: são superfícies de apoio, como a prévia do painel alheio */
+        /* Uma etapa é o que VOCÊ faz. A tela de outra pessoa (o portal do
+           cliente, o portal de quem presta serviço) não é etapa do seu
+           trabalho: é prévia. Para o dono daquele papel, porém, é a tela dele
+           — e aí volta a ser etapa normal. */
+        function passoEhPrevia(p){
+          if(!p.previa) return false;
+          let pa=AUTH.user&&AUTH.user.papel;
+          if(!pa||pa==='admin') return true;
+          return p.dono!==pa;
+        }
+        function areaPassosLiberados(a){ return a.passos.filter(p=>!passoEhPrevia(p) && (!AUTH.user||AUTH.can(p.v))); }
+        function areaPrevias(a){ return a.passos.filter(p=>passoEhPrevia(p) && (!AUTH.user||AUTH.can(p.v))); }
         function areaTodosPassos(a){ return a.passos.filter(p=>!AUTH.user||AUTH.can(p.v)); }
         /* clicar na área abre o primeiro passo que a pessoa pode ver */
         function areaIr(k){
           let a=AREAS.find(x=>x.k===k); if(!a) return;
           let ps=areaPassosLiberados(a);
+          if(!ps.length) ps=areaPrevias(a);
           if(!ps.length){ alert('Você não tem acesso a nenhuma etapa desta área.'); return; }
           // se já está na área, mantém o passo; senão começa do primeiro
           let atual=document.querySelector('.view.on');
@@ -13183,19 +13203,26 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           let box=document.getElementById('area-rail'); if(!box) return;
           let a=areaDe(view);
           if(!a){ box.innerHTML=''; box.classList.remove('on'); return; }
-          let ps=areaPassosLiberados(a);
-          if(ps.length<2){ box.innerHTML=''; box.classList.remove('on'); return; }
+          let ps=areaPassosLiberados(a), pv=areaPrevias(a);
+          if(ps.length<2 && !pv.length){ box.innerHTML=''; box.classList.remove('on'); return; }
           let i=ps.findIndex(p=>p.v===view);
+          let naPrevia=pv.find(p=>p.v===view);
           box.classList.add('on');
           box.style.setProperty('--c', a.cor);
           box.innerHTML=`
             <div class="ar-cab" title="${uiEsc(areaFrase(a))}"><span class="ic">${a.ic}</span><span class="nm">${uiEsc(areaNome(a))}</span></div>
             <div class="ar-passos">${ps.map((p,j)=>`
-              <button class="ar-passo ${j===i?'on':''} ${j<i?'antes':''}" onclick="go('${p.v}')" title="${uiEsc(p.l)} — ${uiEsc(p.d)}">
+              <button class="ar-passo ${j===i?'on':''} ${j<i&&i>=0?'antes':''}" onclick="go('${p.v}')" title="${uiEsc(p.l)} — ${uiEsc(p.d)}">
                 <span class="n">${j+1}</span>
                 <span class="tx">${uiEsc(p.l)}<small>${uiEsc(p.d)}</small></span>
-              </button>`).join('')}</div>
-            ${i<ps.length-1?`<button class="ar-set" onclick="go('${ps[i+1].v}')" title="Seguir para ${uiEsc(ps[i+1].l)}">${uiEsc(ps[i+1].l)} →</button>`:''}`;
+              </button>`).join('')}
+              ${pv.length?`<span class="ar-div"></span>${pv.map(p=>`
+                <button class="ar-previa ${p.v===view?'on':''}" onclick="go('${p.v}')" title="${uiEsc(p.d)} — é a tela dela, não uma etapa do seu trabalho">
+                  <span class="oi">👁</span>${uiEsc(p.prev||p.l)}
+                </button>`).join('')}`:''}
+            </div>
+            ${naPrevia?`<button class="ar-set" onclick="go('${ps.length?ps[0].v:a.passos[0].v}')" title="Voltar para ${uiEsc(ps.length?ps[0].l:'')}">← Voltar para ${uiEsc(ps.length?ps[0].l:areaNome(a))}</button>`
+              :(i>=0&&i<ps.length-1?`<button class="ar-set" onclick="go('${ps[i+1].v}')" title="Seguir para ${uiEsc(ps[i+1].l)}">${uiEsc(ps[i+1].l)} →</button>`:'')}`;
         }
         /* o item do menu acende pela ÁREA, não pela tela */
         function marcarAreaNoMenu(view){

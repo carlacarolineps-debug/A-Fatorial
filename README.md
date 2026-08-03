@@ -719,3 +719,19 @@ vem depois — e leva ao próximo com um clique.
     diferença é só de cor e peso. Contraste medido: mínimo **6,02:1** no claro
     e **6,88:1** no escuro, etapa atual em 18,49 e 14,92 — bem acima dos 4,5:1
     exigidos.
+
+69. **Etapa não é a mesma coisa que prévia.** O *Portal do cliente* estava
+    listado como etapa 4 de "Entregar" — mas ele não é um passo do seu
+    trabalho, é a tela de outra pessoa. Agora a trilha separa as duas coisas:
+    as **etapas numeradas** são o que você executa, e depois de um divisor vêm
+    os **botões de prévia** (👁), com borda tracejada, para espiar a tela do
+    outro lado. Estando na prévia, o botão da direita vira "← Voltar para
+    <primeira etapa>".
+    - *Entregar*: Demandas → Quadro da equipe → Conferência → Satisfação,
+      e a prévia "Ver como o cliente vê".
+    - *A rede*: Prestadores → Empresas parceiras → Pessoas, e as prévias
+      "Ver como a pessoa vê" e "Ver o painel de leads".
+    - **A prévia é relativa a quem olha** (`passoEhPrevia`): para a gestão o
+      portal do colaborador é prévia; para o próprio colaborador é a tela dele
+      e volta a ser etapa numerada. O cliente, que só tem o portal, entra
+      direto nele sem trilha nenhuma.
