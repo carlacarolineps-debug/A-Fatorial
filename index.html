@@ -50,7 +50,10 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Hel
 
 /* ============ MAIN ============ */
 .main{flex-grow:1;display:flex;flex-direction:column;overflow:hidden;}
-.topbar{background:var(--panel);padding:18px 36px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);flex-shrink:0;}
+.topbar{background:var(--panel);padding:18px 36px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);flex-shrink:0;gap:16px;}
+.topbar>div:first-child{min-width:0;flex:1;}
+.topbar h1,.topbar .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar .who{flex:none;}
 .topbar h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.3px;}
 .topbar h1 b{color:var(--gold-deep);}
 .topbar .sub{font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
@@ -2007,6 +2010,48 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
   .rd-tab-h span:nth-child(2),.rd-tab-l span:nth-child(2){display:none;}
   .rd-nums{grid-template-columns:repeat(3,1fr);}
 }
+/* ═══ ÁREAS — a trilha da atividade, no mesmo lugar em toda tela ═══ */
+.area-rail{display:none;}
+.area-rail.on{display:flex;align-items:center;gap:14px;padding:7px 26px;background:var(--bg);border-bottom:1px solid var(--line);}
+.ar-cab{display:flex;align-items:center;gap:8px;flex:none;padding-right:14px;border-right:1px solid var(--line);}
+.ar-cab .ic{width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;
+  background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);}
+.ar-cab .nm{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--c);white-space:nowrap;}
+.ar-passos{display:flex;align-items:stretch;gap:0;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none;}
+.ar-passos::-webkit-scrollbar{display:none;}
+.ar-passo{position:relative;display:flex;align-items:center;gap:8px;padding:5px 15px 5px 10px;border:none;background:none;
+  cursor:pointer;font-family:inherit;text-align:left;white-space:nowrap;flex:none;opacity:.55;transition:.16s;}
+.ar-passo:not(:last-child)::after{content:'';position:absolute;right:4px;top:50%;width:7px;height:7px;margin-top:-4px;
+  border-right:1.5px solid var(--line);border-top:1.5px solid var(--line);transform:rotate(45deg);}
+.ar-passo:hover{opacity:.9;}
+.ar-passo.antes{opacity:.8;}
+.ar-passo.on{opacity:1;}
+.ar-passo .n{width:24px;height:24px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink-faint);transition:.16s;}
+.ar-passo.antes .n{background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);}
+.ar-passo.on .n{background:var(--c);color:#0b0f18;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent);}
+.ar-passo .tx{font-size:12.5px;font-weight:600;color:var(--ink-soft);line-height:1.25;}
+.ar-passo.on .tx{color:var(--ink);font-weight:700;}
+.ar-passo .tx small{display:block;font-size:10px;font-weight:500;color:var(--ink-faint);margin-top:1px;}
+.ar-set{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);border-radius:9px;
+  padding:6px 12px;font-size:11.5px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:.16s;}
+.ar-set:hover{border-color:var(--c);color:var(--c);}
+@media(max-width:1180px){
+  .area-rail.on{padding:6px 18px;gap:10px;}
+  .ar-passo .tx small{display:none;}
+  .ar-passo{padding:6px 13px 6px 9px;}
+  .ar-set{display:none;}
+}
+@media(max-height:700px){
+  .ar-passo .tx small{display:none;}
+  .area-rail.on{padding:5px 26px;}
+}
+/* subtítulo do item de menu: diz o que é a área sem precisar entrar */
+.nav-item .a-sub{display:block;font-size:10px;font-weight:500;color:var(--ink-faint);margin-top:1px;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-item.on .a-sub{color:color-mix(in srgb,var(--gold) 72%,var(--ink-faint));}
+.side-nav .nav-item{align-items:flex-start;}
+.side-nav .nav-item .ic{margin-top:1px;}
 </style>
 </head>
 <body class="theme-gamer">
@@ -2069,44 +2114,21 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
     <div class="mark">A!</div>
     <div><b>FATORIAL</b><span>Arquitetura de Lucro</span></div>
   </div>
-  <nav class="side-nav">
-    <div class="nav-group">Meu dia</div>
-    <button class="nav-item" onclick="go('dono')" id="n-dono"><span class="ic">★</span> Visão do dono</button>
-    <button class="nav-item on" onclick="go('dash')" id="n-dash"><span class="ic">◳</span> Gestão à vista</button>
+  <nav class="side-nav" id="side-nav">
+    <div class="nav-group">Hoje</div>
+    <button class="nav-item on" onclick="areaIr('hoje')" id="a-hoje"><span class="ic">◳</span> Meu painel</button>
 
-    <div class="nav-group">Comercial</div>
-    <button class="nav-item" onclick="go('vendas')" id="n-vendas"><span class="ic">📈</span> Vendas e metas</button>
-    <button class="nav-item" onclick="go('funil')" id="n-funil"><span class="ic">◎</span> Esteira comercial <span class="step-n">1-14</span></button>
-    <button class="nav-item" onclick="go('propostas')" id="n-propostas"><span class="ic">✦</span> Propostas e rastreio</button>
-    <button class="nav-item" onclick="go('prestadores')" id="n-prestadores"><span class="ic">◱</span> Leads e base de contatos</button>
-    <button class="nav-item" onclick="go('plano')" id="n-plano"><span class="ic">◈</span> Planejamento estratégico</button>
+    <div class="nav-group">As áreas do negócio</div>
+    <button class="nav-item" onclick="areaIr('vender')"   id="a-vender"><span class="ic">◎</span> Vender<span class="a-sub">do lead ao contrato</span></button>
+    <button class="nav-item" onclick="areaIr('entregar')" id="a-entregar"><span class="ic">⚔</span> Entregar<span class="a-sub">da demanda ao depoimento</span></button>
+    <button class="nav-item" onclick="areaIr('rede')"     id="a-rede"><span class="ic">◱</span> A rede<span class="a-sub">quem faz o trabalho</span></button>
+    <button class="nav-item" onclick="areaIr('dinheiro')" id="a-dinheiro"><span class="ic">❖</span> O dinheiro<span class="a-sub">caixa, DRE e futuro</span></button>
 
     <div class="nav-group">Meu trabalho</div>
     <button class="nav-item" onclick="go('meusleads')" id="n-meusleads"><span class="ic">🎯</span> Meus leads</button>
 
-    <div class="nav-group">Entrega e operação</div>
-    <button class="nav-item" onclick="go('demandas')" id="n-demandas"><span class="ic">⚔</span> Central de demandas</button>
-    <button class="nav-item" onclick="go('kanban')" id="n-kanban"><span class="ic">▦</span> Kanban operacional</button>
-    <button class="nav-item" onclick="go('entregaveis')" id="n-entregaveis"><span class="ic">✓</span> Auditoria de entregáveis</button>
-    <button class="nav-item" onclick="go('satisfacao')" id="n-satisfacao"><span class="ic">♡</span> Satisfação e depoimentos</button>
-
-    <div class="nav-group">Financeiro</div>
-    <button class="nav-item" onclick="go('fin360')" id="n-fin360"><span class="ic">◇</span> Centro Financeiro 360</button>
-    <button class="nav-item" onclick="go('financeiro')" id="n-financeiro"><span class="ic">❖</span> Fluxo de caixa e DRE</button>
-    <button class="nav-item" onclick="go('futuro')" id="n-futuro"><span class="ic">◆</span> Simulador de futuro</button>
-
-    <div class="nav-group">Pessoas</div>
-    <button class="nav-item" onclick="go('rede')" id="n-rede"><span class="ic">◱</span> Rede de prestadores</button>
-    <button class="nav-item" onclick="go('parceiras')" id="n-parceiras"><span class="ic">🤝</span> Empresas parceiras</button>
-    <button class="nav-item" onclick="go('colaborador')" id="n-colaborador"><span class="ic">♛</span> Portal do colaborador</button>
-    <button class="nav-item" onclick="go('rh')" id="n-rh"><span class="ic">◈</span> Gestão de RH</button>
-
-    <div class="nav-group">Cliente</div>
-    <button class="nav-item" onclick="go('portal')" id="n-portal"><span class="ic">◐</span> Portal do cliente</button>
-
     <div class="nav-group">Configuração</div>
-    <button class="nav-item" onclick="go('catalogo')" id="n-catalogo"><span class="ic">≣</span> Catálogo de serviços</button>
-    <button class="nav-item" onclick="go('equipe')" id="n-equipe"><span class="ic">⚙</span> Equipe e acessos</button>
+    <button class="nav-item" onclick="areaIr('config')" id="a-config"><span class="ic">⚙</span> Ajustes<span class="a-sub">catálogo, acessos e marca</span></button>
   </nav>
 </aside>
 
@@ -2150,6 +2172,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
   <!-- ============ PRÓXIMO PASSO — sempre no mesmo lugar, em toda tela ============ -->
   <div class="prox" id="prox"></div>
+  <div class="area-rail" id="area-rail"></div>
 
   <div class="scroll">
 
@@ -3740,8 +3763,6 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         // Atualiza só a visibilidade dos itens do menu lateral conforme as permissões
         // do usuário logado, SEM navegar (usado ao editar permissões ao vivo).
         function atualizarNavVisibilidade(){
-          const navMap={dono:'n-dono',dash:'n-dash',vendas:'n-vendas',funil:'n-funil',demandas:'n-demandas',rede:'n-rede',parceiras:'n-parceiras',propostas:'n-propostas',kanban:'n-kanban',prestadores:'n-prestadores',meusleads:'n-meusleads',entregaveis:'n-entregaveis',satisfacao:'n-satisfacao',financeiro:'n-financeiro',fin360:'n-fin360',futuro:'n-futuro',plano:'n-plano',portal:'n-portal',colaborador:'n-colaborador',rh:'n-rh',catalogo:'n-catalogo',equipe:'n-equipe'};
-          Object.keys(navMap).forEach(v=>{ let el=document.getElementById(navMap[v]); if(el) el.style.display=AUTH.can(v)?'':'none'; });
           // "Meus leads" é a página de quem trabalha por resultado
           let mlEl=document.getElementById('n-meusleads');
           if(mlEl){
@@ -3749,13 +3770,9 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             let mostra = AUTH.can('meusleads') && (typeof ehPrestador==='function') && ehPrestador(c);
             mlEl.style.display = mostra ? '' : 'none';
           }
-          // esconde grupos de nav vazios
-          document.querySelectorAll('.side-nav .nav-group').forEach(g=>{
-            let proximos=[]; let n=g.nextElementSibling;
-            while(n && !n.classList.contains('nav-group')){ if(n.classList.contains('nav-item'))proximos.push(n); n=n.nextElementSibling; }
-            let algumVisivel=proximos.some(b=>b.style.display!=='none');
-            g.style.display=algumVisivel?'':'none';
-          });
+          if(typeof atualizarAreasVisibilidade==='function') atualizarAreasVisibilidade();
+          let atual=document.querySelector('.view.on');
+          if(atual && typeof renderRail==='function') renderRail(atual.id.replace('v-',''));
         }
         function aplicarPerfil(){
           let u=AUTH.currentUser(); if(!u)return;
@@ -4042,8 +4059,10 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(btnVoltar) btnVoltar.style.display=podeVoltar?'flex':'none';
           document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
           document.getElementById('v-'+v).classList.add('on');
-          document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('on'));
-          let navEl=document.getElementById('n-'+v); if(navEl) navEl.classList.add('on');
+          if(typeof marcarAreaNoMenu==='function') marcarAreaNoMenu(v);
+          else { document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('on'));
+                 let navEl=document.getElementById('n-'+v); if(navEl) navEl.classList.add('on'); }
+          if(typeof renderRail==='function') renderRail(v);
           let t=TITLES[v]||['',''];
           document.getElementById('top-title').innerHTML=t[0];
           document.getElementById('top-sub').innerHTML=t[1]+' — <span id="clock">'+nowStr()+'</span>';
@@ -13069,6 +13088,136 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           p.cidade=(document.getElementById('pn-cidade').value||'').trim();
           p.obs=(document.getElementById('pn-obs').value||'').trim();
           parceiraFechar(); redeSalvar(); parceiraRender();
+        }
+
+
+        /* ═══════════════════════════════════════════════════════════════════
+           ÁREAS — o mesmo raciocínio da esteira, para o sistema inteiro
+           Uma atividade = um lugar. Em vez de 22 telas espalhadas no menu, o
+           menu tem 6 áreas; dentro de cada uma, uma trilha de etapas leva do
+           começo ao fim daquela atividade. As telas continuam as mesmas: o que
+           muda é que você nunca precisa procurar em qual delas está o passo.
+           ═══════════════════════════════════════════════════════════════════ */
+        const AREAS=[
+          {k:'hoje', l:'Meu painel', ic:'◳', cor:'var(--kb-ouro)',
+           sub:'os números de hoje', frase:'O que está acontecendo agora e o que decidir hoje.',
+           passos:[
+             {v:'dash', l:'Gestão à vista',  d:'os números do dia'},
+             {v:'dono', l:'Visão do dono',   d:'a decisão da semana'}
+           ]},
+          {k:'vender', l:'Vender', ic:'◎', cor:'var(--kb-c3)',
+           sub:'do lead ao contrato', frase:'Do lead que chegou até o contrato assinado — nesta ordem.',
+           passos:[
+             {v:'vendas',      l:'Meta do mês',    d:'quanto falta e por quê'},
+             {v:'prestadores', l:'Leads',          d:'quem chegou e quem pegou'},
+             {v:'funil',       l:'Esteira 1-14',   d:'do cadastro à proposta'},
+             {v:'propostas',   l:'Propostas',      d:'enviadas, abertas, aprovadas'},
+             {v:'plano',       l:'Plano do ano',   d:'metas por trimestre'}
+           ]},
+          {k:'entregar', l:'Entregar', ic:'⚔', cor:'var(--kb-c2)',
+           lCli:'Meu projeto', fraseCli:'Suas entregas, seus documentos e o que depende de você.',
+           sub:'da demanda ao depoimento', subCli:'suas entregas e aprovações', frase:'Da demanda que nasce até o depoimento do cliente.',
+           passos:[
+             {v:'demandas',    l:'Demandas',       d:'mural, execução e aprovação'},
+             {v:'kanban',      l:'Quadro da equipe',d:'o que está andando'},
+             {v:'entregaveis', l:'Conferência',    d:'aprovar o que foi entregue'},
+             {v:'portal',      l:'Portal do cliente',d:'o que ele vê'},
+             {v:'satisfacao',  l:'Satisfação',     d:'nota e depoimento'}
+           ]},
+          {k:'rede', l:'A rede', ic:'◱', cor:'var(--kb-c5)',
+           lCol:'Meu portal', fraseCol:'Sua jornada, suas demandas, seus ganhos e o seu contrato.',
+           sub:'quem faz o trabalho', subCol:'jornada, demandas e ganhos', frase:'De quem se cadastra até quanto cada um recebe.',
+           passos:[
+             {v:'rede',        l:'Prestadores',    d:'cadastro, contrato e nível'},
+             {v:'parceiras',   l:'Empresas parceiras',d:'quem manda trabalho'},
+             {v:'colaborador', l:'Portal da pessoa',d:'o que ela vê e faz'},
+             {v:'rh',          l:'Pessoas',        d:'perfil, clima e evolução'}
+           ]},
+          {k:'dinheiro', l:'O dinheiro', ic:'❖', cor:'var(--kb-c4)',
+           sub:'caixa, DRE e futuro', frase:'Do que entrou hoje até onde a empresa chega em dez anos.',
+           passos:[
+             {v:'financeiro',  l:'Caixa e DRE',    d:'entrou, saiu, sobrou'},
+             {v:'fin360',      l:'Financeiro 360', d:'pessoal e empresa juntos'},
+             {v:'futuro',      l:'Futuro',         d:'cenários e valuation'}
+           ]},
+          {k:'config', l:'Ajustes', ic:'⚙', cor:'var(--ink-soft)',
+           sub:'catálogo, acessos e marca', frase:'O que o sistema usa para calcular e quem pode ver o quê.',
+           passos:[
+             {v:'catalogo', l:'Catálogo',        d:'serviços, preços e horas'},
+             {v:'equipe',   l:'Equipe e acessos',d:'usuários, permissões e marca'}
+           ]}
+        ];
+        function areaDe(view){ return AREAS.find(a=>a.passos.some(p=>p.v===view))||null; }
+        /* o nome da área muda com quem olha: para a gestão é "A rede", para
+           quem presta serviço é "Meu portal" — é a mesma área, outro ponto de vista */
+        function areaNome(a){
+          let pa=AUTH.user&&AUTH.user.papel;
+          if(pa==='colaborador'&&a.lCol) return a.lCol;
+          if(pa==='cliente'&&a.lCli) return a.lCli;
+          return a.l;
+        }
+        function areaFrase(a){
+          let pa=AUTH.user&&AUTH.user.papel;
+          if(pa==='colaborador'&&a.fraseCol) return a.fraseCol;
+          if(pa==='cliente'&&a.fraseCli) return a.fraseCli;
+          return a.frase;
+        }
+        function areaPassosLiberados(a){ return a.passos.filter(p=>!AUTH.user||AUTH.can(p.v)); }
+        /* clicar na área abre o primeiro passo que a pessoa pode ver */
+        function areaIr(k){
+          let a=AREAS.find(x=>x.k===k); if(!a) return;
+          let ps=areaPassosLiberados(a);
+          if(!ps.length){ alert('Você não tem acesso a nenhuma etapa desta área.'); return; }
+          // se já está na área, mantém o passo; senão começa do primeiro
+          let atual=document.querySelector('.view.on');
+          let vAtual=atual?atual.id.replace('v-',''):'';
+          go(ps.some(p=>p.v===vAtual)?vAtual:ps[0].v);
+        }
+        /* a trilha: mostra onde você está dentro da atividade e o que vem antes
+           e depois. É o que faz a área parecer um lugar só. */
+        function renderRail(view){
+          let box=document.getElementById('area-rail'); if(!box) return;
+          let a=areaDe(view);
+          if(!a){ box.innerHTML=''; box.classList.remove('on'); return; }
+          let ps=areaPassosLiberados(a);
+          if(ps.length<2){ box.innerHTML=''; box.classList.remove('on'); return; }
+          let i=ps.findIndex(p=>p.v===view);
+          box.classList.add('on');
+          box.style.setProperty('--c', a.cor);
+          box.innerHTML=`
+            <div class="ar-cab" title="${uiEsc(areaFrase(a))}"><span class="ic">${a.ic}</span><span class="nm">${uiEsc(areaNome(a))}</span></div>
+            <div class="ar-passos">${ps.map((p,j)=>`
+              <button class="ar-passo ${j===i?'on':''} ${j<i?'antes':''}" onclick="go('${p.v}')" title="${uiEsc(p.l)} — ${uiEsc(p.d)}">
+                <span class="n">${j+1}</span>
+                <span class="tx">${uiEsc(p.l)}<small>${uiEsc(p.d)}</small></span>
+              </button>`).join('')}</div>
+            ${i<ps.length-1?`<button class="ar-set" onclick="go('${ps[i+1].v}')" title="Seguir para ${uiEsc(ps[i+1].l)}">${uiEsc(ps[i+1].l)} →</button>`:''}`;
+        }
+        /* o item do menu acende pela ÁREA, não pela tela */
+        function marcarAreaNoMenu(view){
+          let a=areaDe(view);
+          document.querySelectorAll('#side-nav .nav-item').forEach(b=>b.classList.remove('on'));
+          let el=a?document.getElementById('a-'+a.k):(view==='meusleads'?document.getElementById('n-meusleads'):null);
+          if(el) el.classList.add('on');
+        }
+        /* esconde a área inteira quando nenhuma etapa dela está liberada */
+        function atualizarAreasVisibilidade(){
+          AREAS.forEach(a=>{
+            let el=document.getElementById('a-'+a.k); if(!el) return;
+            el.style.display=areaPassosLiberados(a).length?'':'none';
+            let pa=AUTH.user&&AUTH.user.papel;
+            let curto=(pa==='colaborador'&&a.subCol)?a.subCol:((pa==='cliente'&&a.subCli)?a.subCli:a.sub);
+            el.innerHTML='<span class="ic">'+a.ic+'</span> '+uiEsc(areaNome(a))
+              +(curto?'<span class="a-sub">'+uiEsc(curto)+'</span>':'');
+          });
+          document.querySelectorAll('#side-nav .nav-group').forEach(g=>{
+            let vis=false, n=g.nextElementSibling;
+            while(n && !n.classList.contains('nav-group')){
+              if(n.classList.contains('nav-item') && n.style.display!=='none'){ vis=true; break; }
+              n=n.nextElementSibling;
+            }
+            g.style.display=vis?'':'none';
+          });
         }
 
         /* ═══ CANDIDATOS — quem se cadastrou para prestar serviço ═══ */

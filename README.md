@@ -499,6 +499,10 @@ no [README do backend](backend/README.md).
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
+- **Áreas do menu**: `AREAS` (a lista de atividades e suas etapas), `areaIr`
+  (abre a área no primeiro passo permitido), `renderRail` (a trilha),
+  `areaNome`/`areaFrase` (o nome muda conforme quem olha),
+  `atualizarAreasVisibilidade`.
 - **Rede / contratos**: `MARCAS`, `CONTRATOS`, `ESCOPOS`, `PREST_NIVEIS`,
   `contratoTexto` (o contrato padrão), `D4`/`d4Enviar`/`d4Assinar` (assinatura),
   `prestLiberado` (a trava geral), `prestAbrir` (configuração da pessoa),
@@ -659,3 +663,37 @@ de trabalho interno. Nada roda antes do contrato assinado.
     novo, empresa querendo entrar, demanda em triagem, prestador sem contrato,
     demanda atrasada: cada um vira um passo na faixa do topo e no briefing de
     entrada, com o botão que leva direto ao lugar certo.
+
+## Uma atividade, um lugar — versão 0208.02
+
+O menu tinha 22 telas espalhadas em 8 grupos. Agora tem **6 áreas**, e cada
+área é uma atividade inteira, com o mesmo raciocínio da esteira comercial:
+uma trilha numerada mostra em que passo você está, o que veio antes e o que
+vem depois — e leva ao próximo com um clique.
+
+62. **As áreas** (`AREAS`, `areaIr`, `renderRail`):
+
+    | Área | Etapas |
+    |------|--------|
+    | ◳ **Meu painel** | Gestão à vista · Visão do dono |
+    | ◎ **Vender** | Meta do mês · Leads · Esteira 1-14 · Propostas · Plano do ano |
+    | ⚔ **Entregar** | Demandas · Quadro da equipe · Conferência · Portal do cliente · Satisfação |
+    | ◱ **A rede** | Prestadores · Empresas parceiras · Portal da pessoa · Pessoas |
+    | ❖ **O dinheiro** | Caixa e DRE · Financeiro 360 · Futuro |
+    | ⚙ **Ajustes** | Catálogo · Equipe e acessos |
+
+    Fora delas, só **🎯 Meus leads**, que é a página de quem trabalha por
+    resultado e só aparece para essa pessoa.
+
+63. **A trilha** fica logo abaixo da faixa "Agora", em **toda** tela da área:
+    nome da área, as etapas numeradas com a atual destacada, e um botão que
+    leva para a próxima. Ocupa 45px — as telas não perderam altura útil.
+
+64. **Nada foi perdido nem duplicado** — a auditoria confirma: toda tela
+    pertence a exatamente uma área, nenhuma órfã, nenhuma repetida, todas com
+    título e entrada no configurador de permissões.
+
+65. **A área tem o nome de quem olha** — a mesma área "A rede" chama-se **Meu
+    portal** para quem presta serviço; "Entregar" chama-se **Meu projeto** para
+    o cliente. Etapas sem permissão somem da trilha, e a área inteira some do
+    menu quando a pessoa não tem acesso a nenhuma delas.
