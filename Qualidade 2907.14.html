@@ -635,6 +635,8 @@
     #view-solicitacao .ficha-wrapper { padding:18px 20px 22px; }
     #view-solicitacao .ficha-header-pdf { border-bottom:2px solid #0f766e; }
     #view-solicitacao .data-table td { font-size:12.5px; }
+    .lau-croqui { border:1px solid #e2e8f0; border-radius:9px; padding:7px; background:#fbfcfe; text-align:center; }
+    .lau-croqui svg { width:100%; max-width:470px; height:auto; }
     .cli-arte-nota { font-size:10.5px; color:#0f766e; background:#f0fdfa; border-radius:7px; padding:4px 8px; line-height:1.35; }
     .cli-arte-nota:empty { display:none; }
     /* Ficha Técnica de Especificação: origem, aprovação do cliente e liberação da MP */
@@ -2051,7 +2053,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-12 fu-grp" style="background:#e6f4f2;"><span class="lbl" style="color:#0f766e;">4 · EMBALAGEM SOLICITADA · TIPO, MEDIDAS E MATERIAL</span></div>
                 <div class="sol-guia">Se o cliente <b>já usa uma embalagem parecida</b>, informe as medidas dela, ou anexe uma amostra no bloco 8. Não sabe a espessura? Deixe em branco, nós calculamos.</div>
                 <div class="g-col g-col-3"><span class="lbl">Tipo de embalagem <span class="sol-obg">*</span></span><input class="inp" id="fu_sol_tipo_emb" list="dl_sol_emb" placeholder="Bobina / Saco / Sacola / Etiqueta"><datalist id="dl_sol_emb"><option value="Bobina lisa"></option><option value="Bobina impressa"></option><option value="Bobina laminada lisa"></option><option value="Bobina laminada impressa"></option><option value="Saco liso"></option><option value="Saco impresso"></option><option value="Saco com zíper"></option><option value="Saco com fita adesiva"></option><option value="Sacola lisa"></option><option value="Sacola impressa"></option><option value="Sacola alça vazada"></option><option value="Sacola camiseta"></option><option value="Etiqueta em bobina"></option><option value="Filme tubular"></option></datalist></div>
-                <div class="g-col g-col-3"><span class="lbl">Material solicitado</span><input class="inp" id="fu_sol_material" list="dl_substratos" placeholder="Se souber; senão deixe em branco"><span class="sol-dica">Material do filme. <b>Não é obrigatório</b>, nós indicamos o melhor a partir da aplicação.</span></div>
+                <div class="g-col g-col-3"><span class="lbl">Material solicitado</span><input class="inp" id="fu_sol_material" list="dl_substrato" placeholder="Se souber; senão deixe em branco"><span class="sol-dica">Material do filme. <b>Não é obrigatório</b>, nós indicamos o melhor a partir da aplicação.</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Estrutura (se laminado)</span><input class="inp" id="fu_sol_estrutura" list="dl_estrutura" placeholder="Só se o cliente já souber"><span class="sol-dica">Camadas do filme laminado. Campo técnico, <b>normalmente quem define é a Rebracil</b>.</span></div>
                 <div class="g-col g-col-3"><span class="lbl">Aparência</span><input class="inp" id="fu_sol_aparencia" list="dl_sol_apar" placeholder="Transparente / Leitoso…"><datalist id="dl_sol_apar"><option value="Transparente"></option><option value="Leitoso"></option><option value="Branco"></option><option value="Perolizado"></option><option value="Metalizado"></option><option value="Fosco"></option><option value="Colorido"></option></datalist></div>
                 <div class="g-col g-col-2"><span class="lbl">Largura (mm)</span><input class="inp" id="fu_sol_largura" inputmode="decimal" oninput="fuAutoCtrlCroqui('solicitacao')"></div>
@@ -3689,6 +3691,15 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             </div>
         </div>
         <div id="imp-preview"></div>
+        <div class="card-base" style="margin-top:16px; border-color:#a7f3d0;">
+            <div class="cmd-panel-t" style="color:#0f766e;"><i class="fas fa-shield-halved"></i> Cópia de segurança</div>
+            <div class="cmd-panel-sub">Tudo que o sistema guarda fica <b>neste navegador</b>. Baixe uma cópia com regularidade: fichas, solicitações, cadastros, apontamentos, programação e histórico saem em um único arquivo. Para levar o sistema a outro computador, é só restaurar essa cópia lá.</div>
+            <div class="insp-top">
+                <div class="insp-field"><label>&nbsp;</label><button class="sys-btn-success" onclick="backupBaixar()"><i class="fas fa-download"></i> Baixar cópia de segurança</button></div>
+                <div class="insp-field"><label>Restaurar de um arquivo .rbk</label><input type="file" id="bkp-file" accept=".rbk,.json" onchange="backupRestaurar(this)"></div>
+                <div class="insp-field"><label>&nbsp;</label><span id="bkp-info" style="font-size:11.5px; color:#64748b;"></span></div>
+            </div>
+        </div>
         <div class="card-base" style="margin-top:16px; border-color:#f3c9d2;">
             <div class="cmd-panel-t" style="color:#b91c1c;"><i class="fas fa-triangle-exclamation"></i> Zerar base de dados</div>
             <div class="cmd-panel-sub">Apaga todos os dados e deixa o sistema em branco (usuários são mantidos). Use antes de subir sua base definitiva.</div>
@@ -4093,6 +4104,7 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         'boxes-stacked': '<rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><rect x="8" y="3" width="8" height="8" rx="1"/>',
         'rotate-left': '<path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3.5v5h5"/>',
         'rotate-right': '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3.5v5h-5"/>',
+        'shield-halved': '<path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6z"/><path d="M12 3v17.5"/>',
         'cloud-arrow-up': '<path d="M6.5 18.5a4 4 0 0 1 .4-8 6 6 0 0 1 11.5 1.6 3.5 3.5 0 0 1-.4 6.9z"/><path d="M12 16.5v-6"/><path d="M9.5 12.5 12 10l2.5 2.5"/>',
         'file-lines': '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 16.5h6"/>',
         'industry': '<path d="M3 21h18"/><path d="M4 21V10l6 4V10l6 4V6l4 2v11"/>',
@@ -8137,13 +8149,16 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
     function fuSolGerarFichaCliente() {
         const sec = document.getElementById('fu-sec-solicitacao');
         const clone = sec.cloneNode(true);
-        clone.className = 'grid-form'; clone.removeAttribute('id');
+        clone.className = 'grid-form sol-form on'; clone.removeAttribute('id');
+        // o título verde repete o cabeçalho da página e fala do vendedor: sai
+        const tituloEtapa = clone.querySelector('.section-title'); if (tituloEtapa) tituloEtapa.remove();
         // corta tudo do bloco 9 em diante (envio e análise interna)
         const b9 = clone.querySelector('#fu-sol-b9');
         if (b9) { let n = b9; const mortos = []; while (n) { mortos.push(n); n = n.nextElementSibling; } mortos.forEach(x => x.remove()); }
         // o croqui e o painel de entrega dependem do motor do sistema: viram blocos simples
         const ac = clone.querySelector('#fu-ac-solicitacao');
-        if (ac) ac.innerHTML = `<div class="g-col g-col-12" id="cli-entrega-host"></div>`;
+        if (ac) ac.innerHTML = `<div class="g-col g-col-7" id="cli-croqui-host"><span class="lbl">O desenho da sua embalagem</span><div id="cli-croqui" class="cli-croqui"></div></div>
+            <div class="g-col g-col-5" id="cli-entrega-host"></div>`;
         // nada de dados da Rebracil viajando junto
         clone.querySelectorAll('input[list]').forEach(inp => {
             const alvo = inp.getAttribute('list');
@@ -8161,6 +8176,44 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
             [...el.attributes].filter(a => /^on/i.test(a.name)).forEach(a => el.removeAttribute(a.name));
         });
         clone.querySelectorAll('input[type="file"]').forEach(el => el.remove());
+        renderIcons(clone);   // Font Awesome não existe no arquivo solto: troca por SVG embutido
+        // O texto interno fala do cliente em terceira pessoa; no documento dele, fala-se com ele.
+        const PARA_O_CLIENTE = [
+            ['2 · CLIENTE', '2 · SEUS DADOS'],
+            ['8 · ANEXOS DO CLIENTE', '8 · SEUS ANEXOS'],
+            ['Amostra do cliente recebida?', 'Você tem uma amostra para nos enviar?'],
+            ['Cliente / Razão Social', 'Sua empresa (razão social)'],
+            ['Prazo desejado pelo cliente', 'Para quando você precisa'],
+            ['Produto do cliente', 'O que vai ser embalado'],
+            ['Observações do cliente / detalhes que não podem se perder', 'Alguma observação que não pode se perder'],
+            ['Como o cliente quer receber: em caixa, fardo, palete…', 'Como você prefere receber: em caixa, fardo, palete…'],
+            ['De quanto em quanto tempo o cliente costuma pedir e quanto pede por vez.',
+             'De quanto em quanto tempo você costuma pedir e quanto pede por vez.'],
+            ['Responda com o que o cliente falar, sem termos técnicos.',
+             'Responda com as suas palavras, sem termos técnicos.'],
+            ['Se o cliente <b>já usa uma embalagem parecida</b>, informe as medidas dela',
+             'Se você <b>já usa uma embalagem parecida</b>, informe as medidas dela'],
+            ['Se o cliente não tem o código Pantone', 'Se você não tem o código Pantone'],
+            ['diâmetro do tubo central que a máquina do cliente aceita', 'diâmetro do tubo central que a sua máquina aceita'],
+            ['Quem está pedindo e para quando.', 'Seus dados e o prazo que você precisa.'],
+            ['Vendedor / Representante', 'Seu contato na Rebracil'],
+            ['Arte fornecida por', 'Quem envia a arte'],
+            ['O desenho é gerado com as medidas do bloco 4.', 'O desenho abaixo é gerado com as medidas que você informou no bloco 4.'],
+            ['o essencial é o nome e um contato', 'o essencial é o nome da empresa e um contato']
+        ];
+        clone.querySelectorAll('.sol-guia, .sol-dica, .lbl, .sol-tranq, li').forEach(el => {
+            let h = el.innerHTML, antes = h;
+            PARA_O_CLIENTE.forEach(([de, para]) => { if (h.includes(de)) h = h.split(de).join(para); });
+            if (h !== antes) el.innerHTML = h;
+        });
+        clone.querySelectorAll('[placeholder]').forEach(el => {
+            let t = el.getAttribute('placeholder');
+            PARA_O_CLIENTE.forEach(([de, para]) => { if (t.includes(de)) t = t.split(de).join(para); });
+            t = t.replace('Só se o cliente já souber', 'Só se você já souber')
+                 .replace('Cliente / Rebracil', 'Eu envio / a Rebracil cria')
+                 .replace('Se o cliente', 'Se você');
+            el.setAttribute('placeholder', t);
+        });
         // valores já digitados pelo vendedor vão preenchidos
         const orig = fuSolCamposCliente();
         orig.forEach(id => {
@@ -8183,16 +8236,65 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Solicitação de Produto - Grupo Rebracil</title>
 <style>${estilo}
-body { margin:0; background:#f1f5f9; font-family:'Inter',Arial,sans-serif; }
+body { margin:0; background:#eef2f7; font-family:'Inter',Arial,sans-serif; -webkit-text-size-adjust:100%; }
 .cli-wrap, .cli-wrap * { box-sizing:border-box; }
-.cli-wrap { max-width:1100px; margin:0 auto; padding:14px 12px 120px; }
-.cli-top { background:linear-gradient(135deg,#191040,#2a1a63); color:#fff; border-radius:14px; padding:18px 20px; margin-bottom:14px; }
-.cli-top h1 { margin:0; font-size:19px; letter-spacing:.04em; }
-.cli-top p { margin:6px 0 0; font-size:12.5px; opacity:.85; line-height:1.5; }
-.cli-top .marca { font-size:11px; letter-spacing:.22em; color:#c5a880; font-weight:800; margin-bottom:6px; }
-.cli-bar { position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid #e2e8f0; padding:10px 14px; display:flex; gap:9px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 -6px 20px rgba(0,0,0,.07); z-index:50; }
-.cli-bar .aviso { font-size:11px; color:#64748b; flex:1; min-width:200px; }
-.cli-btn { border:none; border-radius:9px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; background:#0f766e; color:#fff; }
+.cli-wrap { max-width:940px; margin:0 auto; padding:16px 14px 150px; }
+/* o formulário do cliente respira: cartões, campos grandes e uma coluna no celular */
+.cli-wrap .grid-form { display:grid; grid-template-columns:repeat(12,1fr); gap:10px; background:transparent; border:none; }
+.cli-wrap .g-col { background:#fff; border:1px solid #e4e8ef; border-radius:12px; padding:11px 14px 12px; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+.cli-wrap .g-col:focus-within { border-color:#14b8a6; box-shadow:0 0 0 3px rgba(20,184,166,.14); }
+.cli-wrap .g-fill { display:none; }
+.cli-wrap .lbl { display:block; font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:#64748b; font-weight:700; margin-bottom:5px; }
+.cli-wrap .inp { width:100%; border:1px solid #dbe1ea; border-radius:9px; padding:11px 12px; font-size:15px; font-family:inherit; color:#0f172a; background:#fff; min-height:44px; }
+.cli-wrap .inp:focus { border-color:#0f766e; outline:none; }
+.cli-wrap .inp::placeholder { color:#b8c0cc; }
+.cli-wrap textarea.inp { min-height:76px; line-height:1.5; resize:vertical; }
+.cli-wrap .fu-grp { grid-column:1/-1; background:linear-gradient(90deg,#0f766e,#0d9488) !important; border:none !important; border-radius:11px; padding:11px 15px; box-shadow:0 2px 10px rgba(15,118,110,.2); }
+.cli-wrap .fu-grp .lbl { color:#fff !important; font-size:13px; letter-spacing:.05em; margin:0; }
+.cli-wrap .sol-guia { grid-column:1/-1; background:#fff; border:1px solid #e4e8ef; border-left:4px solid #14b8a6; border-radius:11px; padding:11px 15px; font-size:13.5px; color:#475569; line-height:1.55; margin:0; }
+.cli-wrap .sol-guia b { color:#0f766e; }
+.cli-wrap .sol-dica { display:block; font-size:12px; color:#8b95a5; margin-top:6px; line-height:1.5; }
+.cli-wrap .sol-obg { color:#e11d48; font-weight:800; }
+.cli-wrap .chips-fluxo { display:flex; flex-wrap:wrap; gap:8px; margin:0; }
+.cli-wrap .chip-et { border:1.5px solid #dbe1ea; border-radius:22px; padding:9px 15px; font-size:13.5px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; background:#fff; }
+.cli-wrap .chip-et:has(input:checked) { border-color:#0f766e; background:#f0fdfa; color:#0f766e; font-weight:700; }
+.cli-wrap .sol-entrega-grid { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:9px; }
+.cli-wrap .sol-ent-opt { padding:13px 9px; border-radius:12px; border-width:1.5px; }
+.cli-wrap .sol-ent-opt b { font-size:14px; }
+.cli-wrap .sol-ent-opt span { font-size:11px; }
+.cli-wrap .sol-ent-lead { font-size:13.5px; }
+.cli-wrap .ac-panel, .cli-wrap .ac-panel-t, .cli-wrap .ac-croqui { border:none; background:transparent; }
+.cli-wrap .ac-panel-t { display:none; }
+.cli-wrap #cli-entrega-host .ac-sentido, .cli-wrap #cli-entrega-host { justify-content:flex-start; align-items:flex-start; }
+.cli-wrap #cli-entrega-host .sol-entrega { margin-top:7px; }
+.cli-croqui { margin-top:7px; display:flex; align-items:center; justify-content:center; min-height:210px; border:1px solid #eef1f6; border-radius:10px; background:#fbfcfe; padding:6px; }
+.cli-croqui svg { width:100%; height:auto; max-height:340px; }
+.cli-croqui span { font-size:12px; color:#94a3b8; text-align:center; line-height:1.5; padding:16px; }
+.cli-wrap .g-col-1, .cli-wrap .g-col-2 { grid-column:span 3; }
+.cli-wrap .g-col-3 { grid-column:span 4; }
+@media (max-width:860px) {
+  .cli-wrap .grid-form { gap:9px; }
+  .cli-wrap [class*="g-col-"] { grid-column:1/-1 !important; }
+  .cli-wrap .g-col-2, .cli-wrap .g-col-3 { grid-column:span 6 !important; }
+}
+@media (max-width:520px) {
+  .cli-wrap { padding:12px 10px 168px; }
+  .cli-wrap .g-col-2, .cli-wrap .g-col-3 { grid-column:1/-1 !important; }
+}
+.cli-top { background:linear-gradient(135deg,#191040,#2a1a63); color:#fff; border-radius:16px; padding:22px 24px; margin-bottom:16px; box-shadow:0 6px 24px rgba(25,16,64,.22); }
+.cli-top h1 { margin:0; font-size:23px; letter-spacing:.01em; line-height:1.2; }
+.cli-top p { margin:9px 0 0; font-size:13.5px; opacity:.9; line-height:1.6; }
+.cli-top .marca { font-size:10.5px; letter-spacing:.22em; color:#c5a880; font-weight:800; margin-bottom:8px; }
+.cli-top .quem { margin-top:12px; padding-top:11px; border-top:1px solid rgba(255,255,255,.16); font-size:12.5px; opacity:.85; }
+.cli-passos { display:flex; gap:9px; flex-wrap:wrap; margin-bottom:16px; }
+.cli-passo { flex:1; min-width:180px; background:#fff; border:1px solid #e4e8ef; border-radius:12px; padding:11px 14px; font-size:12.5px; color:#475569; line-height:1.45; }
+.cli-passo > b:first-child { display:block; color:#0f766e; font-size:13px; margin-bottom:3px; }
+.cli-passo b { color:#334155; }
+.cli-passo i { font-style:normal; display:inline-flex; width:21px; height:21px; border-radius:50%; background:#0f766e; color:#fff; font-size:11px; font-weight:800; align-items:center; justify-content:center; margin-right:6px; }
+.cli-bar { position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.97); backdrop-filter:blur(6px); border-top:1px solid #e2e8f0; padding:11px 16px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 -6px 22px rgba(16,24,40,.09); z-index:50; }
+.cli-bar .aviso { font-size:12px; color:#64748b; flex:1; min-width:200px; line-height:1.4; }
+.cli-btn { border:none; border-radius:10px; padding:12px 20px; font-size:14px; font-weight:700; cursor:pointer; background:#0f766e; color:#fff; box-shadow:0 2px 8px rgba(15,118,110,.25); }
+.cli-btn:hover { filter:brightness(1.06); }
 .cli-btn.sec { background:#fff; color:#334155; border:1px solid #cbd5e1; }
 .cli-ok { display:none; background:#ecfdf5; border:1.5px solid #6ee7b7; border-radius:12px; padding:14px 16px; margin-bottom:14px; }
 .cli-ok b { color:#065f46; font-size:14px; display:block; margin-bottom:6px; }
@@ -8205,9 +8307,14 @@ body { margin:0; background:#f1f5f9; font-family:'Inter',Arial,sans-serif; }
 <div class="cli-wrap">
   <div class="cli-top">
     <div class="marca">GRUPO REBRACIL · EMBALAGENS FLEXÍVEIS</div>
-    <h1>Solicitação de Produto</h1>
-    <p>Preencha o que souber sobre a embalagem que você precisa. <b>Nenhum campo técnico é obrigatório</b> — nossa equipe completa o resto e confirma com você.<br>
-    Cliente: <b>${cliente.replace(/</g, '&lt;')}</b> · Vendedor responsável: <b>${vendedor.replace(/</g, '&lt;')}</b> · Enviado em ${hoje}</p>
+    <h1>Conte para a gente a embalagem que você precisa</h1>
+    <p>Responda com as suas palavras, do jeito que você conhece o produto. <b>Nenhum campo técnico é obrigatório:</b> o que você não souber, nossa equipe define e confirma com você antes de produzir.</p>
+    <div class="quem">${cliente.replace(/</g, '&lt;')} · seu contato na Rebracil: <b>${vendedor.replace(/</g, '&lt;')}</b> · enviado em ${hoje}</div>
+  </div>
+  <div class="cli-passos">
+    <div class="cli-passo"><b><i>1</i>Preencha</b>Só o que você souber. Os campos com <b style="color:#e11d48;">*</b> são o mínimo para começarmos.</div>
+    <div class="cli-passo"><b><i>2</i>Anexe</b>Tem a arte, uma foto da embalagem atual ou uma especificação? Vale mais que qualquer descrição.</div>
+    <div class="cli-passo"><b><i>3</i>Devolva</b>Clique em <b>Finalizar</b> no rodapé: baixa um arquivo para você mandar ao seu contato.</div>
   </div>
   <div class="cli-falta" id="cli-falta"></div>
   <div class="cli-ok" id="cli-ok">
@@ -8230,7 +8337,7 @@ body { margin:0; background:#f1f5f9; font-family:'Inter',Arial,sans-serif; }
   </div>
 </div>
 <div class="cli-bar">
-  <span class="aviso">Não precisa preencher tudo. Ao terminar, clique em Finalizar e devolva o arquivo ao vendedor.</span>
+  <span class="aviso">Não precisa preencher tudo. Ao terminar, clique em <b>Finalizar</b> e devolva o arquivo ao seu contato na Rebracil.</span>
   <button class="cli-btn sec" onclick="window.print()">Imprimir</button>
   <button class="cli-btn" onclick="cliFinalizar()">Finalizar e gerar resposta</button>
 </div>
@@ -8240,6 +8347,21 @@ const FORMAS = ${formas};
 const CLIENTE = ${JSON.stringify(cliente)};
 let ANEXOS = [];
 function el(id) { return document.getElementById(id); }
+// mesmo gerador de croqui do sistema: o cliente vê o desenho do que descreveu
+${croquiSVG.toString()}
+function cliCroqui() {
+  const box = el('cli-croqui'); if (!box) return;
+  const n = id => { const e = el(id); return e ? (parseFloat((e.value || '').replace(',', '.')) || 0) : 0; };
+  const img = (ANEXOS.find(a => /^data:image/.test(a.dados || '')) || {}).dados || '';
+  box.innerHTML = croquiSVG({
+    L: n('fu_sol_largura'), A: n('fu_sol_altura'), S: n('fu_sol_sanfona'), B: n('fu_sol_aba'),
+    art: img, cor: '#0f766e', titulo: 'A EMBALAGEM QUE VOCÊ DESCREVEU',
+    vazio: 'Informe largura e altura no bloco 4<br>e o desenho aparece aqui, com as medidas.'
+  });
+}
+['fu_sol_largura', 'fu_sol_altura', 'fu_sol_sanfona', 'fu_sol_aba'].forEach(id => {
+  const e = el(id); if (e) e.addEventListener('input', cliCroqui);
+});
 // "Como você recebe o material" — mesmas opções da ficha da Rebracil
 (function entrega() {
   const host = el('cli-entrega-host'); if (!host) return;
@@ -8282,6 +8404,7 @@ function cliFecharVazios() {
       at.ultimo.after(d); });
   });
 }
+cliCroqui();
 cliFecharVazios();
 window.addEventListener('resize', () => setTimeout(cliFecharVazios, 60));
 function cliAnexar(inp) {
@@ -8294,6 +8417,7 @@ function cliAnexar(inp) {
   inp.value = '';
 }
 function cliLista() {
+  cliCroqui();
   el('cli-lista').innerHTML = ANEXOS.length
     ? ANEXOS.map((a, i) => '• ' + a.nome + ' <a href="#" onclick="ANEXOS.splice(' + i + ',1);cliLista();return false;" style="color:#ef4444;">remover</a>').join('<br>')
     : '';
@@ -8531,8 +8655,20 @@ function cliEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('S
             elaborado: val('fu_fin_elaborado') || currentSessionUser,
             emissao: new Date().toLocaleDateString('pt-BR'),
             origem: FIN_ORIGEM.map(c => ({ l: c.l, v: (val(c.id) || '').trim() })).filter(x => x.v),
-            insp, embalamento: val('fu_fin_embalamento')
+            insp, embalamento: val('fu_fin_embalamento'),
+            croqui: fuFinCroquiSVG()
         };
+    }
+    // Desenho da embalagem para o cliente conferir junto com os números
+    function fuFinCroquiSVG() {
+        const n = id => { const e = document.getElementById(id); return e ? (parseFloat((e.value || '').replace(',', '.')) || 0) : 0; };
+        const L = n('fu_fin_cq_largura') || n('fu_sol_largura');
+        const A = n('fu_fin_cq_altura') || n('fu_sol_altura');
+        const S = n('fu_fin_cq_sanfona') || n('fu_sol_sanfona');
+        const B = n('fu_fin_cq_aba') || n('fu_sol_aba');
+        if (!L && !A) return '';
+        const art = (document.getElementById('fu_fin_cq_arte') || {}).value || fuAnexoPrincipalImg('final') || fuAnexoPrincipalImg('cliche');
+        return croquiSVG({ L, A, S, B, art, cor: '#191040', titulo: 'DESENHO DA EMBALAGEM' });
     }
     function fuFinLaudoCorpo(d) {
         return `
@@ -8555,6 +8691,7 @@ function cliEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('S
         ${d.insp.length ? `<div class="fup-sec-title" style="background:#191040;">Tolerâncias que serão controladas na produção</div>
         <table class="fup-tab"><tr><th>Característica</th><th>Un.</th><th>Mínimo</th><th>Nominal</th><th>Máximo</th></tr>
         ${d.insp.map(i => `<tr><td>${i.car}</td><td>${i.un || '—'}</td><td>${i.min || '—'}</td><td>${i.nom || '—'}</td><td>${i.max || '—'}</td></tr>`).join('')}</table>` : ''}
+        ${d.croqui ? `<div class="fup-sec-title" style="background:#191040;">Desenho da embalagem</div><div class="lau-croqui">${d.croqui}</div>` : ''}
         ${d.embalamento ? `<div class="fup-sec-title" style="background:#191040;">Embalamento e entrega</div><div class="fup-obs">${d.embalamento}</div>` : ''}`;
     }
     function fuFinImprimirLaudo() {
@@ -8592,32 +8729,60 @@ function cliEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('S
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aprovação de Especificação - Grupo Rebracil</title>
 <style>${estilo}
-body { margin:0; background:#f1f5f9; font-family:'Inter',Arial,sans-serif; }
+body { margin:0; background:#eef2f7; font-family:'Inter',Arial,sans-serif; -webkit-text-size-adjust:100%; }
 .lau-wrap, .lau-wrap * { box-sizing:border-box; }
-.lau-wrap { max-width:960px; margin:0 auto; padding:14px 12px 130px; }
-.lau-top { background:linear-gradient(135deg,#191040,#2a1a63); color:#fff; border-radius:14px; padding:18px 20px; margin-bottom:14px; }
-.lau-top .marca { font-size:11px; letter-spacing:.22em; color:#c5a880; font-weight:800; margin-bottom:6px; }
-.lau-top h1 { margin:0; font-size:19px; }
-.lau-top p { margin:6px 0 0; font-size:12.5px; opacity:.88; line-height:1.5; }
-.lau-doc { background:#fff; border-radius:12px; padding:16px; }
-.lau-bar { position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid #e2e8f0; padding:10px 14px; display:flex; gap:9px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 -6px 20px rgba(0,0,0,.07); z-index:50; }
-.lau-bar .aviso { font-size:11px; color:#64748b; flex:1; min-width:200px; }
-.lau-btn { border:none; border-radius:9px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; background:#0f766e; color:#fff; }
-.lau-btn.rec { background:#fff; color:#b91c1c; border:1px solid #fca5a5; }
-.lau-btn.sec { background:#fff; color:#334155; border:1px solid #cbd5e1; }
-.lau-form { background:#fff; border:1.5px solid #e2e8f0; border-radius:12px; padding:14px; margin-top:14px; }
-.lau-form label { display:block; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#94a3b8; font-weight:700; margin:9px 0 3px; }
-.lau-form input, .lau-form textarea { width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px; font-size:13px; font-family:inherit; }
-.lau-ok { display:none; background:#ecfdf5; border:1.5px solid #6ee7b7; border-radius:12px; padding:14px 16px; margin-top:14px; }
-.lau-ok b { color:#065f46; font-size:14px; display:block; margin-bottom:6px; }
+.lau-wrap { max-width:920px; margin:0 auto; padding:16px 14px 160px; }
+.lau-top { background:linear-gradient(135deg,#191040,#2a1a63); color:#fff; border-radius:16px; padding:22px 24px; margin-bottom:16px; box-shadow:0 6px 24px rgba(25,16,64,.22); }
+.lau-top .marca { font-size:10.5px; letter-spacing:.22em; color:#c5a880; font-weight:800; margin-bottom:8px; }
+.lau-top h1 { margin:0; font-size:23px; line-height:1.2; }
+.lau-top p { margin:9px 0 0; font-size:13.5px; opacity:.9; line-height:1.6; }
+.lau-top .quem { margin-top:12px; padding-top:11px; border-top:1px solid rgba(255,255,255,.16); font-size:12.5px; opacity:.85; }
+.lau-doc { background:#fff; border-radius:14px; padding:20px 22px; box-shadow:0 2px 10px rgba(16,24,40,.06); }
+.lau-bar { position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.97); backdrop-filter:blur(6px); border-top:1px solid #e2e8f0; padding:11px 16px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 -6px 22px rgba(16,24,40,.09); z-index:50; }
+.lau-bar .aviso { font-size:12px; color:#64748b; flex:1; min-width:200px; line-height:1.4; }
+.lau-btn { border:none; border-radius:10px; padding:12px 20px; font-size:14px; font-weight:700; cursor:pointer; background:#0f766e; color:#fff; box-shadow:0 2px 8px rgba(15,118,110,.25); }
+.lau-btn:hover { filter:brightness(1.06); }
+.lau-btn.rec { background:#fff; color:#b91c1c; border:1px solid #fca5a5; box-shadow:none; }
+.lau-btn.sec { background:#fff; color:#334155; border:1px solid #cbd5e1; box-shadow:none; }
+.lau-form { background:#fff; border:1px solid #e4e8ef; border-radius:14px; padding:18px 20px; margin-top:16px; box-shadow:0 2px 10px rgba(16,24,40,.05); }
+.lau-form label { display:block; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:#64748b; font-weight:700; margin:13px 0 5px; }
+.lau-form input, .lau-form textarea { width:100%; border:1px solid #dbe1ea; border-radius:9px; padding:11px 12px; font-size:15px; font-family:inherit; min-height:44px; }
+.lau-form input:focus, .lau-form textarea:focus { border-color:#0f766e; outline:none; box-shadow:0 0 0 3px rgba(20,184,166,.14); }
+.lau-ok { display:none; background:#ecfdf5; border:1.5px solid #6ee7b7; border-radius:14px; padding:16px 18px; margin-top:16px; }
+.lau-ok b { color:#065f46; font-size:15px; display:block; margin-bottom:6px; }
 .lau-ok textarea { width:100%; height:74px; font-family:ui-monospace,Menlo,monospace; font-size:10px; border:1px solid #a7f3d0; border-radius:8px; padding:8px; }
 .fu-page { box-shadow:none; }
+.lau-croqui { border:1px solid #e4e8ef; border-radius:10px; padding:8px; background:#fbfcfe; text-align:center; }
+.lau-croqui svg { width:100%; max-width:520px; height:auto; }
+/* o laudo é um documento: tabelas legíveis também no celular */
+.lau-doc .fup-tab, .lau-doc .fup-meta { width:100%; border-collapse:collapse; font-size:13px; }
+.lau-doc .fup-tab th, .lau-doc .fup-meta th { background:#f4f6fa; color:#475569; font-size:10px; letter-spacing:.05em; text-transform:uppercase; text-align:left; padding:7px 10px; border:1px solid #e4e8ef; font-weight:700; }
+.lau-doc .fup-tab td, .lau-doc .fup-meta td { padding:8px 10px; border:1px solid #e4e8ef; color:#0f172a; }
+.lau-doc .fup-sec-title { border-radius:9px; margin:18px 0 9px; padding:9px 13px; font-size:12px; letter-spacing:.06em; }
+.lau-doc .fup-obs { border:1px solid #e4e8ef; border-radius:10px; padding:11px 13px; font-size:13px; color:#334155; line-height:1.6; }
+.lau-doc .fup-head { display:flex; align-items:flex-start; gap:16px; padding-bottom:14px; margin-bottom:14px; border-bottom:2px solid #191040; }
+.lau-doc .fup-brand { font-size:19px; font-weight:800; color:#191040; letter-spacing:.02em; line-height:1; }
+.lau-doc .fup-brand small { display:block; font-size:8.5px; letter-spacing:.16em; color:#c5a880; font-weight:700; margin-top:3px; }
+.lau-doc .fup-doc { margin-left:auto; text-align:right; }
+.lau-doc .fup-doc .t { font-size:14px; font-weight:800; }
+.lau-doc .fup-doc .e { font-size:11px; color:#475569; font-weight:700; margin-top:2px; }
+.lau-doc .fup-doc .c { font-size:10px; color:#94a3b8; margin-top:2px; }
+@media (max-width:620px) {
+  .lau-doc { padding:15px 14px; }
+  .lau-doc .fup-head { flex-direction:column; gap:8px; }
+  .lau-doc .fup-doc { margin-left:0; text-align:left; }
+  .lau-doc .fup-tab, .lau-doc .fup-meta { font-size:12px; }
+  .lau-doc .fup-tab th, .lau-doc .fup-tab td { padding:6px 7px; }
+  .lau-bar { padding:10px 12px; }
+  .lau-bar .lau-btn { flex:1; min-width:132px; }
+}
 </style></head><body>
 <div class="lau-wrap">
   <div class="lau-top">
     <div class="marca">GRUPO REBRACIL · EMBALAGENS FLEXÍVEIS</div>
-    <h1>Aprovação da especificação do seu produto</h1>
-    <p>Confira abaixo <b>exatamente o que vamos produzir</b>. Se estiver tudo certo, aprove: só depois da sua aprovação compramos a matéria-prima e iniciamos o pedido.<br>Ficha <b>${d.cod}</b> · revisão ${d.revisao} · emitida em ${d.emissao}</p>
+    <h1>Confira e aprove a especificação do seu produto</h1>
+    <p>Abaixo está <b>exatamente o que vamos produzir</b>, com as medidas e as tolerâncias que serão controladas na fábrica. Se estiver tudo certo, aprove: <b>só depois da sua aprovação</b> compramos a matéria-prima e o pedido entra em produção.</p>
+    <div class="quem">${(d.cliente || 'Cliente').replace(/</g, '&lt;')} · documento ${d.cod} · revisão ${d.revisao} · emitido em ${d.emissao}</div>
   </div>
   <div class="lau-doc"><div class="fu-page" style="padding:0; max-width:none;">${fuFinLaudoCorpo(d)}</div></div>
   <div class="lau-form">
@@ -8639,7 +8804,7 @@ body { margin:0; background:#f1f5f9; font-family:'Inter',Arial,sans-serif; }
   </div>
 </div>
 <div class="lau-bar">
-  <span class="aviso">Nada é produzido sem a sua aprovação. Ao responder, devolva o arquivo ao seu vendedor.</span>
+  <span class="aviso">Nada é produzido sem a sua aprovação. Ao responder, um arquivo é baixado: devolva ele ao seu contato na Rebracil.</span>
   <button class="lau-btn sec" onclick="window.print()">Imprimir</button>
   <button class="lau-btn rec" onclick="lauResponder('Reprovada')">Não aprovo ainda</button>
   <button class="lau-btn" onclick="lauResponder('Aprovada')">Aprovo a especificação</button>
@@ -8781,7 +8946,13 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const cod = (document.getElementById('lbl-codigo-fu-ficha') || {}).value || '';
         const itens = fuFinMPItens();
         if (!itens.length) { alert('Sem material definido: preencha a Ficha Técnica de MP.'); return; }
-        itens.forEach(i => RB.comprasReqs.unshift({
+        if (fuFinAprovStatus() !== 'Aprovada') { alert('A compra só é liberada com o aceite do cliente registrado.'); return; }
+        // clique repetido (ou botão ainda na tela) não pode virar duas compras do mesmo material
+        const jaTem = i => RB.comprasReqs.some(r => r.origem === 'Especificação aprovada'
+            && (r.ficha || '') === (i.ficha || cod || '') && r.material === i.material);
+        const novos = itens.filter(i => !jaTem(i));
+        if (!novos.length) { fuFinMPRender(); toast('Essa requisição já foi enviada ao Compras.'); return; }
+        novos.forEach(i => RB.comprasReqs.unshift({
             id: novoId(), data: new Date().toISOString(), ficha: i.ficha || cod, material: i.material,
             qtd: i.qtd, fornecedor: i.fornecedor, status: 'Solicitado',
             origem: 'Especificação aprovada', usuario: currentSessionUser
@@ -8936,12 +9107,63 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         renderIcons(tb);
     }
 
+    // =====================================================================
+    // CÓPIA DE SEGURANÇA — o estado vive no navegador; sem backup, um cache
+    // limpo leva tudo junto. Um arquivo .rbk carrega o sistema inteiro.
+    // =====================================================================
+    function backupBaixar() {
+        dlFlush();
+        const pacote = {
+            formato: 'rebracil-backup', versao: 1,
+            geradoEm: new Date().toISOString(), geradoPor: currentSessionUser,
+            dados: RB, fichas: (typeof dbFichas !== 'undefined' ? dbFichas : [])
+        };
+        const txt = JSON.stringify(pacote);
+        const d = new Date();
+        const nome = `Backup Rebracil ${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${d.getFullYear()}.rbk`;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' }));
+        a.download = nome; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        const info = document.getElementById('bkp-info');
+        if (info) info.innerHTML = `Cópia gerada: <b>${nome}</b> · ${(txt.length / 1048576).toFixed(2)} MB`;
+        registrarAtividade('baixou uma cópia de segurança do sistema');
+        toast('Cópia de segurança baixada. Guarde o arquivo fora do computador.');
+    }
+    function backupRestaurar(inp) {
+        const f = inp.files && inp.files[0]; if (!f) return;
+        const r = new FileReader();
+        r.onload = e => {
+            inp.value = '';
+            let pacote;
+            try { pacote = JSON.parse(e.target.result); }
+            catch (err) { alert('Esse arquivo não é uma cópia de segurança válida.'); return; }
+            if (!pacote || pacote.formato !== 'rebracil-backup' || !pacote.dados) {
+                alert('Esse arquivo não é uma cópia de segurança do sistema Rebracil.'); return;
+            }
+            const q = (pacote.fichas || []).length, dt = pacote.geradoEm ? new Date(pacote.geradoEm).toLocaleString('pt-BR') : '—';
+            if (!confirm(`Restaurar a cópia de ${dt} (${q} ficha(s))?\n\nTUDO que está neste navegador agora será substituído.`)) return;
+            RB = pacote.dados;
+            ['fichas','retrabalhos','entregas','inspecoes','atividades','clientes','fornecedores','produtos','cliches','setores','auditoria','colaboradores','pedidos','solicitacoes','comprasReqs','recebimentos','reportsProducao']
+                .forEach(k => { if (!Array.isArray(RB[k])) RB[k] = []; });
+            if (typeof dbFichas !== 'undefined') { dbFichas.length = 0; (pacote.fichas || []).forEach(x => dbFichas.push(x)); }
+            try { localStorage.setItem(RB_KEY, JSON.stringify(RB)); } catch (err) { alert('A cópia é maior que o espaço do navegador. Restauração cancelada.'); return; }
+            registrarAtividade(`restaurou a cópia de segurança de ${dt}`);
+            alert('Cópia restaurada. O sistema vai recarregar.');
+            location.reload();
+        };
+        r.readAsText(f);
+    }
+
     // ---- Ficha em branco para preencher à mão ----
     function fuSolImprimirBranco() {
         dlFlush();
         const sec = document.getElementById('fu-sec-solicitacao');
         const clone = sec.cloneNode(true);
         clone.classList.add('on'); clone.removeAttribute('id');
+        // o papel vai para a mão do cliente: blocos 9 (envio) e 10 (análise interna) ficam de fora
+        const corte = clone.querySelector('#fu-sol-b9');
+        if (corte) { let n = corte; const fora = []; while (n) { fora.push(n); n = n.nextElementSibling; } fora.forEach(x => x.remove()); }
         // as instruções são essenciais no papel: preserva a abertura antes de limpar o que é só de tela
         const abertura = clone.querySelector('.sol-abertura');
         const aberturaHTML = abertura ? abertura.innerHTML : '';
