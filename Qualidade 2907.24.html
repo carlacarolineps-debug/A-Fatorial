@@ -9463,13 +9463,23 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const cw = rw / cols, ch = rh / rows;
         const uid = 'clc' + Math.abs(((o.titulo || '') + cols + 'x' + rows).split('').reduce((a, c) => a + c.charCodeAt(0), 0));
         const s = [`<svg viewBox="0 0 ${W} ${H}" style="display:block; margin:0 auto; width:auto; max-width:${o.maxW || '150mm'}; max-height:${o.maxH || '205mm'}; height:auto;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Inter, Arial, sans-serif">`];
-        s.push(`<defs><marker id="${uid}a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="${cor}" stroke-width="1"/></marker>`);
-        if (art) s.push(`<pattern id="${uid}p" x="${x0}" y="${y0}" width="${cw}" height="${ch}" patternUnits="userSpaceOnUse"><image href="${art}" xlink:href="${art}" x="0" y="0" width="${cw}" height="${ch}" preserveAspectRatio="none"/></pattern>`);
-        s.push(`</defs>`);
+        s.push(`<defs><marker id="${uid}a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="${cor}" stroke-width="1"/></marker></defs>`);
         s.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`);
-        // A montagem: cada célula é uma repetição da arte, preenchendo a medida da unidade
-        if (art) s.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="url(#${uid}p)"/>`);
-        else s.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="#f1f5f9"/>`);
+        // A montagem: um <image> por célula (o <pattern> some na impressão do Chrome,
+        // por isso desenhamos a arte de novo em cada repetição).
+        if (art) {
+            const tiles = cols * rows;
+            if (tiles <= 400) {
+                for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+                    s.push(`<image href="${art}" xlink:href="${art}" x="${x0 + c * cw}" y="${y0 + r * ch}" width="${cw}" height="${ch}" preserveAspectRatio="none"/>`);
+                }
+            } else {
+                // montagem enorme: uma única imagem esticada, para não gerar milhares de tags
+                s.push(`<image href="${art}" xlink:href="${art}" x="${x0}" y="${y0}" width="${rw}" height="${rh}" preserveAspectRatio="none"/>`);
+            }
+        } else {
+            s.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="#f1f5f9"/>`);
+        }
         // separadores entre pistas (verticais) e repetições (horizontais)
         if (cols <= 40) for (let c = 1; c < cols; c++) { const gx = x0 + c * cw; s.push(`<line x1="${gx}" y1="${y0}" x2="${gx}" y2="${y1}" stroke="#0d9488" stroke-width=".8" stroke-dasharray="4 3"/>`); }
         if (rows <= 60) for (let r = 1; r < rows; r++) { const gy = y0 + r * ch; s.push(`<line x1="${x0}" y1="${gy}" x2="${x1}" y2="${gy}" stroke="#be123c" stroke-width=".8" stroke-dasharray="4 3"/>`); }
