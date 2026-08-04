@@ -1,5 +1,6 @@
 -- =====================================================================
 -- OPERAÇÃO BLINDADA · schema completo (Fase 1)
+-- Projeto de destino: APP OPERAÇÃO BLINDADA (ref okoylfnniukzwoxevyow)
 -- Projeto novo, vazio. Este arquivo cria tudo do zero e pode ser rodado
 -- inteiro de uma vez no SQL Editor.
 --
