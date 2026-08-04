@@ -2471,10 +2471,10 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     </div>
                 </div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">CROQUI DO CLICHÊ — MONTAGEM (o desenho é gerado automaticamente · sai em folha A4)</span></div>
+                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">CROQUI DO CLICHÊ (o desenho é gerado automaticamente · sai em folha A4)</span></div>
                 <div class="g-col g-col-12" style="padding:0;">
                     <div class="ac-panel">
-                        <div class="ac-panel-t" style="background:#8a6d1a;">IMAGEM DO CLICHÊ — MONTAGEM (Pistas × Repetição)</div>
+                        <div class="ac-panel-t" style="background:#8a6d1a;">CROQUI DO CLICHÊ (Pistas × Repetição)</div>
                         <div class="ac-meds" style="grid-template-columns:repeat(3,1fr) auto;">
                             <label><span>Pistas (horizontal)</span><input class="inp" id="fu_cli_mont_h" value="1" list="dl_1a50" oninput="fuCliClicheCroqui()"></label>
                             <label><span>Repetição (vertical)</span><input class="inp" id="fu_cli_mont_v" value="2" list="dl_1a50" oninput="fuCliClicheCroqui()"></label>
@@ -7802,9 +7802,11 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
         if (!/^image\//.test(file.type)) { alert('Selecione um arquivo de imagem.'); return; }
         const reader = new FileReader();
         reader.onload = e => {
-            const hid = document.getElementById('fu_cli_arte_img');
-            if (hid) hid.value = e.target.result;
-            fuCliCroqui();
+            const dados = e.target.result;
+            const teste = new Image();
+            teste.onload = () => { const hid = document.getElementById('fu_cli_arte_img'); if (hid) hid.value = dados; fuCliCroqui(); };
+            teste.onerror = () => { alert('Não consegui exibir essa imagem no navegador.\n\nFormatos que aparecem: PNG, JPG, GIF, WebP ou SVG. Se o arquivo é TIFF, PDF, EPS, AI ou CDR, exporte como PNG ou JPG e anexe de novo.'); };
+            teste.src = dados;
         };
         reader.readAsDataURL(file);
         input.value = '';
@@ -9531,7 +9533,21 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const file = input.files && input.files[0]; if (!file) return;
         if (!/^image\//.test(file.type)) { alert('Selecione um arquivo de imagem.'); return; }
         const reader = new FileReader();
-        reader.onload = e => { const hid = document.getElementById('fu_cli_clc_img'); if (hid) hid.value = e.target.result; fuCliClicheSync(); fuCliClicheCroqui(); toast('Imagem do clichê anexada — sairá na folha A4 do croqui.'); };
+        reader.onload = e => {
+            const dados = e.target.result;
+            // O navegador só desenha PNG/JPG/GIF/WebP/SVG. Arquivos da clicheria
+            // (TIFF, PDF, EPS, AI, CDR) não aparecem — avisa em vez de ficar em branco.
+            const teste = new Image();
+            teste.onload = () => {
+                const hid = document.getElementById('fu_cli_clc_img'); if (hid) hid.value = dados;
+                fuCliClicheSync(); fuCliClicheCroqui();
+                toast('Imagem do clichê anexada — aparece no croqui e sai na folha A4.');
+            };
+            teste.onerror = () => {
+                alert('Não consegui exibir essa imagem no navegador.\n\nFormatos que aparecem: PNG, JPG, GIF, WebP ou SVG. Se o arquivo é TIFF, PDF, EPS, AI ou CDR (comuns da clicheria), exporte/salve como PNG ou JPG e anexe de novo.');
+            };
+            teste.src = dados;
+        };
         reader.readAsDataURL(file); input.value = '';
     }
     function fuCliClicheRemover() {
@@ -9565,13 +9581,13 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
             ['Distorção', g('fu_cli_distorcao')], ['Lineatura', g('fu_cli_lineatura')], ['Cor de referência', g('fu_cli_cor_ref')]
         ];
         return `
-        <div class="fu-page-cap">Solicitação de Clichê · Croqui da Montagem · ${codEt || cod}</div>
+        <div class="fu-page-cap">Solicitação de Clichê · Croqui do Clichê · ${codEt || cod}</div>
         <div class="fu-page">
             <div class="fup-head" style="border-bottom-color:${cor};">
                 <div class="fup-brand">REBRACIL<small>EMBALAGENS FLEXÍVEIS</small></div>
                 <div class="fup-doc">
                     <div class="t" style="color:${cor};">Solicitação de Clichê</div>
-                    <div class="e">CROQUI DA MONTAGEM · ${codEt || cod}</div>
+                    <div class="e">CROQUI DO CLICHÊ · ${codEt || cod}</div>
                     <div class="c">Ficha Única ${cod} · POP-QUA-001</div>
                 </div>
             </div>
@@ -9580,7 +9596,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
                 <tr><td>${g('fu_cliente')}</td><td>${g('fu_produto')}</td><td>${g('fu_cli_cores')}</td><td>${emitido}</td></tr>
             </table>
             <div style="text-align:center; margin:5mm 0 3mm;">${svg}</div>
-            <div class="fup-sec-title" style="background:${cor};">Especificações da montagem</div>
+            <div class="fup-sec-title" style="background:${cor};">Especificações do clichê</div>
             <table class="fup-meta">
                 <tr>${specs.slice(0, 3).map(x => `<th>${x[0]}</th>`).join('')}</tr>
                 <tr>${specs.slice(0, 3).map(x => `<td>${x[1] || '—'}</td>`).join('')}</tr>
@@ -9605,7 +9621,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const emitido = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         const html = fuClicheCroquiPageHTML(cod, codEt, emitido);
         if (!html) { alert('Anexe a imagem do clichê e informe a medida da unidade (Largura/Altura da arte) antes de gerar o croqui.'); return; }
-        abrirPreviewDoc(html, 'Solicitação de Clichê — Croqui da Montagem', 'Croqui da montagem da Solicitação de Clichê: a arte repetida, com a medida do clichê, para a clicheria. Confira antes de imprimir.',
+        abrirPreviewDoc(html, 'Solicitação de Clichê — Croqui do Clichê', 'Croqui do clichê da Solicitação: a arte repetida na montagem, com a medida do clichê. Confira antes de imprimir.',
             () => { registrarAtividade(`imprimiu o croqui do clichê da ficha ${cod}`); window.print(); });
     }
 
