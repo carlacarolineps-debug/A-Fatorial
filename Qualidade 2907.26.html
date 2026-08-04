@@ -9464,7 +9464,11 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const x0 = padL + (availW - rw) / 2, y0 = padT + (availH - rh) / 2, x1 = x0 + rw, y1 = y0 + rh;
         const cw = rw / cols, ch = rh / rows;
         const uid = 'clc' + Math.abs(((o.titulo || '') + cols + 'x' + rows).split('').reduce((a, c) => a + c.charCodeAt(0), 0));
-        const s = [`<svg viewBox="0 0 ${W} ${H}" style="display:block; margin:0 auto; width:auto; max-width:${o.maxW || '150mm'}; max-height:${o.maxH || '205mm'}; height:auto;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Inter, Arial, sans-serif">`];
+        // Na tela (container flex) a altura precisa ser DEFINIDA — width:auto + height:auto
+        // juntos fazem o Chrome colapsar o SVG para zero (fica em branco). Com altura fixa,
+        // a largura é calculada pela proporção e o desenho sempre aparece.
+        const estilo = o.svgStyle || `display:block; margin:0 auto; width:auto; height:${o.screenH || 380}px; max-width:100%;`;
+        const s = [`<svg viewBox="0 0 ${W} ${H}" style="${estilo}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Inter, Arial, sans-serif">`];
         s.push(`<defs><marker id="${uid}a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M1,1 L7,4 L1,7" fill="none" stroke="${cor}" stroke-width="1"/></marker></defs>`);
         s.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`);
         // A montagem: um <image> por célula (o <pattern> some na impressão do Chrome,
@@ -9560,7 +9564,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const d = fuClicheDados();
         box.innerHTML = clicheSVG({
             cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art,
-            cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', maxW: '100%', maxH: '380px',
+            cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', screenH: 380,
             vazio: 'Anexe a imagem do clichê e preencha a medida da unidade (Largura/Altura da arte) —<br>o croqui monta conforme Pistas × Repetição, com a medida do clichê.'
         });
     }
@@ -9574,7 +9578,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         if (!d.art && !d.uL && !d.uA) return '';   // sem imagem e sem medida: não gera folha em branco
         const cor = FU_COR.cliche || '#c9a227';
         const g = id => (document.getElementById(id) || {}).value || '—';
-        const svg = clicheSVG({ cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art, cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ' });
+        const svg = clicheSVG({ cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art, cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', svgStyle: 'display:block; margin:0 auto; width:auto; max-width:150mm; max-height:205mm; height:auto;' });
         const specs = [
             ['Pistas (horizontal)', d.cols], ['Repetição (vertical)', d.rows], ['Passo', g('fu_cli_passo') !== '—' && g('fu_cli_passo') ? g('fu_cli_passo') + ' mm' : '—'],
             ['Medida da embalagem', g('fu_cli_medida_emb')], ['Medida de impressão', g('fu_cli_medida_imp')], ['Cilindro', g('fu_cli_cilindro')],
