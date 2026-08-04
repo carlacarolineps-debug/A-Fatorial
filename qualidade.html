@@ -2445,11 +2445,8 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-2"><span class="lbl">Cilindro</span><input class="inp" id="fu_cli_cilindro" value="390,00"></div>
                 <div class="g-col g-col-2"><span class="lbl">Cameron</span><select class="inp" id="fu_cli_cameron"><option>Sim</option><option>Não</option></select></div>
                 <div class="g-col g-col-2"><span class="lbl">Largura Cameron (mm)</span><input class="inp" id="fu_cli_largura_cameron" placeholder="Ex.: 3,00"></div>
-                <div class="g-col g-col-2"><span class="lbl">Distorção</span><input class="inp" id="fu_cli_distorcao" value="315" list="dl_distorcao"></div>
-                <div class="g-col g-col-3"><span class="lbl">Mont. Vertical (Repetição)</span><input class="inp" id="fu_cli_mont_v" value="2" list="dl_1a50" oninput="fuCliClicheCroqui()"></div>
-                <div class="g-col g-col-3"><span class="lbl">Mont. Horizontal (Pistas)</span><input class="inp" id="fu_cli_mont_h" value="1" list="dl_1a50" oninput="fuCliClicheCroqui()"></div>
-                <div class="g-col g-col-3"><span class="lbl">Passo</span><input class="inp" id="fu_cli_passo" placeholder="mm" oninput="fuCliClicheCroqui()"></div>
-                <div class="g-col g-col-3"><span class="lbl">Cor de Referência</span><input class="inp" id="fu_cli_cor_ref" value="Preto" list="dl_tintas"></div>
+                <div class="g-col g-col-4"><span class="lbl">Distorção</span><input class="inp" id="fu_cli_distorcao" value="315" list="dl_distorcao"></div>
+                <div class="g-col g-col-4"><span class="lbl">Cor de Referência</span><input class="inp" id="fu_cli_cor_ref" value="Preto" list="dl_tintas"></div>
 
                 <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">CROQUI DA ARTE — MEDIDAS (o desenho é gerado automaticamente)</span></div>
                 <div class="g-col g-col-12" style="padding:0;">
@@ -2474,22 +2471,27 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                     </div>
                 </div>
 
-                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">CROQUI DA MONTAGEM (sai como folha A4 para a clicheria)</span></div>
-                <div class="g-col g-col-12 no-print" style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; background:#faf7ef; border:1px dashed #e3d9bf; border-radius:9px; padding:11px 13px;">
-                    <i class="fas fa-print" style="color:#8a6d1a;"></i>
-                    <span style="font-size:12px; color:#6b5a2e; max-width:520px;">Anexe a <b>imagem do clichê</b> (uma unidade da arte). Ela sai numa <b>folha A4 própria</b>, repetida conforme <b>Pistas × Repetição</b>, com a medida do clichê cotada — para enviar à clicheria. Sai junto ao usar <b>Imprimir / PDF</b>; não ocupa espaço na ficha.</span>
-                    <div style="flex:1; min-width:8px;"></div>
-                    <label class="action-btn-sec" style="cursor:pointer; margin:0;"><i class="fas fa-paperclip"></i> <span id="fu-cli-clc-lbl">Anexar imagem</span>
-                        <input type="file" accept="image/*" style="display:none;" onchange="fuCliClicheUpload(this)">
-                    </label>
-                    <button type="button" class="action-btn-sec" id="fu-cli-clc-del" onclick="fuCliClicheRemover()" style="color:#ef4444; display:none;"><i class="fas fa-trash"></i> Remover</button>
-                    <button type="button" class="sys-btn-success" onclick="fuCliClicheImprimirSo()"><i class="fas fa-file-image"></i> Ver / imprimir croqui (A4)</button>
-                    <input type="hidden" id="fu_cli_clc_img">
-                </div>
+                <div class="g-col g-col-12 fu-grp" style="background:#faf3dc;"><span class="lbl" style="color:#8a6d1a;">CROQUI DO CLICHÊ — MONTAGEM (o desenho é gerado automaticamente · sai em folha A4)</span></div>
                 <div class="g-col g-col-12" style="padding:0;">
                     <div class="ac-panel">
-                        <div class="ac-panel-t" style="background:#8a6d1a;">CROQUI DA MONTAGEM — PRÉ-VISUALIZAÇÃO</div>
+                        <div class="ac-panel-t" style="background:#8a6d1a;">IMAGEM DO CLICHÊ — MONTAGEM (Pistas × Repetição)</div>
+                        <div class="ac-meds" style="grid-template-columns:repeat(3,1fr) auto;">
+                            <label><span>Pistas (horizontal)</span><input class="inp" id="fu_cli_mont_h" value="1" list="dl_1a50" oninput="fuCliClicheCroqui()"></label>
+                            <label><span>Repetição (vertical)</span><input class="inp" id="fu_cli_mont_v" value="2" list="dl_1a50" oninput="fuCliClicheCroqui()"></label>
+                            <label><span>Passo (mm)</span><input class="inp" id="fu_cli_passo" inputmode="decimal" placeholder="mm" oninput="fuCliClicheCroqui()"></label>
+                            <div class="ac-meds-acoes no-print">
+                                <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:5px 11px; font-size:11.5px;"><i class="fas fa-paperclip"></i> <span id="fu-cli-clc-lbl">Anexar imagem</span>
+                                    <input type="file" accept="image/*" style="display:none;" onchange="fuCliClicheUpload(this)">
+                                </label>
+                                <button type="button" class="action-btn-sec" id="fu-cli-clc-del" onclick="fuCliClicheRemover()" style="color:#ef4444; padding:5px 10px; font-size:11.5px; display:none;"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
                         <div id="fu-cli-clc-croqui" class="ac-croqui" style="cursor:zoom-in;" onclick="fuCliClicheZoom()"></div>
+                        <div class="ac-meds-acoes no-print" style="justify-content:flex-end; gap:8px; padding:8px 10px; border-top:1px solid #eef1f6;">
+                            <span style="font-size:11px; color:#94a3b8; margin-right:auto;">A imagem se repete conforme a montagem, com a medida do clichê cotada.</span>
+                            <button type="button" class="sys-btn-success" onclick="fuCliClicheImprimirSo()" style="padding:6px 12px; font-size:12px;"><i class="fas fa-print"></i> Imprimir croqui (A4)</button>
+                        </div>
+                        <input type="hidden" id="fu_cli_clc_img">
                     </div>
                 </div>
 
