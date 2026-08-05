@@ -10,6 +10,8 @@ window.__SB = {
   otps: [],                     // os pedidos de codigo
   falharRede: false,
   mentora: false,
+  senhas: {},          // email -> senha ja definida
+  senhaDefinida: null,
   publicados: [],      // o que a mesa da mentoria publicou
   onAuth: null
 };
@@ -54,6 +56,24 @@ window.__SB = {
         auth: {
           onAuthStateChange: function(cb){ window.__SB.onAuth = cb; return {data:{subscription:{unsubscribe:function(){}}}}; },
           getSession: function(){ return resp({session: window.__SB.sessao}); },
+          signInWithPassword: function(o){
+            var mail=String(o.email||'').toLowerCase();
+            if(window.__SB.senhas[mail] && window.__SB.senhas[mail]===o.password){
+              var u={id: window.__SB.userId || 'u-ana', email:mail};
+              window.__SB.sessao={user:u};
+              setTimeout(function(){ if(window.__SB.onAuth) window.__SB.onAuth('SIGNED_IN',{user:u}); },10);
+              return resp({user:u});
+            }
+            return resp(null,{message:'Invalid login credentials'});
+          },
+          updateUser: function(o){
+            if(o && o.password){
+              var mail=(window.__SB.sessao&&window.__SB.sessao.user.email)||'';
+              window.__SB.senhas[mail]=o.password;
+              window.__SB.senhaDefinida=o.password;
+            }
+            return resp({user:(window.__SB.sessao||{}).user});
+          },
           signInWithOtp: function(o){
             window.__SB.otps.push(o.email);
             if(window.__SB.erroOtp) return resp(null, {message: window.__SB.erroOtp});

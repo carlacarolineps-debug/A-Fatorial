@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0508.04.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0508.05.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,50 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Senha, primeiro acesso por código, e o que só existe no aparelho (0508.05)
+A Carla: "preciso que tenha recuperacao de senha, codigo de 6 digitos para
+primeiro acesso"; "o email da pessoa precisa ser o mesmo email em que ela vai
+comprar na TMB"; "quero que tenha varias funcoes com o iphone tambem".
+
+**1. A entrada virou senha, e isso resolve um problema de aprovação.** Antes
+era código a cada login. Três motivos para mudar: a pessoa entra em 3 segundos
+sem depender de o e-mail chegar (dependência de e-mail é a coisa mais frágil
+de um app); sem rede boa o código simplesmente não chega; e **a revisão da App
+Store precisa de uma conta de teste, e o revisor não tem acesso a caixa de
+e-mail nenhuma**, então login só por código trava o revisor e reprova. É uma
+das causas mais comuns de reprovação.
+O código continua onde é insubstituível: **provar que o e-mail é seu**, no
+primeiro acesso e na recuperação. Fluxo: e-mail e senha na tela principal, com
+"é o meu primeiro acesso" e "esqueci a minha senha" levando ao mesmo caminho
+de código, e daí para criar a senha. `esperandoSenha` trava o
+`onAuthStateChange`: a sessão nasce no código, mas o app **não abre** antes de
+a senha existir.
+**Senha errada e conta inexistente dão a mesma mensagem**, de propósito: dizer
+qual dos dois é entrega a lista de e-mails da turma para quem tenta adivinhar.
+Regra da senha: 8 caracteres, não só números, não conter o e-mail. No
+Supabase, dois interruptores documentados: mínimo de 8 no servidor e a
+proteção contra senha já vazada.
+
+**2. O e-mail da TMB.** A tela de acesso pendente passou a dizer, em ouro, que
+o e-mail precisa ser **exatamente o mesmo** da inscrição, e o botão de suporte
+abre um e-mail já escrito, com os dois endereços para a pessoa preencher.
+
+**3. O que só existe no aparelho (`nativo.js`).** Face ID ou digital para
+reabrir o app depois de 5 minutos fora (a senha continua sendo a verdade: a
+biometria é o cadeado local, nenhuma senha fica guardada no aparelho por causa
+disso); o **lembrete do treino** por notificação local, na hora que ela
+escolher (local, não push: não precisa de servidor, nem de certificado da
+Apple, e funciona sem internet); compartilhar pela folha do sistema; e vibração
+curta no que se completa. Tudo defensivo: sem o plugin, a função não faz nada
+e nada quebra.
+
+**4. Trocar a senha dentro do app**, na tela Mais, junto com Face ID e o
+lembrete, que só aparecem quando `window.EM_APP` é verdadeiro.
+
+**Testes:** `testes/entrada.cjs` cobre os nove blocos da porta (24 conferências,
+todas passando), incluindo a que mais importa: senha errada não entrega se a
+conta existe. `testes/sessao.cjs` ficou com o que acontece depois de entrar.
 
 ### A mesa da mentoria, e o app rodando no celular (0508.04)
 A Carla: "preciso que isso rode como um app mesmo"; "quero um lugar para ir

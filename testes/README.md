@@ -9,9 +9,10 @@ não em `file://`).
 ## Como rodar
 
 ```bash
-node servidor.cjs                          # serve o .html em http://127.0.0.1:8731
-NODE_PATH=$(npm root -g) node login.cjs    # os onze cenarios da entrada
-NODE_PATH=$(npm root -g) node admin.cjs    # a mesa da mentoria
+node servidor.cjs                            # serve o build mais novo
+NODE_PATH=$(npm root -g) node entrada.cjs    # senha, primeiro acesso e recuperacao
+NODE_PATH=$(npm root -g) node sessao.cjs     # troca de conta, offline, acesso cortado
+NODE_PATH=$(npm root -g) node admin.cjs      # a mesa da mentoria
 ```
 
 O `supabase-de-mentira.js` define `window.supabase` com um setter que
@@ -19,24 +20,32 @@ engole a escrita, porque o arquivo do app traz o supabase-js de verdade
 embutido e ele grava na mesma propriedade depois. Sem isso o de mentira
 seria substituído e o teste falaria com a internet.
 
-## Os onze cenários
+## `entrada.cjs`: a porta do app
 
-1. primeira entrada: pede o e-mail, e o app não aparece por trás
-2. e-mail inválido não passa e não gasta um envio
-3. o código: normaliza o e-mail, avança sozinho no sexto dígito, recusa
-   código errado e segura o reenvio por 60 segundos
-4. conta criada mas sem acesso: explica, sem nenhum caminho de compra
-5. acesso liberado no meio: o app abre sem sair e voltar
-6. linha que nasceu só com e-mail: chama `casar_meu_acesso`, sem escrever
+1. a tela pede e-mail e senha, com primeiro acesso e esqueci a senha
+2. **senha errada não entrega se a conta existe**: mensagem única para os
+   dois casos, senão qualquer pessoa descobre a lista de e-mails da turma
+3. primeiro acesso: código de 6 dígitos, código errado recusado, e só então
+   a tela de criar senha. **O app não abre antes de a senha existir**
+4. a senha tem regra: mínimo de 8, não só números, e as duas iguais
+5. salvar a senha abre o app
+6. da próxima vez entra direto, **sem mandar e-mail nenhum**
+7. esqueci a senha: mesmo caminho, senha nova, e entra
+8. sem acesso: a tela cobra o mesmo e-mail da inscrição, sem caminho de compra
+9. trocar a senha de dentro do app
+
+## `sessao.cjs`: o que acontece depois de entrar
+
+1. linha que nasceu só com e-mail: chama `casar_meu_acesso`, sem escrever
    direto na tabela
-7. **troca de conta no mesmo celular**: o progresso de uma pessoa não vai
+2. **troca de conta no mesmo celular**: o progresso de uma pessoa não vai
    para a conta da outra, e o que ficou no aparelho é apagado
-8. sem rede: abre dentro dos 7 dias, e depois deles pede uma conexão
-9. trabalho feito offline não é atropelado pelo servidor: sobe
-10. acesso cortado durante o uso: a tela avisa na hora
-11. erro do servidor sai em português, não em inglês
+3. sem rede: abre dentro dos 7 dias, e depois deles pede uma conexão
+4. trabalho feito offline não é atropelado pelo servidor: sobe
+5. acesso cortado durante o uso: a tela avisa na hora
+6. erro do servidor sai em português, não em inglês
 
-O teste 7 existe por um motivo: sem a marca de dono no aparelho, a segunda
+O teste da troca de conta existe por um motivo: sem a marca de dono no aparelho, a segunda
 pessoa a entrar no mesmo celular recebia o progresso inteiro da primeira,
 porque o app enviava o que estava guardado localmente para a conta nova.
 

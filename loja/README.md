@@ -18,7 +18,11 @@ está listado como passo manual, na ordem de fazer.
 | Política de privacidade | Dentro do app e em `privacidade.html` |
 | Termos de uso | Dentro do app e em `termos.html` |
 | Apagar a conta pelo app | Mais, excluir a minha conta, com dupla confirmação |
-| Login sem sair do app | Código de 6 dígitos por e-mail |
+| Login sem sair do app | Senha, com código de 6 dígitos no primeiro acesso |
+| Recuperação de senha | Mesmo código de 6 dígitos, dentro do app |
+| Conta de teste para o revisor | Basta e-mail e senha: o revisor não precisa de caixa de e-mail |
+| Face ID e digital | Desbloqueio ao voltar para o app, opcional |
+| Lembrete do treino | Notificação local, na hora que a pessoa escolher |
 | Funciona sem internet | Fontes e biblioteca embutidas, limite de 7 dias offline |
 | Ícone e splash | `icones/`, gerados do próprio isotipo |
 | Capturas de tela | `capturas/`, nos dois tamanhos que as lojas pedem |

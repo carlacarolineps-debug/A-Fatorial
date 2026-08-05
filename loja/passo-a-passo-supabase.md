@@ -102,6 +102,21 @@ Resend e Brevo têm plano sem custo e resolvem.
 
 ---
 
+## Passo 3.1: as travas de senha (2 minutos, e vale muito)
+
+Agora que o app tem senha, dois interruptores no Supabase valem a pena.
+
+**Onde:** **Authentication**, **Policies** (em alguns painéis fica em
+**Authentication**, **Sign In / Providers**, seção **Password**).
+
+1. **Minimum password length**: troque de 6 para **8**. O app já exige 8 no
+   celular, mas a regra tem que existir também no servidor: quem tenta pela
+   API não passa pela tela do app.
+2. **Leaked password protection**: **ligue**. O Supabase confere a senha
+   contra a lista pública de senhas já vazadas na internet e recusa as que
+   estão lá. É sem custo e evita a senha que alguém já usou em outro site
+   que vazou.
+
 ## Passo 4: o seu acesso (já vem pronto)
 
 Não precisa fazer nada. O schema do passo 1 já faz as duas coisas:

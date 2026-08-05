@@ -2,7 +2,7 @@
    de acesso esta LIGADA: e o mesmo caminho da aluna de verdade. */
 const {chromium}=require('playwright');
 const fs=require('fs');
-const U='http://127.0.0.1:8731/';
+const U='http://127.0.0.1:8733/';
 const MOCK=fs.readFileSync(__dirname+'/mock-sb.js','utf8');
 const erros=[];
 let falhas=0;
@@ -21,42 +21,7 @@ const txt=pg=>pg.evaluate(()=>{ const g=document.getElementById('ob-gate'); retu
 (async()=>{
   const b=await chromium.launch();
 
-  console.log('\n1. PRIMEIRA ENTRADA: a tela de login aparece e o app fica travado');
-  let pg=await nova(b);
-  await pg.goto(U); await pg.waitForTimeout(1200);
-  ok('pede o e-mail', /mesmo e-mail/i.test(await txt(pg)||''));
-  ok('o app nao aparece por tras', await pg.evaluate(()=>!document.querySelector('.view.active')));
-
-  console.log('\n2. E-MAIL INVALIDO nao passa');
-  await pg.fill('#ob-email','carla'); await pg.click('#ob-send'); await pg.waitForTimeout(200);
-  ok('avisa que falta o @', /falta o @/i.test(await pg.evaluate(()=>document.getElementById('ob-erro').textContent)));
-  ok('nao pediu codigo', (await pg.evaluate(()=>window.__SB.otps.length))===0);
-
-  console.log('\n3. CODIGO: pede, digita, entra');
-  await pg.fill('#ob-email','  CARLA@Exemplo.COM  ');
-  await pg.click('#ob-send'); await pg.waitForTimeout(400);
-  ok('normalizou o e-mail', (await pg.evaluate(()=>window.__SB.otps[0]))==='carla@exemplo.com',
-     await pg.evaluate(()=>window.__SB.otps[0]));
-  ok('foi para a tela do codigo', /Digite o c/i.test(await txt(pg)||''));
-  await pg.fill('#ob-code','000000'); await pg.waitForTimeout(500);
-  ok('codigo errado avisa e limpa', /inv.lido|vencido/i.test(await pg.evaluate(()=>document.getElementById('ob-erro').textContent))
-     && (await pg.evaluate(()=>document.getElementById('ob-code').value))==='');
-  ok('reenviar espera 60s', /Reenviar em \d+s/.test(await pg.evaluate(()=>document.getElementById('ob-again').textContent)));
-
-  console.log('\n4. SEM ACESSO: entra na conta mas nao no conteudo');
-  await pg.evaluate(()=>{ window.__SB.acesso=null; });
-  await pg.fill('#ob-code','123456'); await pg.waitForTimeout(900);
-  const t4=await txt(pg)||'';
-  ok('diz que o acesso nao esta liberado', /n.o liberado/i.test(t4));
-  ok('sem nenhum caminho de compra', !/compr|assin|pag(ar|amento)|R\$/i.test(t4), JSON.stringify(t4.slice(0,80)));
-  ok('mostra o suporte', /gestaogrupoa@gmail\.com/.test(t4));
-  ok('o conteudo continua fechado', await pg.evaluate(()=>!document.querySelector('.view.active')));
-
-  console.log('\n5. ACESSO LIBERADO no meio: o app abre sem sair e voltar');
-  await pg.evaluate(()=>{ window.__SB.acesso={status:'active',user_id:'u-ana',email:'carla@exemplo.com'}; });
-  await pg.click('#ob-reload'); await pg.waitForTimeout(1200);
-  ok('a trava sumiu', await pg.evaluate(()=>{ const g=document.getElementById('ob-gate'); return !g||g.style.display==='none'; }));
-  ok('o app entrou', await pg.evaluate(()=>!!document.querySelector('.view.active')||!!document.querySelector('#view-onboard.active')));
+  console.log('\n(a entrada com senha, o primeiro acesso e a recuperacao estao no t32)');
 
   console.log('\n6. LINHA SO COM E-MAIL: casa o user_id pela funcao, nao por update');
   let pg2=await nova(b, `window.__SBPRE=1`);
@@ -150,6 +115,7 @@ const txt=pg=>pg.evaluate(()=>{ const g=document.getElementById('ob-gate'); retu
   let pg7=await nova(b);
   await pg7.goto(U); await pg7.waitForTimeout(1100);
   await pg7.evaluate(()=>{ window.__SB.erroOtp='Email rate limit exceeded'; });
+  await pg7.click('#ob-primeiro'); await pg7.waitForTimeout(300);
   await pg7.fill('#ob-email','a@b.com'); await pg7.click('#ob-send'); await pg7.waitForTimeout(400);
   const e11=await pg7.evaluate(()=>document.getElementById('ob-erro').textContent);
   ok('limite explicado em portugues', /minutos/i.test(e11), JSON.stringify(e11));
