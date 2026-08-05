@@ -64,14 +64,22 @@ function data(v: unknown): string | null {
 async function acharOuCriarUsuario(email: string): Promise<string | null> {
   if (!email) return null;
   try {
-    const { data: achado } = await db.auth.admin.listUsers({ page: 1, perPage: 200 });
-    const existe = achado?.users?.find((u) => (u.email ?? "").toLowerCase() === email);
-    if (existe) return existe.id;
+    /* Busca direta por e-mail. A API de administração só lista por página, e
+       listar a primeira página e procurar dentro dela funciona enquanto a
+       turma é pequena: passando de algumas centenas, a conta que existe
+       deixa de ser encontrada, o createUser falha por e-mail duplicado e a
+       linha de acesso nasce sem user_id. Falha silenciosa e difícil de ver. */
+    const { data: achado } = await db.rpc("user_id_por_email", { p_email: email });
+    if (achado) return achado as string;
+
     const { data: novo, error } = await db.auth.admin.createUser({
       email, email_confirm: true,
     });
-    if (error) return null;
-    return novo?.user?.id ?? null;
+    if (!error) return novo?.user?.id ?? null;
+
+    /* corrida: outro webhook criou a conta entre a busca e a criação */
+    const { data: denovo } = await db.rpc("user_id_por_email", { p_email: email });
+    return (denovo as string) ?? null;
   } catch { return null; }
 }
 

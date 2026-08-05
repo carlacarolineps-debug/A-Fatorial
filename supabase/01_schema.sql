@@ -61,7 +61,8 @@ returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (
     select 1 from public.access a
-    where a.user_id = auth.uid()
+    where (a.user_id = auth.uid()
+           or lower(a.email) = lower(coalesce(auth.jwt() ->> 'email', '')))
       and (a.status = 'active'
            or (a.status = 'grace' and a.expires_at is not null and a.expires_at > now()))
   );
@@ -105,10 +106,75 @@ grant  update (email, display_name, full_name, atualizado_em)
 -- linha, por user_id. O e-mail fica para o webhook casar quem paga antes
 -- de existir conta.
 -- ---------------------------------------------------------------------
+-- A leitura casa por user_id OU pelo e-mail do próprio token. Sem a segunda
+-- metade, a linha que o webhook cria antes de a conta existir (só com
+-- e-mail) fica invisível para a própria dona: ela paga, entra, e o app diz
+-- que não há acesso. O e-mail vem do JWT assinado pelo Supabase, então não
+-- é palpite do cliente.
 drop policy if exists access_le_propria on public.access;
 create policy access_le_propria on public.access
-  for select to authenticated using (user_id = auth.uid());
--- sem policy de insert/update/delete: só service_role escreve
+  for select to authenticated
+  using (user_id = auth.uid()
+         or lower(email) = lower(coalesce(auth.jwt() ->> 'email', '')));
+-- sem policy de insert/update/delete: o cliente nunca escreve aqui direto.
+-- As duas escritas legítimas passam por função com dono definido, abaixo.
+
+-- ---------------------------------------------------------------------
+-- casar_meu_acesso: gruda o user_id na linha que nasceu só com e-mail.
+-- Roda no primeiro login. É a única escrita que o aluno provoca em access,
+-- e ela não consegue mexer no status: a função só escreve user_id.
+-- ---------------------------------------------------------------------
+create or replace function public.casar_meu_acesso()
+returns boolean
+language plpgsql volatile security definer set search_path = public as $$
+declare mail text;
+begin
+  mail := lower(coalesce(auth.jwt() ->> 'email', ''));
+  if auth.uid() is null or mail = '' then return false; end if;
+  update public.access
+     set user_id = auth.uid(), atualizado_em = now()
+   where lower(email) = mail and user_id is distinct from auth.uid();
+  return found;
+end $$;
+grant execute on function public.casar_meu_acesso() to authenticated;
+
+-- ---------------------------------------------------------------------
+-- suspender_membro: o que o botão "Suspender a conta" do painel de
+-- moderação precisa para existir de verdade. Sem isto ele não faz nada,
+-- e é justamente o que a revisão das lojas vai testar.
+-- A checagem de mentora acontece DENTRO da função, não na chamada.
+-- ---------------------------------------------------------------------
+create or replace function public.suspender_membro(p_alvo uuid)
+returns boolean
+language plpgsql volatile security definer set search_path = public as $$
+begin
+  if not public.eh_mentora() then
+    raise exception 'apenas a mentoria pode suspender uma conta';
+  end if;
+  if p_alvo is null or p_alvo = auth.uid() then return false; end if;
+  update public.access
+     set status = 'inactive', atualizado_em = now()
+   where user_id = p_alvo;
+  update public.membros set visivel = false where user_id = p_alvo;
+  return true;
+end $$;
+grant execute on function public.suspender_membro(uuid) to authenticated;
+
+-- ---------------------------------------------------------------------
+-- user_id_por_email: o webhook precisa achar a conta de quem já existe.
+-- A API de administração só lista por página, e a partir de algumas
+-- centenas de alunas a busca passaria a errar em silêncio. Aqui é uma
+-- consulta direta, e só o service_role pode chamar.
+-- ---------------------------------------------------------------------
+create or replace function public.user_id_por_email(p_email text)
+returns uuid
+language sql stable security definer set search_path = public, auth as $$
+  select u.id from auth.users u
+   where lower(u.email) = lower(p_email)
+   order by u.created_at limit 1;
+$$;
+revoke execute on function public.user_id_por_email(text) from public, anon, authenticated;
+grant  execute on function public.user_id_por_email(text) to service_role;
 
 -- ---------------------------------------------------------------------
 -- bloqueios: precisa existir antes das políticas de conteúdo, porque
