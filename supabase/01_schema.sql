@@ -813,7 +813,124 @@ update public.profiles p set is_mentor = true
 where lower(p.email) = lower(m.email) and p.is_mentor is distinct from true;
 
 -- =====================================================================
--- 13. O QUE NÃO DÁ PARA FAZER POR SQL (fica no painel)
+-- 13. A ÁREA DE ADMIN
+-- Tudo que a mentora precisa fazer sem abrir o Supabase: liberar aluna,
+-- encerrar acesso, ver quem está dentro e acompanhar o movimento.
+--
+-- A regra continua a mesma: o cliente NUNCA escreve em access. Cada ação
+-- passa por uma função com dono definido, que confere eh_mentora() dentro
+-- dela. Assim o botão do painel não decide permissão, ele só pede.
+-- =====================================================================
+
+-- a mentora precisa LER a tabela de acesso para o painel existir
+drop policy if exists access_le_mentora on public.access;
+create policy access_le_mentora on public.access
+  for select to authenticated using (public.eh_mentora());
+
+-- e precisa ver o progresso para acompanhar, que é o que a política de
+-- privacidade do app já diz, com todas as letras
+drop policy if exists progress_mentora on public.progress;
+create policy progress_mentora on public.progress
+  for select to authenticated using (public.eh_mentora());
+
+-- ---------------------------------------------------------------------
+-- liberar_acesso: a aluna que pagou por fora, ou o caso que a mentora
+-- resolve na mão. Cria a linha se não existir, reativa se existir.
+-- ---------------------------------------------------------------------
+create or replace function public.liberar_acesso(p_email text)
+returns text
+language plpgsql volatile security definer set search_path = public as $$
+declare mail text;
+begin
+  if not public.eh_mentora() then
+    raise exception 'apenas a mentoria pode liberar acesso';
+  end if;
+  mail := lower(btrim(coalesce(p_email, '')));
+  if mail = '' or mail not like '%@%.%' then return 'e-mail invalido'; end if;
+  insert into public.access (email, status) values (mail, 'active')
+  on conflict (email) do update set status = 'active', atualizado_em = now();
+  return 'liberado';
+end $$;
+grant execute on function public.liberar_acesso(text) to authenticated;
+
+-- ---------------------------------------------------------------------
+-- encerrar_acesso: o contrário, e sem apagar nada. O progresso da pessoa
+-- continua guardado: se ela voltar, volta de onde parou.
+-- ---------------------------------------------------------------------
+create or replace function public.encerrar_acesso(p_email text)
+returns text
+language plpgsql volatile security definer set search_path = public as $$
+declare mail text;
+begin
+  if not public.eh_mentora() then
+    raise exception 'apenas a mentoria pode encerrar acesso';
+  end if;
+  mail := lower(btrim(coalesce(p_email, '')));
+  if exists (select 1 from public.mentoras m where lower(m.email) = mail) then
+    return 'nao dá para encerrar o acesso de quem conduz a mentoria';
+  end if;
+  update public.access set status = 'inactive', atualizado_em = now()
+   where email = mail;
+  if not found then return 'nao encontrei esse e-mail'; end if;
+  update public.membros set visivel = false
+   where user_id in (select a.user_id from public.access a where a.email = mail);
+  return 'encerrado';
+end $$;
+grant execute on function public.encerrar_acesso(text) to authenticated;
+
+-- ---------------------------------------------------------------------
+-- alunas_admin: a lista do painel, numa consulta só. Sai daqui em vez de
+-- o app juntar três tabelas no cliente, porque junção no cliente é junção
+-- que um dia vaza uma coluna a mais.
+-- ---------------------------------------------------------------------
+create or replace function public.alunas_admin(p_busca text default null)
+returns table (
+  email text, nome text, status text, user_id uuid,
+  xp integer, nivel integer, entrou timestamptz, mexeu timestamptz
+)
+language sql stable security definer set search_path = public as $$
+  select a.email,
+         coalesce(p.display_name, p.full_name, split_part(a.email, '@', 1)),
+         a.status, a.user_id,
+         coalesce(g.xp, 0), coalesce(g.level, 1),
+         a.criado_em, g.atualizado_em
+    from public.access a
+    left join public.profiles p on p.user_id = a.user_id
+    left join public.progress g on g.user_id = a.user_id
+   where public.eh_mentora()
+     and (p_busca is null or p_busca = ''
+          or a.email ilike '%' || p_busca || '%'
+          or coalesce(p.display_name, '') ilike '%' || p_busca || '%')
+   order by (a.status = 'active') desc, g.atualizado_em desc nulls last, a.email
+   limit 500;
+$$;
+grant execute on function public.alunas_admin(text) to authenticated;
+
+-- ---------------------------------------------------------------------
+-- resumo_admin: os números do topo do painel. Um round trip, não seis.
+-- ---------------------------------------------------------------------
+create or replace function public.resumo_admin()
+returns jsonb
+language sql stable security definer set search_path = public as $$
+  select case when not public.eh_mentora() then '{}'::jsonb else jsonb_build_object(
+    'ativas',      (select count(*) from public.access where status = 'active'),
+    'pendentes',   (select count(*) from public.access where status not in ('active')),
+    'com_conta',   (select count(*) from public.access where user_id is not null),
+    'ativas_7d',   (select count(*) from public.progress where atualizado_em > now() - interval '7 days'),
+    'provas',      (select count(*) from public.provas),
+    'provas_7d',   (select count(*) from public.provas where created_at > now() - interval '7 days'),
+    'perguntas',   (select count(*) from public.caixinha where not respondida),
+    'denuncias',   (select count(*) from public.denuncias where status = 'pendente'),
+    'audios',      (select count(*) from public.audios),
+    'aulas',       (select count(*) from public.videos),
+    'encontros',   (select count(*) from public.eventos where quando > now()),
+    'xp_medio',    (select coalesce(round(avg(xp)), 0) from public.progress)
+  ) end;
+$$;
+grant execute on function public.resumo_admin() to authenticated;
+
+-- =====================================================================
+-- 14. O QUE NÃO DÁ PARA FAZER POR SQL (fica no painel)
 --   a) Authentication > Emails > Templates > Magic Link:
 --      incluir {{ .Token }} no corpo, senão o código de 6 dígitos não chega
 --   b) Authentication > Emails > SMTP Settings:

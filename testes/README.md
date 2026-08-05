@@ -1,4 +1,4 @@
-# O teste do login
+# Os testes do navegador
 
 O login é a única parte do app que não dá para conferir só olhando: ela
 depende de rede, de sessão, de e-mail e de um servidor do outro lado. Este
@@ -9,8 +9,9 @@ não em `file://`).
 ## Como rodar
 
 ```bash
-node servidor.cjs            # serve o .html em http://127.0.0.1:8731
-NODE_PATH=$(npm root -g) node login.cjs
+node servidor.cjs                          # serve o .html em http://127.0.0.1:8731
+NODE_PATH=$(npm root -g) node login.cjs    # os onze cenarios da entrada
+NODE_PATH=$(npm root -g) node admin.cjs    # a mesa da mentoria
 ```
 
 O `supabase-de-mentira.js` define `window.supabase` com um setter que
@@ -38,3 +39,23 @@ seria substituído e o teste falaria com a internet.
 O teste 7 existe por um motivo: sem a marca de dono no aparelho, a segunda
 pessoa a entrar no mesmo celular recebia o progresso inteiro da primeira,
 porque o app enviava o que estava guardado localmente para a conta nova.
+
+
+---
+
+# O teste da mesa da mentoria (`admin.cjs`)
+
+Sete blocos, e o primeiro é o que importa mais: **quem não é mentora não vê
+nada**. Nem o item na tela Mais, nem os formulários, nem a lista de alunas,
+mesmo digitando o caminho na mão.
+
+Os outros seis: o painel traz os números e a fila do que espera decisão; os
+três formulários de publicar (áudio, aula, encontro) publicam de verdade;
+a lista de alunas mostra quem está fora e há quanto tempo cada uma mexeu;
+liberar chama a função do banco; encerrar pede confirmação antes de chamar;
+e as abas de perguntas e moderação montam na mesma mesa.
+
+Vale lembrar o que este teste **não** prova: ele roda contra um Supabase de
+mentira, então ele mostra que a tela pede a coisa certa. Quem prova que o
+pedido é recusado para quem não pode é `supabase/testes/01-ataque-ao-banco.sql`,
+que roda contra um Postgres de verdade.

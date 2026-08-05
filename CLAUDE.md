@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0508.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0508.04.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,52 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A mesa da mentoria, e o app rodando no celular (0508.04)
+A Carla: "preciso que isso rode como um app mesmo"; "quero um lugar para ir
+testando esse app, se der pelo celular"; "preciso de uma area de admin para
+conseguir postar as coisas e fazer alteracoes, quero que essa parte de contas
+fique totalmente pronta e segura".
+
+**1. A área de admin (`admin.js`), uma mesa só.** Antes cada coisa que ela
+precisa fazer morava numa tela diferente: o áudio na Mentora, o encontro na
+Comunidade, a aula em O Ano, a caixinha em outro canto, as denúncias dentro de
+Mais. Agora existe **A sua mesa**, com cinco abas: **Painel** (os números do
+banco na hora, mais a fila do que está esperando decisão, com a denúncia em
+vermelho), **Publicar** (áudio do dia, aula da semana e encontro, os três no
+mesmo lugar), **Alunas** (busca, quem está dentro, há quanto tempo cada uma
+mexeu, e os botões de liberar e encerrar), **Perguntas** e **Moderação**. Ela
+abre a lista da tela Mais, e só existe para quem conduz.
+
+**2. A segurança não mora na tela.** Cada ação da mesa passa por uma função no
+banco que confere `eh_mentora()` **dentro dela**: `liberar_acesso(email)`,
+`encerrar_acesso(email)`, `alunas_admin(busca)`, `resumo_admin()`. O cliente
+continua sem escrever em `access`. Esconder o botão é cortesia com quem usa,
+não é proteção. `encerrar_acesso` recusa encerrar quem está na lista de
+mentoras (a Carla não se tranca fora por engano) e **não apaga progresso**:
+quem voltar, volta de onde parou. O ataque ao banco foi de 22 para **37
+cenários, todos passando**, com cinco novos só sobre o admin (aluna não se
+libera, não encerra ninguém, não lista a turma, não vê os números e não lê o
+progresso das outras).
+
+**3. O app já roda como aplicativo, hoje, sem loja.** O mesmo arquivo virou
+site em `docs/`, e `inject.cjs` passou a atualizar os dois de uma vez (sem
+isso, um dia a cópia ficaria velha). A Carla liga o GitHub Pages uma vez e
+abre o endereço no celular: **Instalar aplicativo** no Android, **Adicionar à
+Tela de Início** no iPhone. Tela cheia, ícone do escudo, funciona sem
+internet. Está em `TESTAR-NO-CELULAR.md`, com a tabela do que muda entre isso
+e a versão da loja (resposta curta: encontrabilidade e notificação, não o app
+funcionar).
+
+**4. O pacote da loja, em `app/`.** `preparar.sh` monta o `www`, instala o
+Capacitor, cria os projetos Android e iOS, gera os ícones do próprio isotipo e
+sincroniza. O APK não sai deste ambiente porque o SDK do Android não está aqui
+e a rede bloqueia o Google, então o script é feito para rodar na máquina dela.
+
+**Corrigido no caminho:** o contador em cima das abas (denúncias, perguntas)
+nascia do resumo, que chega depois do primeiro desenho, então o número só
+aparecia quando ela trocasse de aba, que é quando já não importa. Agora a
+barra se redesenha sozinha quando o resumo chega.
 
 ### O login fechado e o banco provado num Postgres de verdade (0508.03)
 A Carla mandou a chave anon e pediu: "preciso que toda parte de login ja

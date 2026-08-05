@@ -2,7 +2,7 @@ const http=require('http'), fs=require('fs'), path=require('path');
 const RAIZ='/home/user/A-Fatorial';
 const s=http.createServer((req,res)=>{
   let p=decodeURIComponent(req.url.split('?')[0]);
-  if(p==='/') p='/Operação Blindada 0508.03.html';
+  if(p==='/') p='/Operação Blindada 0508.04.html';
   /* manifest, icones e service worker moram em loja/ */
   if(/^\/(manifest\.json|sw\.js|icones\/)/.test(p)) p='/loja'+p;
   const f=path.join(RAIZ,p);

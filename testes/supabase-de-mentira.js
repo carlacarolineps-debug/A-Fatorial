@@ -9,6 +9,8 @@ window.__SB = {
   rpcs: [],                     // as funcoes chamadas
   otps: [],                     // os pedidos de codigo
   falharRede: false,
+  mentora: false,
+  publicados: [],      // o que a mesa da mentoria publicou
   onAuth: null
 };
 (function(){
@@ -27,7 +29,7 @@ window.__SB = {
         if(window.__SB.falharRede) return Promise.reject(new Error('Failed to fetch'));
         if(tabela==='access')   return resp(window.__SB.acesso);
         if(tabela==='progress') return resp(window.__SB.progresso);
-        if(tabela==='profiles') return resp({is_mentor:false});
+        if(tabela==='profiles') return resp({is_mentor: !!window.__SB.mentora});
         return resp(null);
       },
       single:function(){ return api.maybeSingle(); },
@@ -35,7 +37,7 @@ window.__SB = {
         if(window.__SB.falharRede) return Promise.reject(new Error('Failed to fetch')).then(f,r);
         return resp([]).then(f,r);
       },
-      insert:function(v){ return resp(v); },
+      insert:function(v){ window.__SB.publicados.push({t:tabela, v:v}); return resp(v); },
       update:function(v){ return resp(v); },
       delete:function(){ return resp(null); },
       upsert:function(v){
@@ -67,7 +69,17 @@ window.__SB = {
           signOut: function(){ window.__SB.sessao=null; return resp({}); }
         },
         from: q,
-        rpc: function(nome,args){ window.__SB.rpcs.push([nome,args]); return resp(true); },
+        rpc: function(nome,args){
+      window.__SB.rpcs.push([nome,args]);
+      if(nome==='resumo_admin') return resp(window.__SB.resumo || {ativas:14,pendentes:2,ativas_7d:9,provas:23,provas_7d:4,perguntas:3,denuncias:1,audios:5,aulas:8,encontros:2,xp_medio:1240});
+      if(nome==='alunas_admin') return resp(window.__SB.lista || [
+        {email:'ana@x.com', nome:'Ana', status:'active', user_id:'u-ana', xp:1200, nivel:4, entrou:new Date().toISOString(), mexeu:new Date(Date.now()-86400000).toISOString()},
+        {email:'bia@x.com', nome:'Bia', status:'inactive', user_id:'u-bia', xp:300, nivel:2, entrou:new Date().toISOString(), mexeu:null}
+      ]);
+      if(nome==='liberar_acesso') return resp('liberado');
+      if(nome==='encerrar_acesso') return resp('encerrado');
+      return resp(true);
+    },
         channel: function(){ return {on:function(){return this;}, subscribe:function(){return this;}}; },
         removeChannel: function(){},
         storage: { from: function(){ return {upload:function(){return resp({})}, getPublicUrl:function(){return {data:{publicUrl:''}}}}; } }

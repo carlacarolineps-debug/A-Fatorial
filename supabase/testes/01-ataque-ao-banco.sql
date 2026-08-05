@@ -169,3 +169,68 @@ select case when count(*)=1 then 'antes do bloqueio: ve a foto' else 'FALHOU' en
 insert into public.bloqueios (user_id,bloqueado_id) values ('44444444-4444-4444-4444-444444444444','22222222-2222-2222-2222-222222222222') on conflict do nothing;
 select case when count(*)=0 then 'PASSOU: depois do bloqueio a foto some da consulta' else 'FALHOU: ainda ve' end from public.galeria;
 reset role;
+
+-- ============================================================
+-- A AREA DE ADMIN: uma aluna nao alcanca nada dela
+-- ============================================================
+set role authenticated;
+set teste.uid = '22222222-2222-2222-2222-222222222222';
+set teste.jwt = '{"email":"bia@x.com"}';
+
+\echo '--- 23. aluna tenta se liberar pela funcao do admin: recusado'
+do $$ begin
+  perform public.liberar_acesso('bia@x.com');
+  raise notice 'FALHOU: aluna liberou acesso';
+exception when others then raise notice 'PASSOU: recusado (%)', SQLERRM; end $$;
+
+\echo '--- 24. aluna tenta encerrar o acesso de outra: recusado'
+do $$ begin
+  perform public.encerrar_acesso('ana@x.com');
+  raise notice 'FALHOU: aluna encerrou acesso de outra';
+exception when others then raise notice 'PASSOU: recusado (%)', SQLERRM; end $$;
+
+\echo '--- 25. aluna tenta listar todas as alunas: volta vazio'
+select case when count(*)=0 then 'PASSOU: lista vazia' else 'FALHOU: leu '||count(*) end
+  from public.alunas_admin(null);
+
+\echo '--- 26. aluna tenta os numeros do painel: volta vazio'
+select case when coalesce(public.resumo_admin(),'{}'::jsonb) = '{}'::jsonb
+            then 'PASSOU: sem numeros' else 'FALHOU: '||public.resumo_admin()::text end;
+
+\echo '--- 27. aluna tenta ler o progresso de todas pelo painel: so o dela'
+select case when count(*)<=1 then 'PASSOU: so o proprio' else 'FALHOU: leu '||count(*) end
+  from public.progress;
+
+-- ================== AGORA A MENTORA ==================
+set teste.uid = '33333333-3333-3333-3333-333333333333';
+set teste.jwt = '{"email":"gestaogrupoa@gmail.com"}';
+
+\echo '--- 28. a mentora libera uma aluna nova'
+select case when public.liberar_acesso('NOVA2@Exemplo.com ')='liberado' then 'PASSOU' else 'FALHOU' end;
+reset role;
+select case when status='active' and email='nova2@exemplo.com' then 'PASSOU: normalizou o e-mail' else 'FALHOU' end
+  from public.access where email='nova2@exemplo.com';
+
+\echo '--- 29. a mentora encerra o acesso de uma aluna'
+set role authenticated;
+set teste.uid = '33333333-3333-3333-3333-333333333333';
+set teste.jwt = '{"email":"gestaogrupoa@gmail.com"}';
+select case when public.encerrar_acesso('nova2@exemplo.com')='encerrado' then 'PASSOU' else 'FALHOU' end;
+
+\echo '--- 30. a mentora NAO consegue encerrar o proprio acesso por engano'
+select public.encerrar_acesso('gestaogrupoa@gmail.com') as resposta;
+reset role;
+select case when status='active' then 'PASSOU: o acesso da mentora continua ativo' else 'FALHOU: '||status end
+  from public.access where email='gestaogrupoa@gmail.com';
+set role authenticated;
+set teste.uid = '33333333-3333-3333-3333-333333333333';
+set teste.jwt = '{"email":"gestaogrupoa@gmail.com"}';
+
+\echo '--- 31. a mentora ve a lista e os numeros'
+select case when count(*)>=2 then 'PASSOU: ve '||count(*)||' alunas' else 'FALHOU' end from public.alunas_admin(null);
+select case when (public.resumo_admin()->>'ativas')::int >= 1 then 'PASSOU: numeros vieram' else 'FALHOU' end;
+
+\echo '--- 32. a busca do painel filtra'
+select case when count(*)=1 then 'PASSOU: busca por e-mail acha 1' else 'FALHOU: '||count(*) end
+  from public.alunas_admin('bia@');
+reset role;
