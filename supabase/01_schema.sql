@@ -389,8 +389,12 @@ create table if not exists public.denuncias (
   alvo_id        text,
   alvo_user_id   uuid references auth.users(id) on delete set null,
   motivo         text,
+  -- o relato de quem denunciou: é o que permite decidir em minutos
+  detalhe        text,
   status         text not null default 'pendente'
-                 check (status in ('pendente','analisada','removida','arquivada')),
+                 check (status in ('pendente','analisada','removida','arquivada','conta_suspensa','sem_violacao')),
+  -- o que a mentora decidiu e por quê: a trilha da moderação
+  nota           text,
   created_at     timestamptz not null default now(),
   tratada_em     timestamptz
 );

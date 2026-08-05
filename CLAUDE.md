@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 3007.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0508.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,99 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O app virou aplicativo publicável (0508.01)
+A Carla: "preciso que esse app esteja pronto até sábado, preciso que esteja
+tudo no jeito para começar". O prompt mestre pedia sair do estado atual até
+poder subir nas duas lojas, com sete regras inegociáveis (conteúdo pedagógico
+intocado, zero comércio do próprio app, RLS como autoridade, nenhuma chave
+secreta no cliente, migration destrutiva só com aval, sem travessão,
+identidade visual preservada).
+
+**1. O comércio do app saiu inteiro, e a régua mudou de eixo.** A indicação
+era o motor de desbloqueio: cada convite enviado abria uma pesquisa. Isso é
+justamente o que faz a Apple exigir compra dentro do aplicativo, com 30%.
+Saíram: `INVITE_URL` (o perfil comercial), `openReferral`, `regReferral`,
+`copiarConvite`, o bloco "Construa junto e ganhe", a faixa de indicação em
+Pesquisas, o troféu "Embaixador(a)" (virou "Presente", por confirmar presença
+em encontro), a "renovação antecipada" em O Ano e o arroba no rodapé da folha
+A4. As três funções continuam existindo **vazias**, para nenhuma chamada
+esquecida quebrar a tela de quem usa.
+A régua nova é a do método: **o instrumento abre quando existe trabalho feito
+para interpretá-lo**. DISC pede o autodiagnóstico; Clima 1 trilha; Inteligência
+Emocional 2; Âncoras 4; Cultura 6; Caráter 8; Estilo de Liderança 10.
+`S.unlocks[id]` segue como chave mestra, e quando uma trilha fecha e abre um
+instrumento o app avisa na hora (`testesAbertosAgora`), senão a régua seria
+invisível. A auditoria linha a linha do que é venda e do que é conteúdo da
+mentoria está em `loja/auditoria-comercial.md`: o "comprar" das trilhas de
+Finanças, Processos e Estratégia **não foi tocado**.
+
+**2. Moderação, porque existe conteúdo de usuário** (`moderacao.js`). As lojas
+cobram quatro coisas juntas, e agora as quatro existem: a regra de convivência
+numa tela **travada** antes do primeiro uso (sem × e sem fechar por fora, com
+aceite gravado com data e versão em `S.termo` e na tabela `termos`); os botões
+**Denunciar** e **Bloquear** em toda foto da galeria e todo cartão de membro;
+o bloqueio com efeito **imediato** na tela (cache local em `MOD_BLOQ`, filtro
+`modFiltra` em cada render, sem esperar servidor); e o **painel da mentora**,
+com o relógio de cada caso virando vermelho depois de 20 horas, e as três
+saídas (removi o conteúdo, suspender a conta, não viola a regra).
+`modal()` ganhou `{trava:true}` e passou a **recusar ser sobrescrito** por um
+aviso qualquer: tela que espera decisão não é roubada. O termo espera a vez
+por até 10 minutos, em vez dos 14 segundos da primeira versão, que deixavam
+a pessoa entrar na comunidade sem nunca ter visto a regra.
+
+**3. Entrada por código de 6 dígitos.** O link mágico abre o navegador do
+sistema, e o navegador não é o app: a sessão nascia do lado de fora e a pessoa
+voltava para a mesma tela de login. Agora `signInWithOtp` sem `emailRedirectTo`
+e `verifyOtp` com o código digitado ali dentro, com reenviar, trocar de e-mail
+e avanço automático ao sexto dígito. **Exige um passo manual**: o modelo de
+e-mail do Supabase precisa incluir `{{ .Token }}`.
+
+**4. Acesso: máquina de estados e revalidação ao vivo.** `lerAcesso()` consulta
+por `user_id` **ou** e-mail (a inscrição chega pelo webhook antes de a conta
+existir, e o `user_id` é casado no primeiro login), devolve ATIVO, PENDENTE,
+INATIVO ou OFFLINE, e **consulta vazia é sempre sem acesso**. `vigiarAcesso()`
+liga Realtime na própria linha, reconferência a cada 15 minutos e no
+`visibilitychange`: se o acesso cair durante o uso, a tela avisa em vez de
+deixar a pessoa trabalhando num app que já não é dela. **Sete dias de tolerância
+sem rede** (`LIMITE_OFFLINE`), senão bastava o modo avião para usar para sempre
+um acesso encerrado.
+
+**5. O app abre sem internet.** As três famílias de fonte viraram `@font-face`
+em base64 (`fontes.css`, 262KB de base64 para 193KB de woff2) e os links do
+Google saíram: antes, a primeira abertura sem rede saía com a fonte do sistema.
+O supabase-js saiu do CDN e passou a ser embutido no arquivo. `sw.js` (rede
+primeiro, cache como rede de segurança) e `manifest.json` para a versão
+hospedada.
+
+**6. Imprimir, dentro do app.** `window.print()` não faz nada no WebView do
+iPhone nem no do Android: os botões "Imprimir A4" estavam mortos no build de
+loja. `obImprimir()` mantém a caixa de impressão no navegador e, dentro do
+app, transforma a folha em **arquivo** (`.html` autônomo com o mesmo CSS de
+impressão, extraído do próprio build por `PRINT_CSS` no `inject.cjs`), para
+guardar, mandar ou imprimir de fora.
+
+**7. As regras da casa no aparelho** (`obNativo`). O botão físico de voltar do
+Android fecha o modal, depois volta de tela, e só sai com dois toques na Home.
+Link externo abre no navegador do sistema em vez de prender a pessoa dentro do
+app. O teclado empurra a barra de baixo em vez de cobrir o campo. Voltar para
+a frente reconfere o acesso.
+
+**8. O que ficou fora do app**, em `loja/`: os ícones gerados **do próprio
+isotipo** (192, 512, maskable, 1024, splash), `manifest.json`, `sw.js`,
+`capacitor.config.json`, `package.json`, as três páginas públicas exigidas
+pelas lojas (`privacidade.html`, `termos.html`, `suporte.html`), o passo a
+passo completo (`README.md`), a auditoria comercial e o roteiro de teste
+manual.
+
+**Bug de CSS corrigido no caminho:** `.lg-forte` perdia a cor de ouro para
+`.lg-box p`, que tinha mais especificidade. Virou `.lg-box p.lg-forte`.
+
+**O que ainda depende da Carla:** rodar `supabase/01_schema.sql` no SQL Editor
+(o banco está vazio: 0 tabelas, 0 usuários), colar a chave anon no lugar de
+`COLE_AQUI_A_ANON_KEY`, incluir `{{ .Token }}` no modelo de e-mail e publicar
+a Edge Function do webhook. O MCP do Supabase não é alcançável deste ambiente:
+a política de rede bloqueia `mcp.supabase.com` no gateway.
 
 ### A condução, a cor por área e o movimento (3007.01)
 A Carla: "quero que o sistema ajude o usuário a pensar e navegar, não dá para
