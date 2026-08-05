@@ -10577,12 +10577,16 @@ const GATES={
   apostila:{ o:'A Apostila', por:'O material oficial da mentoria virado prática: os manuais, 30 ferramentas de liderança para preencher, os Desafios dos Líderes de Alta Performance e o ciclo de 30 dias.' },
   programa:{ o:'Meu Treino', por:'O programa EMC: três sessões por semana (Estratégia, Mentalidade e Comportamento), uma prova por semana e o check-in que fecha. É o treinador que diz o que fazer hoje, e por quê.' }
 };
+/* Quem conduz não é aluna. A jornada de 8 passos existe para a pessoa que
+   está começando o método, e trancar o app inteiro para a mentora até ela
+   fazer o próprio autodiagnóstico seria impedir a Carla de publicar o áudio
+   do dia. Nada de segurança depende disto: o que é dela no banco continua
+   sendo dela, e o que é da mentoria continua exigindo eh_mentora(). */
+function ehMentora(){ return !!(window.OB && OB.isMentor && OB.isMentor()); }
 function gateDe(view){
   if(!S.name) return null;                 // ainda no onboarding
+  if(ehMentora()) return null;             // a mentora abre o app inteiro
   const g=GATES[view]; if(!g) return null;
-  /* a mesa da mentoria não espera a jornada do aluno: quem conduz precisa
-     publicar e liberar acesso desde o primeiro minuto */
-  if(view==='admin' && window.OB && OB.isMentor && OB.isMentor()) return null;
   /* nada abre antes de o Comece por aqui fechar. Os passos acontecem
      por cima da jornada, então não há exceção a fazer. */
   return (typeof afCompleta==='function' && afCompleta()) ? null : g;
@@ -16537,7 +16541,10 @@ function afFeito(){
   setTimeout(afVolta, 260);
 }
 /* enquanto a jornada não fecha, a Home é só o "Comece por aqui" */
-function afModoJornada(){ return !!S.name && !afCompleta(); }
+function afModoJornada(){
+  if(typeof ehMentora==='function' && ehMentora()) return false;
+  return !!S.name && !afCompleta();
+}
 /* só o passo da vez pode ser aberto: nada de pular etapa */
 function afDo(id){
   const i=AF_JORNADA.findIndex(x=>x.id===id); if(i<0) return;
@@ -16577,6 +16584,12 @@ function afEnsureBanner(){
 function afBannerHide(){ afHidden=true; const b=document.getElementById('afBanner'); if(b) b.style.display='none'; }
 function afGuiaUpdate(){
   if(!S.name) return;                       // ainda no onboarding
+  /* a faixa da jornada é da aluna: para quem conduz ela é só ruído em cima
+     de toda tela, todo dia */
+  if(typeof ehMentora==='function' && ehMentora()){
+    const bm=document.getElementById('afBanner'); if(bm) bm.style.display='none';
+    return;
+  }
   const A=AF();
   if(!A.welcomed){ A.welcomed=true; save(); setTimeout(()=>afMetodo(true),350); }
   afEnsureBanner();
@@ -16616,6 +16629,8 @@ function afGuiaUpdate(){
 const AF_GRAU=['Iniciante','Observador','Consciente','Decidido','Assinado','Praticante','Provador','Blindado'];
 function renderJornada(){
   const v=document.getElementById('view-home'); if(!v||!S.name) return;
+  /* o Comece por aqui é da aluna: a Home de quem conduz não abre por ele */
+  if(typeof ehMentora==='function' && ehMentora()) return;
   if(v.querySelector('#afJornada')) return;
   const st=afState(), seq=afSeq(), total=st.length, atual=afIdxAtual(), completa=afCompleta();
   const pct=Math.round(seq/total*100);
