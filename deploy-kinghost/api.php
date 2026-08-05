@@ -98,9 +98,38 @@ function rotacionaHistorico(string $hist, string $conteudo, int $versao): void {
 preparaPasta($DIR, $HIST);
 $acao = isset($_GET['acao']) ? (string) $_GET['acao'] : 'estado';
 
+/**
+ * TRAVA PRINCIPAL: sem senha de pasta, o servidor NAO entrega nem grava nada.
+ *
+ * A checagem de origem sozinha nao protege: ela so vale quando o navegador manda o
+ * cabecalho Origin. Uma ferramenta de linha de comando simplesmente nao manda, e passava
+ * direto - lia e gravava tudo. Agora a autenticacao do servidor (a senha de pasta do
+ * .htaccess) e obrigatoria, e o sistema falha FECHADO: na duvida, nega.
+ *
+ * Se a sua hospedagem nao repassar o usuario autenticado ao PHP (raro; acontece em algumas
+ * configuracoes CGI), o sistema vai avisar que esta bloqueado. Nesse caso - e so nesse -
+ * troque a linha abaixo para false, ciente de que a protecao passa a depender apenas do
+ * .htaccess. Prefira resolver no servidor a desligar esta trava.
+ */
+const EXIGIR_AUTENTICACAO = true;
+
+$autenticado = quem() !== 'sem identificacao';
+$bloqueado   = EXIGIR_AUTENTICACAO && !$autenticado;
+
 /* ---- ping: o sistema usa para saber se ha servidor (se nao houver, roda sozinho) ---- */
 if ($acao === 'ping') {
-    responde(200, ['ok' => true, 'sistema' => 'NEXUS GRB', 'php' => PHP_VERSION, 'usuario' => quem()]);
+    responde(200, [
+        'ok' => true, 'sistema' => 'NEXUS GRB', 'php' => PHP_VERSION,
+        'usuario' => quem(), 'protegido' => $autenticado, 'exige' => EXIGIR_AUTENTICACAO,
+    ]);
+}
+
+if ($bloqueado) {
+    responde(403, [
+        'erro' => 'sem_protecao',
+        'mensagem' => 'Esta pasta esta publicada SEM senha. Por seguranca o servidor de dados '
+                    . 'nao responde ate que ela seja protegida (no KingHost: "Proteger diretorio").',
+    ]);
 }
 
 /* ---- versao: consulta barata, usada para perceber que alguem gravou ---- */

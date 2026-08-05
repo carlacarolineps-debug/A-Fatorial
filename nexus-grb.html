@@ -786,6 +786,18 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div style="font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent-gold);font-weight:800">Bem-vinda, <span x-text="usuarioLogado.nome.split(' ')[0]"></span></div>
         <div class="display grad-gold" style="font-size:30px;font-weight:900;margin-top:8px;line-height:1.15">Selecione o painel que deseja analisar</div>
         <div style="font-size:13.5px;color:#b7bad0;margin-top:10px;max-width:560px;margin-left:auto;margin-right:auto">Cada painel é um departamento independente e mostra somente as suas informações. O consolidado reúne o grupo.</div>
+        <!-- Instalação exposta: o aviso precisa aparecer logo na entrada, não escondido em
+             Configurações. Enquanto durar, o sistema não compartilha nada. -->
+        <template x-if="sync.bloqueado">
+          <div style="max-width:660px;margin:20px auto 0;background:rgba(225,29,72,.14);border:1px solid rgba(225,29,72,.5);border-radius:12px;padding:14px 18px;text-align:left">
+            <div style="font-size:12.5px;font-weight:800;color:#fda4af"><i class="fas fa-lock-open mr-2"></i> Instalação sem senha — dados NÃO estão sendo compartilhados</div>
+            <div style="font-size:11.5px;color:#c9ccdd;margin-top:5px;line-height:1.55">
+              Esta pasta está publicada sem pedir usuário e senha, então o servidor de dados se recusa a funcionar (de propósito):
+              qualquer pessoa com o endereço veria e alteraria os números. Proteja a pasta no painel da hospedagem
+              (<b>Proteger diretório</b>) e recarregue. Até lá, o que for lançado fica só neste navegador.
+            </div>
+          </div>
+        </template>
       </div>
 
       <div class="nx-portal-cards">
@@ -2692,12 +2704,13 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
         <!-- Publicado na internet sem senha de pasta: qualquer pessoa com o endereço lê e grava
              os números da empresa. O sistema detecta isso e avisa, em vez de deixar passar. -->
-        <template x-if="sync.ligado && sync.semSenha">
+        <template x-if="sync.bloqueado || (sync.ligado && sync.semSenha)">
           <div style="margin-top:16px;background:rgba(220,38,38,.07);padding:20px 24px;border-radius:12px;border:1px solid rgba(220,38,38,.5)">
             <div style="font-size:12.5px;font-weight:800;color:#c0392b"><i class="fas fa-lock-open mr-2"></i> Esta instalação está SEM senha de pasta</div>
             <div style="font-size:11px;color:var(--color-muted);margin-top:4px;line-height:1.55;white-space:normal">
-              O sistema está publicado num servidor e funcionando, mas o servidor não pediu usuário e senha para abrir esta pasta.
-              Isso significa que <b>qualquer pessoa com o endereço vê e altera</b> os números das empresas.
+              O servidor de dados está <b>recusando funcionar de propósito</b>: esta pasta está publicada sem pedir usuário e senha,
+              e assim qualquer pessoa com o endereço veria e alteraria os números das empresas.
+              Enquanto isso não for resolvido, o sistema funciona apenas neste navegador e <b>não compartilha</b> nada.
               Proteja a pasta no painel da hospedagem (no KingHost: <b>Proteger diretório</b>) ou pelo arquivo <b>.htaccess</b> que veio no pacote.
             </div>
           </div>
@@ -4252,7 +4265,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.21';
+const NEXUS_BUILD = '2407.22';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -5072,7 +5085,7 @@ function sistemaUnificado(){
     // "pronto" só fica true depois que o estado do servidor chegou. Antes disso NADA é enviado:
     // sem essa trava, o que o navegador tivesse em mãos ao abrir (inclusive um sistema recém-
     // zerado por uma atualização) poderia ser publicado por cima do trabalho de todo mundo.
-    sync: { ligado: false, pronto: false, versao: 0, estado: 'off', quando: '', quem: '', conflito: false, enviando: false, pendente: false, semSenha: false },
+    sync: { ligado: false, pronto: false, versao: 0, estado: 'off', quando: '', quem: '', conflito: false, enviando: false, pendente: false, semSenha: false, bloqueado: false },
     _syncTimer: null, _syncPoll: null,
     get syncRotulo() {
       const s = this.sync;
@@ -5121,8 +5134,10 @@ function sistemaUnificado(){
         if (!r.ok) return;
         const j = await r.json();
         if (!j || j.sistema !== 'NEXUS GRB') return;
-        // Sem senha de pasta (.htaccess), qualquer pessoa com o endereço abre e grava.
-        this.sync.semSenha = !j.usuario || j.usuario === 'sem identificacao';
+        // O servidor recusa entregar dados enquanto a pasta estiver sem senha (falha fechado).
+        // Aqui isso vira um aviso claro na tela, em vez de um sistema que "não sincroniza".
+        this.sync.semSenha = !j.protegido;
+        if (j.exige && !j.protegido) { this.sync.bloqueado = true; this.sync.semSenha = true; return; }
       } catch (e) { return; }                                     // sem servidor: segue sozinho
       this.sync.ligado = true;
       try {
