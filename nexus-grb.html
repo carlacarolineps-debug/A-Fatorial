@@ -743,6 +743,22 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
+        <!-- Estado da sincronização: só aparece quando o sistema está publicado num servidor -->
+        <template x-if="sync.ligado">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span :title="sync.quem ? ('Última gravação por ' + sync.quem) : ''"
+                  :style="'display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:9px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;'+(sync.conflito?'background:rgba(225,29,72,.18);color:#fda4af':(sync.estado==='erro'?'background:rgba(245,158,11,.18);color:#fcd34d':'background:rgba(13,148,136,.18);color:#5eead4'))">
+              <i class="fas" :class="sync.conflito?'fa-triangle-exclamation':(sync.estado==='erro'?'fa-plug-circle-xmark':(sync.estado==='salvando'?'fa-cloud-arrow-up':'fa-cloud-arrow-up'))"></i>
+              <span x-text="syncRotulo"></span>
+            </span>
+            <template x-if="sync.conflito">
+              <span style="display:flex;gap:5px">
+                <button @click="syncPuxarServidor()" title="Descartar o que fiz e trazer a versão do servidor" style="padding:5px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:10px;font-weight:800;cursor:pointer">Trazer do servidor</button>
+                <button @click="syncForcarEnvio()" title="Manter o que fiz e substituir a versão do servidor" style="padding:5px 9px;border-radius:8px;border:1px solid var(--accent-gold);background:var(--accent-gold);color:#191040;font-size:10px;font-weight:800;cursor:pointer">Manter o meu</button>
+              </span>
+            </template>
+          </div>
+        </template>
         <div style="text-align:right">
           <div style="font-size:13px;font-weight:800;color:#fff" x-text="usuarioLogado.nome"></div>
           <div style="font-size:10px;color:#9aa0b0;text-transform:uppercase;letter-spacing:.5px" x-text="usuarioLogado.cargo"></div>
@@ -942,6 +958,23 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
             style="position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--color-surface);box-shadow:0 2px 6px rgba(0,0,0,.25)"></span>
         </template>
       </button>
+
+      <!-- Estado da sincronização entre usuários (só aparece quando publicado num servidor) -->
+      <template x-if="sync.ligado">
+        <div class="no-print" style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span :title="sync.quem ? ('Última gravação por ' + sync.quem) : ''"
+                :style="'display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:9px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;'+(sync.conflito?'background:rgba(225,29,72,.12);color:#be123c':(sync.estado==='erro'?'background:rgba(245,158,11,.14);color:#b45309':'background:rgba(13,148,136,.12);color:#0d9488'))">
+            <i class="fas" :class="sync.conflito?'fa-triangle-exclamation':(sync.estado==='erro'?'fa-plug-circle-xmark':'fa-cloud-arrow-up')"></i>
+            <span x-text="syncRotulo"></span>
+          </span>
+          <template x-if="sync.conflito">
+            <span style="display:flex;gap:5px">
+              <button @click="syncPuxarServidor()" title="Descartar o que fiz e trazer a versão do servidor" style="padding:6px 9px;border-radius:8px;border:1px solid var(--color-border);background:var(--color-surface2);color:var(--accent-blue);font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap">Trazer do servidor</button>
+              <button @click="syncForcarEnvio()" title="Manter o que fiz e substituir a versão do servidor" style="padding:6px 9px;border-radius:8px;border:1px solid var(--accent-gold);background:var(--accent-gold);color:#191040;font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap">Manter o meu</button>
+            </span>
+          </template>
+        </div>
+      </template>
 
       <div class="nx-profile" x-data="{ openMenu: false }" style="position:relative">
         <button @click="openMenu = !openMenu" class="flex items-center gap-3 focus:outline-none" style="padding:5px 7px;border-radius:12px;transition:.15s" onmouseover="this.style.background='var(--color-surface2)'" onmouseout="this.style.background='transparent'">
@@ -4186,7 +4219,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.19';
+const NEXUS_BUILD = '2407.20';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -4990,7 +5023,143 @@ function sistemaUnificado(){
         localStorage.setItem('nexus_v2_kanban', JSON.stringify(this.kbCardsData));
         localStorage.setItem('nexus_v2_movimentos', JSON.stringify(this.movEmpresas));
         localStorage.setItem('nexus_v2_logs', JSON.stringify(this.logsAuditoria.slice(0, 500)));
+        this.syncAgendarEnvio();   // se houver servidor, replica para os outros usuários
       } catch(e) {}
+    },
+
+    // ===== Sincronização entre usuários (api.php) ==========================================
+    // O sistema funciona igual sem servidor: aberto como arquivo local, nada disto liga. Quando
+    // publicado numa hospedagem com o api.php ao lado, o navegador passa a puxar e enviar o
+    // estado, e todo mundo enxerga os mesmos números.
+    sync: { ligado: false, versao: 0, estado: 'off', quando: '', quem: '', conflito: false, enviando: false, pendente: false },
+    _syncTimer: null, _syncPoll: null,
+    get syncRotulo() {
+      const s = this.sync;
+      if (!s.ligado) return '';
+      if (s.conflito) return 'Alguém salvou antes de você';
+      return { salvando: 'Salvando…', erro: 'Sem conexão com o servidor', ok: 'Sincronizado' }[s.estado] || '';
+    },
+    // Marca local: de qual versão do servidor este navegador veio. É por ela que o sistema
+    // sabe se está atualizado. Comparar o conteúdo inteiro não serve — o próprio ato de abrir
+    // grava log e relógio, então nunca seria idêntico e a tela recarregaria em loop.
+    syncColeta() {
+      const d = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('nexus_') === 0 && k !== 'nexus_v2_sync_versao') d[k] = localStorage.getItem(k);
+      }
+      return d;
+    },
+    syncAplica(dados, versao) {
+      const apagar = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf('nexus_') === 0) apagar.push(k);
+      }
+      apagar.forEach(k => localStorage.removeItem(k));
+      Object.keys(dados || {}).forEach(k => { if (k.indexOf('nexus_') === 0) localStorage.setItem(k, dados[k]); });
+      // O estado que chega já é o oficial: não deixar a entrega em branco nem a semente
+      // rodarem por cima dele no próximo carregamento.
+      localStorage.setItem('nexus_v2_limpa', NEXUS_LIMPA_TAG);
+      localStorage.setItem('nexus_v2_seed', NEXUS_BUILD);
+      if (versao != null) localStorage.setItem('nexus_v2_sync_versao', String(versao));
+    },
+    async syncIniciar() {
+      if (!/^https?:$/.test(location.protocol)) return;          // arquivo local: segue sozinho
+      try {
+        const r = await fetch('api.php?acao=ping', { cache: 'no-store' });
+        if (!r.ok) return;
+        const j = await r.json();
+        if (!j || j.sistema !== 'NEXUS GRB') return;
+      } catch (e) { return; }                                     // sem servidor: segue sozinho
+      this.sync.ligado = true;
+      try {
+        const r = await fetch('api.php?acao=estado', { cache: 'no-store' });
+        const e = await r.json();
+        if (e && Number(e.versao) > 0 && e.dados && Object.keys(e.dados).length) {
+          const minha = Number(localStorage.getItem('nexus_v2_sync_versao') || 0);
+          this.sync.versao = Number(e.versao); this.sync.quando = e.atualizadoEm || ''; this.sync.quem = e.atualizadoPor || '';
+          if (minha !== Number(e.versao)) { this.syncAplica(e.dados, e.versao); location.reload(); return; }
+          this.sync.estado = 'ok';
+        } else {
+          // Servidor ainda vazio: este navegador publica o que tem, para os outros partirem daqui
+          this.sync.versao = 0;
+          await this.syncEnviar(true);
+        }
+      } catch (e) { this.sync.estado = 'erro'; }
+      this.syncVigiar();
+    },
+    // Percebe que outra pessoa gravou. Se não há nada pendente aqui, recarrega com o dado novo.
+    syncVigiar() {
+      if (this._syncPoll) clearInterval(this._syncPoll);
+      this._syncPoll = setInterval(async () => {
+        if (!this.sync.ligado || this.sync.enviando || this.sync.pendente) return;
+        // Nunca recarregar por cima de quem está digitando ou com um modal aberto: a pessoa
+        // perderia o que estava escrevendo. A novidade entra no próximo ciclo.
+        const foco = document.activeElement;
+        if (foco && /^(INPUT|TEXTAREA|SELECT)$/.test(foco.tagName)) return;
+        if (this.modalPag.open || this.modalTransferencia.open || this.modalTCC.open || this.impPendente) return;
+        try {
+          const r = await fetch('api.php?acao=versao', { cache: 'no-store' });
+          const j = await r.json();
+          if (Number(j.versao) > this.sync.versao) {
+            const e = await (await fetch('api.php?acao=estado', { cache: 'no-store' })).json();
+            this.syncAplica(e.dados, e.versao); location.reload();
+          }
+          if (this.sync.estado === 'erro') this.sync.estado = 'ok';
+        } catch (e) { this.sync.estado = 'erro'; }
+      }, 15000);
+    },
+    syncAgendarEnvio() {
+      if (!this.sync.ligado) return;
+      this.sync.pendente = true;
+      if (this._syncTimer) clearTimeout(this._syncTimer);
+      this._syncTimer = setTimeout(() => this.syncEnviar(), 1200);   // agrupa edições seguidas
+    },
+    async syncEnviar(primeira) {
+      if (!this.sync.ligado || this.sync.enviando) return;
+      this.sync.enviando = true; this.sync.estado = 'salvando';
+      try {
+        const corpo = { baseVersao: this.sync.versao, dados: this.syncColeta() };
+        const r = await fetch('api.php?acao=gravar', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo)
+        });
+        if (r.status === 409) {
+          const j = await r.json();
+          this.sync.conflito = true; this.sync.estado = 'conflito';
+          this.sync.quem = j.atualizadoPor || ''; this.sync.quando = j.atualizadoEm || '';
+          this.sync.enviando = false; this.sync.pendente = false;
+          return;
+        }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const j = await r.json();
+        this.sync.versao = Number(j.versao); this.sync.quando = j.atualizadoEm || ''; this.sync.quem = j.atualizadoPor || '';
+        try { localStorage.setItem('nexus_v2_sync_versao', String(j.versao)); } catch(e2) {}
+        this.sync.estado = 'ok'; this.sync.conflito = false; this.sync.pendente = false;
+        if (primeira) this.registrarLog('Publicou o estado inicial no servidor compartilhado.');
+      } catch (e) {
+        this.sync.estado = 'erro';   // fica salvo no navegador e reenvia na próxima edição
+      } finally { this.sync.enviando = false; }
+    },
+    // Conflito: trazer o que está no servidor (perde as edições locais não enviadas)
+    async syncPuxarServidor() {
+      if (!confirm('Trazer a versão do servidor?\n\nAs alterações que você fez e ainda não foram salvas serão descartadas.')) return;
+      const e = await (await fetch('api.php?acao=estado', { cache: 'no-store' })).json();
+      this.syncAplica(e.dados, e.versao); location.reload();
+    },
+    // Conflito: manter o que está nesta tela e sobrescrever o servidor
+    async syncForcarEnvio() {
+      if (!confirm('Manter as SUAS alterações e substituir a versão do servidor?\n\nO que a outra pessoa salvou será perdido (há cópia no histórico do servidor).')) return;
+      this.sync.enviando = true;
+      try {
+        const r = await fetch('api.php?acao=gravar', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forcar: true, dados: this.syncColeta() }) });
+        const j = await r.json();
+        this.sync.versao = Number(j.versao); this.sync.conflito = false; this.sync.estado = 'ok'; this.sync.pendente = false;
+        try { localStorage.setItem('nexus_v2_sync_versao', String(j.versao)); } catch(e2) {}
+        this.registrarLog('Sobrescreveu o estado do servidor após conflito.');
+      } catch (e) { this.sync.estado = 'erro'; }
+      finally { this.sync.enviando = false; }
     },
     // ===== Cópia de segurança: tudo que o sistema guarda vive só neste navegador =====
     // Sem isto, limpar o histórico (ou trocar de máquina) apaga o trabalho todo, sem volta.
@@ -9181,6 +9350,8 @@ function sistemaUnificado(){
           this.atualizarLeituraSistema();
           try { setupHScroll(); } catch(e){}
           if(this.aba !== 'hub') this.verificarPendenciaMensal();
+          // Se o sistema estiver publicado num servidor com o api.php, entra em rede.
+          try { this.syncIniciar(); } catch(e){}
       }, 100);
     },
 

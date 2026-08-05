@@ -1,0 +1,39 @@
+# ============================================================================
+# NEXUS GRB - protecao da pasta
+#
+# Este arquivo faz DUAS coisas:
+#   1) pede usuario e senha para abrir qualquer coisa aqui dentro;
+#   2) impede que a pasta "dados" seja aberta pelo navegador.
+#
+# ATENCAO: a linha AuthUserFile precisa do caminho COMPLETO do arquivo .htpasswd
+# no servidor. No KingHost costuma ser algo como:
+#   /home/SEU_USUARIO/www/nexus/.htpasswd
+# Troque a linha abaixo pelo caminho real (o painel do KingHost mostra o seu
+# usuario; o "Gerenciador de Arquivos" mostra o caminho completo da pasta).
+# ============================================================================
+
+AuthType Basic
+AuthName "NEXUS GRB - Grupo Rebracil"
+AuthUserFile /home/SEU_USUARIO/www/nexus/.htpasswd
+Require valid-user
+
+# A pasta de dados nunca pode ser baixada direto pelo navegador
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^dados/ - [F,L]
+</IfModule>
+
+# Nem os arquivos de senha e configuracao
+<FilesMatch "^\.(htaccess|htpasswd)$">
+  Require all denied
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Nao listar o conteudo da pasta
+Options -Indexes
+
+# O sistema e um arquivo so; index.html e a porta de entrada
+DirectoryIndex index.html

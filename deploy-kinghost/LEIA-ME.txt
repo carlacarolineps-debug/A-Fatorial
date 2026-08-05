@@ -1,0 +1,110 @@
+================================================================================
+NEXUS GRB - COMO PUBLICAR NO KINGHOST (com dados compartilhados entre usuarios)
+================================================================================
+
+O QUE ESTA NESTA PASTA
+----------------------
+  index.html   o sistema inteiro (um arquivo so)
+  api.php      o servidor de dados: e ele que faz todo mundo ver os mesmos numeros
+  .htaccess    pede senha para entrar e protege a pasta de dados
+  .htpasswd    onde ficam os usuarios e senhas de acesso a pasta (voce vai gerar)
+  dados/       criada sozinha no primeiro acesso; guarda o estado e o historico
+
+Nada aqui apaga o que ja existe no seu site: tudo fica dentro de UMA pasta nova.
+
+
+PASSO 1 - CRIAR A PASTA
+-----------------------
+No painel do KingHost, abra o Gerenciador de Arquivos (ou use um programa de FTP)
+e entre na pasta   www   (e a pasta do site).
+Crie uma pasta nova, por exemplo:   nexus
+
+IMPORTANTE: nao envie o index.html direto na raiz do www. Ali existe a pagina
+inicial do seu site atual e ela seria substituida. Dentro de uma pasta propria
+nao ha risco nenhum.
+
+
+PASSO 2 - ENVIAR OS ARQUIVOS
+----------------------------
+Envie para dentro de www/nexus :
+   index.html
+   api.php
+   .htaccess
+
+(No Gerenciador de Arquivos, marque a opcao de mostrar arquivos ocultos para
+enxergar o .htaccess, que comeca com ponto.)
+
+
+PASSO 3 - CRIAR A SENHA DE ACESSO
+---------------------------------
+O KingHost tem "Proteger diretorio" no painel: aponte para a pasta nexus,
+crie usuario e senha e pronto - ele mesmo gera o .htpasswd e ajusta o .htaccess.
+Esse e o caminho mais facil e o recomendado.
+
+Se preferir fazer na mao:
+  1. gere o arquivo em  https://www.web2generators.com/apache-tools/htpasswd-generator
+     (escolha "bcrypt" ou "MD5"), salve como  .htpasswd  e envie para a pasta;
+  2. abra o .htaccess e troque a linha
+         AuthUserFile /home/SEU_USUARIO/www/nexus/.htpasswd
+     pelo caminho completo real da pasta no servidor.
+
+Sem esta protecao, qualquer pessoa com o endereco abre o sistema e ve os numeros.
+
+
+PASSO 4 - ABRIR E CONFERIR
+--------------------------
+Acesse   https://seudominio.com.br/nexus/
+O navegador vai pedir a senha da pasta. Depois entra a tela de login do sistema.
+
+No canto superior direito deve aparecer o selo verde "SINCRONIZADO".
+   - Selo verde ......... esta tudo certo, os dados sao compartilhados.
+   - Nao aparece nada ... o api.php nao subiu junto ou esta em outra pasta.
+                          Confira se index.html e api.php estao lado a lado.
+   - Selo amarelo ....... o servidor nao respondeu. O trabalho continua salvo
+                          no navegador e sobe sozinho quando voltar.
+
+
+PASSO 5 - LEVAR OS DADOS QUE VOCE JA TEM
+----------------------------------------
+Os dados que estao hoje no arquivo do seu computador NAO vao junto sozinhos
+(para o navegador, o arquivo no Desktop e o site sao lugares diferentes).
+
+  1. abra o arquivo antigo, va em Configuracoes Globais e clique em BAIXAR COPIA;
+  2. abra o sistema pelo site e clique em RESTAURAR COPIA, escolhendo esse arquivo.
+
+A partir dai o servidor passa a ser a fonte oficial e todos os usuarios veem
+os mesmos numeros. Faca isso UMA vez, com uma pessoa so.
+
+
+COMO A SINCRONIZACAO FUNCIONA
+-----------------------------
+- Ao abrir, o sistema busca no servidor o que ha de mais recente.
+- A cada alteracao, ele envia para o servidor (agrupando edicoes seguidas).
+- A cada 15 segundos ele confere se alguem gravou algo novo e traz a novidade.
+- Se duas pessoas mexerem ao mesmo tempo, o sistema NAO apaga o trabalho de
+  ninguem em silencio: aparece o aviso "Alguem salvou antes de voce" com duas
+  opcoes - "Trazer do servidor" ou "Manter o meu".
+- Toda gravacao guarda copia em dados/historico (as 40 ultimas).
+
+Recomendacao de rotina: uma pessoa por vez faz as importacoes do fechamento.
+Varias pessoas consultando ao mesmo tempo nao tem problema nenhum.
+
+
+BACKUP
+------
+Alem do historico automatico do servidor, continue baixando a copia de seguranca
+(Configuracoes Globais > Baixar copia) depois de cada fechamento e guarde fora
+do servidor. E o que garante a volta em qualquer cenario.
+
+
+SE PRECISAR VOLTAR ATRAS
+------------------------
+Dentro de  dados/historico  estao as ultimas versoes, com data e hora no nome.
+Para restaurar uma delas: copie o arquivo desejado por cima de dados/estado.json
+(guarde antes uma copia do estado.json atual, por seguranca).
+
+
+REQUISITOS
+----------
+PHP 7.4 ou superior (o KingHost ja atende) e permissao de escrita na pasta.
+Nao precisa de banco de dados.
