@@ -23,9 +23,10 @@ Link direto: <https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/sql/ne
    em verde, embaixo.
 
 **Como conferir que deu certo:** menu da esquerda, **Table Editor**. Devem
-aparecer 17 tabelas na lista: `profiles`, `access`, `bloqueios`, `progress`,
-`audios`, `videos`, `eventos`, `caixinha`, `provas`, `membros`, `presencas`,
-`galeria`, `termos`, `denuncias`, `parcelas`, `webhook_log`, `push_tokens`.
+aparecer 18 tabelas na lista: `profiles`, `mentoras`, `access`, `bloqueios`,
+`progress`, `audios`, `videos`, `eventos`, `caixinha`, `provas`, `membros`,
+`presencas`, `galeria`, `termos`, `denuncias`, `parcelas`, `webhook_log` e
+`push_tokens`.
 
 Se der erro vermelho, copie a mensagem inteira e me mande. Não rode de novo
 sem olhar: o erro diz exatamente qual linha reclamou.
@@ -51,7 +52,7 @@ Clique no ícone de copiar ao lado da chave.
 
 **Agora no arquivo do app:**
 
-1. Abra `Operação Blindada 0508.01.html` num editor de texto (Bloco de Notas
+1. Abra `Operação Blindada 0508.03.html` num editor de texto (Bloco de Notas
    serve, mas o Notepad++ ou o VS Code é melhor).
 2. Aperte Ctrl+F e procure por: `COLE_AQUI_A_ANON_KEY`
 3. Selecione só o `COLE_AQUI_A_ANON_KEY` (sem mexer nas aspas em volta) e
@@ -101,31 +102,41 @@ Resend e Brevo têm plano sem custo e resolvem.
 
 ---
 
-## Passo 4: se dar a si mesma o acesso e o modo mentora (2 minutos)
+## Passo 4: o seu acesso (já vem pronto)
 
-Faça isso **depois** de entrar no app uma vez com o seu e-mail (é a primeira
-entrada que cria a sua conta).
+Não precisa fazer nada. O schema do passo 1 já faz as duas coisas:
 
-1. Abra o app, digite `gestaogrupoa@gmail.com`, receba o código e entre.
-2. Vai aparecer "Acesso ainda não liberado". Normal: você ainda não tem
-   acesso na tabela. Deixe essa tela aberta.
-3. Volte no Supabase, **SQL Editor**, cole e clique em **Run**:
+- o seu acesso entra **ativo**, mesmo antes de você entrar pela primeira vez;
+- quando a sua conta nascer (primeiro login), um gatilho marca você como
+  mentora, sozinho.
+
+É só entrar no app com `gestaogrupoa@gmail.com` e o modo mentora está lá:
+publicar áudio, criar encontro, responder a caixinha e o painel de denúncias
+em **Mais**.
+
+**Para liberar uma aluna na mão** (antes de o webhook existir, ou para
+resolver um caso), **SQL Editor**:
 
 ```sql
 insert into public.access (email, status)
-values ('gestaogrupoa@gmail.com', 'active')
+values ('email-da-aluna@exemplo.com', 'active')
 on conflict (email) do update set status = 'active';
-
-update public.profiles set is_mentor = true
- where email = 'gestaogrupoa@gmail.com';
 ```
 
-4. Volte no app e toque em **Atualizar**. O app abre, e agora você tem o
-   modo mentora: publicar áudio, criar encontro, responder a caixinha e o
-   painel de denúncias em **Mais**.
+**Para acrescentar outra mentora**, inclua o e-mail na lista e rode:
 
-Para liberar qualquer aluna na mão, é a primeira parte do comando, trocando
-o e-mail.
+```sql
+insert into public.mentoras (email) values ('outra@exemplo.com')
+on conflict (email) do nothing;
+
+insert into public.access (email, status)
+values ('outra@exemplo.com', 'active')
+on conflict (email) do update set status = 'active';
+```
+
+Quem manda mora na tabela `mentoras`, não numa coluna que o aplicativo
+consiga escrever. Foi assim de propósito: coluna que o cliente escreve é
+coluna que um dia alguém escreve.
 
 ---
 
@@ -183,10 +194,17 @@ Se tiver algo escrito em `erro`, me mande o texto.
    do app no lugar de `COLE_AQUI_A_ANON_KEY`
 3. **Authentication** → **Emails** → **Magic Link** → colar o modelo com
    `{{ .Token }}` → **Save**
-4. Entrar no app uma vez → **SQL Editor** → rodar os dois comandos do passo 4
+4. Entrar no app com o seu e-mail (o acesso e o modo mentora já vêm prontos)
 5. **Edge Functions** → criar `tmb-webhook` → colar o código → **Deploy** →
    **Secrets** → cadastrar na TMB
 
 Os passos 1 a 4 já deixam o app funcionando para você e para quem você
 liberar na mão. O passo 5 é o que faz a liberação acontecer sozinha quando
 alguém se inscreve.
+
+## Se der erro no passo 1
+
+O arquivo do schema foi rodado num PostgreSQL de verdade, três vezes
+seguidas, antes de chegar até você: ele aplica limpo e pode ser rodado de
+novo quantas vezes precisar. Se mesmo assim aparecer vermelho, copie a
+mensagem inteira: ela diz a linha exata que reclamou.

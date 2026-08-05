@@ -21,6 +21,7 @@ está listado como passo manual, na ordem de fazer.
 | Login sem sair do app | Código de 6 dígitos por e-mail |
 | Funciona sem internet | Fontes e biblioteca embutidas, limite de 7 dias offline |
 | Ícone e splash | `icones/`, gerados do próprio isotipo |
+| Capturas de tela | `capturas/`, nos dois tamanhos que as lojas pedem |
 
 ---
 
@@ -31,7 +32,7 @@ O projeto Supabase existe e está vazio. Falta rodar o schema.
 1. Abra <https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/sql/new>
 2. Abra o arquivo `supabase/01_schema.sql` deste repositório, copie tudo e cole.
 3. Aperte **Run**. Deve terminar com sucesso e sem aviso vermelho.
-4. Confira em **Table Editor**: devem aparecer 17 tabelas, todas com o
+4. Confira em **Table Editor**: devem aparecer 18 tabelas, todas com o
    cadeado de RLS ligado.
 
 O script cria tudo do zero e não apaga nada, porque não há nada para apagar
@@ -40,7 +41,7 @@ O script cria tudo do zero e não apaga nada, porque não há nada para apagar
 ### Passo 1.1: a chave do app
 
 1. Em **Project Settings**, **API Keys**, copie a chave **anon public**.
-2. Abra o arquivo `Operação Blindada 0508.01.html`, procure por
+2. Abra o arquivo `Operação Blindada 0508.03.html`, procure por
    `COLE_AQUI_A_ANON_KEY` e troque pela chave.
 3. Salve. Só isso liga o app ao banco.
 
@@ -49,16 +50,13 @@ do banco (RLS), não ela. A chave `service_role` nunca entra aqui.
 
 ### Passo 1.2: a sua conta de mentora
 
-1. Entre no app uma vez com o seu e-mail (o app cria a conta).
-2. No SQL Editor, rode:
-   ```sql
-   update public.profiles set is_mentor = true
-    where email = 'gestaogrupoa@gmail.com';
-   insert into public.access (email, status)
-   values ('gestaogrupoa@gmail.com', 'active')
-   on conflict (email) do update set status = 'active';
-   ```
-3. Recarregue o app: o painel de denúncias e o modo mentora aparecem.
+Não precisa fazer nada: o schema já deixa o seu acesso ativo e marca a sua
+conta como mentora assim que ela nascer, no primeiro login. Entre no app com
+`gestaogrupoa@gmail.com` e o painel de denúncias está lá.
+
+Quem manda mora na tabela `mentoras`, com RLS ligado e nenhuma política:
+nenhuma conta logada lê ou escreve aquilo. Para acrescentar outra pessoa, é
+uma linha no SQL Editor e rodar o arquivo de novo.
 
 ### Passo 1.3: o e-mail com o código de 6 dígitos
 
@@ -122,7 +120,7 @@ Mac com Xcode: não existe caminho sem isso.
 ```bash
 # na pasta loja/
 mkdir -p www/icones
-cp "../Operação Blindada 0508.01.html" www/index.html
+cp "../Operação Blindada 0508.03.html" www/index.html
 cp manifest.json sw.js www/
 cp icones/* www/icones/
 cp privacidade.html termos.html suporte.html www/

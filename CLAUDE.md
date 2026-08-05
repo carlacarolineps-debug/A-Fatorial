@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0508.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0508.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,73 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O login fechado e o banco provado num Postgres de verdade (0508.03)
+A Carla mandou a chave anon e pediu: "preciso que toda parte de login ja
+esteja totalmente pronta e todo o backend esteja feito tambem"; "quero o
+melhor aplicativo possivel e que ja esteja pronto para subir".
+
+**1. O schema virou coisa testada, não coisa escrita.** Subi um PostgreSQL 16
+local, simulei o que o Supabase traz pronto (papéis, `auth.uid()`, `auth.jwt()`,
+schema `storage`, publicação do Realtime, dublê do pg_cron) e rodei o arquivo
+de verdade. Ele acusou o que nenhuma leitura tinha visto: **`access` não tinha
+identidade de réplica**. A tabela entra na publicação do Realtime (é ela que
+fecha o app ao vivo quando o acesso cai), e tabela publicada que sofre update
+precisa de `replica identity`. Sem isso, **todo update em `access` falharia**:
+webhook que não libera, régua que não corta, suspensão que não suspende. Tudo
+calado. Corrigido com `replica identity using index access_email_uk2`. O
+arquivo agora aplica limpo **três vezes seguidas**, do zero. Os testes ficaram
+em `supabase/testes/`.
+
+**2. Escalada de privilégio, achada por revisão adversarial.** `revoke update
+on profiles` travava `is_mentor` no update, mas o **INSERT estava aberto**: a
+linha do perfil nasce no primeiro login, então bastava criar a própria linha
+já com `is_mentor = true`, fora do app, direto na API com a chave anon. A
+conta viraria mentora e leria a caixinha inteira com o e-mail de todas. Duas
+correções sobrepostas: `revoke insert` com grant só nas quatro colunas de
+identidade, e **`eh_mentora()` deixou de ler `profiles.is_mentor` e passou a
+ler a tabela `mentoras`**, com RLS ligado e nenhuma policy (ninguém logado lê
+nem escreve). A coluna continua, mas só para a interface saber o que desenhar.
+
+**3. "Removi o conteúdo" não removia nada.** O botão do painel de moderação
+só marcava a denúncia como resolvida, e a foto seguia visível para todo mundo.
+É exatamente o teste que as lojas fazem. Agora existe `remover_conteudo(tipo,
+id)`, que apaga de verdade, e o painel **mostra a foto denunciada**: decidir
+sem ver não é decidir.
+
+**4. O app não abria sem internet.** A leitura do perfil rejeitava antes de a
+corrente chegar na checagem offline, e a pessoa ficava numa tela preta, sem
+mensagem e sem botão. Cada etapa passou a cair sozinha (`seguro()`), falha de
+rede virou OFFLINE e OFFLINE tem caminho.
+
+**5. Progresso vazando entre contas no mesmo celular.** A Ana usa, sai, a Bia
+entra no mesmo aparelho e, como a Bia não tem nada no servidor, o app mandava
+o progresso da Ana para a conta da Bia. Agora o aparelho guarda **de quem é**
+o que está nele (`ob:dono`), e o que não é de quem entra é descartado antes de
+qualquer envio. E o que foi feito offline não é mais atropelado pelo servidor:
+`ob:mudou` contra `ob:enviado` decide quem é a versão boa.
+
+**6. O resto do login:** erro do servidor em português com o que fazer,
+e-mail validado antes de gastar um envio, reenvio com espera de 60 segundos
+(apertar cinco vezes batia no limite e a pessoa parava de receber), tela "não
+recebi o código" com os quatro caminhos, código aceito com espaço colado.
+Onze cenários testados no navegador com o Supabase trocado por um de mentira
+(`testes/login.cjs`), a trava de acesso ligada.
+
+**7. `get_ranking` não devolvia posição:** o app imprime `r.posicao` e todo
+mundo fora do pódio saía como "undefined". E o "você" era marcado por empate
+de XP. Agora a função devolve `posicao` e `eu_sou`.
+
+**8. Menos passo manual para a Carla:** o schema já deixa o acesso dela ativo
+e um gatilho marca a conta como mentora no primeiro login. E as capturas de
+tela das duas lojas foram geradas do app rodando (`loja/capturas/`), nos dois
+tamanhos exigidos.
+
+**Ferramenta nova:** `tools/confere-schema.py` compara cada tabela, coluna,
+função e bucket que o app usa contra o que o schema cria. Foi ele que achou o
+`onConflict: "email"` batendo num índice de expressão `lower(email)`, que faria
+**todo upsert do webhook morrer** com "no unique or exclusion constraint
+matching".
 
 ### O app virou aplicativo publicável (0508.01)
 A Carla: "preciso que esse app esteja pronto até sábado, preciso que esteja
