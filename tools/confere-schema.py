@@ -5,7 +5,6 @@ achar antes."""
 import io, re, sys, collections
 
 SQL = io.open('/home/user/A-Fatorial/supabase/01_schema.sql', encoding='utf-8').read()
-# Rode de dentro do diretorio onde estao os fontes do app.
 FONTES = ['operacao_base.html','bussola_engine.js','comunidade.js','ano.js',
           'programa.js','apostila.js','alvo.js','moderacao.js','conduz.js',
           'mentor.js','quiz.js','tour.js']
@@ -23,7 +22,7 @@ for m in re.finditer(r'create table if not exists public\.(\w+)\s*\((.*?)\n\);',
             cols.add(c.group(1))
     tabelas[nome] = cols
 
-funcoes = set(re.findall(r'create or replace function public\.(\w+)', SQL))
+funcoes = set(re.findall(r'create (?:or replace )?function public\.(\w+)', SQL))
 buckets = set(re.findall(r"insert into storage\.buckets[^;]*?values\s*\(\s*'([^']+)'", SQL, re.S))
 buckets |= set(re.findall(r"\('([a-z]+)',\s*'[a-z]+',\s*(?:true|false)", SQL))
 

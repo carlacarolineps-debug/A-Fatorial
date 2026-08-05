@@ -34,6 +34,17 @@ create table if not exists public.profiles (
 );
 alter table public.profiles enable row level security;
 
+-- mentoras: a lista de quem manda. Fica em tabela, e não numa coluna que
+-- o cliente possa escrever, porque coluna do cliente é coluna que um dia
+-- alguém escreve. Sem policy nenhuma: com RLS ligado e zero policy, nem
+-- ler nem gravar acontece pela chave anon. Só o SQL Editor e a
+-- service_role enxergam.
+create table if not exists public.mentoras (
+  email      text primary key,
+  criado_em  timestamptz not null default now()
+);
+alter table public.mentoras enable row level security;
+
 -- A tabela access nasce aqui porque tem_acesso() precisa dela, e os dois
 -- helpers precisam existir antes de QUALQUER policy que os chame: policy
 -- que referencia função inexistente falha na criação.
@@ -47,8 +58,50 @@ create table if not exists public.access (
   atualizado_em timestamptz not null default now(),
   criado_em    timestamptz not null default now()
 );
-create unique index if not exists access_email_uk on public.access (lower(email));
-create index        if not exists access_user_ix  on public.access (user_id);
+-- O único tem que ser sobre a COLUNA, não sobre lower(email). Índice de
+-- expressão não casa com "on conflict (email)", e o webhook grava assim:
+-- todo upsert morreria com "no unique or exclusion constraint matching",
+-- ou seja, quem paga nunca receberia acesso. Falha silenciosa e cara.
+-- Para o único simples valer, o e-mail entra sempre normalizado.
+create or replace function public.normaliza_email_access()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  new.email := lower(btrim(new.email));
+  return new;
+end $$;
+
+drop trigger if exists access_normaliza on public.access;
+create trigger access_normaliza before insert or update on public.access
+  for each row execute function public.normaliza_email_access();
+
+do $$
+declare dup int;
+begin
+  update public.access set email = lower(btrim(email))
+   where email is distinct from lower(btrim(email));
+  select count(*) into dup
+    from (select lower(email) e from public.access group by 1 having count(*) > 1) x;
+  if dup > 0 then
+    -- não apaga nada por conta própria: avisa e para
+    raise exception 'access tem % e-mail(s) repetido(s) por diferenca de caixa. Rode: select lower(email), count(*) from public.access group by 1 having count(*) > 1;', dup;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'access_email_uk2') then
+    alter table public.access add constraint access_email_uk2 unique (email);
+  end if;
+end $$;
+drop index if exists public.access_email_uk;
+
+-- Esta tabela entra na publicação do Realtime (seção 11), porque é ela que
+-- fecha o app ao vivo quando o acesso cai. Só que tabela publicada que
+-- sofre UPDATE precisa de identidade de réplica, e access não tem chave
+-- primária: sem esta linha, TODO update em access passa a falhar com
+-- "cannot update table because it does not have a replica identity".
+-- Ou seja: o webhook pararia de liberar acesso, a régua pararia de cortar
+-- e a suspensão de conta pararia de funcionar. Tudo de uma vez, calado.
+-- O único sobre email serve de identidade: a coluna é not null.
+alter table public.access replica identity using index access_email_uk2;
+
+create index if not exists access_user_ix on public.access (user_id);
 alter table public.access enable row level security;
 
 -- ---------------------------------------------------------------------
@@ -68,11 +121,17 @@ language sql stable security definer set search_path = public as $$
   );
 $$;
 
+-- A autoridade é a lista, não a coluna. Antes isto lia profiles.is_mentor,
+-- que o próprio cliente consegue gravar na hora em que a linha do perfil
+-- nasce. A coluna continua existindo, mas só para a interface saber o que
+-- desenhar: quem decide permissão é esta função, e ela olha a lista.
 create or replace function public.eh_mentora()
 returns boolean
 language sql stable security definer set search_path = public as $$
-  select coalesce((select p.is_mentor from public.profiles p
-                   where p.user_id = auth.uid()), false);
+  select exists (
+    select 1 from public.mentoras m
+     where lower(m.email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
 $$;
 
 grant execute on function public.tem_acesso()  to authenticated;
@@ -98,6 +157,17 @@ create policy profiles_atualiza_propria on public.profiles
 -- inteira, com o e-mail de todo mundo.
 revoke update on public.profiles from authenticated;
 grant  update (email, display_name, full_name, atualizado_em)
+  on public.profiles to authenticated;
+
+-- E o mesmo vale para o INSERT, que estava aberto. A policy de insert só
+-- confere de quem é a linha (user_id = auth.uid()), não o que vai dentro
+-- dela. Como a linha do perfil nasce no primeiro login, bastava criar a
+-- própria linha já com is_mentor = true, fora do app, direto na API com a
+-- chave anon, e a conta virava mentora: leria a caixinha inteira com o
+-- e-mail de todas, veria todas as provas, apagaria fotos e suspenderia
+-- contas. Escalada de privilégio, e em uma chamada só.
+revoke insert on public.profiles from authenticated;
+grant  insert (user_id, email, display_name, full_name)
   on public.profiles to authenticated;
 
 -- ---------------------------------------------------------------------
@@ -221,17 +291,59 @@ create policy progress_meu on public.progress
 
 -- O ranking não pode vazar e-mail. Devolve só nome de exibição e XP, e
 -- só para quem tem acesso ativo.
-create or replace function public.get_ranking(p_limit integer default 50)
-returns table (display_name text, xp integer, level integer)
+-- A posição precisa vir do banco: o app imprime r.posicao, e sem a coluna
+-- todo mundo fora do pódio aparecia como "undefined º". O eu_sou também vem
+-- daqui, porque marcar pelo XP destacava qualquer pessoa empatada como se
+-- fosse a própria usuária.
+-- create or replace não muda a assinatura de uma função: precisa dropar.
+-- Isto não apaga dado nenhum, só a definição que este mesmo arquivo criou.
+drop function if exists public.get_ranking(integer);
+create function public.get_ranking(p_limit integer default 50)
+returns table (posicao bigint, display_name text, xp integer, level integer, eu_sou boolean)
 language sql stable security definer set search_path = public as $$
-  select coalesce(pr.display_name, 'Membro') as display_name, pg.xp, pg.level
+  select row_number() over (order by pg.xp desc, pr.display_name),
+         coalesce(pr.display_name, 'Membro'),
+         pg.xp, pg.level,
+         (pg.user_id = auth.uid())
   from public.progress pg
   join public.profiles pr on pr.user_id = pg.user_id
   where public.tem_acesso()
   order by pg.xp desc
   limit greatest(1, least(coalesce(p_limit, 50), 200));
 $$;
-grant execute on function public.get_ranking(integer) to authenticated;
+revoke execute on function public.get_ranking(integer) from public, anon;
+grant  execute on function public.get_ranking(integer) to authenticated;
+
+-- ---------------------------------------------------------------------
+-- remover_conteudo: o que faz o botão "Removi o conteúdo" ser verdade.
+-- Antes ele só marcava a denúncia como resolvida e a foto continuava lá
+-- para todo mundo, que é exatamente o teste que as lojas fazem.
+-- A mentora pode apagar foto pela policy, mas não pode esconder o cartão
+-- de um membro (aquela tabela só aceita o dono), então as duas ações
+-- passam por aqui, com a checagem dentro da função.
+-- ---------------------------------------------------------------------
+create or replace function public.remover_conteudo(p_tipo text, p_id text)
+returns boolean
+language plpgsql volatile security definer set search_path = public as $$
+begin
+  if not public.eh_mentora() then
+    raise exception 'apenas a mentoria pode remover conteudo';
+  end if;
+  if p_id is null or p_id = '' then return false; end if;
+  if p_tipo = 'galeria' then
+    delete from public.galeria where id = p_id::uuid;
+  elsif p_tipo = 'caixinha' then
+    delete from public.caixinha where id = p_id::uuid;
+  elsif p_tipo = 'membro' then
+    update public.membros set visivel = false where user_id = p_id::uuid;
+  else
+    return false;
+  end if;
+  return true;
+exception when invalid_text_representation then
+  return false;   -- id que não é uuid: não derruba o painel
+end $$;
+grant execute on function public.remover_conteudo(text, text) to authenticated;
 
 -- =====================================================================
 -- 3. CONTEÚDO PUBLICADO PELA MENTORA
@@ -664,8 +776,50 @@ exception when duplicate_object then null;
 end $$;
 
 -- =====================================================================
--- 12. DEPOIS DE RODAR, FAZER À MÃO
---   a) marcar a conta da mentora:
---      update public.profiles set is_mentor = true where email = 'SEU@EMAIL';
---   b) conferir se o Realtime aparece ligado no painel, em Database > Publications
+-- 12. A CONTA DA MENTORA, SEM PASSO MANUAL
+-- Antes isto era um lembrete no fim do arquivo, e lembrete no fim do
+-- arquivo é o que se esquece. Agora o próprio schema resolve:
+--   1. o acesso já entra ativo, mesmo antes de a conta existir;
+--   2. quando a conta aparecer (primeiro login), o gatilho marca mentora.
+-- Para acrescentar outra pessoa, é só incluir o e-mail na lista abaixo e
+-- rodar o arquivo de novo.
+-- =====================================================================
+insert into public.mentoras (email) values ('gestaogrupoa@gmail.com')
+on conflict (email) do nothing;
+
+-- acesso da mentora, já ativo, mesmo antes de ela entrar pela primeira vez
+insert into public.access (email, status)
+select m.email, 'active' from public.mentoras m
+on conflict (email) do update set status = 'active', atualizado_em = now();
+
+-- o gatilho que marca a conta assim que ela nasce
+create or replace function public.marca_mentora()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if exists (select 1 from public.mentoras m where lower(m.email) = lower(new.email)) then
+    new.is_mentor := true;
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists profiles_marca_mentora on public.profiles;
+create trigger profiles_marca_mentora
+  before insert or update of email on public.profiles
+  for each row execute function public.marca_mentora();
+
+-- e, se a conta já existir de um login anterior, marca agora
+update public.profiles p set is_mentor = true
+ from public.mentoras m
+where lower(p.email) = lower(m.email) and p.is_mentor is distinct from true;
+
+-- =====================================================================
+-- 13. O QUE NÃO DÁ PARA FAZER POR SQL (fica no painel)
+--   a) Authentication > Emails > Templates > Magic Link:
+--      incluir {{ .Token }} no corpo, senão o código de 6 dígitos não chega
+--   b) Authentication > Emails > SMTP Settings:
+--      configurar um e-mail próprio antes de abrir para a turma. O e-mail
+--      embutido do Supabase manda pouquíssimos por hora e é só para teste
+--   c) Edge Functions: publicar tmb-webhook e cadastrar o segredo
+--      TMB_WEBHOOK_SECRET
+--   d) conferir o Realtime em Database > Publications
 -- =====================================================================
