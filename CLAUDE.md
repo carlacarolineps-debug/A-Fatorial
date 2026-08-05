@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0508.05.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0508.06.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,27 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A barra de baixo entrou no padrão do mercado (0508.06)
+A Carla: "quero que pegue os melhores apps do mercado e faça para que fique
+igual para que rode igual de forma simples, pois não é um app complicado".
+
+**Antes de mexer, medi.** Num celular simulado 4x mais lento que o computador
+(a referência que o Google usa para "aparelho mediano"): primeira pintura em
+**256ms**, carga completa em **805ms**, troca de tela entre **8 e 47ms**
+(abaixo de 100ms o olho lê como instantâneo), rolagem a **60 quadros por
+segundo**, e **753KB comprimidos** uma única vez (o Instagram passa de 2MB só
+de JavaScript). Ou seja: velocidade não era o problema, e não havia o que
+consertar ali.
+
+**O que estava fora do padrão era a barra de baixo: sete destinos.** A
+diretriz da Apple fala em até 5, a do Android em 3 a 5, e todo app grande
+respeita. Com sete, cada alvo cai para 59px num celular de 412px, os rótulos
+encolhem e a barra passa a parecer menu de site. Agora são cinco, o caminho de
+todo dia: **Início, Treino, Trilhas, Plano, Mais**.
+A Bússola e o Diário não sumiram: abrem a lista da tela Mais, seguem no mapa
+da operação na Home e continuam sendo o que o mentor mais indica. Para voltar
+ao que era, basta devolver os dois nomes à linha do `PRIMARY`.
 
 ### Senha, primeiro acesso por código, e o que só existe no aparelho (0508.05)
 A Carla: "preciso que tenha recuperacao de senha, codigo de 6 digitos para

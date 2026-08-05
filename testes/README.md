@@ -68,3 +68,23 @@ Vale lembrar o que este teste **não** prova: ele roda contra um Supabase de
 mentira, então ele mostra que a tela pede a coisa certa. Quem prova que o
 pedido é recusado para quem não pode é `supabase/testes/01-ataque-ao-banco.sql`,
 que roda contra um Postgres de verdade.
+
+
+---
+
+# A medição de velocidade (`velocidade.cjs`)
+
+Roda com o processador freado em 4x, que é a referência do Google para
+aparelho mediano, e mede quatro coisas: a primeira abertura, a troca de tela,
+a rolagem e o tamanho. Os números da versão 0508.06:
+
+| | Medido | O que é aceitável |
+|---|---|---|
+| Primeira pintura | 256ms | abaixo de 1,8s é bom |
+| Carga completa | 805ms | abaixo de 3s é bom |
+| Trocar de tela | 8 a 47ms | abaixo de 100ms parece instantâneo |
+| Rolagem | 60 quadros/s | 60 é o teto da tela |
+| Tamanho comprimido | 753KB | uma vez só, depois fica no aparelho |
+
+Vale rodar de novo depois de qualquer mudança grande: número que piora sem
+ninguém perceber é como o app fica lento com o tempo.
