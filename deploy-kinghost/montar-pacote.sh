@@ -12,6 +12,7 @@ cp "$SISTEMA"           "$SAIDA/nexus/index.html"
 cp "$DIR/api.php"       "$SAIDA/nexus/"
 cp "$DIR/.htaccess"     "$SAIDA/nexus/"
 cp "$DIR/LEIA-ME.txt"   "$SAIDA/nexus/"
+cp "$DIR/verificar.php" "$SAIDA/nexus/"
 cp "$DIR/.htpasswd-exemplo" "$SAIDA/nexus/"
 (cd "$SAIDA" && zip -r -q nexus-kinghost.zip nexus)
 mv "$SAIDA/nexus-kinghost.zip" ./nexus-kinghost.zip
