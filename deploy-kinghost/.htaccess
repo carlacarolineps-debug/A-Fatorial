@@ -21,6 +21,19 @@ Require valid-user
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteRule ^dados/ - [F,L]
+
+  # HTTPS obrigatorio: sem isso a senha da pasta e os numeros trafegam abertos.
+  # Ative depois de confirmar que o dominio tem certificado (o KingHost oferece
+  # SSL gratuito no painel). Para ativar, apague o "#" das duas linhas abaixo.
+  # RewriteCond %{HTTPS} !=on
+  # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# Cabecalhos de seguranca basicos
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "same-origin"
 </IfModule>
 
 # Nem os arquivos de senha e configuracao

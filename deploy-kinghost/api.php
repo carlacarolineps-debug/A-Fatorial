@@ -22,8 +22,14 @@ header('X-Content-Type-Options: nosniff');
 const HIST_MAX   = 40;                  // quantas versoes anteriores manter
 const LIMITE_MB  = 24;                  // tamanho maximo aceito numa gravacao
 
+// Os dados sao gravados com extensao .php e a primeira linha "<?php exit;".
+// Assim, mesmo que o .htaccess falhe ou o servidor seja trocado, quem pedir o
+// arquivo direto no navegador recebe uma pagina vazia, nunca os numeros.
+const GUARDA = "<?php exit; /* NEXUS GRB - dados do sistema */ ?>\n";
+
 $DIR  = __DIR__ . '/dados';
-$ARQ  = $DIR . '/estado.json';
+$ARQ  = $DIR . '/estado.php';
+$ANTIGO = $DIR . '/estado.json';        // instalacoes anteriores
 $LOCK = $DIR . '/estado.lock';
 $HIST = $DIR . '/historico';
 
@@ -58,10 +64,15 @@ function estadoVazio(): array {
     return ['versao' => 0, 'atualizadoEm' => null, 'atualizadoPor' => null, 'dados' => new stdClass()];
 }
 
-function leEstado(string $arq): array {
-    if (!is_file($arq)) return estadoVazio();
-    $txt = @file_get_contents($arq);
+function leEstado(string $arq, string $antigo = ''): array {
+    $alvo = is_file($arq) ? $arq : ($antigo !== '' && is_file($antigo) ? $antigo : '');
+    if ($alvo === '') return estadoVazio();
+    $txt = @file_get_contents($alvo);
     if ($txt === false || $txt === '') return estadoVazio();
+    if (str_starts_with($txt, '<?php')) {          // remove a linha de guarda
+        $q = strpos($txt, "\n");
+        $txt = $q === false ? '' : substr($txt, $q + 1);
+    }
     $j = json_decode($txt, true);
     if (!is_array($j) || !isset($j['versao'])) return estadoVazio();
     return $j;
@@ -76,8 +87,8 @@ function gravaAtomico(string $arq, string $conteudo): bool {
 }
 
 function rotacionaHistorico(string $hist, string $conteudo, int $versao): void {
-    @file_put_contents(sprintf('%s/estado-%s-v%06d.json', $hist, date('Ymd-His'), $versao), $conteudo);
-    $arqs = glob($hist . '/estado-*.json') ?: [];
+    @file_put_contents(sprintf('%s/estado-%s-v%06d.php', $hist, date('Ymd-His'), $versao), GUARDA . $conteudo);
+    $arqs = array_merge(glob($hist . '/estado-*.php') ?: [], glob($hist . '/estado-*.json') ?: []);
     if (count($arqs) > HIST_MAX) {
         sort($arqs);
         foreach (array_slice($arqs, 0, count($arqs) - HIST_MAX) as $velho) @unlink($velho);
@@ -94,13 +105,13 @@ if ($acao === 'ping') {
 
 /* ---- versao: consulta barata, usada para perceber que alguem gravou ---- */
 if ($acao === 'versao') {
-    $e = leEstado($ARQ);
+    $e = leEstado($ARQ, $ANTIGO);
     responde(200, ['versao' => (int) $e['versao'], 'atualizadoEm' => $e['atualizadoEm'], 'atualizadoPor' => $e['atualizadoPor']]);
 }
 
 /* ---- estado: o pacote completo ---- */
 if ($acao === 'estado') {
-    $e = leEstado($ARQ);
+    $e = leEstado($ARQ, $ANTIGO);
     responde(200, $e);
 }
 
@@ -108,6 +119,17 @@ if ($acao === 'estado') {
 if ($acao === 'gravar') {
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
         responde(405, ['erro' => 'Use POST para gravar.']);
+    }
+    // Gravacao so pode partir da propria pagina do sistema. Sem esta checagem, um site
+    // qualquer aberto no navegador de quem tem acesso poderia mandar gravar por baixo.
+    $origem = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if ($origem !== '') {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $ok = false;
+        foreach (['https://' . $host, 'http://' . $host] as $permitido) {
+            if (strcasecmp($origem, $permitido) === 0) { $ok = true; break; }
+        }
+        if (!$ok) responde(403, ['erro' => 'Gravacao permitida apenas a partir do proprio sistema.']);
     }
     $bruto = file_get_contents('php://input');
     if ($bruto === false || $bruto === '') responde(400, ['erro' => 'Nada recebido.']);
@@ -124,7 +146,7 @@ if ($acao === 'gravar') {
     if (!flock($fp, LOCK_EX)) { fclose($fp); responde(503, ['erro' => 'Servidor ocupado, tente de novo.']); }
 
     try {
-        $atual = leEstado($ARQ);
+        $atual = leEstado($ARQ, $ANTIGO);
         $versaoAtual = (int) $atual['versao'];
         $base = isset($req['baseVersao']) ? (int) $req['baseVersao'] : -1;
         $forcar = !empty($req['forcar']);
@@ -148,7 +170,7 @@ if ($acao === 'gravar') {
         ];
         $txt = json_encode($novo, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if ($txt === false) responde(500, ['erro' => 'Nao consegui converter os dados.']);
-        if (!gravaAtomico($ARQ, $txt)) responde(500, ['erro' => 'Falha ao gravar. Confira a permissao da pasta dados.']);
+        if (!gravaAtomico($ARQ, GUARDA . $txt)) responde(500, ['erro' => 'Falha ao gravar. Confira a permissao da pasta dados.']);
         rotacionaHistorico($HIST, $txt, (int) $novo['versao']);
 
         responde(200, ['ok' => true, 'versao' => $novo['versao'], 'atualizadoEm' => $novo['atualizadoEm'], 'atualizadoPor' => $novo['atualizadoPor']]);

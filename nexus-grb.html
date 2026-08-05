@@ -276,6 +276,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   .highlight-row td { background: var(--paper-tint); }
   .text-red-strong { color: var(--accent-red) !important; font-weight: 700 !important; }
   .text-green-strong { color: var(--accent-green) !important; font-weight: 700 !important; }
+  /* Destaques de extremo do ano. Vermelho é EXCLUSIVO de valor negativo; a maior despesa usa
+     laranja (atenção, não erro) e o menor valor da linha fica só em negrito, sem cor, para a
+     tabela não virar um mosaico. Laranja escolhido por contrastar com o dourado da marca e
+     continuar legível no tema claro e no escuro — amarelo em número não se lê. */
+  .text-orange-strong { color: #c2410c !important; font-weight: 800 !important; }
+  .nx-extremo-baixo { font-weight: 800 !important; }
+  /* Valor de despesa que é sempre positivo (totais, custo/kg). Antes vinha em vermelho, o que
+     fazia despesa normal parecer prejuízo. Fica em grafite forte: continua sendo o número
+     principal do cartão, e a tarja vermelha da borda já diz que é custo. */
+  .nx-valor-despesa { color: #334155 !important; font-weight: 800 !important; }
+  html.theme-dark .text-orange-strong { color: #fb923c !important; }
+  html.theme-dark .nx-valor-despesa { color: #cbd5e1 !important; }
   .highlight-col { background: rgba(197,168,128,0.10) !important; box-shadow: inset 1px 0 0 rgba(197,168,128,0.35), inset -1px 0 0 rgba(197,168,128,0.35); }
 
   .cc-parent td { background-color: #f3f5fa !important; border-top: 1px solid var(--color-border) !important; border-bottom: 1px solid var(--color-border) !important; color: var(--accent-blue) !important; font-size: 11.5px !important; font-weight: 700 !important; letter-spacing: 0.2px; }
@@ -655,6 +667,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 .emb-stat.gold .v{ color:var(--nx-gold-bright,#e8cf9a); }
 .emb-stat.green .v{ color:#4fe3b0; }
 .emb-stat.red .v{ color:#ff8095; }
+.emb-stat.custo .v{ color:#e2e8f0; }   /* despesa/custo: número forte, sem alarme */
 /* Afordância de "clique para ver a razão" */
 .nx-drill{ cursor:pointer; }
 .nx-drill:hover{ background:rgba(197,168,128,.10) !important; }
@@ -1185,7 +1198,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px">
         <div class="kpi-card blue"><div class="kpi-label">Faturamento do Grupo (ano)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(consolidado.total.fat)"></div></div>
-        <div class="kpi-card red"><div class="kpi-label">Despesas do Grupo (ano)</div><div class="kpi-val text-red-strong" x-text="formatarDinheiroExato(consolidado.total.desp)"></div></div>
+        <div class="kpi-card red"><div class="kpi-label">Despesas do Grupo (ano)</div><div class="kpi-val nx-valor-despesa" x-text="formatarDinheiroExato(consolidado.total.desp)"></div></div>
         <div class="kpi-card green"><div class="kpi-label flex justify-between">Resultado do Grupo <span class="font-bold" :class="consolidado.total.margem<0?'text-red-strong':'text-green-strong'" x-text="consolidado.total.margem.toFixed(1)+'%'"></span></div><div class="kpi-val" :class="consolidado.total.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(consolidado.total.res)"></div></div>
         <div class="kpi-card gold"><div class="kpi-label">Contas no Banco</div><div class="kpi-val text-accent-blue" x-text="consolidado.empresas.length + ' empresas'"></div></div>
       </div>
@@ -1215,7 +1228,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               <tr class="highlight-row" style="font-weight:900">
                 <td class="text-accent-blue">TOTAL DO GRUPO</td><td></td>
                 <td class="td-r text-accent-blue" x-text="formatarDinheiroExato(consolidado.total.fat)"></td>
-                <td class="td-r text-red-strong" x-text="formatarDinheiroExato(consolidado.total.desp)"></td>
+                <td class="td-r nx-valor-despesa" x-text="formatarDinheiroExato(consolidado.total.desp)"></td>
                 <td class="td-r" :class="consolidado.total.res<0?'text-red-strong':'text-green-strong'" x-text="formatarDinheiroExato(consolidado.total.res)"></td>
                 <td class="td-r" x-text="consolidado.total.margem.toFixed(1)+'%'"></td><td></td>
               </tr>
@@ -1351,7 +1364,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="emb-hero-grid">
           <div class="emb-stat gold"><div class="l">Fator médio (R$/kg)</div><div class="v" x-text="'R$ '+embCockpit.fator.toFixed(2).replace('.',',')"></div><div class="s">linha FATOR da planilha</div></div>
           <div class="emb-stat"><div class="l">Peso faturado</div><div class="v" x-text="Math.round(embCockpit.kg).toLocaleString('pt-BR')+' kg'"></div><div class="s" x-text="embCockpit.nMeses+' mês(es) lançado(s)'"></div></div>
-          <div class="emb-stat red"><div class="l">Custo por kg</div><div class="v" x-text="'R$ '+embCockpit.custoKg.toFixed(2).replace('.',',')"></div><div class="s">total despesas ÷ peso</div></div>
+          <div class="emb-stat custo"><div class="l">Custo por kg</div><div class="v" x-text="'R$ '+embCockpit.custoKg.toFixed(2).replace('.',',')"></div><div class="s">total despesas ÷ peso</div></div>
           <div class="emb-stat" :class="embCockpit.margemKg<0?'red':'green'"><div class="l">Margem por kg</div><div class="v" x-text="'R$ '+embCockpit.margemKg.toFixed(2).replace('.',',')"></div><div class="s">o que sobra em cada kg</div></div>
           <div class="emb-stat"><div class="l">Faturamento no ano</div><div class="v" x-text="fmtAbrev(embCockpit.fat)"></div><div class="s" x-text="'margem '+embCockpit.margem.toFixed(1)+'% (linha % da planilha)'"></div></div>
           <div class="emb-stat gold"><div class="l">Estoque atual</div><div class="v" x-text="fmtAbrev(invColTotal(invMesesAtivos[invMesesAtivos.length-1]||'Jan','valor','principal'))"></div><div class="s" x-text="Math.round(invColTotal(invMesesAtivos[invMesesAtivos.length-1]||'Jan','kg','all')).toLocaleString('pt-BR')+' kg parados'"></div></div>
@@ -1467,7 +1480,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="kpi-card blue"><div class="kpi-label">Faturamento (acum.)</div><div class="kpi-val text-accent-blue" x-text="formatarDinheiroExato(fatTotalAcum.fat)"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px" x-text="fatMesesAtivos.join(' + ')"></div></div>
         <div class="kpi-card gold"><div class="kpi-label">Peso Faturado (acum.)</div><div class="kpi-val text-accent-blue" x-text="fatTotalAcum.kg.toLocaleString('pt-BR')+' kg'"></div></div>
         <div class="kpi-card green"><div class="kpi-label">Fator · Receita/kg (méd.)</div><div class="kpi-val text-green-strong" x-text="'R$ '+embSubTotais.fator.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">quanto cada kg gera</div></div>
-        <div class="kpi-card red"><div class="kpi-label">Custo / kg (méd.)</div><div class="kpi-val text-red-strong" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">despesa por kg faturado</div></div>
+        <div class="kpi-card red"><div class="kpi-label">Custo / kg (méd.)</div><div class="kpi-val nx-valor-despesa" x-text="'R$ '+embSubTotais.custoKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">despesa por kg faturado</div></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px">
         <div class="kpi-card" style="border-left:4px solid var(--accent-green)"><div class="kpi-label">Margem / kg</div><div class="kpi-val" :class="embSubTotais.margemKg<0?'text-red-strong':'text-green-strong'" x-text="'R$ '+embSubTotais.margemKg.toFixed(2).replace('.',',')"></div><div style="font-size:11px;color:var(--color-muted);margin-top:6px">receita/kg − custo/kg</div></div>
@@ -1738,7 +1751,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div class="emb-hero-grid">
           <div class="emb-stat gold"><div class="l">Faturamento líquido do mês</div><div class="v" x-text="fmtAbrev(fatReqTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s" x-text="mesAtivo + ' · principal (após retenções)'"></div></div>
           <div class="emb-stat"><div class="l">Faturamento bruto do mês</div><div class="v" x-text="fmtAbrev(fatReqBrutoTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s">Valor da Conta (antes das retenções)</div></div>
-          <div class="emb-stat red"><div class="l">Retenções (abatimentos)</div><div class="v" x-text="fmtAbrev(fatReqBrutoTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004) - fatReqTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s">bruto menos líquido (ISS, PIS, IRRF)</div></div>
+          <div class="emb-stat custo"><div class="l">Retenções (abatimentos)</div><div class="v" x-text="fmtAbrev(fatReqBrutoTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004) - fatReqTotal(mesAtivo, empresaExtras.fatReq && empresaExtras.fatReq.considerar004))"></div><div class="s">bruto menos líquido (ISS, PIS, IRRF)</div></div>
           <div class="emb-stat" :class="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'green' : ''"><div class="l">Grupo 004 no mês</div><div class="v" x-text="fmtAbrev(fatReqTotal(mesAtivo, true) - fatReqTotal(mesAtivo, false))"></div><div class="s" x-text="empresaExtras.fatReq && empresaExtras.fatReq.considerar004 ? 'sendo considerado no total' : 'registrado, oculto do total'"></div></div>
           <div class="emb-stat">
             <div class="l">Considerar 004 como</div>
@@ -2265,10 +2278,10 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               </template>
               <tr class="highlight-row" style="font-weight:900">
                 <td class="text-accent-blue"><i class="fas fa-minus-circle mr-1" style="color:var(--accent-red)"></i> TOTAL DESPESAS</td>
-                <td class="td-r text-red-strong" x-text="formatarDinheiroExato(simDRE.base.desp)"></td>
+                <td class="td-r nx-valor-despesa" x-text="formatarDinheiroExato(simDRE.base.desp)"></td>
                 <td></td>
                 <td class="td-r" style="color:var(--accent-gold-deep)" x-text="'− '+formatarDinheiroExato(simDRE.corteYTD)"></td>
-                <td class="td-r text-red-strong" x-text="formatarDinheiroExato(simDRE.novo.desp)"></td>
+                <td class="td-r nx-valor-despesa" x-text="formatarDinheiroExato(simDRE.novo.desp)"></td>
               </tr>
               <tr class="highlight-row" style="font-weight:900;font-size:14px">
                 <td class="text-accent-blue"><i class="fas fa-equals mr-1" style="color:var(--accent-gold)"></i> RESULTADO</td>
@@ -2306,7 +2319,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
           <div class="emb-hero-grid">
             <div class="emb-stat gold"><div class="l">Fator médio</div><div class="v" x-text="'R$ '+embCockpit.fator.toFixed(2).replace('.',',')"></div><div class="s">linha FATOR da planilha</div></div>
-            <div class="emb-stat red"><div class="l">Custo por kg</div><div class="v" x-text="'R$ '+embCockpit.custoKg.toFixed(2).replace('.',',')"></div><div class="s">despesa ÷ peso</div></div>
+            <div class="emb-stat custo"><div class="l">Custo por kg</div><div class="v" x-text="'R$ '+embCockpit.custoKg.toFixed(2).replace('.',',')"></div><div class="s">despesa ÷ peso</div></div>
             <div class="emb-stat" :class="embCockpit.margemKg<0?'red':'green'"><div class="l">Margem por kg</div><div class="v" x-text="'R$ '+embCockpit.margemKg.toFixed(2).replace('.',',')"></div><div class="s">sobra por kg</div></div>
             <div class="emb-stat"><div class="l">Peso faturado</div><div class="v" x-text="Math.round(embCockpit.kg).toLocaleString('pt-BR')+' kg'"></div><div class="s" x-text="embCockpit.nMeses+' mês(es)'"></div></div>
             <div class="emb-stat" :class="embCockpit.margem<0?'red':'green'"><div class="l">Margem operacional</div><div class="v" x-text="embCockpit.margem.toFixed(1)+'%'"></div><div class="s">linha % da planilha</div></div>
@@ -2322,7 +2335,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </div>
         <div class="kpi-card red">
           <div class="kpi-head"><div class="kpi-ic" style="background:rgba(225,29,72,.10);color:var(--accent-red)"><i class="fas fa-arrow-trend-down"></i></div><div class="kpi-label">Despesas · <span x-text="mesAtivo"></span></div><template x-if="kpis.despTemMoM"><span class="kpi-mom" :title="'Variação vs '+kpis.momMesAnt" :style="kpis.despMoM<=0?'color:#0d9488;background:rgba(13,148,136,.11)':'color:#e11d48;background:rgba(225,29,72,.11)'"><i class="fas" :class="kpis.despMoM>0?'fa-arrow-up':'fa-arrow-down'"></i> <span x-text="fmtMoM(kpis.despMoM)"></span></span></template></div>
-          <div class="kpi-val text-red-strong" x-text="kpis.despesa"></div>
+          <div class="kpi-val nx-valor-despesa" x-text="kpis.despesa"></div>
           <div class="kpi-foot"><span>Acumulado no ano</span><b x-text="kpis.despesaYTD"></b></div>
         </div>
         <div class="kpi-card green">
@@ -2484,7 +2497,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
               </template>
               <tr style="border-top: 2px solid var(--accent-gold); background: var(--color-surface2);">
                   <td class="sticky-col font-black text-accent-blue" style="font-size: 14px;">TOTAL DO MÊS</td>
-                  <td class="td-r font-black text-red-strong" style="font-size: 14px;" x-text="formatarDinheiroExato(centrosCustoData.find(c=>c.c==='Total') ? centrosCustoData.find(c=>c.c==='Total')[subAbaDespesa] : 0)"></td>
+                  <td class="td-r font-black nx-valor-despesa" style="font-size: 14px;" x-text="formatarDinheiroExato(centrosCustoData.find(c=>c.c==='Total') ? centrosCustoData.find(c=>c.c==='Total')[subAbaDespesa] : 0)"></td>
                   <td class="no-print"></td>
               </tr>
             </tbody>
@@ -2676,6 +2689,26 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
           </div>
           <button @click="restaurarDadosOriginais()" class="emc-btn-secondary" style="padding:10px 16px;border-radius:11px;white-space:nowrap"><i class="fas fa-rotate-left mr-1"></i> Restaurar dados originais</button>
         </div>
+
+        <!-- Publicado na internet sem senha de pasta: qualquer pessoa com o endereço lê e grava
+             os números da empresa. O sistema detecta isso e avisa, em vez de deixar passar. -->
+        <template x-if="sync.ligado && sync.semSenha">
+          <div style="margin-top:16px;background:rgba(220,38,38,.07);padding:20px 24px;border-radius:12px;border:1px solid rgba(220,38,38,.5)">
+            <div style="font-size:12.5px;font-weight:800;color:#c0392b"><i class="fas fa-lock-open mr-2"></i> Esta instalação está SEM senha de pasta</div>
+            <div style="font-size:11px;color:var(--color-muted);margin-top:4px;line-height:1.55;white-space:normal">
+              O sistema está publicado num servidor e funcionando, mas o servidor não pediu usuário e senha para abrir esta pasta.
+              Isso significa que <b>qualquer pessoa com o endereço vê e altera</b> os números das empresas.
+              Proteja a pasta no painel da hospedagem (no KingHost: <b>Proteger diretório</b>) ou pelo arquivo <b>.htaccess</b> que veio no pacote.
+            </div>
+          </div>
+        </template>
+        <template x-if="sync.ligado && !sync.semSenha">
+          <div style="margin-top:16px;background:rgba(13,148,136,.06);padding:14px 20px;border-radius:12px;border:1px solid rgba(13,148,136,.3);font-size:11.5px;color:var(--color-muted);line-height:1.55;white-space:normal">
+            <b style="color:#0d9488"><i class="fas fa-lock mr-1"></i> Instalação protegida e compartilhada.</b>
+            A pasta pede senha (entrou como <b x-text="sync.quem || '·'"></b>) e os dados ficam no servidor, iguais para todos os usuários.
+            O servidor guarda as <b>40 últimas versões</b>; ainda assim, baixe a cópia abaixo depois de cada fechamento.
+          </div>
+        </template>
 
         <!-- Cópia de segurança: o trabalho só existe NESTE navegador. Sem isto, limpar o cache
              (ou trocar de computador) apaga tudo. -->
@@ -3014,7 +3047,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
     <div x-show="aba==='historico_comparativo'" x-cloak style="display:grid;gap:24px">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px">
-        <div class="kpi-card purple"><div class="kpi-label">Despesa Total (2025)</div><div class="kpi-val text-red-strong">R$ 11.080.235,50</div><div class="kpi-sub">Custo consolidado do último ano</div></div>
+        <div class="kpi-card purple"><div class="kpi-label">Despesa Total (2025)</div><div class="kpi-val nx-valor-despesa">R$ 11.080.235,50</div><div class="kpi-sub">Custo consolidado do último ano</div></div>
         <div class="kpi-card blue"><div class="kpi-label">Maior Faturamento</div><div class="kpi-val text-green-strong">R$ 17.370.593,39</div><div class="kpi-sub">Alcançado no exercício de 2023</div></div>
         <div class="kpi-card gold"><div class="kpi-label">Lucro Operacional Base</div><div class="kpi-val text-green-strong">R$ 864.181,69</div><div class="kpi-sub">Resultado do negócio em 2025 (Sem T.F.)</div></div>
         <div class="kpi-card red"><div class="kpi-label">Cenário Com T.F.</div><div class="kpi-val text-red-strong">- R$ 568.412,31</div><div class="kpi-sub">Resultado Real após impacto financeiro (2025)</div></div>
@@ -3051,7 +3084,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
 
       <div class="card-dark">
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 16px;">
-          <div><div class="card-title mb-1">Matriz Fiel de Resultados (Extração 2017-<span x-text="anoVigente"></span>)</div><p class="text-xs text-gray-500 mb-0">Anos anteriores são fixos; a coluna <b x-text="anoVigente"></b> entra ao vivo, do resultado acumulado do exercício. Melhor e pior de cada linha destacados.</p></div>
+          <div><div class="card-title mb-1">Matriz Fiel de Resultados (Extração 2017-<span x-text="anoVigente"></span>)</div><p class="text-xs text-gray-500 mb-0">Anos anteriores são fixos; a coluna <b x-text="anoVigente"></b> entra ao vivo, do resultado acumulado do exercício. Verde marca o melhor do ano (faturamento e resultado), laranja a maior despesa e negrito o menor valor da linha. Vermelho é só para negativo.</p></div>
           <div style="display:flex; align-items:center; gap:8px;"><label class="text-xs font-bold text-gray-500 uppercase">Ordem dos Anos:</label><select x-model="ordemMatriz" class="emc-input w-auto text-accent-blue"><option value="desc">Mais Atual ➝ Mais Antigo</option><option value="asc">Mais Antigo ➝ Mais Atual</option></select></div>
         </div>
         <div class="js-hscroll" style="overflow-x:auto; max-width: 100%; border: 1px solid var(--color-border); border-radius: 8px;">
@@ -3110,7 +3143,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </div>
         <div class="emb-hero-grid">
           <div class="emb-stat gold"><div class="l">Faturamento do mês</div><div class="v" x-text="kpis.faturamento"></div><div class="s"><span x-text="mesAtivo"></span> · acumulado <span x-text="kpis.faturamentoYTD"></span></div></div>
-          <div class="emb-stat red"><div class="l">Despesa do mês</div><div class="v" x-text="kpis.despesa"></div><div class="s"><span x-text="mesAtivo"></span> · acumulado <span x-text="kpis.despesaYTD"></span></div></div>
+          <div class="emb-stat custo"><div class="l">Despesa do mês</div><div class="v" x-text="kpis.despesa"></div><div class="s"><span x-text="mesAtivo"></span> · acumulado <span x-text="kpis.despesaYTD"></span></div></div>
           <div class="emb-stat" :class="kpis.resultadoNum < 0 ? 'red' : 'green'"><div class="l">Resultado do mês</div><div class="v" x-text="kpis.resultado"></div><div class="s">acumulado <span x-text="kpis.resultadoYTD"></span></div></div>
           <div class="emb-stat green"><div class="l">Maior faturamento</div><div class="v" x-text="kpis.maiorFat"></div><div class="s">pico de receita no ano</div></div>
           <div class="emb-stat"><div class="l">Maior despesa</div><div class="v" x-text="kpis.maiorDesp"></div><div class="s">pico de custo no ano</div></div>
@@ -3159,8 +3192,8 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
                                    :value="fmtNum(linha[m.chave.toLowerCase()])"
                                    @focus="$event.target.select()"
                                    @change="setNum(linha, m.chave.toLowerCase(), $event.target.value, linha.desc + ' ' + m.labelData)"
-                                   class="input-manual bg-transparent border-b border-dashed border-gray-400 focus:border-accent-gold outline-none text-right font-black w-24 px-1 hover:bg-gray-50 transition-colors cursor-pointer focus:cursor-text" 
-                                   :class="linha.desc === 'Faturamento' ? 'text-green-strong' : (linha.desc === 'Estoque' ? 'text-accent-blue' : (linha.desc === 'Relatório TF' ? 'text-amber-500' : 'text-gray-600'))">
+                                   class="input-manual bg-transparent border-b border-dashed border-gray-400 focus:border-accent-gold outline-none text-right font-black w-24 px-1 hover:bg-gray-50 transition-colors cursor-pointer focus:cursor-text"
+                                   style="color:inherit">
                          </div>
                       </template>
                       
@@ -3281,7 +3314,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
           <div>
             <div class="card-title mb-2">Matriz Fiel de Provisões (Mensal 2026 Completo)</div>
-            <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Preencha manualmente o valor Realizado de cada categoria mês a mês (A diferença irá direto para o DRE). Somente a pior fuga do orçamento ficará em vermelho absoluto.</p>
+            <p class="text-xs text-gray-500 mb-6 pb-4 border-b border-gray-200">Preencha manualmente o valor Realizado de cada categoria mês a mês (A diferença irá direto para o DRE). O maior realizado do ano fica em laranja e o menor em negrito; vermelho é usado só para valor negativo.</p>
           </div>
           <button @click="adicionarCategoriaProvisao()" class="emc-btn-gold no-print"><i class="fas fa-plus"></i> Nova Categoria</button>
         </div>
@@ -3373,7 +3406,7 @@ aside.nx-sidebar select.emc-input{ background-image:linear-gradient(45deg,transp
         </div>
         <div class="emb-hero-grid">
           <div class="emb-stat gold"><div class="l">Fundo Operacional (no ano)</div><div class="v" x-text="fmtAbrev(drAcumuladoBase)"></div><div class="s">resultado acumulado do DRE</div></div>
-          <div class="emb-stat red"><div class="l">Capital Comprometido</div><div class="v" x-text="fmtAbrev(totalDistribuidoGlobal)"></div><div class="s">pago + reservado</div></div>
+          <div class="emb-stat custo"><div class="l">Capital Comprometido</div><div class="v" x-text="fmtAbrev(totalDistribuidoGlobal)"></div><div class="s">pago + reservado</div></div>
           <div class="emb-stat green"><div class="l">Saldo Global Livre</div><div class="v" x-text="fmtAbrev(drAcumuladoBase - totalDistribuidoGlobal)"></div><div class="s">dinheiro não comprometido</div></div>
           <div class="emb-stat" :class="Math.abs(somaChaves-100)<0.01?'green':'red'"><div class="l">Soma das carteiras</div><div class="v" x-text="fmtNum(somaChaves)+'%'"></div><div class="s" x-text="Math.abs(somaChaves-100)<0.01?'auditoria ok (100%)':'precisa somar 100%'"></div></div>
           <div class="emb-stat">
@@ -4219,7 +4252,7 @@ const EMB_CC_MESES_TOTAL={ jun: 1556056.89 };
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = '2407.20';
+const NEXUS_BUILD = '2407.21';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -4889,6 +4922,11 @@ function sistemaUnificado(){
       // Persistência: se houver dados salvos neste navegador (importações/edições/zerado), prevalecem
       try {
         const salvo = JSON.parse(localStorage.getItem('nexus_v2_dados_' + emp.id) || 'null');
+        // Base salva por uma versão anterior é ADOTADA, não descartada (ver inicializar).
+        if (salvo && salvo.versao !== NEXUS_DADOS_VERSAO && (salvo.dre || salvo.cc)) {
+          salvo.versao = NEXUS_DADOS_VERSAO;
+          try { localStorage.setItem('nexus_v2_dados_' + emp.id, JSON.stringify(salvo)); } catch(e2) {}
+        }
         if (salvo && salvo.versao === NEXUS_DADOS_VERSAO) {
           if (salvo.dre) this.dreAtual = salvo.dre;
           if (salvo.cc) this.centrosCustoData = salvo.cc;
@@ -5031,7 +5069,10 @@ function sistemaUnificado(){
     // O sistema funciona igual sem servidor: aberto como arquivo local, nada disto liga. Quando
     // publicado numa hospedagem com o api.php ao lado, o navegador passa a puxar e enviar o
     // estado, e todo mundo enxerga os mesmos números.
-    sync: { ligado: false, versao: 0, estado: 'off', quando: '', quem: '', conflito: false, enviando: false, pendente: false },
+    // "pronto" só fica true depois que o estado do servidor chegou. Antes disso NADA é enviado:
+    // sem essa trava, o que o navegador tivesse em mãos ao abrir (inclusive um sistema recém-
+    // zerado por uma atualização) poderia ser publicado por cima do trabalho de todo mundo.
+    sync: { ligado: false, pronto: false, versao: 0, estado: 'off', quando: '', quem: '', conflito: false, enviando: false, pendente: false, semSenha: false },
     _syncTimer: null, _syncPoll: null,
     get syncRotulo() {
       const s = this.sync;
@@ -5062,6 +5103,15 @@ function sistemaUnificado(){
       // rodarem por cima dele no próximo carregamento.
       localStorage.setItem('nexus_v2_limpa', NEXUS_LIMPA_TAG);
       localStorage.setItem('nexus_v2_seed', NEXUS_BUILD);
+      // O estado do servidor pode ter sido gravado por uma versão anterior do sistema. Sem
+      // reetiquetar, o carregamento o trataria como "formato antigo" — a base do servidor seria
+      // ignorada e o usuário abriria em branco depois de uma atualização.
+      Object.keys(dados || {}).filter(k => k.indexOf('nexus_v2_dados_') === 0).forEach(k => {
+        try {
+          const pac = JSON.parse(localStorage.getItem(k));
+          if (pac && typeof pac === 'object') { pac.versao = NEXUS_DADOS_VERSAO; localStorage.setItem(k, JSON.stringify(pac)); }
+        } catch (e) {}
+      });
       if (versao != null) localStorage.setItem('nexus_v2_sync_versao', String(versao));
     },
     async syncIniciar() {
@@ -5071,6 +5121,8 @@ function sistemaUnificado(){
         if (!r.ok) return;
         const j = await r.json();
         if (!j || j.sistema !== 'NEXUS GRB') return;
+        // Sem senha de pasta (.htaccess), qualquer pessoa com o endereço abre e grava.
+        this.sync.semSenha = !j.usuario || j.usuario === 'sem identificacao';
       } catch (e) { return; }                                     // sem servidor: segue sozinho
       this.sync.ligado = true;
       try {
@@ -5080,10 +5132,10 @@ function sistemaUnificado(){
           const minha = Number(localStorage.getItem('nexus_v2_sync_versao') || 0);
           this.sync.versao = Number(e.versao); this.sync.quando = e.atualizadoEm || ''; this.sync.quem = e.atualizadoPor || '';
           if (minha !== Number(e.versao)) { this.syncAplica(e.dados, e.versao); location.reload(); return; }
-          this.sync.estado = 'ok';
+          this.sync.pronto = true; this.sync.estado = 'ok';
         } else {
           // Servidor ainda vazio: este navegador publica o que tem, para os outros partirem daqui
-          this.sync.versao = 0;
+          this.sync.versao = 0; this.sync.pronto = true;
           await this.syncEnviar(true);
         }
       } catch (e) { this.sync.estado = 'erro'; }
@@ -5111,13 +5163,14 @@ function sistemaUnificado(){
       }, 15000);
     },
     syncAgendarEnvio() {
-      if (!this.sync.ligado) return;
+      if (!this.sync.ligado || !this.sync.pronto) return;   // nunca publicar antes de puxar
       this.sync.pendente = true;
       if (this._syncTimer) clearTimeout(this._syncTimer);
       this._syncTimer = setTimeout(() => this.syncEnviar(), 1200);   // agrupa edições seguidas
     },
     async syncEnviar(primeira) {
       if (!this.sync.ligado || this.sync.enviando) return;
+      if (!this.sync.pronto && !primeira) return;
       this.sync.enviando = true; this.sync.estado = 'salvando';
       try {
         const corpo = { baseVersao: this.sync.versao, dados: this.syncColeta() };
@@ -5248,9 +5301,13 @@ function sistemaUnificado(){
     },
     // Zera TODAS as empresas e grava o estado em branco no navegador (salvo por empresa), sem
     // recarregar a página. Logins, senhas, kanban e logo são preservados.
-    zerarTudoEPersistir() {
+    // preservarComDados=true: usado na entrega em branco automática. Zera apenas as empresas que
+    // AINDA não têm base salva neste navegador. Assim, subir uma versão nova deixa em branco só o
+    // que nunca foi usado e não encosta em quem já lançou meses de trabalho.
+    zerarTudoEPersistir(preservarComDados) {
       const ativo = this.empresaAtiva;
       this.ordemEmpresas.forEach(id => {
+        if (preservarComDados && localStorage.getItem('nexus_v2_dados_' + id)) return;
         this.carregarEmpresa(id);
         this.zerarValoresAtual();
         EMPRESAS[id].dre = this.dreAtual; // consolidado zera junto
@@ -6663,19 +6720,42 @@ function sistemaUnificado(){
       return d.includes('despesa')||d.includes('t.f')||d.includes('provis')||d.includes('rescisões')||d.includes('manutenção')||d.includes('treinamento')||d.includes('uniforme')||d.includes('férias')||d.includes('grrf')||d.includes('salário');
     },
 
+    // Só três famílias de linha ganham destaque de extremo: faturamento, resultado e despesa.
+    // As de apoio (Estoque, Relatório TF, linhas de %) ficam neutras — destacar tudo é o mesmo
+    // que não destacar nada, e a tela vira mosaico.
+    tipoLinhaDestaque(desc) {
+      const d = String(desc || '').toLowerCase();
+      if (!d) return null;
+      if (d.includes('%') || d.startsWith('kg') || d.includes('fator')) return null;
+      // Resultado vem ANTES de despesa: "OP c/ Inv. e Dif. provisões" contém "provis" e cairia
+      // como despesa, ganhando laranja quando na verdade é uma linha de resultado.
+      if (d.includes('resultado') || d.includes('lucro') || /^op\b|^op\s*c\//.test(d)) return 'resultado';
+      if (d.includes('faturamento') || d.includes('receita')) return 'receita';
+      if (this.isDespesa(d)) return 'despesa';
+      return null;
+    },
     avaliarExtremoHorizontal(linha, chaveAtual, chavesArray) {
       let val = linha[chaveAtual]; if (typeof val !== 'number') return '';
       let validos = chavesArray.map(c => linha[c]).filter(v => typeof v === 'number');
       if (validos.length < 2) return '';
       let max = Math.max(...validos); let min = Math.min(...validos);
-      let inverte = this.isDespesa(linha.desc || linha.categoria);
-      
-      if (inverte) {
-          if (val === max && val > 0) return 'text-red-strong font-black'; 
-          if (val === min && val >= 0) return 'text-green-strong font-black'; 
+      const tipo = this.tipoLinhaDestaque(linha.desc || linha.categoria);
+      if (!tipo) return val < 0 ? 'text-red-strong' : '';   // linhas de apoio: só o negativo aparece
+      const ehDespesa = tipo === 'despesa';
+
+      // Regra de destaque (proposital, para a tabela ser lida de relance):
+      //   VERMELHO  = só valor negativo. Nada mais. Vermelho vira alarme falso quando marca
+      //               "a maior despesa", que muitas vezes é apenas o mês de maior operação.
+      //   VERDE     = melhor número do ano (maior faturamento / maior resultado).
+      //   LARANJA   = maior despesa do ano: chama atenção sem dizer que está errado.
+      //   NEGRITO   = o menor valor da linha, sem cor. Marca o extremo oposto sem competir.
+      if (val < 0) return 'text-red-strong';
+      if (ehDespesa) {
+        if (val === max && val > 0) return 'text-orange-strong';
+        if (val === min && val > 0) return 'nx-extremo-baixo';
       } else {
-          if (val === max && val > 0) return 'text-green-strong font-black'; 
-          if (val === min && val < 0) return 'text-red-strong font-black'; 
+        if (val === max && val > 0) return 'text-green-strong';
+        if (val === min && val > 0) return 'nx-extremo-baixo';
       }
       return '';
     },
@@ -9274,21 +9354,31 @@ function sistemaUnificado(){
         const lg = JSON.parse(localStorage.getItem('nexus_v2_logs') || 'null');
         if (lg && lg.length) this.logsAuditoria = lg;
       } catch(e) {}
-      // Hidrata o consolidado com dados persistidos de TODAS as empresas (não só a ativa)
+      // ATUALIZAÇÃO DE VERSÃO NÃO PODE APAGAR TRABALHO. Antes, um arquivo novo tinha etiqueta
+      // diferente e os dados salvos eram descartados: quem subisse uma correção perdia meses de
+      // lançamentos. Agora a base é ADOTADA pela versão nova (só reetiquetada) e o que muda de
+      // estrutura é reconciliado por garantirLinhasPlanilha/hidratarExtras.
+      let tinhaDados = false;
       try {
         this.ordemEmpresas.forEach(id => {
-          const salvo = JSON.parse(localStorage.getItem('nexus_v2_dados_' + id) || 'null');
-          if (salvo && salvo.versao !== NEXUS_DADOS_VERSAO) { localStorage.removeItem('nexus_v2_dados_' + id); return; }
-          if (salvo && salvo.dre) EMPRESAS[id].dre = salvo.dre;
-          if (salvo) this.hidratarExtras(EMPRESAS[id], salvo);
+          const chave = 'nexus_v2_dados_' + id;
+          const salvo = JSON.parse(localStorage.getItem(chave) || 'null');
+          if (!salvo) return;
+          tinhaDados = true;
+          if (salvo.versao !== NEXUS_DADOS_VERSAO) {
+            salvo.versao = NEXUS_DADOS_VERSAO;
+            try { localStorage.setItem(chave, JSON.stringify(salvo)); } catch(e2) {}
+          }
+          if (salvo.dre) EMPRESAS[id].dre = salvo.dre;
+          this.hidratarExtras(EMPRESAS[id], salvo);
         });
       } catch(e) {}
       this.carregarEmpresa(this.empresaAtiva);
-      // Entrega em branco: na primeira abertura desta etiqueta, zera todas as informações
-      // financeiras (mantém logins, senhas, kanban e o logo). Roda só uma vez por etiqueta.
+      // Entrega em branco: só na PRIMEIRA instalação. Se já existe base salva, não zera nada —
+      // senão atualizar o arquivo limparia o sistema de quem já está usando.
       try {
         if (NEXUS_ENTREGA_LIMPA && localStorage.getItem('nexus_v2_limpa') !== NEXUS_LIMPA_TAG) {
-          this.zerarTudoEPersistir();
+          this.zerarTudoEPersistir(true);   // preserva as empresas que já têm base salva
           localStorage.setItem('nexus_v2_limpa', NEXUS_LIMPA_TAG);
           localStorage.removeItem('nexus_v2_zerado');
           this.registrarLog('Entrega em branco aplicada: sistema iniciado sem informações para novo carregamento.');
