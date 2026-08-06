@@ -1,0 +1,53 @@
+# Publica o app como site, para a Carla abrir no celular.
+#
+# O passo `configure-pages` com `enablement: true` LIGA o GitHub Pages
+# sozinho na primeira vez, então não é preciso mexer em configuração
+# nenhuma: subiu o código, o endereço existe.
+#
+# O que vai para o ar é a pasta docs/, que o build do app atualiza junto
+# com o .html. Endereço final:
+#   https://carlacarolineps-debug.github.io/A-Fatorial/
+name: Publicar o app
+
+on:
+  push:
+    branches:
+      - claude/strategy-cards-mentoring-vygy1x
+      - main
+    paths:
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# uma publicação de cada vez, e a mais nova ganha
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ligar o Pages (na primeira vez ele se liga sozinho)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Empacotar a pasta docs
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Publicar
+        id: deploy
+        uses: actions/deploy-pages@v4
