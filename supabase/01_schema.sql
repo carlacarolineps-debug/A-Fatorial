@@ -759,6 +759,13 @@ begin
    where lower(a.email) = lower(t.email)
      and a.status <> 'inactive';
 end $$;
+/* Ela e security definer e ESCREVE em access: quem puder executar, corta
+   ou devolve acesso. Por padrao o Postgres da EXECUTE para PUBLIC em toda
+   funcao nova, entao sem estas duas linhas qualquer pessoa logada (e ate
+   a chave anon) poderia disparar a regua. Quem chama e o cron, e o cron
+   roda como dono do banco. */
+revoke execute on function public.aplicar_regua_inadimplencia() from public, anon, authenticated;
+
 
 create extension if not exists pg_cron;
 select cron.unschedule('regua-inadimplencia')

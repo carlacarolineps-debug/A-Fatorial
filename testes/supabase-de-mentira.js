@@ -12,11 +12,12 @@ window.__SB = {
   mentora: false,
   senhas: {},          // email -> senha ja definida
   senhaDefinida: null,
+  erroProgress: false,   // simula leitura do progresso que falha
   publicados: [],      // o que a mesa da mentoria publicou
   onAuth: null
 };
 (function(){
-  function resp(data, error){ return Promise.resolve({data:data===undefined?null:data, error:error||null}); }
+  function resp(data, error, status){ return Promise.resolve({data:data===undefined?null:data, error:error||null, status:(status===undefined?200:status)}); }
   function q(tabela){
     var filtros = {}, alvo = null;
     var api = {
@@ -30,7 +31,10 @@ window.__SB = {
       maybeSingle:function(){
         if(window.__SB.falharRede) return Promise.reject(new Error('Failed to fetch'));
         if(tabela==='access')   return resp(window.__SB.acesso);
-        if(tabela==='progress') return resp(window.__SB.progresso);
+        if(tabela==='progress'){
+          if(window.__SB.erroProgress) return resp(null,{message:'TypeError: Failed to fetch'},0);
+          return resp(window.__SB.progresso);
+        }
         if(tabela==='profiles') return resp({is_mentor: !!window.__SB.mentora});
         return resp(null);
       },

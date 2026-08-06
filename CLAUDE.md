@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0508.06.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0508.07.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,64 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A revisão adversarial achou quatro furos críticos (0508.07)
+Deixei rodando uma revisão com cinco leituras independentes (RLS, webhook,
+entrada, moderação, lojas) e três céticos por achado, tentando derrubar cada
+um. Voltou com **27 achados confirmados por maioria**, 4 críticos. Conferi os
+quatro no código antes de mexer, e os quatro eram reais.
+
+**1. O app nunca abria sem internet, e a promessa dos 7 dias era código
+morto.** Testei no navegador com o pacote embutido: o supabase-js **não
+rejeita** quando a rede falha, ele **resolve com `error` e `status: 0`**. Como
+`lerAcesso` fazia `if (r.error || !r.data) return PENDENTE`, qualquer falha de
+transporte virava "acesso não liberado": a aluna em modo avião via a parede
+com um acesso pago e ativo, e `showOffline`, `caminhoOffline` e
+`LIMITE_OFFLINE` nunca executavam. Pior: `marcaOnline()` era chamado em
+conferências que nunca chegaram ao servidor, então o relógio dos 7 dias se
+renovava sozinho num aparelho offline. Agora o `status` separa "o servidor
+disse não" (401, 403, 406: PENDENTE) de "a pergunta nem chegou lá" (0, 5xx,
+`!navigator.onLine`: OFFLINE).
+
+**2. Perda de progresso ao trocar de celular.** `pullState` fazia
+`if (r.error) return;`, calado. Quem reinstala ou troca de aparelho chega com
+o localStorage vazio: a leitura falhava, o app abria no cadastro do zero, ela
+digitava o nome e o primeiro `save()` subia o estado vazio por cima de meses
+de trabalho. Agora `leituraOk` trava o envio (`push` guarda no aparelho e não
+sobrescreve o servidor) e, com o aparelho vazio, a tela diz **"não consegui
+carregar o seu progresso, nada foi perdido"** em vez de abrir em branco.
+
+**3. XSS na galeria.** `modAcoesUGC` montava o `onclick` com o texto do
+usuário, e o `escapeHtml` do app troca `&`, `<`, `>` mas **não troca aspas**.
+Uma legenda como `Top" onmouseover="..."` injetava um atributo no botão e o
+código rodava no aparelho de quem só passou o dedo pela galeria (reproduzido
+em Chromium: o atributo aparecia e a variável marcada ia para 1). E uma
+legenda com apóstrofo quebrava o clique, então a foto ficava **sem o botão de
+denunciar**, que é justamente o conteúdo que alguém escolheria para atacar.
+Agora o botão carrega só um índice e o texto mora numa lista
+(`window.__modUGC`, zerada a cada render). O mesmo passe escapou o nome no
+ranking e a URL da foto no `src`.
+
+**4. O balde `galeria` não existia.** `cmPublicarFoto` subia para
+`OB.midiaUpload(f,'galeria')`, mas o schema só cria `audios` e `midia`. Toda
+foto caía no salvamento local: ninguém mais via, e o item local não tem
+`user_id`, então aparecia **sem Denunciar e sem Bloquear**. É exatamente o que
+a revisão da loja testa. Passou a usar `midia`, que existe e tem policy.
+
+**Mais um, no banco:** `aplicar_regua_inadimplencia()` é `security definer` e
+escreve em `access`. O Postgres dá `EXECUTE` para `PUBLIC` em toda função
+nova, então qualquer pessoa logada podia disparar a régua. Fechado com
+`revoke execute ... from public, anon, authenticated`.
+
+**Também corrigido:** dentro da tela travada do termo, os links de Termos e
+Privacidade não abriam nada (o próprio `modal()` recusa ser sobrescrito
+enquanto uma tela espera decisão). Agora `modLerDoTermo` abre o documento e
+oferece voltar para as regras.
+
+**Os 23 achados restantes** (webhook sem checagem de erro, ordem de eventos,
+número de parcela, ranking sem filtro de bloqueio, `excluir_minha_conta` e as
+parcelas por e-mail) estão no relatório e ficaram para o próximo passe: são
+altos e médios, não críticos, e nenhum deles impede subir.
 
 ### A barra de baixo entrou no padrão do mercado (0508.06)
 A Carla: "quero que pegue os melhores apps do mercado e faça para que fique
