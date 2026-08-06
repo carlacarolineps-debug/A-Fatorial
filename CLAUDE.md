@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0608.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0608.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,34 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A porta do app virou cartão de vidro (0608.02)
+Segunda referência que a Carla trouxe do 21st.dev (`modern-stunning-sign-in`):
+"coloque na parte do login mas que fique com a cara da operação".
+
+**O que veio:** o cartão de vidro centrado (raio de 26px, gradiente do branco
+translúcido para o fundo, blur e sombra funda), o logo em medalhão circular no
+topo, os campos com fundo translúcido em vez de caixa com borda dura, o botão
+em pílula, o fio de separação com opacidade baixa e o rodapé discreto.
+
+**O que não veio, e por quê:**
+- **o "Continue with Google".** O acesso é pelo e-mail da inscrição na TMB. Um
+  login por Google criaria conta com um e-mail que pode não ser aquele, e a
+  pessoa cairia na parede de acesso não liberado sem entender. Seria um
+  caminho a mais para dar errado, não a menos;
+- **os quatro avatares e o "junte-se a milhares"**. São fotos de pessoas reais
+  de um serviço externo, o app precisa abrir sem rede, e o número seria
+  inventado;
+- **o "Sign up, it's free"**. O app não vende. Quem entra pela primeira vez usa
+  o próprio botão de primeiro acesso, que já estava ali.
+
+**Detalhe de engenharia:** o estilo desta tela mora dentro do próprio motor
+(`OB_CSS`, injetado por `overlay()`), separado do CSS do app. É a única tela
+do produto que **precisa aparecer certa mesmo que o resto falhe em carregar**:
+se ela depender de qualquer outra coisa, o dia em que aquela coisa falhar a
+pessoa fica olhando para uma página branca sem saber o que fazer.
+As 21 chamadas que montavam `style="..."` com as constantes `btnCss`,
+`inpCss` e `linkCss` viraram `class="obg-bt"` e companhia.
 
 ### A barra de baixo virou pílula flutuante (0608.01)
 A Carla rodou o 21st.dev na máquina dela e trouxe o `floating-nav`: "use esse

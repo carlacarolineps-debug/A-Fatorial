@@ -14,7 +14,7 @@ const E={name:'Carla',xp:2400,level:5,createdAt:Date.now()-11*864e5,
     localStorage.setItem('operacaoblindada:state:v1', ${JSON.stringify(JSON.stringify(E))});`);
   const p=await c.newPage();
   p.on('pageerror',e=>console.log('ERRO JS:',e.message.slice(0,90)));
-  await p.goto('http://127.0.0.1:8734/'); await p.waitForTimeout(2200);
+  await p.goto('http://127.0.0.1:8736/'); await p.waitForTimeout(2200);
   await p.evaluate(()=>{ closeModal(); const bn=document.getElementById('afBanner'); if(bn) bn.style.display='none'; });
   await p.waitForTimeout(400);
   const m=async()=>p.evaluate(()=>{
