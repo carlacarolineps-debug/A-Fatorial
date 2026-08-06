@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0508.07.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0608.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,33 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A barra de baixo virou pílula flutuante (0608.01)
+A Carla rodou o 21st.dev na máquina dela e trouxe o `floating-nav`: "use esse
+mas mantenha as cores".
+
+**O que veio de lá foi a ideia, não o código.** Aquilo é React com Tailwind, e
+este app é JavaScript puro num arquivo só: converter as 22 mil linhas para
+React seria refazer o produto inteiro para ganhar uma barra. Portei as três
+ideias que fazem o componente:
+
+1. **a barra flutua**, em pílula, 10px acima da borda, com sombra e blur, em
+   vez de colada embaixo com borda reta;
+2. **um indicador único desliza**: `navFio()` mede o botão ativo
+   (`getBoundingClientRect`) e leva a pílula até ele. O `spring` deles
+   (stiffness 400, damping 30) virou `cubic-bezier(.34,1.32,.42,1)`, que é o
+   mesmo assentamento sem biblioteca. O traço de 3px que ficava em cima de
+   cada aba (`.anav.active::after`) saiu: agora é um só, e ele anda;
+3. **abaixo de 360px o rótulo sai** e ficam só os ícones.
+
+**O que não veio, de propósito:** o azul e o branco do original (a cor
+continua carbono e ouro), e o `mb-64`, que empurrava a barra 16rem para cima
+e era sobra da demonstração deles.
+
+**Dois detalhes que só aparecem em uso:** a primeira medição roda com
+`.sem-anim`, senão a pílula entra voando da esquerda toda vez que o app abre;
+e `document.fonts.ready` remede, porque a fonte que chega depois muda a
+largura do rótulo e a pílula ficaria fora de lugar.
 
 ### A revisão adversarial achou quatro furos críticos (0508.07)
 Deixei rodando uma revisão com cinco leituras independentes (RLS, webhook,

@@ -1,6 +1,6 @@
 /* A mesa da mentoria: quem entra, o que aparece e o que cada botao faz. */
 const {chromium}=require('playwright'); const fs=require('fs');
-const U='http://127.0.0.1:8733/';
+const U='http://127.0.0.1:8734/';
 const MOCK=fs.readFileSync(__dirname+'/mock-sb.js','utf8');
 const erros=[]; let falhas=0;
 const ok=(t,c,x)=>{ console.log((c?'  ok  ':'  FALHOU ')+t+(x?'  '+x:'')); if(!c) falhas++; };
