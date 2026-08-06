@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0608.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0608.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,30 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Auditoria completa e o guia para leigo (0608.03)
+A Carla: "quero que já de uma olhada em tudo para ver o que está funcionando
+ou não, e no final me falar tudo que eu ainda tenho que fazer eu mesmo passo a
+passo para um burro conseguir fazer".
+
+**A auditoria** (`testes/auditoria.cjs`) abre o arquivo do jeito que ela abre,
+com dois cliques, em `file://`, sem banco nenhum, e confere 46 coisas: as 16
+telas, as 5 abas da mesa, os 6 campos de publicar, as 8 funções de conta e
+moderação, o visual e a contagem de conteúdo. **46 conferências, 0 falhas,
+nenhum erro de JavaScript.**
+
+**A mesa só aparece para a conta da mentoria.** Cheguei a deixar um modo
+amostra para ela conhecer as telas sem banco, e ela cortou na hora:
+"preciso que o admin só apareça quando fazer login nessa conta". Está certa,
+e a regra ficou limpa: `adEhMentora()` depende só de `OB.isMentor()`, que lê
+`eh_mentora()` no banco, que lê a tabela `mentoras`. Nem em pré-visualização
+local a mesa existe. Testado em três situações: arquivo local sem login,
+aluna logada e a conta da mentoria.
+
+**O guia** ficou em `COMECE-POR-AQUI.md`: quatro passos obrigatórios, cada um
+com o link direto, o que clicar, o que tem que aparecer quando dá certo e o
+que fazer quando dá errado. Mais a parte de usar a mesa (publicar áudio,
+subir aula, marcar encontro, liberar aluna) e uma tabela de problemas comuns.
 
 ### A porta do app virou cartão de vidro (0608.02)
 Segunda referência que a Carla trouxe do 21st.dev (`modern-stunning-sign-in`):
