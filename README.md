@@ -499,6 +499,13 @@ no [README do backend](backend/README.md).
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
+- **Serviços executáveis**: `SERV_EXEC` (o registro), `DB.projetos` (chave
+  `af_projetos`), `prjEtapaAtual` (em que etapa o projeto está),
+  `servRender` (catálogo), `vlRender` + `VL_ABAS` (a esteira do valuation).
+- **Motor de avaliação**: `vlCalcular` (o cálculo mestre), `vlDCF`,
+  `vlSensibilidade`, `vlAlavancas`, `vlLaudoHTML` (o laudo),
+  `vlContratoTexto` (o contrato), `VL_DOCS` (a ficha de documentos),
+  `docPortalAbrir` (o portal do cliente, link + PIN).
 - **Áreas do menu**: `AREAS` (a lista de atividades e suas etapas), `areaIr`
   (abre a área no primeiro passo permitido), `renderRail` (a trilha),
   `areaNome`/`areaFrase` (o nome muda conforme quem olha),
@@ -735,3 +742,72 @@ vem depois — e leva ao próximo com um clique.
       portal do colaborador é prévia; para o próprio colaborador é a tela dele
       e volta a ser etapa numerada. O cliente, que só tem o portal, entra
       direto nele sem trilha nenhuma.
+
+## Serviços executáveis — versão 0708.01
+
+O que era vendido de boca virou processo. Cada serviço que a empresa domina
+ganha, dentro do sistema: **contrato próprio**, **lista de documentos**,
+**telas de execução** e um **entregável assinado**. O cliente vê método, não
+promessa. O primeiro é o Valuation; os próximos entram na mesma estrutura.
+
+70. **`SERV_EXEC` — o registro dos serviços com processo.** Cada serviço
+    declara marca, contrato do grupo, escopo, prazo, valor de partida, o
+    método, o que o cliente recebe e as etapas. A tela **Serviços** (primeira
+    etapa da área *Entregar*) mostra o catálogo executável e todos os projetos
+    em execução, com a etapa de cada um. *Formatação de franquias* já aparece
+    ali marcada como em construção — é o slot do próximo.
+
+71. **Um projeto por cliente, não um por navegador** (`DB.projetos`, chave
+    `af_projetos`). O sistema original guardava uma empresa por vez; aqui cada
+    cliente tem o seu projeto, com dados, documentos, contrato e laudo
+    próprios, e a lista mostra todos lado a lado.
+
+72. **A esteira do valuation** — oito etapas numeradas dentro do projeto:
+    Cliente → Contrato → Documentos → Números → Premissas → Cálculo →
+    Sensibilidade → Laudo. **O sistema deduz em que etapa o projeto está**
+    (`prjEtapaAtual`) — ela não precisa marcar nada — e trava o que não pode
+    andar: sem contrato assinado não abre nada, sem os documentos obrigatórios
+    não emite laudo.
+
+73. **Contrato de valuation** — 12 cláusulas geradas com os dados do projeto:
+    objeto com a **finalidade** informada (venda, entrada de sócio, partilha,
+    garantia, sucessão), metodologia, o que **não** está incluído, prazo
+    contado do recebimento integral dos documentos, preço, sigilo por 5 anos,
+    propriedade do laudo, limitação de responsabilidade, LGPD e foro.
+    Imprimível e integrado ao fluxo de assinatura.
+
+74. **Ficha de documentos com portal do cliente.** As 8 categorias e 39 itens
+    (15 obrigatórios) viraram checklist com progresso. **O cliente recebe um
+    link com PIN** (`index.html#doc=<projeto>`), abre, marca o que já enviou e
+    escreve observações — e você vê tudo em tempo real do seu lado. A lista
+    também imprime, para quem prefere papel.
+
+75. **O motor de avaliação, conferido número a número.** DCF com projeção
+    ano a ano, valor terminal e fator de desconto; múltiplos EV/EBITDA,
+    EV/Receita, P/L e P/VP; abordagem patrimonial; capitalização de lucros;
+    normalização por add-backs; WACC montado a partir de CAPM; 14 indicadores
+    e índice de prontidão para venda. **Comparado contra o Valoris original com
+    os mesmos dados: os 12 resultados batem exatamente** (EBITDA normalizado,
+    WACC, Ke, EV, equity, valor concluído, faixa, score, PL, peso do valor
+    terminal e CAGR).
+
+76. **Football field** — a faixa de cada método em barras, com o valor
+    concluído destacado. Onde as barras se cruzam está o número defensável;
+    onde uma foge das outras, há premissa para revisar.
+
+77. **Sensibilidade e alavancas.** Matriz WACC × crescimento na perpetuidade
+    em mapa de calor, com o cenário-base contornado. E, abaixo, **o que
+    aumentaria o valor**: o sistema recalcula a avaliação inteira com cada
+    mudança isolada (crescer 5 p.p., ganhar 3 p.p. de margem, quitar metade da
+    dívida, reduzir 1 p.p. do custo de capital, cortar capex) e ordena por
+    impacto em reais. É a lista do que fazer **antes** de negociar.
+
+78. **Laudo em 9 seções**, gerado do projeto: identificação e finalidade,
+    metodologia com os pesos, desempenho histórico com a normalização
+    explicada, premissas, custo de capital detalhado, tabela por método,
+    conciliação, situação econômico-financeira com o score, e as ressalvas
+    editáveis. Sai em PDF com a assinatura das duas partes.
+
+79. **Ligado ao resto do sistema** — contrato sem assinar, documento faltando
+    e laudo pronto para entregar viram passos na faixa "Agora" e no briefing,
+    com o botão que abre o projeto na etapa certa.
