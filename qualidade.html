@@ -2494,6 +2494,13 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                             </label>
                             <label class="chip-et" style="margin:0 0 2px;"><input type="checkbox" id="fu_cli_fv" onchange="fuCliFvSync()"><span>Clichê frente e verso (arte pé com pé)</span></label>
                             <input type="hidden" id="fu_cli_fv_v">
+                            <span id="fu-cli-fv-verso" class="no-print" style="display:none; align-items:center; gap:8px; margin-bottom:2px;">
+                                <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:5px 11px; font-size:11.5px;"><i class="fas fa-paperclip"></i> <span id="fu-cli-clc-lbl2">Anexar verso (se diferente)</span>
+                                    <input type="file" accept="image/*" style="display:none;" onchange="fuCliClicheUpload2(this)">
+                                </label>
+                                <button type="button" class="action-btn-sec" id="fu-cli-clc-del2" onclick="fuCliClicheRemover2()" style="color:#ef4444; padding:5px 10px; font-size:11.5px; display:none;"><i class="fas fa-trash"></i></button>
+                                <input type="hidden" id="fu_cli_clc_img2">
+                            </span>
                         </div>
                         <div id="fu-cli-clc-croqui" class="ac-croqui" style="cursor:zoom-in;" onclick="fuCliClicheZoom()"></div>
                         <div class="ac-meds-acoes no-print" style="justify-content:flex-end; gap:8px; padding:8px 10px; border-top:1px solid #eef1f6;">
@@ -9474,17 +9481,20 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const grade = Array.isArray(o.grade) ? o.grade.filter(Boolean) : [];
         const ncores = o.ncores || grade.length || 0;
         const fv = !!o.frenteVerso;
+        const artVerso = o.artVerso || art;        // verso: 2ª imagem se houver; senão a mesma (espelhada)
+        const subH = passo || uA;                  // altura de UMA arte (mm)
+        const artRows = fv ? rows * 2 : rows;       // frente e verso: cada repetição vira um par (frente + verso)
         const fmt = v => (v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' mm' : '—');
         if (!art && !uL && !uA) return `<span style="font-size:12px; color:#94a3b8; padding:26px; text-align:center; display:block;">${o.vazio || 'Anexe a imagem do clichê e informe a medida da unidade (largura/altura) para gerar o croqui.'}</span>`;
-        const totL = uL * cols, totA = passo * rows;
+        const totL = uL * cols, totA = subH * artRows;
         const legendaH = grade.length ? 64 : 0;   // banda inferior da grade de cores
         const W = 600, H = 780 + legendaH, padL = 78, padR = 42, padT = 56, padB = 66 + legendaH;
         const availW = W - padL - padR, availH = H - padT - padB;
         let rw, rh;
         if (totL && totA) { const sc = Math.min(availW / totL, availH / totA); rw = totL * sc; rh = totA * sc; }
-        else { rw = Math.min(availW, availH * (cols / rows)); rh = availH; }
+        else { rw = Math.min(availW, availH * (cols / artRows)); rh = availH; }
         const x0 = padL + (availW - rw) / 2, y0 = padT + (availH - rh) / 2, x1 = x0 + rw, y1 = y0 + rh;
-        const cw = rw / cols, ch = rh / rows;
+        const cw = rw / cols, ch = rh / artRows;
         const uid = 'clc' + Math.abs(((o.titulo || '') + cols + 'x' + rows).split('').reduce((a, c) => a + c.charCodeAt(0), 0));
         // Na tela (container flex) a altura precisa ser DEFINIDA — width:auto + height:auto
         // juntos fazem o Chrome colapsar o SVG para zero (fica em branco). Com altura fixa,
@@ -9496,14 +9506,15 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         // A montagem: um <image> por célula (o <pattern> some na impressão do Chrome,
         // por isso desenhamos a arte de novo em cada repetição).
         if (art) {
-            const tiles = cols * rows;
+            const tiles = cols * artRows;
             if (tiles <= 400) {
-                for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+                for (let r = 0; r < artRows; r++) for (let c = 0; c < cols; c++) {
                     const cx = x0 + c * cw, cy = y0 + r * ch;
-                    // frente e verso: repetições ímpares saem espelhadas (pé com pé) para alinhar frente/verso
-                    const flip = fv && (r % 2 === 1);
-                    const tr = flip ? ` transform="translate(0 ${2 * cy + ch}) scale(1 -1)"` : '';
-                    s.push(`<image href="${art}" xlink:href="${art}" x="${cx}" y="${cy}" width="${cw}" height="${ch}" preserveAspectRatio="none"${tr}/>`);
+                    // frente e verso: as filas ímpares são o VERSO — imagem 2 (ou a mesma), espelhada pé com pé
+                    const verso = fv && (r % 2 === 1);
+                    const src = verso ? artVerso : art;
+                    const tr = verso ? ` transform="translate(0 ${2 * cy + ch}) scale(1 -1)"` : '';
+                    s.push(`<image href="${src}" xlink:href="${src}" x="${cx}" y="${cy}" width="${cw}" height="${ch}" preserveAspectRatio="none"${tr}/>`);
                 }
             } else {
                 // montagem enorme: uma única imagem esticada, para não gerar milhares de tags
@@ -9512,9 +9523,13 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         } else {
             s.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="#f1f5f9"/>`);
         }
-        // separadores entre pistas (verticais) e repetições (horizontais)
+        // separadores: verticais entre pistas; horizontais entre filas.
+        // No frente e verso, a linha entre frente e verso (par) sai pontilhada; entre pares, cheia.
         if (cols <= 40) for (let c = 1; c < cols; c++) { const gx = x0 + c * cw; s.push(`<line x1="${gx}" y1="${y0}" x2="${gx}" y2="${y1}" stroke="#0d9488" stroke-width=".8" stroke-dasharray="4 3"/>`); }
-        if (rows <= 60) for (let r = 1; r < rows; r++) { const gy = y0 + r * ch; s.push(`<line x1="${x0}" y1="${gy}" x2="${x1}" y2="${gy}" stroke="#be123c" stroke-width=".8" stroke-dasharray="4 3"/>`); }
+        if (artRows <= 80) for (let r = 1; r < artRows; r++) {
+            const gy = y0 + r * ch, dentroPar = fv && (r % 2 === 1);
+            s.push(`<line x1="${x0}" y1="${gy}" x2="${x1}" y2="${gy}" stroke="#be123c" stroke-width="${dentroPar ? .8 : 1}" stroke-dasharray="${dentroPar ? '2 3' : '5 3'}"/>`);
+        }
         s.push(`<rect x="${x0}" y="${y0}" width="${rw}" height="${rh}" fill="none" stroke="${cor}" stroke-width="1.6"/>`);
         // Régua da LARGURA do clichê (pistas) — embaixo
         if (totL) {
@@ -9564,12 +9579,14 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const uL = num('fu_cli_med_largura'), uA = num('fu_cli_med_altura');
         const passo = num('fu_cli_passo') || uA;
         const art = v('fu_cli_clc_img') || v('fu_cli_arte_img') || fuAnexoPrincipalImg('cliche');
+        const artVerso = v('fu_cli_clc_img2') || art;   // verso: 2ª imagem se houver; senão a mesma (espelhada)
+        const versoProprio = !!v('fu_cli_clc_img2');
         const ncores = Math.max(0, Math.round(num('fu_cli_ncores')) || 0);
         // grade de cores: usa o campo próprio; se vazio, herda as Cores da Impressão da ficha
         const gradeRaw = (v('fu_cli_grade') || v('fu_cli_cores') || '').trim();
         const grade = gradeRaw ? gradeRaw.split(/[,;/+•|]+/).map(x => x.trim()).filter(Boolean) : [];
         const frenteVerso = !!(document.getElementById('fu_cli_fv') || {}).checked;
-        return { cols, rows, uL, uA, passo, art, ncores, grade, frenteVerso };
+        return { cols, rows, uL, uA, passo, art, artVerso, versoProprio, ncores, grade, frenteVerso };
     }
     // Preenche a grade de cores com as Cores da Impressão da ficha, se ainda estiver vazia
     function fuCliGradePuxar() {
@@ -9585,12 +9602,36 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         // checkbox frente e verso não persiste por .value — repõe do campo oculto ao reabrir
         const fv = document.getElementById('fu_cli_fv'), fvh = document.getElementById('fu_cli_fv_v');
         if (fv && fvh) fv.checked = fvh.value === '1';
+        const on = !!(fv && fv.checked);
+        const vs = document.getElementById('fu-cli-fv-verso'); if (vs) vs.style.display = on ? 'inline-flex' : 'none';
+        const tem2 = !!((document.getElementById('fu_cli_clc_img2') || {}).value);
+        const lbl2 = document.getElementById('fu-cli-clc-lbl2'); if (lbl2) lbl2.textContent = tem2 ? 'Trocar verso' : 'Anexar verso (se diferente)';
+        const del2 = document.getElementById('fu-cli-clc-del2'); if (del2) del2.style.display = tem2 ? '' : 'none';
     }
     // Grava o estado da caixa frente e verso no campo oculto (que persiste) e redesenha
     function fuCliFvSync() {
         const fv = document.getElementById('fu_cli_fv'), fvh = document.getElementById('fu_cli_fv_v');
         if (fvh) fvh.value = (fv && fv.checked) ? '1' : '';
+        const vs = document.getElementById('fu-cli-fv-verso'); if (vs) vs.style.display = (fv && fv.checked) ? 'inline-flex' : 'none';
         fuCliClicheCroqui();
+    }
+    // Anexo da imagem do VERSO (quando frente/verso usa arte diferente)
+    function fuCliClicheUpload2(input) {
+        const file = input.files && input.files[0]; if (!file) return;
+        if (!/^image\//.test(file.type)) { alert('Selecione um arquivo de imagem.'); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+            const dados = e.target.result;
+            const teste = new Image();
+            teste.onload = () => { const hid = document.getElementById('fu_cli_clc_img2'); if (hid) hid.value = dados; fuCliClicheSync(); fuCliClicheCroqui(); toast('Imagem do verso anexada — o par frente/verso sai pé com pé.'); };
+            teste.onerror = () => { alert('Não consegui exibir essa imagem no navegador.\n\nUse PNG, JPG, GIF, WebP ou SVG. TIFF/PDF/EPS/AI/CDR não aparecem — exporte como PNG ou JPG.'); };
+            teste.src = dados;
+        };
+        reader.readAsDataURL(file); input.value = '';
+    }
+    function fuCliClicheRemover2() {
+        const hid = document.getElementById('fu_cli_clc_img2'); if (hid) hid.value = '';
+        fuCliClicheSync(); fuCliClicheCroqui();
     }
     function fuCliClicheUpload(input) {
         const file = input.files && input.files[0]; if (!file) return;
@@ -9623,7 +9664,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const d = fuClicheDados();
         box.innerHTML = clicheSVG({
             cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art,
-            ncores: d.ncores, grade: d.grade, frenteVerso: d.frenteVerso,
+            ncores: d.ncores, grade: d.grade, frenteVerso: d.frenteVerso, artVerso: d.artVerso,
             cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', screenH: 380,
             vazio: 'Anexe a imagem do clichê e preencha a medida da unidade (Largura/Altura da arte) —<br>o croqui monta conforme Pistas × Repetição, com a medida do clichê.'
         });
@@ -9638,7 +9679,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         if (!d.art && !d.uL && !d.uA) return '';   // sem imagem e sem medida: não gera folha em branco
         const cor = FU_COR.cliche || '#c9a227';
         const g = id => (document.getElementById(id) || {}).value || '—';
-        const svg = clicheSVG({ cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art, ncores: d.ncores, grade: d.grade, frenteVerso: d.frenteVerso, cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', svgStyle: 'display:block; margin:0 auto; width:auto; max-width:150mm; max-height:205mm; height:auto;' });
+        const svg = clicheSVG({ cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art, ncores: d.ncores, grade: d.grade, frenteVerso: d.frenteVerso, artVerso: d.artVerso, cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', svgStyle: 'display:block; margin:0 auto; width:auto; max-width:150mm; max-height:205mm; height:auto;' });
         const specs = [
             ['Pistas (horizontal)', d.cols], ['Repetição (vertical)', d.rows], ['Passo', g('fu_cli_passo') !== '—' && g('fu_cli_passo') ? g('fu_cli_passo') + ' mm' : '—'],
             ['Cilindro (nº de cores)', d.ncores || '—'], ['Frente e verso', d.frenteVerso ? 'Sim (pé com pé)' : 'Não'], ['Medida da embalagem', g('fu_cli_medida_emb')],
@@ -9676,7 +9717,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
                 <tr><th>Grade de cores — cilindro 1 → ${d.grade.length || d.ncores || 'N'} (na ordem)</th></tr>
                 <tr><td>${d.grade.length ? d.grade.map((c, i) => `${i + 1}. ${c}`).join('&nbsp;&nbsp;·&nbsp;&nbsp;') : '—'}</td></tr>
             </table>
-            <div class="fup-obs">Imagem ilustrativa da montagem para orientar a gravação do clichê. Confirme as medidas e a grade de cores antes de gravar.${d.frenteVerso ? ' Clichê frente e verso: a arte sai duplicada pé com pé para alinhar frente e verso.' : ''}</div>
+            <div class="fup-obs">Imagem ilustrativa da montagem para orientar a gravação do clichê. Confirme as medidas e a grade de cores antes de gravar.${d.frenteVerso ? ' Clichê frente e verso: cada repetição é um par frente + verso pé com pé.' + (d.versoProprio ? ' O verso usa a 2ª imagem anexada.' : ' O verso é a mesma arte espelhada.') : ''}</div>
             <div class="fup-foot">
                 <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
                 <span>Emitido por ${currentSessionUser} em ${emitido}</span>
