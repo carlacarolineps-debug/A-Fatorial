@@ -2475,16 +2475,25 @@ Gravar 2 tacos de cada item para adaptação da embalagem (totalizando 6 tacos c
                 <div class="g-col g-col-12" style="padding:0;">
                     <div class="ac-panel">
                         <div class="ac-panel-t" style="background:#8a6d1a;">CROQUI DO CLICHÊ (Pistas × Repetição)</div>
-                        <div class="ac-meds" style="grid-template-columns:repeat(3,1fr) auto;">
+                        <div class="ac-meds" style="grid-template-columns:repeat(4,1fr) auto;">
                             <label><span>Pistas (horizontal)</span><input class="inp" id="fu_cli_mont_h" value="1" list="dl_1a50" oninput="fuCliClicheCroqui()"></label>
                             <label><span>Repetição (vertical)</span><input class="inp" id="fu_cli_mont_v" value="2" list="dl_1a50" oninput="fuCliClicheCroqui()"></label>
                             <label><span>Passo (mm)</span><input class="inp" id="fu_cli_passo" inputmode="decimal" placeholder="mm" oninput="fuCliClicheCroqui()"></label>
+                            <label><span>Cilindro (nº de cores)</span><input class="inp" id="fu_cli_ncores" list="dl_1a6" placeholder="até 6" oninput="fuCliClicheCroqui()"><datalist id="dl_1a6"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option></datalist></label>
                             <div class="ac-meds-acoes no-print">
                                 <label class="action-btn-sec" style="cursor:pointer; margin:0; padding:5px 11px; font-size:11.5px;"><i class="fas fa-paperclip"></i> <span id="fu-cli-clc-lbl">Anexar imagem</span>
                                     <input type="file" accept="image/*" style="display:none;" onchange="fuCliClicheUpload(this)">
                                 </label>
                                 <button type="button" class="action-btn-sec" id="fu-cli-clc-del" onclick="fuCliClicheRemover()" style="color:#ef4444; padding:5px 10px; font-size:11.5px; display:none;"><i class="fas fa-trash"></i></button>
                             </div>
+                        </div>
+                        <div class="no-print" style="display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px; padding:9px 11px; border-top:1px solid #eef1f6; background:#fbfcfe;">
+                            <label style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:260px;">
+                                <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:#64748b;">Grade de cores <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#94a3b8;">(cilindro 1 → N, na ordem — vem das Cores da Impressão)</span></span>
+                                <input class="inp" id="fu_cli_grade" placeholder="Ex.: Preto, Dourado, Vermelho, Branco" oninput="fuCliClicheCroqui()" onfocus="fuCliGradePuxar()">
+                            </label>
+                            <label class="chip-et" style="margin:0 0 2px;"><input type="checkbox" id="fu_cli_fv" onchange="fuCliFvSync()"><span>Clichê frente e verso (arte pé com pé)</span></label>
+                            <input type="hidden" id="fu_cli_fv_v">
                         </div>
                         <div id="fu-cli-clc-croqui" class="ac-croqui" style="cursor:zoom-in;" onclick="fuCliClicheZoom()"></div>
                         <div class="ac-meds-acoes no-print" style="justify-content:flex-end; gap:8px; padding:8px 10px; border-top:1px solid #eef1f6;">
@@ -9449,14 +9458,27 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
     // CROQUI DO CLICHÊ — a arte repetida na montagem (Pistas × Repetição), com a
     // medida total do clichê cotada, para enviar à clicheria numa folha A4.
     // ==========================================================================
+    // Nome da cor → amostra visível (Pantone/código cai em cinza neutro)
+    function corParaHex(nome) {
+        const n = (nome || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        const map = { preto: '#111827', branco: '#ffffff', amarelo: '#f5c518', magenta: '#d81b8c', ciano: '#00aeef', cyan: '#00aeef',
+            vermelho: '#e11d48', azul: '#1d4ed8', verde: '#16a34a', laranja: '#f97316', dourado: '#c5a880', ouro: '#c5a880',
+            prata: '#c0c0c0', verniz: '#e5e7eb', roxo: '#7c3aed', violeta: '#7c3aed', marrom: '#8a5a2b', rosa: '#ec4899', cinza: '#9ca3af' };
+        for (const k in map) if (n.includes(k)) return map[k];
+        return '#cbd5e1';
+    }
     function clicheSVG(o) {
         const cols = Math.max(1, Math.round(o.cols || 1)), rows = Math.max(1, Math.round(o.rows || 1));
         const uL = o.uL || 0, uA = o.uA || 0, passo = o.passo || uA;
         const art = o.art || '', cor = o.cor || '#8a6d1a';
+        const grade = Array.isArray(o.grade) ? o.grade.filter(Boolean) : [];
+        const ncores = o.ncores || grade.length || 0;
+        const fv = !!o.frenteVerso;
         const fmt = v => (v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' mm' : '—');
         if (!art && !uL && !uA) return `<span style="font-size:12px; color:#94a3b8; padding:26px; text-align:center; display:block;">${o.vazio || 'Anexe a imagem do clichê e informe a medida da unidade (largura/altura) para gerar o croqui.'}</span>`;
         const totL = uL * cols, totA = passo * rows;
-        const W = 600, H = 780, padL = 78, padR = 42, padT = 56, padB = 66;
+        const legendaH = grade.length ? 64 : 0;   // banda inferior da grade de cores
+        const W = 600, H = 780 + legendaH, padL = 78, padR = 42, padT = 56, padB = 66 + legendaH;
         const availW = W - padL - padR, availH = H - padT - padB;
         let rw, rh;
         if (totL && totA) { const sc = Math.min(availW / totL, availH / totA); rw = totL * sc; rh = totA * sc; }
@@ -9477,7 +9499,11 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
             const tiles = cols * rows;
             if (tiles <= 400) {
                 for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-                    s.push(`<image href="${art}" xlink:href="${art}" x="${x0 + c * cw}" y="${y0 + r * ch}" width="${cw}" height="${ch}" preserveAspectRatio="none"/>`);
+                    const cx = x0 + c * cw, cy = y0 + r * ch;
+                    // frente e verso: repetições ímpares saem espelhadas (pé com pé) para alinhar frente/verso
+                    const flip = fv && (r % 2 === 1);
+                    const tr = flip ? ` transform="translate(0 ${2 * cy + ch}) scale(1 -1)"` : '';
+                    s.push(`<image href="${art}" xlink:href="${art}" x="${cx}" y="${cy}" width="${cw}" height="${ch}" preserveAspectRatio="none"${tr}/>`);
                 }
             } else {
                 // montagem enorme: uma única imagem esticada, para não gerar milhares de tags
@@ -9511,7 +9537,20 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
             s.push(`<text x="${cx - 16}" y="${(y0 + y1) / 2}" font-size="9" fill="#64748b" text-anchor="middle" transform="rotate(-90 ${cx - 16} ${(y0 + y1) / 2})">desenvolvimento · ${rows} repetição(ões)</text>`);
         }
         s.push(`<text x="${W / 2}" y="26" font-size="13" font-weight="800" fill="${cor}" text-anchor="middle" letter-spacing="1">${o.titulo || 'CROQUI DO CLICHÊ'}</text>`);
-        s.push(`<text x="${W / 2}" y="44" font-size="10" fill="#64748b" text-anchor="middle">${cols} pista(s) × ${rows} repetição(ões)${(uL || uA) ? ` · unidade ${fmt(uL)} × ${fmt(uA)}` : ''}</text>`);
+        s.push(`<text x="${W / 2}" y="44" font-size="10" fill="#64748b" text-anchor="middle">${cols} pista(s) × ${rows} repetição(ões)${(uL || uA) ? ` · unidade ${fmt(uL)} × ${fmt(uA)}` : ''}${fv ? ' · frente e verso (pé com pé)' : ''}</text>`);
+        // Banda da GRADE DE CORES — legenda numerada dos cilindros
+        if (grade.length) {
+            const ly = H - legendaH + 6;
+            s.push(`<line x1="${padL}" y1="${ly - 4}" x2="${W - padR}" y2="${ly - 4}" stroke="#e4e8ef" stroke-width="1"/>`);
+            s.push(`<text x="${padL}" y="${ly + 8}" font-size="10" font-weight="800" fill="${cor}" letter-spacing=".04em">GRADE DE CORES${ncores ? ` · ${ncores} cilindro(s)` : ''}</text>`);
+            const gw = (W - padL - padR) / grade.length;
+            grade.forEach((nome, i) => {
+                const gx = padL + i * gw, hex = corParaHex(nome);
+                s.push(`<rect x="${gx}" y="${ly + 16}" width="15" height="15" rx="3" fill="${hex}" stroke="#94a3b8" stroke-width=".6"/>`);
+                const rot = String(nome).length > 14 ? String(nome).slice(0, 13) + '…' : nome;
+                s.push(`<text x="${gx + 20}" y="${ly + 27}" font-size="9" fill="#334155">${i + 1}. ${rot}</text>`);
+            });
+        }
         s.push(`</svg>`);
         return s.join('');
     }
@@ -9525,13 +9564,33 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const uL = num('fu_cli_med_largura'), uA = num('fu_cli_med_altura');
         const passo = num('fu_cli_passo') || uA;
         const art = v('fu_cli_clc_img') || v('fu_cli_arte_img') || fuAnexoPrincipalImg('cliche');
-        return { cols, rows, uL, uA, passo, art };
+        const ncores = Math.max(0, Math.round(num('fu_cli_ncores')) || 0);
+        // grade de cores: usa o campo próprio; se vazio, herda as Cores da Impressão da ficha
+        const gradeRaw = (v('fu_cli_grade') || v('fu_cli_cores') || '').trim();
+        const grade = gradeRaw ? gradeRaw.split(/[,;/+•|]+/).map(x => x.trim()).filter(Boolean) : [];
+        const frenteVerso = !!(document.getElementById('fu_cli_fv') || {}).checked;
+        return { cols, rows, uL, uA, passo, art, ncores, grade, frenteVerso };
+    }
+    // Preenche a grade de cores com as Cores da Impressão da ficha, se ainda estiver vazia
+    function fuCliGradePuxar() {
+        const g = document.getElementById('fu_cli_grade'); if (!g || g.value.trim()) return;
+        const c = ((document.getElementById('fu_cli_cores') || {}).value || '').trim();
+        if (c) { g.value = c; fuCliClicheCroqui(); }
     }
     // Espelha o estado do anexo do clichê no botão (Anexar / Trocar + Remover)
     function fuCliClicheSync() {
         const tem = !!((document.getElementById('fu_cli_clc_img') || {}).value);
         const lbl = document.getElementById('fu-cli-clc-lbl'); if (lbl) lbl.textContent = tem ? 'Trocar imagem' : 'Anexar imagem';
         const del = document.getElementById('fu-cli-clc-del'); if (del) del.style.display = tem ? '' : 'none';
+        // checkbox frente e verso não persiste por .value — repõe do campo oculto ao reabrir
+        const fv = document.getElementById('fu_cli_fv'), fvh = document.getElementById('fu_cli_fv_v');
+        if (fv && fvh) fv.checked = fvh.value === '1';
+    }
+    // Grava o estado da caixa frente e verso no campo oculto (que persiste) e redesenha
+    function fuCliFvSync() {
+        const fv = document.getElementById('fu_cli_fv'), fvh = document.getElementById('fu_cli_fv_v');
+        if (fvh) fvh.value = (fv && fv.checked) ? '1' : '';
+        fuCliClicheCroqui();
     }
     function fuCliClicheUpload(input) {
         const file = input.files && input.files[0]; if (!file) return;
@@ -9564,6 +9623,7 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         const d = fuClicheDados();
         box.innerHTML = clicheSVG({
             cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art,
+            ncores: d.ncores, grade: d.grade, frenteVerso: d.frenteVerso,
             cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', screenH: 380,
             vazio: 'Anexe a imagem do clichê e preencha a medida da unidade (Largura/Altura da arte) —<br>o croqui monta conforme Pistas × Repetição, com a medida do clichê.'
         });
@@ -9578,11 +9638,12 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
         if (!d.art && !d.uL && !d.uA) return '';   // sem imagem e sem medida: não gera folha em branco
         const cor = FU_COR.cliche || '#c9a227';
         const g = id => (document.getElementById(id) || {}).value || '—';
-        const svg = clicheSVG({ cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art, cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', svgStyle: 'display:block; margin:0 auto; width:auto; max-width:150mm; max-height:205mm; height:auto;' });
+        const svg = clicheSVG({ cols: d.cols, rows: d.rows, uL: d.uL, uA: d.uA, passo: d.passo, art: d.art, ncores: d.ncores, grade: d.grade, frenteVerso: d.frenteVerso, cor: '#8a6d1a', titulo: 'CROQUI DO CLICHÊ', svgStyle: 'display:block; margin:0 auto; width:auto; max-width:150mm; max-height:205mm; height:auto;' });
         const specs = [
             ['Pistas (horizontal)', d.cols], ['Repetição (vertical)', d.rows], ['Passo', g('fu_cli_passo') !== '—' && g('fu_cli_passo') ? g('fu_cli_passo') + ' mm' : '—'],
-            ['Medida da embalagem', g('fu_cli_medida_emb')], ['Medida de impressão', g('fu_cli_medida_imp')], ['Cilindro', g('fu_cli_cilindro')],
-            ['Distorção', g('fu_cli_distorcao')], ['Lineatura', g('fu_cli_lineatura')], ['Cor de referência', g('fu_cli_cor_ref')]
+            ['Cilindro (nº de cores)', d.ncores || '—'], ['Frente e verso', d.frenteVerso ? 'Sim (pé com pé)' : 'Não'], ['Medida da embalagem', g('fu_cli_medida_emb')],
+            ['Medida de impressão', g('fu_cli_medida_imp')], ['Cilindro (mm)', g('fu_cli_cilindro')], ['Distorção', g('fu_cli_distorcao')],
+            ['Lineatura', g('fu_cli_lineatura')], ['Cor de referência', g('fu_cli_cor_ref')], ['Substrato', g('fu_cli_substrato')]
         ];
         return `
         <div class="fu-page-cap">Solicitação de Clichê · Croqui do Clichê · ${codEt || cod}</div>
@@ -9608,8 +9669,14 @@ function lauEmail() { location.href = 'mailto:?subject=' + encodeURIComponent('A
                 <tr>${specs.slice(3, 6).map(x => `<td>${x[1] || '—'}</td>`).join('')}</tr>
                 <tr>${specs.slice(6, 9).map(x => `<th>${x[0]}</th>`).join('')}</tr>
                 <tr>${specs.slice(6, 9).map(x => `<td>${x[1] || '—'}</td>`).join('')}</tr>
+                <tr>${specs.slice(9, 12).map(x => `<th>${x[0]}</th>`).join('')}</tr>
+                <tr>${specs.slice(9, 12).map(x => `<td>${x[1] || '—'}</td>`).join('')}</tr>
             </table>
-            <div class="fup-obs">Imagem ilustrativa da montagem para orientar a gravação do clichê. Confirme as medidas antes de gravar.</div>
+            <table class="fup-meta" style="margin-top:2mm;">
+                <tr><th>Grade de cores — cilindro 1 → ${d.grade.length || d.ncores || 'N'} (na ordem)</th></tr>
+                <tr><td>${d.grade.length ? d.grade.map((c, i) => `${i + 1}. ${c}`).join('&nbsp;&nbsp;·&nbsp;&nbsp;') : '—'}</td></tr>
+            </table>
+            <div class="fup-obs">Imagem ilustrativa da montagem para orientar a gravação do clichê. Confirme as medidas e a grade de cores antes de gravar.${d.frenteVerso ? ' Clichê frente e verso: a arte sai duplicada pé com pé para alinhar frente e verso.' : ''}</div>
             <div class="fup-foot">
                 <span>Sistema Qualidade da Embalagem — Grupo Rebracil · conforme POP-QUA-001</span>
                 <span>Emitido por ${currentSessionUser} em ${emitido}</span>
