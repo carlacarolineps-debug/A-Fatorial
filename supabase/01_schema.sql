@@ -58,6 +58,17 @@ create table if not exists public.access (
   atualizado_em timestamptz not null default now(),
   criado_em    timestamptz not null default now()
 );
+-- A identidade de réplica precisa existir ANTES do primeiro update, e não
+-- depois. No Supabase a publicação supabase_realtime nasce como FOR ALL
+-- TABLES: a tabela passa a publicar atualizações no instante em que é
+-- criada, muito antes de a gente chegar na linha que configura a
+-- identidade. Sem esta linha aqui em cima, o primeiro update do arquivo
+-- morre com "cannot update table because it does not have a replica
+-- identity", e o schema inteiro para na linha 91.
+-- "full" funciona sem depender de índice nenhum. Mais abaixo, quando o
+-- único já existir, ela é trocada pela versão barata (por índice).
+alter table public.access replica identity full;
+
 -- O único tem que ser sobre a COLUNA, não sobre lower(email). Índice de
 -- expressão não casa com "on conflict (email)", e o webhook grava assim:
 -- todo upsert morreria com "no unique or exclusion constraint matching",
@@ -91,14 +102,11 @@ begin
 end $$;
 drop index if exists public.access_email_uk;
 
--- Esta tabela entra na publicação do Realtime (seção 11), porque é ela que
--- fecha o app ao vivo quando o acesso cai. Só que tabela publicada que
--- sofre UPDATE precisa de identidade de réplica, e access não tem chave
--- primária: sem esta linha, TODO update em access passa a falhar com
--- "cannot update table because it does not have a replica identity".
--- Ou seja: o webhook pararia de liberar acesso, a régua pararia de cortar
--- e a suspensão de conta pararia de funcionar. Tudo de uma vez, calado.
--- O único sobre email serve de identidade: a coluna é not null.
+-- Agora que o único existe, a identidade sai do "full" (que copia a linha
+-- inteira em cada update) para o índice, que é o suficiente e mais barato.
+-- Sem identidade nenhuma, TODO update em access falharia: o webhook não
+-- liberaria acesso, a régua não cortaria e a suspensão de conta não
+-- funcionaria. Tudo de uma vez, e calado.
 alter table public.access replica identity using index access_email_uk2;
 
 create index if not exists access_user_ix on public.access (user_id);
@@ -802,10 +810,22 @@ end $$;
 -- =====================================================================
 -- 11. REALTIME em access: é o que fecha o app ao vivo quando o status cai
 -- =====================================================================
+-- Três situações possíveis, e as três terminam bem:
+--   1. a tabela ainda não está publicada: entra agora;
+--   2. já está publicada: duplicate_object, e não há nada a fazer;
+--   3. a publicação é FOR ALL TABLES (o padrão de muitos projetos
+--      Supabase): não dá para acrescentar tabela numa publicação assim,
+--      e nem precisa, porque ela já publica tudo.
+-- O 3 devolve um erro diferente do 2, então o exception tem que ser
+-- "others": com "duplicate_object" apenas, o arquivo morria aqui.
 do $$
 begin
   alter publication supabase_realtime add table public.access;
-exception when duplicate_object then null;
+  raise notice 'access entrou na publicacao do Realtime.';
+exception
+  when duplicate_object then null;
+  when others then
+    raise notice 'nao precisei mexer na publicacao do Realtime (%). O schema segue.', SQLERRM;
 end $$;
 
 -- =====================================================================

@@ -47,6 +47,36 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### O erro que só aparecia no Supabase de verdade (0608.04)
+A Carla mandou o erro: *"não é possível atualizar a tabela access porque ela
+não possui uma identidade de réplica e publica atualizações"*, na linha 91.
+
+**A causa, e por que o meu teste não pegava.** No Supabase a publicação
+`supabase_realtime` costuma nascer como **FOR ALL TABLES**: a tabela passa a
+publicar atualizações no instante em que é criada. O meu banco de teste criava
+a publicação **vazia**, então o cenário dela nunca acontecia aqui. O arquivo
+configurava a identidade de réplica na linha 110, mas o primeiro `update` em
+`access` estava na linha 91, dezenove linhas antes. No banco dela, morria ali,
+e as 18 tabelas não nasciam.
+
+Corrigido com `replica identity full` logo depois do `create table` (não
+depende de índice nenhum), trocado mais abaixo pela versão por índice, que é
+mais barata, quando o único já existe.
+
+**Um segundo erro apareceu logo atrás:** `alter publication supabase_realtime
+add table` **falha** quando a publicação é FOR ALL TABLES, com um código
+diferente de `duplicate_object`. O `exception` só pegava o duplicado, então o
+arquivo morria de novo, agora na linha 817. Virou `when others`, com aviso:
+numa publicação que já publica tudo, não há o que acrescentar.
+
+**A lição, e o que mudou no teste:** `supabase/testes/00-aplicar-schema.sh`
+agora aplica o schema **nos dois modos de publicação**, três vezes em cada, e
+roda o ataque nos dois. Banco de teste que não reproduz a configuração do
+banco de verdade é banco de teste que aprova o que vai quebrar.
+
+Resultado nos dois modos: **0 erros, 18 tabelas, 37 cenários de ataque
+passando**, e idempotente em três rodadas seguidas.
+
 ### O pg_cron derrubava o schema inteiro (0608.04)
 A Carla: "me mande o arquivo que tenho que colocar no SQL pois deu erro".
 
