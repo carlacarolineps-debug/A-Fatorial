@@ -70,10 +70,28 @@ GitHub. Abra ele no Bloco de Notas, selecione tudo (Ctrl + A), copie
 (Ctrl + C) e cole no Supabase. Às vezes o botão de copiar do GitHub não pega
 o arquivo inteiro quando ele é grande, e aí o final fica faltando e dá erro.
 
-**Sobre uma mensagem específica:** se aparecer algo com `pg_cron`, pode
-ignorar. Essa parte agora é opcional: ela só agenda um serviço automático de
-cobrança que você nem usa ainda. O resto do arquivo roda normalmente e as 18
-tabelas são criadas do mesmo jeito.
+**Sobre duas mensagens específicas:** se aparecer algo com `pg_cron` ou com
+`publicacao`, **pode ignorar**. As duas agora são avisos, não erros. O resto
+do arquivo roda normalmente e as 18 tabelas são criadas do mesmo jeito.
+
+### 1.5 Conferir se deu certo mesmo (30 segundos)
+
+Não precisa procurar tabela nenhuma na mão. Abra o arquivo
+`supabase/02_conferir.sql`, copie tudo, cole no mesmo SQL Editor e clique em
+**Run**.
+
+Ele não muda nada, só olha. A resposta vem em cinco linhas, em português:
+
+```
+1. tabelas     TUDO CERTO: as 18 tabelas existem
+2. seguranca   TUDO CERTO: todas protegidas
+3. funcoes     TUDO CERTO: as 9 funcoes existem
+4. seu acesso  TUDO CERTO: o seu acesso esta ativo
+5. mentora     TUDO CERTO: voce esta na lista de mentoras
+```
+
+Se as cinco disserem TUDO CERTO, pode seguir para o passo 2. Se alguma
+disser ATENCAO ou FALTAM, me manda o print.
 
 ---
 
