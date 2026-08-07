@@ -6,10 +6,11 @@ O QUE ESTA NESTA PASTA
 ----------------------
   index.html   o sistema inteiro (um arquivo so)
   api.php      o servidor de dados: e ele que faz todo mundo ver os mesmos numeros
-  .htaccess    pede senha para entrar e protege a pasta de dados
-  .htpasswd    onde ficam os usuarios e senhas de acesso a pasta (voce vai gerar)
+  .htaccess    ajustes do servidor e protecao da pasta de dados
+  .htpasswd    opcional: senha de pasta, se voce quiser uma tranca a mais
   verificar.php  pagina que confere sozinha se a instalacao ficou correta
-  dados/       criada sozinha no primeiro acesso; guarda o estado e o historico
+  dados/       criada sozinha no primeiro acesso; guarda o estado, o historico
+               e o acesso (senhas em hash, nunca em texto)
 
 Nada aqui apaga o que ja existe no seu site: tudo fica dentro de UMA pasta nova.
 
@@ -19,6 +20,8 @@ PASSO 1 - CRIAR A PASTA
 No painel do KingHost, abra o Gerenciador de Arquivos (ou use um programa de FTP)
 e entre na pasta   www   (e a pasta do site).
 Crie uma pasta nova, por exemplo:   nexus
+(no site do Rebracil o caminho usado foi   www/rebracil01/nexus  - onde este texto
+disser "nexus", use o caminho que voce criou)
 
 IMPORTANTE: nao envie o index.html direto na raiz do www. Ali existe a pagina
 inicial do seu site atual e ela seria substituida. Dentro de uma pasta propria
@@ -37,31 +40,41 @@ Envie para dentro de www/nexus :
 enxergar o .htaccess, que comeca com ponto.)
 
 
-PASSO 3 - CRIAR A SENHA DE ACESSO
----------------------------------
-O KingHost tem "Proteger diretorio" no painel: aponte para a pasta nexus,
-crie usuario e senha e pronto - ele mesmo gera o .htpasswd e ajusta o .htaccess.
-Esse e o caminho mais facil e o recomendado.
+PASSO 3 - DEFINIR O ACESSO (a primeira entrada faz isso sozinha)
+---------------------------------------------------------------
+Nao precisa mexer em nada no painel da hospedagem.
 
-Se preferir fazer na mao:
-  1. gere o arquivo em  https://www.web2generators.com/apache-tools/htpasswd-generator
-     (escolha "bcrypt" ou "MD5"), salve como  .htpasswd  e envie para a pasta;
-  2. abra o .htaccess e troque a linha
-         AuthUserFile /home/SEU_USUARIO/www/nexus/.htpasswd
-     pelo caminho completo real da pasta no servidor.
+Quem protege os dados e o LOGIN DO PROPRIO SISTEMA. Na PRIMEIRA vez que alguem
+entrar (usuario e senha do sistema), o servidor grava esse acesso e passa a exigir
+login para ler ou gravar qualquer numero. Depois disso ninguem mais consegue
+"tomar" a instalacao.
 
-Sem esta protecao, qualquer pessoa com o endereco abre o sistema e ve os numeros.
+  >> Por isso: assim que subir os arquivos, ENTRE VOCE PRIMEIRO, antes de passar
+     o endereco para qualquer pessoa. Leva 10 segundos e fecha a porta.
+
+Trocou a senha de um usuario dentro do sistema? O servidor acompanha sozinho na
+proxima gravacao - nao existe cadastro em dois lugares.
+
+Se errar a senha 8 vezes seguidas, aquele computador fica 10 minutos sem poder
+tentar de novo (freio contra quem fica chutando senha).
+
+OPCIONAL - senha de pasta por cima
+Se quiser uma tranca a mais, o KingHost tem "Proteger diretorio" no painel: aponte
+para a pasta e crie usuario e senha. O sistema funciona com ou sem isso; deixou de
+ser obrigatorio justamente porque em algumas hospedagens ela nao chega ao PHP e
+travava a instalacao inteira.
 
 
 PASSO 4 - ABRIR E CONFERIR
 --------------------------
 PRIMEIRO abra   https://seudominio.com.br/nexus/verificar.php
-Essa pagina confere tudo sozinha (PHP, permissao de escrita, senha da pasta,
+Essa pagina confere tudo sozinha (PHP, permissao de escrita, acesso do sistema,
 HTTPS e protecao dos dados) e diz o que fazer se algo estiver faltando.
 Quando estiver tudo verde, pode apagar o verificar.php.
 
 Depois acesse   https://seudominio.com.br/nexus/
-O navegador vai pedir a senha da pasta. Depois entra a tela de login do sistema.
+Entre com o seu usuario e senha do sistema - essa mesma entrada abre a sessao no
+servidor. Nao ha segunda senha para decorar.
 
 No canto superior direito deve aparecer o selo verde "SINCRONIZADO".
    - Selo verde ......... esta tudo certo, os dados sao compartilhados.
@@ -69,6 +82,8 @@ No canto superior direito deve aparecer o selo verde "SINCRONIZADO".
                           Confira se index.html e api.php estao lado a lado.
    - Selo amarelo ....... o servidor nao respondeu. O trabalho continua salvo
                           no navegador e sobe sozinho quando voltar.
+   - "Aguardando entrada"  a sessao do servidor caiu (ou expirou em 30 dias).
+                          Saia e entre de novo: volta a compartilhar na hora.
 
 
 PASSO 5 - LEVAR OS DADOS QUE VOCE JA TEM

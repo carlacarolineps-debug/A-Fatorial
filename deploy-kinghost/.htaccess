@@ -1,28 +1,23 @@
 # ============================================================================
-# NEXUS GRB - protecao da pasta
+# NEXUS GRB - ajustes da pasta
 #
-# Este arquivo faz DUAS coisas:
-#   1) pede usuario e senha para abrir qualquer coisa aqui dentro;
-#   2) impede que a pasta "dados" seja aberta pelo navegador.
+# Este arquivo NAO pede senha. Quem protege os numeros e o login do proprio
+# sistema (api.php): sem entrar com usuario e senha, o servidor nao entrega e
+# nao grava nada. Assim a instalacao nao depende de nenhum recurso do painel
+# da hospedagem - era essa dependencia que travava tudo.
 #
-# ATENCAO: a linha AuthUserFile precisa do caminho COMPLETO do arquivo .htpasswd
-# no servidor. No KingHost costuma ser algo como:
-#   /home/SEU_USUARIO/www/nexus/.htpasswd
-# Troque a linha abaixo pelo caminho real (o painel do KingHost mostra o seu
-# usuario; o "Gerenciador de Arquivos" mostra o caminho completo da pasta).
+# O que ele faz:
+#   1) impede que a pasta "dados" seja aberta pelo navegador;
+#   2) esconde os arquivos de configuracao;
+#   3) liga cabecalhos basicos de seguranca.
 # ============================================================================
-
-AuthType Basic
-AuthName "NEXUS GRB - Grupo Rebracil"
-AuthUserFile /home/SEU_USUARIO/www/nexus/.htpasswd
-Require valid-user
 
 # A pasta de dados nunca pode ser baixada direto pelo navegador
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteRule ^dados/ - [F,L]
 
-  # HTTPS obrigatorio: sem isso a senha da pasta e os numeros trafegam abertos.
+  # HTTPS obrigatorio: sem isso a senha e os numeros trafegam abertos.
   # Ative depois de confirmar que o dominio tem certificado (o KingHost oferece
   # SSL gratuito no painel). Para ativar, apague o "#" das duas linhas abaixo.
   # RewriteCond %{HTTPS} !=on
@@ -50,3 +45,20 @@ Options -Indexes
 
 # O sistema e um arquivo so; index.html e a porta de entrada
 DirectoryIndex index.html
+
+# ----------------------------------------------------------------------------
+# OPCIONAL - senha de pasta por cima do login do sistema
+#
+# So use se quiser uma tranca a mais. Precisa de um .htpasswd de verdade: sem
+# ele (ou com o caminho errado) o Apache derruba a pasta inteira com erro 500
+# ou fica pedindo uma senha que ninguem consegue acertar.
+#
+# O caminho mais seguro e usar "Proteger diretorio" no painel do KingHost, que
+# gera o arquivo e ajusta estas linhas sozinho. Para fazer na mao, tire os "#"
+# e troque o caminho pelo real da sua pasta no servidor.
+#
+# AuthType Basic
+# AuthName "NEXUS GRB - Grupo Rebracil"
+# AuthUserFile /home/SEU_USUARIO/www/nexus/.htpasswd
+# Require valid-user
+# ----------------------------------------------------------------------------

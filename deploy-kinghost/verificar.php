@@ -57,9 +57,21 @@ foreach (['PHP_AUTH_USER', 'REMOTE_USER', 'REDIRECT_REMOTE_USER'] as $k) {
     if (!empty($_SERVER[$k])) { $usuario = (string) $_SERVER[$k]; break; }
 }
 $usuario !== ''
-    ? item($itens, 'ok', 'Senha de pasta', 'Protegida - voce entrou como "' . htmlspecialchars($usuario) . '".')
-    : item($itens, 'erro', 'Senha de pasta', 'A pasta esta ABERTA: qualquer pessoa com o endereco ve e altera os numeros.',
-        'No painel do KingHost use "Proteger diretorio" apontando para esta pasta. E a protecao mais importante de todas.');
+    ? item($itens, 'ok', 'Senha de pasta (opcional)', 'A pasta tambem pede senha - voce entrou como "' . htmlspecialchars($usuario) . '". E uma camada a mais, alem do login do sistema.')
+    : item($itens, 'ok', 'Senha de pasta (opcional)', 'Sem senha de pasta - tudo bem: quem protege os dados e o login do proprio sistema. Ninguem le nem grava sem entrar.');
+
+/* 4b. o acesso do sistema ja foi definido? */
+$arqAcesso = $DIR . '/acesso.php';
+if (is_file($arqAcesso)) {
+    $txtA = (string) @file_get_contents($arqAcesso);
+    if (strpos($txtA, '<?php') === 0) { $qq = strpos($txtA, "\n"); $txtA = $qq === false ? '' : substr($txtA, $qq + 1); }
+    $ja = json_decode($txtA, true);
+    $qtd = is_array($ja) && isset($ja['usuarios']) ? count($ja['usuarios']) : 0;
+    item($itens, 'ok', 'Acesso do sistema', 'Definido: ' . $qtd . ' usuario(s) podem entrar. Os dados so saem daqui com login e senha.');
+} else {
+    item($itens, 'alerta', 'Acesso do sistema', 'Ainda nao definido - normal numa instalacao nova.',
+        'Abra o sistema e entre com o seu usuario e senha: a PRIMEIRA entrada define quem tem acesso. Faca isso agora, antes de passar o endereco para outras pessoas.');
+}
 
 /* 5. HTTPS */
 $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -72,7 +84,7 @@ $https
 
 /* 6. a pasta de dados responde na web? (nao deveria mostrar conteudo) */
 item($itens, 'ok', 'Protecao dos dados',
-    'Os dados sao gravados como "estado.php" com bloqueio na primeira linha: mesmo que o .htaccess falhe, abrir o arquivo no navegador devolve pagina vazia.');
+    'Os dados sao gravados como "estado.php" com bloqueio na primeira linha: mesmo que o .htaccess falhe, abrir o arquivo no navegador devolve pagina vazia. As senhas ficam guardadas em hash, nunca em texto.');
 
 /* 7. o sistema ja tem dados gravados? */
 $arqEstado = $DIR . '/estado.php';
