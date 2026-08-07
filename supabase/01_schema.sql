@@ -767,11 +767,37 @@ end $$;
 revoke execute on function public.aplicar_regua_inadimplencia() from public, anon, authenticated;
 
 
-create extension if not exists pg_cron;
-select cron.unschedule('regua-inadimplencia')
-  where exists (select 1 from cron.job where jobname = 'regua-inadimplencia');
-select cron.schedule('regua-inadimplencia', '17 6 * * *',
-  $$select public.aplicar_regua_inadimplencia();$$);
+-- ---------------------------------------------------------------------
+-- A régua roda sozinha uma vez por dia, pelo pg_cron.
+--
+-- Este bloco é OPCIONAL de propósito. O pg_cron nem sempre está ligado no
+-- projeto, e quando não está, um "create extension" solto derruba o
+-- arquivo inteiro na primeira linha: as 18 tabelas não seriam criadas por
+-- causa de um agendamento. Aqui, se ele não existir, o schema avisa e
+-- segue. Para ligar depois: Database, Extensions, procure pg_cron e
+-- ligue, e então rode este arquivo de novo.
+-- ---------------------------------------------------------------------
+do $$
+begin
+  begin
+    create extension if not exists pg_cron;
+  exception when others then
+    raise notice 'pg_cron nao disponivel (%). O schema segue: a regua de inadimplencia fica sem agendamento automatico. Para ligar: Database > Extensions > pg_cron, e rode este arquivo de novo.', SQLERRM;
+    return;
+  end;
+
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    begin
+      perform cron.unschedule('regua-inadimplencia')
+        where exists (select 1 from cron.job where jobname = 'regua-inadimplencia');
+      perform cron.schedule('regua-inadimplencia', '17 6 * * *',
+        $cron$select public.aplicar_regua_inadimplencia();$cron$);
+      raise notice 'regua de inadimplencia agendada para 06:17 UTC (03:17 no Brasil).';
+    exception when others then
+      raise notice 'nao consegui agendar a regua (%). O schema segue normalmente.', SQLERRM;
+    end;
+  end if;
+end $$;
 
 -- =====================================================================
 -- 11. REALTIME em access: é o que fecha o app ao vivo quando o status cai

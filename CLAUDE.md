@@ -47,6 +47,24 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### O pg_cron derrubava o schema inteiro (0608.04)
+A Carla: "me mande o arquivo que tenho que colocar no SQL pois deu erro".
+
+O `create extension if not exists pg_cron;` era a única linha do arquivo que
+eu **não conseguia testar aqui**: no Postgres local eu trocava ela por um
+comentário. Numa conta em que o pg_cron não está ligado, ela falha, e a falha
+derruba o arquivo na linha 770: **as 18 tabelas não são criadas por causa de
+um agendamento** que serve para uma régua de cobrança que ela nem usa ainda.
+
+Agora o bloco inteiro vive dentro de um `do $$` com `exception when others`:
+se o pg_cron não existir, o schema **avisa e segue**. Testado com o schema
+`cron` apagado do banco de teste: 18 tabelas criadas, zero erros, e os 37
+cenários de ataque continuam passando. Rodar por cima de novo também dá zero.
+
+Lição que vale para o resto: toda linha que depende de extensão ou de
+permissão de plataforma precisa ser opcional, senão ela decide o destino de
+tudo que vem depois dela.
+
 ### Auditoria completa e o guia para leigo (0608.03)
 A Carla: "quero que já de uma olhada em tudo para ver o que está funcionando
 ou não, e no final me falar tudo que eu ainda tenho que fazer eu mesmo passo a

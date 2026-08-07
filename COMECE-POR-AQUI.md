@@ -65,6 +65,16 @@ inteira e me mande. Não rode de novo antes de eu olhar.
 > Pode rodar esse mesmo arquivo quantas vezes quiser. Ele foi feito para
 > isso, e não apaga nada de ninguém.
 
+**Se preferir, use o arquivo que eu te mandei no chat** em vez de copiar do
+GitHub. Abra ele no Bloco de Notas, selecione tudo (Ctrl + A), copie
+(Ctrl + C) e cole no Supabase. Às vezes o botão de copiar do GitHub não pega
+o arquivo inteiro quando ele é grande, e aí o final fica faltando e dá erro.
+
+**Sobre uma mensagem específica:** se aparecer algo com `pg_cron`, pode
+ignorar. Essa parte agora é opcional: ela só agenda um serviço automático de
+cobrança que você nem usa ainda. O resto do arquivo roda normalmente e as 18
+tabelas são criadas do mesmo jeito.
+
 ---
 
 # PASSO 2: o e-mail com o código (3 minutos)
