@@ -95,42 +95,31 @@ disser ATENCAO ou FALTAM, me manda o print.
 
 ---
 
-# PASSO 2: o e-mail com o código (3 minutos)
+# PASSO 2: o e-mail com o código (15 minutos)
 
-O app manda um código de 6 dígitos no primeiro acesso. Por padrão o Supabase
-manda só um link, então precisamos avisar que queremos o código.
+O app manda um código de 6 dígitos no primeiro acesso, e para isso o e-mail
+precisa sair de algum lugar.
 
-### 2.1
+**O Supabase não deixa editar o modelo do e-mail enquanto você não
+configurar um e-mail próprio.** Se você abriu a tela dos modelos e viu o
+aviso cinza *"Set up custom SMTP to edit templates"*, é exatamente isso.
 
-Clique aqui: **https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/auth/templates**
+**O passo a passo inteiro está em `EMAIL-DO-CODIGO.md`**, com as telas do
+Google e as do Supabase, uma por uma. Em resumo:
 
-### 2.2
+1. Ligue a verificação em duas etapas na sua conta Google
+2. Crie uma **senha de aplicativo** (16 letras, é diferente da sua senha)
+3. No Supabase, em **Project Settings**, **Authentication**, **SMTP
+   Settings**, preencha com `smtp.gmail.com`, porta `587`, o seu e-mail e
+   aquelas 16 letras
+4. Aí o modelo do e-mail fica editável, e você cola o texto com o código
 
-Se a tela pedir **Host**, **Port**, **Username**, você caiu na aba errada
-(aquela é **SMTP Settings**). Procure no alto a aba **Templates** e clique
-nela.
+Usamos o seu próprio Gmail de propósito: o e-mail sai dos servidores do
+Google e **chega na caixa de entrada**. Serviços de terceiros mandando em
+nome de um Gmail costumam cair no spam, e aí a aluna não recebe o código e
+fica parada na porta do app.
 
-### 2.3
-
-Na lista de modelos, clique em **Magic Link**.
-
-### 2.4
-
-No campo grande do meio, **apague tudo** e cole exatamente isto:
-
-```html
-<h2>Seu codigo de acesso</h2>
-<p>Digite este codigo no aplicativo Operacao Blindada:</p>
-<p style="font-size:34px;letter-spacing:8px;font-weight:bold">{{ .Token }}</p>
-<p>O codigo vale por 1 hora.</p>
-```
-
-### 2.5
-
-Clique em **Save**.
-
-> O pedacinho `{{ .Token }}` é o que vira o número. Ele precisa ficar escrito
-> exatamente assim, com os espaços dentro das chaves.
+Limite: 500 e-mails por dia, de graça. Para uma turma, sobra muito.
 
 ---
 
