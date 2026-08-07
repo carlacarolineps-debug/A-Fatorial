@@ -54,7 +54,7 @@ funciona sem internet depois da primeira abertura.
 | Ícone na tela de início | sim | sim |
 | Tela cheia | sim | sim |
 | Funciona sem internet | sim | sim |
-| Login por código | sim | sim |
+| Login com e-mail e senha | sim | sim |
 | Aparece na busca da loja | não | sim |
 | Notificação empurrada | não | sim |
 | Botão físico de voltar do Android | do navegador | do app |

@@ -94,6 +94,42 @@ async function gravarAcesso(
   if (user_id) linha.user_id = user_id;
   if (ref) linha.external_ref = ref;
   await db.from("access").upsert(linha, { onConflict: "email" });
+
+  /* Liberar sem avisar não serve para nada: a pessoa pagou e não sabe
+     como entrar. Quando o acesso vira ativo, a função irmã sorteia a
+     senha temporária e manda o e-mail.
+     so_se_nova é a trava que faz isso acontecer UMA vez: a régua de
+     parcelas confirma pagamento todo mês e passa por aqui de novo, e sem
+     ela a senha escolhida pela aluna seria derrubada a cada parcela. */
+  if (status === "active") await mandarSenha(email);
+}
+
+/* A chamada é HTTP porque as duas funções são processos separados. Uma
+   falha aqui não pode derrubar o webhook: o acesso já está gravado, e
+   ficar sem o e-mail é um problema que a Carla resolve pela mesa em dois
+   toques. Devolver erro para a TMB faria ela reenviar o webhook inteiro. */
+async function mandarSenha(email: string) {
+  try {
+    const r = await fetch(`${URL_SB}/functions/v1/liberar-aluna`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${SERVICE}` },
+      body: JSON.stringify({ email, motivo: "webhook", so_se_nova: true }),
+    });
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j || j.ok !== true) {
+      await db.from("webhook_log").insert({
+        origem: "tmb-webhook", processado: false,
+        erro: "acesso ativado mas a senha nao foi enviada: " + JSON.stringify(j ?? r.status),
+        payload: { email } as never,
+      });
+    }
+  } catch (e) {
+    await db.from("webhook_log").insert({
+      origem: "tmb-webhook", processado: false,
+      erro: "acesso ativado mas a senha nao foi enviada: " + String((e as Error)?.message ?? e),
+      payload: { email } as never,
+    });
+  }
 }
 
 /* ------------------------------------------------------------------ */

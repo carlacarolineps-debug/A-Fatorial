@@ -71,51 +71,20 @@ manda no acesso é a regra dentro do banco, não ela. A outra chave, a
 
 ---
 
-## Passo 3: o e-mail com o código de 6 dígitos (3 minutos)
+## Passo 3: os e-mails (veja `EMAIL-DA-SENHA.md`)
 
-Por padrão o Supabase manda só um link. O app pede o código, então o e-mail
-precisa mostrar o código.
+O app não usa mais código de 6 dígitos. A pessoa recebe uma senha
+temporária por e-mail, entra com ela e o app exige que ela crie a senha
+dela na hora. Quem esquece usa o link de recuperação.
 
-**Onde:** menu da esquerda, **Authentication**. Dentro dele, **Emails**.
-Link direto: <https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/auth/templates>
+Isso pede três coisas, todas explicadas passo a passo em
+`EMAIL-DA-SENHA.md`, na raiz do repositório:
 
-1. Na lista de modelos, escolha **Magic Link**.
-2. No campo grande do meio (o corpo do e-mail), apague o que está lá e cole:
-
-```html
-<h2>Seu codigo de acesso</h2>
-<p>Digite este codigo no aplicativo Operacao Blindada:</p>
-<p style="font-size:34px;letter-spacing:8px;font-weight:bold">{{ .Token }}</p>
-<p>O codigo vale por 1 hora. Se nao foi voce quem pediu, ignore este e-mail.</p>
-```
-
-3. Clique em **Save** (ou **Save changes**).
-
-**Importante:** `{{ .Token }}` tem que ficar escrito exatamente assim, com os
-dois espaços dentro das chaves. É isso que vira o número.
-
-**Um aviso sobre o e-mail de teste:** enquanto você usa o e-mail do próprio
-Supabase, o limite é baixo (poucos por hora). Serve para testar, não serve
-para abrir a turma inteira. Antes de liberar para todo mundo, configure um
-e-mail próprio em **Project Settings**, **Authentication**, **SMTP Settings**.
-Resend e Brevo têm plano sem custo e resolvem.
-
----
-
-## Passo 3.1: as travas de senha (2 minutos, e vale muito)
-
-Agora que o app tem senha, dois interruptores no Supabase valem a pena.
-
-**Onde:** **Authentication**, **Policies** (em alguns painéis fica em
-**Authentication**, **Sign In / Providers**, seção **Password**).
-
-1. **Minimum password length**: troque de 6 para **8**. O app já exige 8 no
-   celular, mas a regra tem que existir também no servidor: quem tenta pela
-   API não passa pela tela do app.
-2. **Leaked password protection**: **ligue**. O Supabase confere a senha
-   contra a lista pública de senhas já vazadas na internet e recusa as que
-   estão lá. É sem custo e evita a senha que alguém já usou em outro site
-   que vazou.
+1. o SMTP do Gmail em **Project Settings**, **Authentication**;
+2. o modelo **Reset Password** com `{{ .ConfirmationURL }}`, mais a
+   **Site URL** apontando para o endereço do app;
+3. os segredos `GMAIL_USER`, `GMAIL_APP_PASSWORD` e `APP_URL`, e a
+   publicação da função `liberar-aluna`.
 
 ## Passo 4: o seu acesso (já vem pronto)
 
@@ -207,14 +176,18 @@ Se tiver algo escrito em `erro`, me mande o texto.
 1. **SQL Editor** → colar o schema → **Run**
 2. **Project Settings** → **API Keys** → copiar a **anon** → colar no arquivo
    do app no lugar de `COLE_AQUI_A_ANON_KEY`
-3. **Authentication** → **Emails** → **Magic Link** → colar o modelo com
-   `{{ .Token }}` → **Save**
-4. Entrar no app com o seu e-mail (o acesso e o modo mentora já vêm prontos)
-5. **Edge Functions** → criar `tmb-webhook` → colar o código → **Deploy** →
+3. **Authentication** → **SMTP Settings** com o Gmail, modelo
+   **Reset Password** com `{{ .ConfirmationURL }}`, e a **Site URL**
+   apontando para o app (`EMAIL-DA-SENHA.md`)
+4. **Edge Functions** → **Secrets** (`GMAIL_USER`, `GMAIL_APP_PASSWORD`,
+   `APP_URL`) → publicar `liberar-aluna`
+5. Entrar no app com o seu e-mail, usando **Esqueci a minha senha** para
+   criar a primeira senha (o acesso e o modo mentora já vêm prontos)
+6. **Edge Functions** → criar `tmb-webhook` → colar o código → **Deploy** →
    **Secrets** → cadastrar na TMB
 
-Os passos 1 a 4 já deixam o app funcionando para você e para quem você
-liberar na mão. O passo 5 é o que faz a liberação acontecer sozinha quando
+Os passos 1 a 5 já deixam o app funcionando para você e para quem você
+liberar na mão. O passo 6 é o que faz a liberação acontecer sozinha quando
 alguém se inscreve.
 
 ## Se der erro no passo 1

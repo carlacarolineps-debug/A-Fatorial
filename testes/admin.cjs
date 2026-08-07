@@ -1,7 +1,7 @@
 /* A mesa da mentoria: quem entra, o que aparece e o que cada botao faz. */
 const {chromium}=require('playwright'); const fs=require('fs');
 const U='http://127.0.0.1:8737/';
-const MOCK=fs.readFileSync(__dirname+'/mock-sb.js','utf8');
+const MOCK=fs.readFileSync(__dirname+'/supabase-de-mentira.js','utf8');
 const erros=[]; let falhas=0;
 const ok=(t,c,x)=>{ console.log((c?'  ok  ':'  FALHOU ')+t+(x?'  '+x:'')); if(!c) falhas++; };
 const ESTADO = {name:'Carla',xp:2400,level:5,createdAt:Date.now()-30*864e5,
@@ -81,8 +81,18 @@ async function entrar(b, mentora){
   ok('mostra ha quanto tempo mexeu', /mexeu ontem/.test(t5), '');
   await pg.evaluate(()=>{ document.getElementById('adLibE').value='nova@exemplo.com'; adLiberar(); });
   await pg.waitForTimeout(600);
-  const r5=await pg.evaluate(()=>JSON.stringify(window.__SB.rpcs));
-  ok('liberar chama a funcao do banco', /liberar_acesso/.test(r5) && /nova@exemplo\.com/.test(r5));
+  /* liberar passa pela funcao do servidor, que e quem sorteia a senha
+     temporaria e manda o e-mail. A funcao do banco fica de reserva. */
+  const r5=await pg.evaluate(()=>JSON.stringify(window.__SB.invocadas));
+  ok('liberar chama a funcao que manda a senha', /liberar-aluna/.test(r5) && /nova@exemplo\.com/.test(r5), r5.slice(0,90));
+  ok('a conta nasce com senha temporaria', await pg.evaluate(()=>!!window.__SB.temporaria['nova@exemplo.com']));
+  ok('a mesa avisa que a senha foi por e-mail', /senha tempor/i.test(await pg.evaluate(()=>document.getElementById('adLibMsg').innerText)));
+  /* e quando a funcao nao esta publicada, a reserva entra e a mesa avisa */
+  await pg.evaluate(()=>{ window.__SB.erroFuncao=true; document.getElementById('adLibE').value='outra@exemplo.com'; adLiberar(); });
+  await pg.waitForTimeout(700);
+  ok('sem a funcao, cai na do banco', /liberar_acesso/.test(await pg.evaluate(()=>JSON.stringify(window.__SB.rpcs))));
+  ok('e a mesa avisa que o e-mail nao saiu', /n[aã]o foi por e-mail/i.test(await pg.evaluate(()=>document.getElementById('adLibMsg').innerText)));
+  await pg.evaluate(()=>{ window.__SB.erroFuncao=false; });
   await pg.evaluate(()=>adEncerrar('ana@x.com')); await pg.waitForTimeout(300);
   ok('encerrar pede confirmacao', /Tirar o acesso/.test(await pg.evaluate(()=>document.getElementById('modalBox').innerText)));
   await pg.evaluate(()=>adEncerrarOk('ana@x.com')); await pg.waitForTimeout(500);

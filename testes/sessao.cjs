@@ -3,7 +3,7 @@
 const {chromium}=require('playwright');
 const fs=require('fs');
 const U='http://127.0.0.1:8736/';
-const MOCK=fs.readFileSync(__dirname+'/mock-sb.js','utf8');
+const MOCK=fs.readFileSync(__dirname+'/supabase-de-mentira.js','utf8');
 const erros=[];
 let falhas=0;
 const ok=(t,c,extra)=>{ console.log((c?'  ok  ':'  FALHOU ')+t+(extra?'  '+extra:'')); if(!c) falhas++; };
@@ -115,7 +115,7 @@ const txt=pg=>pg.evaluate(()=>{ const g=document.getElementById('ob-gate'); retu
   let pg7=await nova(b);
   await pg7.goto(U); await pg7.waitForTimeout(1100);
   await pg7.evaluate(()=>{ window.__SB.erroOtp='Email rate limit exceeded'; });
-  await pg7.click('#ob-primeiro'); await pg7.waitForTimeout(300);
+  await pg7.click('#ob-esqueci'); await pg7.waitForTimeout(300);
   await pg7.fill('#ob-email','a@b.com'); await pg7.click('#ob-send'); await pg7.waitForTimeout(400);
   const e11=await pg7.evaluate(()=>document.getElementById('ob-erro').textContent);
   ok('limite explicado em portugues', /minutos/i.test(e11), JSON.stringify(e11));

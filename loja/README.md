@@ -18,8 +18,8 @@ está listado como passo manual, na ordem de fazer.
 | Política de privacidade | Dentro do app e em `privacidade.html` |
 | Termos de uso | Dentro do app e em `termos.html` |
 | Apagar a conta pelo app | Mais, excluir a minha conta, com dupla confirmação |
-| Login sem sair do app | Senha, com código de 6 dígitos no primeiro acesso |
-| Recuperação de senha | Mesmo código de 6 dígitos, dentro do app |
+| Login sem sair do app | E-mail e senha. A primeira senha vem por e-mail e o app exige a troca |
+| Recuperação de senha | Link de recuperação por e-mail, com a tela de senha nova dentro do app |
 | Conta de teste para o revisor | Basta e-mail e senha: o revisor não precisa de caixa de e-mail |
 | Face ID e digital | Desbloqueio ao voltar para o app, opcional |
 | Lembrete do treino | Notificação local, na hora que a pessoa escolher |
@@ -62,23 +62,22 @@ Quem manda mora na tabela `mentoras`, com RLS ligado e nenhuma política:
 nenhuma conta logada lê ou escreve aquilo. Para acrescentar outra pessoa, é
 uma linha no SQL Editor e rodar o arquivo de novo.
 
-### Passo 1.3: o e-mail com o código de 6 dígitos
+### Passo 1.3: os dois e-mails
 
-Por padrão o Supabase manda só o link. O app pede o código, então o modelo
-precisa ter o código.
+São dois, e cada um sai de um lugar diferente:
 
-1. **Authentication**, **Emails**, modelo **Magic Link**.
-2. No corpo do e-mail, inclua o código em destaque:
-   ```html
-   <h2>{{ .Token }}</h2>
-   <p>Digite este código de 6 dígitos no aplicativo. Ele vale por 1 hora.</p>
-   ```
-3. Salve.
+- **a senha temporária**, mandada pela Edge Function `liberar-aluna`
+  quando a inscrição é confirmada ou a mentoria libera na mesa. Precisa
+  dos segredos `GMAIL_USER`, `GMAIL_APP_PASSWORD` e `APP_URL`;
+- **o link de esqueci a senha**, mandado pelo próprio Supabase. Precisa
+  do SMTP configurado e do modelo **Reset Password** com
+  `{{ .ConfirmationURL }}`, mais a **Site URL** apontando para o app.
+
+O passo a passo completo, tela por tela, está em `EMAIL-DA-SENHA.md`.
 
 Enquanto o e-mail de teste do Supabase estiver em uso, o limite é baixo
 (poucos por hora). Antes de abrir para a turma, configure um SMTP próprio
-em **Project Settings**, **Auth**, **SMTP Settings**. Resend, Postmark e
-Amazon SES servem.
+em **Project Settings**, **Auth**, **SMTP Settings**.
 
 ### Passo 1.4: o webhook da TMB
 
@@ -86,7 +85,8 @@ Amazon SES servem.
 2. `supabase login`
 3. `supabase link --project-ref okoylfnniukzwoxevyow`
 4. `supabase secrets set TMB_WEBHOOK_SECRET=<invente um segredo longo>`
-5. `supabase functions deploy tmb-webhook --no-verify-jwt`
+5. `supabase functions deploy liberar-aluna` e depois
+   `supabase functions deploy tmb-webhook --no-verify-jwt`
 6. Na TMB, cadastre os dois webhooks (Vendas e Financeiro) apontando para
    `https://okoylfnniukzwoxevyow.supabase.co/functions/v1/tmb-webhook`
    com o cabeçalho `x-webhook-secret: <o mesmo segredo>`.
@@ -168,10 +168,10 @@ seguidos. Vale usar o próprio grupo da mentoria.
 - **Classificação**: 18 anos ou mais
 - **Privacidade**: o endereço do passo 2
 - **Suporte**: o endereço do passo 2 e gestaogrupoa@gmail.com
-- **Conta de teste para o revisor**: crie um e-mail só para isso, deixe o
-  acesso ativo no banco e informe o e-mail no formulário, explicando que a
-  entrada é por código de 6 dígitos enviado para aquele e-mail. **Sem isso a
-  Apple reprova**, porque o revisor não consegue passar da tela de login.
+- **Conta de teste para o revisor**: crie um e-mail só para isso, libere
+  na mesa, entre uma vez para trocar a senha temporária pela definitiva e
+  informe o e-mail e a senha no formulário. **Sem isso a Apple reprova**,
+  porque o revisor não consegue passar da tela de login.
 
 ### A pergunta que a Apple faz e a resposta certa
 

@@ -1,5 +1,5 @@
 const {chromium}=require('playwright'); const fs=require('fs');
-const MOCK=fs.readFileSync(__dirname+'/mock-sb.js','utf8');
+const MOCK=fs.readFileSync(__dirname+'/supabase-de-mentira.js','utf8');
 const E={name:'Carla',xp:2400,level:5,createdAt:Date.now()-11*864e5,
   af:{metodo:true,welcomed:true},termo:{versao:'1.0',em:Date.now()},diagnostic:{answers:{}},
   bussola:{diag:{f:1},pacto:{q:1},kpis:[{n:'x',v:1}],ritual:[{t:1}]},

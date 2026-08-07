@@ -234,3 +234,74 @@ select case when (public.resumo_admin()->>'ativas')::int >= 1 then 'PASSOU: nume
 select case when count(*)=1 then 'PASSOU: busca por e-mail acha 1' else 'FALHOU: '||count(*) end
   from public.alunas_admin('bia@');
 reset role;
+
+-- =====================================================================
+-- A FOTO DO PERFIL (avatares)
+-- A foto aparece para as outras pessoas, entao a leitura e publica. O
+-- que nao pode e uma pessoa escrever na pasta de outra, nem usar a
+-- coluna nova para virar mentora por tabela.
+-- =====================================================================
+-- o schema storage nao mora em public, entao ele sobrevive ao drop
+-- schema que abre cada rodada: sem esta limpeza as fotos das rodadas
+-- anteriores ficam somando e a contagem do teste 35 mente
+delete from storage.objects where bucket_id='avatares';
+
+set role authenticated;
+set teste.uid = '22222222-2222-2222-2222-222222222222';
+set teste.jwt = '{"email":"bia@exemplo.com"}';
+
+\echo '--- 33. a Bia poe a foto dela na propria pasta'
+do $$ begin
+  insert into storage.objects (bucket_id, name, owner)
+    values ('avatares','22222222-2222-2222-2222-222222222222/perfil-1.png', null);
+  raise notice 'PASSOU: a foto na propria pasta entrou';
+exception when others then raise notice 'FALHOU: %', sqlerrm;
+end $$;
+
+\echo '--- 34. a Bia NAO poe foto na pasta da Ana'
+do $$ begin
+  insert into storage.objects (bucket_id, name, owner)
+    values ('avatares','11111111-1111-1111-1111-111111111111/perfil-1.png', null);
+  raise notice 'FALHOU: escreveu na pasta de outra pessoa';
+exception when others then raise notice 'PASSOU: recusado';
+end $$;
+
+\echo '--- 35. a Bia NAO apaga a foto da Ana'
+set role postgres;
+insert into storage.objects (bucket_id, name, owner)
+  values ('avatares','11111111-1111-1111-1111-111111111111/dela.png', null)
+  on conflict do nothing;
+set role authenticated;
+set teste.uid = '22222222-2222-2222-2222-222222222222';
+set teste.jwt = '{"email":"bia@exemplo.com"}';
+delete from storage.objects
+  where bucket_id='avatares' and name='11111111-1111-1111-1111-111111111111/dela.png';
+reset role;
+select case when count(*)=1 then 'PASSOU: a foto da Ana continua la' else 'FALHOU: sumiu' end
+  from storage.objects where bucket_id='avatares' and name='11111111-1111-1111-1111-111111111111/dela.png';
+
+\echo '--- 36. a Bia grava a propria foto no perfil, e so a dela'
+set role authenticated;
+set teste.uid = '22222222-2222-2222-2222-222222222222';
+set teste.jwt = '{"email":"bia@exemplo.com"}';
+update public.profiles set avatar_url='https://x/eu.png'
+  where user_id='22222222-2222-2222-2222-222222222222';
+update public.profiles set avatar_url='https://x/invadido.png'
+  where user_id='11111111-1111-1111-1111-111111111111';
+reset role;
+select case when (select avatar_url from public.profiles where user_id='22222222-2222-2222-2222-222222222222')='https://x/eu.png'
+             and (select avatar_url from public.profiles where user_id='11111111-1111-1111-1111-111111111111') is null
+       then 'PASSOU: mexeu so na propria linha' else 'FALHOU' end;
+
+\echo '--- 37. a coluna nova nao abre caminho para virar mentora'
+set role authenticated;
+set teste.uid = '22222222-2222-2222-2222-222222222222';
+set teste.jwt = '{"email":"bia@exemplo.com"}';
+do $$ begin
+  update public.profiles set is_mentor=true, avatar_url='https://x/eu.png'
+    where user_id='22222222-2222-2222-2222-222222222222';
+  raise notice 'FALHOU: o update com is_mentor passou';
+exception when others then raise notice 'PASSOU: recusado';
+end $$;
+select case when public.eh_mentora() then 'FALHOU: virou mentora' else 'PASSOU: continua aluna' end;
+reset role;

@@ -11,7 +11,7 @@ São 4 passos obrigatórios. Uns 20 minutos no total.
 
 Antes de qualquer coisa, dá para você já olhar tudo.
 
-1. Baixe o arquivo `Operação Blindada 0608.03.html` que eu te mandei.
+1. Baixe o arquivo `Operação Blindada 0608.05.html` que eu te mandei.
 2. **Dê dois cliques nele.** Abre no navegador.
 3. Passeie à vontade.
 
@@ -95,29 +95,35 @@ disser ATENCAO ou FALTAM, me manda o print.
 
 ---
 
-# PASSO 2: o e-mail com o código (15 minutos)
+# PASSO 2: o e-mail que manda a senha (20 minutos)
 
-O app manda um código de 6 dígitos no primeiro acesso, e para isso o e-mail
-precisa sair de algum lugar.
+Não existe mais código de 6 dígitos. Agora funciona assim:
 
-**O Supabase não deixa editar o modelo do e-mail enquanto você não
-configurar um e-mail próprio.** Se você abriu a tela dos modelos e viu o
-aviso cinza *"Set up custom SMTP to edit templates"*, é exatamente isso.
+1. a inscrição é confirmada, ou você libera a pessoa na sua mesa;
+2. o servidor cria a conta e manda uma **senha temporária** por e-mail;
+3. ela entra com o e-mail da inscrição e aquela senha;
+4. o app **exige na hora** que ela crie a senha dela.
 
-**O passo a passo inteiro está em `EMAIL-DO-CODIGO.md`**, com as telas do
-Google e as do Supabase, uma por uma. Em resumo:
+Quem esquece a senha usa **Esqueci a minha senha** e recebe um link.
 
-1. Ligue a verificação em duas etapas na sua conta Google
-2. Crie uma **senha de aplicativo** (16 letras, é diferente da sua senha)
-3. No Supabase, em **Project Settings**, **Authentication**, **SMTP
+Para os dois e-mails saírem, o app precisa do seu Gmail. **O passo a
+passo inteiro está em `EMAIL-DA-SENHA.md`**, com as telas do Google e as
+do Supabase, uma por uma. Em resumo:
+
+1. ligue a verificação em duas etapas na sua conta Google
+2. crie uma **senha de aplicativo** (16 letras, é diferente da sua senha)
+3. no Supabase, em **Project Settings**, **Authentication**, **SMTP
    Settings**, preencha com `smtp.gmail.com`, porta `587`, o seu e-mail e
    aquelas 16 letras
-4. Aí o modelo do e-mail fica editável, e você cola o texto com o código
+4. ajuste o modelo **Reset Password** (é este, não o Magic Link) e a
+   **Site URL**
+5. guarde três segredos (`GMAIL_USER`, `GMAIL_APP_PASSWORD`, `APP_URL`) e
+   publique a função `liberar-aluna`
 
 Usamos o seu próprio Gmail de propósito: o e-mail sai dos servidores do
 Google e **chega na caixa de entrada**. Serviços de terceiros mandando em
-nome de um Gmail costumam cair no spam, e aí a aluna não recebe o código e
-fica parada na porta do app.
+nome de um Gmail costumam cair no spam, e aí a aluna paga e não recebe a
+senha.
 
 Limite: 500 e-mails por dia, de graça. Para uma turma, sobra muito.
 
@@ -127,26 +133,27 @@ Limite: 500 e-mails por dia, de graça. Para uma turma, sobra muito.
 
 ### 3.1
 
-Abra o arquivo do app **hospedado**, não o do seu computador. Se você ainda
-não fez o passo 4, pode pular para lá e voltar aqui depois.
+Abra o app **hospedado**, não o do seu computador. Se você ainda não fez
+o passo 4, pode pular para lá e voltar aqui depois.
 
 ### 3.2
 
-Na tela de entrada, clique em **É o meu primeiro acesso**.
+O passo 1 já deixou o seu acesso ativo, mas a sua conta ainda não tem
+senha. Na tela de entrada, clique em **Esqueci a minha senha**.
 
 ### 3.3
 
-Digite `gestaogrupoa@gmail.com` e clique em **Receber o código**.
+Digite `gestaogrupoa@gmail.com` e clique em **Enviar o link**.
 
 ### 3.4
 
 Abra o seu e-mail. **Olhe também o spam**, o primeiro sempre cai lá.
-Digite os 6 números no app.
+Toque no link, **no mesmo aparelho**.
 
 ### 3.5
 
-Crie a sua senha. Pelo menos 8 caracteres, com letras e números. **Anote em
-lugar seguro.**
+O app abre direto na tela de criar a senha. Pelo menos 8 caracteres, com
+letras e números. **Anote em lugar seguro.**
 
 ### 3.6
 
@@ -251,9 +258,14 @@ agenda do celular.
 2. Digite o e-mail dela no primeiro campo
 3. **Liberar o acesso**
 
-Ela entra com aquele mesmo e-mail, recebe o código, cria a senha e está
-dentro. Serve para quando a inscrição não chegou sozinha, ou para uma
+Ela recebe **na hora**, por e-mail, uma senha temporária. Entra com
+aquele mesmo e-mail e aquela senha, e o app já pede para ela criar a
+senha dela. Serve para quando a inscrição não chegou sozinha, ou para uma
 convidada.
+
+Se alguém perdeu a senha e não consegue nem usar o "esqueci", procure o
+nome na lista e clique em **Reenviar a senha**: sai outra temporária, e o
+progresso não é tocado.
 
 Para tirar o acesso de alguém: procure o nome na lista e clique em
 **Encerrar**. O progresso dela **não é apagado**: se voltar, volta de onde
@@ -267,13 +279,10 @@ Estas três coisas não impedem você de começar hoje.
 
 ## A. E-mail próprio (antes de abrir para a turma)
 
-O e-mail de teste do Supabase manda pouquíssimos por hora. Com a turma
-inteira entrando no mesmo dia, as últimas não recebem o código.
-
-Se você **tem domínio próprio**, use o Resend. Se **não tem**, use o Brevo,
-que aceita e-mail comum e manda 300 por dia sem custo. Depois é só preencher
-em **Project Settings**, **Authentication**, **SMTP Settings**. Os detalhes
-estão em `loja/passo-a-passo-supabase.md`.
+O Gmail entrega 500 por dia, e isso cobre uma turma inteira com folga.
+Quando a base passar disso, vale comprar um domínio (cerca de R$ 40 por
+ano) e usar o Resend, que faz 3.000 por mês sem custo e não tem teto
+diário. Os detalhes estão em `loja/passo-a-passo-supabase.md`.
 
 ## B. A liberação automática pela TMB
 
@@ -296,8 +305,8 @@ aprovar antes.
 |---|---|
 | Faixa vermelha no Supabase | Copie a mensagem inteira e me mande |
 | "Acesso ainda não liberado" | O passo 1 não terminou. Confira o Success verde |
-| O código não chega | Olhe o spam. Espere 1 minuto e toque em reenviar |
-| "E-mail ou senha não conferem" | Se é o primeiro acesso, use o botão de primeiro acesso |
+| A senha não chega | Olhe o spam. Na mesa, use Reenviar a senha |
+| "E-mail ou senha não conferem" | Use a senha que veio por e-mail, ou toque em Esqueci a minha senha |
 | O endereço do site dá 404 | Espere mais 2 minutos. O GitHub demora para publicar |
 | A mesa não aparece em Mais | Você entrou com outro e-mail. Precisa ser o gestaogrupoa@gmail.com |
 

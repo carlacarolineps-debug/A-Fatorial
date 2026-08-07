@@ -112,9 +112,14 @@ o app tem senha.
 
 1. Crie um e-mail só para isso, por exemplo `revisor@operacaoblindada.com`
    (ou um Gmail qualquer).
-2. Na sua mesa, aba **Alunas**, libere esse e-mail.
-3. Entre no app com ele uma vez, use o código e **crie uma senha**.
+2. Na sua mesa, aba **Alunas**, libere esse e-mail. Ele recebe a senha
+   temporária na hora.
+3. Entre no app com ele uma vez e **crie uma senha definitiva**.
 4. No formulário da loja, informe esse e-mail e essa senha.
+
+> O revisor entra só com e-mail e senha, sem depender de caixa de e-mail
+> nenhuma. É por isso que a entrada por código de 6 dígitos saiu: ela
+> travava o revisor e é uma das causas mais comuns de reprovação.
 
 Escreva na observação para o revisor, em inglês:
 

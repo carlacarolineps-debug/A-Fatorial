@@ -19,13 +19,35 @@ O que só uma pessoa consegue testar está aqui. Marque cada linha.
       por fora nem pelo x.** Só o botão passa.
 - [ ] Aceitar. Recarregar o app: o termo não aparece de novo.
 
-## 2. O código de 6 dígitos
+## 2. A senha temporária e a senha dela
 
-- [ ] O código chega em menos de 1 minuto.
-- [ ] Digitar 6 dígitos entra sozinho, sem apertar o botão.
-- [ ] Digitar um código errado mostra o aviso e limpa o campo.
-- [ ] "Reenviar o código" manda outro, e o novo funciona.
-- [ ] "Usar outro e-mail" volta para a tela de e-mail.
+- [ ] Liberar um e-mail na mesa. A senha chega em menos de 1 minuto.
+- [ ] Entrar com aquela senha: o app **não abre**, ele pede a senha nova.
+- [ ] Senha curta, só números e senhas diferentes entre si são recusadas.
+- [ ] Depois de salvar, o app abre. Sair e entrar de novo com a senha
+      nova funciona, e a temporária não funciona mais.
+- [ ] "É o meu primeiro acesso" explica de onde vem a senha, sem pedir
+      código nenhum.
+
+## 2b. Esqueci a minha senha
+
+- [ ] O link chega em menos de 1 minuto.
+- [ ] A mensagem na tela é a mesma para e-mail que existe e que não
+      existe (não entrega quem tem conta).
+- [ ] "Reenviar o link" só libera depois de 60 segundos.
+- [ ] Abrir o link no mesmo aparelho cai direto na tela de senha nova,
+      **sem abrir o app antes**.
+- [ ] Depois de salvar, o endereço do navegador não tem mais o token.
+
+## 2c. O perfil
+
+- [ ] O retrato do topo abre o perfil.
+- [ ] O nome e o e-mail aparecem certos.
+- [ ] Colocar uma foto: ela aparece no perfil e no topo, e continua lá
+      depois de recarregar.
+- [ ] Trocar a senha por dentro do perfil funciona.
+- [ ] "Limpar os meus dados" só libera o botão depois de escrever LIMPAR.
+- [ ] Privacidade, termos, bloqueados e suporte abrem.
 
 ## 3. Moderação (precisa de duas contas)
 

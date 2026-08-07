@@ -35,6 +35,7 @@ create table storage.objects (
   name text, owner uuid, created_at timestamptz default now()
 );
 alter table storage.objects enable row level security;
+grant usage on schema storage to anon, authenticated, service_role;
 grant all on all tables in schema storage to anon, authenticated, service_role;
 
 -- publicacao do Realtime

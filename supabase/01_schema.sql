@@ -28,10 +28,14 @@ create table if not exists public.profiles (
   email        text,
   display_name text,
   full_name    text,
+  avatar_url   text,
   is_mentor    boolean not null default false,
   criado_em    timestamptz not null default now(),
   atualizado_em timestamptz not null default now()
 );
+-- para quem já rodou uma versão anterior deste arquivo: a coluna da foto
+-- nasceu depois, e create table if not exists não acrescenta coluna nenhuma
+alter table public.profiles add column if not exists avatar_url text;
 alter table public.profiles enable row level security;
 
 -- mentoras: a lista de quem manda. Fica em tabela, e não numa coluna que
@@ -164,7 +168,7 @@ create policy profiles_atualiza_propria on public.profiles
 -- qualquer aluno faria update em is_mentor e passaria a ler a caixinha
 -- inteira, com o e-mail de todo mundo.
 revoke update on public.profiles from authenticated;
-grant  update (email, display_name, full_name, atualizado_em)
+grant  update (email, display_name, full_name, avatar_url, atualizado_em)
   on public.profiles to authenticated;
 
 -- E o mesmo vale para o INSERT, que estava aberto. A policy de insert só
@@ -175,7 +179,7 @@ grant  update (email, display_name, full_name, atualizado_em)
 -- e-mail de todas, veria todas as provas, apagaria fotos e suspenderia
 -- contas. Escalada de privilégio, e em uma chamada só.
 revoke insert on public.profiles from authenticated;
-grant  insert (user_id, email, display_name, full_name)
+grant  insert (user_id, email, display_name, full_name, avatar_url)
   on public.profiles to authenticated;
 
 -- ---------------------------------------------------------------------
@@ -653,12 +657,15 @@ create policy push_meu on public.push_tokens
 
 -- =====================================================================
 -- 8. STORAGE
---   audios: leitura pública, porque o player usa getPublicUrl
---   midia:  foto de galeria e resposta em áudio ou vídeo da caixinha
+--   audios:   leitura pública, porque o player usa getPublicUrl
+--   midia:    foto de galeria e resposta em áudio ou vídeo da caixinha
+--   avatares: a foto do perfil, uma por pessoa
 -- =====================================================================
 insert into storage.buckets (id, name, public) values ('audios','audios', true)
   on conflict (id) do nothing;
 insert into storage.buckets (id, name, public) values ('midia','midia', true)
+  on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('avatares','avatares', true)
   on conflict (id) do nothing;
 
 drop policy if exists audios_le on storage.objects;
@@ -693,6 +700,34 @@ create policy midia_apaga on storage.objects
   using (bucket_id = 'midia'
          and ((storage.foldername(name))[1] = auth.uid()::text or public.eh_mentora()));
 
+-- avatares: mesma regra de pasta por dono. A foto de perfil aparece para
+-- as outras pessoas (ranking, comunidade), então a leitura é pública; a
+-- escrita é só na própria pasta. O update existe porque trocar a foto
+-- reaproveita o mesmo caminho, e sem ele a segunda troca falharia.
+drop policy if exists avatares_le on storage.objects;
+create policy avatares_le on storage.objects
+  for select to public using (bucket_id = 'avatares');
+
+drop policy if exists avatares_envia on storage.objects;
+create policy avatares_envia on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'avatares'
+              and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists avatares_troca on storage.objects;
+create policy avatares_troca on storage.objects
+  for update to authenticated
+  using (bucket_id = 'avatares'
+         and (storage.foldername(name))[1] = auth.uid()::text)
+  with check (bucket_id = 'avatares'
+              and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists avatares_apaga on storage.objects;
+create policy avatares_apaga on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'avatares'
+         and ((storage.foldername(name))[1] = auth.uid()::text or public.eh_mentora()));
+
 -- =====================================================================
 -- 9. EXCLUSÃO DE CONTA (exigida pelas duas lojas)
 --   Apaga o que é pessoal e anonimiza o que precisa sobreviver por
@@ -709,7 +744,8 @@ begin
   anon := 'removido+' || replace(uid::text,'-','') || '@invalido.local';
 
   delete from storage.objects
-    where bucket_id = 'midia' and (storage.foldername(name))[1] = uid::text;
+    where bucket_id in ('midia','avatares')
+      and (storage.foldername(name))[1] = uid::text;
 
   delete from public.push_tokens where user_id = uid;
   delete from public.bloqueios   where user_id = uid or bloqueado_id = uid;
@@ -723,7 +759,8 @@ begin
 
   update public.denuncias set denunciante_id = null where denunciante_id = uid;
   update public.profiles  set email = anon, display_name = 'Conta removida',
-                              full_name = null where user_id = uid;
+                              full_name = null, avatar_url = null
+    where user_id = uid;
 
   -- histórico fiscal fica, sem dado pessoal e sem vínculo com a conta
   update public.access   set email = anon, user_id = null, status = 'inactive'

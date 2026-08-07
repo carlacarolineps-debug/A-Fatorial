@@ -12,6 +12,13 @@ window.__SB = {
   mentora: false,
   senhas: {},          // email -> senha ja definida
   senhaDefinida: null,
+  temporaria: {},      // email -> true enquanto a senha veio por e-mail
+  recuperacoes: [],    // os e-mails de "esqueci a minha senha"
+  perfil: null,        // a linha de profiles do proprio usuario
+  perfis: [],          // o que o app gravou em profiles
+  uploads: [],         // o que subiu para o storage
+  invocadas: [],       // as Edge Functions chamadas
+  erroFuncao: false,   // a Edge Function nao esta publicada
   erroProgress: false,   // simula leitura do progresso que falha
   publicados: [],      // o que a mesa da mentoria publicou
   onAuth: null
@@ -35,7 +42,11 @@ window.__SB = {
           if(window.__SB.erroProgress) return resp(null,{message:'TypeError: Failed to fetch'},0);
           return resp(window.__SB.progresso);
         }
-        if(tabela==='profiles') return resp({is_mentor: !!window.__SB.mentora});
+        if(tabela==='profiles'){
+          var base = {is_mentor: !!window.__SB.mentora};
+          if(window.__SB.perfil) for(var k in window.__SB.perfil) base[k]=window.__SB.perfil[k];
+          return resp(base);
+        }
         return resp(null);
       },
       single:function(){ return api.maybeSingle(); },
@@ -49,6 +60,11 @@ window.__SB = {
       upsert:function(v){
         if(window.__SB.falharRede) return Promise.reject(new Error('Failed to fetch'));
         if(tabela==='progress'){ window.__SB.enviados.push(JSON.parse(JSON.stringify(v))); window.__SB.progresso={state:v.state, atualizado_em:v.atualizado_em}; }
+        if(tabela==='profiles'){
+          window.__SB.perfis.push(JSON.parse(JSON.stringify(v)));
+          window.__SB.perfil = window.__SB.perfil || {};
+          for(var k in v) window.__SB.perfil[k]=v[k];
+        }
         return resp(v);
       }
     };
@@ -63,7 +79,8 @@ window.__SB = {
           signInWithPassword: function(o){
             var mail=String(o.email||'').toLowerCase();
             if(window.__SB.senhas[mail] && window.__SB.senhas[mail]===o.password){
-              var u={id: window.__SB.userId || 'u-ana', email:mail};
+              var u={id: window.__SB.userId || 'u-ana', email:mail,
+                     user_metadata:{senha_temporaria: !!window.__SB.temporaria[mail]}};
               window.__SB.sessao={user:u};
               setTimeout(function(){ if(window.__SB.onAuth) window.__SB.onAuth('SIGNED_IN',{user:u}); },10);
               return resp({user:u});
@@ -71,12 +88,21 @@ window.__SB = {
             return resp(null,{message:'Invalid login credentials'});
           },
           updateUser: function(o){
+            var mail=(window.__SB.sessao&&window.__SB.sessao.user.email)||'';
             if(o && o.password){
-              var mail=(window.__SB.sessao&&window.__SB.sessao.user.email)||'';
               window.__SB.senhas[mail]=o.password;
               window.__SB.senhaDefinida=o.password;
             }
-            return resp({user:(window.__SB.sessao||{}).user});
+            var u=(window.__SB.sessao||{}).user||{};
+            u.user_metadata=u.user_metadata||{};
+            if(o && o.data) for(var k in o.data) u.user_metadata[k]=o.data[k];
+            if(o && o.data && o.data.senha_temporaria===false) delete window.__SB.temporaria[mail];
+            return resp({user:u});
+          },
+          resetPasswordForEmail: function(email){
+            window.__SB.recuperacoes.push(email);
+            if(window.__SB.erroOtp) return resp(null, {message: window.__SB.erroOtp});
+            return resp({});
           },
           signInWithOtp: function(o){
             window.__SB.otps.push(o.email);
@@ -106,7 +132,22 @@ window.__SB = {
     },
         channel: function(){ return {on:function(){return this;}, subscribe:function(){return this;}}; },
         removeChannel: function(){},
-        storage: { from: function(){ return {upload:function(){return resp({})}, getPublicUrl:function(){return {data:{publicUrl:''}}}}; } }
+        storage: { from: function(balde){ return {
+          upload:function(caminho,arquivo){
+            if(window.__SB.erroUpload) return resp(null,{message:'nao deu'});
+            window.__SB.uploads.push({balde:balde, caminho:caminho});
+            return resp({path:caminho});
+          },
+          getPublicUrl:function(caminho){ return {data:{publicUrl:'https://exemplo.test/'+balde+'/'+caminho}}; }
+        }; } },
+        functions: { invoke: function(nome, opts){
+          window.__SB.invocadas.push({nome:nome, body:(opts&&opts.body)||null});
+          if(window.__SB.erroFuncao) return resp(null,{message:'Function not found'});
+          var mail=String(((opts&&opts.body)||{}).email||'').toLowerCase();
+          window.__SB.senhas[mail]='temp1234ab';
+          window.__SB.temporaria[mail]=true;
+          return resp({ok:true, email:mail, nova:true});
+        } }
       };
     }
   };

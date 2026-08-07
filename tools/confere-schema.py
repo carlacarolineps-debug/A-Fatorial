@@ -5,9 +5,14 @@ achar antes."""
 import io, re, sys, collections
 
 SQL = io.open('/home/user/A-Fatorial/supabase/01_schema.sql', encoding='utf-8').read()
-FONTES = ['operacao_base.html','bussola_engine.js','comunidade.js','ano.js',
+# caminho absoluto: rodar de outra pasta lia zero fonte e o relatorio
+# saia dizendo "nenhum erro" sem ter olhado nada
+DIR = '/tmp/claude-0/-home-user-A-Fatorial/d65f0fa4-061f-5d1f-835f-c169fbe1d2ee/scratchpad/'
+FONTES = [DIR + f for f in
+         ['operacao_base.html','bussola_engine.js','comunidade.js','ano.js',
           'programa.js','apostila.js','alvo.js','moderacao.js','conduz.js',
-          'mentor.js','quiz.js','tour.js']
+          'mentor.js','quiz.js','tour.js','admin.js','nativo.js','nav.js',
+          'perfil.js']]
 
 # ---------- o que o banco tem ----------
 tabelas = {}
@@ -50,7 +55,10 @@ for f in FONTES:
     # .from("tabela")  seguido do que for
     for m in re.finditer(r'\.from\(\s*["\'](\w+)["\']\s*\)((?:\s*\.\w+\([^;]{0,400}?\))*)', src):
         tab, resto = m.group(1), m.group(2)
-        if tab in ('audios','midia','galeria') and '.storage.from' in src[max(0,m.start()-14):m.start()+14]:
+        # sb.storage.from("balde") nao e tabela. Conferir pelo que vem
+        # ANTES do .from e mais seguro do que manter uma lista de baldes:
+        # a lista envelhece, e um balde novo virava "tabela que nao existe"
+        if 'storage' in src[max(0, m.start() - 10):m.start()]:
             continue
         usos[tab].add(f)
         if tab not in tabelas:

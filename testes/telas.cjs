@@ -1,6 +1,11 @@
 const {chromium}=require('playwright');
-const F='file:///home/user/A-Fatorial/Opera%C3%A7%C3%A3o%20Blindada%200508.04.html';
-const VIEWS=['home','programa','bussola','trilhas','plano','apostila','diario','ferramentas','gestao','pesquisas','conquistas','ano','comunidade','mentora','menu'];
+/* acha o build mais novo sozinho: fixar a versao aqui fazia o teste
+   apontar para um arquivo antigo a cada entrega */
+const fs=require('fs'), RAIZ='/home/user/A-Fatorial';
+const NOVO=fs.readdirSync(RAIZ).filter(f=>/^Opera.+ \d{4}\.\d{2}\.html$/.test(f))
+  .map(f=>({f,t:fs.statSync(RAIZ+'/'+f).mtimeMs})).sort((a,b)=>a.t-b.t).pop().f;
+const F='file://'+encodeURI(RAIZ+'/'+NOVO);
+const VIEWS=['home','programa','bussola','trilhas','plano','apostila','diario','ferramentas','gestao','pesquisas','conquistas','ano','comunidade','mentora','perfil','menu'];
 /* palavras que não podem existir num app que não vende o próprio app */
 const PROIBIDO=[/indicar a mentoria/i,/indique/i,/desbloquei\w* indicando/i,/instagram/i,/wa\.me/i,/renovaç[ãa]o antecipada/i,/assinatura mensal/i,/assine agora/i,/renove/i,/compre agora/i,/quero comprar/i];
 (async()=>{

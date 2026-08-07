@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0608.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 0608.05.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,117 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A senha temporária, o perfil, e a barra de volta com sete (0608.05)
+A Carla: "esquça esse negocio de codigo de 6 digitos, so preciso que a pessoa
+receba a temporaria dela ai quando ela entrar no app automaticamente ja manda
+ela colocar uma senha dela"; "que tenha uma parte com nome e email dela quando
+ela entrar nessa parte do perfil, opcao de colocar uma foto, notificacoes,
+suporte e ajuda, politica e privacidade, termos de uso, sair da conta"; "esse
+app é simples é para funcionar igual a aliança divergente"; e no meio do
+trabalho: "preciso que a parte de treino, bussola e diario tambem fiquem
+aparecendo nas secoes tambem".
+
+**1. O código de 6 dígitos saiu inteiro.** O caminho agora tem quatro passos:
+a inscrição é confirmada, o servidor sorteia uma senha temporária e manda por
+e-mail, a pessoa entra com ela, e o app **não abre**: exige a senha dela na
+hora. Quem faz o passo 4 acontecer é a marca `senha_temporaria` no
+`user_metadata`, escrita pelo servidor e apagada **na mesma chamada** que
+grava a senha nova (`updateUser({password, data:{senha_temporaria:false}})`).
+Se fossem duas chamadas, uma falha no meio deixaria a conta com senha nova e
+a marca ligada, e o app pediria a senha para sempre.
+Três razões para largar o código: a pessoa entra em 3 segundos sem depender de
+e-mail ao vivo; **o revisor da App Store não tem caixa de e-mail** e travava no
+login, que é das causas mais comuns de reprovação; e sem rede boa o código não
+chega. `pedirCodigo`, `showCodigo`, `verifyOtp` e `signInWithOtp` foram
+apagados.
+
+**2. Esqueci a minha senha é o link do próprio Supabase.**
+`resetPasswordForEmail` com `redirectTo` na raiz do app. Voltando do link,
+`ehRecuperacao()` lê `type=recovery` do hash e **levanta a trava antes de
+qualquer leitura de sessão**: sem isso o `getSession` abriria o app com a
+sessão do link e a pessoa nunca veria o formulário que ela clicou para ver.
+Depois de salvar, `history.replaceState` limpa o `#access_token`, senão
+recarregar a página traria a tela de senha de volta do nada. A mensagem de
+envio é **a mesma exista ou não a conta**: dizer que um e-mail não tem
+cadastro entrega a lista da turma para quem tenta adivinhar.
+
+**3. `liberar-aluna`, a Edge Function que é a origem de tudo.** Sorteia a
+senha (3 letras, 4 números, 3 letras, sem i/l/1/o/0, que são as que a pessoa
+erra ao copiar do e-mail), cria ou atualiza a conta, ativa o acesso e manda o
+e-mail por SMTP do Gmail. **O e-mail é a última coisa**: se ele falhar o
+acesso já está liberado, e a mesa avisa em vez de deixar a aluna esperando.
+Autorizada por service_role (o webhook) ou pelo JWT da mentora conferido com
+`eh_mentora()` no banco.
+`so_se_nova` é a trava que a régua de parcelas exigiu: o webhook Financeiro
+confirma pagamento todo mês e reativa o acesso a cada um. Sem ela, **cada
+parcela paga derrubaria a senha que a aluna escolheu**. Com ela, o e-mail sai
+uma vez e as reativações seguintes só mexem no acesso.
+O botão da mesa passou a chamar a função, com a função do banco como reserva:
+o dia em que a Edge Function estiver fora do ar, a Carla ainda libera, e a
+mesa diz que o e-mail não saiu.
+
+**4. O perfil (`perfil.js`), porque "limpar meus dados isso nem poderia estar
+tão fácil assim" estava certo.** Era um link solto no pé da tela Mais, do lado
+de "refazer o tour": um toque desatento apagava meses. Agora existe a tela
+**O meu perfil**, aberta pelo retrato do topo e primeira da lista em Mais,
+com cinco blocos na ordem em que se procura: quem sou (nome, e-mail, foto,
+patente), avisos, suporte e ajuda, documentos (privacidade, termos,
+bloqueados) e a conta (senha, Face ID, sair). O que destrói ficou **isolado no
+fim, em moldura vermelha**, e limpar os dados só libera o botão depois de a
+pessoa escrever LIMPAR.
+A foto vai para o balde `avatares`, em pasta com o uuid do dono, com nome novo
+a cada envio (o navegador guarda a imagem antiga em cache e a pessoa juraria
+que não trocou). `profiles.avatar_url` entrou nos grants por coluna, junto com
+os outros quatro: a trava que impede um aluno de escrever `is_mentor` continua
+valendo, e o teste 37 do ataque confirma.
+**O nome digitado no app manda sobre o do servidor**, e não o contrário: a
+linha do perfil nasce no primeiro login com o começo do e-mail, e deixar isso
+ganhar faria a pessoa virar "ana" na saudação e no ranking. Quando os dois
+diferem, o app sobe o nome de verdade.
+
+**5. A barra de baixo voltou para sete destinos**, a pedido dela: Início,
+Treino, Trilhas, Bússola, Plano, Diário, Mais. Em 0508.06 eu tinha cortado
+para cinco citando a diretriz da Apple (até 5) e a do Android (3 a 5), e ela
+respondeu que Treino, Bússola e Diário são o que ela mais manda abrir, e dois
+toques de distância tirava do caminho o que se faz todo dia. O custo é real e
+foi medido: num celular de 412px cada alvo cai de 82px para 55px. Por isso a
+escala desce por faixa (620px, 470px) e **abaixo de 405px o rótulo sai
+inteiro**, ficando só os sete ícones, com 41px de alvo a 320px. Medido em sete
+larguras: nenhum rótulo cortado, nada estoura. Para voltar aos cinco, tire
+`bussola` e `diario` do `PRIMARY` e devolva ao `OVERFLOW`.
+
+**Dois bugs achados no caminho, os dois reais:**
+- **`lerAcesso` ainda tratava falha de rede como "sem acesso".** O passe de
+  0508.07 documentou a correção, mas ela não estava no código: `if (r.error ||
+  !r.data) return PENDENTE` seguia lá. Como o supabase-js **resolve** com
+  `status: 0` quando a rede falha em vez de rejeitar, a aluna em modo avião via
+  a parede com um acesso pago e ativo, e os 7 dias de tolerância eram código
+  morto. Agora o status separa "o servidor disse não" (401, 403, 406) de "a
+  pergunta nem chegou lá" (0, 5xx, `!navigator.onLine`).
+- **Os cinco testes de navegador liam `mock-sb.js`, que não existe** (o arquivo
+  se chama `supabase-de-mentira.js`). Eles morriam na primeira linha, e uma
+  suíte que não roda é pior do que suíte nenhuma, porque ela dá a impressão de
+  cobertura. `telas` e `auditoria` também apontavam para builds antigos por
+  número de versão fixo: passaram a achar o arquivo mais novo sozinhos.
+
+**A auditoria foi de 46 para 50 conferências**, e a parte da mesa mudou de
+lugar: ela era testada em `file://`, onde a mesa não existe (foi a Carla quem
+cortou o modo amostra, e com razão), então 11 itens falhavam por desenho.
+Agora o `file://` confere que a mesa **não** aparece sem a conta certa, e a
+mesa é conferida numa página servida com o Supabase de mentira e a conta da
+mentoria, que é a única situação em que ela deve existir.
+
+**Números desta entrega:** 33 conferências da entrada, 41 do perfil, 50 da
+auditoria, 24 da sessão, 26 da mesa, 0 erros de JavaScript; e no banco, 18
+tabelas, **43 cenários de ataque passando** nos dois modos de publicação,
+idempotente em três rodadas.
+
+**O que depende da Carla:** o passo 2 do `COMECE-POR-AQUI.md` mudou de dono.
+Agora são o SMTP do Gmail, o modelo **Reset Password** (não mais o Magic Link
+com `{{ .Token }}`), a **Site URL**, os três segredos (`GMAIL_USER`,
+`GMAIL_APP_PASSWORD`, `APP_URL`) e publicar a `liberar-aluna`. Tudo em
+`EMAIL-DA-SENHA.md`, tela por tela.
 
 ### O erro que só aparecia no Supabase de verdade (0608.04)
 A Carla mandou o erro: *"não é possível atualizar a tabela access porque ela
