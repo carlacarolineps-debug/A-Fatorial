@@ -74,6 +74,29 @@ html = html.replace(reCart, () => '    chavesDR: [],   // versão do cliente: el
 trocas++;
 
 // Semente da Requalificadora (jan-mai já conferidos): não vai para o cliente
+// Metas, ações do quadro e movimentos entre empresas são dados do Rebracil e estavam
+// viajando para a versão "em branco": o cliente abria o sistema já com 6 ações de exemplo,
+// 2 movimentos com valores reais e metas de R$ 150.000 que ele nunca definiu.
+const reMetas = /    metasMensais: \{[^}]*\},\n/;
+if (!reMetas.test(html)) erros.push('não achei metasMensais');
+html = html.replace(reMetas, () => '    metasMensais: { jan: 0, fev: 0, mar: 0, abr: 0, mai: 0, jun: 0, jul: 0, ago: 0, set: 0, out: 0, nov: 0, dez: 0 },   // versão do cliente: ele define as metas\n');
+
+const reKb = /    kbCardsData: \[[\s\S]*?\n    \],\n/;
+if (!reKb.test(html)) erros.push('não achei o quadro de ações (kbCardsData)');
+html = html.replace(reKb, () => '    kbCardsData: [],   // versão do cliente: quadro de ações vazio\n');
+
+const reMov = /    movEmpresas: \[[\s\S]*?\n    \],\n/;
+if (!reMov.test(html)) erros.push('não achei os movimentos entre empresas (movEmpresas)');
+html = html.replace(reMov, () => '    movEmpresas: [],   // versão do cliente: sem movimentos entre empresas\n');
+
+const reDist = /    distribuicoesManuais: \[[\s\S]*?\n    \],\n/;
+if (!reDist.test(html)) erros.push('não achei distribuicoesManuais');
+html = html.replace(reDist, () => '    distribuicoesManuais: [],   // versão do cliente: sem lançamentos de carteira\n');
+
+const reTaxa = /    taxaRateio: \(function\(\)\{[^\n]*\}\)\(\),\n/;
+if (!reTaxa.test(html)) erros.push('não achei taxaRateio');
+html = html.replace(reTaxa, () => '    taxaRateio: (function(){ try{ let v=parseFloat(localStorage.getItem(\'nexus_taxa_rateio\')); return isNaN(v)?0:v; }catch(e){ return 0; } })(),   // versão do cliente: ele define a taxa\n');
+
 if (!/const NEXUS_SEED_REQ = /.test(html)) erros.push('não achei NEXUS_SEED_REQ');
 html = html.replace(/const NEXUS_SEED_REQ = [\s\S]*?;\n/, () => 'const NEXUS_SEED_REQ = null;   // versão do cliente: sem dados embutidos\n');
 trocas++;

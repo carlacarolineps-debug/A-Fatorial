@@ -4165,7 +4165,7 @@ const EMB_CC_MESES_TOTAL = {};
 // garantia de que uma versão nova NUNCA reaproveita (subscreve) dados de versões anteriores.
 // Basta incrementar este número a cada entrega: o sistema descarta os dados salvos por
 // qualquer versão diferente e reinicia em branco (mantendo logins, senhas e o logo).
-const NEXUS_BUILD = 'C2407.23';
+const NEXUS_BUILD = 'C2407.24';
 // Versão do formato dos dados salvos no navegador: atrelada ao selo da entrega, então
 // dados de qualquer versão anterior são descartados (nunca escondem linhas novas nem
 // carregam estrutura antiga incompatível).
@@ -4459,7 +4459,7 @@ function sistemaUnificado(){
     ordemEmpresas: ORDEM_EMPRESAS,
     estoqueBase: 0,
     invMode: 'diff',
-    taxaRateio: (function(){ try{ let v=parseFloat(localStorage.getItem('nexus_taxa_rateio')); return isNaN(v)?5:v; }catch(e){ return 5; } })(),
+    taxaRateio: (function(){ try{ let v=parseFloat(localStorage.getItem('nexus_taxa_rateio')); return isNaN(v)?0:v; }catch(e){ return 0; } })(),   // versão do cliente: ele define a taxa
     drawer: { open:false, tag:'', title:'', subtitle:'', color:'#191040', icone:'fa-building', hero:'', heroLabel:'', delta:null, serie:[], stats:[], rows:[], rowsHead:['Item','Valor','%'], insight:'', csv:[], csvName:'recorte', acaoLabel:'', acaoId:'', acaoAba:'', embRes:false, explica:'', editavel:false },
     projMetodo: 'media',
     projCrescimento: 0,
@@ -4504,23 +4504,13 @@ function sistemaUnificado(){
       { id:'doing', nome:'Em Andamento', icone:'fa-person-digging', cor:'#c5a880' },
       { id:'done',  nome:'Concluído',    icone:'fa-circle-check',   cor:'#0d9488' }
     ],
-    kbCardsData: [
-      { id:1, titulo:'Investigar prejuízo de Março · Requalificadora', detalhe:'Março fechou em -R$ 99.889,55 com a maior despesa do ano (R$ 1.897.608,62). Abrir Despesas por C.C. e justificar os saltos antes do fechamento do semestre.', coluna:'todo', empresa:'requalificadora', empresaNome:'Requalificadora', prio:'alta', prazo:'', origem:'inteligencia', criadoPor:'Inteligência NEXUS', criadoEm:'2026-07-01' },
-      { id:2, titulo:'Validar manutenção Watek de R$ 296.456,92 (janeiro)', detalhe:'A conta 002.01 Manutenção Impressão concentrou o custo de janeiro da Embalagem. Confirmar se é investimento pontual ou recorrente, e provisionar se recorrente.', coluna:'todo', empresa:'embalagem', empresaNome:'Embalagem', prio:'alta', prazo:'', origem:'inteligencia', criadoPor:'Inteligência NEXUS', criadoEm:'2026-07-01' },
-      { id:3, titulo:'Formalizar eliminação do Inter Company na consolidação', detalhe:'R$ 11.092,02 de venda entre empresas do grupo não podem contar como receita no consolidado. Documentar a regra com a contabilidade.', coluna:'doing', empresa:'embalagem', empresaNome:'Embalagem', prio:'media', prazo:'', origem:'manual', criadoPor:'Carla Caroline', criadoEm:'2026-07-01' },
-      { id:4, titulo:'Apurar devoluções de clientes de fevereiro (R$ 102.151,76)', detalhe:'Devoluções Clientes saltaram em fevereiro na Embalagem. Identificar cliente, lote e causa (qualidade × logística) para estancar a perda.', coluna:'todo', empresa:'embalagem', empresaNome:'Embalagem', prio:'media', prazo:'', origem:'inteligencia', criadoPor:'Inteligência NEXUS', criadoEm:'2026-07-01' },
-      { id:5, titulo:'Definir taxa oficial de rateio da matriz', detalhe:'A taxa de rateio (hoje 5%) muda a rentabilidade real de cada empresa na Central do Grupo. Validar o percentual com a diretoria.', coluna:'todo', empresa:'grupo', empresaNome:'Grupo', prio:'media', prazo:'', origem:'manual', criadoPor:'Carla Caroline', criadoEm:'2026-07-01' },
-      { id:6, titulo:'Conferir Resultado 2026 × planilha (jan–abr)', detalhe:'DRE da Requalificadora confere com a planilha do cliente: resultado operacional acumulado de R$ 864.181,69.', coluna:'done', empresa:'requalificadora', empresaNome:'Requalificadora', prio:'baixa', prazo:'', origem:'manual', criadoPor:'Carla Caroline', criadoEm:'2026-07-01' }
-    ],
+    kbCardsData: [],   // versão do cliente: quadro de ações vazio
     kbNova: { titulo:'', detalhe:'', prio:'media', prazo:'' },
 
     // ===== Resultado 2026: modo de edição + movimentos entre empresas =====
     resEditMode: false,
     resSecao: 'tudo',
-    movEmpresas: [
-      { id: 1, data: '31/01/2026', mes: 'jan', tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: 9007.84, kg: 3513, obs: 'Venda interna do mês (linha Fat Inter Company da planilha)', usuario: 'Carla Caroline' },
-      { id: 2, data: '28/02/2026', mes: 'fev', tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: 2084.18, kg: 853, obs: 'Venda interna do mês (linha Fat Inter Company da planilha)', usuario: 'Carla Caroline' }
-    ],
+    movEmpresas: [],   // versão do cliente: sem movimentos entre empresas
     novoMov: { tipo: 'Venda', origem: 'Embalagem', destino: 'Linear', valor: '', kg: '', obs: '' },
     movEmpresasNomes: ['Embalagem','Linear','Teste','Teste X','Requalificadora','Hanami (aparas)','Terceiros'],
     kbNovaAberta: false,
@@ -4827,7 +4817,7 @@ function sistemaUnificado(){
           if (salvo.cc) this.centrosCustoData = salvo.cc;
           if (salvo.prev) this.previsoesData = salvo.prev;
           // Carteiras, ledger de pagamentos e metas: cada empresa tem os seus
-          if (Array.isArray(salvo.chavesDR) && salvo.chavesDR.length) this.chavesDR = salvo.chavesDR;
+          if (Array.isArray(salvo.chavesDR)) this.chavesDR = salvo.chavesDR;   // vazio tambem vale
           if (Array.isArray(salvo.distribuicoes)) this.distribuicoesManuais = salvo.distribuicoes;
           if (salvo.metas) this.metasMensais = salvo.metas;
           this.hidratarExtras(emp, salvo);
@@ -5069,6 +5059,9 @@ function sistemaUnificado(){
       if (this._syncPoll) clearInterval(this._syncPoll);
       this._syncPoll = setInterval(async () => {
         if (!this.sync.ligado || this.sync.enviando || this.sync.pendente) return;
+        // Com um conflito na tela, quem decide é a pessoa ("Trazer do servidor" ou "Manter o
+        // meu"). Recarregar aqui descartava em silêncio o trabalho que o aviso perguntava.
+        if (this.sync.conflito) return;
         // Nunca recarregar por cima de quem está digitando ou com um modal aberto: a pessoa
         // perderia o que estava escrevendo. A novidade entra no próximo ciclo.
         const foco = document.activeElement;
@@ -5109,6 +5102,10 @@ function sistemaUnificado(){
         }
         if (r.status === 409) {
           const j = await r.json();
+          // Se o servidor foi ZERADO pelo administrador, não faz sentido perguntar "quem fica":
+          // o vazio é a decisão. Sem isto, o colega podia clicar "Manter o meu" e devolver os
+          // números para todo mundo, desfazendo a zerada sem querer.
+          if (await this.syncAdotarSeZerado()) { this.sync.enviando = false; return; }
           this.sync.conflito = true; this.sync.estado = 'conflito';
           this.sync.quem = j.atualizadoPor || ''; this.sync.quando = j.atualizadoEm || '';
           this.sync.enviando = false; this.sync.pendente = false;
@@ -5192,6 +5189,34 @@ function sistemaUnificado(){
       this.syncAplica(e.dados, e.versao); location.reload();
     },
     // Conflito: manter o que está nesta tela e sobrescrever o servidor
+    // O servidor foi zerado por um administrador depois que este navegador carregou?
+    // Então adota o vazio e recarrega, em vez de abrir uma disputa que ninguém quer.
+    async syncAdotarSeZerado() {
+      try {
+        const e = await (await this.syncFetch('estado')).json();
+        const marcaServidor = e && e.dados ? e.dados['nexus_v2_zerado_marca'] : null;
+        if (!marcaServidor) return false;
+        if (marcaServidor === localStorage.getItem('nexus_v2_zerado_marca')) return false;
+        this.syncAplica(e.dados, e.versao);
+        location.reload();
+        return true;
+      } catch (err) { return false; }
+    },
+    // Publica o estado deste navegador por cima do servidor, sem perguntar. Só para ações
+    // deliberadas do administrador (zerar, restaurar cópia) - nunca para gravação de rotina.
+    async syncPublicarPorCima(motivo) {
+      if (!this.sync.ligado) return;
+      this.sync.enviando = true; this.sync.estado = 'salvando';
+      try {
+        const r = await this.syncFetch('gravar', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forcar: true, dados: this.syncColeta() }) });
+        const j = await r.json();
+        this.sync.versao = Number(j.versao); this.sync.conflito = false; this.sync.estado = 'ok'; this.sync.pendente = false;
+        try { localStorage.setItem('nexus_v2_sync_versao', String(j.versao)); } catch(e2) {}
+        this.registrarLog(motivo || 'Publicou este estado por cima do servidor.');
+      } catch (e) { this.sync.estado = 'erro'; }
+      finally { this.sync.enviando = false; }
+    },
     async syncForcarEnvio() {
       if (!confirm('Manter as SUAS alterações e substituir a versão do servidor?\n\nO que a outra pessoa salvou será perdido (há cópia no histórico do servidor).')) return;
       this.sync.enviando = true;
@@ -5295,12 +5320,23 @@ function sistemaUnificado(){
     // preservarComDados=true: usado na entrega em branco automática. Zera apenas as empresas que
     // AINDA não têm base salva neste navegador. Assim, subir uma versão nova deixa em branco só o
     // que nunca foi usado e não encosta em quem já lançou meses de trabalho.
-    zerarTudoEPersistir(preservarComDados) {
+    zerarTudoEPersistir(preservarComDados, limparGlobais) {
       const ativo = this.empresaAtiva;
       this.ordemEmpresas.forEach(id => {
         if (preservarComDados && localStorage.getItem('nexus_v2_dados_' + id)) return;
         this.carregarEmpresa(id);
+        // carregarEmpresa relê o pacote salvo desta empresa, que traz as carteiras e metas
+        // antigas de volta. Sem apagá-las aqui dentro, o próprio laço as regravava.
+        if (limparGlobais) {
+          this.chavesDR = [];
+          this.distribuicoesManuais = [];
+          const z = {}; this.listaMeses.forEach(m => z[m.chave.toLowerCase()] = 0);
+          this.metasMensais = z;
+        }
         this.zerarValoresAtual();
+        // A semente embutida (dre, centros de custo, previsões e extras da empresa) alimenta o
+        // consolidado e o hub. Zerar só a cópia viva deixava o grupo continuar mostrando números.
+        this.zerarSeedEmpresa(EMPRESAS[id]);
         EMPRESAS[id].dre = this.dreAtual; // consolidado zera junto
         this.persistirDados();            // grava o mês em branco desta empresa
       });
@@ -5320,7 +5356,7 @@ function sistemaUnificado(){
       (this.centrosCustoData || []).forEach(c => this.zerarMesesObj(c));
       const ex = this.empresaExtras || {};
       (ex.faturamento || []).forEach(f => { f.fat = {}; f.kg = {}; f.fator = {}; });
-      (ex.inventario || []).forEach(i => { i.valor = {}; i.kg = {}; i.mts = {}; });
+      (ex.inventario || []).forEach(i => { i.valor = {}; i.kg = {}; i.mts = {}; i.fator = {}; });
       (ex.servicos || []).forEach(s => this.zerarMesesObj(s));
       (ex.subempresas || []).forEach(s => {
         Object.keys(s).forEach(k => { if (/^(desp|fat|kg)(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)$/.test(k) && typeof s[k] === 'number') s[k] = 0; });
@@ -5332,6 +5368,38 @@ function sistemaUnificado(){
       ex.fatOpEmb = {}; ex.invMt = {};
       if (typeof EMB_FATORES_MT !== 'undefined') Object.keys(EMB_FATORES_MT).forEach(k => delete EMB_FATORES_MT[k]);
       if (typeof EMB_DIF_KG !== 'undefined') Object.keys(EMB_DIF_KG).forEach(k => delete EMB_DIF_KG[k]);
+      if (typeof EMB_LINHAS_EXTRAS !== 'undefined') { EMB_LINHAS_EXTRAS.invest = {}; EMB_LINHAS_EXTRAS.prov = {}; }
+    },
+    // Tudo que NÃO pertence a uma empresa só e por isso escapava do "zerar": carteiras, metas,
+    // lançamentos, movimentos entre empresas, ações e a taxa de rateio. Era daqui que vinham os
+    // campos que continuavam preenchidos depois de zerar.
+    zerarConteudoGlobal() {
+      this.chavesDR = [];
+      this.distribuicoesManuais = [];
+      this.novaDistribuicao = { tipoMovimento: 'Saida', carteiraId: '', carteiraDestinoId: '', finalidade: '', beneficiario: '', status: 'Reservado', valor: '', vincularProvisao: '' };
+      const metas = {}; this.listaMeses.forEach(m => metas[m.chave.toLowerCase()] = 0);
+      this.metasMensais = metas;
+      this.movEmpresas = [];
+      this.kbCardsData = [];
+      this.taxaRateio = 0;
+      if (this.tempoTracker) {
+        const t = {}; this.listaMeses.forEach(m => t[m.chave.toLowerCase()] = { ativo: 0, ocioso: 0 });
+        this.tempoTracker.historicoMensal = t;
+      }
+      // ESSENCIAL: trocar de empresa restaura carteiras e metas a partir deste molde. Sem
+      // reescrevê-lo, o próprio "zerar" repunha as carteiras padrão ao percorrer as empresas.
+      this._padraoCarteiras = JSON.stringify({ chavesDR: [], metas: metas });
+      // Assinatura desta zerada. Viaja junto no pacote e deixa o navegador do colega
+      // reconhecer que o vazio veio de uma decisão do administrador, não de um empate.
+      try { localStorage.setItem('nexus_v2_zerado_marca', String(Date.now())); } catch (e) {}
+      // Gravar o vazio, nunca apagar a chave: sem valor gravado o sistema volta ao embutido
+      // no codigo (6 acoes de exemplo, 2 movimentos, taxa de 5%) assim que a pagina recarrega.
+      try {
+        localStorage.setItem('nexus_v2_movimentos', '[]');
+        localStorage.setItem('nexus_v2_kanban', '[]');
+        localStorage.setItem('nexus_taxa_rateio', '0');
+        localStorage.setItem('nexus_tempo_tracker', JSON.stringify(this.tempoTracker ? this.tempoTracker.historicoMensal : {}));
+      } catch (e) {}
     },
     // Zera os dados-semente (embutidos) de uma empresa, para o consolidado e as demais empresas
     // também começarem em branco no modo zerado. Formato do cc é [c, jan, fev, mar, abr, ac, mm, ma, ip].
@@ -5342,7 +5410,7 @@ function sistemaUnificado(){
       (emp.cc || []).forEach(row => { if (Array.isArray(row)) { for (let i = 1; i <= 7; i++) if (typeof row[i] === 'number') row[i] = 0; } });
       const ex = emp.extras || {};
       (ex.faturamento || []).forEach(f => { f.fat = {}; f.kg = {}; f.fator = {}; });
-      (ex.inventario || []).forEach(i => { i.valor = {}; i.kg = {}; i.mts = {}; });
+      (ex.inventario || []).forEach(i => { i.valor = {}; i.kg = {}; i.mts = {}; i.fator = {}; });
       (ex.servicos || []).forEach(s => this.zerarMesesObj(s));
       (ex.subempresas || []).forEach(s => {
         Object.keys(s).forEach(k => { if (/^(desp|fat|kg)(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)$/.test(k) && typeof s[k] === 'number') s[k] = 0; });
@@ -5357,14 +5425,19 @@ function sistemaUnificado(){
     // Zera na hora, SEM recarregar a página e SEM deslogar (mantém login, senha e logo).
     zerarSistema() {
       if (!this.permAdmin) { alert('Apenas Administradores podem zerar o sistema.'); return; }
-      if (!confirm('EXCLUIR TODOS OS DADOS e zerar o sistema?\n\nTodos os valores importados e embutidos (faturamento, despesas, inventário, provisões, de todas as empresas) serão apagados e o sistema fica EM BRANCO para você subir os arquivos de novo.\n\nUsuários, senhas e logo são mantidos. Esta ação não pode ser desfeita.')) return;
+      if (!confirm('EXCLUIR TODOS OS DADOS e zerar o sistema?\n\nSaem: faturamento, despesas, inventário, provisões e centros de custo de TODAS as empresas; carteiras e distribuição do resultado; metas; movimentos entre empresas; ações do quadro; taxa de rateio.\n\nFicam: usuários, senhas, logo e os históricos de anos anteriores (2017-2025).\n\nSe o sistema estiver publicado, os outros usuários também ficam em branco. Esta ação não pode ser desfeita - baixe uma cópia antes se tiver dúvida.')) return;
       if (!confirm('Tem certeza? Isto apaga os números de TODAS as empresas (a não ser que restaure os dados originais das planilhas embutidas depois).')) return;
-      this.zerarTudoEPersistir();
+      this.zerarConteudoGlobal();   // antes do laço: senão as carteiras voltam ao trocar de empresa
+      this.zerarTudoEPersistir(false, true);
       try { localStorage.setItem('nexus_v2_limpa', NEXUS_LIMPA_TAG); localStorage.removeItem('nexus_v2_zerado'); } catch(e) {}
+      this.persistirDados();        // grava as listas globais já vazias
       this.registrarLog('Sistema ZERADO pelo administrador: todos os dados excluídos para novo carregamento.');
       this.mudarAba('configuracoes'); this.abaConfig = 'importador';
       this.atualizarLeituraSistema();
-      alert('Sistema zerado! Tudo em branco.\n\nJá está aberto o Importador: suba os arquivos (faturamento, despesas, inventário) que cada um vai para o seu lugar e preenche os meses. Não precisa recarregar nem sair.');
+      // Zerar é decisão do administrador: publica por cima em vez de disputar com quem estiver
+      // com o sistema aberto. Sem isto, o navegador do colega devolvia os números em segundos.
+      if (this.sync.ligado) this.syncPublicarPorCima('Zerou o sistema e publicou o estado em branco para todos.');
+      alert('Sistema zerado! Tudo em branco.\n\nJá está aberto o Importador: suba os arquivos (faturamento, despesas, inventário) que cada um vai para o seu lugar e preenche os meses. Não precisa recarregar nem sair.' + (this.sync.ligado ? '\n\nO sistema está publicado: os outros usuários recebem o sistema em branco em alguns segundos.' : ''));
     },
     trocarEmpresa(id) {
       if(!EMPRESAS[id]) return;
@@ -5741,7 +5814,7 @@ function sistemaUnificado(){
       {chave:'Dez',nome:'DEZEMBRO', labelData:'12.2026'}
     ],
     
-    metasMensais: { jan: 150000, fev: 150000, mar: 150000, abr: 150000, mai: 150000, jun: 150000, jul: 150000, ago: 150000, set: 150000, out: 150000, nov: 150000, dez: 150000 },
+    metasMensais: { jan: 0, fev: 0, mar: 0, abr: 0, mai: 0, jun: 0, jul: 0, ago: 0, set: 0, out: 0, nov: 0, dez: 0 },   // versão do cliente: ele define as metas
     
     chavesDR: [],   // versão do cliente: ele cria as carteiras e define os %
     senhaAdminExclusao: '',
@@ -5766,9 +5839,7 @@ function sistemaUnificado(){
         statusRealizado:'', piorCategoria:'', piorEstouro:'' 
     },
 
-    distribuicoesManuais: [
-        { id: 1, data: '15/03/2026', mesReferencia: 'mar', carteiraId: 9, carteiraNome: 'Datas Comemorativas', tipoMovimento: 'Saida', finalidade: 'Páscoa', beneficiario: 'Equipe', valor: 3218.88, status: 'Pago', vincularProvisao: '' }
-    ],
+    distribuicoesManuais: [],   // versão do cliente: sem lançamentos de carteira
     novaDistribuicao: { tipoMovimento: 'Saida', carteiraId: '', carteiraDestinoId: '', finalidade: '', beneficiario: '', status: 'Reservado', valor: '', vincularProvisao: '' },
 
     // --- Modais integrados (v13/06) ---
@@ -9333,10 +9404,12 @@ function sistemaUnificado(){
       try {
         const us = JSON.parse(localStorage.getItem('nexus_v2_usuarios') || 'null');
         if (us && us.length) this.usuarios = us;
+        // Array.isArray e nao ".length": uma lista salva VAZIA e uma decisao (zerar), nao
+        // ausencia de dado. Testar o tamanho fazia os exemplos embutidos voltarem ao recarregar.
         const kb = JSON.parse(localStorage.getItem('nexus_v2_kanban') || 'null');
-        if (kb && kb.length) this.kbCardsData = kb;
+        if (Array.isArray(kb)) this.kbCardsData = kb;
         const mv = JSON.parse(localStorage.getItem('nexus_v2_movimentos') || 'null');
-        if (mv && mv.length) this.movEmpresas = mv;
+        if (Array.isArray(mv)) this.movEmpresas = mv;
         const lg = JSON.parse(localStorage.getItem('nexus_v2_logs') || 'null');
         if (lg && lg.length) this.logsAuditoria = lg;
       } catch(e) {}
