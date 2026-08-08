@@ -499,13 +499,36 @@ no [README do backend](backend/README.md).
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
-- **Serviços executáveis**: `SERV_EXEC` (o registro), `DB.projetos` (chave
-  `af_projetos`), `prjEtapaAtual` (em que etapa o projeto está),
-  `servRender` (catálogo), `vlRender` + `VL_ABAS` (a esteira do valuation).
+- **Serviços executáveis**: `SERV_EXEC` (o registro — cada serviço declara
+  `fnDados`, `fnRender`, `fnAba` e `fnEtapa`, e o resto do sistema funciona
+  igual para todos), `servFn` (chama a função declarada), `DB.projetos` (chave
+  `af_projetos`), `prjNovo`/`prjAbrir`/`prjEtapaAtual`, `servRender`
+  (catálogo). **Para acrescentar um serviço novo**: entrada em `SERV_EXEC`,
+  `<section class="view" id="v-xxx">` com hero/rail/stats/body, título em
+  `TITLES`, passo oculto na área *Entregar*, permissão na migração
+  `af_perm_migr`, linha no despacho de `go()`, e as funções declaradas.
 - **Motor de franqueabilidade**: `FR_PILARES` (os 10 pilares e pesos),
   `frCalcDiag`, `frVeredito`, `frCalcViab` (viabilidade da unidade),
   `frCalcRede` (receita da franqueadora), `frFunil`, `FR_DOCS`, `FR_COF`
   (Lei 13.966/2019), `FR_KPIS`, `frLaudoHTML`, `frContratoTexto`.
+- **Motor de diagnóstico (Raio-X)**: `RX_DIM` (as 9 dimensões, pesos e as 48
+  perguntas com âncora), `RX_NIVEIS` (a escala de maturidade), `rxCalcular`
+  (índice, indicadores e Fleuriet), `RX_FLEURIET` (as seis estruturas),
+  `rxPrescricao` + `RX_RECEITAS` (que serviço resolve o quê), `rxRadarHTML`,
+  `rxPlanoSugerir`, `rxLaudoHTML`, `rxContratoTexto`.
+- **Motor de preço**: `PC_SIMPLES` (os cinco anexos da LC 123/2006),
+  `pcAliqSimples` (alíquota efetiva), `pcFatorR`, `PC_PRESUNCAO` (art. 15 da
+  Lei 9.249/1995), `pcCalcular` (regimes, markup divisor, margem por hora,
+  equilíbrio, elasticidade), `pcTabelaHTML`, `pcDescontoHTML`, `pcLaudoHTML`.
+- **Motor de reestruturação**: `CX_ENTRADAS`/`CX_SAIDAS` (as linhas do fluxo),
+  `cxCalcular` (13 semanas, dívida, iniciativas, ponte, Altman Z'' e Kanitz),
+  `CX_ALAVANCAS` (as 8 alavancas de mercado), `CX_ROTAS` (Lei 11.101/2005),
+  `cxFluxoHTML`, `cxPonteHTML`, `cxTermoHTML`, `cxLaudoHTML`.
+- **Digitação e números**: `numBR`/`numDe`/`maskNum`/`inpMoeda` (máscara
+  brasileira com cursor preservado), `uiFocoGuardar`/`uiFocoRestaurar`,
+  `uiRedesenhar` (adia o redesenho) e `uiRedesenharSeParou` (nunca redesenha
+  com o foco dentro do painel). Cada serviço tem seu `xxVivo()`, que reescreve
+  só os blocos de número enquanto a pessoa digita.
 - **Motor de avaliação**: `vlCalcular` (o cálculo mestre), `vlDCF`,
   `vlSensibilidade`, `vlAlavancas`, `vlLaudoHTML` (o laudo),
   `vlContratoTexto` (o contrato), `VL_DOCS` (a ficha de documentos),
@@ -876,3 +899,132 @@ mesma trilha numerada, mesmo fluxo de contrato, mesmo laudo imprimível.
 89. **Motor conferido contra o FRANQIA original** — índice, veredito, margem
     de contribuição, lucro, ponto de equilíbrio, payback, ROI, lucratividade,
     VPL, TIR e a projeção ano a ano: **todos batem**.
+
+## Três serviços novos e o teclado consertado — versão 0808.02
+
+A pergunta era "quais outros serviços dá para transformar em entregável".
+A resposta veio em três, escolhidos porque cobrem exatamente o que a empresa
+já vende — consultoria, melhoria de processos e reestruturação — e porque um
+puxa o outro: o **Raio-X** é barato, rápido e prescreve os demais; a
+**Arquitetura de preço** é a de maior retorno imediato; a **Reestruturação**
+é a de maior valor por projeto.
+
+O registro de serviços deixou de ter ramificação fixa: cada serviço declara
+suas próprias funções e o resto do sistema funciona igual para todos —
+acrescentar o quarto, o quinto e o sexto agora é encaixar peça, não reescrever.
+
+90. **Raio-X do negócio — o diagnóstico que já vende o próximo serviço**
+    (`v-raiox`, `rxRender`). É a porta de entrada da consultoria: barato de
+    contratar, rápido de entregar, e cada resultado dele aponta um serviço
+    maior. **48 perguntas em 9 dimensões ponderadas**, numa escala de
+    maturidade de cinco níveis com âncora objetiva — a pergunta nunca é "você
+    é bom nisso", é "isso existe, está escrito, é seguido, é medido, melhora
+    sozinho". É isso que faz duas pessoas diferentes chegarem à mesma nota, e
+    é o que separa diagnóstico de opinião.
+
+91. **Oito indicadores tirados do balanço, sem entrevista** — liquidez
+    corrente e seca, endividamento, margem EBITDA e líquida, dívida
+    líquida/EBITDA, retorno sobre o patrimônio e ciclo financeiro. Metade do
+    diagnóstico sai da contabilidade.
+
+92. **Análise dinâmica do capital de giro** — separa capital de giro (CDG),
+    necessidade de capital de giro (NCG) e saldo em tesouraria, e classifica a
+    empresa em **uma das seis estruturas financeiras**. É o que distingue
+    problema de *ciclo* (vende bem, recebe tarde) de problema de *estrutura*
+    (imobilizado comprado com dinheiro de curto prazo) — diagnósticos
+    diferentes, tratamentos diferentes, e confundir os dois é o erro mais caro
+    que se comete em reestruturação.
+
+93. **Radar das nove dimensões e ranking do que quebra primeiro** — a ordem
+    não é pela nota mais baixa, e sim pela nota mais baixa **na dimensão que
+    mais pesa**: fraqueza em tecnologia atrasa a empresa, a mesma fraqueza em
+    caixa fecha a empresa.
+
+94. **Prescrição automática** — cada fraqueza encontrada aponta o serviço do
+    grupo que a resolve, com valor e prazo, e o botão abre o projeto já com os
+    dados do cliente copiados. A **cláusula 8ª do contrato** abate o valor
+    pago pelo diagnóstico do primeiro serviço contratado em 90 dias: o cliente
+    entende que não comprou um relatório, comprou o começo do trabalho.
+
+95. **Plano de 90 dias em três ondas** — o que para a sangria (dias 1–30), o
+    que organiza (31–60), o que faz crescer (61–90). A ordem é parte da
+    recomendação. O botão "sugerir plano" lê as notas mais baixas das
+    dimensões de maior peso e monta as três ondas com dono e efeito esperado.
+
+96. **Arquitetura de preço e margem** (`v-preco`, `pcRender`) — o trabalho de
+    maior retorno imediato da consultoria: preço corrigido aparece no caixa no
+    mês seguinte, sem investimento nenhum.
+
+97. **Carga tributária de verdade, pelos três regimes** — alíquota **efetiva**
+    do Simples pela fórmula da LC 123/2006, `(RBT12 × nominal − parcela a
+    deduzir) ÷ RBT12`, com os cinco anexos e o **Fator R** decidindo
+    automaticamente entre o Anexo III e o V; presunção do **art. 15 da Lei
+    9.249/1995** no Lucro Presumido, com adicional de 10% acima de R$ 20
+    mil/mês; PIS/COFINS não cumulativo com crédito no Lucro Real. O sistema
+    diz qual é o mais barato e **quanto a troca devolve por ano**.
+
+98. **Markup divisor, não multiplicador** — `preço = custo ÷ (1 − impostos −
+    variáveis − margem)`. O erro mais comum e mais caro do varejo e do serviço
+    brasileiro é somar 40% ao custo achando que vai sobrar 40%: não sobra,
+    porque imposto e comissão incidem sobre o preço, não sobre o custo.
+
+99. **Margem de contribuição por hora do recurso gargalo** — ordenar produto
+    por margem percentual é o que faz empresa priorizar o item errado. Quando
+    a capacidade é o que limita, quem manda é a margem por hora. A tela mostra
+    a diferença em reais por hora entre o melhor e o pior item.
+
+100. **Ponto de equilíbrio contábil, financeiro e econômico**, margem de
+     segurança, grau de alavancagem operacional e **curva ABC** de onde vem a
+     margem.
+
+101. **Limite de desconto com número** — com margem de contribuição *m*, um
+     desconto *d* exige `d ÷ (m − d)` a mais de volume só para empatar. A tela
+     traz a tabela de 1% a 20%, o desconto que zera a margem de cada item, o
+     limite recomendado e o piso absoluto — abaixo do qual vender é pior que
+     não vender.
+
+102. **Reestruturação e fôlego de caixa** (`v-caixa`, `cxRender`) — para quem
+     está sem ar. O instrumento é o mesmo que as firmas de turnaround usam no
+     mundo inteiro: o **fluxo de caixa de 13 semanas pelo método direto**, que
+     responde à única pergunta que importa — **em que semana o caixa vira**.
+     Treze semanas são um trimestre: longe o bastante para dar tempo de agir,
+     perto o bastante para ninguém inventar premissa.
+
+103. **Mapa de dívida** com custo médio ponderado, desembolso mensal, garantia
+     e situação por credor — porque às vezes a menor dívida é a que mais
+     machuca.
+
+104. **Portfólio de iniciativas** com dono, impacto em reais, **maturação** (em
+     quantos meses o efeito chega ao caixa) e estágio. O total **ponderado
+     pelo estágio** — ideia vale 25%, aprovada 50%, em andamento 80%,
+     concluída 100% — é o número que se leva ao credor. Prometer o bruto é o
+     que faz a segunda rodada de negociação ser muito pior que a primeira.
+     Vêm **8 alavancas prontas** do mercado, cada uma com prazo típico,
+     esforço e o risco de puxá-la.
+
+105. **Ponte de EBITDA** — do resultado de hoje ao alvo, barra por barra, com
+     nome e dono em cada uma. Barra sem nome não entra na ponte.
+
+106. **Termômetro de insolvência** — **Altman Z''** para mercados emergentes e
+     o **índice de Kanitz**, construído com dados de empresas brasileiras. Não
+     é profecia: é comparação estatística, e serve para tirar a decisão do
+     campo da emoção.
+
+107. **Rota de equacionamento** — renegociação privada, recuperação
+     extrajudicial ou recuperação judicial, cada uma com *quando se aplica*,
+     *como funciona* e a **base legal** pela Lei 11.101/2005 na redação da Lei
+     14.112/2020 (quóruns da extrajudicial, inclusão de crédito trabalhista
+     por negociação coletiva, exclusão do crédito tributário, prazo de
+     suspensão na judicial). O sistema indica a rota pelos números; a decisão
+     é da administração, com advogado — e o contrato diz isso na cláusula 4ª.
+
+108. **Digitar sem perder o cursor** — enquanto se digita, o painel não é mais
+     reconstruído: só os blocos de número são reescritos, e o redesenho
+     completo fica adiado até a pessoa sair do campo. O campo em foco nunca é
+     destruído.
+
+109. **Números que se separam sozinhos** — todo campo de dinheiro se formata
+     no padrão brasileiro (`1.850.000,50`) enquanto se digita, com o cursor
+     preservado depois da mesma quantidade de dígitos, inclusive ao editar no
+     meio do número. A leitura entende as duas notações: campo com máscara e
+     campo numérico do navegador, que sempre devolve ponto decimal.
