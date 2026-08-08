@@ -524,6 +524,14 @@ no [README do backend](backend/README.md).
   `cxCalcular` (13 semanas, dívida, iniciativas, ponte, Altman Z'' e Kanitz),
   `CX_ALAVANCAS` (as 8 alavancas de mercado), `CX_ROTAS` (Lei 11.101/2005),
   `cxFluxoHTML`, `cxPonteHTML`, `cxTermoHTML`, `cxLaudoHTML`.
+- **Equipe (várias pessoas ao mesmo tempo)**: `SYNC` (estado), `SYNC_MAPA`
+  (que chave vira que coleção, quais listas têm id, como recarregar e como
+  gravar), `afGravar` (o ponto único por onde toda gravação da empresa passa),
+  `syncEmpacotar`/`syncDesempacotar` (lista ↔ objeto por id), `syncDif` (o
+  remendo), `syncEmpurrar`/`syncPuxar`/`syncAplicar`, `syncReconciliar`
+  (conflito nunca é descartado), `syncBarra` (selo de presença) e
+  `syncTelaRender` (Ajustes → Equipe). No servidor: `backend/equipe.js` —
+  `aplicarRemendo`, `desdeRev`, contas e presença.
 - **Digitação e números**: `numBR`/`numDe`/`maskNum`/`inpMoeda` (máscara
   brasileira com cursor preservado), `uiFocoGuardar`/`uiFocoRestaurar`,
   `uiRedesenhar` (adia o redesenho) e `uiRedesenharSeParou` (nunca redesenha
@@ -1028,3 +1036,46 @@ acrescentar o quarto, o quinto e o sexto agora é encaixar peça, não reescreve
      preservado depois da mesma quantidade de dígitos, inclusive ao editar no
      meio do número. A leitura entende as duas notações: campo com máscara e
      campo numérico do navegador, que sempre devolve ponto decimal.
+
+## Várias pessoas ao mesmo tempo — versão 0808.03
+
+Era a última ponta solta: o sistema guardava tudo no navegador, então duas
+pessoas em máquinas diferentes não brigavam, mas também não viam o trabalho
+uma da outra. Agora existe um servidor de equipe — **opcional**. Sem ele
+configurado, absolutamente nada muda: o `index.html` continua abrindo sozinho,
+offline, do jeito que é entregue.
+
+110. **Servidor de equipe** (`backend/equipe.js`, montado em `server.js`).
+     Contas com senha (scrypt do próprio Node, sem dependência nova), sessões
+     por token, presença, e os dados em `backend/dados/` com escrita atômica —
+     grava em `.tmp` e renomeia, então nunca fica pela metade. **Faça backup
+     dessa pasta: é o banco de dados.**
+
+111. **Ninguém derruba o trabalho de ninguém.** O navegador não manda o
+     registro inteiro: manda um **remendo** com só o que mudou, campo a campo.
+     Se a Beatriz mexe no telefone do lead enquanto a Carla mexe no status, o
+     servidor junta as duas. Só existe conflito de verdade quando as duas
+     mexem no **mesmo campo** — e aí vale a última, mas o valor anterior fica
+     registrado com nome e hora, em *Ajustes → Equipe → O que foi sobrescrito*.
+
+112. **Listas com id viram registros.** Antes de comparar, `leads`, `projetos`,
+     `demandas`, tarefas do kanban e lançamentos financeiros são convertidos
+     em objetos com o id na chave (e a ordem guardada à parte). É esse truque
+     que dá junção por registro sem precisar reescrever o sistema inteiro.
+
+113. **Servidor fora do ar não trava ninguém.** O que você escreve fica numa
+     fila local, o selo da topbar avisa quantas mudanças estão esperando, e
+     tudo sobe sozinho quando a conexão volta. Nada se perde no caminho.
+
+114. **Presença ao vivo** — o selo na topbar mostra as iniciais de quem mais
+     está online e em que tela cada pessoa está. Clicando, abre a configuração.
+
+115. **Contas da equipe** (só quem é admin) — criar, trocar senha, desligar e
+     religar. Desligar uma conta **derruba a sessão dela na hora**, em todas as
+     máquinas.
+
+116. **Quem conecta primeiro semeia.** A primeira máquina sobe a base que tem;
+     as seguintes recebem essa base pronta. Por isso: conecte primeiro a
+     máquina com os dados bons. Se duas conectarem juntas, o servidor recusa a
+     segunda substituição inteira e o navegador reenvia a parte dela como
+     remendo — nada é descartado em silêncio.

@@ -19,7 +19,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(express.json({ limit: '256kb' }));
+app.use(express.json({ limit: '8mb' }));   // o primeiro envio do sync leva a base inteira
 
 // Só o endereço do seu sistema pode chamar esta ponte.
 // ORIGENS=https://seusistema.com.br,http://localhost:3000  (vazio = libera tudo, use só em teste)
@@ -230,17 +230,26 @@ app.post('/d4sign/webhook', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── EQUIPE: várias pessoas no mesmo sistema, ao mesmo tempo ──
+// Contas, sessões, sincronização por campo e presença. Ver backend/equipe.js.
+require('./equipe').montar(app, {
+  donoNome: process.env.DONO_NOME,
+  donoEmail: process.env.DONO_EMAIL,
+  donoSenha: process.env.DONO_SENHA
+});
+
 app.get('/health', (_req, res) => {
   res.json({
     ok: true,
     modo: MENSAGEM_MODO,
     template: TEMPLATE_NAME,
     configurado: Boolean(WHATSAPP_TOKEN && PHONE_ID),
-    d4sign: Boolean(D4_TOKEN && D4_CRIPTO)
+    d4sign: Boolean(D4_TOKEN && D4_CRIPTO),
+    equipe: true
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`Ponte do WhatsApp no ar na porta ${PORT} (modo: ${MENSAGEM_MODO})`);
+  console.log(`Servidor no ar na porta ${PORT} (WhatsApp em modo: ${MENSAGEM_MODO})`);
   if (!WHATSAPP_TOKEN || !PHONE_ID) console.warn('⚠  Faltam WHATSAPP_TOKEN e/ou PHONE_ID — copie o .env.example para .env.');
 });

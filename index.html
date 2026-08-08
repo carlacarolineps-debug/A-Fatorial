@@ -2208,6 +2208,47 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 .vl-laudo-tb td{text-align:right;border-bottom:1px solid var(--line);padding:6px 8px;}
 .vl-laudo-tb tr.tot td{border-top:1.5px solid var(--gold);border-bottom:none;font-weight:800;color:var(--ink);
   background:color-mix(in srgb,var(--gold) 8%,transparent);}
+/* ═══ EQUIPE — presença e sincronização ═══ */
+#sync-selo{display:none;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;
+  border:1px solid var(--line);background:var(--panel-soft);font-size:11px;color:var(--ink-soft);
+  cursor:default;white-space:nowrap;}
+#sync-selo .pt{width:7px;height:7px;border-radius:50%;background:var(--sc,var(--ink-faint));flex:none;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--sc,var(--ink-faint)) 22%,transparent);}
+#sync-selo .tx{color:var(--ink-soft);}
+.av-mini{width:21px;height:21px;border-radius:50%;display:inline-grid;place-items:center;flex:none;
+  background:color-mix(in srgb,var(--gold) 20%,var(--panel-soft));border:1px solid var(--line);
+  font-size:9px;font-weight:800;color:var(--ink);letter-spacing:.02em;}
+#sync-aviso{position:fixed;right:18px;bottom:18px;z-index:120;max-width:330px;padding:11px 15px;
+  border-radius:12px;border:1px solid var(--kb-c2);background:var(--panel);color:var(--ink);
+  font-size:12px;line-height:1.5;box-shadow:0 12px 34px rgba(0,0,0,.28);
+  opacity:0;transform:translateY(10px);pointer-events:none;transition:.22s;}
+#sync-aviso.on{opacity:1;transform:translateY(0);}
+.sync-gente{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;}
+.sync-p{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--line);
+  border-radius:11px;background:var(--panel-soft);}
+.sync-p b{display:block;font-size:12px;color:var(--ink);}
+.sync-p small{display:block;font-size:10.5px;color:var(--ink-faint);}
+.sync-contas{display:flex;flex-direction:column;gap:8px;}
+.sync-c{display:grid;grid-template-columns:24px minmax(0,1fr) auto auto;gap:10px;align-items:center;
+  padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--panel-soft);}
+.sync-c.off{opacity:.5;}
+.sync-c .tx b{display:block;font-size:12.5px;color:var(--ink);}
+.sync-c .tx small{display:block;font-size:10.5px;color:var(--ink-faint);}
+.sync-log{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;}
+.sync-l{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:11px;align-items:flex-start;
+  padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--kb-c4);border-radius:11px;
+  background:var(--panel-soft);}
+.sync-l .q{font-size:11px;font-weight:700;color:var(--kb-c4);white-space:nowrap;}
+.sync-l .tx b{display:block;font-size:12px;color:var(--ink);}
+.sync-l .tx small{display:block;font-size:10.5px;color:var(--ink-faint);margin:2px 0 4px;}
+.sync-l .tx code{display:block;font-size:10px;color:var(--ink-soft);background:var(--panel);
+  border:1px solid var(--line);border-radius:7px;padding:4px 7px;overflow-x:auto;white-space:nowrap;}
+.sync-l .h{font-size:10px;color:var(--ink-faint);white-space:nowrap;}
+@media(max-width:1180px){
+  #sync-selo .tx{display:none;}
+  .sync-c{grid-template-columns:24px minmax(0,1fr);}
+  .sync-c button{grid-column:span 1;}
+}
 /* ═══ REESTRUTURAÇÃO E CAIXA ═══ */
 .cx-semanas{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:5px;}
 .cx-sb{padding:7px 3px;border:1px solid var(--line);border-radius:9px;background:var(--panel-soft);
@@ -2620,6 +2661,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         <span class="bell-ic">🔔</span>
         <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
       </button>
+      <div id="sync-selo" onclick="go('equipe')" title="Equipe"></div>
       <div><div class="nm" id="top-user-nome">Carla Caroline</div><div class="rl" id="top-user-rl">Arquiteta de Lucro · CEO</div></div>
       <div class="av" id="top-user-av">CC</div>
       <button class="logout-btn" onclick="AUTH.logout()">Sair</button>
@@ -3287,6 +3329,10 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         <div class="in-pillar"><div class="ic">🏆</div><div><div class="t">Seu trabalho vira prova</div><div class="d">Cada entrega aprovada vira depoimento e caso de sucesso.</div></div></div>
       </div>
       <div class="card">
+        <div class="card-h">Trabalhar em equipe — várias pessoas ao mesmo tempo</div>
+        <div id="sync-cfg"></div>
+      </div>
+      <div class="card">
         <div class="card-h" style="display:flex;align-items:center;gap:10px;">Equipe e responsáveis · acessos
           <button class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="usuarioNovo()">+ Novo usuário</button></div>
         <p class="hint" style="margin:-8px 0 14px;">Controle quem entra no sistema: login, senha, foto, apelido e status (ativo/inativo). Cada pessoa também personaliza a própria foto e apelido dentro do portal dela.</p>
@@ -3759,6 +3805,15 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 </div>
 
 <!-- ===== VER CONTRATO ===== -->
+<div class="modal" id="m-uiv" onclick="if(event.target===this)uiModalFechar()">
+  <div class="modal-card" style="max-width:720px;">
+    <h3 id="uiv-titulo"></h3>
+    <div id="uiv-corpo"></div>
+    <div class="modal-acts"><button class="btn btn-gold" onclick="uiModalFechar()">Fechar</button></div>
+  </div>
+</div>
+<div id="sync-aviso"></div>
+
 <div class="modal" id="m-contrato" onclick="if(event.target===this)contratoFechar()">
   <div class="modal-card" style="max-width:760px;">
     <div id="ct-status" style="margin-bottom:10px;font-size:12.5px;"></div>
@@ -4134,7 +4189,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         const BRAND_DEFAULT={ nome:'A! Fatorial', razao:'A! FATORIAL SOLUÇÕES PARA EMPRESAS E FRANQUIAS LTDA', cnpj:'30.361.388/0001-17', email:'contato@afatorialsolucoes.com.br', tel:'(11) 4144-3467', site:'afatorialsolucoes.com.br', endereco:'', cidade:'Santo André - SP', cor:'#d4af5e', logo:'' };
         let BRAND=Object.assign({}, BRAND_DEFAULT);
         function brandCarregar(){ try{ let b=JSON.parse(localStorage.getItem('af_brand')||'null'); if(b) BRAND=Object.assign({}, BRAND_DEFAULT, b); }catch(e){} }
-        function brandSalvar(){ try{ localStorage.setItem('af_brand', JSON.stringify(BRAND)); }catch(e){} }
+        function brandSalvar(){ try{ afGravar('af_brand', JSON.stringify(BRAND)); }catch(e){} }
         function brandLogoHTML(size){ size=size||44; return BRAND.logo?`<img src="${BRAND.logo}" alt="logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;">`:`<div class="mark" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.42)}px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;">A!</div>`; }
         function brandSet(campo,val){ BRAND[campo]=val; brandSalvar(); renderBrand(); }
         function renderBrand(){
@@ -4203,7 +4258,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           localStorage.setItem('af_perm_migr', JSON.stringify(feitas));
         }catch(e){}
         function salvarPermissoes(){
-          try{ localStorage.setItem('af_permissoes', JSON.stringify({perm:PERMISSOES, escopo:COL_ESCOPO_COMERCIAL})); }catch(e){}
+          try{ afGravar('af_permissoes', JSON.stringify({perm:PERMISSOES, escopo:COL_ESCOPO_COMERCIAL})); }catch(e){}
         }
         const AUTH={
           user:null,            // { papel, id, nome, rl, av }
@@ -4598,6 +4653,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(v==='servicos' && typeof servRender==='function') servRender();
           if(v==='valuation' && typeof vlRender==='function') vlRender();
           if(v==='franquia' && typeof frRender==='function') frRender();
+          if(v==='equipe' && typeof syncTelaRender==='function') syncTelaRender();
           if(v==='raiox' && typeof rxRender==='function') rxRender();
           if(v==='preco' && typeof pcRender==='function') pcRender();
           if(v==='caixa' && typeof cxRender==='function') cxRender();
@@ -6017,7 +6073,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           try{
             let cols={};
             DB.colaboradores.forEach(c=>{ cols[c.id]={login:c.login,senha:c.senha,apelido:c.apelido,foto:c.foto,ativo:c.ativo,metaVendas:c.metaVendas}; });
-            localStorage.setItem('af_usuarios', JSON.stringify({admin:{login:ADMIN_USER.login,senha:ADMIN_USER.senha,apelido:ADMIN_USER.apelido,foto:ADMIN_USER.foto}, cols}));
+            afGravar('af_usuarios', JSON.stringify({admin:{login:ADMIN_USER.login,senha:ADMIN_USER.senha,apelido:ADMIN_USER.apelido,foto:ADMIN_USER.foto}, cols}));
           }catch(e){}
         }
         function userById(id){ return id==='admin'?ADMIN_USER:DB.colaboradores.find(c=>c.id===id); }
@@ -9404,7 +9460,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         ];
         let PLANO={ metas:[], googleLink:'', trimAno:2026, trim:{1:0,2:0,3:0,4:0} };
         let _planoAnexos={}; let _planoAlvo=null;
-        function planoSalvar(){ try{ localStorage.setItem('af_plano', JSON.stringify({metas:PLANO.metas, googleLink:PLANO.googleLink, trimAno:PLANO.trimAno, trim:PLANO.trim})); }catch(e){} }
+        function planoSalvar(){ try{ afGravar('af_plano', JSON.stringify({metas:PLANO.metas, googleLink:PLANO.googleLink, trimAno:PLANO.trimAno, trim:PLANO.trim})); }catch(e){} }
         function planoInit(){
           let saved=null; try{ saved=JSON.parse(localStorage.getItem('af_plano')||'null'); }catch(e){}
           if(saved && Array.isArray(saved.metas)){ PLANO.metas=saved.metas; PLANO.googleLink=saved.googleLink||''; if(saved.trimAno)PLANO.trimAno=saved.trimAno; if(saved.trim)PLANO.trim=saved.trim; }
@@ -9649,7 +9705,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(d.includes('pix')&&v<0) return 'Pix enviado';
           return v>0?'Outras entradas':'Outros gastos';
         }
-        function finSalvar(){ try{ localStorage.setItem('af_fin', JSON.stringify({lancamentos:FIN360.lancamentos, metas:FIN360.metas, faturamentoAnual:FIN360.faturamentoAnual, proLabore:FIN360.proLabore, proLaborePct:FIN360.proLaborePct, custosFixos:FIN360.custosFixos, receitaMensalEst:FIN360.receitaMensalEst, regras:FIN360.regras, categoriasCustom:FIN360.categoriasCustom, projIncluiPlano:FIN360.projIncluiPlano, futGrowth:FIN360.futGrowth, futVarPct:FIN360.futVarPct, futRendMes:FIN360.futRendMes, budget:FIN360.budget, decisoes:FIN360.decisoes, cenarioCfg:FIN360.cenarioCfg})); }catch(e){} }
+        function finSalvar(){ try{ afGravar('af_fin', JSON.stringify({lancamentos:FIN360.lancamentos, metas:FIN360.metas, faturamentoAnual:FIN360.faturamentoAnual, proLabore:FIN360.proLabore, proLaborePct:FIN360.proLaborePct, custosFixos:FIN360.custosFixos, receitaMensalEst:FIN360.receitaMensalEst, regras:FIN360.regras, categoriasCustom:FIN360.categoriasCustom, projIncluiPlano:FIN360.projIncluiPlano, futGrowth:FIN360.futGrowth, futVarPct:FIN360.futVarPct, futRendMes:FIN360.futRendMes, budget:FIN360.budget, decisoes:FIN360.decisoes, cenarioCfg:FIN360.cenarioCfg})); }catch(e){} }
         function finInit(){
           let saved=null; try{ saved=JSON.parse(localStorage.getItem('af_fin')||'null'); }catch(e){}
           if(saved && Array.isArray(saved.lancamentos)){ FIN360.lancamentos=saved.lancamentos; FIN360.metas=saved.metas||[]; if(saved.faturamentoAnual) FIN360.faturamentoAnual=saved.faturamentoAnual; ['proLabore','proLaborePct','custosFixos','receitaMensalEst','regras','categoriasCustom','projIncluiPlano','futGrowth','futVarPct','futRendMes','budget','decisoes','cenarioCfg'].forEach(k=>{ if(saved[k]!=null) FIN360[k]=saved[k]; }); }
@@ -10666,7 +10722,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         function kbDataBR(iso){ if(!iso) return '—'; let p=String(iso).split('-'); return p.length===3?p[2]+'/'+p[1]:iso; }
         // nas mensagens vai a data completa (dd/mm/aaaa) para não deixar dúvida de ano
         function kbDataMsg(iso){ if(!iso) return '—'; let p=String(iso).split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso; }
-        function kbSalvarLS(){ try{ localStorage.setItem('af_kanban', JSON.stringify({tarefas:KANBAN.tarefas, areas:KANBAN.areas, contatos:KANBAN.contatos, envios:KANBAN.envios.slice(0,60), wa:KANBAN.wa, seq:kbSeq})); }catch(e){} }
+        function kbSalvarLS(){ try{ afGravar('af_kanban', JSON.stringify({tarefas:KANBAN.tarefas, areas:KANBAN.areas, contatos:KANBAN.contatos, envios:KANBAN.envios.slice(0,60), wa:KANBAN.wa, seq:kbSeq})); }catch(e){} }
 
         /* pessoas que podem receber demanda: colaboradores ativos + gestão */
         function kbPessoas(){
@@ -11667,7 +11723,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
            contratos liberados e o nível — nunca o tipo de vínculo. */
         function prestadores(){ return (DB.colaboradores||[]).filter(c=>c.ativo!==false); }
         function ehPrestador(c){ return !!c; }
-        function leadSalvar(){ try{ localStorage.setItem('af_leads', JSON.stringify({leads:DB.leads, seq:_leadSeq})); }catch(e){} }
+        function leadSalvar(){ try{ afGravar('af_leads', JSON.stringify({leads:DB.leads, seq:_leadSeq})); }catch(e){} }
         function leadHoje(){ return (typeof kbHojeISO==='function')?kbHojeISO():new Date().toISOString().slice(0,10); }
         function leadDono(l){ return l.dono?kbPessoa(l.dono):null; }
         function leadHorasSemContato(l){
@@ -12289,7 +12345,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         function leadMotivo(v){ return LEAD_MOTIVOS.find(m=>m.v===v)||{v:'', l:'Sem motivo registrado', cor:'var(--ink-faint)'}; }
 
         let VENDAS={ meta:0, metaContatos:12 };
-        function vendasSalvar(){ try{ localStorage.setItem('af_vendas', JSON.stringify(VENDAS)); }catch(e){} }
+        function vendasSalvar(){ try{ afGravar('af_vendas', JSON.stringify(VENDAS)); }catch(e){} }
         function vendasInit(){
           let s=null; try{ s=JSON.parse(localStorage.getItem('af_vendas')||'null'); }catch(e){}
           if(s) VENDAS=Object.assign(VENDAS, s);
@@ -12602,7 +12658,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           ];
         }
         function kbDiasFrente(n){ let d=new Date(); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-        function treinoSalvar(){ try{ localStorage.setItem('af_treinos', JSON.stringify(DB.treinamentos)); }catch(e){} }
+        function treinoSalvar(){ try{ afGravar('af_treinos', JSON.stringify(DB.treinamentos)); }catch(e){} }
         function treinoProximos(){
           let h=leadHoje();
           return DB.treinamentos.filter(t=>t.data&&t.data>=h).sort((a,b)=>a.data<b.data?-1:1);
@@ -12828,7 +12884,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
            === BACKEND === POST {endpoint}/d4sign/enviar  {nome, email, html}
                            GET  {endpoint}/d4sign/status/:uuid */
         let D4={ modo:'simulado', endpoint:'', token:'', cripto:'', cofre:'', envios:[] };
-        function d4Salvar(){ try{ localStorage.setItem('af_d4', JSON.stringify(D4)); }catch(e){} }
+        function d4Salvar(){ try{ afGravar('af_d4', JSON.stringify(D4)); }catch(e){} }
         function d4Init(){ let s=null; try{ s=JSON.parse(localStorage.getItem('af_d4')||'null'); }catch(e){} if(s) D4=Object.assign(D4,s); }
         function d4Set(k,v){ D4[k]=v; d4Salvar(); if(typeof d4CfgRender==='function') d4CfgRender(); }
         function d4Log(reg){ D4.envios=[reg].concat(D4.envios||[]).slice(0,60); d4Salvar(); }
@@ -12926,7 +12982,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
         DB.demandas = DB.demandas || [];
         let _demSeq=1;
-        function demSalvar(){ try{ localStorage.setItem('af_demandas', JSON.stringify({d:DB.demandas, seq:_demSeq})); }catch(e){} }
+        function demSalvar(){ try{ afGravar('af_demandas', JSON.stringify({d:DB.demandas, seq:_demSeq})); }catch(e){} }
         function demInit(){
           let s=null; try{ s=JSON.parse(localStorage.getItem('af_demandas')||'null'); }catch(e){}
           if(s&&s.d){ DB.demandas=s.d; _demSeq=s.seq||(DB.demandas.length+1); }
@@ -13501,7 +13557,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         DB.candidatos = DB.candidatos || [];
         let _pcSeq=1, _cdSeq=1;
         function redeSalvar(){
-          try{ localStorage.setItem('af_rede', JSON.stringify({parceiras:DB.parceiras, candidatos:DB.candidatos, pcSeq:_pcSeq, cdSeq:_cdSeq})); }catch(e){}
+          try{ afGravar('af_rede', JSON.stringify({parceiras:DB.parceiras, candidatos:DB.candidatos, pcSeq:_pcSeq, cdSeq:_cdSeq})); }catch(e){}
         }
         function redeInit(){
           let s=null; try{ s=JSON.parse(localStorage.getItem('af_rede')||'null'); }catch(e){}
@@ -14217,7 +14273,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         /* ── PROJETOS: um por cliente, não um por navegador ── */
         DB.projetos = DB.projetos || [];
         let _prjSeq=1;
-        function prjSalvar(){ try{ localStorage.setItem('af_projetos', JSON.stringify({p:DB.projetos, seq:_prjSeq})); }catch(e){} }
+        function prjSalvar(){ try{ afGravar('af_projetos', JSON.stringify({p:DB.projetos, seq:_prjSeq})); }catch(e){} }
         function prjInit(){
           let s=null; try{ s=JSON.parse(localStorage.getItem('af_projetos')||'null'); }catch(e){}
           if(s&&s.p){ DB.projetos=s.p; _prjSeq=s.seq||(DB.projetos.length+1); }
@@ -19549,6 +19605,508 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           box.innerHTML=uiOpts('f-temp', F_TEMPS, atual);
         }
 
+
+        /* ═══════════════════════════════════════════════════════════════════
+           EQUIPE — várias pessoas no mesmo sistema, ao mesmo tempo
+           ───────────────────────────────────────────────────────────────────
+           Sem servidor configurado, NADA aqui liga: o sistema continua
+           funcionando como um arquivo só, aberto direto do navegador. É
+           importante que continue assim — é o formato em que ele é entregue.
+
+           Com servidor configurado, cada gravação passa a virar um "remendo"
+           com só o que mudou, e o servidor junta campo a campo. Se a Beatriz
+           mexe no telefone do lead enquanto a Carla mexe no status, as duas
+           mudanças ficam. Só há conflito de verdade quando as duas mexem no
+           mesmo campo — e aí vence a última, mas fica registrado.
+
+           O truque que faz isso funcionar sem reescrever o sistema inteiro:
+           antes de comparar, as listas com id (leads, projetos, demandas...)
+           viram objetos com o id na chave. Assim duas pessoas mexendo em
+           registros diferentes da mesma lista nunca se cruzam. Na volta,
+           viram lista de novo, na ordem guardada.
+           === BACKEND === o par deste bloco é backend/equipe.js
+           ═══════════════════════════════════════════════════════════════════ */
+
+        const SYNC={
+          url:'', token:'', usuario:null,
+          ligado:false, estado:'desligado',   // desligado | conectando | ok | offline | erro
+          rev:0, online:[], fila:[], sombra:{}, ultimoErro:'',
+          empurrando:false, timer:null, ultimaTroca:0
+        };
+        /* Quais chaves são da empresa (vão para o servidor) e quais listas
+           dentro de cada uma têm id — é isso que dá junção por registro. */
+        const SYNC_MAPA={
+          af_leads:      {col:'leads',      listas:{leads:'id'}, salvar:'leadSalvar',                 recarregar:'leadInit'},
+          af_projetos:   {col:'projetos',   listas:{p:'id'}, salvar:'prjSalvar',                     recarregar:'prjInit'},
+          af_demandas:   {col:'demandas',   listas:{d:'id'}, salvar:'demSalvar',                     recarregar:'demInit'},
+          af_usuarios:   {col:'usuarios',   listas:{cols:'id'}, salvar:'salvarUsuarios',                  recarregar:'normalizaUsuarios'},
+          af_kanban:     {col:'kanban',     listas:{tarefas:'id',contatos:'id'}, salvar:'kbSalvarLS', recarregar:'kbInit'},
+          af_rede:       {col:'rede',       listas:{parceiras:'id',candidatos:'id'}, salvar:'redeSalvar', recarregar:'redeInit'},
+          af_fin:        {col:'fin',        listas:{lancamentos:'id',decisoes:'id'}, salvar:'finSalvar', recarregar:'finInit'},
+          af_plano:      {col:'plano',      listas:{metas:'id'}, salvar:'planoSalvar',                 recarregar:'planoInit'},
+          af_vendas:     {col:'vendas',     listas:{}, salvar:'vendasSalvar',                           recarregar:'vendasInit'},
+          af_treinos:    {col:'treinos',    listas:{}, salvar:'treinoSalvar',                           recarregar:'treinoInit'},
+          af_d4:         {col:'d4',         listas:{}, salvar:'d4Salvar',                           recarregar:'d4Init'},
+          af_brand:      {col:'brand',      listas:{}, salvar:'brandSalvar',                           recarregar:'brandCarregar'},
+          af_permissoes: {col:'permissoes', listas:{}, salvar:'salvarPermissoes',                           recarregar:'permRecarregar'}
+        };
+        const SYNC_APAGAR={__apagar:true};
+
+        /* ── o ponto único por onde toda gravação da empresa passa ── */
+        function afGravar(chave, texto){
+          try{ localStorage.setItem(chave, texto); }catch(e){}
+          if(SYNC.ligado && SYNC_MAPA[chave]) syncMarcar(chave, texto);
+        }
+        /* recarrega as permissões do localStorage (o único que não tinha função própria) */
+        function permRecarregar(){
+          try{
+            let s=JSON.parse(localStorage.getItem('af_permissoes')||'null');
+            if(s&&s.perm) PERMISSOES=s.perm;
+            if(s&&s.escopo) COL_ESCOPO_COMERCIAL=s.escopo;
+            if(!PERMISSOES.admin) PERMISSOES.admin=PERMISSOES_DEFAULT.admin.slice();
+            if(!PERMISSOES.admin.includes('equipe')) PERMISSOES.admin.push('equipe');
+          }catch(e){}
+        }
+
+        /* ── lista com id vira objeto com o id na chave, e volta ── */
+        function syncEmpacotar(chave, valor){
+          let m=SYNC_MAPA[chave]; if(!m||!valor||typeof valor!=='object') return valor;
+          let out=Array.isArray(valor)?{__lista:valor}:Object.assign({}, valor);
+          Object.keys(m.listas||{}).forEach(cam=>{
+            let campoId=m.listas[cam], arr=out[cam];
+            if(!Array.isArray(arr)) return;
+            let mapa={}, ordem=[];
+            arr.forEach((it,i)=>{
+              let id=String((it&&it[campoId])!=null?it[campoId]:('#'+i));
+              mapa[id]=it; ordem.push(id);
+            });
+            out[cam]=mapa; out['__ordem_'+cam]=ordem;
+          });
+          return out;
+        }
+        function syncDesempacotar(chave, obj){
+          let m=SYNC_MAPA[chave]; if(!m||!obj||typeof obj!=='object') return obj;
+          let out=Object.assign({}, obj);
+          Object.keys(m.listas||{}).forEach(cam=>{
+            let mapa=out[cam]; if(!mapa||typeof mapa!=='object'||Array.isArray(mapa)) return;
+            let ordem=(out['__ordem_'+cam]||[]).filter(id=>mapa[id]!==undefined);
+            Object.keys(mapa).forEach(id=>{ if(ordem.indexOf(id)<0) ordem.push(id); });
+            out[cam]=ordem.map(id=>mapa[id]);
+            delete out['__ordem_'+cam];
+          });
+          if(out.__lista) return out.__lista;
+          return out;
+        }
+
+        /* ── o remendo: só o que mudou, campo a campo ── */
+        function syncDif(base, atual, semApagar){
+          const obj=(v)=>v&&typeof v==='object'&&!Array.isArray(v);
+          if(!obj(base)||!obj(atual)) return atual;
+          let r={}, mudou=false;
+          Object.keys(atual).forEach(k=>{
+            if(!(k in base)){ r[k]=atual[k]; mudou=true; return; }
+            if(obj(base[k])&&obj(atual[k])){
+              let d=syncDif(base[k], atual[k], semApagar);
+              if(d!==undefined){ r[k]=d; mudou=true; }
+            }else if(JSON.stringify(base[k])!==JSON.stringify(atual[k])){
+              r[k]=atual[k]; mudou=true;
+            }
+          });
+          // ao reconciliar um conflito não se apaga nada: o que está no servidor
+          // e não está aqui é trabalho de outra pessoa, não coisa que eu removi
+          if(!semApagar) Object.keys(base).forEach(k=>{ if(!(k in atual)){ r[k]=SYNC_APAGAR; mudou=true; } });
+          return mudou?r:undefined;
+        }
+
+        function syncMarcar(chave, texto){
+          let m=SYNC_MAPA[chave];
+          let val=null; try{ val=JSON.parse(texto); }catch(e){ return; }
+          let atual=syncEmpacotar(chave, val);
+          let base=SYNC.sombra[chave];
+          let remendo = base===undefined ? null : syncDif(base, atual);
+          if(base!==undefined && remendo===undefined) return;      // nada mudou de verdade
+          SYNC.sombra[chave]=JSON.parse(JSON.stringify(atual));
+          // tira da fila um envio anterior da mesma chave que ainda não saiu
+          SYNC.fila=SYNC.fila.filter(x=>x.chave!==chave||x.enviando);
+          SYNC.fila.push(base===undefined
+            ? {chave, col:m.col, valor:atual}
+            : {chave, col:m.col, remendo:remendo});
+          syncAgendar();
+        }
+        function syncAgendar(){
+          if(SYNC.timer) return;
+          SYNC.timer=setTimeout(()=>{ SYNC.timer=null; syncEmpurrar(); }, 600);
+        }
+
+        function syncCab(){ return {'Content-Type':'application/json','Authorization':'Bearer '+SYNC.token}; }
+        function syncTelaAtual(){
+          let v=document.querySelector('.view.on');
+          return v?v.id.replace('v-',''):'';
+        }
+
+        async function syncEmpurrar(){
+          if(!SYNC.ligado||SYNC.empurrando) return;
+          SYNC.empurrando=true;
+          let lote=SYNC.fila.splice(0, 200);
+          lote.forEach(x=>x.enviando=true);
+          try{
+            let mudancas=lote.map(x=>({col:x.col, id:null, rev:SYNC.rev,
+              valor:x.valor!==undefined?x.valor:undefined, remendo:x.remendo}));
+            let r=await fetch(SYNC.url+'/equipe/dados', {method:'POST', headers:syncCab(),
+              body:JSON.stringify({desde:SYNC.rev, tela:syncTelaAtual(), mudancas})});
+            if(r.status===401){ syncCair('A sessão da equipe expirou. Entre de novo.'); return; }
+            if(!r.ok) throw new Error('HTTP '+r.status);
+            let j=await r.json();
+            SYNC.estado='ok'; SYNC.ultimoErro=''; SYNC.ultimaTroca=Date.now();
+            if(j.conflitos&&j.conflitos.length) syncReconciliar(j.conflitos);
+            if(j.mudancas&&j.mudancas.length) syncAplicar(j.mudancas);
+            SYNC.rev=j.rev||SYNC.rev;
+            if(SYNC.fila.length) syncAgendar();
+            syncBarra();
+          }catch(e){
+            // não perdeu nada: devolve o lote para a fila e tenta de novo depois
+            SYNC.fila=lote.map(x=>{ delete x.enviando; return x; }).concat(SYNC.fila);
+            SYNC.estado='offline'; SYNC.ultimoErro=String(e.message||e);
+            syncBarra();
+          }finally{ SYNC.empurrando=false; }
+        }
+
+        /* O servidor recusou uma substituição inteira porque outra pessoa
+           chegou antes. Nada se perde: pego o que eu ia mandar, comparo com a
+           versão dele e mando só a minha parte, agora como remendo — aí as
+           duas contribuições convivem. */
+        function syncReconciliar(conflitos){
+          conflitos.forEach(c=>{
+            let chave=Object.keys(SYNC_MAPA).find(k=>SYNC_MAPA[k].col===c.col);
+            if(!chave) return;
+            let meu=SYNC.sombra[chave];
+            let dele=(c.servidor&&c.servidor.dado)||{};
+            SYNC.sombra[chave]=JSON.parse(JSON.stringify(dele));
+            let remendo=meu?syncDif(dele, meu, true):undefined;
+            if(remendo!==undefined) SYNC.fila.push({chave, col:c.col, remendo});
+          });
+        }
+        async function syncPuxar(){
+          if(!SYNC.ligado) return;
+          try{
+            let r=await fetch(SYNC.url+'/equipe/dados?desde='+SYNC.rev+'&tela='+encodeURIComponent(syncTelaAtual()),
+              {headers:syncCab()});
+            if(r.status===401){ syncCair('A sessão da equipe expirou. Entre de novo.'); return; }
+            if(!r.ok) throw new Error('HTTP '+r.status);
+            let j=await r.json();
+            SYNC.estado='ok'; SYNC.ultimoErro=''; SYNC.ultimaTroca=Date.now();
+            SYNC.online=j.online||[];
+            if(j.mudancas&&j.mudancas.length) syncAplicar(j.mudancas);
+            SYNC.rev=j.rev||SYNC.rev;
+            syncBarra();
+          }catch(e){
+            SYNC.estado='offline'; SYNC.ultimoErro=String(e.message||e); syncBarra();
+          }
+        }
+
+        /* ── chegou coisa de outra pessoa: grava, recarrega e redesenha ── */
+        function syncAplicar(mudancas){
+          let chaves=[], quem=[];
+          mudancas.forEach(mu=>{
+            let chave=Object.keys(SYNC_MAPA).find(k=>SYNC_MAPA[k].col===mu.col);
+            if(!chave||mu.apagado) return;
+            SYNC.sombra[chave]=JSON.parse(JSON.stringify(mu.dado||{}));
+            let app=syncDesempacotar(chave, mu.dado);
+            try{ localStorage.setItem(chave, JSON.stringify(app)); }catch(e){}
+            if(chaves.indexOf(chave)<0) chaves.push(chave);
+            // o eco da própria gravação não vira aviso — só o que veio de outra pessoa
+            let souEu=SYNC.usuario&&mu.por===SYNC.usuario.id;
+            if(!souEu&&mu.porNome&&quem.indexOf(mu.porNome)<0) quem.push(mu.porNome);
+          });
+          if(!chaves.length) return;
+          chaves.forEach(k=>{
+            let fn=SYNC_MAPA[k].recarregar;
+            try{ if(typeof window[fn]==='function') window[fn](); }catch(e){ console.warn('[equipe] recarregar '+k, e); }
+          });
+          syncRedesenhar();
+          if(quem.length) syncAviso(quem.join(', ')+(quem.length>1?' mudaram':' mudou')+' alguma coisa — sua tela já está atualizada.');
+        }
+        /* redesenha a tela aberta, mas nunca com o cursor dentro de um campo */
+        function syncRedesenhar(){
+          let a=document.activeElement;
+          if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){
+            clearTimeout(SYNC._redesenho);
+            SYNC._redesenho=setTimeout(syncRedesenhar, 1500); return;
+          }
+          let v=syncTelaAtual(); if(!v) return;
+          try{ if(typeof go==='function') go(v); }catch(e){}
+        }
+
+        function syncCair(msg){
+          SYNC.ligado=false; SYNC.estado='erro'; SYNC.ultimoErro=msg||'';
+          SYNC.token=''; SYNC.usuario=null; syncCfgSalvar(); syncBarra();
+          if(msg) alert(msg);
+        }
+
+        /* ── configuração (fica só neste navegador — nunca sincroniza) ── */
+        function syncCfgCarregar(){
+          try{
+            let c=JSON.parse(localStorage.getItem('af_sync')||'null');
+            if(c){ SYNC.url=c.url||''; SYNC.token=c.token||''; SYNC.usuario=c.usuario||null; SYNC.rev=c.rev||0; }
+          }catch(e){}
+        }
+        function syncCfgSalvar(){
+          try{ localStorage.setItem('af_sync', JSON.stringify({url:SYNC.url, token:SYNC.token, usuario:SYNC.usuario, rev:SYNC.rev})); }catch(e){}
+        }
+        function syncUrlLimpa(u){ return String(u||'').trim().replace(/\/+$/,''); }
+
+        async function syncSaude(url){
+          try{
+            let r=await fetch(syncUrlLimpa(url)+'/equipe/saude');
+            if(!r.ok) return {ok:false, erro:'HTTP '+r.status};
+            return await r.json();
+          }catch(e){ return {ok:false, erro:String(e.message||e)}; }
+        }
+        async function syncEntrar(url, email, senha){
+          url=syncUrlLimpa(url);
+          let r=await fetch(url+'/equipe/entrar', {method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email, senha})});
+          let j=null; try{ j=await r.json(); }catch(e){}
+          if(!r.ok||!j||!j.ok) return {ok:false, erro:(j&&j.erro)==='credenciais'?'E-mail ou senha não conferem.':'Não deu para entrar ('+r.status+').'};
+          SYNC.url=url; SYNC.token=j.token; SYNC.usuario=j.usuario; SYNC.rev=0; SYNC.sombra={}; SYNC.fila=[];
+          SYNC.ligado=true; SYNC.estado='conectando';
+          syncCfgSalvar();
+          await syncPrimeiraTroca();
+          syncLigarLaco();
+          return {ok:true, usuario:j.usuario};
+        }
+        /* Primeira conversa: puxa tudo o que o servidor tem e, se ele estiver
+           vazio, sobe o que existe aqui. Assim a primeira máquina a conectar
+           semeia o servidor e as seguintes recebem a base pronta. */
+        async function syncPrimeiraTroca(){
+          await syncPuxar();
+          Object.keys(SYNC_MAPA).forEach(chave=>{
+            if(SYNC.sombra[chave]!==undefined) return;            // já veio do servidor
+            let t=null; try{ t=localStorage.getItem(chave); }catch(e){}
+            if(t==null){
+              // ainda não foi gravado neste navegador: manda gravar agora. Sem
+              // isso, essa parte da base nunca subiria — e era assim que a
+              // segunda pessoa a conectar ficava com dados que o servidor
+              // não conhecia
+              let fn=SYNC_MAPA[chave].salvar;
+              try{ if(typeof window[fn]==='function') window[fn](); }catch(e){}
+              try{ t=localStorage.getItem(chave); }catch(e){}
+            }
+            if(t==null) return;
+            let val=null; try{ val=JSON.parse(t); }catch(e){ return; }
+            let emp=syncEmpacotar(chave, val);
+            SYNC.sombra[chave]=JSON.parse(JSON.stringify(emp));
+            SYNC.fila.push({chave, col:SYNC_MAPA[chave].col, valor:emp});
+          });
+          if(SYNC.fila.length) await syncEmpurrar();
+          SYNC.estado='ok'; syncBarra();
+        }
+        async function syncSair(){
+          try{ await fetch(SYNC.url+'/equipe/sair', {method:'POST', headers:syncCab()}); }catch(e){}
+          SYNC.ligado=false; SYNC.token=''; SYNC.usuario=null; SYNC.estado='desligado';
+          SYNC.fila=[]; SYNC.sombra={}; SYNC.online=[];
+          if(SYNC._laco){ clearInterval(SYNC._laco); SYNC._laco=null; }
+          syncCfgSalvar(); syncBarra(); syncTelaRender();
+        }
+        function syncLigarLaco(){
+          if(SYNC._laco) clearInterval(SYNC._laco);
+          SYNC._laco=setInterval(()=>{
+            if(!SYNC.ligado) return;
+            if(document.hidden && Date.now()-SYNC.ultimaTroca<20000) return;  // aba escondida: devagar
+            syncPuxar();
+            if(SYNC.fila.length) syncEmpurrar();
+          }, 4000);
+        }
+
+        /* ── o selo na topbar: quem está junto agora ── */
+        function syncBarra(){
+          let el=document.getElementById('sync-selo'); if(!el) return;
+          if(!SYNC.ligado){ el.style.display='none'; return; }
+          el.style.display='flex';
+          const COR={ok:'var(--kb-c3)', conectando:'var(--kb-c4)', offline:'var(--kb-c8)', erro:'var(--kb-c8)', desligado:'var(--ink-faint)'};
+          const TXT={ok:'em equipe', conectando:'conectando…', offline:'sem conexão — nada se perdeu', erro:'erro', desligado:''};
+          let outros=(SYNC.online||[]).filter(o=>!SYNC.usuario||o.uid!==SYNC.usuario.id);
+          el.style.setProperty('--sc', COR[SYNC.estado]||'var(--ink-faint)');
+          el.title=(SYNC.estado==='offline'
+              ? 'Sem conexão com o servidor. Você pode continuar trabalhando: as mudanças ficam guardadas e sobem sozinhas quando voltar ('+SYNC.fila.length+' na fila).'
+              : outros.length?('Também online: '+outros.map(o=>o.nome+(o.tela?' — em '+TITULO_CURTO(o.tela):'')).join(' · ')):'Você é a única pessoa online agora.');
+          el.innerHTML='<span class="pt"></span>'
+            +(outros.length?outros.slice(0,4).map(o=>'<span class="av-mini" title="'+uiEsc(o.nome+(o.tela?' — em '+TITULO_CURTO(o.tela):''))+'">'+uiEsc(uiIniciais(o.nome))+'</span>').join(''):'')
+            +'<span class="tx">'+(SYNC.estado==='ok'
+                ? (outros.length?outros.length+' online':'só você')
+                : uiEsc(TXT[SYNC.estado]||''))
+            +(SYNC.fila.length?' · '+SYNC.fila.length+' na fila':'')+'</span>';
+        }
+        let _syncAvisoT=null;
+        function syncAviso(txt){
+          let el=document.getElementById('sync-aviso'); if(!el) return;
+          el.innerHTML=uiEsc(txt); el.classList.add('on');
+          clearTimeout(_syncAvisoT); _syncAvisoT=setTimeout(()=>el.classList.remove('on'), 4200);
+        }
+
+        /* ── tela de configuração (dentro de Equipe e acessos) ── */
+        function syncTelaRender(){
+          let box=document.getElementById('sync-cfg'); if(!box) return;
+          const eu=SYNC.usuario;
+          if(SYNC.ligado&&eu){
+            let outros=(SYNC.online||[]).filter(o=>o.uid!==eu.id);
+            box.innerHTML=`
+              <div class="dec-opiniao bem" style="margin-bottom:14px;">
+                <b>Ligado ao servidor da equipe</b> — você está como <b>${uiEsc(eu.nome)}</b> (${uiEsc(eu.email)}, ${uiEsc(eu.papel)}).
+                Cada gravação sua sobe na hora e o que os outros fazem desce sozinho.
+                ${SYNC.estado==='offline'?'<br><b style="color:var(--kb-c8)">Sem conexão agora.</b> Pode continuar trabalhando: '+SYNC.fila.length+' mudança(s) esperando para subir.':''}
+              </div>
+              <div class="ui-stats n4">${uiStats([
+                {cor:SYNC.estado==='ok'?'var(--kb-c3)':'var(--kb-c8)', ic:'⇄', label:'Conexão', valor:SYNC.estado==='ok'?'ativa':'caiu', pe:SYNC.estado==='ok'?'trocando a cada 4 segundos':uiEsc(SYNC.ultimoErro||'tentando de novo')},
+                {cor:'var(--kb-c2)', ic:'◉', label:'Online agora', valor:String((SYNC.online||[]).length), pe:outros.length?outros.map(o=>o.nome).join(', '):'só você'},
+                {cor:'var(--kb-c4)', ic:'≡', label:'Na fila para subir', valor:String(SYNC.fila.length), pe:SYNC.fila.length?'sobem quando a conexão voltar':'tudo sincronizado'},
+                {cor:'var(--kb-ouro)',ic:'#', label:'Versão dos dados', valor:String(SYNC.rev), pe:'sobe a cada mudança de qualquer pessoa'}
+              ])}</div>
+              ${outros.length?`<div class="lbl" style="margin:18px 0 10px;">QUEM ESTÁ TRABALHANDO AGORA</div>
+                <div class="sync-gente">${outros.map(o=>`
+                  <div class="sync-p"><span class="av-mini">${uiEsc(uiIniciais(o.nome))}</span>
+                    <div><b>${uiEsc(o.nome)}</b><small>${o.tela?'em '+uiEsc(TITULO_CURTO(o.tela)):'—'}</small></div></div>`).join('')}</div>`:''}
+              <div class="dm-acts" style="margin-top:18px;">
+                ${eu.papel==='admin'?'<button class="btn btn-ghost btn-sm" onclick="syncContasAbrir()">Contas da equipe</button>':''}
+                <button class="btn btn-ghost btn-sm" onclick="syncLogAbrir()">O que foi sobrescrito</button>
+                <button class="btn btn-ghost btn-sm" onclick="syncSair()">Desconectar deste navegador</button>
+              </div>`;
+            return;
+          }
+          box.innerHTML=`
+            <p class="hint" style="margin:-8px 0 14px;">Sem servidor, o sistema guarda tudo <b>neste navegador</b>: funciona sozinho, abre offline, e é assim que ele é entregue. Ligando um servidor, as mesmas telas passam a ser compartilhadas — cada pessoa entra com a própria conta, vê o trabalho das outras em tempo real, e ninguém apaga o que ninguém fez.</p>
+            <div class="grid">
+              <div class="c8 f"><span class="lbl">Endereço do servidor</span>
+                <input class="inp" id="sync-url" value="${uiEsc(SYNC.url||'')}" placeholder="https://servidor.suaempresa.com.br">
+                <span class="f-dica">O mesmo servidor da pasta <code>backend/</code>. Em teste local: <code>http://localhost:3000</code>.</span></div>
+              <div class="c4 f"><span class="lbl">&nbsp;</span>
+                <button class="btn btn-ghost" style="width:100%;" onclick="syncTestarClique()">Testar conexão</button></div>
+              <div class="c6 f"><span class="lbl">Seu e-mail</span><input class="inp" id="sync-email" placeholder="voce@empresa.com.br"></div>
+              <div class="c6 f"><span class="lbl">Sua senha</span>
+                <input class="inp" id="sync-senha" type="password" onkeydown="if(event.key==='Enter')syncEntrarClique()"></div>
+            </div>
+            <div id="sync-msg" style="margin-top:10px;"></div>
+            <div class="dm-acts" style="margin-top:14px;">
+              <button class="btn btn-gold btn-sm" onclick="syncEntrarClique()">Conectar este navegador</button>
+            </div>
+            <div class="dec-opiniao" style="margin-top:16px;">
+              <b>O que acontece ao conectar.</b> A primeira máquina a se conectar sobe o que já existe aqui e vira a base.
+              As seguintes recebem essa base pronta — o que estiver só no navegador delas fica de fora, então conecte primeiro
+              a máquina que tem os dados bons. Depois disso, todo mundo trabalha no mesmo lugar.
+            </div>`;
+        }
+        function TITULO_CURTO(v){ let t=TITLES[v]; return t?String(t[0]).replace(/<[^>]+>/g,''):v; }
+
+        async function syncTestarClique(){
+          let url=document.getElementById('sync-url').value;
+          let msg=document.getElementById('sync-msg');
+          msg.innerHTML='<span class="hint">Testando…</span>';
+          let s=await syncSaude(url);
+          msg.innerHTML = s.ok
+            ? `<div class="dec-opiniao bem">Servidor respondeu. ${s.contas} conta(s) cadastrada(s), versão ${s.rev}, ${s.online} pessoa(s) online.${s.precisaInstalar?' <b>Ainda não há nenhuma conta</b> — crie a primeira preenchendo e-mail e senha aqui embaixo.':''}</div>`
+            : `<div class="dec-opiniao mal">Não respondeu: ${uiEsc(s.erro||'sem detalhe')}. Confira o endereço, se o servidor está no ar e se este endereço está liberado em <code>ORIGENS</code> no <code>.env</code>.</div>`;
+        }
+        async function syncEntrarClique(){
+          let url=document.getElementById('sync-url').value;
+          let email=document.getElementById('sync-email').value.trim();
+          let senha=document.getElementById('sync-senha').value;
+          let msg=document.getElementById('sync-msg');
+          if(!url||!email||!senha){ msg.innerHTML='<div class="dec-opiniao mal">Preencha endereço, e-mail e senha.</div>'; return; }
+          msg.innerHTML='<span class="hint">Conectando…</span>';
+          let s=await syncSaude(url);
+          if(s.ok&&s.precisaInstalar){
+            if(!confirm('Este servidor ainda não tem nenhuma conta.\n\nCriar a conta de administração com '+email+'?')) { msg.innerHTML=''; return; }
+            let r=await fetch(syncUrlLimpa(url)+'/equipe/instalar', {method:'POST', headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({nome:ADMIN_USER.nome, email, senha})});
+            let j=null; try{ j=await r.json(); }catch(e){}
+            if(!r.ok){ msg.innerHTML='<div class="dec-opiniao mal">'+uiEsc((j&&j.detalhe)||(j&&j.erro)||'Não deu para criar a conta.')+'</div>'; return; }
+          }
+          let e=await syncEntrar(url, email, senha);
+          if(!e.ok){ msg.innerHTML='<div class="dec-opiniao mal">'+uiEsc(e.erro)+'</div>'; return; }
+          syncTelaRender(); syncBarra();
+          if(typeof SOUND!=='undefined') SOUND.play('cash');
+          alert('Conectado como '+e.usuario.nome+'.\n\nA partir de agora tudo o que você faz aparece para a equipe, e o que a equipe faz aparece aqui.');
+        }
+
+        /* — contas da equipe (só admin) — */
+        async function syncContasAbrir(){
+          let r=await fetch(SYNC.url+'/equipe/contas', {headers:syncCab()});
+          if(!r.ok) return alert('Não deu para carregar as contas.');
+          let j=await r.json();
+          let corpo=`
+            <div class="lbl" style="margin-bottom:10px;">CONTAS COM ACESSO AO SERVIDOR</div>
+            <div class="sync-contas">${j.contas.map(c=>`
+              <div class="sync-c ${c.ativo?'':'off'}">
+                <span class="av-mini">${uiEsc(uiIniciais(c.nome))}</span>
+                <div class="tx"><b>${uiEsc(c.nome)}</b><small>${uiEsc(c.email)} · ${uiEsc(c.papel)}${c.cargo?' · '+uiEsc(c.cargo):''}</small></div>
+                <button class="btn btn-ghost btn-sm" onclick="syncContaSenha('${c.id}','${uiEsc(c.nome)}')">Trocar senha</button>
+                <button class="btn btn-ghost btn-sm" onclick="syncContaAtiva('${c.id}',${c.ativo?'false':'true'})">${c.ativo?'Desligar':'Religar'}</button>
+              </div>`).join('')}</div>
+            <div class="lbl" style="margin:20px 0 10px;">NOVA CONTA</div>
+            <div class="grid">
+              <div class="c6 f"><span class="lbl">Nome</span><input class="inp" id="nc-nome"></div>
+              <div class="c6 f"><span class="lbl">E-mail</span><input class="inp" id="nc-email"></div>
+              <div class="c4 f"><span class="lbl">Papel</span><select class="inp" id="nc-papel">
+                <option value="colaborador">colaborador</option><option value="admin">admin</option><option value="cliente">cliente</option></select></div>
+              <div class="c4 f"><span class="lbl">Cargo</span><input class="inp" id="nc-cargo"></div>
+              <div class="c4 f"><span class="lbl">Senha (mínimo 8)</span><input class="inp" id="nc-senha" type="password"></div>
+            </div>
+            <div class="dm-acts" style="margin-top:12px;"><button class="btn btn-gold btn-sm" onclick="syncContaNova()">Criar conta</button></div>`;
+          uiModal('Contas da equipe', corpo);
+        }
+        async function syncContaNova(){
+          const val=(id)=>{ let e=document.getElementById(id); return e?e.value.trim():''; };
+          let corpo={nome:val('nc-nome'), email:val('nc-email'), papel:val('nc-papel'), cargo:val('nc-cargo'), senha:val('nc-senha')};
+          let r=await fetch(SYNC.url+'/equipe/contas',{method:'POST',headers:syncCab(),body:JSON.stringify(corpo)});
+          let j=null; try{ j=await r.json(); }catch(e){}
+          if(!r.ok) return alert(j&&j.erro==='senha_curta'?'A senha precisa de pelo menos 8 caracteres.'
+                              : j&&j.erro==='email_repetido'?'Já existe conta com esse e-mail.':'Não deu para criar.');
+          syncContasAbrir();
+        }
+        async function syncContaAtiva(id, ativo){
+          await fetch(SYNC.url+'/equipe/contas',{method:'POST',headers:syncCab(),body:JSON.stringify({id, ativo})});
+          syncContasAbrir();
+        }
+        async function syncContaSenha(id, nome){
+          let s=prompt('Nova senha para '+nome+' (mínimo 8 caracteres):');
+          if(!s) return;
+          let r=await fetch(SYNC.url+'/equipe/contas',{method:'POST',headers:syncCab(),body:JSON.stringify({id, senha:s})});
+          if(!r.ok) return alert('A senha precisa de pelo menos 8 caracteres.');
+          alert('Senha trocada. A pessoa continua conectada onde já estava.');
+        }
+        async function syncLogAbrir(){
+          let r=await fetch(SYNC.url+'/equipe/log', {headers:syncCab()});
+          let j=r.ok?await r.json():{log:[]};
+          uiModal('O que foi sobrescrito', j.log.length?`
+            <p class="hint" style="margin:-6px 0 14px;">Quando duas pessoas mexem no <b>mesmo campo</b> quase ao mesmo tempo, vale a última — mas o valor anterior fica aqui, com nome e hora. Nada some sem deixar rastro.</p>
+            <div class="sync-log">${j.log.map(l=>`
+              <div class="sync-l"><span class="q">${uiEsc(l.por)}</span>
+                <div class="tx"><b>${uiEsc(l.col)}${l.id?' · '+uiEsc(l.id):''}</b>
+                  <small>passou por cima de ${uiEsc(l.deQuem||'outra pessoa')} em: ${uiEsc(l.campos.join(', '))}</small>
+                  <code>${uiEsc(JSON.stringify(l.valorAntigo).slice(0,160))}</code></div>
+                <span class="h">${new Date(l.em).toLocaleString('pt-BR')}</span></div>`).join('')}</div>`
+            : '<div class="kb-empty">Nada foi sobrescrito até agora — ninguém pisou no trabalho de ninguém.</div>');
+        }
+
+        /* liga sozinho se este navegador já tinha uma sessão */
+        function syncIniciar(){
+          syncCfgCarregar();
+          if(!SYNC.url||!SYNC.token) { syncBarra(); return; }
+          SYNC.ligado=true; SYNC.estado='conectando'; SYNC.rev=0; SYNC.sombra={};
+          syncBarra();
+          syncPrimeiraTroca().then(()=>{ syncLigarLaco(); syncTelaRender(); })
+            .catch(()=>{ SYNC.estado='offline'; syncBarra(); });
+        }
+
+        /* modal simples reaproveitável (título + conteúdo) */
+        function uiModal(titulo, html){
+          let m=document.getElementById('m-uiv'); if(!m) return alert(titulo);
+          document.getElementById('uiv-titulo').innerText=titulo;
+          document.getElementById('uiv-corpo').innerHTML=html;
+          m.classList.add('on');
+        }
+        function uiModalFechar(){ let m=document.getElementById('m-uiv'); if(m) m.classList.remove('on'); }
+
         /* ===== INIT ===== */
         if(typeof renderTempLead==='function') renderTempLead();
         if(typeof normalizaUsuarios==='function') normalizaUsuarios();
@@ -19563,6 +20121,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         if(typeof demInit==='function') demInit();
         if(typeof prjInit==='function') prjInit();
         if(typeof redeMigrar==='function') redeMigrar();
+        // equipe: só liga se este navegador já tiver sessão salva
+        if(typeof syncIniciar==='function') syncIniciar();
         // link público: index.html#cadastro abre direto o formulário
         if(location.hash==='#cadastro' && typeof cadAbrir==='function') setTimeout(()=>cadAbrir('prestador'),80);
         if(location.hash.indexOf('#doc=')===0 && typeof docPortalAbrir==='function') setTimeout(()=>docPortalAbrir(location.hash.slice(5)),80);
