@@ -2247,6 +2247,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 .fr-doc.pronto{background:color-mix(in srgb,var(--kb-c3) 5%,transparent);}
 .fr-doc.fazendo{background:color-mix(in srgb,var(--kb-c4) 5%,transparent);}
 .fr-doc .n{font-size:12.5px;color:var(--ink);font-weight:600;line-height:1.35;}
+.fr-doc .n small{display:block;font-size:10.5px;font-weight:400;color:var(--ink-faint);line-height:1.5;margin-top:3px;}
 .fr-doc .st{display:flex;gap:4px;}
 .fr-doc .st button{padding:4px 9px;border-radius:7px;border:1px solid var(--line);background:var(--panel);
   font-size:10.5px;font-weight:600;color:var(--ink-faint);cursor:pointer;font-family:inherit;white-space:nowrap;transition:.14s;}
@@ -2290,6 +2291,26 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
   .fr-kpi{grid-template-columns:1.4fr 100px 100px;}
   .fr-kpi .br{grid-column:1/-1;}
 }
+/* ═══ CONTEÚDO TÉCNICO — normas, por quês e orientações ═══ */
+.nrm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+.nrm{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:12px;padding:13px 15px;background:var(--panel);}
+.nrm-h{display:flex;flex-direction:column;gap:2px;margin-bottom:7px;}
+.nrm-h .cod{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--gold-deep);}
+.nrm-h .tt{font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;}
+.nrm p{margin:0;font-size:11.5px;line-height:1.6;color:var(--ink-soft);}
+.nrm p b{color:var(--ink);}
+.vl-cat-p{padding:9px 15px;font-size:11.5px;line-height:1.55;color:var(--ink-soft);font-style:italic;
+  border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--gold) 4%,transparent);}
+.vl-doc .tx .pq{display:block;font-size:11px;color:var(--ink-faint);line-height:1.5;margin-top:3px;}
+.fr-cof-h .lei{margin-left:auto;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  padding:3px 8px;border-radius:20px;background:color-mix(in srgb,var(--kb-c8) 13%,transparent);color:var(--kb-c8);white-space:nowrap;}
+.fr-cof .como{font-size:11.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 10px 32px;padding:9px 12px;border-radius:9px;
+  background:color-mix(in srgb,var(--gold) 6%,transparent);border-left:2px solid color-mix(in srgb,var(--gold) 40%,transparent);}
+.fr-cof .como b{color:var(--ink);}
+.fr-cof .d b{color:var(--ink);}
+/* faixa de referência nas premissas */
+.vl-ref{display:block;font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:3px;}
+.vl-ref b{color:var(--ink-soft);}
 </style>
 </head>
 <body class="theme-gamer">
@@ -5070,6 +5091,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
         /* ===== ORÇAMENTO (motor central) ===== */
         function calcOrcamento(){
+          if(typeof uiFocoGuardar==='function') uiFocoGuardar();
           let chks=document.querySelectorAll('.cserv:checked');
           let base=0,horas=0,maxM=0;
           chks.forEach(c=>{ base+=parseFloat(c.value)||0; horas+=parseInt(c.dataset.horas)||0; let m=parseInt(c.dataset.meses)||0; if(m>maxM)maxM=m; });
@@ -5128,6 +5150,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           if(typeof calcCapacidade==='function') calcCapacidade();
           if(typeof gerarNotaInterna==='function') gerarNotaInterna(final,custoTotal,lucro,margem,horas,meses,desloc);
           if(typeof renderSugestoesFunil==='function') renderSugestoesFunil();
+          if(typeof uiFocoRestaurar==='function') uiFocoRestaurar();
         }
         function gerarNotaInterna(final,custoTotal,lucro,margem,horas,meses,desloc){
           let el=document.getElementById('f-nota-interna'); if(!el)return;
@@ -5206,6 +5229,10 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           let b=document.getElementById('f-pgcomp-btn'); if(b){ b.innerText='✓ '+nome; b.style.color='var(--ok)'; }
         }
         function calcPagamento(){
+          // este bloco reescreve as linhas do plano, e o campo do formato do
+          // plano vive dentro dele: sem guardar o foco, o cursor sai a cada tecla
+          let _gp=(typeof uiFocoGuardar==='function'&&!_foco); if(_gp) uiFocoGuardar();
+          if(_gp) setTimeout(()=>{ if(typeof uiFocoRestaurar==='function') uiFocoRestaurar(); },0);
           let tot=parseFloat(document.getElementById('r-final').dataset.raw)||0, m=document.getElementById('f-modelo').value;
           let prev=document.getElementById('f-plano-preview'), linhas=document.getElementById('f-plano-linhas');
           if(m==='parcelado'){
@@ -10508,6 +10535,43 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         /* Seletor em pílulas: guarda o valor num input escondido e devolve
            um grupo de botões com bolinha colorida. Emoji dentro de <select>
            nativo fica com cara de amador — isto resolve. */
+        /* ═══ FOCO SOBREVIVE AO REDESENHO ═══
+           Telas que recalculam a cada tecla trocam o innerHTML inteiro — o
+           campo em que a pessoa está digitando é destruído e recriado, e o
+           cursor some. Guardamos quem estava em foco e onde estava o cursor,
+           e devolvemos os dois depois de redesenhar. */
+        let _foco=null;
+        /* a identidade do campo é o próprio manipulador: o mesmo campo gera
+           sempre a mesma string em todo redesenho, sem precisar marcar nada */
+        function uiChaveCampo(el){
+          return el.getAttribute('data-vk')||el.getAttribute('oninput')||el.getAttribute('onchange')||'';
+        }
+        function uiFocoGuardar(){
+          let el=document.activeElement;
+          if(!el||!/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)){ _foco=null; return; }
+          let ini=null, fim=null;
+          try{ ini=el.selectionStart; fim=el.selectionEnd; }catch(e){}
+          _foco={ id:el.id||'', chave:uiChaveCampo(el), ini:ini, fim:fim };
+          if(!_foco.id && !_foco.chave) _foco=null;
+        }
+        function uiFocoRestaurar(){
+          if(!_foco) return;
+          let f=_foco; _foco=null;
+          let el=f.id?document.getElementById(f.id):null;
+          if(!el && f.chave){
+            let alvos=document.querySelectorAll('input,textarea,select');
+            for(let i=0;i<alvos.length;i++){ if(uiChaveCampo(alvos[i])===f.chave){ el=alvos[i]; break; } }
+          }
+          if(!el) return;
+          el.focus({preventScroll:true});
+          if(f.ini!=null){ try{ el.setSelectionRange(f.ini,f.fim); }catch(e){} }
+        }
+        /* redesenho adiado: salva a cada tecla, desenha quando a pessoa para */
+        let _redesenhoT=null;
+        function uiRedesenhar(fn, ms){
+          clearTimeout(_redesenhoT);
+          _redesenhoT=setTimeout(fn, ms===undefined?450:ms);
+        }
         function uiOpts(id, opcoes, valor, aoMudar){
           return `<input type="hidden" id="${id}" value="${uiEsc(valor)}">
             <div class="ui-opts" data-alvo="${id}">${opcoes.map(o=>`
@@ -13575,53 +13639,53 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
         /* ── CHECKLIST DE DOCUMENTOS DO VALUATION ── */
         const VL_DOCS=[
-          {c:'A · Societário e constituição', itens:[
-            ['Contrato social / estatuto e última alteração consolidada',1],
-            ['Quadro societário atual com percentual de participação',1],
-            ['Cartão CNPJ atualizado',1],
-            ['Acordo de sócios / acionistas',0],
-            ['Organograma societário (holdings, coligadas, controladas)',0],
-            ['Certidões negativas (federal, estadual, municipal, trabalhista, FGTS)',0]]},
-          {c:'B · Contábil e demonstrações', itens:[
-            ['Balanço Patrimonial dos 3 últimos exercícios',1],
-            ['Demonstração de Resultado (DRE) dos 3 últimos exercícios',1],
-            ['Balancete de verificação do exercício corrente',1],
-            ['Demonstração de Fluxo de Caixa (DFC), se disponível',0],
-            ['Notas explicativas / relatório do contador',0],
-            ['Regime contábil e política de reconhecimento de receita',0]]},
-          {c:'C · Fiscal e tributário', itens:[
-            ['Regime tributário atual (Simples, Presumido ou Real)',1],
-            ['SPED Fiscal e Contábil (2 últimos anos)',0],
-            ['Apurações de impostos (DCTF, EFD-Contribuições)',0],
-            ['Parcelamentos tributários em aberto',0],
-            ['Contingências e passivos fiscais',0]]},
-          {c:'D · Operacional e comercial', itens:[
-            ['Faturamento mensal dos últimos 24 a 36 meses',1],
-            ['Composição da receita por produto/serviço e por cliente (concentração)',1],
-            ['Carteira de clientes e contratos recorrentes (MRR/ARR)',0],
-            ['Principais fornecedores e condições comerciais',0],
-            ['Pipeline comercial / carteira de pedidos (backlog)',0],
-            ['Indicadores operacionais (churn, ticket médio, LTV/CAC)',0]]},
-          {c:'E · Ativos e patrimônio', itens:[
-            ['Relação de bens do imobilizado (máquinas, imóveis, veículos)',1],
-            ['Posição de estoques na data-base',0],
-            ['Laudos de avaliação de imóveis/equipamentos',0],
-            ['Intangíveis: marcas, patentes e softwares próprios',0]]},
-          {c:'F · Dívidas e financeiro', itens:[
-            ['Relação de empréstimos e financiamentos (saldo, taxa, prazo, garantias)',1],
-            ['Posição de caixa e aplicações financeiras na data-base',1],
-            ['Contas a receber com aging (inadimplência)',0],
-            ['Contas a pagar a fornecedores com aging',0]]},
-          {c:'G · Trabalhista e pessoas', itens:[
-            ['Folha de pagamento resumida e número de colaboradores',1],
-            ['Pró-labore dos sócios — para normalização (add-backs)',1],
-            ['Processos e contingências trabalhistas',0],
-            ['Estrutura de benefícios e encargos',0]]},
-          {c:'H · Contratos, contingências e ajustes', itens:[
-            ['Despesas não recorrentes e gastos pessoais dos sócios — add-backs',1],
-            ['Contratos relevantes (locação, licenças, distribuição, exclusividade)',0],
-            ['Processos judiciais (cível, trabalhista, tributário) e provisões',0],
-            ['Apólices de seguro vigentes',0]]}
+          {c:'A · Societário e constituição', porque:'Define quem é dono do quê e se existe passivo escondido antes de falar em preço.', itens:[
+            ['Contrato social / estatuto e última alteração consolidada',1,'De onde saem o capital social, as regras de entrada e saída de sócio e as cláusulas que podem travar uma venda.'],
+            ['Quadro societário atual com percentual de participação',1,'O valor apurado é do 100%; sem os percentuais não dá para dizer quanto vale a parte de cada um.'],
+            ['Cartão CNPJ atualizado',1,'Confirma razão social, CNAE, porte e situação cadastral — tudo isso vai na qualificação do laudo.'],
+            ['Acordo de sócios / acionistas',0,'Traz preferência, tag along, drag along e cláusulas de saída que afetam diretamente a liquidez da participação.'],
+            ['Organograma societário (holdings, coligadas, controladas)',0,'Evita avaliar duas vezes o mesmo ativo, ou deixar de fora uma empresa que sustenta a operação.'],
+            ['Certidões negativas (federal, estadual, municipal, trabalhista, FGTS)',0,'Passivo em aberto vira desconto direto no preço na mesa de negociação.']]},
+          {c:'B · Contábil e demonstrações', porque:'É a base numérica do modelo. Sem três exercícios não há tendência, e sem tendência não há projeção defensável.', itens:[
+            ['Balanço Patrimonial dos 3 últimos exercícios',1,'De onde saem a dívida líquida, o capital de giro e o patrimônio líquido — a dívida líquida é subtraída do valor da operação.'],
+            ['Demonstração de Resultado (DRE) dos 3 últimos exercícios',1,'Receita, custo, despesa e o EBITDA de partida. Três anos permitem calcular o crescimento médio.'],
+            ['Balancete de verificação do exercício corrente',1,'Atualiza a foto até a data-base e mostra se o ano está confirmando ou contrariando a tendência.'],
+            ['Demonstração de Fluxo de Caixa (DFC), se disponível',0,'Mostra se o lucro contábil vira dinheiro. Empresa lucrativa que não gera caixa vale menos.'],
+            ['Notas explicativas / relatório do contador',0,'Explicam critérios, contingências e eventos não recorrentes que precisam ser normalizados.'],
+            ['Regime contábil e política de reconhecimento de receita',0,'Competência ou caixa muda o resultado; contrato de longo prazo reconhecido errado distorce a margem.']]},
+          {c:'C · Fiscal e tributário', porque:'O regime tributário define a alíquota efetiva usada na projeção, e o passivo fiscal entra como desconto.', itens:[
+            ['Regime tributário atual (Simples, Presumido ou Real)',1,'Define a carga aplicada ao lucro projetado. Trocar de regime na escala muda o valor.'],
+            ['SPED Fiscal e Contábil (2 últimos anos)',0,'Permite conferir se o que está na DRE bate com o que foi declarado ao fisco.'],
+            ['Apurações de impostos (DCTF, EFD-Contribuições)',0,'Confirmam a alíquota efetiva real, que costuma diferir da nominal.'],
+            ['Parcelamentos tributários em aberto',0,'É dívida: entra na dívida líquida e reduz o valor do sócio.'],
+            ['Contingências e passivos fiscais',0,'Risco provável vira provisão; possível vira ressalva no laudo e desconto na negociação.']]},
+          {c:'D · Operacional e comercial', porque:'Diz se a receita é previsível ou frágil — é o que sustenta (ou derruba) a premissa de crescimento.', itens:[
+            ['Faturamento mensal dos últimos 24 a 36 meses',1,'Revela sazonalidade e tendência real, que a receita anual esconde.'],
+            ['Composição da receita por produto/serviço e por cliente (concentração)',1,'Cliente que responde por mais de 20% da receita é risco: aumenta o prêmio no custo de capital e derruba o valor.'],
+            ['Carteira de clientes e contratos recorrentes (MRR/ARR)',0,'Receita contratada e recorrente vale múltiplo maior que receita de projeto.'],
+            ['Principais fornecedores e condições comerciais',0,'Dependência de fornecedor único é risco operacional que entra na avaliação.'],
+            ['Pipeline comercial / carteira de pedidos (backlog)',0,'Sustenta a projeção do primeiro ano com fato, não com expectativa.'],
+            ['Indicadores operacionais (churn, ticket médio, LTV/CAC)',0,'Em negócio recorrente, o churn é o que mais mexe no valor da perpetuidade.']]},
+          {c:'E · Ativos e patrimônio', porque:'Sustenta a abordagem patrimonial e revela ativo relevante que o balanço registra por valor histórico.', itens:[
+            ['Relação de bens do imobilizado (máquinas, imóveis, veículos)',1,'Imóvel registrado a valor histórico costuma valer múltiplas vezes mais — e isso é valor que ninguém vê.'],
+            ['Posição de estoques na data-base',0,'Estoque obsoleto é prejuízo ainda não reconhecido; entra como ajuste.'],
+            ['Laudos de avaliação de imóveis/equipamentos',0,'Substituem o valor contábil pelo de mercado na abordagem patrimonial.'],
+            ['Intangíveis: marcas, patentes e softwares próprios',0,'Marca registrada e software próprio quase nunca estão no balanço e podem ser a maior parte do valor.']]},
+          {c:'F · Dívidas e financeiro', porque:'A dívida líquida é subtraída do valor da operação para chegar ao valor do sócio. Errar aqui erra o número final.', itens:[
+            ['Relação de empréstimos e financiamentos (saldo, taxa, prazo, garantias)',1,'Compõe a dívida líquida e dá o custo real da dívida usado no cálculo do custo de capital.'],
+            ['Posição de caixa e aplicações financeiras na data-base',1,'Caixa excedente soma ao valor do sócio; caixa operacional mínimo não.'],
+            ['Contas a receber com aging (inadimplência)',0,'Recebível vencido há mais de 180 dias não é ativo, é prejuízo a reconhecer.'],
+            ['Contas a pagar a fornecedores com aging',0,'Fornecedor em atraso indica aperto de caixa que a DRE não mostra.']]},
+          {c:'G · Trabalhista e pessoas', porque:'Pró-labore fora do mercado é o ajuste que mais muda o EBITDA — e passivo trabalhista é desconto certo.', itens:[
+            ['Folha de pagamento resumida e número de colaboradores',1,'Permite comparar o custo de pessoal com o padrão do setor e detectar excesso ou defasagem.'],
+            ['Pró-labore dos sócios — para normalização (add-backs)',1,'Se o sócio tira acima ou abaixo do valor de um gestor contratado, a diferença é normalizada no EBITDA.'],
+            ['Processos e contingências trabalhistas',0,'Provisão vira dívida; o comprador desconta o valor esperado das ações em curso.'],
+            ['Estrutura de benefícios e encargos',0,'Benefício informal que o novo dono terá de manter é custo futuro não registrado.']]},
+          {c:'H · Contratos, contingências e ajustes', porque:'É aqui que se separa o resultado da empresa do resultado do dono — o coração da normalização.', itens:[
+            ['Despesas não recorrentes e gastos pessoais dos sócios — add-backs',1,'Carro, viagem, plano de saúde da família, processo que acabou: tudo que não continua após a venda volta ao lucro.'],
+            ['Contratos relevantes (locação, licenças, distribuição, exclusividade)',0,'Cláusula de mudança de controle pode extinguir o contrato justamente na venda — risco que precisa constar.'],
+            ['Processos judiciais (cível, trabalhista, tributário) e provisões',0,'Contingência provável entra como dívida; possível entra como ressalva no laudo.'],
+            ['Apólices de seguro vigentes',0,'Ausência de seguro em ativo relevante é risco que o comprador precifica.']]}
         ];
         function vlDocChave(ci,ii){ return 'd'+ci+'_'+ii; }
         function vlDocTotais(p){
@@ -14035,7 +14099,8 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           let cam=campo.split('.'), o=p;
           for(let i=0;i<cam.length-1;i++) o=o[cam[i]];
           o[cam[cam.length-1]]=valor;
-          prjAtualizaStatus(p); prjSalvar(); vlRender();
+          prjAtualizaStatus(p); prjSalvar();
+          uiRedesenhar(vlRender);
         }
         function vlSetNum(campo, valor){ vlSet(campo, Number(String(valor).replace(',','.'))||0); }
         function vlSetPct(campo, valor){ vlSet(campo, (Number(String(valor).replace(',','.'))||0)/100); }
@@ -14045,11 +14110,14 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
         function vlRender(){
           let box=document.getElementById('vl-body'); if(!box) return;
+          uiFocoGuardar();
           let p=prjAtual();
+          if(p && p.servico!=='valuation'){ p=DB.projetos.find(x=>x.servico==='valuation')||null; if(p) _prjAtual=p.id; }
           if(!p){
             document.getElementById('vl-hero').innerHTML='';
             document.getElementById('vl-rail').innerHTML='';
-            box.innerHTML='<div class="kb-empty" style="padding:40px;">Nenhum projeto aberto. Crie um em <b>Serviços</b>.<div style="margin-top:14px;"><button class="btn btn-gold btn-sm" onclick="prjNovo()">+ Novo projeto</button></div></div>';
+            document.getElementById('vl-stats').innerHTML='';
+            box.innerHTML='<div class="kb-empty" style="padding:40px;">Nenhuma avaliação aberta. Crie uma em <b>Serviços</b>.<div style="margin-top:14px;"><button class="btn btn-gold btn-sm" onclick="prjNovo(\'valuation\')">+ Nova avaliação</button></div></div>';
             return;
           }
           prjAtualizaStatus(p);
@@ -14118,6 +14186,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             risco:     vlPaneRisco,
             laudo:     vlPaneLaudo
           }[_vlAba](p, r);
+          uiFocoRestaurar();
         }
         function ctStatusPrj(p){
           const M={nenhum:{l:'Não enviado',d:'gere e envie para assinar',cor:'var(--ink-faint)'},
@@ -14317,11 +14386,13 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
               let ok=cat.itens.filter((it,ii)=>((p.docs||{})[vlDocChave(ci,ii)]||{}).ok).length;
               return `<div class="vl-cat">
                 <div class="vl-cat-h"><span>${uiEsc(cat.c)}</span><span class="q">${ok}/${cat.itens.length}</span></div>
+                ${cat.porque?`<div class="vl-cat-p">${uiEsc(cat.porque)}</div>`:''}
                 ${cat.itens.map((it,ii)=>{
                   let e=(p.docs||{})[vlDocChave(ci,ii)]||{};
                   return `<div class="vl-doc ${e.ok?'ok':''}">
                     <button class="vl-cb ${e.ok?'on':''}" onclick="vlDocMarcar(${ci},${ii})" title="${e.ok?'Recebido':'Marcar como recebido'}">${e.ok?'✓':''}</button>
                     <div class="tx"><span class="n">${uiEsc(it[0])}</span>
+                      ${it[2]?`<span class="pq">${uiEsc(it[2])}</span>`:''}
                       <input class="obs" placeholder="Observação — enviado em, não se aplica, pendente com o contador…" value="${uiEsc(e.obs||'')}" oninput="vlDocObs(${ci},${ii},this.value)"></div>
                     <span class="tag ${it[1]?'req':'opt'}">${it[1]?'obrigatório':'se aplicável'}</span>
                   </div>`;
@@ -14330,14 +14401,15 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             }).join('')}
             ${t.faltamReq===0?`<div class="dec-opiniao" style="margin-top:16px;"><b>Todos os obrigatórios chegaram.</b> Pode montar o modelo.
               <div style="margin-top:10px;"><button class="btn btn-gold btn-sm" onclick="vlAba('empresa')">Ir para os números →</button></div></div>`:''}
-          </div>`;
+          </div>
+          ${normasHTML(VL_NORMAS,'Em que este trabalho se apoia','Não é opinião: a avaliação segue norma técnica brasileira e padrão internacional. É isso que separa um laudo de uma planilha — e o que sustenta o documento numa negociação, numa auditoria ou em juízo.')}`;
         }
 
         /* ── 4 · NÚMEROS DA EMPRESA ── */
         function vlHistSet(i, campo, v){
           let p=prjAtual(); if(!p) return;
           p.dados.hist[i][campo]=Number(String(v).replace(/\./g,'').replace(',','.'))||0;
-          prjAtualizaStatus(p); prjSalvar(); vlRender();
+          prjAtualizaStatus(p); prjSalvar(); uiRedesenhar(vlRender);
         }
         function vlAddbackNovo(){
           let p=prjAtual(); if(!p) return;
@@ -14346,7 +14418,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         function vlAddbackSet(i, campo, v){
           let p=prjAtual(); if(!p) return;
           p.dados.addbacks[i][campo]= campo==='value'?(Number(String(v).replace(',','.'))||0):v;
-          prjSalvar(); vlRender();
+          prjSalvar(); uiRedesenhar(vlRender);
         }
         function vlAddbackRemover(i){
           let p=prjAtual(); if(!p) return;
@@ -14398,7 +14470,25 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           <div class="card">
             <div class="card-h" style="display:flex;align-items:center;gap:10px;">Normalização (add-backs)
               <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="vlAddbackNovo()">+ Ajuste</button></div>
-            <p class="hint" style="margin:-8px 0 14px;">Despesa que <b>não vai continuar depois da venda</b> volta para o lucro: pró-labore acima do mercado, carro do sócio, viagem pessoal, processo que acabou. É o ajuste que mais muda o valor — e o que quase ninguém faz direito.</p>
+            <p class="hint" style="margin:-8px 0 14px;">Despesa que <b>não vai continuar depois da venda</b> volta para o lucro. É o ajuste que mais muda o valor — e o que o comprador mais contesta. Só entra o que você consegue <b>provar com documento</b>.</p>
+            <div class="nrm-grid" style="margin-bottom:14px;">
+              <div class="nrm" style="border-left-color:var(--kb-c3);">
+                <div class="nrm-h"><span class="cod" style="color:var(--kb-c3);">Costuma ser aceito</span><span class="tt">Com documento na mão</span></div>
+                <p><b>Pró-labore acima do mercado</b> — a diferença entre o que o sócio retira e o custo de um gestor contratado para a mesma função.<br>
+                <b>Despesa pessoal lançada na empresa</b> — veículo particular, plano de saúde da família, viagem não relacionada.<br>
+                <b>Evento não recorrente</b> — indenização paga uma vez, custo de mudança de sede, consultoria pontual.<br>
+                <b>Aluguel de imóvel do sócio fora do mercado</b> — ajusta-se para o valor de locação de mercado.<br>
+                <b>Parente na folha sem função</b> — sai da folha.</p>
+              </div>
+              <div class="nrm" style="border-left-color:var(--kb-c8);">
+                <div class="nrm-h"><span class="cod" style="color:var(--kb-c8);">O comprador vai contestar</span><span class="tt">E com razão</span></div>
+                <p><b>Despesa que vai continuar</b> — se o novo dono também vai pagar, não é ajuste.<br>
+                <b>Marketing cortado no ano da venda</b> — cortar investimento infla o EBITDA e o comprador percebe na hora.<br>
+                <b>Manutenção adiada</b> — o gasto foi empurrado, não eliminado.<br>
+                <b>"Vendas informais" não contabilizadas</b> — não entram: o que não está na contabilidade não é auditável e ainda expõe a empresa.<br>
+                <b>Ajuste sem comprovante</b> — sem nota, contrato ou lançamento identificável, cai na due diligence.</p>
+              </div>
+            </div>
             ${p.dados.addbacks.length?p.dados.addbacks.map((a,i)=>`
               <div class="vl-addback">
                 <input class="inp" value="${uiEsc(a.label)}" oninput="vlAddbackSet(${i},'label',this.value)">
@@ -14416,7 +14506,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         function vlCrescSet(i, v){
           let p=prjAtual(); if(!p) return;
           p.dados.assumptions.growth[i]=(Number(String(v).replace(',','.'))||0)/100;
-          prjSalvar(); vlRender();
+          prjSalvar(); uiRedesenhar(vlRender);
         }
         function vlPanePremissas(p, r){
           let a=p.dados.assumptions;
@@ -14430,7 +14520,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
                 <span class="f-dica">Onde a margem chega no último ano projetado.</span></div>
               <div class="c3 f"><span class="lbl">Alíquota de IR/CSLL (%)</span><input type="number" step="0.1" class="inp" value="${(a.taxRate*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.taxRate',this.value)"></div>
               <div class="c3 f"><span class="lbl">Crescimento na perpetuidade (%)</span><input type="number" step="0.1" class="inp" value="${(a.terminalGrowth*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.terminalGrowth',this.value)">
-                <span class="f-dica">Não pode passar do crescimento da economia no longo prazo.</span></div>
+                <span class="vl-ref"><b>Regra que não se quebra:</b> nenhuma empresa cresce para sempre acima da economia em que está. Use como teto a inflação de longo prazo somada ao crescimento real esperado do PIB. Acima disso, o modelo produz valor infinito e o laudo perde defesa técnica.</span></div>
               <div class="c12 f"><span class="lbl">Crescimento da receita, ano a ano (%)</span>
                 <div class="vl-cresc">${a.growth.slice(0,a.projYears).map((g,i)=>`
                   <label>Ano ${i+1}<input type="number" step="0.1" class="inp inp-num" value="${(g*100).toFixed(1)}" oninput="vlCrescSet(${i},this.value)"></label>`).join('')}</div>
@@ -14449,13 +14539,20 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             <div class="card-h">Custo de capital (WACC) — a taxa que desconta o futuro</div>
             <p class="hint" style="margin:-8px 0 16px;">Quanto maior o risco percebido, maior a taxa e <b>menor o valor</b>. É por isso que arrumar a casa antes de vender vale dinheiro.</p>
             <div class="grid">
-              <div class="c3 f"><span class="lbl">Taxa livre de risco (%)</span><input type="number" step="0.1" class="inp" value="${(a.riskFree*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.riskFree',this.value)"><span class="f-dica">Título público de longo prazo.</span></div>
-              <div class="c3 f"><span class="lbl">Beta</span><input type="number" step="0.05" class="inp" value="${a.beta}" oninput="vlSetNum('dados.assumptions.beta',this.value)"><span class="f-dica">Sensibilidade ao mercado. 1,0 = igual à média.</span></div>
-              <div class="c3 f"><span class="lbl">Prêmio de risco de mercado (%)</span><input type="number" step="0.1" class="inp" value="${(a.erp*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.erp',this.value)"></div>
-              <div class="c3 f"><span class="lbl">Risco-país (%)</span><input type="number" step="0.1" class="inp" value="${(a.countryRisk*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.countryRisk',this.value)"></div>
-              <div class="c3 f"><span class="lbl">Prêmio de tamanho (%)</span><input type="number" step="0.1" class="inp" value="${(a.sizePremium*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.sizePremium',this.value)"><span class="f-dica">Empresa menor é mais arriscada.</span></div>
-              <div class="c3 f"><span class="lbl">Custo da dívida antes do IR (%)</span><input type="number" step="0.1" class="inp" value="${(a.costDebtPre*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.costDebtPre',this.value)"></div>
-              <div class="c3 f"><span class="lbl">Peso-alvo da dívida (%)</span><input type="number" step="1" class="inp" value="${(a.targetDebtWeight*100).toFixed(0)}" oninput="vlSetPct('dados.assumptions.targetDebtWeight',this.value)"></div>
+              <div class="c3 f"><span class="lbl">Taxa livre de risco (%)</span><input type="number" step="0.1" class="inp" value="${(a.riskFree*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.riskFree',this.value)">
+                <span class="vl-ref"><b>Onde buscar:</b> NTN-B de prazo longo ou a taxa de juros de referência projetada para o horizonte da avaliação. Registre a data da coleta — é o que torna a premissa auditável.</span></div>
+              <div class="c3 f"><span class="lbl">Beta</span><input type="number" step="0.05" class="inp" value="${a.beta}" oninput="vlSetNum('dados.assumptions.beta',this.value)">
+                <span class="vl-ref"><b>Como escolher:</b> beta setorial de empresas comparáveis, realavancado pela estrutura de capital desta empresa. 1,0 é a média do mercado; setores mais cíclicos ficam acima.</span></div>
+              <div class="c3 f"><span class="lbl">Prêmio de risco de mercado (%)</span><input type="number" step="0.1" class="inp" value="${(a.erp*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.erp',this.value)">
+                <span class="vl-ref"><b>O que é:</b> quanto o investidor exige acima do título público por assumir risco de renda variável. Use a série de prêmio de risco de mercado maduro publicada anualmente e cite a fonte no laudo.</span></div>
+              <div class="c3 f"><span class="lbl">Risco-país (%)</span><input type="number" step="0.1" class="inp" value="${(a.countryRisk*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.countryRisk',this.value)">
+                <span class="vl-ref"><b>Onde buscar:</b> spread do EMBI+ Brasil ou o diferencial de rendimento do título soberano brasileiro contra o do Tesouro americano de mesmo prazo.</span></div>
+              <div class="c3 f"><span class="lbl">Prêmio de tamanho (%)</span><input type="number" step="0.1" class="inp" value="${(a.sizePremium*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.sizePremium',this.value)">
+                <span class="vl-ref"><b>Por que existe:</b> empresa pequena tem menos acesso a crédito, mais dependência de pessoas e menos liquidez na venda. É a premissa mais questionada pelo comprador — justifique com fatos da empresa, não com regra de bolso.</span></div>
+              <div class="c3 f"><span class="lbl">Custo da dívida antes do IR (%)</span><input type="number" step="0.1" class="inp" value="${(a.costDebtPre*100).toFixed(1)}" oninput="vlSetPct('dados.assumptions.costDebtPre',this.value)">
+                <span class="vl-ref"><b>Onde buscar:</b> a taxa média que <b>esta</b> empresa paga hoje nos contratos vigentes, retirada do relatório de empréstimos. Não use taxa de mercado quando a real está disponível.</span></div>
+              <div class="c3 f"><span class="lbl">Peso-alvo da dívida (%)</span><input type="number" step="1" class="inp" value="${(a.targetDebtWeight*100).toFixed(0)}" oninput="vlSetPct('dados.assumptions.targetDebtWeight',this.value)">
+                <span class="vl-ref"><b>Atenção:</b> use a estrutura-alvo de longo prazo do setor, não a estrutura atual. Empresa temporariamente muito endividada não deve ter WACC artificialmente baixo por causa disso.</span></div>
             </div>
             ${r?`<div class="ui-stats n4" style="margin-top:16px;">${uiStats([
               {cor:'var(--kb-c5)', ic:'Ke', label:'Custo do capital próprio', valor:vlPct(r.ke), pe:'o que o sócio exige de retorno'},
@@ -14661,25 +14758,27 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
 
 <p><b>1. Identificação e finalidade.</b> Este laudo apresenta a avaliação econômico-financeira de <b>${E(p.empresa)}</b>${p.setor?', empresa do setor de '+E(p.setor):''}${p.cidade?', sediada em '+E(p.cidade):''}, tendo como data-base ${E(kbDataBR(p.dataBase))}. A avaliação foi solicitada com a finalidade de <b>${E(p.finalidade||'informar as partes sobre o valor econômico do negócio')}</b> e foi conduzida por ${E((BRAND&&(BRAND.razao||BRAND.nome))||'Grupo A! Fatorial')}.</p>
 
-<p><b>2. Metodologia.</b> Foram aplicadas quatro abordagens consagradas, conciliadas por ponderação: <b>Fluxo de Caixa Descontado (${vlPct(r.w.dcf,0)})</b>, <b>múltiplos de mercado (${vlPct(r.w.multiplos,0)})</b>, <b>abordagem patrimonial (${vlPct(r.w.patrimonial,0)})</b> e <b>capitalização de lucros (${vlPct(r.w.capitalizacao,0)})</b>. A ponderação evita a dependência de um único método e produz uma faixa defensável em negociação.</p>
+<p><b>2. Normas de referência.</b> O trabalho observa a <b>ABNT NBR 14653-4</b> (Avaliação de bens — Empreendimentos), o <b>CPC 46 / IFRS 13</b> (mensuração do valor justo), o <b>CPC 04 (R1)</b> (ativo intangível) e os <b>International Valuation Standards (IVSC)</b> quanto a escopo, premissas, data-base e declaração de limitações.</p>
 
-<p><b>3. Desempenho histórico.</b> Nos ${r.hist.length} exercícios analisados (${r.first.year} a ${r.last.year}), a receita líquida evoluiu de ${brl(r.first.revenue)} para ${brl(r.last.revenue)}, um crescimento médio de <b>${vlPct(r.cagrRec)} ao ano</b>. O EBITDA do último exercício foi de ${brl(r.last.ebitda)}; após os ajustes de normalização de ${brl(r.addbacks)} — referentes a despesas que não se repetem para um novo controlador —, o <b>EBITDA normalizado é de ${brl(r.ebitdaNorm)}</b>, correspondente a uma margem de ${vlPct(r.margemNorm)}.</p>
+<p><b>3. Metodologia.</b> Foram aplicadas quatro abordagens consagradas, conciliadas por ponderação: <b>Fluxo de Caixa Descontado (${vlPct(r.w.dcf,0)})</b>, <b>múltiplos de mercado (${vlPct(r.w.multiplos,0)})</b>, <b>abordagem patrimonial (${vlPct(r.w.patrimonial,0)})</b> e <b>capitalização de lucros (${vlPct(r.w.capitalizacao,0)})</b>. A ponderação evita a dependência de um único método e produz uma faixa defensável em negociação.</p>
 
-<p><b>4. Premissas de projeção.</b> Projetaram-se ${r.dcf.proj.length} exercícios, com crescimento de receita de ${p.dados.assumptions.growth.slice(0,r.dcf.proj.length).map(g=>vlPct(g,0)).join(', ')} e margem EBITDA convergindo para ${vlPct(p.dados.assumptions.ebitdaMargin)}. Consideraram-se investimentos de ${vlPct(p.dados.assumptions.capexPct)} da receita, necessidade de capital de giro de ${vlPct(p.dados.assumptions.nwcPct)} sobre a variação de receita e alíquota efetiva de ${vlPct(p.dados.assumptions.taxRate)}.</p>
+<p><b>4. Desempenho histórico.</b> Nos ${r.hist.length} exercícios analisados (${r.first.year} a ${r.last.year}), a receita líquida evoluiu de ${brl(r.first.revenue)} para ${brl(r.last.revenue)}, um crescimento médio de <b>${vlPct(r.cagrRec)} ao ano</b>. O EBITDA do último exercício foi de ${brl(r.last.ebitda)}; após os ajustes de normalização de ${brl(r.addbacks)} — referentes a despesas que não se repetem para um novo controlador —, o <b>EBITDA normalizado é de ${brl(r.ebitdaNorm)}</b>, correspondente a uma margem de ${vlPct(r.margemNorm)}.</p>
 
-<p><b>5. Custo de capital.</b> O custo do capital próprio foi estimado em <b>${vlPct(r.ke)}</b> (taxa livre de risco de ${vlPct(p.dados.assumptions.riskFree)}, beta de ${p.dados.assumptions.beta}, prêmio de mercado de ${vlPct(p.dados.assumptions.erp)}, risco-país de ${vlPct(p.dados.assumptions.countryRisk)} e prêmio de tamanho de ${vlPct(p.dados.assumptions.sizePremium)}). Com custo de dívida líquido de ${vlPct(r.kd)} e estrutura-alvo de ${vlPct(r.wd,0)} de capital de terceiros, o <b>WACC resultante é de ${vlPct(r.wacc)}</b>.</p>
+<p><b>5. Premissas de projeção.</b> Projetaram-se ${r.dcf.proj.length} exercícios, com crescimento de receita de ${p.dados.assumptions.growth.slice(0,r.dcf.proj.length).map(g=>vlPct(g,0)).join(', ')} e margem EBITDA convergindo para ${vlPct(p.dados.assumptions.ebitdaMargin)}. Consideraram-se investimentos de ${vlPct(p.dados.assumptions.capexPct)} da receita, necessidade de capital de giro de ${vlPct(p.dados.assumptions.nwcPct)} sobre a variação de receita e alíquota efetiva de ${vlPct(p.dados.assumptions.taxRate)}.</p>
 
-<p><b>6. Resultado por método.</b></p>
+<p><b>6. Custo de capital.</b> O custo do capital próprio foi estimado em <b>${vlPct(r.ke)}</b> (taxa livre de risco de ${vlPct(p.dados.assumptions.riskFree)}, beta de ${p.dados.assumptions.beta}, prêmio de mercado de ${vlPct(p.dados.assumptions.erp)}, risco-país de ${vlPct(p.dados.assumptions.countryRisk)} e prêmio de tamanho de ${vlPct(p.dados.assumptions.sizePremium)}). Com custo de dívida líquido de ${vlPct(r.kd)} e estrutura-alvo de ${vlPct(r.wd,0)} de capital de terceiros, o <b>WACC resultante é de ${vlPct(r.wacc)}</b>.</p>
+
+<p><b>7. Resultado por método.</b></p>
 <table class="vl-laudo-tb"><thead><tr><th>Abordagem</th><th>Piso</th><th>Central</th><th>Teto</th></tr></thead><tbody>
 ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl(f.low)}</td><td><b>${brl(f.mid)}</b></td><td>${brl(f.high)}</td></tr>`).join('')}
 <tr class="tot"><td>Valor concluído (ponderado)</td><td>${brl(r.faixaBaixa)}</td><td><b>${brl(r.concluido)}</b></td><td>${brl(r.faixaAlta)}</td></tr>
 </tbody></table>
 
-<p><b>7. Conciliação.</b> O Fluxo de Caixa Descontado indica ${brl(r.dcf.equity)} para o patrimônio líquido, resultado de um valor de operação de ${brl(r.dcf.ev)} deduzida a dívida líquida de ${brl(r.dividaLiq)}. O valor terminal responde por ${vlPct(r.dcf.tvShare,0)} do valor da operação. Os múltiplos de mercado apontam, em média, ${brl(r.mediaMultiplos)}. A abordagem patrimonial indica ${brl(r.pl)} e a capitalização de lucros, ${brl(r.eqCap)}. Ponderadas, as abordagens convergem para <b>${brl(r.concluido)}</b>.</p>
+<p><b>8. Conciliação.</b> O Fluxo de Caixa Descontado indica ${brl(r.dcf.equity)} para o patrimônio líquido, resultado de um valor de operação de ${brl(r.dcf.ev)} deduzida a dívida líquida de ${brl(r.dividaLiq)}. O valor terminal responde por ${vlPct(r.dcf.tvShare,0)} do valor da operação. Os múltiplos de mercado apontam, em média, ${brl(r.mediaMultiplos)}. A abordagem patrimonial indica ${brl(r.pl)} e a capitalização de lucros, ${brl(r.eqCap)}. Ponderadas, as abordagens convergem para <b>${brl(r.concluido)}</b>.</p>
 
-<p><b>8. Situação econômico-financeira.</b> A empresa apresenta liquidez corrente de ${vlNum(r.ind.liquidezCorrente,2)}, endividamento líquido de ${r.ind.dividaLiqEbitda.toFixed(2)}x o EBITDA normalizado, cobertura de juros de ${r.ind.coberturaJuros.toFixed(1)}x, retorno sobre o capital investido (ROIC) de ${vlPct(r.ind.roic)} e retorno sobre o patrimônio (ROE) de ${vlPct(r.ind.roe)}. O índice de prontidão para uma operação societária é de <b>${Math.round(r.score)}/100</b>${r.score>=70?', patamar compatível com uma negociação bem conduzida.':(r.score>=45?', indicando pontos a corrigir antes de uma negociação.':', indicando necessidade de reestruturação antes de levar a empresa ao mercado.')}</p>
+<p><b>9. Situação econômico-financeira.</b> A empresa apresenta liquidez corrente de ${vlNum(r.ind.liquidezCorrente,2)}, endividamento líquido de ${r.ind.dividaLiqEbitda.toFixed(2)}x o EBITDA normalizado, cobertura de juros de ${r.ind.coberturaJuros.toFixed(1)}x, retorno sobre o capital investido (ROIC) de ${vlPct(r.ind.roic)} e retorno sobre o patrimônio (ROE) de ${vlPct(r.ind.roe)}. O índice de prontidão para uma operação societária é de <b>${Math.round(r.score)}/100</b>${r.score>=70?', patamar compatível com uma negociação bem conduzida.':(r.score>=45?', indicando pontos a corrigir antes de uma negociação.':', indicando necessidade de reestruturação antes de levar a empresa ao mercado.')}</p>
 
-<p><b>9. Ressalvas e limitações.</b> ${E(p.disclaimer||VL_DISCLAIMER)}</p>
+<p><b>10. Ressalvas e limitações.</b> ${E(p.disclaimer||VL_DISCLAIMER)}</p>
 
 <div class="ct-ass">
   <div><span>${E(ADMIN_USER.nome)}</span><small>${E((BRAND&&(BRAND.razao||BRAND.nome))||'Grupo A! Fatorial')} · responsável técnico</small></div>
@@ -14847,13 +14946,44 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
 
         /* ── DOCUMENTOS DA FORMATAÇÃO ── */
         const FR_DOCS=[
-          {c:'Modelagem', itens:['Diagnóstico de franqueabilidade','Modelagem do negócio','Estudo de viabilidade econômico-financeira','Plano de negócios do franqueado']},
-          {c:'Jurídico', itens:['Circular de Oferta de Franquia (COF)','Contrato de franquia','Pré-contrato de franquia','Registro de marca no INPI','Termo de confidencialidade (NDA)']},
-          {c:'Manuais', itens:['Manual de operações','Manual de implantação','Manual da marca e identidade visual','Manual de produtos e serviços','Manual de gestão de pessoas','Manual financeiro','Manual de marketing','Manual de atendimento']},
-          {c:'Processos', itens:['Procedimentos Operacionais Padrão (POPs)','Fluxogramas de processo','Checklists de auditoria']},
-          {c:'Comercial e seleção', itens:['Perfil do franqueado ideal','Processo de seleção de franqueados','Apresentação comercial','Funil de captação']},
-          {c:'Treinamento', itens:['Programa de treinamento inicial','Trilha de capacitação contínua','Modelo de certificação']},
-          {c:'Expansão e suporte', itens:['Plano de expansão','Modelo de consultoria de campo','Manual de supervisão de rede','Estudo de ponto e território']}
+          {c:'Modelagem', porque:'Define o que exatamente vai ser replicado. Sem isso, cada unidade vira uma empresa diferente.', itens:[
+            ['Diagnóstico de franqueabilidade','Laudo que diz se o negócio pode ser franqueado e o que precisa mudar antes. É o documento que evita franquear um modelo que não se sustenta.'],
+            ['Modelagem do negócio','Define o formato da unidade: metragem, layout, equipe mínima, mix de produtos, horário e ticket-alvo. É o molde que todo franqueado vai receber.'],
+            ['Estudo de viabilidade econômico-financeira','Investimento, faturamento esperado, custo, ponto de equilíbrio, payback e retorno. É a conta que o candidato vai levar ao contador dele.'],
+            ['Plano de negócios do franqueado','Versão do estudo na linguagem do candidato, com cenários conservador, realista e otimista.']]},
+          {c:'Jurídico', porque:'É o que a Lei 13.966/2019 exige. Sem estes documentos a oferta é irregular e o contrato, anulável.', itens:[
+            ['Circular de Oferta de Franquia (COF)','Obrigatória por lei, com os 16 itens do art. 2º. Entregue ao candidato com no mínimo 10 dias de antecedência da assinatura ou de qualquer pagamento.'],
+            ['Contrato de franquia','Escrito e assinado na presença de duas testemunhas. Define prazo, renovação, território, obrigações, penalidades e o que acontece no fim.'],
+            ['Pré-contrato de franquia','Usado quando há reserva de território ou sinal antes do contrato definitivo. Precisa dizer o que acontece com o valor pago se o negócio não se concretizar.'],
+            ['Registro de marca no INPI','Franquear marca não registrada é possível, mas o risco precisa estar declarado na COF (inciso XIII). Sem marca protegida, a rede inteira fica exposta.'],
+            ['Termo de confidencialidade (NDA)','Assinado antes de o candidato ver números e método. Protege o know-how de quem só quer copiar o modelo.']]},
+          {c:'Manuais', porque:'É o know-how saindo da cabeça do dono e virando documento transferível. É o que o franqueado está comprando.', itens:[
+            ['Manual de operações','O documento central: como a unidade funciona do abrir ao fechar. Sem ele não existe padrão, existe improviso.'],
+            ['Manual de implantação','Do contrato assinado à inauguração: prazos, obra, licenças, contratações, compras e checklist de abertura.'],
+            ['Manual da marca e identidade visual','Uso do logotipo, cores, tipografia, fachada, uniformes e comunicação. Protege a marca de descaracterização.'],
+            ['Manual de produtos e serviços','Ficha técnica, preparo, apresentação, precificação e política de promoções.'],
+            ['Manual de gestão de pessoas','Perfis das funções, roteiro de contratação, escala, treinamento e avaliação da equipe da unidade.'],
+            ['Manual financeiro','Controles mínimos, fechamento de caixa, formação de preço, indicadores a acompanhar e prestação de contas à franqueadora.'],
+            ['Manual de marketing','O que é ação da rede e o que é ação local, uso do fundo de propaganda, calendário e materiais aprovados.'],
+            ['Manual de atendimento','Roteiro de atendimento, resolução de reclamação e padrão de experiência do cliente.']]},
+          {c:'Processos', porque:'Manual explica; POP e checklist fazem acontecer todo dia, mesmo com o dono ausente.', itens:[
+            ['Procedimentos Operacionais Padrão (POPs)','Um por rotina crítica: o que é feito, por quem, com que frequência, em que ordem e como se mede.'],
+            ['Fluxogramas de processo','Desenho dos processos que atravessam áreas — pedido, compra, reposição, reclamação.'],
+            ['Checklists de auditoria','A régua com que a franqueadora mede a unidade em campo. Sem nota objetiva não há como cobrar padrão.']]},
+          {c:'Comercial e seleção', porque:'Franqueado errado é o maior custo de uma rede. Selecionar é mais barato que substituir.', itens:[
+            ['Perfil do franqueado ideal','Experiência, capacidade de investimento, reserva de capital de giro, disponibilidade e perfil comportamental. Entra também no inciso V da COF.'],
+            ['Processo de seleção de franqueados','Etapas, entrevistas, análise financeira e critérios de aprovação e reprovação — por escrito, para não decidir no impulso.'],
+            ['Apresentação comercial','O material que o candidato recebe: proposta de valor, números, suporte e próximos passos.'],
+            ['Funil de captação','De onde vêm os candidatos, quantos avançam em cada etapa e qual o custo de aquisição de um franqueado.']]},
+          {c:'Treinamento', porque:'O contrato transfere o direito de usar a marca; o treinamento transfere a capacidade de operar.', itens:[
+            ['Programa de treinamento inicial','Carga horária, conteúdo, local, quem paga e o que o franqueado precisa saber fazer ao final. Entra no inciso XII da COF.'],
+            ['Trilha de capacitação contínua','Reciclagem, novidades de produto e desenvolvimento de gestão ao longo do contrato.'],
+            ['Modelo de certificação','Como se comprova que o franqueado e a equipe estão aptos — e o que acontece se não estiverem.']]},
+          {c:'Expansão e suporte', porque:'Rede que cresce sem suporte estruturado vira um problema multiplicado.', itens:[
+            ['Plano de expansão','Quantas unidades por ano, em quais praças, com que estrutura de suporte. Crescer mais rápido que a capacidade de atender é o erro clássico.'],
+            ['Modelo de consultoria de campo','Frequência das visitas, roteiro, relatório e plano de ação. É o que transforma royalty em valor percebido.'],
+            ['Manual de supervisão de rede','Como a franqueadora acompanha, mede e cobra a rede — e como escala o suporte conforme cresce.'],
+            ['Estudo de ponto e território','Critérios de aprovação de ponto e de delimitação de território. Sustenta o inciso X da COF e evita canibalização entre unidades.']]}
         ];
         function frDocChave(ci,ii){ return 'f'+ci+'_'+ii; }
         function frDocTotais(p){
@@ -14868,22 +14998,38 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
 
         /* ── COF: os 16 itens obrigatórios da Lei 13.966/2019, art. 2º ── */
         const FR_COF=[
-          ['I · Histórico e forma societária','Histórico resumido do negócio; razão social da franqueadora e das empresas ligadas; endereços.'],
-          ['II · Balanços e demonstrações','Balanços e demonstrações financeiras dos dois últimos exercícios.'],
-          ['III · Pendências judiciais','Ações judiciais da franqueadora, dos controladores e dos titulares das marcas que questionem o sistema ou possam inviabilizar a franquia.'],
-          ['IV · Descrição da franquia','Descrição detalhada da franquia e do negócio a ser desenvolvido pelo franqueado.'],
-          ['V · Perfil do franqueado ideal','Experiência prévia, escolaridade e demais características exigidas do candidato.'],
-          ['VI · Envolvimento do franqueado','Requisitos quanto ao envolvimento direto do franqueado na operação.'],
-          ['VII · Investimento inicial','Total estimado do investimento; taxa de franquia; instalações, equipamentos e estoque inicial; condições de pagamento.'],
-          ['VIII · Taxas periódicas','Royalties, fundo de propaganda, aluguel, seguros e demais valores — base de cálculo e o que remuneram.'],
-          ['IX · Relação de franqueados','Lista completa de franqueados, subfranqueados e dos que se desligaram nos últimos 24 meses, com nome, endereço e telefone.'],
-          ['X · Território e exclusividade','Garantia (ou não) de exclusividade de território; vendas fora do território e por e-commerce; concorrência entre unidades.'],
-          ['XI · Fornecedores obrigatórios','Obrigatoriedade de aquisição de bens e insumos de fornecedores indicados, com a respectiva relação.'],
-          ['XII · Suporte oferecido','Supervisão, orientação, treinamento (carga e custo), manuais, apoio na escolha do ponto, layout e padrões.'],
-          ['XIII · Situação da marca no INPI','Situação da marca junto ao INPI e demais direitos de propriedade intelectual autorizados.'],
-          ['XIV · Situação pós-contrato','Regras sobre know-how e segredo de indústria e vedação de atividade concorrente após o término.'],
-          ['XV · Contrato-padrão','Modelo do contrato-padrão e do pré-contrato, com texto completo, anexos e prazos de validade.'],
-          ['XVI · Transferência e penalidades','Regras de transferência e sucessão; hipóteses de penalidades, multas e indenizações; conselho de franqueados; regras de não concorrência.']
+          ['I · Histórico e forma societária','Histórico resumido do negócio; razão social da franqueadora e das empresas ligadas; endereços.',
+           'Conte a origem da marca, quando a primeira unidade abriu e como a empresa chegou até aqui. Informe razão social, CNPJ, endereço completo e liste as empresas do mesmo grupo (holding, controladas, coligadas) com os respectivos CNPJs. O candidato precisa saber com quem, exatamente, ele vai contratar.'],
+          ['II · Balanços e demonstrações','Balanços e demonstrações financeiras dos dois últimos exercícios.',
+           'Anexe Balanço Patrimonial e DRE dos dois últimos exercícios encerrados, assinados pelo contador. É a prova de que a franqueadora tem musculatura para sustentar a rede. Omitir ou maquiar aqui é o caminho mais rápido para anular o contrato depois.'],
+          ['III · Pendências judiciais','Ações judiciais da franqueadora, dos controladores e dos titulares das marcas que questionem o sistema ou possam inviabilizar a franquia.',
+           'Relacione processos em que a franqueadora, seus sócios controladores ou os titulares da marca sejam parte e que possam afetar o sistema — especialmente disputas sobre a marca, ações de franqueados e execuções relevantes. Se não houver, declare expressamente que não há.'],
+          ['IV · Descrição da franquia','Descrição detalhada da franquia e do negócio a ser desenvolvido pelo franqueado.',
+           'Descreva o formato da unidade: o que se vende, para quem, em que tipo de ponto, com quantos metros quadrados, quantas pessoas na equipe e qual o horário de funcionamento. Quanto mais concreto, menos frustração depois — e menos processo.'],
+          ['V · Perfil do franqueado ideal','Experiência prévia, escolaridade e demais características exigidas do candidato.',
+           'Diga o que se espera: experiência em gestão, no setor, capacidade de investimento e reserva de capital de giro, disponibilidade e perfil comportamental. Definir isso protege a rede — franqueado errado é o principal motivo de saída precoce.'],
+          ['VI · Envolvimento do franqueado','Requisitos quanto ao envolvimento direto do franqueado na operação.',
+           'Deixe claro se a operação exige o franqueado presente no dia a dia ou admite gestor contratado. Se admitir investidor, diga quais são as exigências para o gestor. Ambiguidade aqui gera conflito no primeiro ano.'],
+          ['VII · Investimento inicial','Total estimado do investimento; taxa de franquia; instalações, equipamentos e estoque inicial; condições de pagamento.',
+           'Abra o investimento linha a linha: taxa de franquia, obra e instalações, equipamentos, mobiliário, estoque inicial, treinamento, capital de giro e taxa de projeto. Informe o total estimado mínimo e máximo. O candidato vai comparar com outras marcas — número redondo demais gera desconfiança.'],
+          ['VIII · Taxas periódicas','Royalties, fundo de propaganda, aluguel, seguros e demais valores — base de cálculo e o que remuneram.',
+           'Informe cada taxa, o percentual ou valor fixo, sobre o que incide (faturamento bruto ou líquido), a periodicidade e — o mais importante — <b>o que cada uma remunera</b>. Royalty paga suporte, sistema e uso da marca; fundo de marketing é verba coletiva e deve ter prestação de contas prevista.'],
+          ['IX · Relação de franqueados','Lista completa de franqueados, subfranqueados e dos que se desligaram nos últimos 24 meses, com nome, endereço e telefone.',
+           'Liste todos, inclusive os que saíram nos últimos 24 meses, com contato. É o item mais desconfortável e o mais poderoso: rede que entrega essa lista sem medo demonstra saúde. Omitir é descumprimento direto da lei.'],
+          ['X · Território e exclusividade','Garantia (ou não) de exclusividade de território; vendas fora do território e por e-commerce; concorrência entre unidades.',
+           'Defina o critério do território (raio, bairro, população, faturamento) e diga se há exclusividade. Trate expressamente do e-commerce e das vendas para clientes de outro território — é a maior fonte de briga entre franqueados e franqueadora.'],
+          ['XI · Fornecedores obrigatórios','Obrigatoriedade de aquisição de bens e insumos de fornecedores indicados, com a respectiva relação.',
+           'Se houver compra obrigatória, liste os fornecedores homologados e explique o critério de homologação. Informe se a franqueadora tem participação ou recebe comissão desses fornecedores — a omissão disso costuma virar ação judicial.'],
+          ['XII · Suporte oferecido','Supervisão, orientação, treinamento (carga e custo), manuais, apoio na escolha do ponto, layout e padrões.',
+           'Detalhe o que a franqueadora faz por ele: horas de treinamento inicial e quem paga, frequência das visitas de campo, canais de suporte, manuais entregues, apoio na busca do ponto e no projeto da loja. É aqui que se justifica o royalty.'],
+          ['XIII · Situação da marca no INPI','Situação da marca junto ao INPI e demais direitos de propriedade intelectual autorizados.',
+           'Informe número do processo, classe, data do depósito e situação atual (depositada, deferida, registrada, em recurso). Franquear marca ainda não registrada é permitido, mas o candidato precisa saber do risco — e isso precisa estar escrito.'],
+          ['XIV · Situação pós-contrato','Regras sobre know-how e segredo de indústria e vedação de atividade concorrente após o término.',
+           'Diga o que o ex-franqueado pode e não pode fazer depois: prazo e alcance da não concorrência, devolução de manuais, retirada da identidade visual, destino do estoque e da carteira de clientes. Cláusula genérica aqui não se sustenta em juízo — seja específica em prazo e território.'],
+          ['XV · Contrato-padrão','Modelo do contrato-padrão e do pré-contrato, com texto completo, anexos e prazos de validade.',
+           'Anexe as minutas completas — contrato de franquia, pré-contrato e todos os anexos. O candidato tem direito de ler o contrato inteiro antes de assinar qualquer coisa e antes de pagar qualquer valor.'],
+          ['XVI · Transferência e penalidades','Regras de transferência e sucessão; hipóteses de penalidades, multas e indenizações; conselho de franqueados; regras de não concorrência.',
+           'Explique como se transfere a unidade (aprovação da franqueadora, taxa de transferência, direito de preferência), o que acontece em caso de falecimento ou incapacidade, quais são as multas e em que hipóteses, e se existe conselho de franqueados e como ele funciona.']
         ];
 
         /* ── INDICADORES DA REDE ── */
@@ -15009,7 +15155,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           let cam=campo.split('.'), o=p;
           for(let i=0;i<cam.length-1;i++) o=o[cam[i]];
           o[cam[cam.length-1]]=valor;
-          prjAtualizaStatus(p); prjSalvar(); frRender();
+          prjAtualizaStatus(p); prjSalvar(); uiRedesenhar(frRender);
         }
         function frSetNum(campo, valor){ frSet(campo, Number(String(valor).replace(',','.'))||0); }
         function frNota(pk, i, v){
@@ -15029,10 +15175,13 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
 
         function frRender(){
           let box=document.getElementById('fr-body'); if(!box) return;
+          uiFocoGuardar();
           let p=prjAtual();
+          if(p && p.servico!=='franquia'){ p=DB.projetos.find(x=>x.servico==='franquia')||null; if(p) _prjAtual=p.id; }
           if(!p||p.servico!=='franquia'){
             document.getElementById('fr-hero').innerHTML='';
             document.getElementById('fr-rail').innerHTML='';
+            document.getElementById('fr-stats').innerHTML='';
             box.innerHTML='<div class="kb-empty" style="padding:40px;">Nenhum projeto de franquia aberto. Crie um em <b>Serviços</b>.<div style="margin-top:14px;"><button class="btn btn-gold btn-sm" onclick="prjNovo(\'franquia\')">+ Novo projeto</button></div></div>';
             return;
           }
@@ -15087,6 +15236,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
             cadastro:frPaneCadastro, contrato:frPaneContrato, diag:frPaneDiag, viab:frPaneViab,
             docs:frPaneDocs, pops:frPanePops, cof:frPaneCof, rede:frPaneRede, laudo:frPaneLaudo
           }[_frAba](p, {dg,vd,vb,td,cofOk});
+          uiFocoRestaurar();
         }
 
         /* ── 1 · CLIENTE ── */
@@ -15324,10 +15474,11 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
               let ok=cat.itens.filter((it,ii)=>((p.dados.docs||{})[frDocChave(ci,ii)]||{}).st==='pronto').length;
               return `<div class="vl-cat">
                 <div class="vl-cat-h"><span>${uiEsc(cat.c)}</span><span class="q">${ok}/${cat.itens.length}</span></div>
+                ${cat.porque?`<div class="vl-cat-p">${uiEsc(cat.porque)}</div>`:''}
                 ${cat.itens.map((it,ii)=>{
                   let e=(p.dados.docs||{})[frDocChave(ci,ii)]||{st:'nao',resp:'',prazo:''};
                   return `<div class="fr-doc ${e.st}">
-                    <span class="n">${uiEsc(it)}</span>
+                    <span class="n">${uiEsc(it[0])}${it[1]?`<small>${uiEsc(it[1])}</small>`:''}</span>
                     <span class="st">${['nao','fazendo','pronto'].map(x=>`
                       <button class="${e.st===x?'on':''} ${x}" onclick="frDocSet(${ci},${ii},'st','${x}')">${FR_DOC_ST[x].l}</button>`).join('')}</span>
                     <input class="resp" placeholder="Quem faz" value="${uiEsc(e.resp||'')}" onchange="frDocSet(${ci},${ii},'resp',this.value)">
@@ -15449,22 +15600,25 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
                 <div class="fr-cof-h">
                   <button class="vl-cb ${e.ok?'on':''}" onclick="frCofSet(${i},'ok',${!e.ok})">${e.ok?'✓':''}</button>
                   <span class="n">${uiEsc(c[0])}</span>
+                  <span class="lei">exigido por lei</span>
                 </div>
-                <div class="d">${uiEsc(c[1])}</div>
-                <textarea class="inp" rows="2" placeholder="Escreva aqui o conteúdo deste item para a COF…" onchange="frCofSet(${i},'txt',this.value)">${uiEsc(e.txt||'')}</textarea>
+                <div class="d"><b>O que a lei exige:</b> ${uiEsc(c[1])}</div>
+                ${c[2]?`<div class="como"><b>Como preencher:</b> ${c[2]}</div>`:''}
+                <textarea class="inp" rows="3" placeholder="Escreva aqui o conteúdo deste item para a COF…" onchange="frCofSet(${i},'txt',this.value)">${uiEsc(e.txt||'')}</textarea>
               </div>`;
             }).join('')}
-          </div>`;
+          </div>
+          ${normasHTML(FR_NORMAS,'A lei que rege este trabalho','Franquia é contrato regulado. Cada exigência abaixo tem consequência prática — e é o que permite cobrar por um trabalho que um texto genérico não substitui.')}`;
         }
 
         /* ── 8 · REDE: indicadores e expansão ── */
         function frKpiSet(i, campo, v){
           let p=prjAtual(); if(!p) return;
-          p.dados.kpis[i][campo]=Number(String(v).replace(',','.'))||0; prjSalvar(); frRender();
+          p.dados.kpis[i][campo]=Number(String(v).replace(',','.'))||0; prjSalvar(); uiRedesenhar(frRender);
         }
         function frMetaSet(i, v){
           let p=prjAtual(); if(!p) return;
-          p.dados.exp.metaAno[i]=Number(v)||0; prjSalvar(); frRender();
+          p.dados.exp.metaAno[i]=Number(v)||0; prjSalvar(); uiRedesenhar(frRender);
         }
         function frPaneRede(p, r){
           let k=p.dados.kpis||[], e=p.dados.exp||{}, b=r.vb;
@@ -15583,7 +15737,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
 
 <p><b>7. Estado da documentação.</b> Dos ${td.t} documentos que compõem o acervo de uma rede formatada, <b>${td.ok} estão prontos</b> e ${td.andando} em produção. A Circular de Oferta de Franquia está com <b>${cofOk} dos 16 itens</b> obrigatórios da Lei nº 13.966/2019 preenchidos${cofOk<16?' — a oferta não pode ser feita antes da COF completa':''}.</p>
 
-<p><b>8. Observação legal.</b> A Lei nº 13.966/2019 exige que a Circular de Oferta de Franquia seja entregue ao candidato com <b>no mínimo 10 dias de antecedência</b> da assinatura do contrato ou do pagamento de qualquer valor. O descumprimento torna o contrato anulável, com devolução de todas as quantias pagas, corrigidas, além de perdas e danos. As minutas produzidas devem ser revisadas pelo assessor jurídico da contratante antes de qualquer oferta.</p>
+<p><b>8. Base legal e observações.</b> O trabalho observa a <b>Lei nº 13.966/2019</b> (Lei de Franquias, que revogou a Lei nº 8.955/1994) e a <b>Lei nº 9.279/1996</b> (propriedade industrial), quanto ao registro da marca e à averbação do contrato no INPI. Três pontos merecem destaque: (i) a Circular de Oferta de Franquia deve ser entregue ao candidato com <b>no mínimo 10 dias de antecedência</b> da assinatura do contrato ou do pré-contrato, ou do pagamento de qualquer valor — o descumprimento permite ao franqueado arguir a anulabilidade e exigir a devolução de todas as quantias pagas, corrigidas, além de perdas e danos; (ii) o contrato de franquia deve ser <b>escrito e assinado na presença de duas testemunhas</b>, valendo independentemente de registro em cartório; e (iii) a relação de franquia <b>não caracteriza vínculo empregatício nem relação de consumo</b>, inclusive quanto aos empregados do franqueado. As minutas produzidas devem ser revisadas pelo assessor jurídico da contratante antes de qualquer oferta ao mercado.</p>
 
 <p><b>9. Ressalvas.</b> Este laudo baseia-se nas informações prestadas pela administração e nas avaliações realizadas em conjunto com ela, não tendo havido auditoria independente. O índice de franqueabilidade é um instrumento de diagnóstico e priorização, não uma garantia de sucesso comercial da rede — que depende de execução, capital e mercado.</p>
 
@@ -15620,6 +15774,57 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           prjSalvar(); frRender(); servRender();
           if(typeof SOUND!=='undefined') SOUND.play('cash');
           notify('equipe','⊞ Laudo entregue', p.empresa+' recebeu o laudo de franqueabilidade.','servicos');
+        }
+
+
+        /* ═══════════════════════════════════════════════════════════════════
+           BASE TÉCNICA E LEGAL DOS SERVIÇOS
+           Serviço de ticket alto precisa dizer em que norma se apoia. Isto
+           aparece na tela (para você não ter dúvida) e no laudo (para o
+           cliente não ter dúvida).
+           ═══════════════════════════════════════════════════════════════════ */
+        const VL_NORMAS=[
+          {n:'ABNT NBR 14653-4', t:'Avaliação de bens — Parte 4: Empreendimentos',
+           d:'Norma brasileira que rege a avaliação de empreendimentos de base econômica. Define os graus de fundamentação do laudo, as metodologias aceitas e o conteúdo mínimo do documento.'},
+          {n:'CPC 46 / IFRS 13', t:'Mensuração do valor justo',
+           d:'Define valor justo como o preço que seria recebido na venda de um ativo em transação não forçada entre participantes do mercado, e organiza as três abordagens: receita, mercado e custo.'},
+          {n:'CPC 04 (R1)', t:'Ativo intangível',
+           d:'Base para tratar marca, carteira de clientes, software próprio e demais intangíveis que quase nunca aparecem no balanço mas pesam no valor.'},
+          {n:'CPC 15 (R1)', t:'Combinação de negócios',
+           d:'Referência quando a avaliação antecede aquisição — alocação do preço de compra (PPA) e identificação do que se está comprando de fato.'},
+          {n:'IVS — International Valuation Standards', t:'IVSC',
+           d:'Padrão internacional que orienta escopo, premissas, data-base e as limitações que precisam constar do laudo. É o que dá leitura internacional ao documento.'},
+          {n:'CPC/2015, arts. 156 e 473', t:'Quando a avaliação vai a juízo',
+           d:'Quando o laudo instrui processo (partilha, dissolução societária, apuração de haveres), o documento precisa expor o método, a fonte de cada dado e as conclusões fundamentadas.'}
+        ];
+        const FR_NORMAS=[
+          {n:'Lei nº 13.966/2019', t:'Lei de Franquias — art. 1º',
+           d:'Define o sistema de franquia empresarial e estabelece que a relação <b>não caracteriza vínculo empregatício nem relação de consumo</b>, inclusive quanto aos empregados do franqueado. Substituiu a Lei 8.955/1994.'},
+          {n:'Lei nº 13.966/2019', t:'COF — art. 2º, incisos I a XVI',
+           d:'A Circular de Oferta de Franquia é obrigatória, deve ser escrita em <b>linguagem clara e acessível</b> e conter, no mínimo, os 16 itens do artigo. É o documento que sustenta a oferta.'},
+          {n:'Lei nº 13.966/2019', t:'Prazo de 10 dias — art. 2º',
+           d:'A COF deve ser entregue ao candidato com <b>no mínimo 10 dias de antecedência</b> da assinatura do contrato ou do pré-contrato, ou do pagamento de qualquer taxa. Descumprir permite ao franqueado arguir a anulabilidade e exigir a <b>devolução de todas as quantias pagas, corrigidas</b>, além de perdas e danos.'},
+          {n:'Lei nº 13.966/2019', t:'Forma do contrato',
+           d:'O contrato de franquia deve ser <b>escrito e assinado na presença de duas testemunhas</b>, tendo validade independentemente de registro em cartório ou órgão público.'},
+          {n:'Lei nº 13.966/2019', t:'Sublocação ao franqueado',
+           d:'Permite que a franqueadora subloque o ponto ao franqueado por valor superior ao da locação principal, <b>desde que isso esteja previsto na COF</b> e não implique onerosidade excessiva.'},
+          {n:'Lei nº 9.279/1996', t:'Propriedade industrial — marca',
+           d:'Franquear sem a marca <b>registrada ou ao menos depositada no INPI</b> é oferecer o que não se tem. A situação da marca é item obrigatório da COF (inciso XIII).'},
+          {n:'Lei nº 9.279/1996, art. 211', t:'Averbação do contrato no INPI',
+           d:'A averbação do contrato de franquia no INPI é o que produz efeitos perante terceiros e permite remessa de royalties ao exterior e dedutibilidade fiscal dentro dos limites legais.'},
+          {n:'Lei nº 13.709/2018 (LGPD)', t:'Dados na rede',
+           d:'Franqueadora e franqueado tratam dados de clientes. O contrato precisa definir quem é controlador, quem é operador e como os dados circulam na rede.'}
+        ];
+        function normasHTML(lista, titulo, hint){
+          return `<div class="card">
+            <div class="card-h">${uiEsc(titulo)}</div>
+            <p class="hint" style="margin:-8px 0 16px;">${hint}</p>
+            <div class="nrm-grid">${lista.map(x=>`
+              <div class="nrm">
+                <div class="nrm-h"><span class="cod">${uiEsc(x.n)}</span><span class="tt">${uiEsc(x.t)}</span></div>
+                <p>${x.d}</p>
+              </div>`).join('')}</div>
+          </div>`;
         }
 
         /* ═══ CANDIDATOS — quem se cadastrou para prestar serviço ═══ */
