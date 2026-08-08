@@ -502,6 +502,10 @@ no [README do backend](backend/README.md).
 - **Serviços executáveis**: `SERV_EXEC` (o registro), `DB.projetos` (chave
   `af_projetos`), `prjEtapaAtual` (em que etapa o projeto está),
   `servRender` (catálogo), `vlRender` + `VL_ABAS` (a esteira do valuation).
+- **Motor de franqueabilidade**: `FR_PILARES` (os 10 pilares e pesos),
+  `frCalcDiag`, `frVeredito`, `frCalcViab` (viabilidade da unidade),
+  `frCalcRede` (receita da franqueadora), `frFunil`, `FR_DOCS`, `FR_COF`
+  (Lei 13.966/2019), `FR_KPIS`, `frLaudoHTML`, `frContratoTexto`.
 - **Motor de avaliação**: `vlCalcular` (o cálculo mestre), `vlDCF`,
   `vlSensibilidade`, `vlAlavancas`, `vlLaudoHTML` (o laudo),
   `vlContratoTexto` (o contrato), `VL_DOCS` (a ficha de documentos),
@@ -811,3 +815,64 @@ promessa. O primeiro é o Valuation; os próximos entram na mesma estrutura.
 79. **Ligado ao resto do sistema** — contrato sem assinar, documento faltando
     e laudo pronto para entregar viram passos na faixa "Agora" e no briefing,
     com o botão que abre o projeto na etapa certa.
+
+## O segundo serviço executável — franquias · versão 0808.01
+
+O slot que ficou aberto foi preenchido. **Formatação de franquias** entrou na
+mesma estrutura do valuation, sem inventar arquitetura nova: mesmo `DB.projetos`,
+mesma trilha numerada, mesmo fluxo de contrato, mesmo laudo imprimível.
+
+80. **Nove etapas** dentro do projeto: Cliente → Contrato → Diagnóstico →
+    Viabilidade → Documentação → POPs → COF → Rede → Laudo. O sistema deduz
+    onde o projeto está (`frEtapaAtual`) e trava o que não pode andar.
+
+81. **Índice de franqueabilidade** — 10 pilares com pesos diferentes
+    (`FR_PILARES`), cada um com 3 ou 4 afirmações avaliadas de 0 a 10 em
+    botões. Resultado de 0 a 100 com veredito em cinco faixas, de *altamente
+    franqueável* a *não franqueável agora*. Abaixo, **por onde a formatação
+    começa**: os pilares ordenados por *peso × o quanto falta*, mostrando
+    quantos pontos cada correção acrescenta ao índice — resolver o primeiro
+    vale mais que resolver os três últimos.
+
+82. **Viabilidade da unidade franqueada** — investimento, faturamento, custo
+    variável e fixo, royalties e fundo de marketing. Sai margem de
+    contribuição, lucro, ponto de equilíbrio, payback, ROI, VPL e TIR, com
+    projeção ano a ano. E os avisos que evitam vender uma rede que não fecha:
+    payback acima de 36 meses, margem abaixo de 30%, royalties mais fundo
+    acima de 12%. **Também mostra o outro lado**: quanto cada unidade gera de
+    receita para a franqueadora, por mês e por ano.
+
+83. **Acervo de 31 documentos** em 7 categorias, cada um com estado (não
+    começou / em produção / pronto), responsável e prazo — vira o cronograma
+    da formatação.
+
+84. **Construtor de POPs** — código, área, responsável, frequência, objetivo,
+    passo a passo e indicador. Cada POP imprime como documento próprio, pronto
+    para o manual.
+
+85. **COF nos 16 itens da Lei 13.966/2019** — cada item com a descrição legal
+    e um campo de conteúdo; a Circular sai em documento imprimível, com a
+    advertência do prazo de **10 dias de antecedência** (descumprir torna o
+    contrato anulável, art. 2º §2º).
+
+86. **Rede e expansão** — 16 indicadores em 4 grupos com meta e referência de
+    mercado, funil de captação de franqueados (com o degrau que vaza marcado,
+    igual ao funil comercial) e plano de expansão que calcula **quanto a
+    franqueadora fatura** por ano: royalties e fundo das unidades ativas mais
+    a taxa de franquia das novas.
+
+87. **Contrato de formatação** com 12 cláusulas, incluindo duas que protegem
+    de verdade: a **base legal** (a CONTRATADA não presta advocacia; a
+    validação jurídica final é do advogado do cliente) e a **condição de
+    franqueabilidade** — se o diagnóstico concluir que o negócio ainda não
+    pode franquear, o contrato pode ser reconvertido em consultoria de
+    estruturação por aditivo, aproveitando o que já foi pago.
+
+88. **Laudo de franqueabilidade em 9 seções**, com o índice em destaque,
+    pontos fortes, os três pilares a atacar primeiro, viabilidade da unidade,
+    retorno da franqueadora, estado da documentação e da COF, a observação
+    legal e as ressalvas.
+
+89. **Motor conferido contra o FRANQIA original** — índice, veredito, margem
+    de contribuição, lucro, ponto de equilíbrio, payback, ROI, lucratividade,
+    VPL, TIR e a projeção ano a ano: **todos batem**.
