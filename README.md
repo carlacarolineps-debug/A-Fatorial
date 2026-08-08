@@ -816,7 +816,7 @@ promessa. O primeiro é o Valuation; os próximos entram na mesma estrutura.
     e laudo pronto para entregar viram passos na faixa "Agora" e no briefing,
     com o botão que abre o projeto na etapa certa.
 
-## O segundo serviço executável — franquias · versão 0808.01
+## O segundo serviço executável — franquias · versão 0708.02
 
 O slot que ficou aberto foi preenchido. **Formatação de franquias** entrou na
 mesma estrutura do valuation, sem inventar arquitetura nova: mesmo `DB.projetos`,
