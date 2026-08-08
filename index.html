@@ -10572,6 +10572,58 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           clearTimeout(_redesenhoT);
           _redesenhoT=setTimeout(fn, ms===undefined?450:ms);
         }
+        /* ═══ NÚMERO EM PORTUGUÊS ═══
+           1.850.000,50 — ponto separa milhar, vírgula separa decimal. A máscara
+           roda a cada tecla e recoloca o cursor depois da mesma quantidade de
+           dígitos, para não empurrar o que a pessoa está escrevendo. */
+        function numBR(v, dec){
+          if(v===''||v==null||!isFinite(v)) return '';
+          return Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0, maximumFractionDigits:dec===undefined?2:dec});
+        }
+        /* lê tanto "1.850.000,50" (campo com máscara) quanto "10.75" (campo
+           <input type="number">, onde o navegador sempre devolve ponto decimal).
+           A regra: se tem vírgula, a vírgula é o decimal e os pontos são milhar;
+           se não tem, o ponto só é milhar quando separa grupos de exatamente
+           três dígitos e o primeiro grupo não é zero. */
+        function numDe(txt){
+          if(typeof txt==='number') return isFinite(txt)?txt:0;
+          let t=String(txt==null?'':txt).trim().replace(/[^0-9.,\-]/g,'');
+          if(!t) return 0;
+          let neg=/^-/.test(t); t=t.replace(/-/g,'');
+          let n;
+          if(t.indexOf(',')>=0){
+            n=parseFloat(t.replace(/\./g,'').replace(',','.'));
+          }else{
+            let g=t.split('.');
+            let milhar = g.length>1 && g[0].length>0 && g[0].length<=3 && g[0]!=='0'
+                         && g.slice(1).every(x=>x.length===3);
+            n=parseFloat(milhar ? g.join('') : t);
+          }
+          if(!isFinite(n)) return 0;
+          return neg?-n:n;
+        }
+        function maskNum(el){
+          let bruto=el.value, ini=el.selectionStart||0;
+          /* conta dígitos E a vírgula: só assim o cursor volta DEPOIS da vírgula
+             que a pessoa acabou de digitar, em vez de pular para antes dela */
+          let antes=(bruto.slice(0,ini).match(/[0-9,]/g)||[]).length;
+          let neg=/^-/.test(bruto);
+          let partes=bruto.replace(/[^0-9,]/g,'').split(',');
+          let inteiro=partes[0]||'';
+          let dec=partes.length>1?partes.slice(1).join('').slice(0,2):null;
+          let fmt=inteiro?Number(inteiro).toLocaleString('pt-BR'):'';
+          if(dec!==null) fmt=(fmt||'0')+','+dec;
+          if(neg&&fmt) fmt='-'+fmt;
+          el.value=fmt;
+          let pos=0, cont=0;
+          while(pos<fmt.length && cont<antes){ if(/[0-9,]/.test(fmt[pos])) cont++; pos++; }
+          try{ el.setSelectionRange(pos,pos); }catch(e){}
+        }
+        /* campo de dinheiro pronto: máscara + gravação */
+        function inpMoeda(valor, acao, extra){
+          return '<input class="inp inp-num" inputmode="decimal" value="'+numBR(valor,2)+'" '
+            +(extra||'')+' oninput="maskNum(this);'+acao+'">';
+        }
         function uiOpts(id, opcoes, valor, aoMudar){
           return `<input type="hidden" id="${id}" value="${uiEsc(valor)}">
             <div class="ui-opts" data-alvo="${id}">${opcoes.map(o=>`
@@ -14100,14 +14152,104 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
           for(let i=0;i<cam.length-1;i++) o=o[cam[i]];
           o[cam[cam.length-1]]=valor;
           prjAtualizaStatus(p); prjSalvar();
-          uiRedesenhar(vlRender);
+          vlVivo();
         }
-        function vlSetNum(campo, valor){ vlSet(campo, Number(String(valor).replace(',','.'))||0); }
-        function vlSetPct(campo, valor){ vlSet(campo, (Number(String(valor).replace(',','.'))||0)/100); }
+        function vlSetNum(campo, valor){ vlSet(campo, numDe(valor)); }
+        function vlSetPct(campo, valor){ vlSet(campo, numDe(valor)/100); }
         function vlPct(v,c){ return (v*100).toFixed(c===undefined?1:c).replace('.',',')+'%'; }
         /* número com vírgula — é assim que se lê em português */
         function vlNum(v,c){ return (isFinite(v)?v:0).toFixed(c===undefined?1:c).replace('.',','); }
 
+        function vlLinhaHist(nome, r, fn){
+          return '<span class="nm">'+nome+'</span>'+r.hist.map(h=>'<span>'+fn(h)+'</span>').join('');
+        }
+        function vlCagrHTML(r){
+          return `<div class="dec-opiniao" style="margin-top:14px;">
+            Receita cresceu <b>${vlPct(r.cagrRec)} ao ano</b> no período e o EBITDA, <b>${vlPct(r.cagrEbitda)}</b>.
+            ${r.cagrEbitda>r.cagrRec?' O lucro cresce mais rápido que a receita — sinal de ganho de eficiência, e isso vale dinheiro na conta.':' A receita cresce mais que o lucro — a empresa está vendendo mais e ganhando proporcionalmente menos.'}</div>`;
+        }
+        function vlBalHTML(r){
+          return uiStats([
+            {cor:'var(--kb-c2)', ic:'▤', label:'Ativo total',       valor:brl(r.ativoTotal), money:true, pe:'tudo o que a empresa tem'},
+            {cor:'var(--kb-c8)', ic:'▽', label:'Passivo total',     valor:brl(r.passivoTotal), money:true, pe:'tudo o que ela deve'},
+            {cor:'var(--kb-c3)', ic:'◆', label:'Patrimônio líquido',valor:brl(r.pl), money:true, pe:'ativo menos passivo'},
+            {cor:'var(--kb-c4)', ic:'⚖', label:'Dívida líquida',    valor:brl(r.dividaLiq), money:true, pe:r.dividaLiq>0?'sai do valor do sócio':'caixa líquido — soma ao valor'}
+          ]);
+        }
+        function vlAddResumoHTML(p, r){
+          return `<div class="dec-opiniao" style="margin-top:14px;">
+            EBITDA do último ano: <b>${brl(r.last.ebitda)}</b> + ajustes de <b>${brl(r.addbacks)}</b> =
+            <b style="color:var(--kb-c3);">${brl(r.ebitdaNorm)}</b> de EBITDA normalizado (margem de ${vlPct(r.margemNorm)}).
+            ${r.addbacks>0?' Só essa normalização acrescenta cerca de <b>'+brl(r.addbacks*p.dados.multiples.evEbitda)+'</b> ao valor da operação pelo múltiplo usado.':''}</div>`;
+        }
+        function vlWaccHTML(r){
+          return uiStats([
+            {cor:'var(--kb-c5)', ic:'Ke', label:'Custo do capital próprio', valor:vlPct(r.ke), pe:'o que o sócio exige de retorno'},
+            {cor:'var(--kb-c4)', ic:'Kd', label:'Custo da dívida (líquido)',valor:vlPct(r.kd), pe:'depois do benefício fiscal'},
+            {cor:'var(--kb-ouro)',ic:'%', label:'WACC',                     valor:vlPct(r.wacc), pe:vlNum(r.we*100,0)+'% capital próprio · '+vlNum(r.wd*100,0)+'% dívida'},
+            {cor:'var(--kb-c3)', ic:'∞', label:'Taxa de capitalização',     valor:vlPct(r.taxaCap), pe:'WACC menos crescimento perpétuo'}
+          ]);
+        }
+        function vlPesosHTML(p, r){
+          return `<div class="dec-opiniao" style="margin-top:14px;">Pesos normalizados: DCF <b>${vlPct(r.w.dcf,0)}</b> · múltiplos <b>${vlPct(r.w.multiplos,0)}</b> · patrimonial <b>${vlPct(r.w.patrimonial,0)}</b> · capitalização <b>${vlPct(r.w.capitalizacao,0)}</b>.
+            O DCF sozinho aponta <b>${brl(r.dcf.equity)}</b>, o que equivale a um múltiplo implícito de <b>${vlNum(r.evEbitdaImplicito,1)}x</b> o EBITDA normalizado — compare com o EV/EBITDA que você digitou (${p.dados.multiples.evEbitda}x) para ver se as duas leituras conversam.</div>`;
+        }
+        /* ═══ ATUALIZAÇÃO VIVA ═══
+           Enquanto a pessoa digita, o sistema NÃO reconstrói o painel — só
+           reescreve os pedaços que mostram número e não contêm campo nenhum.
+           O campo em que ela está nunca é destruído, então o cursor não sai. */
+        function vlVivo(){
+          let p=prjAtual(); if(!p||p.servico!=='valuation') return;
+          let r=null; try{ r=vlCalcular(p.dados); }catch(e){}
+          const põe=(id, html)=>{ let el=document.getElementById(id); if(el) el.innerHTML=html; };
+          vlResumoRender(p, r);
+          if(!r) return;
+          põe('vl-c-lb', vlLinhaHist('Lucro bruto',r,h=>brl(h.lucroBruto)));
+          põe('vl-c-eb', vlLinhaHist('EBITDA',r,h=>brl(h.ebitda)+'<small>'+vlPct(h.margemEbitda)+'</small>'));
+          põe('vl-c-ei', vlLinhaHist('EBIT',r,h=>brl(h.ebit)));
+          põe('vl-c-ll', vlLinhaHist('Lucro líquido',r,h=>brl(h.lucro)+'<small>'+vlPct(h.margemLiquida)+'</small>'));
+          põe('vl-c-cagr', vlCagrHTML(r));
+          põe('vl-c-bal', vlBalHTML(r));
+          põe('vl-c-add', vlAddResumoHTML(p,r));
+          põe('vl-c-wacc', vlWaccHTML(r));
+          põe('vl-c-pesos', vlPesosHTML(p,r));
+          uiRedesenharSeParou('vl-body', vlRender);
+        }
+        function vlResumoRender(p, r){
+          let t=vlDocTotais(p);
+          document.getElementById('vl-hero').innerHTML=uiHero({
+            eyebrow:'◈ Valuation · '+(p.empresa||'novo projeto')+(p.setor?' · '+p.setor:''),
+            titulo: r&&isFinite(r.concluido)&&p.dados.hist.some(h=>h.revenue>0)
+                      ? 'Valor concluído: <b>'+brl(r.concluido)+'</b>'
+                      : 'Preencha os números e o <b>valor aparece aqui</b>.',
+            texto: p.contratoStatus!=='assinado' ? '<b>O contrato ainda não foi assinado.</b> Nada começa antes disso — é o que protege as duas partes e mostra ao cliente que existe um método.'
+                 : t.faltamReq>0 ? '<b>Faltam '+t.faltamReq+' documento'+(t.faltamReq>1?'s':'')+' obrigatório'+(t.faltamReq>1?'s':'')+'.</b> Mande o link de envio ao cliente: ele marca item por item e você acompanha aqui.'
+                 : r ? 'Faixa de negociação entre <b>'+brl(r.faixaBaixa)+'</b> e <b>'+brl(r.faixaAlta)+'</b>. WACC de '+vlPct(r.wacc)+' e EBITDA normalizado de '+brl(r.ebitdaNorm)+'.'
+                 : 'Preencha o histórico de três anos e o balanço para o modelo rodar.',
+            acoes:[
+              '<button class="btn btn-ghost btn-sm" onclick="go(\'servicos\')">← Todos os projetos</button>',
+              p.contratoStatus==='assinado'&&t.faltamReq===0?'<button class="btn btn-gold btn-sm" onclick="vlAba(\'laudo\')">Ver o laudo</button>':'',
+              '<button class="btn btn-ghost btn-sm" onclick="vlLinkCliente()">Link para o cliente enviar</button>'
+            ],
+            donut: r&&isFinite(r.score)?{pct:Math.round(r.score), valor:Math.round(r.score), label:'prontidão'}
+                  :{pct:t.pct, valor:t.pct+'%', label:'documentos'}
+          });
+
+          uiStatsRender(document.getElementById('vl-stats'), r&&p.dados.hist.some(h=>h.revenue>0)?[
+            {cor:'var(--kb-ouro)',ic:'◈', label:'Valor concluído',  valor:brl(r.concluido), money:true, pe:'média ponderada dos métodos'},
+            {cor:'var(--kb-c3)', ic:'📈', label:'Faixa de negociação', valor:brl(r.faixaBaixa)+' – '+brl(r.faixaAlta), texto:true, pe:'piso e teto defensáveis'},
+            {cor:'var(--kb-c2)', ic:'💹', label:'EBITDA normalizado', valor:brl(r.ebitdaNorm), money:true, pe:'margem de '+vlPct(r.margemNorm)},
+            {cor:'var(--kb-c5)', ic:'%',  label:'WACC',             valor:vlPct(r.wacc), pe:'custo de capital da empresa'},
+            {cor:'var(--kb-c4)', ic:'⚖', label:'Dívida líq./EBITDA', valor:vlNum(r.ind.dividaLiqEbitda,1)+'x', pe:r.ind.dividaLiqEbitda>3?'alavancagem alta':'dentro do confortável'},
+            {cor:'var(--kb-c6)', ic:'★', label:'Prontidão para venda', valor:Math.round(r.score)+'/100', pe:r.score>=70?'pronta para negociar':(r.score>=45?'dá para melhorar antes':'precisa de arrumação')}
+          ]:[
+            {cor:'var(--kb-c4)', ic:'📄', label:'Contrato',   valor:ctStatusPrj(p).l, texto:true, pe:ctStatusPrj(p).d},
+            {cor:'var(--kb-c6)', ic:'📋', label:'Documentos', valor:t.ok+'/'+t.t, pe:t.faltamReq?t.faltamReq+' obrigatórios faltando':'todos os obrigatórios recebidos'},
+            {cor:'var(--kb-c2)', ic:'📊', label:'Números',    valor:p.dados.hist.filter(h=>h.revenue>0).length+'/3 anos', pe:'histórico preenchido'},
+            {cor:'var(--kb-c5)', ic:'💰', label:'Contratado', valor:brl(p.valor||0), money:true, pe:p.prazoDias+' dias úteis'}
+          ]);
+
+        }
         function vlRender(){
           let box=document.getElementById('vl-body'); if(!box) return;
           uiFocoGuardar();
@@ -14144,38 +14286,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
               </button>`;
             }).join('')}</div>`;
 
-          document.getElementById('vl-hero').innerHTML=uiHero({
-            eyebrow:'◈ Valuation · '+(p.empresa||'novo projeto')+(p.setor?' · '+p.setor:''),
-            titulo: r&&isFinite(r.concluido)&&p.dados.hist.some(h=>h.revenue>0)
-                      ? 'Valor concluído: <b>'+brl(r.concluido)+'</b>'
-                      : 'Preencha os números e o <b>valor aparece aqui</b>.',
-            texto: p.contratoStatus!=='assinado' ? '<b>O contrato ainda não foi assinado.</b> Nada começa antes disso — é o que protege as duas partes e mostra ao cliente que existe um método.'
-                 : t.faltamReq>0 ? '<b>Faltam '+t.faltamReq+' documento'+(t.faltamReq>1?'s':'')+' obrigatório'+(t.faltamReq>1?'s':'')+'.</b> Mande o link de envio ao cliente: ele marca item por item e você acompanha aqui.'
-                 : r ? 'Faixa de negociação entre <b>'+brl(r.faixaBaixa)+'</b> e <b>'+brl(r.faixaAlta)+'</b>. WACC de '+vlPct(r.wacc)+' e EBITDA normalizado de '+brl(r.ebitdaNorm)+'.'
-                 : 'Preencha o histórico de três anos e o balanço para o modelo rodar.',
-            acoes:[
-              '<button class="btn btn-ghost btn-sm" onclick="go(\'servicos\')">← Todos os projetos</button>',
-              p.contratoStatus==='assinado'&&t.faltamReq===0?'<button class="btn btn-gold btn-sm" onclick="vlAba(\'laudo\')">Ver o laudo</button>':'',
-              '<button class="btn btn-ghost btn-sm" onclick="vlLinkCliente()">Link para o cliente enviar</button>'
-            ],
-            donut: r&&isFinite(r.score)?{pct:Math.round(r.score), valor:Math.round(r.score), label:'prontidão'}
-                  :{pct:t.pct, valor:t.pct+'%', label:'documentos'}
-          });
-
-          uiStatsRender(document.getElementById('vl-stats'), r&&p.dados.hist.some(h=>h.revenue>0)?[
-            {cor:'var(--kb-ouro)',ic:'◈', label:'Valor concluído',  valor:brl(r.concluido), money:true, pe:'média ponderada dos métodos'},
-            {cor:'var(--kb-c3)', ic:'📈', label:'Faixa de negociação', valor:brl(r.faixaBaixa)+' – '+brl(r.faixaAlta), texto:true, pe:'piso e teto defensáveis'},
-            {cor:'var(--kb-c2)', ic:'💹', label:'EBITDA normalizado', valor:brl(r.ebitdaNorm), money:true, pe:'margem de '+vlPct(r.margemNorm)},
-            {cor:'var(--kb-c5)', ic:'%',  label:'WACC',             valor:vlPct(r.wacc), pe:'custo de capital da empresa'},
-            {cor:'var(--kb-c4)', ic:'⚖', label:'Dívida líq./EBITDA', valor:vlNum(r.ind.dividaLiqEbitda,1)+'x', pe:r.ind.dividaLiqEbitda>3?'alavancagem alta':'dentro do confortável'},
-            {cor:'var(--kb-c6)', ic:'★', label:'Prontidão para venda', valor:Math.round(r.score)+'/100', pe:r.score>=70?'pronta para negociar':(r.score>=45?'dá para melhorar antes':'precisa de arrumação')}
-          ]:[
-            {cor:'var(--kb-c4)', ic:'📄', label:'Contrato',   valor:ctStatusPrj(p).l, texto:true, pe:ctStatusPrj(p).d},
-            {cor:'var(--kb-c6)', ic:'📋', label:'Documentos', valor:t.ok+'/'+t.t, pe:t.faltamReq?t.faltamReq+' obrigatórios faltando':'todos os obrigatórios recebidos'},
-            {cor:'var(--kb-c2)', ic:'📊', label:'Números',    valor:p.dados.hist.filter(h=>h.revenue>0).length+'/3 anos', pe:'histórico preenchido'},
-            {cor:'var(--kb-c5)', ic:'💰', label:'Contratado', valor:brl(p.valor||0), money:true, pe:p.prazoDias+' dias úteis'}
-          ]);
-
+          vlResumoRender(p, r);
           box.innerHTML={
             cadastro:  vlPaneCadastro,
             contrato:  vlPaneContrato,
@@ -14217,7 +14328,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
                 <span class="f-dica">Entra na cláusula 1ª do contrato e na abertura do laudo.</span></div>
               <div class="c3 f"><span class="lbl">Data-base</span><input type="date" class="inp" value="${p.dataBase||''}" onchange="vlSet('dataBase',this.value)">
                 <span class="f-dica">A avaliação retrata a empresa nesta data.</span></div>
-              <div class="c3 f"><span class="lbl">Valor do serviço (R$)</span><input type="number" class="inp" value="${p.valor||0}" oninput="vlSetNum('valor',this.value)"></div>
+              <div class="c3 f"><span class="lbl">Valor do serviço (R$)</span>${inpMoeda(p.valor||0,"vlSetNum('valor',this.value)")}</div>
               <div class="c3 f"><span class="lbl">Prazo (dias úteis)</span><input type="number" class="inp" value="${p.prazoDias||20}" oninput="vlSetNum('prazoDias',this.value)"></div>
             </div>
           </div>
@@ -14317,7 +14428,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
               <div class="c6 f"><span class="lbl">Condição de pagamento</span>
                 <input class="inp" value="${uiEsc(p.condPag||'50% na assinatura e 50% na entrega do laudo')}" oninput="vlSet('condPag',this.value)">
                 <span class="f-dica">Entra na cláusula 7ª, com o valor que você definiu no cadastro.</span></div>
-              <div class="c3 f"><span class="lbl">Valor (R$)</span><input type="number" class="inp" value="${p.valor||0}" oninput="vlSetNum('valor',this.value)"></div>
+              <div class="c3 f"><span class="lbl">Valor (R$)</span>${inpMoeda(p.valor||0,"vlSetNum('valor',this.value)")}</div>
               <div class="c3 f"><span class="lbl">Prazo (dias úteis)</span><input type="number" class="inp" value="${p.prazoDias||20}" oninput="vlSetNum('prazoDias',this.value)"></div>
             </div>
             <div class="dm-acts" style="margin-top:16px;">
@@ -14408,8 +14519,8 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         /* ── 4 · NÚMEROS DA EMPRESA ── */
         function vlHistSet(i, campo, v){
           let p=prjAtual(); if(!p) return;
-          p.dados.hist[i][campo]=Number(String(v).replace(/\./g,'').replace(',','.'))||0;
-          prjAtualizaStatus(p); prjSalvar(); uiRedesenhar(vlRender);
+          p.dados.hist[i][campo]=numDe(v);
+          prjAtualizaStatus(p); prjSalvar(); vlVivo();
         }
         function vlAddbackNovo(){
           let p=prjAtual(); if(!p) return;
@@ -14417,8 +14528,8 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
         }
         function vlAddbackSet(i, campo, v){
           let p=prjAtual(); if(!p) return;
-          p.dados.addbacks[i][campo]= campo==='value'?(Number(String(v).replace(',','.'))||0):v;
-          prjSalvar(); uiRedesenhar(vlRender);
+          p.dados.addbacks[i][campo]= campo==='value'?numDe(v):v;
+          prjSalvar(); vlVivo();
         }
         function vlAddbackRemover(i){
           let p=prjAtual(); if(!p) return;
@@ -14439,17 +14550,14 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
               ${[['revenue','Receita líquida'],['cogs','Custo dos produtos/serviços (CPV/CSV)'],['opex','Despesas operacionais'],
                  ['da','Depreciação e amortização'],['interest','Despesas financeiras'],['otherIncome','Outras receitas']].map(([k,l])=>`
                 <div class="vl-tab-l"><span class="nm">${l}</span>
-                  ${p.dados.hist.map((h,i)=>`<span><input class="inp inp-num" value="${h[k]||0}" oninput="vlHistSet(${i},'${k}',this.value)"></span>`).join('')}
+                  ${p.dados.hist.map((h,i)=>`<span>${inpMoeda(h[k]||0,`vlHistSet(${i},'${k}',this.value)`)}</span>`).join('')}
                 </div>`).join('')}
-              ${r?`
-              <div class="vl-tab-l calc"><span class="nm">Lucro bruto</span>${r.hist.map(h=>`<span>${brl(h.lucroBruto)}</span>`).join('')}</div>
-              <div class="vl-tab-l calc destaque"><span class="nm">EBITDA</span>${r.hist.map(h=>`<span>${brl(h.ebitda)}<small>${vlPct(h.margemEbitda)}</small></span>`).join('')}</div>
-              <div class="vl-tab-l calc"><span class="nm">EBIT</span>${r.hist.map(h=>`<span>${brl(h.ebit)}</span>`).join('')}</div>
-              <div class="vl-tab-l calc"><span class="nm">Lucro líquido</span>${r.hist.map(h=>`<span>${brl(h.lucro)}<small>${vlPct(h.margemLiquida)}</small></span>`).join('')}</div>`:''}
+              <div class="vl-tab-l calc" id="vl-c-lb">${r?vlLinhaHist('Lucro bruto',r,h=>brl(h.lucroBruto)):''}</div>
+              <div class="vl-tab-l calc destaque" id="vl-c-eb">${r?vlLinhaHist('EBITDA',r,h=>brl(h.ebitda)+'<small>'+vlPct(h.margemEbitda)+'</small>'):''}</div>
+              <div class="vl-tab-l calc" id="vl-c-ei">${r?vlLinhaHist('EBIT',r,h=>brl(h.ebit)):''}</div>
+              <div class="vl-tab-l calc" id="vl-c-ll">${r?vlLinhaHist('Lucro líquido',r,h=>brl(h.lucro)+'<small>'+vlPct(h.margemLiquida)+'</small>'):''}</div>
             </div>
-            ${r?`<div class="dec-opiniao" style="margin-top:14px;">
-              Receita cresceu <b>${vlPct(r.cagrRec)} ao ano</b> no período e o EBITDA, <b>${vlPct(r.cagrEbitda)}</b>.
-              ${r.cagrEbitda>r.cagrRec?' O lucro cresce mais rápido que a receita — sinal de ganho de eficiência, e isso vale dinheiro na conta.':' A receita cresce mais que o lucro — a empresa está vendendo mais e ganhando proporcionalmente menos.'}</div>`:''}
+            <div id="vl-c-cagr">${r?vlCagrHTML(r):''}</div>
           </div>
 
           <div class="card">
@@ -14457,14 +14565,9 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             <p class="hint" style="margin:-8px 0 16px;">É daqui que sai a dívida líquida, que é subtraída do valor da operação para chegar ao valor do sócio.</p>
             <div class="grid">${bal.map(([k,l])=>`
               <div class="c4 f"><span class="lbl">${l}</span>
-                <input type="number" class="inp" value="${p.dados.balance[k]||0}" oninput="vlSetNum('dados.balance.${k}',this.value)"></div>`).join('')}
+                ${inpMoeda(p.dados.balance[k]||0, `vlSetNum('dados.balance.${k}',this.value)`)}</div>`).join('')}
             </div>
-            ${r?`<div class="ui-stats n4" style="margin-top:16px;">${uiStats([
-              {cor:'var(--kb-c2)', ic:'▤', label:'Ativo total',      valor:brl(r.ativoTotal), money:true, pe:'tudo o que a empresa tem'},
-              {cor:'var(--kb-c8)', ic:'▽', label:'Passivo total',    valor:brl(r.passivoTotal), money:true, pe:'tudo o que ela deve'},
-              {cor:'var(--kb-c3)', ic:'◆', label:'Patrimônio líquido',valor:brl(r.pl), money:true, pe:'ativo menos passivo'},
-              {cor:'var(--kb-c4)', ic:'⚖', label:'Dívida líquida',   valor:brl(r.dividaLiq), money:true, pe:r.dividaLiq>0?'sai do valor do sócio':'caixa líquido — soma ao valor'}
-            ])}</div>`:''}
+            <div class="ui-stats n4" id="vl-c-bal" style="margin-top:16px;">${r?vlBalHTML(r):''}</div>
           </div>
 
           <div class="card">
@@ -14492,21 +14595,18 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
             ${p.dados.addbacks.length?p.dados.addbacks.map((a,i)=>`
               <div class="vl-addback">
                 <input class="inp" value="${uiEsc(a.label)}" oninput="vlAddbackSet(${i},'label',this.value)">
-                <input type="number" class="inp inp-num" value="${a.value||0}" oninput="vlAddbackSet(${i},'value',this.value)">
+                ${inpMoeda(a.value||0, `vlAddbackSet(${i},'value',this.value)`)}
                 <button class="btn btn-ghost btn-sm" onclick="vlAddbackRemover(${i})">✕</button>
               </div>`).join(''):'<div class="kb-empty">Nenhum ajuste. Se o sócio tira pró-labore acima do mercado ou lança despesa pessoal na empresa, registre aqui.</div>'}
-            ${r?`<div class="dec-opiniao" style="margin-top:14px;">
-              EBITDA do último ano: <b>${brl(r.last.ebitda)}</b> + ajustes de <b>${brl(r.addbacks)}</b> =
-              <b style="color:var(--kb-c3);">${brl(r.ebitdaNorm)}</b> de EBITDA normalizado (margem de ${vlPct(r.margemNorm)}).
-              ${r.addbacks>0?' Só essa normalização acrescenta cerca de <b>'+brl(r.addbacks*p.dados.multiples.evEbitda)+'</b> ao valor da operação pelo múltiplo usado.':''}</div>`:''}
+            <div id="vl-c-add">${r?vlAddResumoHTML(p,r):''}</div>
           </div>`;
         }
 
         /* ── 5 · PREMISSAS E WACC ── */
         function vlCrescSet(i, v){
           let p=prjAtual(); if(!p) return;
-          p.dados.assumptions.growth[i]=(Number(String(v).replace(',','.'))||0)/100;
-          prjSalvar(); uiRedesenhar(vlRender);
+          p.dados.assumptions.growth[i]=numDe(v)/100;
+          prjSalvar(); vlVivo();
         }
         function vlPanePremissas(p, r){
           let a=p.dados.assumptions;
@@ -14554,12 +14654,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
               <div class="c3 f"><span class="lbl">Peso-alvo da dívida (%)</span><input type="number" step="1" class="inp" value="${(a.targetDebtWeight*100).toFixed(0)}" oninput="vlSetPct('dados.assumptions.targetDebtWeight',this.value)">
                 <span class="vl-ref"><b>Atenção:</b> use a estrutura-alvo de longo prazo do setor, não a estrutura atual. Empresa temporariamente muito endividada não deve ter WACC artificialmente baixo por causa disso.</span></div>
             </div>
-            ${r?`<div class="ui-stats n4" style="margin-top:16px;">${uiStats([
-              {cor:'var(--kb-c5)', ic:'Ke', label:'Custo do capital próprio', valor:vlPct(r.ke), pe:'o que o sócio exige de retorno'},
-              {cor:'var(--kb-c4)', ic:'Kd', label:'Custo da dívida (líquido)',valor:vlPct(r.kd), pe:'depois do benefício fiscal'},
-              {cor:'var(--kb-ouro)',ic:'%', label:'WACC',                     valor:vlPct(r.wacc), pe:(r.we*100).toFixed(0)+'% capital próprio · '+(r.wd*100).toFixed(0)+'% dívida'},
-              {cor:'var(--kb-c3)', ic:'∞', label:'Taxa de capitalização',    valor:vlPct(r.taxaCap), pe:'WACC menos crescimento perpétuo'}
-            ])}</div>`:''}
+            <div class="ui-stats n4" id="vl-c-wacc" style="margin-top:16px;">${r?vlWaccHTML(r):''}</div>
           </div>
 
           <div class="card">
@@ -14575,8 +14670,7 @@ body.theme-gamer .modal-card .modal-acts{background:#101828;}
               <div class="c3 f"><span class="lbl">Peso patrimonial</span><input type="number" step="0.01" class="inp" value="${p.dados.weights.patrimonial}" oninput="vlSetNum('dados.weights.patrimonial',this.value)"></div>
               <div class="c3 f"><span class="lbl">Peso da capitalização</span><input type="number" step="0.01" class="inp" value="${p.dados.weights.capitalizacao}" oninput="vlSetNum('dados.weights.capitalizacao',this.value)"></div>
             </div>
-            ${r?`<div class="dec-opiniao" style="margin-top:14px;">Pesos normalizados: DCF <b>${vlPct(r.w.dcf,0)}</b> · múltiplos <b>${vlPct(r.w.multiplos,0)}</b> · patrimonial <b>${vlPct(r.w.patrimonial,0)}</b> · capitalização <b>${vlPct(r.w.capitalizacao,0)}</b>.
-              O DCF sozinho aponta <b>${brl(r.dcf.equity)}</b>, o que equivale a um múltiplo implícito de <b>${r.evEbitdaImplicito.toFixed(1)}x</b> o EBITDA normalizado — compare com o EV/EBITDA que você digitou (${p.dados.multiples.evEbitda}x) para ver se as duas leituras conversam.</div>`:''}
+            <div id="vl-c-pesos">${r?vlPesosHTML(p,r):''}</div>
           </div>`;
         }
 
@@ -15155,9 +15249,9 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           let cam=campo.split('.'), o=p;
           for(let i=0;i<cam.length-1;i++) o=o[cam[i]];
           o[cam[cam.length-1]]=valor;
-          prjAtualizaStatus(p); prjSalvar(); uiRedesenhar(frRender);
+          prjAtualizaStatus(p); prjSalvar(); frVivo();
         }
-        function frSetNum(campo, valor){ frSet(campo, Number(String(valor).replace(',','.'))||0); }
+        function frSetNum(campo, valor){ frSet(campo, numDe(valor)); }
         function frNota(pk, i, v){
           let p=prjAtual(); if(!p) return;
           p.dados.diag[pk][i]=Number(v)||0; prjAtualizaStatus(p); prjSalvar(); frRender();
@@ -15173,6 +15267,58 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           return 'rede';
         }
 
+        /* mesma lógica do valuation: digitar não reconstrói o painel */
+        function frResumoRender(p, r){
+          let dg=r.dg, vd=r.vd, vb=r.vb, td=r.td, cofOk=r.cofOk;
+          document.getElementById('fr-hero').innerHTML=uiHero({
+            eyebrow:'⊞ Formatação de franquias · '+(p.empresa||'novo projeto'),
+            titulo: p.contratoStatus!=='assinado' ? 'Assine o contrato para <b>começar a formatação</b>.'
+                  : '<b>'+Math.round(dg.indice)+'/100</b> de franqueabilidade — '+vd.t.toLowerCase()+'.',
+            texto: p.contratoStatus!=='assinado' ? 'O diagnóstico, os documentos, os POPs e a COF abrem quando o contrato for assinado.'
+                  : uiEsc(vd.d)+' O pilar mais fraco é <b>'+uiEsc(dg.ordenados[0].p.n.toLowerCase())+'</b> ('+Math.round(dg.ordenados[0].v)+'/100) — é ali que a formatação começa. '
+                    +(isFinite(vb.payback)?'A unidade se paga em <b>'+vlNum(vb.payback,0)+' meses</b>.':'<b>A unidade ainda não fecha a conta</b> — sem lucro não há franquia.'),
+            acoes:[
+              '<button class="btn btn-ghost btn-sm" onclick="go(\'servicos\')">← Todos os projetos</button>',
+              p.contratoStatus==='assinado'?'<button class="btn btn-gold btn-sm" onclick="frAba(\'laudo\')">Ver o laudo</button>':''
+            ],
+            donut:{pct:Math.min(100,Math.round(dg.indice)), valor:Math.round(dg.indice), label:'franqueável'}
+          });
+
+          uiStatsRender(document.getElementById('fr-stats'), p.contratoStatus==='assinado'?[
+            {cor:vd.cor,          ic:'⊞', label:'Franqueabilidade',   valor:Math.round(dg.indice)+'/100', pe:vd.t},
+            {cor:'var(--kb-c3)',  ic:'💰', label:'Lucro da unidade',   valor:brl(vb.lucroMes), money:true, pe:vlNum(vb.lucratividade,1)+'% de lucratividade'},
+            {cor:'var(--kb-c4)',  ic:'⏱', label:'Payback do franqueado', valor:isFinite(vb.payback)?vlNum(vb.payback,0)+' meses':'não paga', pe:isFinite(vb.payback)&&vb.payback<=30?'dentro do atrativo':'acima do que o mercado aceita'},
+            {cor:'var(--kb-ouro)',ic:'◈', label:'Receita da franqueadora', valor:brl(vb.franqueadoraMes), money:true, pe:'por unidade, por mês'},
+            {cor:'var(--kb-c5)',  ic:'📁', label:'Documentação',       valor:td.ok+'/'+td.t, pe:td.andando?td.andando+' em produção':'nenhum em produção'},
+            {cor:'var(--kb-c6)',  ic:'§', label:'COF (Lei 13.966)',   valor:cofOk+'/16', pe:cofOk===16?'completa':'faltam '+(16-cofOk)+' itens obrigatórios'}
+          ]:[
+            {cor:'var(--kb-c4)', ic:'📄', label:'Contrato',   valor:ctStatusPrj(p).l, texto:true, pe:ctStatusPrj(p).d},
+            {cor:'var(--kb-c5)', ic:'💰', label:'Contratado', valor:brl(p.valor||0), money:true, pe:p.prazoDias+' dias'},
+            {cor:'var(--kb-c2)', ic:'⊞', label:'Serviço',     valor:'Formatação de franquia', texto:true, pe:'9 etapas'},
+            {cor:'var(--kb-c6)', ic:'§', label:'Base legal',  valor:'Lei 13.966/2019', texto:true, pe:'COF com 16 itens obrigatórios'}
+          ]);
+
+        }
+        function frVivo(){
+          let p=prjAtual(); if(!p||p.servico!=='franquia') return;
+          let dg=frCalcDiag(p.dados), vd=frVeredito(dg.indice), vb=frCalcViab(p.dados.viab);
+          let td=frDocTotais(p);
+          let cofOk=Object.keys(p.dados.cof||{}).filter(k=>p.dados.cof[k]&&p.dados.cof[k].ok).length;
+          frResumoRender(p,{dg,vd,vb,td,cofOk});
+          const põe=(id,html)=>{ let el=document.getElementById(id); if(el) el.innerHTML=html; };
+          põe('fr-c-viab', frViabHTML(p, vb, frAlertasViab(p.dados.viab, vb)));
+          // o restante (funil, projeção da rede) só é redesenhado quando a
+          // pessoa sai do campo — enquanto digita, nada é destruído
+          uiRedesenharSeParou('fr-body', frRender);
+        }
+        /* redesenha o painel inteiro, mas nunca no meio de uma digitação */
+        function uiRedesenharSeParou(idCorpo, fn){
+          uiRedesenhar(function(){
+            let b=document.getElementById(idCorpo);
+            if(b && b.contains(document.activeElement)) { uiRedesenharSeParou(idCorpo, fn); return; }
+            fn();
+          }, 1200);
+        }
         function frRender(){
           let box=document.getElementById('fr-body'); if(!box) return;
           uiFocoGuardar();
@@ -15204,34 +15350,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
               </button>`;
             }).join('')}</div>`;
 
-          document.getElementById('fr-hero').innerHTML=uiHero({
-            eyebrow:'⊞ Formatação de franquias · '+(p.empresa||'novo projeto'),
-            titulo: p.contratoStatus!=='assinado' ? 'Assine o contrato para <b>começar a formatação</b>.'
-                  : '<b>'+Math.round(dg.indice)+'/100</b> de franqueabilidade — '+vd.t.toLowerCase()+'.',
-            texto: p.contratoStatus!=='assinado' ? 'O diagnóstico, os documentos, os POPs e a COF abrem quando o contrato for assinado.'
-                  : uiEsc(vd.d)+' O pilar mais fraco é <b>'+uiEsc(dg.ordenados[0].p.n.toLowerCase())+'</b> ('+Math.round(dg.ordenados[0].v)+'/100) — é ali que a formatação começa. '
-                    +(isFinite(vb.payback)?'A unidade se paga em <b>'+vlNum(vb.payback,0)+' meses</b>.':'<b>A unidade ainda não fecha a conta</b> — sem lucro não há franquia.'),
-            acoes:[
-              '<button class="btn btn-ghost btn-sm" onclick="go(\'servicos\')">← Todos os projetos</button>',
-              p.contratoStatus==='assinado'?'<button class="btn btn-gold btn-sm" onclick="frAba(\'laudo\')">Ver o laudo</button>':''
-            ],
-            donut:{pct:Math.min(100,Math.round(dg.indice)), valor:Math.round(dg.indice), label:'franqueável'}
-          });
-
-          uiStatsRender(document.getElementById('fr-stats'), p.contratoStatus==='assinado'?[
-            {cor:vd.cor,          ic:'⊞', label:'Franqueabilidade',   valor:Math.round(dg.indice)+'/100', pe:vd.t},
-            {cor:'var(--kb-c3)',  ic:'💰', label:'Lucro da unidade',   valor:brl(vb.lucroMes), money:true, pe:vlNum(vb.lucratividade,1)+'% de lucratividade'},
-            {cor:'var(--kb-c4)',  ic:'⏱', label:'Payback do franqueado', valor:isFinite(vb.payback)?vlNum(vb.payback,0)+' meses':'não paga', pe:isFinite(vb.payback)&&vb.payback<=30?'dentro do atrativo':'acima do que o mercado aceita'},
-            {cor:'var(--kb-ouro)',ic:'◈', label:'Receita da franqueadora', valor:brl(vb.franqueadoraMes), money:true, pe:'por unidade, por mês'},
-            {cor:'var(--kb-c5)',  ic:'📁', label:'Documentação',       valor:td.ok+'/'+td.t, pe:td.andando?td.andando+' em produção':'nenhum em produção'},
-            {cor:'var(--kb-c6)',  ic:'§', label:'COF (Lei 13.966)',   valor:cofOk+'/16', pe:cofOk===16?'completa':'faltam '+(16-cofOk)+' itens obrigatórios'}
-          ]:[
-            {cor:'var(--kb-c4)', ic:'📄', label:'Contrato',   valor:ctStatusPrj(p).l, texto:true, pe:ctStatusPrj(p).d},
-            {cor:'var(--kb-c5)', ic:'💰', label:'Contratado', valor:brl(p.valor||0), money:true, pe:p.prazoDias+' dias'},
-            {cor:'var(--kb-c2)', ic:'⊞', label:'Serviço',     valor:'Formatação de franquia', texto:true, pe:'9 etapas'},
-            {cor:'var(--kb-c6)', ic:'§', label:'Base legal',  valor:'Lei 13.966/2019', texto:true, pe:'COF com 16 itens obrigatórios'}
-          ]);
-
+          frResumoRender(p, {dg,vd,vb,td,cofOk});
           box.innerHTML={
             cadastro:frPaneCadastro, contrato:frPaneContrato, diag:frPaneDiag, viab:frPaneViab,
             docs:frPaneDocs, pops:frPanePops, cof:frPaneCof, rede:frPaneRede, laudo:frPaneLaudo
@@ -15259,7 +15378,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
               <div class="c12 f"><span class="lbl">O que a diferencia da concorrência</span>
                 <textarea class="inp" rows="2" oninput="frSet('dif',this.value)">${uiEsc(p.dif||'')}</textarea>
                 <span class="f-dica">Se a resposta for "atendimento" ou "qualidade", ainda não há diferencial — e isso aparece no diagnóstico.</span></div>
-              <div class="c4 f"><span class="lbl">Valor do serviço (R$)</span><input type="number" class="inp" value="${p.valor||0}" oninput="frSetNum('valor',this.value)"></div>
+              <div class="c4 f"><span class="lbl">Valor do serviço (R$)</span>${inpMoeda(p.valor||0,"frSetNum('valor',this.value)")}</div>
               <div class="c4 f"><span class="lbl">Prazo (dias)</span><input type="number" class="inp" value="${p.prazoDias||90}" oninput="frSetNum('prazoDias',this.value)"></div>
             </div>
           </div>
@@ -15392,7 +15511,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
             <div class="grid">
               <div class="c6 f"><span class="lbl">Condição de pagamento</span>
                 <input class="inp" value="${uiEsc(p.condPag||'30% na assinatura, 40% na entrega do diagnóstico e da modelagem e 30% na entrega final')}" oninput="frSet('condPag',this.value)"></div>
-              <div class="c3 f"><span class="lbl">Valor (R$)</span><input type="number" class="inp" value="${p.valor||0}" oninput="frSetNum('valor',this.value)"></div>
+              <div class="c3 f"><span class="lbl">Valor (R$)</span>${inpMoeda(p.valor||0,"frSetNum('valor',this.value)")}</div>
               <div class="c3 f"><span class="lbl">Prazo (dias)</span><input type="number" class="inp" value="${p.prazoDias||90}" oninput="frSetNum('prazoDias',this.value)"></div>
             </div>
             <div class="dm-acts" style="margin-top:16px;">
@@ -15419,25 +15538,26 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
             ['desc','Taxa de desconto (%)','custo de oportunidade do franqueado'],
             ['horiz','Horizonte (anos)','período da projeção']
           ];
-          let alerta=[];
-          if(b.lucroMes<=0) alerta.push({c:'mal', t:'<b>A unidade dá prejuízo com essas premissas.</b> Não existe franquia sustentável assim: ou o custo fixo cai, ou a margem sobe, ou os royalties precisam ser menores.'});
-          else if(b.payback>36) alerta.push({c:'mal', t:'<b>Payback de '+vlNum(b.payback,0)+' meses.</b> Acima de 36 meses o candidato compara com outras oportunidades e desiste. O mercado espera algo entre 18 e 30.'});
-          else if(b.payback<=30) alerta.push({c:'bem', t:'<b>Payback de '+vlNum(b.payback,0)+' meses</b> — dentro do que o mercado considera atrativo.'});
-          if(b.mc<30) alerta.push({c:'mal', t:'<b>Margem de contribuição de '+vlNum(b.mc,1)+'%.</b> Depois de royalties e fundo, sobra pouco para cobrir o custo fixo — o modelo fica frágil a qualquer queda de venda.'});
-          if(v.roy+v.fm>12) alerta.push({c:'mal', t:'<b>Royalties mais fundo somam '+vlNum(v.roy+v.fm,1)+'% da receita.</b> Acima de 12% a unidade costuma reclamar — e franqueado insatisfeito não renova.'});
-          if(b.franqueadoraMes>0) alerta.push({c:'', t:'A franqueadora recebe <b>'+brl(b.franqueadoraMes)+' por mês por unidade</b> ('+brl(b.franqueadoraAno)+' ao ano), mais '+brl(v.taxaFranquia)+' de taxa a cada nova assinatura.'});
+          let alerta=frAlertasViab(v,b);
           return `<div class="card">
             <div class="card-h">A unidade franqueada fecha a conta?</div>
             <p class="hint" style="margin:-8px 0 16px;">Antes de qualquer manual, esta é a pergunta que decide tudo. Se a unidade não paga o franqueado, a rede não se sustenta — por melhor que seja a marca.</p>
             <div class="grid">${campos.map(([k,l,d])=>`
               <div class="c3 f"><span class="lbl">${l}</span>
-                <input type="number" step="0.1" class="inp" value="${v[k]||0}" oninput="frSetNum('dados.viab.${k}',this.value)">
+                ${['inv','taxaFranquia','fat','cf'].indexOf(k)>=0
+                  ? inpMoeda(v[k]||0, `frSetNum('dados.viab.${k}',this.value)`)
+                  : `<input type="number" step="0.1" class="inp inp-num" value="${v[k]||0}" oninput="frSetNum('dados.viab.${k}',this.value)">`}
                 <span class="f-dica">${d}</span></div>`).join('')}
             </div>
           </div>
           <div class="card">
             <div class="card-h">O resultado da unidade</div>
-            <div class="ui-stats n6" style="margin-bottom:16px;">${uiStats([
+            <div id="fr-c-viab">${frViabHTML(p,b,alerta)}</div>
+          </div>`;
+        }
+        function frViabHTML(p, b, alerta){
+          let v=p.dados.viab;
+          return `<div class="ui-stats n6" style="margin-bottom:16px;">${uiStats([
               {cor:'var(--kb-c2)', ic:'%', label:'Margem de contribuição', valor:vlNum(b.mc,1)+'%', pe:'depois de custo variável, royalties e fundo'},
               {cor:b.lucroMes>0?'var(--kb-c3)':'var(--kb-c8)', ic:'💰', label:'Lucro mensal', valor:brl(b.lucroMes), money:true, pe:vlNum(b.lucratividade,1)+'% de lucratividade'},
               {cor:'var(--kb-c4)', ic:'⚖', label:'Ponto de equilíbrio', valor:isFinite(b.pontoEq)?brl(b.pontoEq):'—', money:true, pe:'faturamento mínimo por mês'},
@@ -15451,8 +15571,17 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
               <div class="vl-tab-l destaque"><span class="nm">Lucro do franqueado</span>${b.linhas.map(l=>`<span>${brl(l.lucro)}</span>`).join('')}</div>
               <div class="vl-tab-l calc"><span class="nm">Acumulado (com o investimento)</span>${b.linhas.map(l=>`<span style="color:${l.acum>=0?'var(--kb-c3)':'var(--kb-c8)'}">${brl(l.acum)}</span>`).join('')}</div>
             </div>
-            ${alerta.map(a=>`<div class="dec-opiniao ${a.c}" style="margin-top:12px;">${a.t}</div>`).join('')}
-          </div>`;
+            ${alerta.map(a=>`<div class="dec-opiniao ${a.c}" style="margin-top:12px;">${a.t}</div>`).join('')}`;
+        }
+        function frAlertasViab(v, b){
+          let alerta=[];
+          if(b.lucroMes<=0) alerta.push({c:'mal', t:'<b>A unidade dá prejuízo com essas premissas.</b> Não existe franquia sustentável assim: ou o custo fixo cai, ou a margem sobe, ou os royalties precisam ser menores.'});
+          else if(b.payback>36) alerta.push({c:'mal', t:'<b>Payback de '+vlNum(b.payback,0)+' meses.</b> Acima de 36 meses o candidato compara com outras oportunidades e desiste. O mercado espera algo entre 18 e 30.'});
+          else if(b.payback<=30) alerta.push({c:'bem', t:'<b>Payback de '+vlNum(b.payback,0)+' meses</b> — dentro do que o mercado considera atrativo.'});
+          if(b.mc<30) alerta.push({c:'mal', t:'<b>Margem de contribuição de '+vlNum(b.mc,1)+'%.</b> Depois de royalties e fundo, sobra pouco para cobrir o custo fixo — o modelo fica frágil a qualquer queda de venda.'});
+          if(v.roy+v.fm>12) alerta.push({c:'mal', t:'<b>Royalties mais fundo somam '+vlNum(v.roy+v.fm,1)+'% da receita.</b> Acima de 12% a unidade costuma reclamar — e franqueado insatisfeito não renova.'});
+          if(b.franqueadoraMes>0) alerta.push({c:'', t:'A franqueadora recebe <b>'+brl(b.franqueadoraMes)+' por mês por unidade</b> ('+brl(b.franqueadoraAno)+' ao ano), mais '+brl(v.taxaFranquia)+' de taxa a cada nova assinatura.'});
+          return alerta;
         }
 
         /* ── 5 · DOCUMENTAÇÃO ── */
@@ -15614,11 +15743,11 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
         /* ── 8 · REDE: indicadores e expansão ── */
         function frKpiSet(i, campo, v){
           let p=prjAtual(); if(!p) return;
-          p.dados.kpis[i][campo]=Number(String(v).replace(',','.'))||0; prjSalvar(); uiRedesenhar(frRender);
+          p.dados.kpis[i][campo]=numDe(v); prjSalvar(); frVivo();
         }
         function frMetaSet(i, v){
           let p=prjAtual(); if(!p) return;
-          p.dados.exp.metaAno[i]=Number(v)||0; prjSalvar(); uiRedesenhar(frRender);
+          p.dados.exp.metaAno[i]=numDe(v); prjSalvar(); frVivo();
         }
         function frPaneRede(p, r){
           let k=p.dados.kpis||[], e=p.dados.exp||{}, b=r.vb;
@@ -15654,7 +15783,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
               <div class="c3 f"><span class="lbl">Propostas enviadas</span><input type="number" class="inp" value="${e.propostas||0}" oninput="frSetNum('dados.exp.propostas',this.value)"></div>
               <div class="c3 f"><span class="lbl">Contratos assinados</span><input type="number" class="inp" value="${e.assinados||0}" oninput="frSetNum('dados.exp.assinados',this.value)"></div>
             </div>
-            <div class="vd-funil">${fun.map((x,i)=>{
+            <div class="vd-funil" id="fr-c-funil">${fun.map((x,i)=>{
               let base=fun[0].v||1, larg=Math.max(3,Math.round(x.v/base*100));
               let deg=i>0?`<div class="vd-degrau ${pior&&pior.l===x.l?'vaza':''}">
                 <span class="pct">↓ ${Math.round(x.conv)}% passam</span>
@@ -15676,7 +15805,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
                 <input type="number" class="inp inp-num" value="${m}" oninput="frMetaSet(${i},this.value)"></div>`).join('')}
               <div class="c4 f"><span class="lbl">Regiões-alvo</span><input class="inp" value="${uiEsc(e.regioes||'')}" placeholder="Ex: Sudeste, Sul" oninput="frSet('dados.exp.regioes',this.value)"></div>
             </div>
-            <div class="vl-tab rolar">
+            <div class="vl-tab rolar" id="fr-c-rede">
               <div class="vl-tab-h"><span>Linha</span>${rede.map(x=>`<span>Ano ${x.ano}</span>`).join('')}</div>
               <div class="vl-tab-l"><span class="nm">Unidades na rede</span>${rede.map(x=>`<span>${x.unidades}</span>`).join('')}</div>
               <div class="vl-tab-l"><span class="nm">Novas no ano</span>${rede.map(x=>`<span>${x.novas}</span>`).join('')}</div>
@@ -15684,7 +15813,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
               <div class="vl-tab-l"><span class="nm">Taxas de franquia</span>${rede.map(x=>`<span>${brl(x.taxas)}</span>`).join('')}</div>
               <div class="vl-tab-l destaque"><span class="nm">Receita da franqueadora</span>${rede.map(x=>`<span>${brl(x.total)}</span>`).join('')}</div>
             </div>
-            <div class="dec-opiniao" style="margin-top:14px;">
+            <div class="dec-opiniao" style="margin-top:14px;" id="fr-c-redetx">
               No ano ${rede.length} a rede teria <b>${rede[rede.length-1].unidades} unidades</b> gerando <b>${brl(rede[rede.length-1].total)}</b> por ano para a franqueadora.
               ${fun[3].v>0?' No ritmo atual de captação ('+fun[3].v+' assinaturas), levaria '+Math.ceil((rede[rede.length-1].unidades-(p.unidades||1))/Math.max(1,fun[3].v))+' períodos para chegar lá.':' Ainda não há histórico de captação para estimar o ritmo real.'}
             </div>
