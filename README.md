@@ -495,6 +495,16 @@ no [README do backend](backend/README.md).
 - **Permissões / papéis**: `PERMISSOES_DEFAULT`, `PERMISSOES`, `salvarPermissoes`,
   `renderPermissoes`, `permToggle`, `permEscopo` (marcadores `=== BACKEND ===`
   indicam o que deve ser revalidado no servidor em produção).
+- **Motor de processo**: `PROCESSOS` (os quatro processos, com etapa, dono,
+  critério, prazo, motivo e ação), `procEtapaAtual`, `procChecar` (o critério
+  objetivo), `procDono` (de quem é a bola), `procTempo` (prazo e atraso),
+  `procFila` (o que é meu agora), `procGargalos` (onde trava), `procAderencia`,
+  `procExecutar` (a porta única das ações, com a trava), `procForcar` (pular
+  com justificativa) e `procDesvio`. Visual: `procTrilhaHTML` e
+  `procCartaoHTML`, usados na tela **Execução** (`v-processo`) e dentro dos
+  cards de lead e demanda. **Para acrescentar um processo**: uma entrada em
+  `PROCESSOS` com `itens`, `nome`, `etapaDe`, `desde` e as etapas — o resto
+  (fila, gargalo, aderência, trava, desvio) passa a valer sozinho.
 - **Cor e legibilidade**: `--gold` (dourado de superfície: fundos, bordas,
   gradientes) e `--gold-txt` (dourado de texto, fechado o bastante para ler
   no claro). A regra das **ilhas escuras** — `.ptg, .pt-hero, .in-hero,
@@ -1123,3 +1133,54 @@ sido usado de verdade, então carregava defeitos que ninguém via.
      abaixo do mínimo**. O único apontamento que sobra é do medidor, não da
      tela — o número do funil fica sobre a barra colorida, e a ferramenta lê
      o trilho que está atrás.
+
+## O processo virou motor — versão 0808.02
+
+A crítica foi direta: só a esteira tinha lógica de fluxo; no resto cada um
+fazia o que queria e o processo se perdia. Inadmissível para uma empresa que
+vende padronização. Então a esteira deixou de ser uma tela e virou **motor**.
+
+A esteira funciona porque obedece a cinco regras. Elas agora valem para tudo:
+
+1. Todo item está em **uma** etapa — nunca em duas, nunca em nenhuma.
+2. Cada etapa tem **uma** ação, escrita, com o motivo de existir. Não é um
+   menu de botões: é o próximo passo.
+3. Para sair da etapa existe **critério objetivo** — uma lista que o sistema
+   confere sozinho. Não é opinião de ninguém.
+4. Toda etapa tem **dono e prazo**. Se a bola é de outra pessoa, o sistema diz
+   de quem é e não deixa você fazer no lugar dela sem avisar.
+5. Pular etapa é possível para a gestão, mas exige **justificativa** e vira
+   **desvio registrado** — que é o que alimenta a melhoria contínua.
+
+122. **Quatro processos declarados, 21 etapas.** Captação comercial (do lead
+     ao negócio aberto), Execução de demanda (do mural ao pagamento), Serviço
+     executável (do contrato ao laudo) e Entrada na rede (do cadastro à
+     primeira demanda). Cada etapa traz **por que existe** — o texto aparece
+     na tela, não fica num manual que ninguém lê.
+
+123. **Tela "Execução" — o primeiro passo do dia.** Passou a ser o passo 1 de
+     *Meu painel*, antes dos números: *o que é meu agora*, em ordem de
+     urgência, com a ação de cada item. Ninguém precisa adivinhar por onde
+     começar.
+
+124. **O próximo passo mora dentro do card.** Lead e demanda passaram a
+     mostrar a trilha numerada, a etapa atual, de quem é a bola, quanto tempo
+     está parada, o que falta pelo critério e o único botão. Sem sair da tela.
+
+125. **A trava.** Tentar agir numa etapa de outra pessoa é recusado com o nome
+     de quem tem a bola. A gestão pode fazer no lugar — mas o botão diz "fazer
+     no lugar de X" e o sistema avisa que o tempo daquela pessoa deixa de ser
+     medido.
+
+126. **Onde o processo trava** — soma quantos itens estão parados em cada
+     etapa e o tempo médio de cada uma. Etapa com muita gente parada não é
+     problema de pessoa: é critério confuso, prazo irreal ou dono errado. É a
+     tela da melhoria contínua.
+
+127. **Aderência ao prazo** — percentual do trabalho que está dentro do prazo
+     da própria etapa, no topo da tela, ao vivo.
+
+128. **A ponte que faltava: lead que fechou entra na esteira.** Antes, "Fechou"
+     era fim de linha e alguém redigitava tudo no Funil. Agora o lead leva os
+     próprios dados para o cadastro, a esteira começa, e o lead passa a
+     apontar para o negócio — o elo se fecha.
