@@ -23,9 +23,20 @@ consultoria. Três regras:
 3. **O dourado só marca resultado.** Etapa atual, número que decide, ação.
    Se tudo é dourado, nada é.
 
-**Papel frio, não creme quente.** O fundo (`#f0f1ed`) tem viés verde-cinza,
-como vegetal de prancheta, e a tinta (`#11150f`) tem o mesmo viés — cinza
-neutro sobre papel enviesado sempre parece sujo.
+**Conversa com o material impresso,** que é preto e ouro metálico. O papel
+(`#f1f0ec`) é neutro levemente quente — não é creme, que junto com serifada e
+dourado virou o visual padrão de toda página gerada por máquina — e a tinta
+tem o mesmo viés. O `--ferro` é o preto da marca (`#111110`) e o ouro é rampa
+metálica de três paradas.
+
+**O avião de papel é a assinatura.** No material ele está no símbolo, na ponta
+do fio do cabeçalho e no lockup de cada submarca. Aqui aparece em dois lugares
+só — o lockup e o fio da capa. Avião em todo canto vira enfeite.
+
+**O símbolo real ainda falta.** É um A! manuscrito com o avião saindo dele, e
+só existe como imagem achatada. Até o vetor chegar, o selo usa o A!
+tipográfico. Para trocar: ponha um `<img>` dentro de `.af-selo` — o CSS já
+o acomoda, em todos os lugares onde o selo aparece.
 
 **Três letras, três papéis.** *Archivo* carrega os títulos e a informação;
 *Newsreader itálico* é só a voz enfática, na oração destacada de um título e
@@ -73,7 +84,7 @@ afatorialsolucoes.com.br/marca      → site/marca.html (uso interno)
 Estão no topo do `<script>` em `site/index.html`:
 
 ```js
-var WHATSAPP    = '551141443467';   // DDI+DDD+número da EMPRESA, só dígitos
+var WHATSAPP    = '5511911012147'; // DDI+DDD+número da EMPRESA, só dígitos
 var WHATSAPP_CC = WHATSAPP;         // da MENTORIA; troque quando tiver linha própria
 var URL_SISTEMA = '../index.html';  // onde fica a área interna
 var URL_SERVIDOR = '';              // backend/ — vazio = login leva ao sistema
@@ -85,7 +96,8 @@ e sistema estão no mesmo domínio.
 
 ## Antes de publicar
 
-- [ ] Trocar o WhatsApp pelo celular que atende de fato
+- [ ] Conferir se 11 9.1101-2147 é mesmo o celular que atende no WhatsApp
+- [ ] Pedir ao designer o **vetor do símbolo** (SVG, AI ou EPS) e trocar o selo
 - [ ] Substituir a citação do bloco "Quem fundou o método" por uma foto real da Carla
 - [ ] Dar um número de WhatsApp próprio à mentoria (`WHATSAPP_CC`)
 - [ ] Revisar os números da capa (12 anos, +500 empresárias, 83 serviços)

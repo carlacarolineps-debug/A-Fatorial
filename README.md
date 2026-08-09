@@ -1302,3 +1302,49 @@ Então a página é composta como documento técnico medido:
 148. **`marca.html` reescrito** para o novo padrão, e continua vivo: mede o
      contraste de cada texto da própria página ao abrir e emite um laudo no
      fim. Hoje: 160 trechos medidos, nenhum abaixo do mínimo.
+
+## A marca de verdade — versão 0908.05
+
+Ela mandou o material impresso da marca, e ele corrigiu coisas que o código
+vinha propagando erradas.
+
+149. **A assinatura oficial é "Soluções para Empresas e Franquias".**
+     "Arquitetura de Lucro" saiu do site e do sistema — lockup, título da
+     página, meta, rodapé e tela de entrada. O cargo "Arquiteta de Lucro ·
+     CEO" era derivado da assinatura removida e ficaria pendurado sozinho:
+     virou "CEO · Grupo A! Fatorial", e o título de mentora fica na marca
+     pessoal, onde ele de fato é.
+
+150. **Contato corrigido nos dois lugares:** `contato@grupoafatorial.com.br`
+     e `11 9.1101-2147`. Estava indo para um e-mail e um telefone diferentes
+     dos do material — proposta, contrato, rodapé e o botão de WhatsApp
+     mandavam o cliente para o lugar errado.
+
+151. **O avião de papel virou o elemento estrutural.** No material ele
+     aparece três vezes: dentro do símbolo, na ponta do fio que divide o
+     cabeçalho e no lockup de cada submarca. É a assinatura gráfica do
+     grupo, então é ele que marca direção na folha — desenhado como máscara,
+     em duas faces com alfas diferentes para dar a dobra do origami, tomando
+     a cor do contexto. Usado em dois lugares só: o lockup e o fio da capa.
+     Avião em todo canto vira enfeite, e enfeite é o contrário de assinatura.
+
+152. **A paleta passou a conversar com o material,** que é preto e ouro
+     metálico. O papel saiu do viés verde-cinza para um neutro levemente
+     quente (`#f1f0ec`), a tinta acompanhou, e o `--ferro` deixou de ser
+     verde-escuro para ser o preto da marca (`#111110`). O ouro virou rampa
+     metálica de três paradas — alta luz, corpo e sombra —, como no impresso.
+
+153. **As submarcas com o nome e a assinatura do material:** PGE **Lab**
+     ("Inteligência que gera resultado."), A! Multiplicadora ("Processos
+     autogerenciáveis."), A! Start Talk, A! Saúde, A! Treinamentos e A!
+     Fatorial Representações ("Conexões que geram oportunidades."). O campo
+     `assina` entrou em `MARCAS` e aparece onde a marca é apresentada.
+
+154. **Contraste medido de novo depois da troca de paleta:** 165 trechos no
+     guia, nenhum reprovado; no site sobram os três apontamentos de fundo em
+     gradiente, que no pixel renderizado dão 14,0 a 16,2:1.
+
+**Ainda pendente:** o símbolo real é um A! manuscrito com o avião saindo
+dele, e só existe como imagem achatada. Enquanto o vetor não chega, o selo
+usa o A! tipográfico no ouro metálico. O ponto de troca está pronto: basta
+pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
