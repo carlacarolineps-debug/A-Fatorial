@@ -1463,3 +1463,45 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
 173. **O sistema continua claro,** de propósito: o site é vitrine e precisa
      impressionar em dez segundos; o sistema é onde se passa o dia. Os tokens
      ficam no topo do `a-fatorial.css` para reverter em bloco se ela preferir.
+
+## Movimento, e tudo num arquivo só — versão 0908.10
+
+174. **A luz corre no metal.** Na parede o holofote é fixo e o metal é curvo,
+     então a luz corre pela letra quando quem olha se move; na tela é a luz
+     que anda, uma passada a cada nove segundos. Só nos elementos grandes —
+     em corpo pequeno a passada vira cintilação.
+
+175. **A esteira virou o momento assinatura.** O trilho se desenha da esquerda
+     para a direita, o avião de papel voa por cima dele e as dez etapas
+     acendem uma a uma na passagem. Não é enfeite: é a tese da empresa
+     desenhada — a sequência em que não se pula etapa.
+
+176. **Movimento no resto:** o holofote desliza com a rolagem, a régua da
+     margem se preenche conforme a seção passa, os blocos revelam os filhos em
+     fila (70ms entre um e outro), um brilho atravessa o botão de ouro no
+     hover, a linha do catálogo é varrida por luz, as folhas levantam com
+     halo, e os números da conta rolam até o novo valor em vez de trocar de
+     golpe.
+
+177. **Três defeitos de robustez achados pela medição do movimento:**
+     (a) **sem JavaScript a página ficava quase em branco** — 27 de 38 blocos
+     nasciam invisíveis esperando o script; agora a revelação é opt-in, marcada
+     por uma classe `js` no `<html>`, e sem script tudo aparece;
+     (b) o IntersectionObserver **perdia blocos em rolagem rápida** — ele
+     entrega o estado do último quadro que conseguiu medir; trocado por uma
+     varredura que pergunta a posição de verdade a cada quadro;
+     (c) a primeira versão da varredura **descartava sem revelar** o que subia
+     muito acima da tela entre um quadro e outro.
+
+178. **Tudo num arquivo só.** `Grupo A! Fatorial.html` traz site e sistema no
+     mesmo documento: entrar troca de lado, sair volta para a porta, nada
+     recarrega. O site foi embrulhado em `#porta` e todo o CSS dele prefixado
+     — 37 nomes de classe se repetiam entre os dois. O sistema ficou intocado.
+
+179. **Quatro bugs na junção, todos achados por medição comparativa** entre o
+     avulso e o combinado: o JS entrava duas vezes (o corpo saía com os
+     `<script>` dentro); o `<head>` do site levava junto a folha sem prefixo,
+     que repintava o sistema; o prefixador não pulava comentários precedidos
+     de espaço, e as vírgulas de dentro deles partiam as regras ao meio; e o
+     `body` do sistema, sendo painel de tela cheia com `overflow:hidden`,
+     impedia o site de rolar.

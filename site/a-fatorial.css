@@ -385,15 +385,84 @@ i,em{font-style:italic}
 .af-campo input::placeholder{color:var(--creme-3);opacity:1}
 
 /* ══════════════════════════════════════════════════════════════════════
+   A LUZ NO METAL
+   ──────────────────────────────────────────────────────────────────────
+   Na parede o holofote é fixo e o metal é curvo, então a luz corre pela
+   letra quando quem olha se move. Na tela não há quem se mova, então é
+   a luz que anda — devagar, uma passada a cada nove segundos. É o que
+   separa "texto amarelo" de "letra de metal".
+
+   Só nos elementos grandes. Em corpo pequeno a passada vira cintilação
+   e cansa.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  /* a rampa com a faixa especular no meio, pronta para correr */
+  --metal-vivo:linear-gradient(100deg,
+    var(--ouro-baixa) 0%, #b8913c 14%, var(--ouro) 27%, var(--ouro-alta) 38%,
+    #fff6dd 44%, var(--ouro-alta) 50%, var(--ouro) 62%, #b8913c 78%, var(--ouro-baixa) 100%);
+}
+@keyframes correLuz{from{background-position:180% 0}to{background-position:-80% 0}}
+.af-luz{background:var(--metal-vivo);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:correLuz 9s linear infinite;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.55)) drop-shadow(0 0 30px rgba(212,175,94,.2))}
+
+/* a mesma passada na máscara do símbolo */
+.af-simbolo{background:var(--metal-vivo);background-size:260% 100%;
+  animation:correLuz 9s linear infinite}
+
+@media(prefers-reduced-motion:reduce){
+  .af-luz,.af-simbolo{animation:none;background:var(--metal);background-size:auto}
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   O FIO QUE SE DESENHA
+   Onde há uma divisa, ela é traçada — não aparece pronta. Custa nada e
+   muda a sensação: a página é montada na frente de quem chega.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-risco{transform-origin:left center;transform:scaleX(0);
+  transition:transform 1s var(--curva)}
+.on>.af-risco,.af-risco.on{transform:scaleX(1)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A PASSADA NO BOTÃO
+   Um brilho atravessa o botão de ouro quando o ponteiro chega. É o
+   reflexo do metal reagindo — a mesma ideia da luz que corre.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-bt-ouro{overflow:hidden;isolation:isolate}
+.af-bt-ouro::after{content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(105deg,transparent 34%,rgba(255,255,255,.62) 48%,transparent 62%);
+  transform:translateX(-120%);transition:transform .7s var(--curva)}
+.af-bt-ouro:hover::after{transform:translateX(120%)}
+@media(prefers-reduced-motion:reduce){.af-bt-ouro::after{display:none}}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A REVELAÇÃO EM CASCATA
+   Os filhos de um bloco não sobem juntos: sobem em fila, com 70ms entre
+   um e outro. É o que faz a seção parecer composta, e não empilhada.
+   ══════════════════════════════════════════════════════════════════════ */
+.js .af-fila>*{opacity:0;transform:translateY(16px);
+  transition:opacity .7s var(--curva),transform .7s var(--curva)}
+.af-fila.on>*{opacity:1;transform:none}
+.af-fila.on>*:nth-child(1){transition-delay:0s}
+.af-fila.on>*:nth-child(2){transition-delay:.07s}
+.af-fila.on>*:nth-child(3){transition-delay:.14s}
+.af-fila.on>*:nth-child(4){transition-delay:.21s}
+.af-fila.on>*:nth-child(5){transition-delay:.28s}
+.af-fila.on>*:nth-child(6){transition-delay:.35s}
+.af-fila.on>*:nth-child(n+7){transition-delay:.42s}
+@media(prefers-reduced-motion:reduce){.js .af-fila>*{opacity:1;transform:none}}
+
+/* ══════════════════════════════════════════════════════════════════════
    MOVIMENTO
    Um gesto só, e com intenção: o conteúdo sobe um fio e ganha luz ao
    entrar na tela. Página que se mexe demais parece feita por máquina.
    ══════════════════════════════════════════════════════════════════════ */
-.af-rev{opacity:0;transform:translateY(18px);
+.js .af-rev{opacity:0;transform:translateY(18px);
   transition:opacity var(--len) var(--curva),transform var(--len) var(--curva)}
 .af-rev.on{opacity:1;transform:none}
 .af-rev-1{transition-delay:.08s} .af-rev-2{transition-delay:.16s} .af-rev-3{transition-delay:.24s}
-@media(prefers-reduced-motion:reduce){.af-rev{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.js .af-rev{opacity:1;transform:none}}
 
 /* ══════════════════════════════════════════════════════════════════════
    IMPRESSÃO — no papel o breu vira branco e o ouro vira tinta

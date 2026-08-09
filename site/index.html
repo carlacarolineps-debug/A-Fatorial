@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script>document.documentElement.className+=" js";</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Grupo A! Fatorial — Soluções para Empresas e Franquias</title>
@@ -401,15 +402,84 @@ i,em{font-style:italic}
 .af-campo input::placeholder{color:var(--creme-3);opacity:1}
 
 /* ══════════════════════════════════════════════════════════════════════
+   A LUZ NO METAL
+   ──────────────────────────────────────────────────────────────────────
+   Na parede o holofote é fixo e o metal é curvo, então a luz corre pela
+   letra quando quem olha se move. Na tela não há quem se mova, então é
+   a luz que anda — devagar, uma passada a cada nove segundos. É o que
+   separa "texto amarelo" de "letra de metal".
+
+   Só nos elementos grandes. Em corpo pequeno a passada vira cintilação
+   e cansa.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  /* a rampa com a faixa especular no meio, pronta para correr */
+  --metal-vivo:linear-gradient(100deg,
+    var(--ouro-baixa) 0%, #b8913c 14%, var(--ouro) 27%, var(--ouro-alta) 38%,
+    #fff6dd 44%, var(--ouro-alta) 50%, var(--ouro) 62%, #b8913c 78%, var(--ouro-baixa) 100%);
+}
+@keyframes correLuz{from{background-position:180% 0}to{background-position:-80% 0}}
+.af-luz{background:var(--metal-vivo);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:correLuz 9s linear infinite;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.55)) drop-shadow(0 0 30px rgba(212,175,94,.2))}
+
+/* a mesma passada na máscara do símbolo */
+.af-simbolo{background:var(--metal-vivo);background-size:260% 100%;
+  animation:correLuz 9s linear infinite}
+
+@media(prefers-reduced-motion:reduce){
+  .af-luz,.af-simbolo{animation:none;background:var(--metal);background-size:auto}
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   O FIO QUE SE DESENHA
+   Onde há uma divisa, ela é traçada — não aparece pronta. Custa nada e
+   muda a sensação: a página é montada na frente de quem chega.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-risco{transform-origin:left center;transform:scaleX(0);
+  transition:transform 1s var(--curva)}
+.on>.af-risco,.af-risco.on{transform:scaleX(1)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A PASSADA NO BOTÃO
+   Um brilho atravessa o botão de ouro quando o ponteiro chega. É o
+   reflexo do metal reagindo — a mesma ideia da luz que corre.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-bt-ouro{overflow:hidden;isolation:isolate}
+.af-bt-ouro::after{content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(105deg,transparent 34%,rgba(255,255,255,.62) 48%,transparent 62%);
+  transform:translateX(-120%);transition:transform .7s var(--curva)}
+.af-bt-ouro:hover::after{transform:translateX(120%)}
+@media(prefers-reduced-motion:reduce){.af-bt-ouro::after{display:none}}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A REVELAÇÃO EM CASCATA
+   Os filhos de um bloco não sobem juntos: sobem em fila, com 70ms entre
+   um e outro. É o que faz a seção parecer composta, e não empilhada.
+   ══════════════════════════════════════════════════════════════════════ */
+.js .af-fila>*{opacity:0;transform:translateY(16px);
+  transition:opacity .7s var(--curva),transform .7s var(--curva)}
+.af-fila.on>*{opacity:1;transform:none}
+.af-fila.on>*:nth-child(1){transition-delay:0s}
+.af-fila.on>*:nth-child(2){transition-delay:.07s}
+.af-fila.on>*:nth-child(3){transition-delay:.14s}
+.af-fila.on>*:nth-child(4){transition-delay:.21s}
+.af-fila.on>*:nth-child(5){transition-delay:.28s}
+.af-fila.on>*:nth-child(6){transition-delay:.35s}
+.af-fila.on>*:nth-child(n+7){transition-delay:.42s}
+@media(prefers-reduced-motion:reduce){.js .af-fila>*{opacity:1;transform:none}}
+
+/* ══════════════════════════════════════════════════════════════════════
    MOVIMENTO
    Um gesto só, e com intenção: o conteúdo sobe um fio e ganha luz ao
    entrar na tela. Página que se mexe demais parece feita por máquina.
    ══════════════════════════════════════════════════════════════════════ */
-.af-rev{opacity:0;transform:translateY(18px);
+.js .af-rev{opacity:0;transform:translateY(18px);
   transition:opacity var(--len) var(--curva),transform var(--len) var(--curva)}
 .af-rev.on{opacity:1;transform:none}
 .af-rev-1{transition-delay:.08s} .af-rev-2{transition-delay:.16s} .af-rev-3{transition-delay:.24s}
-@media(prefers-reduced-motion:reduce){.af-rev{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.js .af-rev{opacity:1;transform:none}}
 
 /* ══════════════════════════════════════════════════════════════════════
    IMPRESSÃO — no papel o breu vira branco e o ouro vira tinta
@@ -454,6 +524,10 @@ i,em{font-style:italic}
   text-transform:uppercase;color:var(--creme-3);white-space:nowrap;
   writing-mode:vertical-rl;transform:rotate(180deg);padding-top:.2rem}
 .rail::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--fio)}
+.rail::after{content:'';position:absolute;left:0;top:0;width:1px;background:var(--ouro);
+  height:calc(var(--pp,0)*100%);box-shadow:0 0 8px rgba(212,175,94,.5);
+  transition:height .12s linear}
+@media(max-width:900px){.rail::after{display:none}}
 .rail span{margin-left:1rem}
 @media(max-width:900px){
   .sec-in{grid-template-columns:minmax(0,1fr);gap:var(--e-3)}
@@ -507,8 +581,9 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
 .nav-menu a:hover{color:var(--creme)}
 .nav-menu a:hover::after{right:0}
 @media(max-width:940px){.nav-menu a{display:none}}
-#barra{position:fixed;top:0;left:0;height:2px;background:var(--ouro);z-index:100;width:0;
-  transition:width .1s linear}
+#barra{position:fixed;top:0;left:0;height:2px;z-index:100;width:0;
+  background:linear-gradient(90deg,var(--ouro-baixa),var(--ouro) 60%,var(--ouro-alta));
+  box-shadow:0 0 12px rgba(212,175,94,.6);transition:width .1s linear}
 
 /* ═══ A ENTRADA ═══
    A parede acendendo. O holofote sobe, o símbolo aparece atrás das
@@ -535,8 +610,10 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
   padding-bottom:.9rem;border-bottom:1px solid var(--fio)}
 .capa-cab .ref{margin-left:auto}
 .capa h1{max-width:24ch;margin:2.4rem 0 2.6rem}
-.capa h1 em{background:var(--metal);-webkit-background-clip:text;background-clip:text;
-  color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(212,175,94,.22))}
+.capa h1 em{background:var(--metal-vivo);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:correLuz 11s linear infinite;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(212,175,94,.22))}
 .capa-fio{font-size:1.15rem}
 .capa-baixo{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
   gap:var(--e-8);padding-top:var(--e-6);align-items:start}
@@ -547,8 +624,9 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
   margin-top:2.4rem;padding-top:1.3rem;border-top:1px solid var(--fio)}
 .capa-num .v{font-family:var(--mono);font-weight:500;font-size:var(--t-39);line-height:1;
   font-variant-numeric:tabular-nums;letter-spacing:-.03em;
-  background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 1px 0 rgba(0,0,0,.55))}
+  background:var(--metal-vivo);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:correLuz 9s linear infinite;filter:drop-shadow(0 1px 0 rgba(0,0,0,.55))}
 .capa-num .l{font-family:var(--mono);font-size:var(--t-11);letter-spacing:.1em;text-transform:uppercase;
   color:var(--creme-3);margin-top:.45rem;max-width:11ch;line-height:1.35}
 @media(max-width:980px){
@@ -718,7 +796,14 @@ input[type=checkbox]{accent-color:var(--ouro)}
 .cat-l{display:grid;grid-template-columns:3.2rem minmax(0,15rem) minmax(0,1fr);gap:var(--e-5);
   padding:1.6rem 0;border-bottom:1px solid var(--fio);align-items:start;
   transition:background var(--rap)}
-.cat-l:hover{background:var(--breu-3)}
+.cat-l{position:relative;isolation:isolate}
+.cat-l::before{content:'';position:absolute;inset:0 -1.2rem;z-index:-1;opacity:0;
+  background:linear-gradient(90deg,rgba(212,175,94,.10),rgba(212,175,94,.03) 42%,transparent 74%);
+  transform:translateX(-14px);transition:opacity var(--med),transform var(--med) var(--curva)}
+.cat-l:hover::before{opacity:1;transform:none}
+.cat-l:hover .id{color:var(--ouro)}
+.cat-l:hover h4{color:var(--ouro-alta)}
+.cat-l .id,.cat-l h4{transition:color var(--med)}
 .cat-l .id{font-family:var(--mono);font-size:var(--t-13);font-weight:500;color:var(--creme-3);
   padding-top:.2rem;font-variant-numeric:tabular-nums}
 .cat-l h4{color:var(--creme)}
@@ -810,9 +895,47 @@ input[type=checkbox]{accent-color:var(--ouro)}
 @media(max-width:820px){.emc{grid-template-columns:1fr}
   .emc>div{border-right:none;border-bottom:1px solid var(--fio);padding-left:0!important;padding-right:0}}
 
-/* ═══ §11 · A ESTEIRA ═══ */
+/* ═══ §11 · A ESTEIRA ═══
+   O momento assinatura da página. O trilho se desenha da esquerda para
+   a direita, o avião — que é o elemento da marca — voa por cima dele, e
+   cada etapa acende quando ele passa. Não é enfeite: é a própria tese
+   da empresa desenhada, a sequência em que não se pula etapa. */
 .est{margin-top:var(--e-6);overflow-x:auto;padding-bottom:.5rem}
-.est-t{display:flex;min-width:56rem;border-top:2px solid var(--fio-forte)}
+.est-t{display:flex;min-width:56rem;position:relative;padding-top:2.6rem}
+.est-trilho{position:absolute;top:1.05rem;left:0;right:0;height:1px;
+  background:var(--fio);pointer-events:none}
+.est-trilho::before{content:'';position:absolute;inset:0;background:var(--ouro);
+  transform-origin:left center;transform:scaleX(0);
+  box-shadow:0 0 12px rgba(212,175,94,.55)}
+.est-aviao{position:absolute;top:50%;left:0;font-size:1.15rem;color:var(--ouro-alta);
+  transform:translate(-50%,-50%) rotate(0deg);opacity:0;
+  filter:drop-shadow(0 0 10px rgba(246,227,171,.6))}
+.js .est-p{opacity:.3;transition:opacity .5s var(--curva)}
+.est.voa .est-trilho::before{animation:trilha 2.6s var(--curva) forwards}
+.est.voa .est-aviao{animation:voo 2.6s var(--curva) forwards}
+.est.voa .est-p{opacity:1}
+@keyframes trilha{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes voo{
+  0%{left:0;opacity:0;transform:translate(-50%,-50%) translateY(4px)}
+  6%{opacity:1}
+  92%{opacity:1}
+  100%{left:100%;opacity:0;transform:translate(-50%,-50%) translateY(-4px)}
+}
+.est.voa .est-p:nth-child(2){transition-delay:.20s}
+.est.voa .est-p:nth-child(3){transition-delay:.44s}
+.est.voa .est-p:nth-child(4){transition-delay:.68s}
+.est.voa .est-p:nth-child(5){transition-delay:.92s}
+.est.voa .est-p:nth-child(6){transition-delay:1.16s}
+.est.voa .est-p:nth-child(7){transition-delay:1.40s}
+.est.voa .est-p:nth-child(8){transition-delay:1.64s}
+.est.voa .est-p:nth-child(9){transition-delay:1.88s}
+.est.voa .est-p:nth-child(10){transition-delay:2.12s}
+.est.voa .est-p:nth-child(11){transition-delay:2.36s}
+@media(prefers-reduced-motion:reduce){
+  .js .est-p{opacity:1}
+  .est.voa .est-trilho::before{transform:scaleX(1);animation:none}
+  .est.voa .est-aviao{opacity:1;left:100%;animation:none}
+}
 .est-p{flex:1;padding:1rem .6rem 1rem 0;border-right:1px solid var(--fio);position:relative}
 .est-p:last-child{border-right:none}
 .est-p+.est-p{padding-left:.8rem}
@@ -821,7 +944,8 @@ input[type=checkbox]{accent-color:var(--ouro)}
 .est-p b{display:block;font-size:var(--t-13);font-weight:600;line-height:1.3}
 .est-p small{display:block;font-family:var(--mono);font-size:.6rem;color:var(--creme-3);
   margin-top:.25rem;line-height:1.3}
-.est-p.cli{background:var(--ouro-brilho);margin-top:-2px;border-top:2px solid var(--ouro)}
+.est-p.cli{background:var(--ouro-brilho);margin-top:-2px;border-top:2px solid var(--ouro);
+  box-shadow:inset 0 1px 0 rgba(246,227,171,.2)}
 .est-p.cli .i{color:var(--ouro)}
 .est-nota{margin-top:var(--e-5);padding-left:1rem;border-left:3px solid var(--ouro);
   font-size:var(--t-15);line-height:1.62;color:var(--creme-2);max-width:70ch}
@@ -858,7 +982,12 @@ input[type=checkbox]{accent-color:var(--ouro)}
    empresa em papel, a mentoria em ferro. Se as duas parecessem iguais
    a separação seria só de texto. */
 .duas{display:grid;grid-template-columns:1fr 1fr;gap:var(--e-5);margin-top:var(--e-6)}
-.dm{display:flex;flex-direction:column;padding:var(--e-6);border-radius:var(--r-3)}
+.dm{display:flex;flex-direction:column;padding:var(--e-6);border-radius:var(--r-3);
+  transition:transform var(--med) var(--curva),box-shadow var(--med),border-color var(--med)}
+.dm:hover{transform:translateY(-4px)}
+.dm.emp:hover{border-color:var(--ouro-fio-forte);
+  box-shadow:var(--alta-luz-ouro),var(--cova),0 0 60px -12px rgba(212,175,94,.3)}
+.dm.pes:hover{border-color:rgba(246,227,171,.24)}
 .dm.emp{background:linear-gradient(180deg,var(--breu-3),var(--breu-2));
   border:1px solid var(--ouro-fio);border-top:3px solid var(--ouro);
   box-shadow:var(--alta-luz-ouro),var(--cova)}
@@ -900,6 +1029,9 @@ input[type=checkbox]{accent-color:var(--ouro)}
 .duas-fim b{color:var(--creme)}
 @media(max-width:900px){.duas{grid-template-columns:1fr}}
 .ecos{margin-top:var(--e-6)}
+.af-sub>div{transition:background var(--med)}
+.af-sub>div:hover{background:rgba(212,175,94,.045)}
+.af-sub>div:hover .af-aviao{transform:translate(4px,-3px)}
 @media(max-width:560px){.af-sub>div{border-left:none!important;padding-left:0!important;
   border-top:1px solid var(--fio)}.af-sub>div:first-child{border-top:none}}
 
@@ -1026,11 +1158,11 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
 }
 
 /* revelação: o JS marca .in nos elementos .rev */
-.rev{opacity:0;transform:translateY(14px);
+.js .rev{opacity:0;transform:translateY(14px);
   transition:opacity var(--len) var(--curva),transform var(--len) var(--curva)}
 .rev.in{opacity:1;transform:none}
 .rev-1{transition-delay:.07s}.rev-2{transition-delay:.14s}.rev-3{transition-delay:.21s}
-@media(prefers-reduced-motion:reduce){.rev{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.js .rev{opacity:1;transform:none}}
 
 /* ── celular ──
    Ajustes que precisam vencer as regras de tela grande, então ficam
@@ -1130,7 +1262,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
 
 <!-- as quatro perguntas de quem acabou de chegar -->
 <section class="banda">
-  <div class="af-med q4">
+  <div class="af-med q4 af-fila">
     <div><div class="p">O que fazemos</div>
       <div class="r">Consultoria de gestão que <b>organiza a empresa e executa junto</b> — processo, preço, caixa, pessoas, expansão e valor do negócio.</div></div>
     <div><div class="p">Que dor cura</div>
@@ -1160,7 +1292,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <h2 class="tit">Leia com calma. <em>Quantas você marcaria?</em></h2>
         <p class="lead">Não é lista de vendedor. São as cinco frases que mais ouvimos de dono de empresa que fatura bem e mesmo assim não descansa.</p>
       </div>
-      <div class="chk rev">
+      <div class="chk af-fila">
         <label><span class="n">01</span><input type="checkbox" class="sx"><span class="cx" aria-hidden="true"></span><span class="tx"><b>Você é o gargalo.</b> Nada anda sem a sua aprovação — nem o que não deveria passar por você.</span></label>
         <label><span class="n">02</span><input type="checkbox" class="sx"><span class="cx" aria-hidden="true"></span><span class="tx"><b>A equipe executa, mas ninguém pensa como dono.</b> Faltou você, faltou decisão.</span></label>
         <label><span class="n">03</span><input type="checkbox" class="sx"><span class="cx" aria-hidden="true"></span><span class="tx"><b>Falta padrão.</b> Cada dia o mesmo processo é feito de um jeito, e o cliente sente a diferença.</span></label>
@@ -1187,7 +1319,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <p class="lead">Estes são os três vazamentos que mais encontramos. Faça a conta com os seus números — leva trinta segundos e costuma incomodar.</p>
       </div>
 
-      <div class="vaz rev">
+      <div class="vaz af-fila">
         <div>
           <div class="n">3–8%<small>da receita</small></div>
           <div><b>de margem perdida no preço</b>
@@ -1230,7 +1362,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <h2 class="tit">Não somos para todo mundo — <em>e isso é bom para você.</em></h2>
         <p class="lead">Consultoria que aceita qualquer cliente não tem método, tem agenda a preencher. Nossos critérios, abertos.</p>
       </div>
-      <div class="filtro rev">
+      <div class="filtro af-fila">
         <div class="sim">
           <h3><span class="mk" aria-hidden="true">✓</span>Somos para você se…</h3>
           <ul>
@@ -1269,7 +1401,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <div class="olho">Como começa</div>
         <h2 class="tit">Três passos. <em>Sem surpresa em nenhum deles.</em></h2>
       </div>
-      <div class="rota rev">
+      <div class="rota af-fila">
         <div data-n="PASSO 01"><b>Conversa e diagnóstico</b>
           <p>Uma conversa franca sobre onde trava. Se fizer sentido, aplicamos o Raio-X: 48 perguntas em 9 dimensões, cruzadas com os números do seu balanço.</p>
           <span class="sai">Você recebe: laudo com índice, o que quebra primeiro e plano de 90 dias</span></div>
@@ -1294,7 +1426,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <h2 class="tit">Cinco serviços que saem com <em>laudo</em>, não com slide.</h2>
         <p class="lead">São 83 serviços catalogados. Estes cinco rodam dentro do sistema, etapa por etapa, e terminam em documento assinado — com a norma e a lei citadas no próprio laudo. É o que separa consultoria de opinião.</p>
       </div>
-      <div class="cat rev">
+      <div class="cat af-fila">
         <div class="cat-l" style="--cor:var(--dado)">
           <div class="id">01</div>
           <div><h4>Raio-X do negócio</h4><span class="cl">Diagnóstico</span></div>
@@ -1346,7 +1478,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <h2 class="tit">Consultoria se mede pelo que <em>sobra depois que a gente sai.</em></h2>
         <p class="lead">Não é reunião nem apresentação. É documento que a sua equipe usa na segunda-feira seguinte — e que continua valendo daqui a dois anos.</p>
       </div>
-      <div class="fica rev">
+      <div class="fica af-fila">
         <div><span class="mk">A</span><b>Laudo assinado</b><span>Valuation, franqueabilidade, diagnóstico ou precificação — com norma e lei citadas.</span></div>
         <div><span class="mk">B</span><b>POPs e manuais</b><span>Como cada coisa é feita, escrito e usado no treinamento de quem entra.</span></div>
         <div><span class="mk">C</span><b>Tabela de preço</b><span>Preço por item, margem real e o limite de desconto que cada vendedor pode dar.</span></div>
@@ -1402,7 +1534,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <h2 class="tit">Método EMC: três camadas que <em>reorganizam</em> a empresa de dentro pra fora.</h2>
         <p class="lead">O EMC não trata sintoma. Corrige a raiz: como o dono pensa, como age e como a estrutura reflete isso.</p>
       </div>
-      <div class="emc rev">
+      <div class="emc af-fila">
         <div><div class="l">E</div><b>Estratégia</b><p>Onde a empresa perde dinheiro, tempo e energia. Define processo, padrão e prioridade — para parar de apagar incêndio e começar a construir.</p></div>
         <div><div class="l">M</div><b>Mentalidade</b><p>A empresa cresce até o tamanho da cabeça do dono. Destrava a delegação, a confiança e a decisão — para o crescimento deixar de assustar.</p></div>
         <div><div class="l">C</div><b>Comportamento</b><p>Mapeia traços e corrige comportamentos, do dono e do time. O respeito que você exige é proporcional ao exemplo que você dá — aqui o exemplo vira sistema.</p></div>
@@ -1421,8 +1553,9 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <h2 class="tit">Nada no improviso. <em>Tudo em esteira.</em></h2>
         <p class="lead">Todo projeto percorre a mesma sequência, e o sistema não deixa pular etapa. Os passos em dourado são seus — acontecem no seu portal, e nada avança sem você.</p>
       </div>
-      <div class="est rev">
+      <div class="est rev" id="esteira">
         <div class="est-t">
+          <div class="est-trilho" aria-hidden="true"><i class="est-aviao af-aviao"></i></div>
           <div class="est-p"><span class="i">01</span><b>Cadastro</b><small>escopo e valor</small></div>
           <div class="est-p"><span class="i">02</span><b>Proposta</b><small>clara e datada</small></div>
           <div class="est-p cli"><span class="i">03</span><b>Aprovação</b><small>você aprova</small></div>
@@ -1491,7 +1624,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <p class="lead">Estrutura sem mudança de comportamento vira manual na gaveta. Comportamento sem estrutura vira motivação que passa na segunda-feira. São frentes diferentes, com times, contratos e resultados diferentes — <b>e você pode contratar só uma delas</b>.</p>
       </div>
 
-      <div class="duas">
+      <div class="duas af-fila">
         <article class="dm emp rev">
           <div class="dm-top">
             <div><div class="af-marca lg" style="margin-bottom:.5rem"><span class="af-marca-s" aria-hidden="true"><i class="af-simbolo"></i></span><span class="af-marca-t"><span class="gr">Grupo</span><span class="nm"><i>A!</i> FATORIAL</span><span class="as">Soluções para Empresas e Franquias</span></span></div>
@@ -1534,7 +1667,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
       <div class="ecos rev">
         <div class="af-fio-aviao" style="margin-bottom:1.2rem"><i class="af-aviao" aria-hidden="true"></i></div>
         <div class="af-rot ouro" style="margin-bottom:1.1rem">As seis marcas do grupo</div>
-        <div class="af-sub">
+        <div class="af-sub af-fila">
           <div><div class="lk"><i class="af-aviao" aria-hidden="true"></i><b>PGE Lab</b></div>
             <div class="as">Inteligência que gera resultado.</div></div>
           <div><div class="lk"><i class="af-aviao" aria-hidden="true"></i><b>A! Multiplicadora</b></div>
@@ -1584,7 +1717,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <div class="olho">Antes de você perguntar</div>
         <h2 class="tit">As dúvidas que <em>sempre</em> aparecem.</h2>
       </div>
-      <div class="faq rev">
+      <div class="faq af-fila">
         <details class="fq"><summary>Quanto custa?</summary><div class="rr">Depende do escopo, e a gente diz <b>antes</b> de começar — nunca depois. Cada um dos 83 serviços tem preço, prazo e entregável em catálogo. O <b>Raio-X</b> é a porta de entrada mais barata, e o valor pago nele é abatido integralmente do primeiro serviço que ele recomendar, se contratado em até 90 dias.</div></details>
         <details class="fq"><summary>Quanto tempo até eu ver resultado?</summary><div class="rr">Correção de preço aparece no caixa <b>no mês seguinte</b>, sem investimento. Fluxo de 13 semanas dá clareza na primeira semana. Estruturar processos e formar franquia levam de 60 a 90 dias. No contrato está o prazo de cada entrega — e o sistema mostra se estamos dentro dele.</div></details>
         <details class="fq"><summary>Já tenho contador e já tentei consultoria. O que muda?</summary><div class="rr">Contador cuida da obrigação fiscal; consultoria comum entrega diagnóstico. A diferença aqui é a <b>execução auditada</b>: cada etapa tem dono, prazo e critério objetivo, e o sistema não deixa pular. Você não recebe um relatório e boa sorte — acompanha a execução e aprova entrega por entrega.</div></details>
@@ -1728,10 +1861,16 @@ var WHATSAPP = '5511911012147';
       separação passa a valer do primeiro contato. */
 var WHATSAPP_CC = WHATSAPP;
 
-/* 2) Onde está o sistema (a área interna). Ao publicar, o site fica na
-      raiz do domínio e o sistema numa subpasta ou subdomínio.
+/* 2) Onde está o sistema (a área interna).
+      No ARQUIVO ÚNICO o sistema está no mesmo documento e esta linha não
+      é usada: entrar apenas troca de lado, sem recarregar nada. Ela vale
+      quando site e sistema são publicados separados.
       Ex.: '/sistema/'  ou  'https://app.afatorialsolucoes.com.br/' */
 var URL_SISTEMA = '../index.html';
+function irParaSistema(){
+  if(typeof window.entrarNoSistema==='function'){ window.entrarNoSistema(); return; }
+  window.location.href=URL_SISTEMA;
+}
 
 /* 3) Servidor da equipe (backend/). Deixe vazio para o login apenas
       levar ao sistema, que tem a própria tela de entrada. Com o
@@ -1787,11 +1926,77 @@ function aoRolar(){
 }
 window.addEventListener('scroll', aoRolar, {passive:true}); aoRolar();
 
-/* ── aparecer ao entrar na tela ── */
-var io=new IntersectionObserver(function(es){
-  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-},{threshold:.1, rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.rev').forEach(function(el){ io.observe(el); });
+/* ── aparecer ao entrar na tela ──
+   Uma varredura, não um IntersectionObserver. O observador entrega o
+   estado do último quadro que ele conseguiu medir: numa rolagem rápida
+   ele avisa "não intersecta" para um bloco que passou voando, e o bloco
+   fica invisível para sempre. A varredura pergunta a posição de verdade
+   a cada quadro de rolagem, e a lista encolhe conforme revela — no fim
+   ela custa zero. */
+var _pend=[].slice.call(document.querySelectorAll('.rev,.af-fila,#esteira'));
+function varrer(){
+  var lim=window.innerHeight*0.94, restam=[];
+  for(var i=0;i<_pend.length;i++){
+    var el=_pend[i], r=el.getBoundingClientRect();
+    /* passou da linha? revela e sai da lista — inclusive se já subiu
+       muito acima da tela numa rolagem rápida. A primeira versão
+       descartava esses sem revelar, e eles ficavam invisíveis. */
+    if(r.top<lim){
+      el.classList.add(el.id==='esteira'?'voa':(el.classList.contains('af-fila')?'on':'in'));
+      if(el.id==='esteira') el.classList.add('in');
+    } else { restam.push(el); }
+  }
+  _pend=restam;
+}
+(function(){
+  var rodando=false;
+  function pedir(){ if(!rodando){ rodando=true; requestAnimationFrame(function(){ varrer(); rodando=false; }); } }
+  window.addEventListener('scroll',pedir,{passive:true});
+  window.addEventListener('resize',pedir,{passive:true});
+  varrer();
+  /* uma última passada depois que as letras assentam, para o caso de o
+     texto mudar de altura e empurrar alguém para dentro da tela */
+  setTimeout(varrer,400); setTimeout(varrer,1400);
+})();
+
+/* ── o holofote acompanha a rolagem ──
+   Na parede a luz é fixa e quem anda é a pessoa. Aqui a página anda,
+   então a luz desliza um pouco — o suficiente para o breu não parecer
+   um plano de fundo colado. */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var alvo=0, atual=0, rodando=false;
+  function passo(){
+    atual += (alvo-atual)*.08;
+    document.documentElement.style.setProperty('--luz-y', atual.toFixed(2)+'%');
+    if(Math.abs(alvo-atual)>.1) requestAnimationFrame(passo); else rodando=false;
+  }
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    alvo = h>0 ? -(window.scrollY/h)*26 : 0;
+    if(!rodando){ rodando=true; requestAnimationFrame(passo); }
+  },{passive:true});
+})();
+
+/* ── a régua da margem se preenche conforme a seção passa ──
+   Diz onde você está dentro da seção, sem ocupar o corpo do texto. */
+(function(){
+  var secoes=[].slice.call(document.querySelectorAll('.sec .rail'));
+  if(!secoes.length) return;
+  var rodando=false;
+  function medir(){
+    secoes.forEach(function(r){
+      var s=r.closest('.sec'), c=s.getBoundingClientRect();
+      var p=(window.innerHeight*.5 - c.top)/c.height;
+      r.style.setProperty('--pp', Math.max(0,Math.min(1,p)).toFixed(3));
+    });
+    rodando=false;
+  }
+  window.addEventListener('scroll',function(){
+    if(!rodando){ rodando=true; requestAnimationFrame(medir); }
+  },{passive:true});
+  medir();
+})();
 
 /* ── números que contam ── */
 var cio=new IntersectionObserver(function(es){
@@ -1810,7 +2015,7 @@ var cio=new IntersectionObserver(function(es){
     }
     requestAnimationFrame(passo);
   });
-},{threshold:.4});
+},{threshold:0, rootMargin:'0px 0px -12% 0px'});
 document.querySelectorAll('[data-conta]').forEach(function(el){ cio.observe(el); });
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1879,6 +2084,24 @@ document.querySelectorAll('[data-conta]').forEach(function(el){ cio.observe(el);
     });
   }
 
+  /* o número não troca de golpe: ele roda até o novo valor. Vale a pena
+     porque a conta é o momento em que a pessoa vê o próprio prejuízo —
+     o número correndo obriga o olho a acompanhar. */
+  function rolar(el, de, para, dur){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches || !isFinite(de)){
+      el.textContent='R$ '+br(para); return;
+    }
+    var t0=null;
+    function passo(ts){
+      if(!t0) t0=ts;
+      var q=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-q,3);
+      el.textContent='R$ '+br(de+(para-de)*e);
+      if(q<1) requestAnimationFrame(passo);
+    }
+    requestAnimationFrame(passo);
+  }
+  var _antes={};
+
   function calcular(){
     var fat=num(iFat.value), mg=num(iMg.value)/100, hr=num(iHr.value);
     if(mg<0) mg=0; if(mg>0.9) mg=0.9;
@@ -1901,6 +2124,22 @@ document.querySelectorAll('[data-conta]').forEach(function(el){ cio.observe(el);
     var caixa = fat*CAP;
 
     var total = preco+tempo+caixa;
+    var novos={preco:preco,tempo:tempo,caixa:caixa,ano:total*12};
+    var jaTem = saida.children.length===4;
+    if(jaTem){
+      var vs=saida.querySelectorAll('.v');
+      rolar(vs[0], _antes.preco, preco, 420);
+      rolar(vs[1], _antes.tempo, tempo, 420);
+      rolar(vs[2], _antes.caixa, caixa, 420);
+      rolar(vs[3], _antes.ano,   total*12, 520);
+      var ps=saida.querySelectorAll('.pre');
+      ps[0].textContent=br(perdaPP*100,1)+' p.p. perdidos entre somar e dividir o markup';
+      ps[1].textContent=br(hr)+'h por semana a R$ '+br(hora)+'/h, a hora da sua própria margem';
+      ps[3].textContent='R$ '+br(total)+' todo mês, já saindo hoje';
+      _antes=novos;
+      return;
+    }
+    _antes=novos;
     saida.innerHTML=
       '<div><div class="v">R$ '+br(preco)+'</div>'+
         '<div class="l">por mês em <b>margem</b>'+
@@ -2084,7 +2323,7 @@ $('en-form').addEventListener('submit', function(ev){
      chega logada, sem digitar de novo. */
   if(!URL_SERVIDOR){
     msg('ok','Tudo certo. Levando você para a sua área…');
-    setTimeout(function(){ window.location.href=URL_SISTEMA; }, 700);
+    setTimeout(irParaSistema, 700);
     return;
   }
   fetch(URL_SERVIDOR.replace(/\/+$/,'')+'/equipe/entrar',{
@@ -2104,7 +2343,7 @@ $('en-form').addEventListener('submit', function(ev){
         guarda.setItem('af_sync', JSON.stringify({url:URL_SERVIDOR.replace(/\/+$/,''), token:res.j.token, usuario:res.j.usuario, rev:0}));
       }catch(e){}
       msg('ok','Bem-vindo(a), <b>'+String(res.j.usuario.nome).replace(/[<>&"]/g,'')+'</b>. Abrindo a sua área…');
-      setTimeout(function(){ window.location.href=URL_SISTEMA; }, 700);
+      setTimeout(irParaSistema, 700);
     })
     .catch(function(){
       msg('erro','Não conseguimos falar com o servidor agora. Tente de novo em instantes ou chame a gente no WhatsApp.');

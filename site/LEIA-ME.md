@@ -1,8 +1,8 @@
 # Site — a porta de entrada do cliente
 
-**Cada página é um arquivo único.** Baixe o `index.html`, salve onde quiser,
-dê dois cliques. Não precisa de internet, não precisa de mais nenhum arquivo
-ao lado, não tem como quebrar.
+**Tudo num arquivo só.** O entregável é `Grupo A! Fatorial.html`, na raiz do
+projeto: o site e o sistema no mesmo documento. Entrar não recarrega nada —
+troca de lado. Sair volta para a porta. Sem internet, sem arquivo vizinho.
 
 > Isso não era assim, e quebrou: o site foi aberto uma vez com o CSS faltando
 > na pasta e apareceu cru — links azuis, Times, sem layout nenhum. Página que
@@ -11,10 +11,26 @@ ao lado, não tem como quebrar.
 
 | Arquivo | O que é |
 |---|---|
-| `index.html` | **O site.** Arquivo único, pronto para abrir ou publicar. |
+| `../Grupo A! Fatorial.html` | **O entregável.** Site + sistema, um arquivo. Gerado por `juntar.py`. |
+| `juntar.py` | Junta site e sistema. Rode por último: `python3 juntar.py` |
+| `index.html` | **O site sozinho**, para publicar separado do sistema. |
 | `marca.html` | **O guia do padrão.** Arquivo único. Vivo: mede o próprio contraste e reprova o que passar do limite. |
 | `a-fatorial.css` | **A fonte de verdade do padrão.** Não é carregado pelas páginas: é embutido nelas. |
-| `montar.py` | Embute o CSS nas duas páginas. Rode depois de mexer no CSS: `python3 montar.py` |
+| `montar.py` | Embute o CSS nas páginas do site. Rode antes do `juntar.py`. |
+
+**A ordem é essa:** mexeu no CSS → `python3 montar.py` → `python3 juntar.py`.
+
+### Como os dois convivem no mesmo arquivo
+
+O sistema tem 833 classes e o site 209; **37 nomes se repetem**. Coladas sem
+cuidado, uma pintaria a outra. Então o site foi embrulhado em `#porta` e todo
+o CSS dele levou esse prefixo — inclusive os tokens, que saíram do `:root`. O
+sistema ficou intocado, no escopo global.
+
+Um detalhe que quase passou: o sistema declara
+`body{display:flex;height:100vh;overflow:hidden}` porque é painel de tela
+cheia. Com isso o site não rolava. O corpo troca de regime junto com o lado:
+`.na-porta` rola, `.no-sistema` é painel.
 
 ## O padrão visual — "a parede"
 
