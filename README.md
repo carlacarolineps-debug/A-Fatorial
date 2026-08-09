@@ -1505,3 +1505,46 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
      de espaço, e as vírgulas de dentro deles partiam as regras ao meio; e o
      `body` do sistema, sendo painel de tela cheia com `overflow:hidden`,
      impedia o site de rolar.
+
+## A retícula fatorial — versão 0908.11
+
+180. **O fundo virou o nome da empresa.** Uma retícula em profundidade onde
+     cada casca tem exatamente *k* nós — 1, 2, 3, 4, 5, 6, 7 — e cada nó se
+     liga a todos os da casca seguinte: 1×2×3×4×5×6×7 = 5.040 caminhos. É o
+     operador fatorial existindo no espaço, não explicado em legenda. A câmera
+     avança com a rolagem, o ponteiro desloca o ponto de fuga, e a cor vai do
+     ouro (perto) ao violeta (fundo) passando pelo ciano.
+
+181. **O laudo desta leitura.** Um painel no canto audita a leitura em curso:
+     a etapa e o fatorial multiplicando a cada seção atravessada. A empresa
+     diz que é o primeiro cliente do próprio método — aqui a página roda o
+     método nela mesma, à vista. O nome da marca deixa de ser metáfora e vira
+     experiência.
+
+182. **O regulador de qualidade.** A página mede a própria fluidez e se ajusta:
+     máquina boa recebe tudo, máquina apertada perde primeiro o desfoque (o
+     item mais caro, medido: treze quadros por segundo), depois a resolução da
+     retícula, e por último a retícula. Efeito bonito que engasga é pior que
+     efeito nenhum.
+
+183. **As três luzes.** O ouro segue sendo o metal — matéria, peso, marca. O
+     ciano (12,8:1), o violeta (7,5:1) e o âmbar (11,3:1) são luz: não
+     preenchem, só marcam borda, halo e aresta. Frias contra o ouro quente; é
+     o contraste de temperatura que faz o conjunto parecer futuro.
+
+184. **O vidro,** com os três ingredientes obrigatórios: desfoque, alta luz na
+     borda de cima e a aresta cromática — o desvio de cor na quina, que é o
+     que o olho lê como refração.
+
+185. **A profundidade de verdade:** ponto de fuga no contêiner, peças em planos
+     diferentes de Z e inclinação conforme o ponteiro. Desligada no toque e em
+     movimento reduzido.
+
+186. **O breu ficou azulado** (`#07080c`) para dar temperatura fria ao conjunto,
+     e a tinta acompanhou. Um defeito real corrigido pela medição: as cores de
+     classe do catálogo, recalibradas na versão anterior, foram para os sinais
+     do padrão escuro.
+
+187. **Bug do canvas:** `position:fixed;inset:0` não estica elemento
+     substituído — o canvas ficou no tamanho intrínseco de 300×150 e a retícula
+     desenhava num carimbo. Precisa de `width:100%;height:100%` explícito.

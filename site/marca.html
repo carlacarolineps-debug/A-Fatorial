@@ -74,15 +74,25 @@
      Quatro profundidades, não uma. O fundo é o mais escuro; cada
      superfície que sobe fica um degrau mais clara e ganha um fio de
      luz na borda de cima. É assim que se lê relevo numa tela. */
-  --breu:#0a0a09;           /* a parede */
-  --breu-2:#100f0e;         /* faixa levantada */
-  --breu-3:#161513;         /* a folha: cartão, painel */
-  --breu-4:#1e1c19;         /* campo, entrada, o degrau mais alto */
+  --breu:#07080c;           /* o vazio — preto azulado, não preto morto */
+  --breu-2:#0b0d13;         /* faixa levantada */
+  --breu-3:#111420;         /* a folha: cartão, painel */
+  --breu-4:#171b2a;         /* campo, entrada, o degrau mais alto */
+
+  /* ══ AS TRÊS LUZES ══
+     O ouro é o metal — matéria, peso, marca. Estas três são LUZ: não
+     preenchem nada, só marcam borda, halo e aresta de vidro. É o que
+     tira a página do "preto e dourado" sem tirar a marca do lugar.
+     Frias contra o ouro quente: é o contraste de temperatura que faz
+     o conjunto parecer futuro em vez de barroco. */
+  --ciano:#5fe3d8;          /* 11,9:1 — a luz do processo */
+  --violeta:#a98bff;        /*  7,4:1 — a luz do comportamento */
+  --ambar:#ffb266;          /* 10,8:1 — a luz do alerta */
 
   /* ══ A TINTA ══ (contraste medido sobre --breu) */
-  --creme:#f4f0e8;          /* 17,8:1 — título e texto principal */
-  --creme-2:#bdb5a6;        /*  9,4:1 — texto de apoio */
-  --creme-3:#8e8678;        /*  5,4:1 — legenda, rótulo, unidade */
+  --creme:#f2f2f6;          /* 18,2:1 — título e texto principal */
+  --creme-2:#b6b9c6;        /*  9,3:1 — texto de apoio */
+  --creme-3:#878b9c;        /*  5,4:1 — legenda, rótulo, unidade */
 
   /* ══ O OURO ══
      Aqui ele é a cor da marca de verdade, não um substituto: 9,4:1
@@ -104,9 +114,20 @@
   --dado:#7db6e8;    --dado-bg:rgba(125,182,232,.12);  /* informação */
 
   /* ══ FIO ══ o fio aqui é luz, não linha cinza ══ */
-  --fio:rgba(244,240,232,.10);
-  --fio-forte:rgba(244,240,232,.19);
-  --fio-grade:rgba(244,240,232,.035);
+  --fio:rgba(228,232,248,.10);
+  --fio-forte:rgba(228,232,248,.20);
+  --fio-grade:rgba(228,232,248,.035);
+
+  /* ══ O VIDRO ══
+     Superfície que deixa a retícula passar por trás. Três ingredientes,
+     e os três são obrigatórios: o desfoque (senão vira plástico), a
+     borda de alta luz em cima (senão não tem espessura) e a aresta
+     cromática (senão não tem vidro nenhum — é o desvio de cor na quina
+     que o olho lê como refração). */
+  --vidro:rgba(17,20,32,.58);
+  --vidro-2:rgba(23,27,42,.72);
+  --vidro-borda:rgba(228,232,248,.13);
+  --desfoque:blur(15px) saturate(1.22);
 
   /* ══ LETRA ══ quatro papéis, e nenhum é a fonte neutra de sempre.
      ARCHIVO carrega título e informação — grotesca de sinalização,
@@ -393,6 +414,127 @@ i,em{font-style:italic}
 .af-campo input:focus,.af-campo select:focus,.af-campo textarea:focus{
   outline:none;border-color:var(--ouro);box-shadow:0 0 0 3px rgba(212,175,94,.16)}
 .af-campo input::placeholder{color:var(--creme-3);opacity:1}
+
+/* ══════════════════════════════════════════════════════════════════════
+   O VIDRO
+   ──────────────────────────────────────────────────────────────────────
+   Toda superfície levantada passa a ser vidro: a retícula que corre
+   atrás continua visível através dela, e é isso que dá profundidade de
+   verdade em vez de camadas empilhadas.
+
+   Três ingredientes, e os três são obrigatórios:
+     · o DESFOQUE — sem ele o vidro vira plástico fosco;
+     · a ALTA LUZ na borda de cima — é o que dá espessura à chapa;
+     · a ARESTA CROMÁTICA — um fio de ciano de um lado e violeta do
+       outro. É o desvio de cor na quina que o olho lê como refração.
+       Sem isso não é vidro, é retângulo translúcido.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-vidro{position:relative;background:var(--vidro);
+  -webkit-backdrop-filter:var(--desfoque);backdrop-filter:var(--desfoque);
+  border:1px solid var(--vidro-borda);border-radius:var(--r-4);
+  box-shadow:var(--alta-luz),0 30px 70px -34px rgba(0,0,0,.95)}
+/* a aresta cromática: dois fios finíssimos nas quinas opostas */
+.af-vidro::after{content:'';position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;padding:1px;
+  background:linear-gradient(140deg,
+    rgba(95,227,216,.55) 0%, rgba(95,227,216,0) 22%,
+    rgba(228,232,248,.10) 50%,
+    rgba(169,139,255,0) 78%, rgba(169,139,255,.5) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
+/* VIDRO LEVE — mesma leitura, sem o desfoque.
+   O backdrop-filter é o item mais caro da página: tirá-lo de oito
+   superfícies e deixar em cinco devolveu treze quadros por segundo na
+   máquina de teste. Sobre fundo escuro a diferença entre desfocar e não
+   desfocar é quase nula; o que dá o vidro é a aresta cromática, e essa
+   fica. Reservado o desfoque para onde há conteúdo atrás: capa,
+   calculadora e as duas marcas. */
+/* nível 1 do regulador: o desfoque some de todas as superfícies */
+html[data-q="1"] .af-vidro,html[data-q="0"] .af-vidro,
+html[data-q="1"] #laudo-vivo,html[data-q="0"] #laudo-vivo{
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(180deg,rgba(20,24,38,.86),rgba(11,13,20,.92))}
+html[data-q="0"] #reticula{display:none}
+.af-vidro.leve{-webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(180deg,rgba(20,24,38,.82),rgba(11,13,20,.88))}
+.af-vidro.ouro::after{background:linear-gradient(140deg,
+    rgba(246,227,171,.7) 0%, rgba(212,175,94,0) 26%,
+    rgba(228,232,248,.10) 52%,
+    rgba(95,227,216,0) 76%, rgba(95,227,216,.45) 100%)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A PROFUNDIDADE — o efeito 3/4 D
+   ──────────────────────────────────────────────────────────────────────
+   Não é "sombra maior". É perspectiva de verdade: o contêiner tem ponto
+   de fuga e as peças ficam em planos diferentes de Z. Quando o ponteiro
+   anda, a cena inclina — como olhar dentro de um diorama, não para uma
+   figura. É por isso que precisa de ponteiro fino para valer; no toque
+   fica parado, e está certo assim.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-cena{perspective:1400px;perspective-origin:50% 40%}
+.af-peca{transform-style:preserve-3d;
+  transform:rotateX(calc(var(--incl-x,0)*1deg)) rotateY(calc(var(--incl-y,0)*1deg))
+            translateZ(var(--z,0px));
+  transition:transform .5s var(--curva);will-change:transform}
+.af-peca>*{transform-style:preserve-3d}
+.af-alto{transform:translateZ(38px)}
+.af-baixo{transform:translateZ(-26px)}
+@media(hover:none),(prefers-reduced-motion:reduce){
+  .af-peca{transform:none!important}
+  .af-alto,.af-baixo{transform:none}
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A RETÍCULA FATORIAL
+   O desenho vive no <canvas>; aqui só o lugar dele: atrás de tudo, fixo,
+   sem capturar ponteiro.
+   ══════════════════════════════════════════════════════════════════════ */
+#reticula{position:fixed;inset:0;width:100%;height:100%;z-index:0;
+  pointer-events:none;display:block}
+
+/* ══════════════════════════════════════════════════════════════════════
+   O LAUDO DA PRÓPRIA PÁGINA
+   ──────────────────────────────────────────────────────────────────────
+   O canto inferior traz um painel que audita a leitura em curso: em que
+   etapa você está, e o fatorial se multiplicando a cada seção
+   atravessada — 1, 2, 6, 24, 120…
+
+   Não é enfeite. A empresa vende execução auditável e diz "somos o
+   primeiro cliente do nosso próprio método"; aqui a página roda o
+   método nela mesma, à vista. E o nome da marca deixa de ser uma
+   metáfora explicada em texto: quem rola vê o produto multiplicar.
+   ══════════════════════════════════════════════════════════════════════ */
+#laudo-vivo{position:fixed;right:1.2rem;bottom:5.4rem;z-index:65;
+  width:16.5rem;padding:.85rem .95rem;border-radius:var(--r-3);
+  background:var(--vidro-2);-webkit-backdrop-filter:var(--desfoque);backdrop-filter:var(--desfoque);
+  border:1px solid var(--vidro-borda);box-shadow:var(--alta-luz),0 24px 50px -26px #000;
+  opacity:0;transform:translateY(14px) scale(.97);pointer-events:none;
+  transition:opacity var(--med),transform var(--med) var(--curva)}
+#laudo-vivo.ver{opacity:1;transform:none}
+#laudo-vivo .lv-h{display:flex;align-items:center;gap:.45rem;
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--creme-3);margin-bottom:.6rem}
+#laudo-vivo .lv-h i{width:5px;height:5px;border-radius:50%;background:var(--ciano);
+  box-shadow:0 0 0 3px rgba(95,227,216,.16);animation:pulsa 2.4s infinite}
+#laudo-vivo .lv-f{display:flex;align-items:baseline;gap:.55rem;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1}
+#laudo-vivo .lv-f b{font-size:2.1rem;flex:none;font-weight:500;letter-spacing:-.03em;
+  background:var(--metal-vivo);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:correLuz 9s linear infinite}
+#laudo-vivo .lv-f span{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ciano);line-height:1.4;min-width:0}
+#laudo-vivo .lv-e{margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--fio);
+  font-size:.72rem;line-height:1.35;color:var(--creme-2)}
+#laudo-vivo .lv-e b{color:var(--ciano);font-weight:600}
+#laudo-vivo .lv-b{margin-top:.55rem;height:2px;background:rgba(228,232,248,.1);
+  border-radius:2px;overflow:hidden}
+#laudo-vivo .lv-b i{display:block;height:100%;width:0;border-radius:2px;
+  background:linear-gradient(90deg,var(--ciano),var(--ouro));
+  box-shadow:0 0 10px rgba(95,227,216,.5);transition:width .5s var(--curva)}
+@media(max-width:900px){#laudo-vivo{display:none}}
+@media(prefers-reduced-motion:reduce){#laudo-vivo .lv-f b{animation:none}}
 
 /* ══════════════════════════════════════════════════════════════════════
    A LUZ NO METAL

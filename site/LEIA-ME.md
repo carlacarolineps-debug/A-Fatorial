@@ -32,13 +32,60 @@ Um detalhe que quase passou: o sistema declara
 cheia. Com isso o site não rolava. O corpo troca de regime junto com o lado:
 `.na-porta` rola, `.no-sistema` é painel.
 
-## O padrão visual — "a parede"
+## O padrão visual — "a retícula"
 
 A marca existe fisicamente: letras douradas em relevo sobre parede preta, com
-holofote em cima. Quem entra na recepção vê ouro pesado num breu texturizado,
-e a luz corre pelo metal. É esse efeito que a tela precisa causar.
+holofote em cima. O site parte daí e vai adiante: o fundo não é textura, é o
+**nome da empresa desenhado no espaço**.
 
-**E havia uma razão técnica dura para o site nunca ter parecido dela:** o ouro
+### A retícula fatorial
+
+Cada casca tem exatamente *k* nós — 1, 2, 3, 4, 5, 6, 7 — e cada nó de uma
+casca se liga a **todos** os nós da casca seguinte. O número de caminhos de
+ponta a ponta é 1×2×3×4×5×6×7 = **5.040**. É o operador fatorial existindo em
+profundidade, não explicado em legenda. A câmera avança com a rolagem, então
+descer a página é atravessar a retícula; o ponteiro desloca o ponto de fuga; a
+cor vai do ouro (perto) ao violeta (fundo), passando pelo ciano.
+
+### O laudo desta leitura
+
+No canto, um painel audita a leitura em curso: a etapa e o **fatorial
+multiplicando** a cada seção atravessada — 1!, 2!, 6!, 11!… A empresa vende
+execução auditável e diz que é o primeiro cliente do próprio método; aqui a
+página roda o método nela mesma, à vista. O nome da marca deixa de ser
+metáfora explicada e vira experiência: quem rola vê o produto multiplicar.
+
+### O regulador de qualidade
+
+A página mede a própria fluidez e se ajusta sozinha. Máquina boa recebe tudo;
+máquina apertada perde primeiro o desfoque do vidro (o item mais caro), depois
+a resolução da retícula, e por último a retícula. Efeito bonito que engasga é
+pior que efeito nenhum — e medir antes de opinar é o que a empresa vende.
+
+### As três luzes
+
+O ouro continua sendo o **metal** — matéria, peso, marca. O ciano, o violeta e
+o âmbar são **luz**: não preenchem nada, só marcam borda, halo e aresta de
+vidro. Frias contra o ouro quente: é o contraste de temperatura que faz o
+conjunto parecer futuro em vez de barroco.
+
+### O vidro
+
+Toda superfície levantada deixa a retícula passar por trás. Três ingredientes,
+os três obrigatórios: o **desfoque** (sem ele vira plástico), a **alta luz na
+borda de cima** (dá espessura à chapa) e a **aresta cromática** — um fio de
+ciano de um lado e violeta do outro. É o desvio de cor na quina que o olho lê
+como refração; sem isso não é vidro, é retângulo translúcido.
+
+### A profundidade
+
+Não é "sombra maior": é perspectiva. O contêiner tem ponto de fuga e as peças
+ficam em planos diferentes de Z. Quando o ponteiro anda, a cena inclina — como
+olhar dentro de um diorama. Só com ponteiro fino; no toque fica parado.
+
+E a razão de tudo isso ainda ser escuro:
+
+o ouro
 da marca (`#d4af5e`) sobre papel claro rende **2:1**. Ilegível. Para usá-lo
 como texto era preciso rebaixá-lo a um marrom fechado, e o ouro de verdade
 sumia. Sobre o breu, o mesmo ouro rende **9,4:1** — legível em qualquer

@@ -81,15 +81,25 @@
      Quatro profundidades, não uma. O fundo é o mais escuro; cada
      superfície que sobe fica um degrau mais clara e ganha um fio de
      luz na borda de cima. É assim que se lê relevo numa tela. */
-  --breu:#0a0a09;           /* a parede */
-  --breu-2:#100f0e;         /* faixa levantada */
-  --breu-3:#161513;         /* a folha: cartão, painel */
-  --breu-4:#1e1c19;         /* campo, entrada, o degrau mais alto */
+  --breu:#07080c;           /* o vazio — preto azulado, não preto morto */
+  --breu-2:#0b0d13;         /* faixa levantada */
+  --breu-3:#111420;         /* a folha: cartão, painel */
+  --breu-4:#171b2a;         /* campo, entrada, o degrau mais alto */
+
+  /* ══ AS TRÊS LUZES ══
+     O ouro é o metal — matéria, peso, marca. Estas três são LUZ: não
+     preenchem nada, só marcam borda, halo e aresta de vidro. É o que
+     tira a página do "preto e dourado" sem tirar a marca do lugar.
+     Frias contra o ouro quente: é o contraste de temperatura que faz
+     o conjunto parecer futuro em vez de barroco. */
+  --ciano:#5fe3d8;          /* 11,9:1 — a luz do processo */
+  --violeta:#a98bff;        /*  7,4:1 — a luz do comportamento */
+  --ambar:#ffb266;          /* 10,8:1 — a luz do alerta */
 
   /* ══ A TINTA ══ (contraste medido sobre --breu) */
-  --creme:#f4f0e8;          /* 17,8:1 — título e texto principal */
-  --creme-2:#bdb5a6;        /*  9,4:1 — texto de apoio */
-  --creme-3:#8e8678;        /*  5,4:1 — legenda, rótulo, unidade */
+  --creme:#f2f2f6;          /* 18,2:1 — título e texto principal */
+  --creme-2:#b6b9c6;        /*  9,3:1 — texto de apoio */
+  --creme-3:#878b9c;        /*  5,4:1 — legenda, rótulo, unidade */
 
   /* ══ O OURO ══
      Aqui ele é a cor da marca de verdade, não um substituto: 9,4:1
@@ -111,9 +121,20 @@
   --dado:#7db6e8;    --dado-bg:rgba(125,182,232,.12);  /* informação */
 
   /* ══ FIO ══ o fio aqui é luz, não linha cinza ══ */
-  --fio:rgba(244,240,232,.10);
-  --fio-forte:rgba(244,240,232,.19);
-  --fio-grade:rgba(244,240,232,.035);
+  --fio:rgba(228,232,248,.10);
+  --fio-forte:rgba(228,232,248,.20);
+  --fio-grade:rgba(228,232,248,.035);
+
+  /* ══ O VIDRO ══
+     Superfície que deixa a retícula passar por trás. Três ingredientes,
+     e os três são obrigatórios: o desfoque (senão vira plástico), a
+     borda de alta luz em cima (senão não tem espessura) e a aresta
+     cromática (senão não tem vidro nenhum — é o desvio de cor na quina
+     que o olho lê como refração). */
+  --vidro:rgba(17,20,32,.58);
+  --vidro-2:rgba(23,27,42,.72);
+  --vidro-borda:rgba(228,232,248,.13);
+  --desfoque:blur(15px) saturate(1.22);
 
   /* ══ LETRA ══ quatro papéis, e nenhum é a fonte neutra de sempre.
      ARCHIVO carrega título e informação — grotesca de sinalização,
@@ -402,6 +423,127 @@ i,em{font-style:italic}
 .af-campo input::placeholder{color:var(--creme-3);opacity:1}
 
 /* ══════════════════════════════════════════════════════════════════════
+   O VIDRO
+   ──────────────────────────────────────────────────────────────────────
+   Toda superfície levantada passa a ser vidro: a retícula que corre
+   atrás continua visível através dela, e é isso que dá profundidade de
+   verdade em vez de camadas empilhadas.
+
+   Três ingredientes, e os três são obrigatórios:
+     · o DESFOQUE — sem ele o vidro vira plástico fosco;
+     · a ALTA LUZ na borda de cima — é o que dá espessura à chapa;
+     · a ARESTA CROMÁTICA — um fio de ciano de um lado e violeta do
+       outro. É o desvio de cor na quina que o olho lê como refração.
+       Sem isso não é vidro, é retângulo translúcido.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-vidro{position:relative;background:var(--vidro);
+  -webkit-backdrop-filter:var(--desfoque);backdrop-filter:var(--desfoque);
+  border:1px solid var(--vidro-borda);border-radius:var(--r-4);
+  box-shadow:var(--alta-luz),0 30px 70px -34px rgba(0,0,0,.95)}
+/* a aresta cromática: dois fios finíssimos nas quinas opostas */
+.af-vidro::after{content:'';position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;padding:1px;
+  background:linear-gradient(140deg,
+    rgba(95,227,216,.55) 0%, rgba(95,227,216,0) 22%,
+    rgba(228,232,248,.10) 50%,
+    rgba(169,139,255,0) 78%, rgba(169,139,255,.5) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
+/* VIDRO LEVE — mesma leitura, sem o desfoque.
+   O backdrop-filter é o item mais caro da página: tirá-lo de oito
+   superfícies e deixar em cinco devolveu treze quadros por segundo na
+   máquina de teste. Sobre fundo escuro a diferença entre desfocar e não
+   desfocar é quase nula; o que dá o vidro é a aresta cromática, e essa
+   fica. Reservado o desfoque para onde há conteúdo atrás: capa,
+   calculadora e as duas marcas. */
+/* nível 1 do regulador: o desfoque some de todas as superfícies */
+html[data-q="1"] .af-vidro,html[data-q="0"] .af-vidro,
+html[data-q="1"] #laudo-vivo,html[data-q="0"] #laudo-vivo{
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(180deg,rgba(20,24,38,.86),rgba(11,13,20,.92))}
+html[data-q="0"] #reticula{display:none}
+.af-vidro.leve{-webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(180deg,rgba(20,24,38,.82),rgba(11,13,20,.88))}
+.af-vidro.ouro::after{background:linear-gradient(140deg,
+    rgba(246,227,171,.7) 0%, rgba(212,175,94,0) 26%,
+    rgba(228,232,248,.10) 52%,
+    rgba(95,227,216,0) 76%, rgba(95,227,216,.45) 100%)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A PROFUNDIDADE — o efeito 3/4 D
+   ──────────────────────────────────────────────────────────────────────
+   Não é "sombra maior". É perspectiva de verdade: o contêiner tem ponto
+   de fuga e as peças ficam em planos diferentes de Z. Quando o ponteiro
+   anda, a cena inclina — como olhar dentro de um diorama, não para uma
+   figura. É por isso que precisa de ponteiro fino para valer; no toque
+   fica parado, e está certo assim.
+   ══════════════════════════════════════════════════════════════════════ */
+.af-cena{perspective:1400px;perspective-origin:50% 40%}
+.af-peca{transform-style:preserve-3d;
+  transform:rotateX(calc(var(--incl-x,0)*1deg)) rotateY(calc(var(--incl-y,0)*1deg))
+            translateZ(var(--z,0px));
+  transition:transform .5s var(--curva);will-change:transform}
+.af-peca>*{transform-style:preserve-3d}
+.af-alto{transform:translateZ(38px)}
+.af-baixo{transform:translateZ(-26px)}
+@media(hover:none),(prefers-reduced-motion:reduce){
+  .af-peca{transform:none!important}
+  .af-alto,.af-baixo{transform:none}
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A RETÍCULA FATORIAL
+   O desenho vive no <canvas>; aqui só o lugar dele: atrás de tudo, fixo,
+   sem capturar ponteiro.
+   ══════════════════════════════════════════════════════════════════════ */
+#reticula{position:fixed;inset:0;width:100%;height:100%;z-index:0;
+  pointer-events:none;display:block}
+
+/* ══════════════════════════════════════════════════════════════════════
+   O LAUDO DA PRÓPRIA PÁGINA
+   ──────────────────────────────────────────────────────────────────────
+   O canto inferior traz um painel que audita a leitura em curso: em que
+   etapa você está, e o fatorial se multiplicando a cada seção
+   atravessada — 1, 2, 6, 24, 120…
+
+   Não é enfeite. A empresa vende execução auditável e diz "somos o
+   primeiro cliente do nosso próprio método"; aqui a página roda o
+   método nela mesma, à vista. E o nome da marca deixa de ser uma
+   metáfora explicada em texto: quem rola vê o produto multiplicar.
+   ══════════════════════════════════════════════════════════════════════ */
+#laudo-vivo{position:fixed;right:1.2rem;bottom:5.4rem;z-index:65;
+  width:16.5rem;padding:.85rem .95rem;border-radius:var(--r-3);
+  background:var(--vidro-2);-webkit-backdrop-filter:var(--desfoque);backdrop-filter:var(--desfoque);
+  border:1px solid var(--vidro-borda);box-shadow:var(--alta-luz),0 24px 50px -26px #000;
+  opacity:0;transform:translateY(14px) scale(.97);pointer-events:none;
+  transition:opacity var(--med),transform var(--med) var(--curva)}
+#laudo-vivo.ver{opacity:1;transform:none}
+#laudo-vivo .lv-h{display:flex;align-items:center;gap:.45rem;
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--creme-3);margin-bottom:.6rem}
+#laudo-vivo .lv-h i{width:5px;height:5px;border-radius:50%;background:var(--ciano);
+  box-shadow:0 0 0 3px rgba(95,227,216,.16);animation:pulsa 2.4s infinite}
+#laudo-vivo .lv-f{display:flex;align-items:baseline;gap:.55rem;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1}
+#laudo-vivo .lv-f b{font-size:2.1rem;flex:none;font-weight:500;letter-spacing:-.03em;
+  background:var(--metal-vivo);background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:correLuz 9s linear infinite}
+#laudo-vivo .lv-f span{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ciano);line-height:1.4;min-width:0}
+#laudo-vivo .lv-e{margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--fio);
+  font-size:.72rem;line-height:1.35;color:var(--creme-2)}
+#laudo-vivo .lv-e b{color:var(--ciano);font-weight:600}
+#laudo-vivo .lv-b{margin-top:.55rem;height:2px;background:rgba(228,232,248,.1);
+  border-radius:2px;overflow:hidden}
+#laudo-vivo .lv-b i{display:block;height:100%;width:0;border-radius:2px;
+  background:linear-gradient(90deg,var(--ciano),var(--ouro));
+  box-shadow:0 0 10px rgba(95,227,216,.5);transition:width .5s var(--curva)}
+@media(max-width:900px){#laudo-vivo{display:none}}
+@media(prefers-reduced-motion:reduce){#laudo-vivo .lv-f b{animation:none}}
+
+/* ══════════════════════════════════════════════════════════════════════
    A LUZ NO METAL
    ──────────────────────────────────────────────────────────────────────
    Na parede o holofote é fixo e o metal é curvo, então a luz corre pela
@@ -524,8 +666,9 @@ i,em{font-style:italic}
   text-transform:uppercase;color:var(--creme-3);white-space:nowrap;
   writing-mode:vertical-rl;transform:rotate(180deg);padding-top:.2rem}
 .rail::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--fio)}
-.rail::after{content:'';position:absolute;left:0;top:0;width:1px;background:var(--ouro);
-  height:calc(var(--pp,0)*100%);box-shadow:0 0 8px rgba(212,175,94,.5);
+.rail::after{content:'';position:absolute;left:0;top:0;width:1px;
+  background:linear-gradient(180deg,var(--ciano),var(--ouro));
+  height:calc(var(--pp,0)*100%);box-shadow:0 0 9px rgba(95,227,216,.45);
   transition:height .12s linear}
 @media(max-width:900px){.rail::after{display:none}}
 .rail span{margin-left:1rem}
@@ -551,7 +694,8 @@ i,em{font-style:italic}
 /* ── tipografia de seção ── */
 .olho{display:flex;align-items:center;gap:.8rem;font-family:var(--mono);font-size:var(--t-11);
   font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ouro);margin-bottom:1.3rem}
-.olho::before{content:'';width:1.6rem;height:1px;background:var(--ouro);flex:none}
+.olho::before{content:'';width:1.8rem;height:1px;flex:none;
+  background:linear-gradient(90deg,var(--ciano),var(--ouro))}
 .ferro .olho{color:var(--ouro-alta)}
 h2.tit{max-width:19ch;margin-bottom:.9rem}
 .lead{font-size:var(--t-20);line-height:1.55;color:var(--creme-2);max-width:58ch}
@@ -577,13 +721,14 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
 .nav-menu a{font-family:var(--mono);font-size:var(--t-12);letter-spacing:.05em;color:var(--creme-2);
   transition:color var(--rap);position:relative;padding-block:.3rem}
 .nav-menu a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;
-  background:var(--creme);transition:right var(--med) var(--curva)}
-.nav-menu a:hover{color:var(--creme)}
+  background:var(--ciano);box-shadow:0 0 8px rgba(95,227,216,.6);
+  transition:right var(--med) var(--curva)}
+.nav-menu a:hover{color:var(--ciano)}
 .nav-menu a:hover::after{right:0}
 @media(max-width:940px){.nav-menu a{display:none}}
 #barra{position:fixed;top:0;left:0;height:2px;z-index:100;width:0;
-  background:linear-gradient(90deg,var(--ouro-baixa),var(--ouro) 60%,var(--ouro-alta));
-  box-shadow:0 0 12px rgba(212,175,94,.6);transition:width .1s linear}
+  background:linear-gradient(90deg,var(--violeta),var(--ciano) 34%,var(--ouro) 74%,var(--ouro-alta));
+  box-shadow:0 0 14px rgba(95,227,216,.55);transition:width .1s linear}
 
 /* ═══ A ENTRADA ═══
    A parede acendendo. O holofote sobe, o símbolo aparece atrás das
@@ -636,8 +781,7 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
 @media(max-width:520px){.capa-num{grid-template-columns:repeat(2,auto);gap:1.4rem 2rem}}
 
 /* o painel: folha de leitura, não cartão flutuante */
-.painel{border:1px solid var(--fio-forte);background:var(--breu-3);border-radius:var(--r-3);
-  overflow:hidden;box-shadow:var(--alta-luz)}
+.painel{border-radius:var(--r-4);overflow:hidden}
 .painel-h{display:flex;align-items:center;gap:.55rem;padding:.7rem .95rem;
   border-bottom:1px solid var(--fio);background:var(--breu-2);
   font-family:var(--mono);font-size:var(--t-11);letter-spacing:.1em;text-transform:uppercase}
@@ -729,8 +873,7 @@ input[type=checkbox]{accent-color:var(--ouro)}
 @media(max-width:700px){.vaz>div{grid-template-columns:1fr;gap:.8rem}}
 
 /* o instrumento: entradas em cima, leituras embaixo */
-.calc{margin-top:var(--e-6);border:1px solid var(--fio-forte);background:var(--breu-3);
-  border-radius:var(--r-3);overflow:hidden}
+.calc{margin-top:var(--e-6);border-radius:var(--r-4);overflow:hidden}
 .calc-h{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;padding:.85rem 1.2rem;
   background:var(--breu-2);border-bottom:1px solid var(--fio);
   font-family:var(--mono);font-size:var(--t-11);letter-spacing:.12em;text-transform:uppercase}
@@ -839,8 +982,7 @@ input[type=checkbox]{accent-color:var(--ouro)}
 
 /* ═══ §8 · DIAGNÓSTICO DE 60S — a ilha escura ═══ */
 .dg-box{max-width:44rem}
-.dg-corpo{margin-top:var(--e-6);border:1px solid var(--fio);border-radius:var(--r-3);
-  padding:1.8rem;background:rgba(255,255,255,.035)}
+.dg-corpo{margin-top:var(--e-6);border-radius:var(--r-4);padding:1.9rem}
 .dg-barra{height:2px;background:var(--fio);margin-bottom:1.4rem;overflow:hidden}
 .dg-barra i{display:block;height:100%;background:var(--ouro);transition:width var(--med) var(--curva)}
 .dg-passo{font-family:var(--mono);font-size:var(--t-11);letter-spacing:.14em;text-transform:uppercase;
@@ -871,10 +1013,9 @@ input[type=checkbox]{accent-color:var(--ouro)}
 
 /* ═══ §9 · GARANTIA — uma frase medida ═══ */
 .gar{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--e-6);align-items:start;
-  padding:var(--e-7);border:1px solid var(--ouro-fio-forte);border-radius:var(--r-3);
-  background:radial-gradient(38rem 20rem at 12% 0%,rgba(212,175,94,.13),transparent 68%),
-             linear-gradient(180deg,var(--breu-3),var(--breu-2));
-  box-shadow:var(--alta-luz-ouro),var(--cova)}
+  padding:var(--e-7);border-radius:var(--r-4)}
+.gar::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(38rem 20rem at 12% 0%,rgba(212,175,94,.12),transparent 68%)}
 .gar .ref{font-family:var(--mono);font-size:var(--t-11);letter-spacing:.14em;text-transform:uppercase;
   color:var(--ouro);writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;
   border-right:1px solid var(--ouro);padding-right:.9rem}
@@ -904,7 +1045,8 @@ input[type=checkbox]{accent-color:var(--ouro)}
 .est-t{display:flex;min-width:56rem;position:relative;padding-top:2.6rem}
 .est-trilho{position:absolute;top:1.05rem;left:0;right:0;height:1px;
   background:var(--fio);pointer-events:none}
-.est-trilho::before{content:'';position:absolute;inset:0;background:var(--ouro);
+.est-trilho::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--ciano),var(--ouro) 72%,var(--ouro-alta));
   transform-origin:left center;transform:scaleX(0);
   box-shadow:0 0 12px rgba(212,175,94,.55)}
 .est-aviao{position:absolute;top:50%;left:0;font-size:1.15rem;color:var(--ouro-alta);
@@ -957,8 +1099,7 @@ input[type=checkbox]{accent-color:var(--ouro)}
 .pf .ic{font-family:var(--mono);font-size:var(--t-13);color:var(--ouro)}
 .pf b{display:block;font-size:var(--t-15);margin-bottom:.15rem}
 .pf span{font-size:var(--t-13);line-height:1.55;color:var(--creme-2)}
-.mock{border:1px solid var(--fio-forte);border-radius:var(--r-3);overflow:hidden;background:var(--breu-3);
-  box-shadow:var(--cova)}
+.mock{border-radius:var(--r-4);overflow:hidden}
 .mock-h{display:flex;align-items:center;gap:.4rem;padding:.65rem .9rem;background:var(--breu-2);
   border-bottom:1px solid var(--fio);font-family:var(--mono);font-size:var(--t-11);
   letter-spacing:.08em;text-transform:uppercase;color:var(--creme-3)}
@@ -988,11 +1129,9 @@ input[type=checkbox]{accent-color:var(--ouro)}
 .dm.emp:hover{border-color:var(--ouro-fio-forte);
   box-shadow:var(--alta-luz-ouro),var(--cova),0 0 60px -12px rgba(212,175,94,.3)}
 .dm.pes:hover{border-color:rgba(246,227,171,.24)}
-.dm.emp{background:linear-gradient(180deg,var(--breu-3),var(--breu-2));
-  border:1px solid var(--ouro-fio);border-top:3px solid var(--ouro);
-  box-shadow:var(--alta-luz-ouro),var(--cova)}
-.dm.pes{background:#070706;color:var(--creme);border:1px solid rgba(244,240,232,.07);
-  border-top:3px solid var(--ouro-alta);box-shadow:inset 0 2px 14px rgba(0,0,0,.7)}
+.dm.emp{border-top:3px solid var(--ouro)}
+.dm.pes{color:var(--creme);border-top:3px solid var(--violeta);
+  background:rgba(10,8,20,.62)}
 .dm-top{display:flex;align-items:center;gap:.85rem;margin-bottom:1.3rem}
 .dm-n{font-size:var(--t-25);font-weight:650;letter-spacing:-.03em;line-height:1.1}
 .dm.pes .dm-n{color:#fff}
@@ -1037,11 +1176,10 @@ input[type=checkbox]{accent-color:var(--ouro)}
 
 /* ═══ §14 · QUEM FUNDOU ═══ */
 .fund{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:var(--e-8);align-items:start}
-.retrato{aspect-ratio:4/5;border:1px solid var(--ouro-fio);border-radius:var(--r-3);
-  display:flex;align-items:flex-end;padding:var(--e-6);position:relative;overflow:hidden;
-  background:radial-gradient(24rem 18rem at 50% -6%,rgba(232,200,123,.14),transparent 64%),
-             linear-gradient(180deg,var(--breu-3),#070706);
-  box-shadow:var(--alta-luz-ouro),var(--cova)}
+.retrato{aspect-ratio:4/5;border-radius:var(--r-4);
+  display:flex;align-items:flex-end;padding:var(--e-6);position:relative;overflow:hidden}
+.retrato::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(24rem 18rem at 50% -6%,rgba(232,200,123,.13),transparent 64%)}
 .retrato .cr{position:absolute;top:1.1rem;left:1.2rem;font-family:var(--mono);font-size:var(--t-11);
   letter-spacing:.14em;text-transform:uppercase;color:var(--creme-3)}
 .retrato .fr{font-family:var(--voz);font-style:italic;font-size:var(--t-31);line-height:1.28;
@@ -1196,7 +1334,15 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
 <body>
 <div id="barra" aria-hidden="true"></div>
 <!-- o esqueleto do documento: fios de coluna correndo atrás de tudo -->
+<canvas id="reticula" aria-hidden="true"></canvas>
 <div class="af-grade" id="grade" aria-hidden="true"></div>
+<!-- a página auditando a própria leitura -->
+<aside id="laudo-vivo" aria-hidden="true">
+  <div class="lv-h"><i></i>Laudo desta leitura</div>
+  <div class="lv-f"><b>1!</b><span>= 1<br>caminhos possíveis</span></div>
+  <div class="lv-e">Etapa <b>01</b></div>
+  <div class="lv-b"><i></i></div>
+</aside>
 
 <header id="topo">
   <div class="af-med nav">
@@ -1217,7 +1363,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
 <!-- ═══ §1 · A CAPA ═══
      Manchete em toda a medida, fio, e só então a definição ao lado da
      prova. A dor vem nas palavras dela, não num slogan sobre nós. -->
-<section class="capa af-med" id="inicio">
+<section class="capa af-med af-cena" id="inicio">
   <div class="capa-cab">
     <span class="af-rot">Consultoria de gestão</span>
     <span class="af-rot">Presencial em SP · remoto no Brasil</span>
@@ -1244,7 +1390,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
       </div>
     </div>
 
-    <div class="painel rev">
+    <div class="painel af-vidro ouro af-peca rev">
       <div class="painel-h"><span class="pt" aria-hidden="true"></span><b>Painel de execução</b><span class="ao">ao vivo</span></div>
       <div class="painel-kpi">
         <div><div class="v af-num ok" data-conta="94" data-suf="%">0</div><div class="l">No prazo da etapa</div></div>
@@ -1337,7 +1483,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         </div>
       </div>
 
-      <div class="calc rev">
+      <div class="calc af-vidro rev">
         <div class="calc-h"><b>Faça a sua conta</b><span>fica só no seu navegador</span></div>
         <div class="calc-in">
           <div class="af-campo"><label for="c-fat">Faturamento por mês (R$)</label><input id="c-fat" inputmode="numeric" value="250.000"></div>
@@ -1498,7 +1644,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
       <div class="olho">Sem cadastro, sem e-mail, sem compromisso</div>
       <h2 class="tit">Descubra em 60 segundos <em>o que está travando</em> a sua empresa.</h2>
       <p class="lead">Seis perguntas do nosso Raio-X. No fim, o grau de maturidade da sua gestão e qual frente resolve primeiro. É o mesmo critério que usamos com cliente pagante — a versão curta.</p>
-      <div class="dg-corpo" id="dg" role="region" aria-live="polite"></div>
+      <div class="dg-corpo af-vidro leve" id="dg" role="region" aria-live="polite"></div>
     </div>
   </div>
 </section>
@@ -1509,7 +1655,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
 <section class="sec sec-s">
   <div class="af-med sec-in">
     <div class="rail"><span>Garantia</span></div>
-    <div class="gar rev">
+    <div class="gar af-vidro ouro rev">
       <div class="ref">Cláusula 8ª</div>
       <div>
         <div class="olho">O risco é nosso</div>
@@ -1577,7 +1723,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
 <section class="sec banda" id="portal">
   <div class="af-med sec-in">
     <div class="rail"><span>Portal</span></div>
-    <div class="portal">
+    <div class="portal af-cena">
       <div class="rev">
         <div class="olho">Área do cliente</div>
         <h2 class="tit">Seu projeto <em>ao vivo,</em> sem precisar pedir notícia.</h2>
@@ -1590,7 +1736,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
           <button class="af-bt af-bt-fio" onclick="abrirEntrar('cliente')">Já sou cliente — entrar</button>
         </div>
       </div>
-      <div class="mock rev rev-1" aria-hidden="true">
+      <div class="mock af-vidro leve af-peca rev rev-1" aria-hidden="true">
         <div class="mock-h"><i></i><i></i><i></i><b>Portal do cliente · sua jornada</b></div>
         <div class="mock-c">
           <div class="tt">Reestruturação comercial · Etapa 8 de 10</div>
@@ -1624,8 +1770,8 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
         <p class="lead">Estrutura sem mudança de comportamento vira manual na gaveta. Comportamento sem estrutura vira motivação que passa na segunda-feira. São frentes diferentes, com times, contratos e resultados diferentes — <b>e você pode contratar só uma delas</b>.</p>
       </div>
 
-      <div class="duas af-fila">
-        <article class="dm emp rev">
+      <div class="duas af-fila af-cena">
+        <article class="dm emp af-vidro ouro af-peca rev">
           <div class="dm-top">
             <div><div class="af-marca lg" style="margin-bottom:.5rem"><span class="af-marca-s" aria-hidden="true"><i class="af-simbolo"></i></span><span class="af-marca-t"><span class="gr">Grupo</span><span class="nm"><i>A!</i> FATORIAL</span><span class="as">Soluções para Empresas e Franquias</span></span></div>
               <div class="dm-s">O ecossistema empresarial</div></div>
@@ -1643,7 +1789,7 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
           </div>
         </article>
 
-        <article class="dm pes rev rev-1">
+        <article class="dm pes af-vidro af-peca rev rev-1">
           <div class="dm-top">
             <span class="selo-cc" aria-hidden="true">CC</span>
             <div><div class="dm-n">Carla Caroline</div><div class="dm-s">Mentora comportamental e estrategista de negócios</div></div>
@@ -1692,8 +1838,8 @@ footer{background:var(--breu);color:var(--creme-2);padding-block:var(--e-8) var(
 <section class="sec sec-s banda">
   <div class="af-med sec-in">
     <div class="rail"><span>Origem</span></div>
-    <div class="fund">
-      <div class="retrato rev" aria-hidden="true">
+    <div class="fund af-cena">
+      <div class="retrato af-vidro leve af-peca rev" aria-hidden="true">
         <span class="cr">Carla Caroline · fundadora</span>
         <div class="fr">“Eu não organizo planilhas. Eu reorganizo donos.”</div>
       </div>
@@ -1996,6 +2142,276 @@ function varrer(){
     if(!rodando){ rodando=true; requestAnimationFrame(medir); }
   },{passive:true});
   medir();
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   A RETÍCULA FATORIAL
+   ───────────────────────────────────────────────────────────────────
+   O fundo não é textura: é o nome da empresa desenhado.
+
+   Cada casca k tem exatamente k nós — 1, 2, 3, 4, 5, 6, 7 — e cada nó
+   de uma casca se liga a TODOS os nós da casca seguinte. O número de
+   caminhos de ponta a ponta é 1×2×3×4×5×6×7 = 5.040. É o operador
+   fatorial existindo no espaço, não explicado em legenda.
+
+   A câmera avança com a rolagem, então descer a página é atravessar a
+   retícula. O ponteiro desloca o ponto de fuga. As cascas giram em
+   velocidades diferentes, e a cor vai do ouro (perto) ao violeta
+   (fundo), passando pelo ciano — as três luzes do padrão.
+
+   Custo: 84 nós e 336 arestas, uma passada por quadro. Roda liso até
+   em máquina modesta, e desliga sozinha se a pessoa pedir menos
+   movimento.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  var cv=document.getElementById('reticula'); if(!cv) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var cx=cv.getContext('2d',{alpha:true}); if(!cx) return;
+
+  var CASCAS=7, REPS=3, PASSO=520, PROF=CASCAS*PASSO;
+  var nos=[];
+  for(var r=0;r<REPS;r++){
+    for(var k=1;k<=CASCAS;k++){
+      var raio=68+k*54, giro=(k%2?1:-1)*(0.055+k*0.014);
+      var casca=[];
+      for(var i=0;i<k;i++){
+        casca.push({ang:(i/k)*Math.PI*2+k*0.7, raio:raio, giro:giro,
+                    z:r*PROF+k*PASSO, k:k});
+      }
+      nos.push(casca);
+    }
+  }
+
+  function nivelQ(){ var v=document.documentElement.getAttribute('data-q'); return v===null?2:+v; }
+  var L=Math.min(1.5,window.devicePixelRatio||1), W=0, H=0;   /* teto de nitidez: acima disso só custa */
+  function medir(){
+    var l = nivelQ()>=2 ? L : 1;      /* em máquina apertada, meia resolução */
+    W=cv.clientWidth; H=cv.clientHeight;
+    cv.width=Math.round(W*l); cv.height=Math.round(H*l);
+    cx.setTransform(l,0,0,l,0,0);
+  }
+  window.addEventListener('resize',medir,{passive:true}); medir();
+
+  var camAlvo=0, cam=0, pxAlvo=0, pyAlvo=0, px=0, py=0, t=0;
+  window.addEventListener('scroll',function(){
+    camAlvo = window.scrollY*0.55;
+  },{passive:true});
+  window.addEventListener('pointermove',function(e){
+    pxAlvo=(e.clientX/window.innerWidth-.5)*2;
+    pyAlvo=(e.clientY/window.innerHeight-.5)*2;
+  },{passive:true});
+
+  /* as três luzes do padrão, do fundo para a frente */
+  function cor(p){            /* p: 0 = perto, 1 = fundo */
+    if(p<.5){ var q=p/.5;  return [212+(95-212)*q, 175+(227-175)*q, 94+(216-94)*q]; }
+    var q=(p-.5)/.5;        return [95+(169-95)*q, 227+(139-227)*q, 216+(255-216)*q];
+  }
+
+  var F=760;   /* distância focal */
+  var vivo=true;
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden && !vivo && nivelQ()>0){ vivo=true; requestAnimationFrame(quadro); }
+  });
+  new MutationObserver(function(){ medir();
+    if(!vivo && nivelQ()>0 && !document.hidden){ vivo=true; requestAnimationFrame(quadro); }
+  }).observe(document.documentElement,{attributes:true,attributeFilter:['data-q']});
+  function quadro(){
+    /* nada de queimar processador com a aba escondida ou com o sistema
+       na frente: a retícula é do site, não da área interna */
+    if(document.hidden || document.body.classList.contains('no-sistema') || nivelQ()===0){
+      vivo=false; cx.clearRect(0,0,W,H); return;
+    }
+    cam += (camAlvo-cam)*.06;
+    px  += (pxAlvo-px)*.05;
+    py  += (pyAlvo-py)*.05;
+    t   += .0045;
+    cx.clearRect(0,0,W,H);
+    var ox=W*0.68 - px*54, oy=H*0.46 - py*40;   /* fora do caminho da manchete */
+    var giroCena=cam*0.00016;   /* atravessar a retícula também gira a cena */
+
+    /* projeta tudo primeiro; depois desenha do fundo para a frente */
+    var proj=[];
+    for(var c=0;c<nos.length;c++){
+      var casca=nos[c], pts=[];
+      for(var i=0;i<casca.length;i++){
+        var n=casca[i], ang=n.ang+t*n.giro*8+giroCena;
+        var z=n.z-cam;
+        z=((z%PROF)+PROF)%PROF;            /* o túnel é cíclico */
+        var zz=z+120;
+        var e=F/zz;
+        pts.push({x:ox+Math.cos(ang)*n.raio*e*(1+px*.16),
+                  y:oy+Math.sin(ang)*n.raio*e*(1+py*.16),
+                  e:e, z:zz, k:n.k});
+      }
+      proj.push(pts);
+    }
+
+    /* arestas: cada nó de uma casca liga a todos os da casca seguinte */
+    cx.lineWidth=1;
+    for(var c=0;c<proj.length-1;c++){
+      var A=proj[c], B=proj[c+1];
+      if(!A.length||!B.length) continue;
+      if(B[0].z<A[0].z) continue;          /* não cruza a emenda do ciclo */
+      if(A[0].z<330) continue;             /* perto demais vira risco gigante */
+      var p=Math.min(1,A[0].z/PROF), rgb=cor(p);
+      /* o brilho é um sino: apaga perto (onde a projeção estoura) e
+         apaga no fundo (onde vira poeira). O que fica luminoso é o
+         miolo do túnel — que é onde a estrutura se lê. */
+      var al=Math.sin(Math.min(1,Math.max(0,p))*Math.PI)*.30;
+      if(al<.012) continue;
+      cx.strokeStyle='rgba('+(rgb[0]|0)+','+(rgb[1]|0)+','+(rgb[2]|0)+','+al.toFixed(3)+')';
+      cx.beginPath();
+      for(var i=0;i<A.length;i++) for(var j=0;j<B.length;j++){
+        cx.moveTo(A[i].x,A[i].y); cx.lineTo(B[j].x,B[j].y);
+      }
+      cx.stroke();
+    }
+
+    /* nós: quanto mais perto, maior e mais dourado */
+    for(var c=0;c<proj.length;c++){
+      var pts=proj[c];
+      for(var i=0;i<pts.length;i++){
+        var q=pts[i], p=Math.min(1,q.z/PROF), rgb=cor(p);
+        if(q.z<300) continue;
+        var raio=Math.min(4.2,Math.max(.6,2.4*q.e*1.6));
+        var al=Math.sin(Math.min(1,Math.max(0,p))*Math.PI)*.72;
+        if(al<.02) continue;
+        cx.fillStyle='rgba('+(rgb[0]|0)+','+(rgb[1]|0)+','+(rgb[2]|0)+','+al.toFixed(3)+')';
+        cx.beginPath(); cx.arc(q.x,q.y,raio,0,6.2832); cx.fill();
+        if(p>.24&&p<.52){                   /* halo só no miolo luminoso */
+          cx.fillStyle='rgba('+(rgb[0]|0)+','+(rgb[1]|0)+','+(rgb[2]|0)+','+(al*.1).toFixed(3)+')';
+          cx.beginPath(); cx.arc(q.x,q.y,raio*5,0,6.2832); cx.fill();
+        }
+      }
+    }
+    requestAnimationFrame(quadro);
+  }
+  requestAnimationFrame(quadro);
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   A INCLINAÇÃO DA CENA
+   As peças marcadas com .af-peca giram alguns graus conforme o
+   ponteiro anda — dentro de um contêiner com ponto de fuga, isso lê
+   como olhar dentro de uma caixa, não para uma figura.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  var pecas=[].slice.call(document.querySelectorAll('.af-peca'));
+  if(!pecas.length) return;
+  var mx=0,my=0, rodando=false;
+  function aplicar(){
+    pecas.forEach(function(el){
+      var r=el.getBoundingClientRect();
+      if(r.bottom<-200||r.top>window.innerHeight+200) return;
+      var cx=r.left+r.width/2, cy=r.top+r.height/2;
+      var dx=(mx-cx)/window.innerWidth, dy=(my-cy)/window.innerHeight;
+      el.style.setProperty('--incl-y',(dx*7).toFixed(2));
+      el.style.setProperty('--incl-x',(-dy*5).toFixed(2));
+    });
+    rodando=false;
+  }
+  window.addEventListener('pointermove',function(e){
+    mx=e.clientX; my=e.clientY;
+    if(!rodando){ rodando=true; requestAnimationFrame(aplicar); }
+  },{passive:true});
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   O LAUDO DA PRÓPRIA PÁGINA
+   A empresa vende execução auditável e diz que é o primeiro cliente do
+   próprio método. Então a página audita a si mesma enquanto é lida: a
+   etapa em curso e o fatorial multiplicando a cada seção atravessada.
+   Quem rola vê o produto multiplicar — o nome da marca deixa de ser
+   metáfora e vira experiência.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  var lv=$('laudo-vivo'); if(!lv) return;
+  var secs=[].slice.call(document.querySelectorAll('main section[id], main .sec'));
+  if(!secs.length) return;
+  var nomes=secs.map(function(s){
+    var r=s.querySelector('.rail span'), o=s.querySelector('.olho');
+    return (r?r.textContent:(o?o.textContent:'')).trim() || 'Capa';
+  });
+  var vB=lv.querySelector('.lv-f b'), vS=lv.querySelector('.lv-f span'),
+      vE=lv.querySelector('.lv-e'), vP=lv.querySelector('.lv-b i');
+  var ultimo=-1;
+  function fat(n){ var r=1; for(var i=2;i<=n;i++) r*=i; return r; }
+  /* 14! passa de 87 bilhões e estoura qualquer painel. O grande passa a
+     ser o OPERADOR — que é o nome da marca — e o valor vai embaixo, em
+     escala curta. Fica mais legível e diz melhor o que está havendo. */
+  function curto(n){
+    if(n<1e3)  return n.toLocaleString('pt-BR');
+    if(n<1e6)  return (n/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
+    if(n<1e9)  return (n/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+' milhões';
+    if(n<1e12) return (n/1e9).toLocaleString('pt-BR',{maximumFractionDigits:1})+' bilhões';
+    return (n/1e12).toLocaleString('pt-BR',{maximumFractionDigits:1})+' trilhões';
+  }
+  function medir(){
+    var meio=window.innerHeight*.45, at=0;
+    for(var i=0;i<secs.length;i++){
+      var c=secs[i].getBoundingClientRect();
+      if(c.top<=meio) at=i+1;
+    }
+    lv.classList.toggle('ver', window.scrollY>360);
+    if(at===ultimo) return;
+    ultimo=at;
+    var n=Math.max(1,at);
+    vB.textContent=n+'!';
+    vS.innerHTML='= '+curto(fat(n))+'<br>caminhos possíveis';
+    vE.innerHTML='Etapa <b>'+String(n).padStart(2,'0')+'</b> de '+secs.length+
+                 ' — '+ (nomes[Math.min(n,secs.length)-1]||'');
+    vP.style.width=Math.round(n/secs.length*100)+'%';
+  }
+  var rodando=false;
+  window.addEventListener('scroll',function(){
+    if(!rodando){ rodando=true; requestAnimationFrame(function(){ medir(); rodando=false; }); }
+  },{passive:true});
+  medir();
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   O REGULADOR DE QUALIDADE
+   ───────────────────────────────────────────────────────────────────
+   A página mede a própria fluidez e se ajusta. Máquina boa recebe tudo:
+   retícula em alta e vidro com desfoque. Máquina apertada perde primeiro
+   o desfoque (é o item mais caro), depois a resolução da retícula, e por
+   último a retícula inteira — nesta ordem, porque é a ordem inversa do
+   quanto cada um contribui para a leitura.
+
+   Convém dizer por que existe: efeito bonito que engasga é pior que
+   efeito nenhum. E é a mesma lógica que a empresa vende — medir antes
+   de opinar, e ajustar o que o número mostrar.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.documentElement.setAttribute('data-q','0'); return;
+  }
+  var nivel=2;                       /* 2 = tudo · 1 = sem desfoque · 0 = sem retícula */
+  function aplicar(){ document.documentElement.setAttribute('data-q',String(nivel)); }
+  aplicar();
+
+  function amostra(ms,cb){
+    var n=0, t0=performance.now();
+    (function q(){ n++;
+      var d=performance.now()-t0;
+      if(d<ms) requestAnimationFrame(q); else cb(n/(d/1000));
+    })();
+  }
+  /* espera a página assentar antes de julgar */
+  setTimeout(function(){
+    amostra(1200,function(fps){
+      if(fps>=46) return;            /* está bom: fica tudo */
+      nivel=1; aplicar();            /* tira o desfoque */
+      setTimeout(function(){
+        amostra(1200,function(fps2){
+          if(fps2>=44) return;
+          nivel=0; aplicar();        /* tira a retícula */
+        });
+      },700);
+    });
+  },1600);
 })();
 
 /* ── números que contam ── */
