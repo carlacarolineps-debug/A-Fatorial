@@ -11,8 +11,9 @@ Abra o arquivo no navegador para usar.
 | **Colaborador** | Portal do colaborador | Portal do colaborador, **Esteira comercial**, **Propostas e rastreio** e **Kanban operacional** (já filtrado nas demandas dele) |
 | **Cliente** | Portal do cliente | Portal do cliente |
 
-Todos os perfis usam **o mesmo visual** (tema escuro "gamer" neon) e a **mesma
-moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem permissão.
+Todos os perfis usam **o mesmo visual** (tema claro, um só — ver "Um tema só")
+e a **mesma moldura** (menu lateral + topo) — cada um enxerga apenas os itens
+que tem permissão.
 
 ## Novidades desta versão
 
@@ -1184,3 +1185,52 @@ A esteira funciona porque obedece a cinco regras. Elas agora valem para tudo:
      era fim de linha e alguém redigitava tudo no Funil. Agora o lead leva os
      próprios dados para o cadastro, a esteira começa, e o lead passa a
      apontar para o negócio — o elo se fecha.
+
+## Duas marcas, um sistema — versão 0908.03
+
+A estratégia mudou e o software tinha de acompanhar: **Grupo A! Fatorial** (o
+ecossistema empresarial) e **Carla Caroline** (mentoria comportamental e
+estratégia de negócios) são marcas separadas, com público, entregável e
+Instagram próprios — `@afatorialsolucoes` e `@pscarlacaroline`. Misturar as
+duas é o defeito que a consultoria corrige nos clientes: empresa cujo valor
+depende do nome da fundadora não se vende, não se delega e não se multiplica.
+
+129. **As duas casas viraram modelo, não texto.** `MARCAS` ganhou o campo
+     `casa` (`grupo` | `pessoal`) e nasceu a tabela `CASAS`, com nome,
+     público e Instagram de cada uma. `marcasDaCasa()`, `casaDe()` e
+     `casaDaMarca()` são o acesso — nenhum lugar do sistema precisa saber a
+     regra de cor.
+
+130. **Desempenho por casa, não só por marca.** A tela "A rede" separa as sete
+     marcas do grupo da marca pessoal, cada bloco com receita e margem
+     próprias. Dá para responder "quanto a mentoria faturou" sem planilha.
+
+131. **Liberação de contrato agrupada.** No cadastro do prestador, os
+     contratos aparecem sob a casa a que pertencem. Quem libera vê que está
+     autorizando alguém a representar a marca pessoal, não a empresa.
+
+132. **Dois papéis timbrados.** `BRAND` continua sendo a empresa; nasceu
+     `BRAND_CC`, a identidade da marca pessoal. Em **Ajustes → Identidade** as
+     duas aparecem lado a lado, com logo, cor, contato e Instagram próprios.
+     Os campos de pessoa jurídica da mentoria vêm em branco de propósito:
+     quem emite a nota da mentoria pode não ser a empresa.
+
+133. **A proposta sai pela marca que a emite.** O cadastro do negócio ganhou
+     "Marca que emite"; a proposta grava `casa` e o documento inteiro troca de
+     timbre — logo, cor, razão social, contato, Instagram e até a assinatura da
+     carta ("CEO do Grupo A! Fatorial" ou "mentora comportamental e
+     estrategista de negócios"). Proposta antiga, sem `casa`, continua saindo
+     pela empresa: nada se perde.
+
+134. **A origem do lead virou medida de posicionamento.** "Instagram" era uma
+     opção só, apontando para o perfil pessoal. Agora são duas — o da empresa
+     e o da Carla — mais "Site da empresa". É o que permite responder qual das
+     duas marcas traz cliente.
+
+135. **A wiki explica a separação e o que fazer com ela.** Artigo novo em
+     "A empresa", com a regra prática: proposta, contrato e nota saem pela
+     marca certa; lead entra com a origem certa; a comissão da mentoria é a da
+     marca pessoal.
+
+136. **`af_brand_cc` entrou na sincronização e no backup**, como qualquer
+     outra chave — a identidade da mentoria acompanha a equipe inteira.

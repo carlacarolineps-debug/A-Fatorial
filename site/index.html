@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>A! Fatorial — Arquitetura de Lucro | Consultoria com processo auditável</title>
-<meta name="description" content="Estruturamos empresas de dentro para fora: estratégia, processos, pessoas e finanças. Método próprio, execução auditada e um portal onde você acompanha e aprova cada entrega.">
+<meta name="description" content="Grupo A! Fatorial: consultoria de gestão que organiza processo, preço, caixa e pessoas — e executa junto, com laudo e portal do cliente. Ao lado, a mentoria comportamental de Carla Caroline, para a pessoa que dirige. Duas marcas, dois trabalhos.">
 <meta name="theme-color" content="#faf8f5">
 <meta property="og:title" content="A! Fatorial — Arquitetura de Lucro">
-<meta property="og:description" content="Quem centraliza, trava. Quem estrutura, cresce. Consultoria com processo auditável e portal do cliente.">
+<meta property="og:description" content="Se tudo depende de você, você não tem uma empresa — tem um emprego que criou pra si mesmo. Consultoria com processo auditável e portal do cliente.">
+<meta property="og:site_name" content="Grupo A! Fatorial">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23d4af5e'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-weight='700' font-size='30' fill='%231a1408' text-anchor='middle'%3EA!%3C/text%3E%3C/svg%3E">
@@ -90,6 +91,10 @@ header.fixo{background:rgba(250,248,245,.88);backdrop-filter:blur(14px);-webkit-
 .hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:4.5rem;align-items:center}
 .hero h1{font-size:clamp(2.4rem,5.2vw,4.2rem);max-width:14ch;margin:.3rem 0 1.4rem}
 .hero .linha{font-size:1.12rem;margin-bottom:2rem;max-width:44ch}
+/* a definição: a única frase da página que precisa responder "o que
+   é isso" sem metáfora. Por isso ganha mais medida e mais peso. */
+.hero .linha.def{max-width:50ch;font-size:1.07rem;line-height:1.72}
+.hero .linha.def b{color:var(--tinta);font-weight:600}
 .hero-acoes{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:2.6rem}
 .hero-num{display:flex;gap:2.4rem;flex-wrap:wrap;border-top:1px solid var(--linha);padding-top:1.5rem}
 .hnum .n{font-family:var(--serif);font-weight:400;font-size:1.95rem;color:var(--ouro-txt);line-height:1}
@@ -134,16 +139,185 @@ header.fixo{background:rgba(250,248,245,.88);backdrop-filter:blur(14px);-webkit-
 .faixa-t span::after{content:'◆';margin-left:2rem;color:var(--ouro);font-style:normal;font-size:.5rem;vertical-align:middle}
 @keyframes desliza{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* ── onde dói ── */
-.dor-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem;margin-top:2.6rem}
-.dor{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-5);padding:1.8rem;
-  transition:.28s;display:flex;flex-direction:column;gap:.7rem}
-.dor:hover{border-color:var(--linha-forte);box-shadow:var(--sombra);transform:translateY(-2px)}
-.dor .q{font-family:var(--serif);font-style:italic;font-size:1.32rem;line-height:1.28;color:var(--tinta)}
-.dor .r{color:var(--tinta-2);font-size:.93rem;line-height:1.6}
-.dor .s{margin-top:auto;padding-top:.9rem;border-top:1px dashed var(--linha);font-size:.78rem;
-  color:var(--ouro-txt);font-weight:600;display:flex;align-items:center;gap:.4rem}
-@media(max-width:820px){.dor-grid{grid-template-columns:1fr}}
+/* ── as quatro perguntas do hero ──
+   Quem chega quer saber quatro coisas antes de qualquer outra: o que
+   fazemos, que dor cura, para quem e como. Ficam logo abaixo da dobra,
+   em resposta curta — não obrigam a ler a página inteira. */
+.quatro{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:4rem;
+  border:1px solid var(--linha);border-radius:var(--r-5);background:var(--branco);overflow:hidden}
+.q4{padding:1.6rem 1.5rem;border-left:1px solid var(--linha)}
+.q4:first-child{border-left:0}
+.q4-p{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ouro-txt);
+  font-weight:700;margin-bottom:.6rem}
+.q4-r{font-size:.9rem;line-height:1.6;color:var(--tinta-2)}
+.q4-r b{color:var(--tinta);font-weight:600}
+@media(max-width:900px){.quatro{grid-template-columns:repeat(2,1fr)}
+  .q4:nth-child(3){border-left:0}.q4:nth-child(n+3){border-top:1px solid var(--linha)}}
+@media(max-width:560px){.quatro{grid-template-columns:1fr}
+  .q4{border-left:0}.q4+.q4{border-top:1px solid var(--linha)}}
+
+/* ── o diagnóstico honesto ──
+   Marcar é um ato pequeno que muda a conversa: quem marca três já se
+   convenceu sozinho. O contador só nomeia o que a pessoa acabou de
+   admitir — nunca aumenta a dose. */
+.sint{display:grid;gap:.7rem;margin-top:2.6rem}
+.si{display:flex;align-items:flex-start;gap:.95rem;background:var(--branco);cursor:pointer;
+  border:1px solid var(--linha);border-radius:var(--r-4);padding:1.1rem 1.3rem;transition:.2s}
+.si:hover{border-color:var(--linha-forte);box-shadow:var(--sombra)}
+.si .sx{position:absolute;opacity:0;width:1px;height:1px}
+.si .sb{width:22px;height:22px;border-radius:7px;flex:none;margin-top:1px;
+  border:1.5px solid var(--linha-forte);background:var(--papel);transition:.18s;
+  display:grid;place-items:center}
+.si .sb::after{content:'✓';font-size:.72rem;font-weight:700;color:#1a1408;opacity:0;transform:scale(.6);transition:.18s}
+.si .st{font-size:.97rem;line-height:1.6;color:var(--tinta-2)}
+.si .st b{color:var(--tinta);font-weight:600}
+.si:has(.sx:checked){border-color:var(--ouro);background:var(--ouro-fundo)}
+.si:has(.sx:focus-visible){outline:2px solid var(--ouro);outline-offset:2px}
+.si .sx:checked+.sb{background:var(--ouro-grad);border-color:#c39b45}
+.si .sx:checked+.sb::after{opacity:1;transform:scale(1)}
+.sint-r{margin-top:1.6rem;padding:1.3rem 1.5rem;border-radius:var(--r-4);
+  border:1px dashed var(--linha-forte);background:var(--papel-2);
+  font-size:.97rem;line-height:1.65;color:var(--tinta-2)}
+.sint-r b{color:var(--tinta)}
+.sint-r.quente{border-style:solid;border-color:var(--ouro);background:var(--ouro-fundo)}
+
+/* ── o custo de não resolver ──
+   O número aparece grande porque é ele que faz pensar; a explicação
+   vem depois, em corpo pequeno, para quem quiser conferir a conta. */
+.custo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:2.6rem}
+.cu{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-5);padding:1.7rem;
+  transition:.28s}
+.cu:hover{border-color:var(--linha-forte);box-shadow:var(--sombra);transform:translateY(-2px)}
+.cu-n{font-family:var(--serif);font-size:2.1rem;line-height:1;color:var(--alerta);margin-bottom:.6rem}
+.cu b{display:block;font-size:.95rem;color:var(--tinta);margin-bottom:.6rem}
+.cu p{color:var(--tinta-2);font-size:.88rem;line-height:1.6}
+@media(max-width:880px){.custo-grid{grid-template-columns:1fr}}
+
+/* ── a conta ── */
+.conta{margin-top:1.6rem;background:var(--branco);border:1px solid var(--linha);
+  border-radius:var(--r-5);padding:1.8rem}
+.conta-h{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1.3rem;flex-wrap:wrap}
+.conta-h b{font-size:1.05rem}
+.conta-h span{font-size:.72rem;color:var(--tinta-3);letter-spacing:.05em;text-transform:uppercase}
+.conta-g{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.conta-g .campo{margin-bottom:0}
+.conta-r{margin-top:1.4rem;padding-top:1.4rem;border-top:1px solid var(--linha);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:1rem}
+.conta-r .cr-i{background:var(--papel-2);border-radius:var(--r-4);padding:1.1rem 1.2rem}
+.conta-r .cr-n{font-family:var(--serif);font-size:1.6rem;line-height:1.1;color:var(--alerta)}
+.conta-r .cr-l{font-size:.78rem;color:var(--tinta-2);margin-top:.35rem;line-height:1.45}
+.conta-r .cr-i.total{background:var(--ouro-fundo);border:1px solid var(--ouro)}
+.conta-r .cr-i.total .cr-n{color:var(--ouro-txt)}
+@media(max-width:760px){.conta-g,.conta-r{grid-template-columns:1fr}}
+
+/* ── para quem é / não é ──
+   Duas colunas com peso igual: a recusa precisa parecer tão séria
+   quanto o convite, senão vira retórica de venda. */
+.pq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem}
+.pq{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-5);padding:1.9rem}
+.pq.sim{border-top:3px solid var(--ok)}
+.pq.nao{border-top:3px solid var(--linha-forte);background:var(--papel-2)}
+.pq-h{display:flex;align-items:center;gap:.7rem;margin-bottom:1.2rem}
+.pq-h b{font-size:1.05rem}
+.pq-i{width:28px;height:28px;border-radius:9px;flex:none;display:grid;place-items:center;
+  font-size:.85rem;font-weight:700}
+.pq.sim .pq-i{background:var(--ok-bg);color:var(--ok)}
+.pq.nao .pq-i{background:#eceae5;color:var(--tinta-2)}
+.pq ul{list-style:none;display:grid;gap:.85rem}
+.pq li{font-size:.93rem;line-height:1.6;color:var(--tinta-2);padding-left:1.1rem;position:relative}
+.pq li::before{content:'';position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%}
+.pq.sim li::before{background:var(--ok)}
+.pq.nao li::before{background:var(--linha-forte)}
+.pq li b{color:var(--tinta);font-weight:600}
+.pq-fim{margin-top:1.6rem;background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-4);
+  padding:1.3rem 1.6rem;display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;
+  font-size:.93rem;line-height:1.6;color:var(--tinta-2)}
+.pq-fim>div{flex:1;min-width:min(340px,100%)}
+.pq-fim b{color:var(--tinta);font-weight:600}
+@media(max-width:820px){.pq-grid{grid-template-columns:1fr}}
+
+/* ── três passos ── */
+.passo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:2.6rem}
+.pa{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-5);
+  padding:1.8rem;display:flex;flex-direction:column;gap:.65rem;transition:.28s}
+.pa:hover{border-color:var(--linha-forte);box-shadow:var(--sombra);transform:translateY(-2px)}
+.pn{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;
+  font-family:var(--serif);font-size:1.05rem;font-weight:600;color:#1a1408;
+  background:var(--ouro-grad);margin-bottom:.3rem}
+.pa b{font-size:1.02rem}
+.pa p{color:var(--tinta-2);font-size:.9rem;line-height:1.6}
+.pt-l{margin-top:auto;padding-top:.9rem;border-top:1px dashed var(--linha);
+  font-size:.78rem;color:var(--ouro-txt);font-weight:600;line-height:1.45}
+@media(max-width:880px){.passo-grid{grid-template-columns:1fr}}
+
+/* ── o que fica na sua mão ── */
+.ent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2.6rem}
+.ent{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-4);
+  padding:1.4rem;display:flex;flex-direction:column;gap:.4rem;transition:.22s}
+.ent:hover{border-color:var(--ouro);box-shadow:var(--sombra)}
+.ei{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+  background:var(--ouro-fundo);border:1px solid var(--ouro);color:var(--ouro-txt);
+  font-size:.9rem;margin-bottom:.4rem}
+.ent b{font-size:.95rem}
+.ent>span:last-child{color:var(--tinta-2);font-size:.85rem;line-height:1.55}
+@media(max-width:900px){.ent-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.ent-grid{grid-template-columns:1fr}}
+
+/* ── a garantia ── */
+.gar{background:var(--ouro-fundo);border:1px solid var(--ouro);border-radius:26px;
+  padding:2.6rem;display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start}
+.gar-s{width:70px;height:70px;border-radius:20px;flex:none;display:grid;place-items:center;
+  font-size:1.9rem;color:#1a1408;background:var(--ouro-grad);
+  box-shadow:0 4px 16px rgba(184,147,63,.3)}
+@media(max-width:700px){.gar{grid-template-columns:1fr;padding:1.8rem;gap:1.3rem}}
+
+/* ── as duas marcas ──
+   Cartões deliberadamente distintos: a empresa em papel branco e ouro
+   (documento, laudo, estrutura); a mentoria em grafite (pessoal, um a
+   um). Se os dois parecessem iguais, a separação seria só de texto. */
+.duas{display:grid;grid-template-columns:repeat(2,1fr);gap:1.4rem}
+.dm{border-radius:var(--r-5);padding:2rem;display:flex;flex-direction:column;transition:.28s}
+.dm.emp{background:var(--branco);border:1px solid var(--linha);border-top:3px solid var(--ouro)}
+.dm.pes{background:var(--grafite);border:1px solid var(--grafite-2);border-top:3px solid var(--ouro-claro);color:var(--tinta-inv)}
+.dm:hover{box-shadow:var(--sombra);transform:translateY(-3px)}
+.dm-top{display:flex;align-items:center;gap:.9rem;margin-bottom:1.3rem}
+.dm-n{font-family:var(--serif);font-size:1.32rem;line-height:1.15}
+.dm-s{font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;font-weight:600;margin-top:5px;
+  color:var(--ouro-txt)}
+.dm.pes .dm-s{color:var(--ouro-claro)}
+.selo-cc{width:42px;height:42px;border-radius:12px;flex:none;display:grid;place-items:center;
+  font-family:var(--serif);font-weight:500;font-size:16px;letter-spacing:.02em;
+  background:transparent;border:1.5px solid var(--ouro-claro);color:var(--ouro-claro)}
+.dm-o{font-size:.95rem;line-height:1.65;color:var(--tinta-2);margin-bottom:1.4rem}
+.dm.pes .dm-o{color:var(--tinta-inv-2)}
+.dm-o b{color:var(--tinta);font-weight:600}
+.dm.pes .dm-o b{color:#fff}
+.dm-l{display:grid;gap:0;margin-bottom:1.6rem}
+.dm-l>div{display:grid;grid-template-columns:5.4rem 1fr;gap:1rem;padding:.7rem 0;
+  border-top:1px solid var(--linha)}
+.dm.pes .dm-l>div{border-color:var(--linha-inv)}
+.dm-l dt{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  color:var(--tinta-3);padding-top:2px}
+.dm.pes .dm-l dt{color:var(--ouro-claro)}
+.dm-l dd{font-size:.88rem;line-height:1.55;color:var(--tinta-2)}
+.dm.pes .dm-l dd{color:var(--tinta-inv-2)}
+.dm-fim{margin-top:auto;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  padding-top:1.2rem;border-top:1px solid var(--linha)}
+.dm.pes .dm-fim{border-color:var(--linha-inv)}
+.dm-ig{font-size:.83rem;font-weight:600;color:var(--ouro-txt);transition:.2s}
+.dm-ig:hover{color:var(--tinta)}
+.dm.pes .dm-ig{color:var(--ouro-claro)}
+.dm.pes .dm-ig:hover{color:#fff}
+.dm-fim .bt{margin-left:auto}
+.dm.pes .bt-tinta{background:var(--ouro-grad);color:#1a1408}
+.dm.pes .bt-tinta:hover{background:var(--ouro-claro)}
+.duas-fim{margin-top:1.4rem;display:flex;align-items:center;gap:1.3rem;
+  background:var(--papel-2);border:1px solid var(--linha);border-radius:var(--r-4);
+  padding:1.4rem 1.7rem;font-size:.95rem;line-height:1.65;color:var(--tinta-2)}
+.duas-fim b{color:var(--tinta);font-weight:600}
+.dx{font-family:var(--serif);font-size:2rem;line-height:1;color:var(--ouro-txt);flex:none}
+@media(max-width:880px){.duas{grid-template-columns:1fr}
+  .duas-fim{flex-direction:column;align-items:flex-start;gap:.7rem}}
 
 /* ── serviços executáveis ── */
 .serv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:2.6rem}
@@ -201,7 +375,7 @@ header.fixo{background:rgba(250,248,245,.88);backdrop-filter:blur(14px);-webkit-
 .emc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:2.6rem}
 .emc{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-5);padding:2.1rem 1.8rem;transition:.28s}
 .emc:hover{transform:translateY(-3px);box-shadow:var(--sombra)}
-.emc .l{font-family:var(--serif);font-style:italic;font-weight:500;font-size:2.9rem;line-height:1;color:var(--ouro)}
+.emc .l{font-family:var(--serif);font-style:italic;font-weight:500;font-size:2.9rem;line-height:1;color:var(--ouro-txt)}
 .emc b{display:block;font-size:1.08rem;font-weight:700;margin:.85rem 0 .45rem}
 .emc p{color:var(--tinta-2);font-size:.92rem;line-height:1.6}
 @media(max-width:820px){.emc-grid{grid-template-columns:1fr}}
@@ -296,8 +470,8 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
 
 /* ── botão flutuante ── */
 #zap{position:fixed;bottom:22px;right:22px;z-index:800;display:flex;align-items:center;gap:.6rem;
-  background:#128c46;color:#fff;padding:.85rem 1.25rem;border-radius:100px;font-weight:600;font-size:.85rem;
-  box-shadow:0 8px 26px rgba(18,140,70,.36);cursor:pointer;border:none;
+  background:#0f8244;color:#fff;padding:.85rem 1.25rem;border-radius:100px;font-weight:600;font-size:.85rem;
+  box-shadow:0 8px 26px rgba(15,130,68,.36);cursor:pointer;border:none;
   opacity:0;transform:translateY(20px);transition:.35s}
 #zap.ver{opacity:1;transform:none}
 #zap:hover{transform:translateY(-2px)}
@@ -402,26 +576,29 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
 </header>
 
 <main>
-<!-- ═══ ABERTURA ═══ -->
+<!-- ═══ 1 · O ESPELHO ═══
+     Ninguém compra porque a empresa é impressionante. Compra porque se
+     sentiu compreendido. Por isso a primeira coisa da página é a dor
+     dita nas palavras da própria Carla, não um slogan sobre nós. -->
 <section class="hero" id="inicio">
   <div class="wrap hero-grid">
     <div>
-      <div class="olho">Consultoria com processo auditável</div>
-      <h1>A gente não dá conselho. A gente <em>instala estrutura.</em></h1>
-      <p class="linha">Estruturamos empresas de dentro para fora — estratégia, processos, pessoas e finanças — dentro de um sistema onde cada etapa tem dono, prazo e critério. Você acompanha e aprova cada entrega, uma por uma.</p>
+      <div class="olho">Consultoria de gestão · presencial em SP e remoto no Brasil</div>
+      <h1>Se tudo depende de você, você não tem uma empresa. <em>Tem um emprego que criou pra si mesmo.</em></h1>
+      <p class="linha def">Organizamos <b>processo, preço, caixa e pessoas</b> de empresas que já cresceram
+        mas ainda param quando o dono sai. Não entregamos relatório: executamos dentro de um sistema
+        onde cada etapa tem dono e prazo — e você aprova cada entrega.</p>
       <div class="hero-acoes">
-        <button class="bt bt-ouro" data-zap data-msg="Olá! Vim pelo site da A! Fatorial. Quero entender onde minha empresa está travando.">Quero um diagnóstico</button>
-        <a href="#diagnostico" class="bt bt-linha">Testar em 60 segundos</a>
+        <button class="bt bt-ouro" data-zap data-msg="Olá! Vim pelo site da A! Fatorial. Quero entender onde minha empresa está travando.">Quero destravar minha empresa</button>
+        <a href="#diagnostico" class="bt bt-linha">Ver meu diagnóstico em 60s</a>
       </div>
       <div class="hero-num">
+        <div class="hnum"><div class="n" data-conta="12">0</div><div class="l">Anos dentro de operações reais</div></div>
+        <div class="hnum"><div class="n" data-conta="500" data-pre="+">0</div><div class="l">Empresárias impactadas</div></div>
         <div class="hnum"><div class="n" data-conta="83">0</div><div class="l">Serviços catalogados</div></div>
-        <div class="hnum"><div class="n" data-conta="5">0</div><div class="l">Serviços com laudo</div></div>
-        <div class="hnum"><div class="n" data-conta="21">0</div><div class="l">Etapas com dono e prazo</div></div>
-        <div class="hnum"><div class="n" data-conta="100" data-suf="%">0</div><div class="l">Entregas aprovadas por você</div></div>
       </div>
     </div>
 
-    <!-- a prova: o painel que a própria empresa usa -->
     <div class="vivo rev">
       <div class="vivo-h"><span class="pt" aria-hidden="true"></span><b>Painel de execução</b><span>ao vivo</span></div>
       <div class="vivo-c">
@@ -438,87 +615,203 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
       <div class="vivo-pe">Este é o painel real do nosso sistema. <b>Somos o primeiro cliente do nosso próprio método</b> — e é o mesmo painel que você recebe.</div>
     </div>
   </div>
+
+  <div class="wrap">
+    <div class="quatro rev">
+      <div class="q4"><div class="q4-p">O que fazemos</div>
+        <div class="q4-r">Consultoria de gestão que <b>organiza a empresa e executa junto</b> — processo, preço, caixa, pessoas, expansão e valor do negócio.</div></div>
+      <div class="q4"><div class="q4-p">Que dor cura</div>
+        <div class="q4-r">A empresa que <b>não roda sem você</b>, vende bem e <b>não sobra dinheiro</b>, e onde cada um faz de um jeito.</div></div>
+      <div class="q4"><div class="q4-p">Para quem</div>
+        <div class="q4-r">Empresas que <b>já saíram do começo</b> — têm equipe, faturamento e cliente — mas cresceram sem estrutura para sustentar.</div></div>
+      <div class="q4"><div class="q4-p">Como funciona</div>
+        <div class="q4-r"><b>Diagnóstico → escopo fechado → execução no seu portal.</b> Preço e prazo antes de começar, e nada avança sem a sua aprovação.</div></div>
+    </div>
+  </div>
 </section>
 
-<!-- ═══ FAIXA ═══ -->
 <div class="faixa" aria-hidden="true">
   <div class="faixa-t">
-    <span>Quem centraliza, trava</span><span>Quem estrutura, cresce</span><span>A empresa é o reflexo do dono</span><span>Processo sem dono é intenção</span><span>Execução auditada, resultado provado</span>
-    <span>Quem centraliza, trava</span><span>Quem estrutura, cresce</span><span>A empresa é o reflexo do dono</span><span>Processo sem dono é intenção</span><span>Execução auditada, resultado provado</span>
+    <span>Quem centraliza, trava</span><span>Quem estrutura, cresce</span><span>Não seja o funcionário mais caro</span><span>Empresas fortes operam com padrão</span><span>A empresa é o reflexo do dono</span>
+    <span>Quem centraliza, trava</span><span>Quem estrutura, cresce</span><span>Não seja o funcionário mais caro</span><span>Empresas fortes operam com padrão</span><span>A empresa é o reflexo do dono</span>
   </div>
 </div>
 
-<!-- ═══ ONDE DÓI ═══ -->
+<!-- ═══ 2 · O DIAGNÓSTICO HONESTO ═══
+     Reconhecimento antes de proposta. Quem marca três itens já entendeu
+     sozinho que precisa — não precisamos convencer, só nomear. -->
 <section class="pad" id="dores">
   <div class="wrap">
-    <div class="rev">
-      <div class="olho">Onde costuma doer</div>
-      <h2 class="sec">Você não procura consultoria. Você procura <em>parar de sentir isso.</em></h2>
-      <p class="linha">Cada frase abaixo é de um empresário real. Se alguma soa como a sua semana, o caminho já existe — e tem nome, prazo e preço.</p>
+    <div class="rev" style="max-width:56ch">
+      <div class="olho">O diagnóstico honesto</div>
+      <h2 class="sec">Leia com calma. <em>Quantas você marcaria?</em></h2>
+      <p class="linha">Não é lista de vendedor. São as cinco frases que mais ouvimos de dono de empresa que fatura bem e mesmo assim não descansa.</p>
     </div>
-    <div class="dor-grid">
-      <div class="dor rev"><div class="q">“Se eu saio três dias, a operação para.”</div><p class="r">O conhecimento está na cabeça das pessoas, não no processo. Sem procedimento escrito, cada um faz de um jeito e o padrão morre na primeira ausência.</p><div class="s">→ Mapeamento de processos, POPs e rituais de gestão</div></div>
-      <div class="dor rev rev-d1"><div class="q">“Vendo bem, mas no fim do mês não sobra.”</div><p class="r">Quase sempre o preço foi feito somando margem ao custo. Imposto e comissão incidem sobre o preço, não sobre o custo — e a conta nunca fecha.</p><div class="s">→ Arquitetura de preço e margem</div></div>
-      <div class="dor rev rev-d2"><div class="q">“Preciso de fôlego e não sei por onde começar.”</div><p class="r">Sem saber em que semana o caixa vira, toda decisão é chute. O primeiro passo é enxergar treze semanas à frente e saber quanto tempo existe para agir.</p><div class="s">→ Reestruturação e fôlego de caixa</div></div>
-      <div class="dor rev rev-d3"><div class="q">“Quero vender, captar sócio ou expandir — e não sei o que tenho.”</div><p class="r">Valor de empresa não se estima no achismo: tem norma, método e laudo. E replicar um negócio exige provar antes que ele é replicável.</p><div class="s">→ Valuation · Formatação de franquias</div></div>
+    <div class="sint rev">
+      <label class="si"><input type="checkbox" class="sx"><span class="sb" aria-hidden="true"></span><span class="st"><b>Você é o gargalo.</b> Nada anda sem a sua aprovação — nem o que não deveria passar por você.</span></label>
+      <label class="si"><input type="checkbox" class="sx"><span class="sb" aria-hidden="true"></span><span class="st"><b>A equipe executa, mas ninguém pensa como dono.</b> Faltou você, faltou decisão.</span></label>
+      <label class="si"><input type="checkbox" class="sx"><span class="sb" aria-hidden="true"></span><span class="st"><b>Falta padrão.</b> Cada dia o mesmo processo é feito de um jeito, e o cliente sente a diferença.</span></label>
+      <label class="si"><input type="checkbox" class="sx"><span class="sb" aria-hidden="true"></span><span class="st"><b>Você trabalha mais e o faturamento não acompanha</b> — só o estresse acompanha.</span></label>
+      <label class="si"><input type="checkbox" class="sx"><span class="sb" aria-hidden="true"></span><span class="st"><b>A empresa cresceu, mas você não descolou dela.</b> Ela ficou maior; a sua vida, não.</span></label>
+    </div>
+    <div class="sint-r rev" id="sint-r" aria-live="polite">
+      <b>Marque o que reconhece.</b> A conta que essas cinco frases custam por mês já está sendo paga — a diferença é que hoje ela não aparece em lugar nenhum.
     </div>
   </div>
 </section>
 
-<!-- ═══ SERVIÇOS EXECUTÁVEIS ═══ -->
-<section class="pad borda-t" id="servicos" style="background:var(--papel-2)">
+<!-- ═══ 3 · O CUSTO DE NÃO RESOLVER ═══
+     A alavanca mais esquecida do B2B: o preço de continuar como está.
+     Aqui ele aparece em número, com a conta à vista — não como ameaça. -->
+<section class="pad borda-t" style="background:var(--papel-2)" id="custo">
   <div class="wrap">
-    <div class="rev">
+    <div class="rev" style="max-width:56ch">
+      <div class="olho">A conta que ninguém faz</div>
+      <h2 class="sec">Não resolver <em>também tem preço.</em> Só que ele não vem em boleto.</h2>
+      <p class="linha">Estes são os três vazamentos que mais encontramos. Faça a conta com os seus números — leva trinta segundos e costuma incomodar.</p>
+    </div>
+    <div class="custo-grid rev">
+      <div class="cu"><div class="cu-n">3% a 8%</div><b>de margem perdida no preço</b>
+        <p>Preço feito somando margem ao custo ignora que imposto e comissão incidem sobre o <i>preço</i>. Em quase toda empresa que abrimos, a margem real é menor que a imaginada.</p></div>
+      <div class="cu"><div class="cu-n">1 a 3 dias</div><b>por semana do dono na operação</b>
+        <p>Tempo que não vira estratégia, não vira venda e não vira descanso. É o custo mais caro da empresa, e o único que não entra na DRE.</p></div>
+      <div class="cu"><div class="cu-n">30 a 90 dias</div><b>de caixa preso no ciclo</b>
+        <p>Vender bem e receber tarde é o que quebra empresa lucrativa. Sem projeção semanal, isso só aparece quando já não dá para negociar.</p></div>
+    </div>
+    <div class="conta rev">
+      <div class="conta-h"><b>Faça a sua conta</b><span>fica só no seu navegador</span></div>
+      <div class="conta-g">
+        <div class="campo"><label for="c-fat">Faturamento por mês (R$)</label><input id="c-fat" inputmode="numeric" value="250.000"></div>
+        <div class="campo"><label for="c-mg">Quanto acha que sobra de margem (%)</label><input id="c-mg" inputmode="numeric" value="15"></div>
+        <div class="campo"><label for="c-hr">Horas suas por semana na operação</label><input id="c-hr" inputmode="numeric" value="20"></div>
+      </div>
+      <div class="conta-r" id="conta-r"></div>
+      <p class="af-nota" style="margin-top:.9rem">Conta simplificada, com as faixas que encontramos em campo. Serve para dimensionar — não substitui o Raio-X, que usa os seus números de verdade.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 4 · PARA QUEM ═══
+     Dizer para quem NÃO servimos é o que faz quem serve confiar. -->
+<section class="pad" id="paraquem">
+  <div class="wrap">
+    <div class="rev" style="text-align:center;margin-bottom:2.4rem">
+      <div class="olho meio">Antes de qualquer conversa</div>
+      <h2 class="sec" style="margin-inline:auto;text-align:center">Não somos para todo mundo — <em>e isso é bom para você.</em></h2>
+      <p class="linha" style="margin-inline:auto;text-align:center">Consultoria que aceita qualquer cliente não tem método, tem agenda a preencher. Nossos critérios, abertos.</p>
+    </div>
+    <div class="pq-grid">
+      <div class="pq sim rev">
+        <div class="pq-h"><span class="pq-i" aria-hidden="true">✓</span><b>Somos para você se…</b></div>
+        <ul>
+          <li>A empresa <b>já fatura e tem equipe</b>, mas depende de você para tudo funcionar.</li>
+          <li>Você <b>não sabe a margem real</b> de cada produto ou serviço que vende.</li>
+          <li>Cada pessoa executa de um jeito e <b>o padrão se perde</b> quando alguém falta.</li>
+          <li>Você quer <b>vender, captar sócio ou franquear</b> — e precisa de número defensável.</li>
+          <li>Você aceita <b>ritual semanal</b> e topa que a execução seja medida.</li>
+        </ul>
+      </div>
+      <div class="pq nao rev rev-d1">
+        <div class="pq-h"><span class="pq-i" aria-hidden="true">✕</span><b>Não somos para você se…</b></div>
+        <ul>
+          <li>A empresa <b>ainda não vende</b> — antes de estrutura é preciso ter operação.</li>
+          <li>Você procura <b>um relatório</b> para guardar na gaveta. Aqui se executa.</li>
+          <li>Você quer <b>terceirizar a decisão</b>. A decisão continua sua; o método é nosso.</li>
+          <li>Você não tem <b>duas horas por semana</b> para acompanhar. Sem ritmo, não funciona.</li>
+          <li>Você busca <b>o mais barato</b>. Trabalhamos com escopo fechado e preço justo, não com o menor preço.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pq-fim rev">
+      <div><b>Atendemos qualquer setor</b> — indústria, comércio, serviço, saúde e rede de franquias. O que muda é o escopo, não o método. E trabalhamos de <b>qualquer lugar do Brasil</b>: o sistema é a nossa sala de reunião.</div>
+      <button class="bt bt-ouro bt-sm" data-zap data-msg="Olá! Li os critérios no site e acho que minha empresa se encaixa. Podemos conversar?">Acho que me encaixo →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 5 · COMO FUNCIONA ═══ -->
+<section class="pad-s borda-t" style="background:var(--papel-2)" id="como">
+  <div class="wrap">
+    <div class="rev" style="max-width:56ch">
+      <div class="olho">Como começa</div>
+      <h2 class="sec">Três passos. <em>Sem surpresa em nenhum deles.</em></h2>
+    </div>
+    <div class="passo-grid">
+      <div class="pa rev"><span class="pn">1</span><b>Conversa e diagnóstico</b>
+        <p>Uma conversa franca sobre onde trava. Se fizer sentido, aplicamos o Raio-X: 48 perguntas em 9 dimensões, cruzadas com os números do seu balanço.</p>
+        <span class="pt-l">Você recebe: laudo com índice, o que quebra primeiro e plano de 90 dias</span></div>
+      <div class="pa rev rev-d1"><span class="pn">2</span><b>Escopo, prazo e preço fechados</b>
+        <p>Antes de qualquer execução você recebe a proposta com o que será feito, o que <i>não</i> será feito, quanto custa e quando fica pronto. Sem hora extra, sem escopo elástico.</p>
+        <span class="pt-l">Você aprova no portal antes de começar</span></div>
+      <div class="pa rev rev-d2"><span class="pn">3</span><b>Execução acompanhada</b>
+        <p>Ritual semanal e cada entrega passando pela sua aprovação. O sistema mostra a etapa, o dono e o prazo — e trava se alguém tentar pular.</p>
+        <span class="pt-l">Você acompanha ao vivo, sem pedir notícia</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 6 · SERVIÇOS ═══ -->
+<section class="pad" id="servicos">
+  <div class="wrap">
+    <div class="rev" style="max-width:58ch">
       <div class="olho">O que entregamos</div>
       <h2 class="sec">Cinco serviços que saem com <em>laudo</em>, não com slide.</h2>
-      <p class="linha">São 83 serviços catalogados. Estes cinco rodam dentro do nosso sistema, etapa por etapa, e terminam em documento assinado — com a norma e a lei citadas no próprio laudo. É o que separa consultoria de opinião.</p>
+      <p class="linha">São 83 serviços catalogados. Estes cinco rodam dentro do sistema, etapa por etapa, e terminam em documento assinado — com a norma e a lei citadas no próprio laudo. É o que separa consultoria de opinião.</p>
     </div>
     <div class="serv-grid">
-      <div class="serv rev" style="--cor:#0f68b0;--cor-txt:#0f68b0">
-        <div class="ic" aria-hidden="true">◉</div>
-        <h4>Raio-X do negócio</h4>
-        <p>Diagnóstico em 9 dimensões, 48 perguntas com âncora objetiva, mais 8 indicadores tirados do seu balanço. Diz o que quebra primeiro e entrega plano de 90 dias em três ondas.</p>
-        <div class="lei"><b>Método:</b> escala de maturidade em cinco níveis e análise dinâmica de capital de giro.</div>
-      </div>
-      <div class="serv rev rev-d1" style="--cor:#0d7a54;--cor-txt:#0d7a54">
-        <div class="ic" aria-hidden="true">⌗</div>
-        <h4>Arquitetura de preço</h4>
+      <div class="serv rev" style="--cor:#0f68b0;--cor-txt:#0d5893">
+        <div class="ic" aria-hidden="true">◉</div><h4>Raio-X do negócio</h4>
+        <p>Diagnóstico em 9 dimensões, 48 perguntas com âncora objetiva e 8 indicadores tirados do seu balanço. Diz o que quebra primeiro e entrega plano de 90 dias em três ondas.</p>
+        <div class="lei"><b>Método:</b> escala de maturidade em cinco níveis e análise dinâmica de capital de giro.</div></div>
+      <div class="serv rev rev-d1" style="--cor:#0d7a54;--cor-txt:#0a6244">
+        <div class="ic" aria-hidden="true">⌗</div><h4>Arquitetura de preço</h4>
         <p>Carga tributária real pelos três regimes, custo por item, markup divisor, margem por hora do gargalo e o limite de desconto de cada produto — com número, não com intuição.</p>
-        <div class="lei"><b>Base legal:</b> LC 123/2006 com Fator R · art. 15 da Lei 9.249/1995 · PIS/COFINS não cumulativo.</div>
-      </div>
-      <div class="serv rev rev-d2" style="--cor:#bd2b2b;--cor-txt:#bd2b2b">
-        <div class="ic" aria-hidden="true">⧗</div>
-        <h4>Reestruturação e caixa</h4>
+        <div class="lei"><b>Base legal:</b> LC 123/2006 com Fator R · art. 15 da Lei 9.249/1995 · PIS/COFINS não cumulativo.</div></div>
+      <div class="serv rev rev-d2" style="--cor:#bd2b2b;--cor-txt:#a8221f">
+        <div class="ic" aria-hidden="true">⧗</div><h4>Reestruturação e caixa</h4>
         <p>Fluxo de 13 semanas que responde em que semana o caixa vira, mapa de dívida, ponte de EBITDA e a rota — renegociar, extrajudicial ou judicial.</p>
-        <div class="lei"><b>Base legal:</b> Lei 11.101/2005 na redação da Lei 14.112/2020 · Altman Z'' e Kanitz.</div>
-      </div>
-      <div class="serv rev" style="--cor:#a8842f;--cor-txt:#7a5f16">
-        <div class="ic" aria-hidden="true">◈</div>
-        <h4>Valuation</h4>
+        <div class="lei"><b>Base legal:</b> Lei 11.101/2005 na redação da Lei 14.112/2020 · Altman Z'' e Kanitz.</div></div>
+      <div class="serv rev" style="--cor:#a8842f;--cor-txt:#66500f">
+        <div class="ic" aria-hidden="true">◈</div><h4>Valuation</h4>
         <p>Quanto a empresa vale, com faixa de negociação defensável: fluxo de caixa descontado, múltiplos, patrimonial e capitalização de lucros, conciliados em um laudo.</p>
-        <div class="lei"><b>Normas:</b> NBR 14653-4 · CPC 46/IFRS 13 · CPC 04 (R1) · IVS.</div>
-      </div>
-      <div class="serv rev rev-d1" style="--cor:#6236d8;--cor-txt:#6236d8">
-        <div class="ic" aria-hidden="true">⊞</div>
-        <h4>Formatação de franquias</h4>
+        <div class="lei"><b>Normas:</b> NBR 14653-4 · CPC 46/IFRS 13 · CPC 04 (R1) · IVS.</div></div>
+      <div class="serv rev rev-d1" style="--cor:#6236d8;--cor-txt:#5227c2">
+        <div class="ic" aria-hidden="true">⊞</div><h4>Formatação de franquias</h4>
         <p>Índice de franqueabilidade em 10 pilares, viabilidade da unidade, 31 documentos, POPs e a Circular de Oferta completa. Se ainda não dá para franquear, o laudo diz — e por quê.</p>
-        <div class="lei"><b>Base legal:</b> Lei 13.966/2019, art. 2º e seus 16 incisos · Lei 9.279/1996.</div>
-      </div>
-      <div class="serv rev rev-d2" style="--cor:#3d4c60;--cor-txt:#3d4c60">
-        <div class="ic" aria-hidden="true">＋</div>
-        <h4>E outros 78 serviços</h4>
+        <div class="lei"><b>Base legal:</b> Lei 13.966/2019, art. 2º e seus 16 incisos · Lei 9.279/1996.</div></div>
+      <div class="serv rev rev-d2" style="--cor:#3d4c60;--cor-txt:#364355">
+        <div class="ic" aria-hidden="true">＋</div><h4>E outros 78 serviços</h4>
         <p>Capital humano, excelência operacional, inteligência comercial, mentoria executiva e 19 imersões práticas. Todos com escopo, prazo e entregável definidos <b>antes</b> de começar.</p>
-        <div class="lei"><b>Catálogo aberto:</b> você sabe o que contratou, o que vai receber e quando.</div>
-      </div>
+        <div class="lei"><b>Catálogo aberto:</b> você sabe o que contratou, o que vai receber e quando.</div></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ DIAGNÓSTICO DE 60 SEGUNDOS ═══ -->
+<!-- ═══ 7 · O QUE FICA ═══ -->
+<section class="pad-s borda-t" style="background:var(--papel-2)">
+  <div class="wrap">
+    <div class="rev" style="max-width:56ch">
+      <div class="olho">O que fica na sua mão</div>
+      <h2 class="sec">Consultoria se mede pelo que <em>sobra depois que a gente sai.</em></h2>
+      <p class="linha">Não é reunião nem apresentação. É documento que a sua equipe usa na segunda-feira seguinte — e que continua valendo daqui a dois anos.</p>
+    </div>
+    <div class="ent-grid">
+      <div class="ent rev"><span class="ei" aria-hidden="true">▤</span><b>Laudo assinado</b><span>Valuation, franqueabilidade, diagnóstico ou precificação — com norma e lei citadas.</span></div>
+      <div class="ent rev"><span class="ei" aria-hidden="true">⎈</span><b>POPs e manuais</b><span>Como cada coisa é feita, escrito e usado no treinamento de quem entra.</span></div>
+      <div class="ent rev"><span class="ei" aria-hidden="true">⌗</span><b>Tabela de preço</b><span>Preço por item, margem real e o limite de desconto que cada vendedor pode dar.</span></div>
+      <div class="ent rev"><span class="ei" aria-hidden="true">◷</span><b>Plano de 90 dias</b><span>Em três ondas, com dono e prazo em cada ação. Não é lista de desejo.</span></div>
+      <div class="ent rev"><span class="ei" aria-hidden="true">▦</span><b>Painel de indicadores</b><span>Os números que decidem o seu negócio, num lugar só, atualizados.</span></div>
+      <div class="ent rev"><span class="ei" aria-hidden="true">★</span><b>Acesso ao portal</b><span>Durante e depois: histórico, documentos e o que ficou combinado.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 8 · O PASSO PEQUENO ═══
+     Compromisso mínimo antes do grande: entrega valor na hora e qualifica. -->
 <section class="pad" id="diagnostico">
   <div class="wrap">
     <div class="diag rev">
-      <div class="olho">Sem cadastro, sem e-mail</div>
+      <div class="olho">Sem cadastro, sem e-mail, sem compromisso</div>
       <h2>Descubra em 60 segundos <em>o que está travando</em> a sua empresa.</h2>
       <p class="linha">Seis perguntas do nosso Raio-X. No fim, o grau de maturidade da sua gestão e qual frente resolve primeiro. É o mesmo critério que usamos com cliente pagante — a versão curta.</p>
       <div class="dg-corpo" id="dg" role="region" aria-live="polite"></div>
@@ -526,29 +819,49 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
   </div>
 </section>
 
-<!-- ═══ MÉTODO ═══ -->
-<section class="pad borda-t" id="metodo" style="background:var(--papel-2)">
+<!-- ═══ 9 · A GARANTIA ═══
+     Tirar o risco da mesa é o que destrava a primeira compra em alto ticket.
+     Esta é real: está na cláusula 8ª do contrato de diagnóstico. -->
+<section class="pad-s">
   <div class="wrap">
-    <div class="rev">
-      <div class="olho">Nosso método</div>
-      <h2 class="sec">Método EMC: três camadas que <em>reorganizam</em> a empresa de dentro pra fora.</h2>
-      <p class="linha">Não tratamos sintoma. A estrutura de uma empresa é consequência de como o dono pensa e de como ele age — e é por aí que a gente começa.</p>
-    </div>
-    <div class="emc-grid">
-      <div class="emc rev"><div class="l">E</div><b>Estratégia</b><p>Onde a empresa perde dinheiro, tempo e energia. Define processo, padrão e prioridade — para parar de apagar incêndio e começar a construir.</p></div>
-      <div class="emc rev rev-d1"><div class="l">M</div><b>Mentalidade</b><p>A empresa cresce até o tamanho da cabeça do dono. Destrava delegação, confiança e decisão — para o crescimento deixar de assustar.</p></div>
-      <div class="emc rev rev-d2"><div class="l">C</div><b>Comportamento</b><p>Mapeia traços e corrige comportamentos, do dono e do time. O respeito que você exige é proporcional ao exemplo que você dá.</p></div>
+    <div class="gar rev">
+      <div class="gar-s" aria-hidden="true">↺</div>
+      <div>
+        <div class="olho">O risco é nosso</div>
+        <h2 class="sec" style="font-size:clamp(1.6rem,3vw,2.4rem)">O diagnóstico é abatido do serviço que ele recomendar.</h2>
+        <p class="linha">Você começa pelo Raio-X — o serviço mais barato do catálogo. Se contratar em até <b>90 dias</b> qualquer serviço que o laudo recomendar, <b>o valor pago no diagnóstico é abatido integralmente</b>. Está escrito na cláusula 8ª do contrato, não numa promessa de vendedor.</p>
+        <p class="linha" style="margin-top:.8rem">Na prática: você não paga para descobrir o que fazer. Você paga para fazer — e descobre de graça.</p>
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.4rem">
+          <button class="bt bt-ouro" data-zap data-msg="Olá! Quero começar pelo Raio-X do negócio. Como funciona e qual o próximo passo?">Começar pelo Raio-X</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ COMO TRABALHAMOS ═══ -->
+<!-- ═══ 10 · MÉTODO ═══ -->
+<section class="pad borda-t" id="metodo" style="background:var(--papel-2)">
+  <div class="wrap">
+    <div class="rev" style="max-width:56ch">
+      <div class="olho">Nosso método</div>
+      <h2 class="sec">Método EMC: três camadas que <em>reorganizam</em> a empresa de dentro pra fora.</h2>
+      <p class="linha">O EMC não trata sintoma. Corrige a raiz: como o dono pensa, como age e como a estrutura reflete isso.</p>
+    </div>
+    <div class="emc-grid">
+      <div class="emc rev"><div class="l">E</div><b>Estratégia</b><p>Onde a empresa perde dinheiro, tempo e energia. Define processo, padrão e prioridade — para parar de apagar incêndio e começar a construir.</p></div>
+      <div class="emc rev rev-d1"><div class="l">M</div><b>Mentalidade</b><p>A empresa cresce até o tamanho da cabeça do dono. Destrava a delegação, a confiança e a decisão — para o crescimento deixar de assustar.</p></div>
+      <div class="emc rev rev-d2"><div class="l">C</div><b>Comportamento</b><p>Mapeia traços e corrige comportamentos, do dono e do time. O respeito que você exige é proporcional ao exemplo que você dá — aqui o exemplo vira sistema.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 11 · A ESTEIRA ═══ -->
 <section class="pad">
   <div class="wrap">
-    <div class="rev">
+    <div class="rev" style="max-width:56ch">
       <div class="olho">Como trabalhamos</div>
       <h2 class="sec">Nada no improviso. <em>Tudo em esteira.</em></h2>
-      <p class="linha">Todo projeto percorre a mesma sequência, e o sistema não deixa pular etapa. Os passos marcados em dourado são seus — acontecem no seu portal, e nada avança sem você.</p>
+      <p class="linha">Todo projeto percorre a mesma sequência, e o sistema não deixa pular etapa. Os passos em dourado são seus — acontecem no seu portal, e nada avança sem você.</p>
     </div>
     <div class="est rev">
       <div class="est-trilha">
@@ -563,25 +876,24 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
         <div class="est-p cli"><i>9</i><b>Satisfação</b><small>você avalia</small></div>
         <div class="est-p"><i>✓</i><b>Prova real</b><small>resultado documentado</small></div>
       </div>
-      <div class="est-nota"><span class="p" aria-hidden="true"></span><div><b>Quatro dos dez passos são seus.</b> Não é figura de linguagem: o sistema trava a etapa até você agir, e mostra a quem cabe a bola em cada momento. Consultoria que avança sozinha é consultoria que entrega o que quer, não o que você precisa.</div></div>
+      <div class="est-nota"><span class="p" aria-hidden="true"></span><div><b>Quatro dos dez passos são seus.</b> Não é figura de linguagem: o sistema trava a etapa até você agir e mostra a quem cabe a bola. Consultoria que avança sozinha entrega o que quer, não o que você precisa.</div></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ PORTAL ═══ -->
+<!-- ═══ 12 · PORTAL ═══ -->
 <section class="pad borda-t" id="portal" style="background:var(--papel-2)">
   <div class="wrap portal-grid">
     <div class="rev">
       <div class="olho">Área do cliente</div>
       <h2 class="sec">Seu projeto <em>ao vivo,</em> sem precisar pedir notícia.</h2>
-      <p class="linha" style="margin-bottom:1.8rem">Todo cliente A! Fatorial recebe acesso ao mesmo sistema em que gerimos o projeto. Não é um relatório mensal em PDF: é o estado real, agora.</p>
+      <p class="linha" style="margin-bottom:1.8rem">Todo cliente recebe acesso ao mesmo sistema em que gerimos o projeto. Não é relatório mensal em PDF: é o estado real, agora.</p>
       <div class="pf"><span class="ic" aria-hidden="true">◐</span><div><b>Em que etapa está e o que vem depois</b><span>A jornada inteira visível, com a etapa atual destacada e o prazo de cada uma.</span></div></div>
       <div class="pf"><span class="ic" aria-hidden="true">✓</span><div><b>Você aprova cada entrega</b><span>Proposta, contrato e cada entregável passam pela sua aprovação. Nada avança sozinho.</span></div></div>
       <div class="pf"><span class="ic" aria-hidden="true">▣</span><div><b>Documentos num lugar só</b><span>Contratos, laudos, comprovantes e anexos organizados — sem caçar no e-mail.</span></div></div>
-      <div class="pf"><span class="ic" aria-hidden="true">★</span><div><b>Sua nota conta</b><span>Pesquisa de satisfação a cada entrega. Nota baixa reabre a etapa, não vira estatística.</span></div></div>
+      <div class="pf"><span class="ic" aria-hidden="true">★</span><div><b>Sua nota conta</b><span>Pesquisa a cada entrega. Nota baixa reabre a etapa, não vira estatística.</span></div></div>
       <div style="margin-top:1.8rem;display:flex;gap:.8rem;flex-wrap:wrap">
-        <button class="bt bt-ouro" onclick="abrirEntrar('cliente')">Acessar minha área →</button>
-        <button class="bt bt-linha" data-zap data-msg="Olá! Quero ser cliente da A! Fatorial e ter acesso ao portal de acompanhamento.">Quero ser cliente</button>
+        <button class="bt bt-linha" onclick="abrirEntrar('cliente')">Já sou cliente — entrar →</button>
       </div>
     </div>
     <div class="mock rev rev-d1" aria-hidden="true">
@@ -600,25 +912,87 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
   </div>
 </section>
 
-<!-- ═══ QUEM SOMOS ═══ -->
+<!-- ═══ 13 · AS DUAS MARCAS ═══
+     Posicionamento deliberado: a EMPRESA e a PESSOA são marcas distintas,
+     com público, entregável e canal próprios — inclusive no Instagram
+     (@afatorialsolucoes e @pscarlacaroline). Cada uma se vende sozinha;
+     juntas cobrem os dois lados do mesmo problema. Não misturar as duas
+     é o que faz a empresa ter valor sem depender do nome da fundadora. -->
 <section class="pad" id="sobre">
-  <div class="wrap sobre-grid">
-    <div class="retrato rev" aria-hidden="true">
-      <span class="cr">Carla Caroline · CEO</span>
-      <div class="fr">“A empresa é o reflexo do dono.”</div>
+  <div class="wrap">
+    <div class="rev" style="text-align:center;margin-bottom:3rem">
+      <div class="olho meio">Duas marcas, um mesmo problema</div>
+      <h2 class="sec" style="margin-inline:auto;text-align:center">A empresa trava onde <em>o dono trava.</em> Por isso somos dois trabalhos.</h2>
+      <p class="linha" style="margin-inline:auto;text-align:center">Estrutura sem mudança de comportamento vira manual na gaveta. Comportamento sem estrutura vira motivação que passa na segunda-feira. São frentes diferentes, com times, contratos e resultados diferentes — <b>e você pode contratar só uma delas</b>.</p>
     </div>
-    <div class="rev rev-d1">
-      <div class="olho">Quem somos</div>
-      <h2 class="sec">Arquitetos de lucro, <em>obcecados</em> por estrutura.</h2>
-      <p>A <b>A! Fatorial Soluções para Empresas e Franquias</b> nasceu de uma constatação simples: a maioria das empresas não quebra por falta de ideia — quebra por falta de estrutura.</p>
-      <p>Liderada por <b>Carla Caroline</b>, a Arquiteta de Lucro, nossa equipe passa os dias dentro de operações reais: organizando processos, mapeando comportamentos e devolvendo ao empresário o controle do próprio negócio.</p>
-      <p>E fazemos com a gente o que fazemos com você: <b>nossa própria operação roda dentro deste sistema</b>, com etapa, dono, prazo e desvio registrado. Se o método não servisse para nós, não teríamos coragem de vender.</p>
-      <button class="bt bt-linha" style="margin-top:.5rem" data-zap data-msg="Olá! Quero conhecer a Carla e entender o Método EMC.">Falar com a Carla →</button>
+
+    <div class="duas">
+      <!-- ── A EMPRESA ── -->
+      <article class="dm emp rev">
+        <div class="dm-top">
+          <div class="selo" aria-hidden="true">A!</div>
+          <div><div class="dm-n">Grupo A! Fatorial</div><div class="dm-s">O ecossistema empresarial</div></div>
+        </div>
+        <p class="dm-o">Consultoria de gestão, estruturação e valor de negócio. Atua na <b>empresa</b>: processo, preço, caixa, pessoas, expansão e valuation. É uma operação com equipe, rede de parceiras, catálogo de 83 serviços e um sistema próprio de execução.</p>
+        <dl class="dm-l">
+          <div><dt>Atende</dt><dd>a empresa — sócios, gestores e o time inteiro</dd></div>
+          <div><dt>Entrega</dt><dd>laudo, POP, tabela de preço, plano de 90 dias e portal</dd></div>
+          <div><dt>Prova</dt><dd>norma, lei e número — documento assinado, não opinião</dd></div>
+          <div><dt>Continua</dt><dd>sem depender de uma pessoa: o método está no sistema</dd></div>
+        </dl>
+        <div class="dm-fim">
+          <a class="dm-ig" href="https://instagram.com/afatorialsolucoes" target="_blank" rel="noopener">@afatorialsolucoes ↗</a>
+          <button class="bt bt-ouro bt-sm" data-zap data-msg="Olá! Quero falar com a A! Fatorial sobre estruturar minha empresa.">Estruturar minha empresa →</button>
+        </div>
+      </article>
+
+      <!-- ── A PESSOA ── -->
+      <article class="dm pes rev rev-d1">
+        <div class="dm-top">
+          <div class="selo-cc" aria-hidden="true">CC</div>
+          <div><div class="dm-n">Carla Caroline</div><div class="dm-s">Mentora comportamental e estrategista de negócios</div></div>
+        </div>
+        <p class="dm-o">Mentoria individual e imersões. Atua na <b>pessoa que dirige</b>: os traços de comportamento, a forma de decidir, o medo de delegar e o padrão que se repete em toda equipe que você monta. É trabalho de mentora, feito por ela, com agenda limitada.</p>
+        <dl class="dm-l">
+          <div><dt>Atende</dt><dd>o dono, a sócia, a liderança — uma pessoa por vez</dd></div>
+          <div><dt>Entrega</dt><dd>mapa comportamental, plano de desenvolvimento e acompanhamento</dd></div>
+          <div><dt>Prova</dt><dd>12 anos em operações reais e +500 empresárias impactadas</dd></div>
+          <div><dt>Continua</dt><dd>na sua forma de decidir — o que fica é você, não o material</dd></div>
+        </dl>
+        <div class="dm-fim">
+          <a class="dm-ig" href="https://instagram.com/pscarlacaroline" target="_blank" rel="noopener">@pscarlacaroline ↗</a>
+          <button class="bt bt-tinta bt-sm" data-zap-cc data-msg="Olá, Carla! Quero falar sobre mentoria comportamental e estratégia — para mim, não só para a empresa.">Falar com a Carla →</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="duas-fim rev">
+      <span class="dx" aria-hidden="true">×</span>
+      <div><b>Quando as duas entram juntas, o resultado é outro.</b> A A! Fatorial reorganiza a estrutura; a mentoria reorganiza quem a comanda. É por isso que o método se chama <b>EMC</b> — estratégia e comportamento no mesmo trabalho. Mas a escolha é sua, e a gente diz na conversa qual das duas resolve o seu caso primeiro.</div>
     </div>
   </div>
 </section>
 
-<!-- ═══ PERGUNTAS ═══ -->
+<!-- ═══ 13b · QUEM FUNDOU ═══
+     Depois de separar as marcas, a fundadora aparece uma vez — como
+     origem do método, não como a única entrega possível. -->
+<section class="pad-s borda-t">
+  <div class="wrap sobre-grid">
+    <div class="retrato rev" aria-hidden="true">
+      <span class="cr">Carla Caroline · fundadora</span>
+      <div class="fr">“Eu não organizo planilhas. Eu reorganizo donos.”</div>
+    </div>
+    <div class="rev rev-d1">
+      <div class="olho">Quem fundou o método</div>
+      <h2 class="sec">Toda empresa travada tem <em>uma pessoa travada</em> por trás dela.</h2>
+      <p><b>Carla Caroline</b> passou <b>12 anos dentro de operações reais</b> entendendo por que empresas travam — e quase sempre a resposta não estava no mercado, estava na cadeira do dono. Dessa leitura nasceu o Método EMC e, dele, o Grupo A! Fatorial.</p>
+      <p>Hoje ela conduz a mentoria comportamental sob o próprio nome e responde pela direção do grupo. <b>A consultoria, porém, não depende da agenda dela:</b> quem executa é a equipe, dentro do sistema, com etapa, dono e prazo registrados. Empresa que só funciona com a fundadora presente é exatamente o problema que a gente veio resolver — começando pela nossa.</p>
+      <p>É a mesma exigência que fazemos com você: <b>a nossa operação roda dentro deste sistema</b>, com desvio registrado e aderência medida. Se o método não servisse para nós, não teríamos coragem de vender.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 14 · OBJEÇÕES ═══ -->
 <section class="pad borda-t" style="background:var(--papel-2)">
   <div class="wrap">
     <div class="rev" style="text-align:center">
@@ -626,29 +1000,32 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
       <h2 class="sec" style="margin-inline:auto;text-align:center">As dúvidas que <em>sempre</em> aparecem.</h2>
     </div>
     <div class="faq rev">
-      <details class="fq"><summary>Quanto custa?</summary><div class="fr">Depende do escopo, e a gente diz antes de começar — nunca depois. Cada um dos 83 serviços tem preço, prazo e entregável definidos em catálogo. O <b>Raio-X do negócio</b> é a porta de entrada mais barata, e o valor pago nele é abatido integralmente do primeiro serviço que ele recomendar, se contratado em até 90 dias.</div></details>
-      <details class="fq"><summary>Quanto tempo até eu ver resultado?</summary><div class="fr">Correção de preço aparece no caixa no mês seguinte, sem investimento. Fluxo de caixa de 13 semanas dá clareza na primeira semana. Já estruturar processos e formar franquia levam de 60 a 90 dias. No contrato está escrito o prazo de cada entrega — e o sistema mostra se estamos dentro dele.</div></details>
-      <details class="fq"><summary>Já tenho contador e já tentei consultoria. O que muda?</summary><div class="fr">Contador cuida da obrigação fiscal; consultoria comum entrega diagnóstico. A diferença aqui é a <b>execução auditada</b>: cada etapa tem dono, prazo e critério objetivo, e o sistema não deixa pular. Você não recebe um relatório e boa sorte — você acompanha a execução e aprova entrega por entrega.</div></details>
-      <details class="fq"><summary>Vocês assinam confidencialidade?</summary><div class="fr">Sim, e não é cláusula decorativa. Todo contrato tem sigilo por 5 anos após o término, tratamento de dados conforme a Lei 13.709/2018 (LGPD), e no caso de reestruturação uma cláusula específica: divulgar a situação financeira do cliente pode precipitar exatamente a ruptura que o trabalho quer evitar.</div></details>
-      <details class="fq"><summary>Precisa parar a operação para isso funcionar?</summary><div class="fr">Não. O trabalho acontece em cima da operação rodando, com ritual semanal curto e objetivo. O que exigimos é presença nas reuniões combinadas: reestruturação sem ritmo semanal não funciona, e o contrato prevê suspender os trabalhos se a administração não aparecer duas semanas seguidas.</div></details>
-      <details class="fq"><summary>Atendem fora de São Paulo?</summary><div class="fr">Sim. O sistema é a nossa sala de reunião: você acompanha tudo de qualquer lugar, e a maior parte do trabalho é remota. Imersões e kickoff podem ser presenciais quando fizer diferença — e nesse caso o deslocamento entra no orçamento, aprovado por você antes.</div></details>
+      <details class="fq"><summary>Quanto custa?</summary><div class="fr">Depende do escopo, e a gente diz <b>antes</b> de começar — nunca depois. Cada um dos 83 serviços tem preço, prazo e entregável em catálogo. O <b>Raio-X</b> é a porta de entrada mais barata, e o valor pago nele é abatido integralmente do primeiro serviço que ele recomendar, se contratado em até 90 dias.</div></details>
+      <details class="fq"><summary>Quanto tempo até eu ver resultado?</summary><div class="fr">Correção de preço aparece no caixa <b>no mês seguinte</b>, sem investimento. Fluxo de 13 semanas dá clareza na primeira semana. Estruturar processos e formar franquia levam de 60 a 90 dias. No contrato está o prazo de cada entrega — e o sistema mostra se estamos dentro dele.</div></details>
+      <details class="fq"><summary>Já tenho contador e já tentei consultoria. O que muda?</summary><div class="fr">Contador cuida da obrigação fiscal; consultoria comum entrega diagnóstico. A diferença aqui é a <b>execução auditada</b>: cada etapa tem dono, prazo e critério objetivo, e o sistema não deixa pular. Você não recebe um relatório e boa sorte — acompanha a execução e aprova entrega por entrega.</div></details>
+      <details class="fq"><summary>Não tenho tempo para mais uma reunião por semana.</summary><div class="fr">O ritual é <b>curto e objetivo</b>: realizado contra projetado, o que travou e a decisão da semana. Quem não tem duas horas por semana para a própria empresa está justamente no problema que viemos resolver — e, honestamente, sem esse ritmo o trabalho não funciona. O contrato prevê suspender se a administração não aparecer duas semanas seguidas.</div></details>
+      <details class="fq"><summary>Vocês assinam confidencialidade?</summary><div class="fr">Sim, e não é cláusula decorativa. Sigilo por <b>5 anos</b> após o término, dados tratados conforme a Lei 13.709/2018 (LGPD) e, em reestruturação, cláusula específica: divulgar a situação financeira do cliente pode precipitar exatamente a ruptura que o trabalho quer evitar.</div></details>
+      <details class="fq"><summary>Precisa parar a operação?</summary><div class="fr">Não. O trabalho acontece em cima da operação rodando. Imersões e kickoff podem ser presenciais quando fizer diferença — e nesse caso o deslocamento entra no orçamento, aprovado por você antes.</div></details>
+      <details class="fq"><summary>E se eu não gostar do resultado?</summary><div class="fr">Cada entrega passa pela sua aprovação <b>antes</b> de ser considerada concluída. Se algo não atender, volta para ajuste sem custo — é uma etapa prevista no processo, não uma concessão. Você também avalia cada entrega, e nota baixa reabre a etapa.</div></details>
     </div>
   </div>
 </section>
 
-<!-- ═══ CHAMADA FINAL ═══ -->
+<!-- ═══ 15 · A DECISÃO ═══ -->
 <section class="pad final borda-t" id="contato">
   <div class="wrap rev">
-    <div class="olho meio">Comece agora</div>
+    <div class="olho meio">Comece pelo começo</div>
     <h2>Sua empresa já te deu o diagnóstico. <em>Falta a arquitetura.</em></h2>
-    <p>Conte onde o seu negócio está travando. Respondemos pessoalmente com o primeiro passo — sem enrolação e sem teoria.</p>
+    <p>Uma conversa franca sobre onde o seu negócio está travando — sem apresentação de slides e sem compromisso. Se não fizer sentido, a gente diz na hora.</p>
     <div class="acoes">
-      <button class="bt bt-ouro" style="padding:1rem 2.1rem" data-zap data-msg="Olá! Quero um diagnóstico do que está travando minha empresa. Podem me ajudar?">Pedir meu diagnóstico</button>
+      <button class="bt bt-ouro" style="padding:1rem 2.1rem" data-zap data-msg="Olá! Quero uma conversa sobre onde minha empresa está travando.">Falar com a A! Fatorial</button>
       <button class="bt bt-linha" onclick="abrirEntrar('cliente')">Já sou cliente — entrar</button>
     </div>
+    <p class="af-nota" style="margin-top:1.6rem;max-width:46ch;margin-inline:auto">Atendemos um número limitado de projetos por trimestre — a execução é acompanhada semana a semana, e isso não escala com volume.</p>
   </div>
 </section>
 </main>
+
 
 <footer>
   <div class="wrap">
@@ -673,6 +1050,9 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
         <div class="ft">Contato</div>
         <a href="tel:+551141443467">(11) 4144-3467</a>
         <a href="mailto:contato@afatorialsolucoes.com.br">contato@afatorialsolucoes.com.br</a>
+        <a href="https://instagram.com/afatorialsolucoes" target="_blank" rel="noopener">@afatorialsolucoes ↗</a>
+        <div class="ft" style="margin-top:1.6rem">Mentoria</div>
+        <div class="li" style="margin-bottom:.4rem">Carla Caroline · mentora comportamental<br>e estrategista de negócios</div>
         <a href="https://instagram.com/pscarlacaroline" target="_blank" rel="noopener">@pscarlacaroline ↗</a>
       </div>
     </div>
@@ -751,12 +1131,20 @@ footer{background:var(--branco);border-top:1px solid var(--linha);padding:3.4rem
 (function(){
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   CONFIGURAÇÃO — três linhas que você ajusta ao publicar
+   CONFIGURAÇÃO — quatro linhas que você ajusta ao publicar
    ═══════════════════════════════════════════════════════════════════ */
 
-/* 1) WhatsApp: DDI + DDD + número, só dígitos. O padrão abaixo é o
-      telefone institucional; troque pelo celular que atende de fato. */
+/* 1) WhatsApp do GRUPO A! FATORIAL — a empresa. DDI + DDD + número, só
+      dígitos. O padrão abaixo é o telefone institucional; troque pelo
+      celular que atende de fato. */
 var WHATSAPP = '551141443467';
+
+/* 1b) WhatsApp da CARLA CAROLINE — a mentoria, que é marca separada
+      (@pscarlacaroline). Enquanto for o mesmo número, deixe igual: os
+      botões continuam funcionando e a mensagem já chega identificada.
+      Quando tiver uma linha só da mentoria, troque só esta linha e a
+      separação passa a valer do primeiro contato. */
+var WHATSAPP_CC = WHATSAPP;
 
 /* 2) Onde está o sistema (a área interna). Ao publicar, o site fica na
       raiz do domínio e o sistema numa subpasta ou subdomínio.
@@ -774,12 +1162,17 @@ var URL_SERVIDOR = '';
 
 var $ = function(id){ return document.getElementById(id); };
 
-/* ── WhatsApp ── */
+/* ── WhatsApp ──
+   data-zap fala com a empresa; data-zap-cc fala com a Carla. São duas
+   marcas, então são dois destinos — hoje o mesmo número, amanhã não. */
 document.addEventListener('click', function(e){
-  var el = e.target.closest('[data-zap]');
+  var el = e.target.closest('[data-zap],[data-zap-cc]');
   if(!el) return;
-  var msg = el.getAttribute('data-msg') || 'Olá! Vim pelo site da A! Fatorial.';
-  window.open('https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent(msg), '_blank', 'noopener');
+  var cc = el.hasAttribute('data-zap-cc');
+  var msg = el.getAttribute('data-msg') || (cc
+    ? 'Olá, Carla! Vim pelo site e quero falar sobre mentoria.'
+    : 'Olá! Vim pelo site da A! Fatorial.');
+  window.open('https://wa.me/'+(cc?WHATSAPP_CC:WHATSAPP)+'?text='+encodeURIComponent(msg), '_blank', 'noopener');
 });
 
 $('ano').textContent = new Date().getFullYear();
@@ -807,18 +1200,123 @@ var cio=new IntersectionObserver(function(es){
     if(!e.isIntersecting) return;
     cio.unobserve(e.target);
     var el=e.target, alvo=parseInt(el.getAttribute('data-conta'),10)||0;
-    var suf=el.getAttribute('data-suf')||'', dur=1200, t0=null;
-    if(alvo===0){ el.textContent='0'+suf; return; }
+    var suf=el.getAttribute('data-suf')||'', pre=el.getAttribute('data-pre')||'';
+    var dur=1200, t0=null;
+    if(alvo===0){ el.textContent=pre+'0'+suf; return; }
     function passo(ts){
       if(!t0) t0=ts;
       var p=Math.min((ts-t0)/dur,1), e2=1-Math.pow(1-p,3);
-      el.textContent=Math.round(alvo*e2)+suf;
+      el.textContent=pre+Math.round(alvo*e2)+suf;
       if(p<1) requestAnimationFrame(passo);
     }
     requestAnimationFrame(passo);
   });
 },{threshold:.4});
 document.querySelectorAll('[data-conta]').forEach(function(el){ cio.observe(el); });
+
+/* ═══════════════════════════════════════════════════════════════════
+   O DIAGNÓSTICO HONESTO — contador de sintomas
+   Quem marca reconhece. O texto só nomeia o que a pessoa acabou de
+   admitir: nunca aumenta a dose nem inventa urgência. Três é o corte
+   porque é onde o problema deixa de ser pontual e vira estrutural.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  var caixas=[].slice.call(document.querySelectorAll('.sint .sx'));
+  var alvo=document.getElementById('sint-r');
+  if(!caixas.length||!alvo) return;
+  var FALAS=[
+    {t:'<b>Marque o que reconhece.</b> A conta que essas cinco frases custam por mês já está sendo paga — a diferença é que hoje ela não aparece em lugar nenhum.',q:false},
+    {t:'<b>Uma já é suficiente para travar o resto.</b> Nenhum desses cinco pontos fica isolado: o que vira gargalo em um lugar reaparece em todos os outros. Role para ver quanto ele custa por mês.',q:false},
+    {t:'<b>Duas marcadas: o problema não é pontual, é de estrutura.</b> Quando dois desses aparecem juntos, quase sempre a causa é a mesma — processo sem dono e sem padrão. A conta abaixo dimensiona.',q:false},
+    {t:'<b>Três marcadas. Esse é o retrato de quem virou funcionário da própria empresa.</b> Não é falta de esforço — é falta de estrutura para sustentar o que você já construiu. É exatamente aqui que o Raio-X entra.',q:true},
+    {t:'<b>Quatro marcadas. Sua empresa cresceu; a estrutura, não.</b> Continuar assim custa margem, tempo e caixa todo mês — e o custo sobe junto com o faturamento. Comece pelo diagnóstico.',q:true},
+    {t:'<b>Cinco de cinco.</b> Você não tem um problema para resolver: tem uma empresa inteira operando na sua energia. A boa notícia é que isso é estrutural, e estrutura se conserta — na ordem certa, uma frente por vez.',q:true}
+  ];
+  function pinta(){
+    var n=caixas.filter(function(c){return c.checked;}).length, f=FALAS[n];
+    alvo.innerHTML=f.t+(f.q?' <button class="bt bt-ouro bt-sm" style="margin-top:1rem" data-zap data-msg="Olá! Marquei '+n+' dos 5 sintomas no site de vocês. Quero entender o que fazer primeiro.">Quero o meu Raio-X →</button>':'');
+    alvo.classList.toggle('quente',f.q);
+  }
+  caixas.forEach(function(c){ c.addEventListener('change',pinta); });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   O CUSTO DE NÃO RESOLVER — a conta
+   Três vazamentos, cada um com aritmética que a pessoa pode conferir.
+   Nada aqui é chute inflado para assustar: as premissas estão escritas
+   embaixo de cada número, e a mais conservadora de cada faixa é a
+   escolhida. Assustar é fácil; o que convence é a conta bater.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  var iFat=document.getElementById('c-fat'), iMg=document.getElementById('c-mg'),
+      iHr=document.getElementById('c-hr'), saida=document.getElementById('conta-r');
+  if(!iFat||!iMg||!iHr||!saida) return;
+
+  var CAP=0.018;      /* custo mensal de capital de giro — piso de mercado */
+  var SEM=4.345;      /* semanas por mês */
+  var HMES=176;       /* horas úteis no mês (44h semanais) */
+
+  function num(t){
+    t=String(t==null?'':t).replace(/[^0-9,]/g,'');
+    if(!t) return 0;
+    var n=parseFloat(t.replace(/\./g,'').replace(',','.'));
+    return isFinite(n)?n:0;
+  }
+  function br(n,d){
+    return (isFinite(n)?n:0).toLocaleString('pt-BR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0});
+  }
+  /* separador de milhar enquanto digita, sem perder o cursor */
+  function mascara(inp){
+    inp.addEventListener('input',function(){
+      var antes=inp.value, caret=inp.selectionStart;
+      var digitosAntes=antes.slice(0,caret).replace(/\D/g,'').length;
+      var n=antes.replace(/\D/g,'');
+      var fmt=n?parseInt(n,10).toLocaleString('pt-BR'):'';
+      inp.value=fmt;
+      var i=0,c=0;
+      while(i<fmt.length&&c<digitosAntes){ if(/\d/.test(fmt[i])) c++; i++; }
+      inp.setSelectionRange(i,i);
+      calcular();
+    });
+  }
+
+  function calcular(){
+    var fat=num(iFat.value), mg=num(iMg.value)/100, hr=num(iHr.value);
+    if(mg<0) mg=0; if(mg>0.9) mg=0.9;
+
+    /* 1 · PREÇO — markup somado × markup divisor.
+       Quem forma preço somando margem ao custo (preço = custo × 1+m)
+       realiza sobre o PREÇO apenas m/(1+m). A diferença é aritmética,
+       não opinião — e é o piso do vazamento, antes de imposto e
+       comissão, que também incidem sobre o preço e ninguém somou. */
+    var perdaPP = mg>0 ? (mg - mg/(1+mg)) : 0;
+    var preco = fat*perdaPP;
+
+    /* 2 · TEMPO — custo de oportunidade das horas do dono na operação,
+       valorizadas pela margem que a própria empresa gera por hora. */
+    var hora = HMES>0 ? (fat*mg)/HMES : 0;
+    var tempo = hr*SEM*hora;
+
+    /* 3 · CAIXA — um mês de faturamento parado no ciclo, ao custo de
+       capital de giro. Trinta dias é a ponta baixa da faixa. */
+    var caixa = fat*CAP;
+
+    var total = preco+tempo+caixa;
+    saida.innerHTML=
+      '<div class="cr-i"><div class="cr-n">R$ '+br(preco)+'</div>'+
+        '<div class="cr-l">por mês em <b>margem</b><br><span class="af-nota">'+br(perdaPP*100,1)+' p.p. perdidos entre somar e dividir o markup</span></div></div>'+
+      '<div class="cr-i"><div class="cr-n">R$ '+br(tempo)+'</div>'+
+        '<div class="cr-l">por mês do <b>seu tempo</b><br><span class="af-nota">'+br(hr)+'h por semana a R$ '+br(hora)+'/h, a hora da sua própria margem</span></div></div>'+
+      '<div class="cr-i"><div class="cr-n">R$ '+br(caixa)+'</div>'+
+        '<div class="cr-l">por mês em <b>caixa</b><br><span class="af-nota">30 dias de ciclo a 1,8% a.m. de capital de giro</span></div></div>'+
+      '<div class="cr-i total"><div class="cr-n">R$ '+br(total*12)+'</div>'+
+        '<div class="cr-l"><b>por ano</b> continuando como está<br><span class="af-nota">R$ '+br(total)+' todo mês, já saindo hoje</span></div></div>';
+  }
+
+  mascara(iFat);
+  [iMg,iHr].forEach(function(i){ i.addEventListener('input',calcular); });
+  calcular();
+})();
 
 /* ═══════════════════════════════════════════════════════════════════
    DIAGNÓSTICO DE 60 SEGUNDOS
