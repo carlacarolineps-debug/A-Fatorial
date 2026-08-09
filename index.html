@@ -11,6 +11,8 @@
 :root{
   --bg:#07070b; --bg-soft:#0f1016; --panel:#ffffff; --panel-soft:#f6f6f8;
   --ink:#13131a; --ink-soft:#62626d; --ink-faint:#82828a;
+  /* o avião de papel do material impresso, como máscara: toma a cor do contexto */
+  --afx-aviao:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M22.6 1.4 1.4 10.2l8.2 3z' opacity='.5'/%3E%3Cpath d='M22.6 1.4 9.6 13.2l3.6 9z'/%3E%3C/svg%3E");
   --gold:#d4af5e; --gold-soft:#ecdcae; --gold-deep:#a8842f; --gold-bright:#f0d68a;
   /* Dourado quando é TEXTO. O dourado de superfície (#d4af5e) rende 2:1 sobre
      branco — ilegível. Este é o mesmo dourado, fundo o bastante para ler
@@ -37,6 +39,27 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Hel
 
 /* ============ SIDEBAR ============ */
 .side{width:264px;background:var(--bg);color:#a8a8b0;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+/* ══ O LOCKUP DA MARCA ══
+   Mesma estrutura do material impresso e do site: "Grupo" na voz
+   manuscrita, A! FATORIAL pesado no ouro metálico, assinatura embaixo,
+   e o avião de papel — que é a assinatura gráfica do grupo — no lugar
+   do símbolo. O símbolo manuscrito entra aqui quando o vetor chegar:
+   basta trocar o <i class="afx-aviao"> por um <img>. */
+.afx-aviao{display:inline-block;flex:none;width:1em;height:1em;background:currentColor;
+  -webkit-mask:var(--afx-aviao) center/contain no-repeat;mask:var(--afx-aviao) center/contain no-repeat;}
+.lk{display:flex;align-items:center;gap:10px;line-height:1;}
+.lk .s{flex:none;font-size:20px;color:var(--gold);display:grid;place-items:center;width:1.5em;height:1.5em;}
+.lk .t{display:flex;flex-direction:column;}
+.lk .t .gr{display:block;font-family:Georgia,'Times New Roman',serif;font-style:italic;
+  font-size:13px;font-weight:400;letter-spacing:0;text-transform:none;
+  color:var(--gold);line-height:1;margin-bottom:2px;}
+.lk .t .nm{display:block;font-weight:800;font-size:21px;letter-spacing:-.6px;line-height:1;text-transform:none;
+  background:linear-gradient(150deg,#f3dc9a,#d4af5e 48%,#a8801f);
+  -webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;}
+.lk .t .as{display:block;font-size:8.5px;font-weight:400;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--ink-faint);margin-top:4px;white-space:nowrap;}
+.lk.sm .s{font-size:16px;} .lk.sm .t .gr{font-size:11px;}
+.lk.sm .t .nm{font-size:17px;} .lk.sm .t .as{font-size:7.5px;}
 .side-brand{display:flex;align-items:center;gap:11px;padding:24px 22px 20px;border-bottom:1px solid rgba(255,255,255,.06);}
 .side-brand .mark{background:var(--gold);color:#000;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;}
 .side-brand b{color:#fff;font-weight:600;font-size:15px;letter-spacing:.3px;}
@@ -2555,10 +2578,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
 <!-- ===== TELA DE LOGIN (simulação — pronta para backend) ===== -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-brand">
-      <div class="mark">A!</div>
-      <div><b>FATORIAL</b><span>Soluções para Empresas e Franquias</span></div>
-    </div>
+    <div class="lk" style="margin-bottom:6px;"><span class="s"><i class="afx-aviao" aria-hidden="true"></i></span><span class="t"><span class="gr">Grupo</span><span class="nm">A! FATORIAL</span><span class="as">Soluções para Empresas e Franquias</span></span></div>
     <div class="login-title">Bem-vindo ao <b>seu ecossistema</b></div>
     <div class="login-sub">Escolha seu perfil de acesso para entrar.</div>
     <div class="login-roles">
@@ -2596,8 +2616,8 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
 <div id="cad-tela" class="hidden">
   <div class="cad-box">
     <div class="cad-head">
-      <div class="mark">A!</div>
-      <div><b>Grupo A! Fatorial</b><span>PGE Lab · A! Multiplicadora · A! Start Talk · A! Saúde · A! Treinamentos · A! Fatorial Representações &nbsp;|&nbsp; marca pessoal: Carla Caroline</span></div>
+      <div class="lk sm"><span class="s"><i class="afx-aviao" aria-hidden="true"></i></span><span class="t"><span class="gr">Grupo</span><span class="nm">A! FATORIAL</span><span class="as">Soluções para Empresas e Franquias</span></span></div>
+      <div style="font-size:10.5px;color:var(--ink-faint);line-height:1.6;">PGE Lab · A! Multiplicadora · A! Start Talk · A! Saúde · A! Treinamentos · A! Fatorial Representações<br>marca pessoal: Carla Caroline</div>
       <button class="cad-x" onclick="cadFechar()" title="Voltar">✕</button>
     </div>
     <span class="ui-seg" id="cad-seg"></span>
@@ -2606,10 +2626,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
 </div>
 
 <aside class="side">
-  <div class="side-brand">
-    <div class="mark">A!</div>
-    <div><b>FATORIAL</b><span>Soluções para Empresas e Franquias</span></div>
-  </div>
+  <div class="side-brand"><div class="lk sm"><span class="s"><i class="afx-aviao" aria-hidden="true"></i></span><span class="t"><span class="gr">Grupo</span><span class="nm">A! FATORIAL</span><span class="as">Soluções para Empresas e Franquias</span></span></div></div>
   <nav class="side-nav" id="side-nav">
     <div class="nav-group">Hoje</div>
     <button class="nav-item on" onclick="areaIr('hoje')" id="a-hoje"><span class="ic">◳</span> Meu painel</button>
@@ -4198,9 +4215,12 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
         function brandDe(casa){ return casa==='pessoal' ? BRAND_CC : BRAND; }
         function brandLogoHTML(size,casa){
           size=size||44; let B=brandDe(casa);
-          let ini = B.casa==='pessoal' ? 'CC' : 'A!';
-          return B.logo?`<img src="${B.logo}" alt="logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;">`
-            :`<div class="mark" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.42)}px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;">${ini}</div>`;
+          if(B.logo) return `<img src="${B.logo}" alt="logo" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;">`;
+          /* sem logo carregado: a marca pessoal usa as iniciais, a empresa
+             usa o avião de papel — que é o elemento do material impresso */
+          if(B.casa==='pessoal')
+            return `<div class="mark" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.38)}px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;">CC</div>`;
+          return `<span style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;color:var(--gold);font-size:${Math.round(size*0.8)}px;"><i class="afx-aviao"></i></span>`;
         }
         function brandSet(campo,val,casa){ brandDe(casa)[campo]=val; brandSalvar(); renderBrand(); }
         function renderBrand(){

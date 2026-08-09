@@ -1348,3 +1348,43 @@ vinha propagando erradas.
 dele, e só existe como imagem achatada. Enquanto o vetor não chega, o selo
 usa o A! tipográfico no ouro metálico. O ponto de troca está pronto: basta
 pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
+
+## Arquivo único e o lockup da marca — versão 0908.06
+
+155. **O site não estava sendo visto.** Ela abriu o `index.html` numa pasta do
+     Desktop sem o `a-fatorial.css` ao lado e a página apareceu crua — links
+     azuis sublinhados, Times, sem cor nem layout. Todo o redesenho estava
+     invisível. Culpa da entrega em arquivos separados, não do design.
+
+156. **Cada página do site virou arquivo único.** O `a-fatorial.css` continua
+     sendo a fonte de verdade, e o `montar.py` o embute no `index.html` e no
+     `marca.html`. Provado numa pasta com um arquivo só: zero requisições,
+     quatro fontes carregadas, layout inteiro de pé.
+
+157. **O lockup da marca substituiu o nome escrito** em todo lugar do site e
+     do sistema — cabeçalho, rodapé, login, folha da empresa, barra lateral,
+     tela de entrada e cadastro público. Reproduz a estrutura do material
+     impresso: "Grupo" na voz manuscrita, A! FATORIAL pesado, assinatura
+     embaixo, avião ao lado.
+
+158. **O ouro do lockup obedece à regra dos dois papéis.** Sobre papel claro o
+     "A!" usa o ouro que se lê e "FATORIAL" usa tinta, porque o ouro da marca
+     sobre papel rende 2:1 e some; sobre preto entra a rampa metálica inteira,
+     como no impresso. Medido no pixel: 16,3:1 no cabeçalho, 13,0:1 no rodapé.
+
+159. **As seis submarcas entraram na seção das marcas** — PGE Lab, A!
+     Multiplicadora, A! Start Talk, A! Saúde, A! Treinamentos e A! Fatorial
+     Representações —, cada uma com avião, nome e assinatura própria,
+     divididas por fio, como na barra inferior do material impresso.
+
+160. **O símbolo manuscrito não foi para o ar.** Tentei redesenhá-lo a partir
+     da imagem em duas construções (elipse dupla e traço único) e as duas
+     saíram erradas — a segunda vira um sigma grego. Logo aproximado é pior
+     que logo ausente, então fica o avião, que é elemento real da marca e que
+     dá para desenhar com fidelidade. O ponto de troca está pronto em
+     `.af-marca-s`.
+
+161. **Duas colisões de cascata corrigidas:** `.side-brand span` vinha depois
+     do lockup e transformava "Grupo" em caixa alta; e a assinatura da marca,
+     em `white-space:nowrap`, empurrava a folha estreita 9px além da tela no
+     celular.

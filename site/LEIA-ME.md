@@ -1,12 +1,20 @@
 # Site — a porta de entrada do cliente
 
-Três arquivos, sem build, sem internet. É só abrir `index.html` no navegador.
+**Cada página é um arquivo único.** Baixe o `index.html`, salve onde quiser,
+dê dois cliques. Não precisa de internet, não precisa de mais nenhum arquivo
+ao lado, não tem como quebrar.
+
+> Isso não era assim, e quebrou: o site foi aberto uma vez com o CSS faltando
+> na pasta e apareceu cru — links azuis, Times, sem layout nenhum. Página que
+> depende de arquivo vizinho quebra na primeira vez que alguém move só um
+> deles.
 
 | Arquivo | O que é |
 |---|---|
-| `a-fatorial.css` | **O padrão visual.** Tokens, letras (embutidas), peças e movimento. Fonte única de verdade. |
-| `index.html` | **O site.** Porta de entrada do cliente, com a área de login. |
-| `marca.html` | **O guia do padrão.** Vivo: mede o próprio contraste na tela e reprova o que passar do limite. |
+| `index.html` | **O site.** Arquivo único, pronto para abrir ou publicar. |
+| `marca.html` | **O guia do padrão.** Arquivo único. Vivo: mede o próprio contraste e reprova o que passar do limite. |
+| `a-fatorial.css` | **A fonte de verdade do padrão.** Não é carregado pelas páginas: é embutido nelas. |
+| `montar.py` | Embute o CSS nas duas páginas. Rode depois de mexer no CSS: `python3 montar.py` |
 
 ## O padrão visual — "o laudo"
 
@@ -33,10 +41,19 @@ metálica de três paradas.
 do fio do cabeçalho e no lockup de cada submarca. Aqui aparece em dois lugares
 só — o lockup e o fio da capa. Avião em todo canto vira enfeite.
 
-**O símbolo real ainda falta.** É um A! manuscrito com o avião saindo dele, e
-só existe como imagem achatada. Até o vetor chegar, o selo usa o A!
-tipográfico. Para trocar: ponha um `<img>` dentro de `.af-selo` — o CSS já
-o acomoda, em todos os lugares onde o selo aparece.
+**O lockup reproduz a estrutura do material:** "Grupo" na voz manuscrita, A!
+FATORIAL pesado, a assinatura embaixo, o avião ao lado. Sobre papel claro o
+"A!" usa o ouro que se lê e "FATORIAL" usa tinta — o ouro da marca sobre papel
+rende 2:1 e some. Sobre preto entra a rampa metálica inteira, como no impresso.
+
+**O símbolo manuscrito ainda falta.** Tentei redesenhá-lo a partir da imagem e
+saiu um sigma grego, não a letra da marca — logo aproximado é pior que logo
+ausente. Quando o vetor chegar (SVG, AI ou EPS), é uma linha: ponha um `<img>`
+ou um `<svg>` dentro de `.af-marca-s` e ele substitui o avião no cabeçalho, no
+rodapé, no login e nas duas marcas de uma vez.
+
+**As seis submarcas** aparecem na seção `#sobre`, com avião, nome e assinatura
+própria, divididas por fio — como na barra inferior do material impresso.
 
 **Três letras, três papéis.** *Archivo* carrega os títulos e a informação;
 *Newsreader itálico* é só a voz enfática, na oração destacada de um título e
