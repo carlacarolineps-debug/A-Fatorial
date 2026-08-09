@@ -1149,6 +1149,37 @@ body.apresentacao #apr-banner{display:block;}
   body.print-doc .doc-bar{display:none !important;}
   body.print-doc .doc-sheet{box-shadow:none !important;margin:0 !important;max-width:none !important;border-radius:0 !important;padding:0 !important;}
   .doc-sig-row{page-break-inside:avoid;}
+  /* ── PADRÃO ÚNICO DE IMPRESSÃO ──
+     Todo documento impresso segue a mesma identidade: fundo branco, tinta
+     #1c1c22, apoio #5a5a63, acento dourado (--gold-deep), divisórias #e7e1d2. */
+  body.print-cli, body.print-rel, body.print-doc{-webkit-print-color-adjust:exact;print-color-adjust:exact;--gold:#d4af5e;--gold-deep:#a8842f;}
+  body.print-cli::before, body.print-cli::after, body.print-rel::before, body.print-rel::after, body.print-doc::before, body.print-doc::after{display:none !important;content:none !important;}
+  /* Proposta do cliente (tema escuro) → documento claro profissional */
+  body.print-cli #cli-ov *{color:#1c1c22 !important;background:transparent !important;border-color:#e7e1d2 !important;box-shadow:none !important;text-shadow:none !important;animation:none !important;transition:none !important;}
+  body.print-cli .cli-wrap{max-width:none !important;padding:0 !important;}
+  body.print-cli .cli-bar{border-bottom:3px solid var(--gold) !important;padding:12px 0 14px !important;}
+  body.print-cli .cli-bar .br b{background:var(--gold) !important;color:#100d05 !important;}
+  body.print-cli .cli-hero{min-height:auto !important;padding:26px 0 !important;}
+  body.print-cli .cli-sec{padding:24px 0 !important;border-bottom:1px solid #eee7d8 !important;page-break-inside:avoid;}
+  body.print-cli #cli-ov .cli-eye,body.print-cli #cli-ov .cli-h1 b,body.print-cli #cli-ov .cli-sec h2 b,body.print-cli #cli-ov .cli-metric .mv,body.print-cli #cli-ov .cli-emc-card .el,body.print-cli #cli-ov .cli-invest .v small,body.print-cli #cli-ov .cli-step .sn,body.print-cli #cli-ov .cli-svc .sv-meta span,body.print-cli #cli-ov .cli-svc .se-t,body.print-cli #cli-ov .cli-payrow.head span,body.print-cli #cli-ov .cli-cover-badge,body.print-cli #cli-ov .cli-badge,body.print-cli #cli-ov .cli-valid{color:var(--gold-deep) !important;}
+  body.print-cli #cli-ov .cli-lead,body.print-cli #cli-ov .cli-svc .sv-d,body.print-cli #cli-ov .cli-svc .se-i,body.print-cli #cli-ov .cli-step .sd,body.print-cli #cli-ov .cli-emc-card p,body.print-cli #cli-ov .cli-metric .ml,body.print-cli #cli-ov .cli-faq-item p,body.print-cli #cli-ov .cli-rodape,body.print-cli #cli-ov .cli-cover-sub,body.print-cli #cli-ov .cli-crono-leg{color:#5a5a63 !important;}
+  body.print-cli #cli-ov .cli-invest{background:#faf7ef !important;border:1.5px solid var(--gold) !important;padding:26px !important;}
+  body.print-cli .cli-guarantee,body.print-cli .cli-svc,body.print-cli .cli-step,body.print-cli .cli-emc-card,body.print-cli .cli-metric,body.print-cli .cli-faq-item,body.print-cli .cli-team-card{page-break-inside:avoid;}
+  body.print-cli #cli-ov .cli-crono-track .cm{background:#d4af5e !important;color:#100d05 !important;}
+  body.print-cli #cli-ov .cli-crono-track .cm.f2{background:#b98f3e !important;color:#fff !important;}
+  body.print-cli #cli-ov .cli-crono-track .cm.f3{background:#8a6d2f !important;color:#fff !important;}
+  body.print-cli #cli-ov .cli-team-card .av{background:#faf7ef !important;border:1px solid var(--gold) !important;color:var(--gold-deep) !important;}
+  body.print-cli .cli-approve,body.print-cli .cli-bar-acts{display:none !important;}
+  body.print-cli .cli-cover{padding:70px 24px !important;}
+  body.print-cli .cli-cover-badge{border-color:var(--gold) !important;}
+  body.print-cli .cli-rodape{border-top:1px solid #eee7d8 !important;}
+  /* Relatório do dono → mesmo padrão */
+  body.print-rel .rel-doc{max-width:none !important;padding:0 !important;}
+  body.print-rel .rel-doc *{color:#1c1c22 !important;background:transparent !important;border-color:#e7e1d2 !important;box-shadow:none !important;}
+  body.print-rel .rel-head{border-bottom:3px solid var(--gold) !important;}
+  body.print-rel .rel-sec-t{color:var(--gold-deep) !important;}
+  body.print-rel .rel-head .rh-s,body.print-rel .rel-kpi .l,body.print-rel .rel-foot{color:#5a5a63 !important;}
+  body.print-rel .rel-kpi,body.print-rel .rel-grid > *{page-break-inside:avoid;}
 }
 /* ═══ DOCUMENTO FORMAL (orçamento / pré-contrato) — folha A4 imprimível ═══ */
 .doc-ov{display:none;position:fixed;inset:0;z-index:9600;background:rgba(9,10,14,.94);overflow:auto;padding:26px 16px 60px;}
@@ -1222,6 +1253,10 @@ body.apresentacao #apr-banner{display:block;}
 .cli-svc .sv-n{display:flex;align-items:flex-start;gap:10px;color:#fff;font-weight:600;font-size:15px;line-height:1.35;}
 .cli-svc .sv-n::before{content:'\2726';color:var(--gold);flex-shrink:0;}
 .cli-svc .sv-d{font-size:13px;color:#a1a1aa;line-height:1.6;margin-top:8px;}
+.cli-svc .sv-ents{margin-top:12px;border-top:1px solid rgba(255,255,255,.07);padding-top:11px;}
+.cli-svc .se-t{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;}
+.cli-svc .se-i{font-size:12.5px;color:#c8c8cf;padding:3px 0 3px 18px;position:relative;line-height:1.45;}
+.cli-svc .se-i::before{content:'\2713';position:absolute;left:0;color:var(--gold);font-weight:700;}
 .cli-svc .sv-meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;}
 .cli-svc .sv-meta span{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);background:rgba(200,162,74,.1);border:1px solid rgba(200,162,74,.28);border-radius:20px;padding:3px 10px;}
 .cli-emc{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
@@ -4198,7 +4233,11 @@ body.apresentacao #apr-banner{display:block;}
           let hoje=new Date().toLocaleDateString('pt-BR');
           let hojeExt=new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});
           let num=docNumero(tipo==='orcamento'?'ORC':'PCT');
-          let servRows=d.servicos.map((s,i)=>`<tr><td>${i+1}. ${s.nome}${svcDesc(s.nome)?`<div style="font-size:11px;color:#62626d;margin-top:2px;">${svcDesc(s.nome)}</div>`:''}</td><td class="num">${s.horas||'—'}h</td><td class="num">${s.meses||'—'} ${s.meses==1?'mês':'meses'}</td><td class="num">${brl(s.valor)}</td></tr>`).join('');
+          let servRows=d.servicos.map((s,i)=>{
+            let ds=svcDesc(s.nome);
+            let ents=(typeof entregaveisDe==='function')?entregaveisDe(s.nome):[];
+            return `<tr><td>${i+1}. <b>${s.nome}</b>${ds?`<div style="font-size:11px;color:#62626d;margin-top:2px;">${ds}</div>`:''}${ents.length?`<div style="font-size:10.5px;color:#84848d;margin-top:4px;"><b style="color:var(--gold-deep);font-size:9.5px;letter-spacing:.08em;">ENTREGÁVEIS:</b> ${ents.join(' · ')}</div>`:''}</td><td class="num">${s.horas||'—'}h</td><td class="num">${s.meses||'—'} ${s.meses==1?'mês':'meses'}</td><td class="num">${brl(s.valor)}</td></tr>`;
+          }).join('');
           let parcRows=(d.parcelas||[]).map(pc=>`<tr><td>${pc.rotulo}</td><td class="num">${pc.venc}</td><td class="num">${brl(pc.valor)}</td></tr>`).join('');
           let head=`<div class="doc-head">
               <div class="dh-brand">${brandLogoHTML(52)}<div><div class="dh-nome">${BRAND.nome}</div><div class="dh-sub">${BRAND.razao}<br>CNPJ ${BRAND.cnpj} · ${BRAND.tel} · ${BRAND.email}</div></div></div>
@@ -4611,7 +4650,9 @@ body.apresentacao #apr-banner{display:block;}
               <div class="cli-scope-grid">${svc.map(s=>{
                 let i=(typeof svcInfo==='function'&&svcInfo(s))||null, ds=(typeof svcDesc==='function'&&svcDesc(s))||'';
                 let meta=i?`<div class="sv-meta"><span>${i.horas}h dedicadas</span><span>${i.meses} ${i.meses==1?'mês':'meses'}</span>${i.grupo?`<span>${i.grupo}</span>`:''}</div>`:'';
-                return `<div class="cli-svc"><div class="sv-n">${s}</div>${ds?`<div class="sv-d">${ds}</div>`:''}${meta}</div>`;
+                let ents=(typeof entregaveisDe==='function')?entregaveisDe(s):[];
+                let entsHTML=ents.length?`<div class="sv-ents"><div class="se-t">Você recebe:</div>${ents.map(e=>`<div class="se-i">${e}</div>`).join('')}</div>`:'';
+                return `<div class="cli-svc"><div class="sv-n">${s}</div>${ds?`<div class="sv-d">${ds}</div>`:''}${entsHTML}${meta}</div>`;
               }).join('')}</div></section>
 
             ${cronoHTML}
@@ -4714,10 +4755,95 @@ body.apresentacao #apr-banner{display:block;}
         }
 
         /* ===== ENTREGÁVEIS ===== */
-        /* ===== ENTREGÁVEIS ===== */
+        /* Biblioteca de entregáveis por serviço — cada serviço do catálogo gera
+           seus entregáveis específicos na esteira (auditados um a um). */
+        const ENTREGAVEIS_SERVICO={
+          /* Diagnóstico e Estratégia */
+          'Diagnóstico Empresarial (RAIO-X)':['Relatório RAIO-X — diagnóstico completo','Mapa de gargalos por área','Plano de ação priorizado (90 dias)'],
+          'Análise de Evolução do Negócio':['Relatório de evolução com indicadores','Comparativo de períodos e tendências','Recomendações de correção de rota'],
+          'Cliente Oculto (Interno / Externo)':['Roteiro de avaliação do cliente oculto','Relatório de experiência com evidências','Plano de correção do atendimento'],
+          'Reestruturação Empresarial':['Novo organograma e papéis definidos','Redesenho dos processos críticos','Plano de reestruturação por fases','Rotina de gestão implantada'],
+          'Planejamento Estratégico (Missão/Visão)':['Missão, visão e valores documentados','Mapa estratégico com metas anuais','Plano de execução trimestral'],
+          'Planejamento Estratég. Novas Fontes de Renda':['Estudo de novas fontes de receita','Análise de viabilidade por frente','Roadmap de implantação'],
+          'Análise, Consultoria e Projetos Estratégicos':['Escopo e plano do projeto estratégico','Relatórios de acompanhamento','Entrega final com resultados medidos'],
+          /* Capital Humano e Liderança */
+          'Descrição de Perfil Ideal / Cargos':['Descrições de cargo documentadas','Perfil ideal por função (técnico + comportamental)','Matriz de responsabilidades'],
+          'Trilha de Integração (Onboarding / Cartilha)':['Cartilha de integração','Trilha de onboarding estruturada','Checklist dos primeiros 30 dias'],
+          'Anamnese de Processo Seletivo':['Roteiro de entrevista estruturada','Formulário de anamnese aplicado','Parecer comparativo de candidatos'],
+          'Padronização de Treinamento Interno':['Matriz de treinamentos por cargo','Materiais padrão de treinamento','Calendário e controle de presença'],
+          'Avaliação de Desempenho 360°':['Formulários 360° configurados','Relatórios individuais de avaliação','Plano de desenvolvimento por avaliado'],
+          'Feedback Avaliativo Colaborador/Gestor':['Roteiro de feedback estruturado','Sessões de feedback conduzidas','Registro de acordos e próximos passos'],
+          'Desenvolvimento de Liderança Tática':['Programa de desenvolvimento de líderes','Encontros de mentoria registrados','Avaliação de evolução das lideranças'],
+          'PDI — Plano de Desenvolvimento Individual (Líderes)':['PDI documentado por líder','Metas e prazos de desenvolvimento','Rotina de acompanhamento do PDI'],
+          'Cronograma de Transição de Cadeiras':['Mapa de transição de funções','Cronograma de passagem de bastão','Checklist de transferência de conhecimento'],
+          'Estruturação de Plano de Sucessão Empresarial':['Plano de sucessão documentado','Regras de governança da sucessão','Trilha de preparação dos sucessores'],
+          'Plano de Carreira, Cargos e Salários':['Estrutura de cargos e faixas salariais','Critérios de progressão documentados','Política de carreira comunicada ao time'],
+          'Agenciamento e Seleção de Mão de Obra':['Divulgação e triagem de candidatos','Entrevistas e testes aplicados','Finalistas apresentados com parecer'],
+          /* Vendas e Financeiro */
+          'Inteligência Comercial e Estratégia de Mercado':['Estudo de mercado e concorrência','Posicionamento comercial definido','Plano comercial com metas'],
+          'Estruturação Financeira e Precificação':['Estrutura de custos mapeada','Precificação com margem por produto/serviço','DRE gerencial implantado'],
+          'Ponto de Equilíbrio (Análise)':['Cálculo do ponto de equilíbrio','Simulações de cenários','Relatório com recomendações'],
+          'Planejamento Orçamentário':['Orçamento anual por área','Metas de receita e limites de despesa','Rotina de revisão orçamentária'],
+          'Matriz de Metas e Comissionamento':['Matriz de metas por função','Política de comissionamento','Simulador de remuneração variável'],
+          'Calendário Comercial e Campanhas':['Calendário comercial anual','Planejamento das campanhas-chave','Metas e mecânica por campanha'],
+          'Posicionamento e Material Visual/Textual':['Posicionamento e mensagem definidos','Materiais visuais padronizados','Textos-base para vendas e redes'],
+          'Gamificação de Portfólio / Árvore Comercial':['Árvore comercial do portfólio','Mecânica de gamificação de vendas','Painel de acompanhamento do jogo'],
+          'Matriz de Contorno de Objeções':['Mapa das objeções mais comuns','Respostas padrão por objeção','Treino prático com o time'],
+          'Scripts de Abordagem e Fechamento':['Scripts de abordagem por canal','Roteiro de fechamento','Treinamento de aplicação'],
+          'Planilha de Controle de Vendas':['Planilha de controle configurada','Indicadores comerciais automáticos','Treinamento de uso da equipe'],
+          'Intermediação e Aproximação de Negócios':['Mapeamento de parceiros-alvo','Reuniões de aproximação conduzidas','Acordos e encaminhamentos registrados'],
+          /* Excelência Operacional */
+          'Mapeamento e Redesenho de Processos':['Mapa dos processos atuais (AS-IS)','Processos redesenhados (TO-BE)','POPs dos processos críticos','Plano de implantação'],
+          'Desenvolvimento Autogerenciáveis':['Rituais de autogestão implantados','Painel de indicadores por célula','Matriz de autonomia e alçadas'],
+          'Implantação de Regimento Interno':['Regimento interno redigido','Validação jurídica orientada','Comunicação e adesão do time'],
+          'Implementação de Manuais de Funcionamento':['Manuais de funcionamento por área','Fluxos e responsabilidades ilustrados','Treinamento sobre os manuais'],
+          'Implantação de Ferramentas (PDCA/5S)':['5S implantado com auditorias','Ciclos PDCA rodando','Quadro de melhoria contínua'],
+          'Checklist Funcional (Operação sem Erro)':['Checklists por função e turno','Rotina de conferência implantada','Indicador de conformidade'],
+          'Plano de Contingência e Gestão de Riscos':['Matriz de riscos priorizada','Planos de contingência por risco','Rotina de revisão de riscos'],
+          'Estruturação de Rituais de Gestão':['Agenda de rituais de gestão','Pautas e atas padronizadas','Painel de acompanhamento de decisões'],
+          'Assessoria/Apoio (Adm, Jurídico, Contábil, RH/DP)':['Atendimentos mensais registrados','Pareceres e orientações documentados','Relatório mensal de demandas'],
+          /* Expansão e Diferenciais */
+          'Formatação e Estruturação de Franquias':['Estudo de viabilidade da franquia','COF — Circular de Oferta de Franquia','Manuais do franqueado','Modelo econômico da unidade','Plano de expansão da rede'],
+          'Estruturação de Consultoria (Produtização)':['Portfólio produtizado de serviços','Metodologia própria documentada','Precificação e proposta padrão'],
+          'Elaboração de Manual de Conduta Interna':['Manual de conduta redigido','Termo de ciência e adesão','Plano de comunicação interna'],
+          'Definição de Regras e Deveres':['Regras e deveres documentados','Política de consequências','Registro de aceite do time'],
+          'Checklists de Abertura e Fechamento':['Checklist de abertura','Checklist de fechamento','Rotina de conferência e auditoria'],
+          'Definição e Implantação de Dress Code':['Política de dress code','Guia visual por função','Comunicação e adesão'],
+          'Assessoria em Registro de Marcas':['Busca de anterioridade da marca','Pedido de registro protocolado (INPI)','Acompanhamento do processo'],
+          /* Valuation, M&A e Captação */
+          'Valuation — Avaliação de Valor da Empresa':['Laudo de valuation da empresa','Modelagem financeira (fluxo de caixa descontado)','Apresentação executiva do valor'],
+          'Preparação para Captação / Valuation gerencial':['Valuation gerencial documentado','Dossiê para investidores e bancos','Narrativa e pitch de captação'],
+          'Assessoria em Compra e Venda de Empresas':['Avaliação do negócio-alvo','Aproximação e negociação conduzidas','Memorando de entendimentos (MOU)'],
+          'Due Diligence de Aquisição (Análise de Riscos)':['Relatório de due diligence','Matriz de riscos da aquisição','Recomendações para o fechamento'],
+          'Governança Corporativa e Conselho Consultivo':['Estrutura de governança desenhada','Regimento do conselho consultivo','Rotina de reuniões implantada'],
+          'Turnaround — Recuperação de Empresas em Crise':['Diagnóstico de crise e caixa','Plano de turnaround por fases','Renegociações prioritárias conduzidas','Rotina de controle semanal'],
+          /* Comportamento e Mentoria */
+          'Mentoria Executiva e Aconselhamento de Negócios':['Sessões de mentoria registradas','Plano de evolução do mentorado','Relatório de progresso'],
+          'Análise de Perfil Comportamental e Traços':['Mapeamento de perfil aplicado','Relatório de traços e comportamento','Devolutiva individual'],
+          'Teoria dos Traços de Caráter na Gestão':['Workshop de traços aplicado','Mapa de traços da equipe','Guia de gestão por perfil'],
+          'Análise e Treinamento em Linguagem Corporal':['Treinamento de linguagem corporal','Análise individual com devolutiva','Guia prático de aplicação'],
+          'DNA da Liderança':['Programa DNA da Liderança aplicado','Avaliação de perfil de liderança','Plano de desenvolvimento do líder'],
+          /* Metodologias Próprias */
+          'Imersões e Treinamentos Corporativos':['Imersão planejada e conduzida','Material do participante','Relatório de resultados e próximos passos'],
+          'Aplicação da Metodologia EMC':['Diagnóstico EMC (Estratégia, Mentalidade, Comportamento)','Plano de intervenção por camada','Ciclos de acompanhamento registrados','Relatório de evolução'],
+          'Aplicação do MÉTODO GPS':['Mapa GPS do negócio','Plano de rota com marcos','Acompanhamento dos marcos'],
+          'Elaboração Manual Func. Pessoal':['Manual de funcionamento pessoal','Mapa de rotina e prioridades','Plano de sustentação'],
+          'Pão com Manteiga (Serviço Base)':['Rotina base de gestão implantada','Checklist essencial de gestão','Acompanhamento inicial registrado'],
+          'Hub A! Saúde (Mensalidade)':['Acessos e benefícios ativados','Relatório mensal de uso','Canal de suporte dedicado']
+        };
+        // Imersões de 1 dia (grupo "Treinamentos e Imersões") compartilham o mesmo trio de entregáveis.
+        function entregaveisDe(servico){
+          let lista=ENTREGAVEIS_SERVICO[servico];
+          if(lista) return lista;
+          let g=CATALOGO.find(gr=>gr.servicos.some(s=>s.nome===servico));
+          if(g&&g.grupo==='Treinamentos e Imersões') return ['Aplicação da imersão (8h presenciais)','Material e ferramentas do participante','Relatório final com plano de ação'];
+          return ['Entrega principal do serviço','Relatório de execução','Plano de próximos passos'];
+        }
         const EST={ na_fila:{l:'Na fila',c:'#71717a',b:'#f1efe8',i:'⏳'},em_andamento:{l:'Em andamento',c:'#185fa5',b:'#e6f1fb',i:'⚙'},em_revisao:{l:'Em revisão',c:'#854f0b',b:'#faeeda',i:'🔍'},aguardando_cliente:{l:'No portal do cliente',c:'#854f0b',b:'#faeeda',i:'◐'},aprovado:{l:'Aprovado pelo cliente',c:'#0f6e56',b:'#e1f5ee',i:'✓'},entregue:{l:'Entregue',c:'#0f6e56',b:'#e1f5ee',i:'📦'},gargalo:{l:'Gargalo',c:'#a32d2d',b:'#fcebeb',i:'⚠'} };
         function criarEntregaveis(d){
-          (d.servicos||[]).forEach(s=>DB.entregaveis.push({id:'ENT-'+(entSeq++),dealId:d.id,cliente:d.cliente,nome:s,resp:(d.equipe&&d.equipe[0])||'Carla Caroline',prazo:d.fim||'',status:'na_fila',sat:null,depo:null}));
+          (d.servicos||[]).forEach(s=>{
+            entregaveisDe(s).forEach(item=>DB.entregaveis.push({id:'ENT-'+(entSeq++),dealId:d.id,cliente:d.cliente,nome:item,servico:s,resp:(d.equipe&&d.equipe[0])||'Carla Caroline',prazo:d.fim||'',status:'na_fila',sat:null,depo:null}));
+          });
           renderEnt();
         }
         function entStats(){let e=DB.entregaveis;let s=e.filter(x=>x.sat);return{total:e.length,prod:e.filter(x=>['na_fila','em_andamento','em_revisao'].includes(x.status)).length,aguard:e.filter(x=>x.status==='em_revisao').length,media:s.length?(s.reduce((a,x)=>a+x.sat.nota,0)/s.length).toFixed(1):'—'};}
@@ -4733,7 +4859,7 @@ body.apresentacao #apr-banner{display:block;}
             let s=EST[e.status];
             let sb=e.sat?`<span class="pill pill-warn">★ ${e.sat.nota}/5</span>`:'';
             let db_=e.depo?'<span class="pill pill-ok">depoimento ✓</span>':'';
-            return `<div class="ent-card" data-s="${e.status}"><div class="ent-top"><div><div class="ent-nm">${e.nome}</div><div class="ent-cli">${e.cliente} · ${e.resp}</div></div><span class="pill" style="color:${s.c};background:${s.b};">${s.i} ${s.l}</span></div><div class="ent-meta"><span>📅 ${e.prazo||'a definir'}</span> ${sb} ${db_}</div><div class="ent-acts">${entAcao(e)}</div></div>`;
+            return `<div class="ent-card" data-s="${e.status}"><div class="ent-top"><div><div class="ent-nm">${e.nome}</div><div class="ent-cli">${e.servico?e.servico+' · ':''}${e.cliente} · ${e.resp}</div></div><span class="pill" style="color:${s.c};background:${s.b};">${s.i} ${s.l}</span></div><div class="ent-meta"><span>📅 ${e.prazo||'a definir'}</span> ${sb} ${db_}</div><div class="ent-acts">${entAcao(e)}</div></div>`;
           }).join('');
           entFiltro();
         }
