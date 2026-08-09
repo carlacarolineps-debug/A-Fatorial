@@ -1234,3 +1234,71 @@ depende do nome da fundadora não se vende, não se delega e não se multiplica.
 
 136. **`af_brand_cc` entrou na sincronização e no backup**, como qualquer
      outra chave — a identidade da mentoria acompanha a equipe inteira.
+
+## O site refeito: "o laudo" — versão 0908.04
+
+A crítica foi que o site estava feio e amador. Tinha três causas, e as três
+eram de raiz.
+
+137. **As fontes nunca carregavam.** O `<link>` para o Google Fonts falha e a
+     página cai em Georgia + Arial — e um H1 gigante em Georgia é exatamente
+     o que faz um site parecer documento do Word. Pior: eu vinha revisando
+     capturas de tela renderizadas na fonte errada, ou seja, desenhando às
+     cegas. Agora as três famílias estão **embutidas no CSS em base64**,
+     subset latino (o português inteiro cabe em U+0000–00FF). ~120 KB, e a
+     página abre igual em qualquer máquina, offline, sem piscar.
+
+138. **Era o visual genérico de máquina.** Creme quente + serifada de display
+     + dourado, tudo em cartão branco arredondado com barrinha de destaque no
+     topo — a combinação que a própria referência de design lista como o
+     clichê a evitar. Quinze seções com o mesmo padding e o mesmo grid de
+     cartões.
+
+139. **Não havia grade nem ritmo.** Tudo centralizado na mesma medida, sem
+     hierarquia de layout entre uma seção e outra.
+
+O novo padrão parte do que a empresa de fato vende — **laudo**: documento
+assinado, com método declarado, norma e lei citadas, número que se confere.
+Então a página é composta como documento técnico medido:
+
+140. **A estrutura é desenhada.** Grade de 12 colunas com fios visíveis
+     correndo atrás do conteúdo, rótulo de seção rotacionado na margem, e
+     ritmo deliberadamente irregular — faixa medida de ponta a ponta, coluna
+     estreita de leitura, tabela de dados. Cartão flutuante virou exceção.
+
+141. **Papel frio no lugar do creme.** `#f0f1ed` com viés verde-cinza, como
+     vegetal de prancheta, e a tinta com o mesmo viés: cinza neutro sobre
+     papel enviesado sempre parece sujo. O dourado da marca ficou, rebaixado
+     à sua única função — marcar resultado.
+
+142. **Três letras, três papéis.** Archivo (grotesca de sinalização) carrega
+     títulos e informação, apertada e pesada; Newsreader itálico virou só a
+     voz enfática — inverte o arranjo de sempre, em que a serifada é o
+     padrão; Plex Mono é o instrumento: todo número, rótulo, unidade e
+     referência legal, tabular.
+
+143. **Os seis serviços viraram especificação.** Em vez de seis cartões
+     iguais, uma tabela onde cada serviço mostra os mesmos campos — número,
+     nome, classe, descrição e base legal — e dá para comparar.
+
+144. **A calculadora virou painel de instrumento**, com entradas em cima e
+     quatro leituras embaixo, cada uma com a premissa impressa.
+
+145. **Um defeito sistêmico de contraste**, achado pelo medidor corrigido:
+     `--tinta-3` rendia 4,13:1 sobre a faixa medida e 3,78:1 sobre o trilho,
+     em 46 lugares. Fechado para 5,0:1 no pior fundo em que assenta.
+
+146. **O medidor de contraste estava mentindo.** Ele lia `background-color`
+     como texto e não entendia `color(srgb …)` — o formato que o Chrome
+     devolve para `color-mix` —, então lia quase-preto onde havia papel e
+     acusava 74 defeitos. Corrigido, sobram três apontamentos, todos de fundo
+     em gradiente; conferidos no pixel renderizado, dão 12,7 a 15:1.
+
+147. **Vazamento horizontal no celular:** item de grid nasce com
+     `min-width:auto`, então a esteira (largura mínima de 56rem) empurrava a
+     página inteira em vez de rolar dentro do próprio quadro. Some em todas
+     as oito larguras testadas.
+
+148. **`marca.html` reescrito** para o novo padrão, e continua vivo: mede o
+     contraste de cada texto da própria página ao abrir e emite um laudo no
+     fim. Hoje: 160 trechos medidos, nenhum abaixo do mínimo.
