@@ -46,19 +46,27 @@ FATORIAL pesado, a assinatura embaixo, o avião ao lado. Sobre papel claro o
 "A!" usa o ouro que se lê e "FATORIAL" usa tinta — o ouro da marca sobre papel
 rende 2:1 e some. Sobre preto entra a rampa metálica inteira, como no impresso.
 
-**O símbolo manuscrito ainda falta.** Tentei redesenhá-lo a partir da imagem e
-saiu um sigma grego, não a letra da marca — logo aproximado é pior que logo
-ausente. Quando o vetor chegar (SVG, AI ou EPS), é uma linha: ponha um `<img>`
-ou um `<svg>` dentro de `.af-marca-s` e ele substitui o avião no cabeçalho, no
-rodapé, no login e nas duas marcas de uma vez.
+**O símbolo manuscrito ainda falta.** Duas tentativas de redesenhá-lo saíram
+erradas (a segunda vira um sigma grego) e dezesseis fontes script foram
+testadas contra o original — nenhuma bate, porque o logo é lettering feito à
+mão. Logo aproximado é pior que logo ausente, então fica o avião, que é
+elemento real da marca.
+
+Para colocar o símbolo de verdade, o arquivo precisa ser **anexado como
+arquivo** (SVG, PNG ou AI) — print colado na conversa não vira arquivo. Com
+ele em mãos é uma linha: um `<img>` ou `<svg>` dentro de `.af-marca-s`
+substitui o avião no cabeçalho, no rodapé, no login e nas duas marcas de uma
+vez.
 
 **As seis submarcas** aparecem na seção `#sobre`, com avião, nome e assinatura
 própria, divididas por fio — como na barra inferior do material impresso.
 
-**Três letras, três papéis.** *Archivo* carrega os títulos e a informação;
+**Quatro letras, quatro papéis.** *Archivo* carrega os títulos e a informação;
 *Newsreader itálico* é só a voz enfática, na oração destacada de um título e
 na citação; *Plex Mono* é o instrumento — todo número, rótulo e referência
-legal.
+legal; e *Yellowtail* tem um trabalho só, a palavra "Grupo" do lockup, que no
+material é manuscrita. Não é a letra do logo — o logo é lettering feito à mão,
+não fonte de catálogo —, mas é escrita de pincel do mesmo gênero.
 
 ### As letras vêm dentro do CSS
 
