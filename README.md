@@ -495,7 +495,13 @@ no [README do backend](backend/README.md).
 - **Permissões / papéis**: `PERMISSOES_DEFAULT`, `PERMISSOES`, `salvarPermissoes`,
   `renderPermissoes`, `permToggle`, `permEscopo` (marcadores `=== BACKEND ===`
   indicam o que deve ser revalidado no servidor em produção).
-- **Tema escuro global**: bloco CSS `TEMA GAMER GLOBAL` + classe `body.theme-gamer`.
+- **Cor e legibilidade**: `--gold` (dourado de superfície: fundos, bordas,
+  gradientes) e `--gold-txt` (dourado de texto, fechado o bastante para ler
+  no claro). A regra das **ilhas escuras** — `.ptg, .pt-hero, .in-hero,
+  .cad-box, .rel-ov, .cli-ov, #login-screen` — devolve o dourado claro só
+  dentro delas. `--kb-ouro` aponta para o de texto, o que mantém legível
+  tanto o ícone sobre o próprio tom quanto o branco sobre a tarja. O sistema
+  tem **um tema só, claro**; a cor de destaque fica em `AP_CORES`/`apAplicarCor`.
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
@@ -1079,3 +1085,41 @@ offline, do jeito que é entregue.
      máquina com os dados bons. Se duas conectarem juntas, o servidor recusa a
      segunda substituição inteira e o navegador reenvia a parte dela como
      remendo — nada é descartado em silêncio.
+
+## Um tema só: claro — versão 0808.04
+
+O sistema tinha dois temas e o escuro era o padrão. Agora tem um só, e o
+botão de alternar saiu. Não é só apagar a classe: o tema claro nunca tinha
+sido usado de verdade, então carregava defeitos que ninguém via.
+
+117. **O tema escuro saiu inteiro** — 51 regras de CSS, o botão da barra de
+     cima, a linha "Tema" no painel de aparência e as funções que ligavam
+     tudo. A chave `af_tema` de versões antigas é descartada na abertura,
+     para ninguém reabrir no escuro sem querer. A **cor do sistema**
+     continua (dourado, vinho, magenta, violeta, oceano, esmeralda).
+
+118. **`--gold-txt`: o dourado quando é texto.** O dourado da marca (#d4af5e)
+     rende 2:1 sobre branco — ilegível. Existia um segundo dourado, mais
+     claro ainda, feito para brilhar no escuro, e ele aparecia como texto em
+     103 lugares: valores do fluxo de caixa, colunas do simulador, chips de
+     permissão. Agora todo dourado **de texto** usa um tom fechado (4,9:1);
+     o dourado **de superfície** — fundos, bordas, gradientes — continua o
+     mesmo.
+
+119. **Ilhas escuras** — capa do portal do cliente, cadastro público,
+     relatório em tela cheia e a tela de entrada seguem escuros de
+     propósito. Dentro delas o dourado de texto volta a ser o claro, por uma
+     linha de CSS só. O portal do colaborador ficou de fora dessa lista de
+     propósito: ele mistura fundo escuro com cartões claros e tem tokens
+     próprios.
+
+120. **Iniciais dentro do avatar** — eram brancas sobre o dourado claro
+     (2:1). O avatar passou a usar o dourado fechado; o branco em cima dele
+     rende 6:1, e a paleta inteira do kanban ficou entre 4,8 e 6,9.
+
+121. **Varredura de contraste em todas as 28 telas**, em cada texto e em cada
+     campo de formulário, medindo a cor real sobre o fundo real (compondo
+     transparência camada a camada). Resultado: **nenhum texto e nenhum campo
+     abaixo do mínimo**. O único apontamento que sobra é do medidor, não da
+     tela — o número do funil fica sobre a barra colorida, e a ferramenta lê
+     o trilho que está atrás.
