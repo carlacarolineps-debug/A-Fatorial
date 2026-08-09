@@ -1,0 +1,242 @@
+/* ══════════════════════════════════════════════════════════════════════
+   SISTEMA A!  ·  o padrão visual do Grupo A! Fatorial
+   ──────────────────────────────────────────────────────────────────────
+   A IDEIA
+
+   "Fatorial" não é um nome bonito: é um operador matemático. 5! é
+   1 × 2 × 3 × 4 × 5. O resultado é o PRODUTO de cada etapa — e se você
+   pula uma, o resultado inteiro muda. É exatamente o que a empresa vende.
+
+   Daí saem as três regras deste padrão:
+
+   1. SEQUÊNCIA À VISTA. Número, etapa e ordem são elementos de design,
+      não enfeite. Onde houver processo, ele aparece numerado.
+   2. TIPOGRAFIA É A MARCA. A cor não carrega a identidade — a letra
+      carrega. Serifada com itálico para a voz, sem serifa para a
+      informação. Por isso o sistema funciona em preto e branco.
+   3. DOURADO É CONSEQUÊNCIA. Ouro não decora: marca o que importa —
+      a etapa atual, o resultado, a ação. Se tudo é dourado, nada é.
+
+   ──────────────────────────────────────────────────────────────────────
+   COMO USAR
+   Um arquivo só, sem build. Ligue no <head> e use os tokens:
+       <link rel="stylesheet" href="a-fatorial.css">
+   Todo contraste aqui foi medido. Os valores estão comentados ao lado
+   de cada cor de texto — nenhum abaixo de 4,5:1 sobre o papel.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ── SUPERFÍCIE ──
+     Papel quente, não branco puro: em leitura longa cansa menos e dá à
+     marca um tom de documento, não de aplicativo. */
+  --papel:#faf8f5;          /* fundo da página */
+  --papel-2:#f2efe9;        /* faixa alternada, campos em repouso */
+  --branco:#ffffff;         /* cartão, superfície elevada */
+  --grafite:#1f2b3a;        /* superfície escura: recorte, login, prova */
+  --grafite-2:#2c3a4c;
+
+  /* ── TINTA ── (contraste medido sobre --papel) */
+  --tinta:#16150f;          /* 17,3:1 — títulos e texto principal */
+  --tinta-2:#54514a;        /* 7,5:1  — texto de apoio */
+  --tinta-3:#706d61;        /*  4,8:1 — legenda, rótulo, metadado */
+  --tinta-inv:#f6f8fa;      /* texto sobre grafite */
+  --tinta-inv-2:#b9c2ce;    /* apoio sobre grafite — 8,0:1 */
+
+  /* ── OURO ──
+     Dois papéis distintos, e confundi-los é o erro clássico:
+     SUPERFÍCIE (--ouro) para fundo, borda e gradiente;
+     TEXTO (--ouro-txt) quando o ouro precisa ser lido. */
+  --ouro:#d4af5e;
+  --ouro-claro:#f0d68a;     /* só sobre fundo escuro */
+  --ouro-fundo:#fdf9ee;     /* lavado, para destacar bloco */
+  --ouro-txt:#7a5f16;       /* 5,7:1 — o ouro que se lê */
+  --ouro-grad:linear-gradient(140deg,var(--ouro-claro),var(--ouro) 55%,#c39b45);
+
+  /* ── SINAL ── nunca decorativas: cada uma quer dizer uma coisa */
+  --ok:#0d7a54;      --ok-bg:#e8f5ef;      /* concluído, dentro do prazo */
+  --espera:#7a5f16;  --espera-bg:#fdf9ee;  /* é com você, aguardando */
+  --alerta:#a8480c;  --alerta-bg:#fdf1e6;  /* atrasado, atenção */
+  --erro:#a8221f;    --erro-bg:#fdecec;    /* bloqueado, recusado */
+  --dado:#0f68b0;    --dado-bg:#eaf3fb;    /* número, informação neutra */
+
+  /* ── LINHA ── */
+  --linha:#e6e1d8;
+  --linha-forte:#d6cfc2;
+  --linha-inv:rgba(255,255,255,.14);
+
+  /* ── LETRA ──
+     Fraunces tem eixo óptico: em tamanho grande afina e ganha ar; em
+     tamanho pequeno engrossa e continua legível. É o que faz a mesma
+     família servir para manchete e para citação.
+     Inter para tudo que é informação — ela some, e é para sumir. */
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+
+  /* ── ESCALA FATORIAL ──
+     Não é uma escala somada (8, 16, 24…), é multiplicada — razão 1,26,
+     a mesma proporção da terça maior. Cada degrau é o anterior VEZES
+     alguma coisa. A escala é a ideia da marca aplicada ao espaço. */
+  --t-12:.75rem; --t-13:.8125rem; --t-14:.875rem; --t-16:1rem;
+  --t-18:1.125rem; --t-21:1.3125rem; --t-26:1.625rem; --t-33:2.0625rem;
+  --t-42:2.625rem; --t-54:3.375rem; --t-68:4.25rem;
+
+  --e-1:4px;  --e-2:8px;  --e-3:12px; --e-4:16px; --e-5:24px;
+  --e-6:32px; --e-7:48px; --e-8:64px; --e-9:96px; --e-10:128px;
+
+  /* ── FORMA ── */
+  --r-2:8px; --r-3:12px; --r-4:16px; --r-5:22px; --r-pill:100px;
+
+  /* ── PROFUNDIDADE ── sombra é distância, não enfeite: dois níveis bastam */
+  --sombra:0 1px 2px rgba(22,21,15,.04), 0 8px 24px -12px rgba(22,21,15,.10);
+  --sombra-alta:0 2px 4px rgba(22,21,15,.03), 0 30px 60px -24px rgba(22,21,15,.18);
+
+  /* ── MOVIMENTO ──
+     Uma curva só e três durações. Animação que chama atenção para si
+     mesma é ruído; aqui ela só confirma que a interface respondeu. */
+  --curva:cubic-bezier(.16,1,.3,1);
+  --rap:.18s; --med:.28s; --len:.72s;
+
+  --largura:1180px;
+}
+
+/* ══ BASE ══ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--papel);color:var(--tinta);font-family:var(--sans);
+  font-size:var(--t-16);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+::selection{background:var(--ouro);color:#1a1408}
+:focus-visible{outline:2px solid var(--ouro-txt);outline-offset:3px;border-radius:6px}
+.af-wrap{width:min(var(--largura),92vw);margin:0 auto}
+.af-so-leitor{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ══ TIPOGRAFIA ══ */
+h1,h2,h3,h4{font-family:var(--serif);font-weight:300;letter-spacing:-.015em;line-height:1.08}
+.af-d1{font-size:clamp(2.4rem,5.2vw,var(--t-68))}
+.af-d2{font-size:clamp(1.9rem,4vw,var(--t-54))}
+.af-d3{font-size:clamp(1.6rem,3vw,var(--t-42))}
+.af-d4{font-size:var(--t-26)}
+em,.af-italico{font-style:italic;font-weight:400;color:var(--ouro-txt)}
+/* o olho: abre a seção e diz de que assunto se trata */
+.af-olho{font-size:var(--t-12);letter-spacing:.24em;text-transform:uppercase;color:var(--ouro-txt);
+  font-weight:600;display:flex;align-items:center;gap:var(--e-3);margin-bottom:var(--e-4)}
+.af-olho::before{content:'';width:28px;height:1px;background:var(--ouro);flex:none}
+.af-olho.meio{justify-content:center}
+.af-olho.meio::after{content:'';width:28px;height:1px;background:var(--ouro);flex:none}
+.af-linha{color:var(--tinta-2);font-size:var(--t-18);max-width:60ch}
+.af-nota{color:var(--tinta-3);font-size:var(--t-13);line-height:1.6}
+/* número com identidade: serifado, como num relatório */
+.af-num{font-family:var(--serif);font-weight:400;line-height:1;font-variant-numeric:tabular-nums}
+
+/* ══ MARCA ══
+   O selo é o operador. Nunca deforme, nunca troque a cor, nunca use
+   sobre foto sem contraste. Tamanho mínimo: 28px. */
+.af-selo{width:42px;height:42px;border-radius:var(--r-3);flex:none;display:grid;place-items:center;
+  background:var(--ouro-grad);font-family:var(--serif);font-weight:600;font-size:18px;color:#1a1408;
+  box-shadow:0 2px 8px rgba(184,147,63,.28)}
+.af-selo.g{width:64px;height:64px;font-size:27px;border-radius:18px}
+.af-selo.p{width:30px;height:30px;font-size:13px;border-radius:9px}
+.af-marca{display:flex;align-items:center;gap:11px}
+.af-marca .mt{font-family:var(--serif);font-weight:500;font-size:var(--t-16);line-height:1.05}
+.af-marca .ms{font-size:.56rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ouro-txt);
+  font-weight:600;margin-top:3px}
+
+/* ══ BOTÃO ══
+   Três pesos e nada mais. Um ouro por tela — se houver dois, nenhum é
+   a ação principal. */
+.af-bt{display:inline-flex;align-items:center;justify-content:center;gap:var(--e-2);
+  font-size:var(--t-14);font-weight:600;padding:.82rem 1.5rem;border-radius:var(--r-pill);
+  cursor:pointer;border:1px solid transparent;transition:var(--rap) var(--curva);white-space:nowrap}
+.af-bt-ouro{background:var(--ouro-grad);color:#1a1408;box-shadow:0 2px 10px rgba(184,147,63,.28)}
+.af-bt-ouro:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(184,147,63,.36)}
+.af-bt-tinta{background:var(--tinta);color:var(--papel)}
+.af-bt-tinta:hover{background:#2c2a1f;transform:translateY(-1px)}
+.af-bt-linha{background:var(--branco);color:var(--tinta);border-color:var(--linha-forte)}
+.af-bt-linha:hover{border-color:var(--ouro);color:var(--ouro-txt)}
+.af-bt-p{padding:.58rem 1.05rem;font-size:var(--t-13)}
+.af-bt[disabled]{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none}
+
+/* ══ SUPERFÍCIE ══ */
+.af-cartao{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-5);
+  padding:var(--e-5);transition:var(--med) var(--curva)}
+.af-cartao.sobe:hover{transform:translateY(-3px);box-shadow:var(--sombra);border-color:var(--linha-forte)}
+.af-escuro{background:var(--grafite);color:var(--tinta-inv);border-radius:var(--r-5)}
+.af-escuro .af-olho{color:var(--ouro-claro)}
+.af-escuro .af-olho::before,.af-escuro .af-olho::after{background:var(--ouro-claro)}
+.af-escuro em{color:var(--ouro-claro)}
+.af-escuro .af-linha{color:var(--tinta-inv-2)}
+
+/* ══ SELO DE ESTADO ══ um significado por cor, sempre o mesmo */
+.af-tag{display:inline-flex;align-items:center;gap:5px;font-size:var(--t-12);font-weight:700;
+  padding:3px 10px;border-radius:var(--r-pill);white-space:nowrap;line-height:1.5}
+.af-tag.ok{background:var(--ok-bg);color:var(--ok)}
+.af-tag.espera{background:var(--espera-bg);color:var(--espera)}
+.af-tag.alerta{background:var(--alerta-bg);color:var(--alerta)}
+.af-tag.erro{background:var(--erro-bg);color:var(--erro)}
+.af-tag.dado{background:var(--dado-bg);color:var(--dado)}
+.af-tag.neutro{background:var(--papel-2);color:var(--tinta-2)}
+
+/* ══ TRILHA ══
+   O componente que carrega a ideia da marca. Toda sequência do grupo —
+   esteira, processo, jornada do cliente — usa esta forma. Numerada,
+   com a etapa atual em ouro e o que já passou com ✓. */
+.af-trilha{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding-bottom:var(--e-1)}
+.af-etapa{flex:1;min-width:96px;text-align:center;position:relative;padding:0 var(--e-1)}
+.af-etapa::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:1.5px;
+  background:var(--linha-forte)}
+.af-etapa:last-child::after{display:none}
+.af-etapa.feita::after{background:var(--ok)}
+.af-etapa i{position:relative;z-index:2;width:31px;height:31px;border-radius:50%;display:grid;
+  place-items:center;margin:0 auto var(--e-2);background:var(--branco);border:1.5px solid var(--linha-forte);
+  font-style:normal;font-size:var(--t-12);font-weight:700;color:var(--tinta-3);
+  font-variant-numeric:tabular-nums;transition:var(--med) var(--curva)}
+.af-etapa.feita i{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.af-etapa.agora i{border-color:var(--ouro);background:var(--ouro-grad);color:#1a1408;
+  box-shadow:0 0 0 4px rgba(212,175,94,.2)}
+.af-etapa b{display:block;font-size:var(--t-13);font-weight:600;line-height:1.3}
+.af-etapa small{display:block;font-size:var(--t-12);color:var(--tinta-3);margin-top:2px;line-height:1.35}
+
+/* ══ CAMPO ══ */
+.af-campo{margin-bottom:var(--e-4)}
+.af-campo label{display:block;font-size:var(--t-13);font-weight:600;color:var(--tinta-2);margin-bottom:6px}
+.af-campo input,.af-campo select,.af-campo textarea{width:100%;padding:.82rem 1rem;
+  border:1.5px solid var(--linha);border-radius:var(--r-3);background:var(--branco);
+  transition:var(--rap) var(--curva);font-size:var(--t-14)}
+.af-campo input:focus,.af-campo select:focus,.af-campo textarea:focus{outline:none;
+  border-color:var(--ouro);box-shadow:0 0 0 3px rgba(212,175,94,.16)}
+.af-campo input::placeholder{color:var(--tinta-3)}
+.af-campo .dica{display:block;font-size:var(--t-12);color:var(--tinta-3);margin-top:5px;line-height:1.5}
+
+/* ══ NÚMERO EM DESTAQUE ══ */
+.af-stat{border:1px solid var(--linha);border-radius:var(--r-4);padding:var(--e-4);background:var(--branco)}
+.af-stat .n{font-family:var(--serif);font-size:var(--t-33);line-height:1;color:var(--tinta);
+  font-variant-numeric:tabular-nums}
+.af-stat .n.ok{color:var(--ok)} .af-stat .n.alerta{color:var(--alerta)} .af-stat .n.ouro{color:var(--ouro-txt)}
+.af-stat .l{font-size:var(--t-12);letter-spacing:.07em;text-transform:uppercase;color:var(--tinta-3);
+  font-weight:600;margin-top:6px;line-height:1.35}
+.af-stat .pe{font-size:var(--t-13);color:var(--tinta-2);margin-top:4px}
+
+/* ══ CITAÇÃO ══ a voz da marca em forma visual */
+.af-cita{font-family:var(--serif);font-style:italic;font-weight:300;font-size:var(--t-26);
+  line-height:1.32;color:var(--tinta);max-width:26ch}
+
+/* ══ ENTRADA EM CENA ══ */
+.af-rev{opacity:0;transform:translateY(24px);transition:var(--len) var(--curva)}
+.af-rev.in{opacity:1;transform:none}
+.af-d-1{transition-delay:.08s} .af-d-2{transition-delay:.16s} .af-d-3{transition-delay:.24s}
+
+/* ══ RITMO VERTICAL ══ */
+.af-pad{padding:var(--e-9) 0}
+.af-pad-p{padding:var(--e-7) 0}
+.af-borda-t{border-top:1px solid var(--linha)}
+.af-faixa-2{background:var(--papel-2)}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .af-rev{opacity:1;transform:none}
+}

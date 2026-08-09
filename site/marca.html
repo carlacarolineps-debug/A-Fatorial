@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistema A! — o padrão visual do Grupo A! Fatorial</title>
+<meta name="description" content="O padrão visual do Grupo A! Fatorial: a ideia, a marca, a cor com contraste medido, a escala fatorial, os componentes e a voz.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23d4af5e'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-weight='700' font-size='30' fill='%231a1408' text-anchor='middle'%3EA!%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="a-fatorial.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Só o que é desta página: a régua lateral e as amostras. O resto vem
+   do próprio padrão — este guia é a primeira prova de que ele funciona. */
+.pg{display:grid;grid-template-columns:230px 1fr;gap:var(--e-8);align-items:start;
+  width:min(1240px,94vw);margin:0 auto;padding:var(--e-7) 0 var(--e-9)}
+.regua{position:sticky;top:var(--e-5)}
+.regua .rt{font-size:var(--t-12);letter-spacing:.2em;text-transform:uppercase;color:var(--tinta-3);
+  font-weight:700;margin:var(--e-5) 0 var(--e-3)}
+.regua a{display:block;font-size:var(--t-14);color:var(--tinta-2);padding:5px 0 5px var(--e-3);
+  border-left:2px solid var(--linha);transition:var(--rap) var(--curva)}
+.regua a:hover{color:var(--tinta);border-color:var(--linha-forte)}
+.regua a.on{color:var(--ouro-txt);border-color:var(--ouro);font-weight:600}
+.sec{scroll-margin-top:var(--e-5);padding-bottom:var(--e-8)}
+.sec>h2{font-size:var(--t-33);margin-bottom:var(--e-3)}
+.sec>.af-linha{margin-bottom:var(--e-5);font-size:var(--t-16)}
+.bloco{background:var(--branco);border:1px solid var(--linha);border-radius:var(--r-5);
+  padding:var(--e-5);margin-bottom:var(--e-4)}
+.bloco>.bt{font-size:var(--t-12);letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-3);
+  font-weight:700;margin-bottom:var(--e-4)}
+code,.cod{font-family:var(--mono);font-size:.8em;background:var(--papel-2);border:1px solid var(--linha);
+  padding:2px 7px;border-radius:6px;color:var(--tinta-2)}
+.grade{display:grid;gap:var(--e-3)}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1000px){.pg{grid-template-columns:1fr}.regua{position:static;display:none}
+  .g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+/* amostra de cor com o contraste medido em cima */
+.cor{border:1px solid var(--linha);border-radius:var(--r-3);overflow:hidden;cursor:pointer;
+  transition:var(--rap) var(--curva)}
+.cor:hover{transform:translateY(-2px);box-shadow:var(--sombra)}
+.cor .ch{height:74px;display:grid;place-items:center;font-size:var(--t-13);font-weight:600}
+.cor .ci{padding:10px 12px;background:var(--branco);border-top:1px solid var(--linha)}
+.cor .cn{font-size:var(--t-13);font-weight:600;display:block}
+.cor .cv{font-family:var(--mono);font-size:var(--t-12);color:var(--tinta-3);display:block;margin-top:2px}
+.cor .cc{font-size:var(--t-12);color:var(--ok);font-weight:600;margin-top:3px;display:block}
+.cor .cc.baixo{color:var(--alerta)}
+/* escala tipográfica */
+.tl{display:flex;align-items:baseline;gap:var(--e-4);padding:var(--e-3) 0;border-bottom:1px solid var(--linha)}
+.tl:last-child{border-bottom:none}
+.tl .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl .tm{font-family:var(--mono);font-size:var(--t-12);color:var(--tinta-3);white-space:nowrap}
+/* escala de espaço */
+.el{display:flex;align-items:center;gap:var(--e-4);padding:7px 0}
+.el .eb{background:var(--ouro);height:14px;border-radius:3px;flex:none}
+.el .em{font-family:var(--mono);font-size:var(--t-12);color:var(--tinta-3);white-space:nowrap}
+/* faça / não faça */
+.fn{display:grid;grid-template-columns:1fr 1fr;gap:var(--e-3)}
+.fn>div{border-radius:var(--r-3);padding:var(--e-4);font-size:var(--t-14);line-height:1.6}
+.fn .sim{background:var(--ok-bg);border:1px solid rgba(13,122,84,.28)}
+.fn .nao{background:var(--erro-bg);border:1px solid rgba(168,34,31,.24)}
+.fn b{display:block;margin-bottom:6px;font-size:var(--t-13);letter-spacing:.06em;text-transform:uppercase}
+.fn .sim b{color:var(--ok)} .fn .nao b{color:var(--erro)}
+@media(max-width:620px){.fn{grid-template-columns:1fr}}
+.copiado{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--tinta);color:var(--papel);padding:10px 20px;border-radius:var(--r-pill);
+  font-size:var(--t-13);font-weight:600;opacity:0;transition:var(--med) var(--curva);z-index:100;pointer-events:none}
+.copiado.ver{opacity:1;transform:translateX(-50%)}
+.capa{background:var(--grafite);color:var(--tinta-inv);padding:var(--e-9) 0;position:relative;overflow:hidden}
+.capa::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 82% 12%,rgba(212,175,94,.2),transparent 62%)}
+.capa>*{position:relative;z-index:2}
+.capa h1{font-size:clamp(2.2rem,5vw,3.8rem);color:#fff;max-width:16ch;margin:var(--e-4) 0}
+.capa h1 em{color:var(--ouro-claro)}
+.capa .af-linha{color:var(--tinta-inv-2);font-size:var(--t-18)}
+.fat{font-family:var(--mono);font-size:var(--t-14);color:var(--ouro-claro);margin-top:var(--e-5);
+  letter-spacing:.04em;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  padding:14px 18px;border-radius:var(--r-3);display:inline-block}
+</style>
+</head>
+<body>
+
+<section class="capa">
+  <div class="af-wrap">
+    <div class="af-marca" style="margin-bottom:var(--e-5)">
+      <div class="af-selo g" aria-hidden="true">A!</div>
+      <div><div class="mt" style="color:#fff;font-size:var(--t-21)">Sistema A!</div>
+        <div class="ms" style="color:var(--ouro-claro)">o padrão visual do grupo</div></div>
+    </div>
+    <h1>O resultado é o <em>produto de cada etapa.</em></h1>
+    <p class="af-linha">“Fatorial” não é um nome bonito — é um operador matemático. Este padrão nasce dessa ideia e a transforma em cor, letra, espaço e componente. Vale para o site, para o sistema, para a proposta e para o laudo.</p>
+    <div class="fat">5! = 1 × 2 × 3 × 4 × 5 = 120 &nbsp;&nbsp;·&nbsp;&nbsp; pule uma etapa e o resultado inteiro muda</div>
+  </div>
+</section>
+
+<div class="pg">
+  <nav class="regua" id="regua" aria-label="Índice do padrão">
+    <div class="rt">O padrão</div>
+    <a href="#ideia">A ideia</a>
+    <a href="#marca">A marca</a>
+    <a href="#cor">Cor</a>
+    <a href="#letra">Letra</a>
+    <a href="#escala">Escala</a>
+    <div class="rt">Peças</div>
+    <a href="#botao">Botão</a>
+    <a href="#superficie">Superfície</a>
+    <a href="#selo">Selo de estado</a>
+    <a href="#trilha">Trilha</a>
+    <a href="#campo">Campo</a>
+    <a href="#numero">Número</a>
+    <div class="rt">Conduta</div>
+    <a href="#movimento">Movimento</a>
+    <a href="#voz">Voz</a>
+    <a href="#usar">Como usar</a>
+  </nav>
+
+  <main>
+    <!-- ═══ A IDEIA ═══ -->
+    <section class="sec" id="ideia">
+      <div class="af-olho">Fundamento</div>
+      <h2>Três regras. Tudo aqui sai delas.</h2>
+      <p class="af-linha">Padrão visual não é lista de cores: é um conjunto pequeno de decisões que resolvem os casos que ainda não aconteceram. Estas são as três.</p>
+      <div class="grade g3">
+        <div class="bloco"><div class="af-num" style="font-size:var(--t-42);color:var(--ouro-txt)">1</div>
+          <b style="display:block;font-size:var(--t-18);margin:10px 0 6px">Sequência à vista</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14)">Número, etapa e ordem são elementos de design, não enfeite. Onde existe processo, ele aparece numerado — e a etapa atual se distingue à distância.</p></div>
+        <div class="bloco"><div class="af-num" style="font-size:var(--t-42);color:var(--ouro-txt)">2</div>
+          <b style="display:block;font-size:var(--t-18);margin:10px 0 6px">A letra é a marca</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14)">A identidade não está na cor: está na tipografia. Serifada com itálico para a voz, sem serifa para a informação. Prova disso: imprima em preto e branco — continua sendo nosso.</p></div>
+        <div class="bloco"><div class="af-num" style="font-size:var(--t-42);color:var(--ouro-txt)">3</div>
+          <b style="display:block;font-size:var(--t-18);margin:10px 0 6px">Ouro é consequência</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14)">O dourado não decora: marca o que importa — a etapa atual, o resultado, a ação principal. Um ouro por tela. Se tudo é dourado, nada é.</p></div>
+      </div>
+      <div class="fn" style="margin-top:var(--e-4)">
+        <div class="sim"><b>Faça</b>Uma ação dourada por tela. O resto em tinta ou linha. O olho vai direto ao que decide.</div>
+        <div class="nao"><b>Não faça</b>Três botões dourados lado a lado. Vira feira, e o cliente não sabe onde clicar.</div>
+      </div>
+    </section>
+
+    <!-- ═══ MARCA ═══ -->
+    <section class="sec" id="marca">
+      <div class="af-olho">Identidade</div>
+      <h2>A marca é um operador.</h2>
+      <p class="af-linha">O selo carrega a exclamação — o símbolo de fatorial. Ele nunca é deformado, nunca troca de cor e nunca aparece sobre foto sem contraste.</p>
+      <div class="bloco">
+        <div class="bt">Tamanhos</div>
+        <div style="display:flex;align-items:flex-end;gap:var(--e-5);flex-wrap:wrap">
+          <div style="text-align:center"><div class="af-selo g" aria-hidden="true">A!</div><div class="af-nota" style="margin-top:8px">64px · capa</div></div>
+          <div style="text-align:center"><div class="af-selo" aria-hidden="true">A!</div><div class="af-nota" style="margin-top:8px">42px · padrão</div></div>
+          <div style="text-align:center"><div class="af-selo p" aria-hidden="true">A!</div><div class="af-nota" style="margin-top:8px">30px · mínimo</div></div>
+          <div style="border-left:1px solid var(--linha);padding-left:var(--e-5)">
+            <div class="af-marca"><div class="af-selo" aria-hidden="true">A!</div>
+              <div><div class="mt">A! Fatorial</div><div class="ms">Arquitetura de Lucro</div></div></div>
+            <div class="af-nota" style="margin-top:10px">Assinatura completa: selo + nome + posicionamento.</div>
+          </div>
+        </div>
+      </div>
+      <div class="fn">
+        <div class="sim"><b>Faça</b>Respiro em volta do selo de pelo menos metade da sua altura. O selo precisa de ar para funcionar.</div>
+        <div class="nao"><b>Não faça</b>Selo esticado, com sombra dura, girado, ou com o dourado trocado por outra cor.</div>
+      </div>
+    </section>
+
+    <!-- ═══ COR ═══ -->
+    <section class="sec" id="cor">
+      <div class="af-olho">Cor</div>
+      <h2>Pouca cor, muito contraste.</h2>
+      <p class="af-linha">Cada valor abaixo foi medido contra o papel. Nenhuma cor de texto entra no padrão abaixo de 4,5:1 — não por norma, mas porque texto que não se lê custa cliente. Clique para copiar.</p>
+
+      <div class="bloco"><div class="bt">Superfície</div>
+        <div class="grade g4" id="cor-sup"></div></div>
+      <div class="bloco"><div class="bt">Tinta · contraste medido sobre o papel</div>
+        <div class="grade g4" id="cor-tinta"></div></div>
+      <div class="bloco"><div class="bt">Ouro · dois papéis que não se misturam</div>
+        <div class="grade g4" id="cor-ouro"></div>
+        <p class="af-nota" style="margin-top:var(--e-3)">O erro clássico é usar o dourado de superfície como cor de texto: <span class="cod" style="color:#d4af5e;background:var(--branco)">#d4af5e sobre branco = 2,0:1</span> — ilegível. Para ler, use <span class="cod" style="color:var(--ouro-txt);background:var(--branco)">--ouro-txt</span>.</p></div>
+      <div class="bloco"><div class="bt">Sinal · uma cor, um significado</div>
+        <div class="grade g4" id="cor-sinal"></div>
+        <p class="af-nota" style="margin-top:var(--e-3)">Verde é sempre concluído. Ouro é sempre “é com você”. Laranja é sempre atraso. Vermelho é sempre bloqueio. Nunca troque o significado — a pessoa aprende a cor uma vez e confia nela para sempre.</p></div>
+    </section>
+
+    <!-- ═══ LETRA ═══ -->
+    <section class="sec" id="letra">
+      <div class="af-olho">Tipografia</div>
+      <h2>Duas famílias, papéis separados.</h2>
+      <p class="af-linha"><b>Fraunces</b> tem eixo óptico: em corpo grande afina e ganha ar, em corpo pequeno engrossa e continua legível. É a voz. <b>Inter</b> é a informação — ela some, e é para sumir.</p>
+      <div class="bloco">
+        <div class="bt">Escala · razão 1,26 (terça maior)</div>
+        <div class="tl"><span class="tt af-d1" style="font-size:var(--t-68)">Arquitetura</span><span class="tm">--t-68 · manchete</span></div>
+        <div class="tl"><span class="tt" style="font-family:var(--serif);font-weight:300;font-size:var(--t-54)">Arquitetura de lucro</span><span class="tm">--t-54 · título</span></div>
+        <div class="tl"><span class="tt" style="font-family:var(--serif);font-weight:300;font-size:var(--t-42)">Arquitetura de lucro</span><span class="tm">--t-42 · seção</span></div>
+        <div class="tl"><span class="tt" style="font-family:var(--serif);font-weight:300;font-size:var(--t-33)">Arquitetura de lucro</span><span class="tm">--t-33 · sub</span></div>
+        <div class="tl"><span class="tt" style="font-family:var(--serif);font-style:italic;font-size:var(--t-26);color:var(--ouro-txt)">a voz da marca</span><span class="tm">--t-26 · citação</span></div>
+        <div class="tl"><span class="tt" style="font-size:var(--t-18)">Texto de apoio, o que explica a manchete</span><span class="tm">--t-18 · linha</span></div>
+        <div class="tl"><span class="tt" style="font-size:var(--t-16)">Corpo. É onde a informação mora.</span><span class="tm">--t-16 · corpo</span></div>
+        <div class="tl"><span class="tt" style="font-size:var(--t-14)">Interface: botão, campo, tabela.</span><span class="tm">--t-14 · interface</span></div>
+        <div class="tl"><span class="tt" style="font-size:var(--t-12);letter-spacing:.2em;text-transform:uppercase;color:var(--tinta-3);font-weight:600">Rótulo e metadado</span><span class="tm">--t-12 · rótulo</span></div>
+      </div>
+      <div class="fn">
+        <div class="sim"><b>Faça</b>Itálico serifado só na palavra que carrega a ideia. Uma por frase.</div>
+        <div class="nao"><b>Não faça</b>Frase inteira em itálico dourado. Perde o destaque e cansa a leitura.</div>
+      </div>
+    </section>
+
+    <!-- ═══ ESCALA ═══ -->
+    <section class="sec" id="escala">
+      <div class="af-olho">Espaço</div>
+      <h2>A escala é multiplicada, não somada.</h2>
+      <p class="af-linha">Não é 8, 16, 24, 32. Cada degrau é o anterior vezes cerca de 1,5 — a mesma lógica do fatorial. Isso cria hierarquia sem precisar pensar: dois blocos com espaços vizinhos parecem irmãos; com espaços distantes, parecem seções diferentes.</p>
+      <div class="bloco" id="escala-e"></div>
+      <p class="af-nota">Regra prática: <b>dentro</b> de um componente use até <span class="cod">--e-4</span>. <b>Entre</b> componentes, <span class="cod">--e-5</span>. <b>Entre</b> seções, <span class="cod">--e-9</span>. Nunca invente um valor fora da escala.</p>
+    </section>
+
+    <!-- ═══ BOTÃO ═══ -->
+    <section class="sec" id="botao">
+      <div class="af-olho">Peça</div>
+      <h2>Botão</h2>
+      <p class="af-linha">Três pesos, e a hierarquia é visível a três metros de distância.</p>
+      <div class="bloco">
+        <div style="display:flex;gap:var(--e-3);flex-wrap:wrap;align-items:center">
+          <button class="af-bt af-bt-ouro">Ação principal →</button>
+          <button class="af-bt af-bt-tinta">Ação firme</button>
+          <button class="af-bt af-bt-linha">Ação secundária</button>
+          <button class="af-bt af-bt-linha af-bt-p">Pequena</button>
+          <button class="af-bt af-bt-ouro" disabled>Bloqueada</button>
+        </div>
+        <p class="af-nota" style="margin-top:var(--e-4)"><b>Ouro</b> = o que faz a coisa acontecer. <b>Tinta</b> = ação firme sem ser a principal (entrar, confirmar). <b>Linha</b> = alternativa, voltar, cancelar. <b>Bloqueada</b> nunca some: fica visível com o motivo no <span class="cod">title</span>, senão a pessoa acha que quebrou.</p>
+      </div>
+    </section>
+
+    <!-- ═══ SUPERFÍCIE ═══ -->
+    <section class="sec" id="superficie">
+      <div class="af-olho">Peça</div>
+      <h2>Superfície</h2>
+      <div class="grade g3">
+        <div class="af-cartao sobe"><b style="font-size:var(--t-16)">Cartão</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14);margin-top:6px">Branco sobre papel. É o padrão para agrupar informação.</p></div>
+        <div class="af-cartao sobe" style="background:var(--papel-2)"><b style="font-size:var(--t-16)">Recuado</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14);margin-top:6px">Papel-2 para o que está em repouso ou é secundário.</p></div>
+        <div class="af-escuro" style="padding:var(--e-5)"><b style="font-size:var(--t-16);color:#fff">Recorte escuro</b>
+          <p class="af-linha" style="font-size:var(--t-14);margin-top:6px">Grafite para o que precisa parar o olho: prova, login, chamada.</p></div>
+      </div>
+      <p class="af-nota" style="margin-top:var(--e-3)">Sombra é distância, não enfeite. Dois níveis só: <span class="cod">--sombra</span> para cartão que levanta no hover, <span class="cod">--sombra-alta</span> para o que flutua de verdade.</p>
+    </section>
+
+    <!-- ═══ SELO ═══ -->
+    <section class="sec" id="selo">
+      <div class="af-olho">Peça</div>
+      <h2>Selo de estado</h2>
+      <p class="af-linha">É o componente mais repetido do sistema inteiro. Por isso o significado é fixo.</p>
+      <div class="bloco">
+        <div style="display:flex;gap:var(--e-2);flex-wrap:wrap">
+          <span class="af-tag ok">✓ concluído</span>
+          <span class="af-tag espera">◐ é com você</span>
+          <span class="af-tag alerta">⚠ 8h de atraso</span>
+          <span class="af-tag erro">✕ bloqueado</span>
+          <span class="af-tag dado">R$ 12.400</span>
+          <span class="af-tag neutro">rascunho</span>
+        </div>
+        <p class="af-nota" style="margin-top:var(--e-4)">Sempre com ícone <b>e</b> texto. Cor sozinha não comunica para quem não distingue verde de laranja — e não comunica em papel preto e branco.</p>
+      </div>
+    </section>
+
+    <!-- ═══ TRILHA ═══ -->
+    <section class="sec" id="trilha">
+      <div class="af-olho">Peça</div>
+      <h2>Trilha — o componente que carrega a ideia</h2>
+      <p class="af-linha">Toda sequência do grupo usa esta forma: esteira comercial, processo de execução, jornada do cliente, etapas de um serviço. Numerada, com o que passou em verde e a etapa atual em ouro.</p>
+      <div class="bloco">
+        <div class="af-trilha">
+          <div class="af-etapa feita"><i>✓</i><b>Cadastro</b><small>escopo e valor</small></div>
+          <div class="af-etapa feita"><i>✓</i><b>Proposta</b><small>clara e datada</small></div>
+          <div class="af-etapa feita"><i>✓</i><b>Contrato</b><small>assinado</small></div>
+          <div class="af-etapa agora"><i>4</i><b>Produção</b><small>é com você</small></div>
+          <div class="af-etapa"><i>5</i><b>Entrega</b><small>aprovação</small></div>
+          <div class="af-etapa"><i>6</i><b>Satisfação</b><small>sua nota</small></div>
+        </div>
+        <p class="af-nota" style="margin-top:var(--e-4)">A etapa atual sempre traz <b>de quem é a bola</b> e <b>o prazo</b>. Trilha sem dono é enfeite — vira decoração de processo, que é o oposto do que a marca defende.</p>
+      </div>
+    </section>
+
+    <!-- ═══ CAMPO ═══ -->
+    <section class="sec" id="campo">
+      <div class="af-olho">Peça</div>
+      <h2>Campo</h2>
+      <div class="bloco">
+        <div class="grade g2">
+          <div class="af-campo"><label for="d1">Nome da empresa</label>
+            <input id="d1" placeholder="razão social"><span class="dica">Entra na qualificação das partes do contrato.</span></div>
+          <div class="af-campo"><label for="d2">Valor do serviço</label>
+            <input id="d2" value="18.500,00"><span class="dica">Todo campo de dinheiro se separa sozinho enquanto você digita.</span></div>
+        </div>
+        <p class="af-nota">Todo campo tem rótulo visível — nunca só <span class="cod">placeholder</span>, que some quando a pessoa começa a escrever. E quando o campo decide alguma coisa, ele explica embaixo o porquê.</p>
+      </div>
+    </section>
+
+    <!-- ═══ NÚMERO ═══ -->
+    <section class="sec" id="numero">
+      <div class="af-olho">Peça</div>
+      <h2>Número</h2>
+      <p class="af-linha">Somos uma empresa de números. Eles são serifados e alinhados em coluna — como num relatório, não como num aplicativo.</p>
+      <div class="grade g4">
+        <div class="af-stat"><div class="n ok">94%</div><div class="l">No prazo da etapa</div><div class="pe">de 43 itens em andamento</div></div>
+        <div class="af-stat"><div class="n">R$ 26.119.704</div><div class="l">Valor apurado</div><div class="pe">média ponderada dos métodos</div></div>
+        <div class="af-stat"><div class="n alerta">5</div><div class="l">Passaram do prazo</div><div class="pe">da etapa em que estão</div></div>
+        <div class="af-stat"><div class="n ouro">0</div><div class="l">Desvios do mês</div><div class="pe">nenhuma etapa pulada</div></div>
+      </div>
+      <p class="af-nota" style="margin-top:var(--e-3)">Número sozinho não informa: sempre com <b>rótulo</b> (o que é) e <b>pé</b> (de onde veio). “94%” não quer dizer nada; “94% no prazo, de 43 itens” quer.</p>
+    </section>
+
+    <!-- ═══ MOVIMENTO ═══ -->
+    <section class="sec" id="movimento">
+      <div class="af-olho">Conduta</div>
+      <h2>Movimento</h2>
+      <p class="af-linha">Uma curva só e três durações. Animação que chama atenção para si mesma é ruído — aqui ela só confirma que a interface respondeu.</p>
+      <div class="bloco">
+        <div class="grade g3">
+          <div><span class="cod">--rap · 180ms</span><p class="af-nota" style="margin-top:8px">Resposta ao toque: hover, foco, botão.</p></div>
+          <div><span class="cod">--med · 280ms</span><p class="af-nota" style="margin-top:8px">Mudança de estado: abrir, trocar, revelar.</p></div>
+          <div><span class="cod">--len · 720ms</span><p class="af-nota" style="margin-top:8px">Entrada em cena, ao rolar a página.</p></div>
+        </div>
+        <p class="af-nota" style="margin-top:var(--e-4)">Quem configurou o sistema operacional para reduzir movimento não vê animação nenhuma — está no padrão, não é opcional.</p>
+      </div>
+    </section>
+
+    <!-- ═══ VOZ ═══ -->
+    <section class="sec" id="voz">
+      <div class="af-olho">Conduta</div>
+      <h2>Voz</h2>
+      <p class="af-linha">O jeito de escrever é parte da identidade tanto quanto a cor. Quatro regras.</p>
+      <div class="grade g2">
+        <div class="bloco"><b style="font-size:var(--t-16)">Diga o porquê, sempre</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14);margin-top:6px">Toda trava, todo campo obrigatório e toda etapa explicam a razão de existir. Regra sem motivo vira burocracia — e burocracia se contorna.</p></div>
+        <div class="bloco"><b style="font-size:var(--t-16)">Frase curta, palavra comum</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14);margin-top:6px">“Quanto falta” em vez de “gap de atingimento”. Quem lê é dono de empresa, não consultor.</p></div>
+        <div class="bloco"><b style="font-size:var(--t-16)">Número em vez de adjetivo</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14);margin-top:6px">“Payback de 22 meses, dentro do atrativo” vale mais que “excelente retorno”. Adjetivo é opinião; número é argumento.</p></div>
+        <div class="bloco"><b style="font-size:var(--t-16)">Nunca prometa o que não mostra</b>
+          <p style="color:var(--tinta-2);font-size:var(--t-14);margin-top:6px">Se está escrito no site, tem que existir na tela. É a diferença entre a nossa empresa e uma promessa bonita.</p></div>
+      </div>
+      <div class="af-cita" style="margin-top:var(--e-5);padding-left:var(--e-4);border-left:3px solid var(--ouro)">
+        “A empresa é o reflexo do dono.”
+        <div class="af-nota" style="font-family:var(--sans);font-style:normal;margin-top:10px">Carla Caroline — a frase que resume o método. Use com parcimônia: frase repetida perde força.</div>
+      </div>
+    </section>
+
+    <!-- ═══ COMO USAR ═══ -->
+    <section class="sec" id="usar">
+      <div class="af-olho">Prática</div>
+      <h2>Como usar</h2>
+      <div class="bloco">
+        <div class="bt">Em qualquer página nova</div>
+        <pre style="font-family:var(--mono);font-size:var(--t-13);background:var(--papel-2);border:1px solid var(--linha);border-radius:var(--r-3);padding:var(--e-4);overflow-x:auto;line-height:1.7;color:var(--tinta-2)">&lt;link rel="stylesheet" href="a-fatorial.css"&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"&gt;</pre>
+        <p class="af-nota" style="margin-top:var(--e-3)">Depois é só usar os tokens: <span class="cod">var(--ouro-txt)</span>, <span class="cod">var(--e-5)</span>, <span class="cod">var(--t-26)</span>. Nunca escreva um valor cru no CSS — se o valor não existe na escala, ou você achou um caso novo (e ele entra aqui), ou está resolvendo errado.</p>
+      </div>
+      <div class="bloco">
+        <div class="bt">Onde este padrão vale</div>
+        <div class="grade g2">
+          <div><b>Já usa</b><p class="af-nota" style="margin-top:6px">O site (porta de entrada do cliente) e este guia. Os dois carregam o mesmo arquivo — é por isso que são o mesmo lugar.</p></div>
+          <div><b>Usa a mesma régua</b><p class="af-nota" style="margin-top:6px">O sistema interno segue as mesmas decisões — papel claro, ouro de texto separado do ouro de superfície, trilha numerada, selo com significado fixo.</p></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:var(--e-3);flex-wrap:wrap;margin-top:var(--e-5)">
+        <a class="af-bt af-bt-ouro" href="index.html">Ver o padrão aplicado no site →</a>
+        <a class="af-bt af-bt-linha" href="a-fatorial.css" download>Baixar a-fatorial.css</a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="copiado" id="copiado">copiado</div>
+
+<script>
+(function(){
+'use strict';
+/* ── amostras de cor, com o contraste calculado na hora ──
+   O guia não afirma o contraste: ele mede, aqui, agora. Se alguém mudar
+   um token e quebrar a legibilidade, esta página denuncia sozinha. */
+function lum(hex){
+  var m=[1,3,5].map(function(i){return parseInt(hex.substr(i,2),16)/255;})
+    .map(function(v){return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);});
+  return .2126*m[0]+.7152*m[1]+.0722*m[2];
+}
+function cr(a,b){var x=lum(a),y=lum(b);return ((Math.max(x,y)+.05)/(Math.min(x,y)+.05));}
+function tok(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+
+var PAPEL=tok('--papel');
+var GRUPOS={
+  'cor-sup':[['--papel','fundo da página'],['--papel-2','faixa e repouso'],['--branco','cartão'],['--grafite','recorte escuro']],
+  'cor-tinta':[['--tinta','título e corpo'],['--tinta-2','apoio'],['--tinta-3','rótulo e legenda'],['--linha-forte','borda marcada']],
+  'cor-ouro':[['--ouro','superfície'],['--ouro-claro','só no escuro'],['--ouro-fundo','bloco lavado'],['--ouro-txt','o ouro que se lê']],
+  'cor-sinal':[['--ok','concluído'],['--espera','é com você'],['--alerta','atrasado'],['--erro','bloqueado']]
+};
+Object.keys(GRUPOS).forEach(function(id){
+  var box=document.getElementById(id); if(!box) return;
+  box.innerHTML=GRUPOS[id].map(function(par){
+    var nome=par[0], uso=par[1], v=tok(nome);
+    var escuro=lum(v)<.4;
+    var c=cr(v,PAPEL);
+    var mostra = /--papel|--branco|--grafite|--linha|--ouro-fundo|--ouro-claro|--ouro\b/.test(nome) && nome!=='--ouro-txt';
+    return '<div class="cor" data-v="'+v+'">'
+      +'<div class="ch" style="background:'+v+';color:'+(escuro?'#fff':'#16150f')+'">'+v+'</div>'
+      +'<div class="ci"><span class="cn">'+nome+'</span><span class="cv">'+uso+'</span>'
+      +(mostra?'':'<span class="cc'+(c<4.5?' baixo':'')+'">'+c.toFixed(1)+':1 sobre o papel</span>')
+      +'</div></div>';
+  }).join('');
+});
+document.addEventListener('click', function(e){
+  var c=e.target.closest('.cor'); if(!c) return;
+  var v=c.getAttribute('data-v');
+  if(navigator.clipboard) navigator.clipboard.writeText(v);
+  var t=document.getElementById('copiado'); t.textContent=v+' copiado';
+  t.classList.add('ver'); setTimeout(function(){t.classList.remove('ver');},1400);
+});
+
+/* ── escala de espaço, desenhada a partir dos próprios tokens ── */
+var eb=document.getElementById('escala-e');
+if(eb){
+  eb.innerHTML='<div class="bt">Espaço · cada degrau é o anterior × ~1,5</div>'+
+    [1,2,3,4,5,6,7,8,9,10].map(function(i){
+      var v=tok('--e-'+i);
+      return '<div class="el"><span class="em" style="width:76px">--e-'+i+'</span>'
+        +'<span class="eb" style="width:'+v+'"></span><span class="em">'+v+'</span></div>';
+    }).join('');
+}
+
+/* ── régua lateral acompanha a leitura ── */
+var secoes=[].slice.call(document.querySelectorAll('.sec'));
+var links={};
+[].forEach.call(document.querySelectorAll('#regua a'), function(a){ links[a.getAttribute('href').slice(1)]=a; });
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){
+    if(!e.isIntersecting) return;
+    for(var k in links) links[k].classList.remove('on');
+    if(links[e.target.id]) links[e.target.id].classList.add('on');
+  });
+},{rootMargin:'-10% 0px -70% 0px'});
+secoes.forEach(function(s){ io.observe(s); });
+})();
+</script>
+</body>
+</html>
