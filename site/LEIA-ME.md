@@ -16,30 +16,43 @@ ao lado, não tem como quebrar.
 | `a-fatorial.css` | **A fonte de verdade do padrão.** Não é carregado pelas páginas: é embutido nelas. |
 | `montar.py` | Embute o CSS nas duas páginas. Rode depois de mexer no CSS: `python3 montar.py` |
 
-## O padrão visual — "o laudo"
+## O padrão visual — "a parede"
 
-O que a empresa entrega não é apresentação: é laudo. Documento assinado, com
-método declarado, norma e lei citadas, número que se confere. Por isso o site
-é composto como **documento técnico medido**, e não como landing page de
-consultoria. Três regras:
+A marca existe fisicamente: letras douradas em relevo sobre parede preta, com
+holofote em cima. Quem entra na recepção vê ouro pesado num breu texturizado,
+e a luz corre pelo metal. É esse efeito que a tela precisa causar.
 
-1. **A estrutura é desenhada, não decorada.** Fio, coluna, margem anotada e
-   rótulo de seção são o próprio layout. Cartão flutuante arredondado é
-   exceção aqui, não o padrão.
-2. **Todo número é leitura de instrumento.** Monoespaçada, tabular, com a
+**E havia uma razão técnica dura para o site nunca ter parecido dela:** o ouro
+da marca (`#d4af5e`) sobre papel claro rende **2:1**. Ilegível. Para usá-lo
+como texto era preciso rebaixá-lo a um marrom fechado, e o ouro de verdade
+sumia. Sobre o breu, o mesmo ouro rende **9,4:1** — legível em qualquer
+tamanho. **O ouro da marca só existe no preto**, e é por isso que o site é
+escuro.
+
+Cinco regras:
+
+1. **O breu tem matéria.** Não é um retângulo preto: tem grão, vinheta e a luz
+   do holofote caindo de cima. Preto chapado é o que faz uma página parecer
+   feita às pressas.
+2. **O ouro tem relevo.** Não é uma cor, é metal: alta luz em cima, corpo no
+   meio, sombra embaixo. Nos elementos grandes ele brilha; nos pequenos, só
+   reluz — em corpo pequeno o gradiente vira sujeira.
+3. **A escala é dramática.** Manchete enorme contra rótulo minúsculo: do maior
+   ao menor corpo da página vai de 1 para 9. Página onde tudo tem o mesmo peso
+   não é lida, é rolada.
+4. **A estrutura é desenhada, não decorada.** Fio, coluna, margem anotada e
+   rótulo de seção são o próprio layout.
+5. **Todo número é leitura de instrumento.** Monoespaçada, tabular, com a
    unidade e a premissa impressas embaixo.
-3. **O dourado só marca resultado.** Etapa atual, número que decide, ação.
-   Se tudo é dourado, nada é.
-
-**Conversa com o material impresso,** que é preto e ouro metálico. O papel
-(`#f1f0ec`) é neutro levemente quente — não é creme, que junto com serifada e
-dourado virou o visual padrão de toda página gerada por máquina — e a tinta
-tem o mesmo viés. O `--ferro` é o preto da marca (`#111110`) e o ouro é rampa
-metálica de três paradas.
 
 **O avião de papel é a assinatura.** No material ele está no símbolo, na ponta
 do fio do cabeçalho e no lockup de cada submarca. Aqui aparece em dois lugares
 só — o lockup e o fio da capa. Avião em todo canto vira enfeite.
+
+**O sistema continua claro.** Site e sistema fazem trabalhos diferentes: o site
+é a vitrine e precisa impressionar em dez segundos; o sistema é onde se passa o
+dia, e lá o claro cansa menos. Para voltar o site ao claro, os tokens de cor
+estão todos no topo do `a-fatorial.css`.
 
 **O lockup reproduz a estrutura do material:** "Grupo" na voz manuscrita, A!
 FATORIAL pesado, a assinatura embaixo, o avião ao lado. Sobre papel claro o

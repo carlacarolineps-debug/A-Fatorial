@@ -1416,3 +1416,50 @@ pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
 **Troca pelo original:** `--simbolo:url(marca.svg)` no `a-fatorial.css` +
 `python3 montar.py`. Uma linha, e o símbolo de verdade entra em todos os
 lugares de uma vez.
+
+## O site virou a parede — versão 0908.09
+
+A crítica: a ideia e a lógica estavam boas, o visual continuava péssimo.
+Estava, e o erro era de premissa. Eu tinha composto um documento técnico bege
+enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
+
+166. **O argumento que decidiu:** o ouro da marca (#d4af5e) sobre papel claro
+     rende **2:1** — ilegível. Para usá-lo como texto era preciso rebaixá-lo a
+     um marrom fechado, e o ouro de verdade sumia da página. Sobre o breu o
+     mesmo ouro rende **9,4:1**. O ouro da marca só existe no preto — e é por
+     isso que o site inteiro passou a ser escuro.
+
+167. **O breu tem matéria.** Três camadas fixas atrás de tudo: o holofote
+     caindo de cima como na parede, a vinheta fechando as bordas e um grão de
+     ruído em overlay. Nenhuma se nota sozinha; juntas tiram a página do preto
+     chapado, que é o que faz um site parecer feito às pressas.
+
+168. **O ouro virou metal.** Rampa de cinco paradas com alta luz no topo,
+     sombra projetada embaixo e halo. Aplicado só onde é grande — lockup,
+     manchete enfática, números da capa, botão de ação: em corpo pequeno o
+     gradiente vira sujeira.
+
+169. **A escala ficou dramática.** A manchete foi a 98px e os rótulos a 11px:
+     do maior ao menor corpo da página a razão é de 1 para 9. A capa virou
+     momento de tela cheia, com entrada encenada — a luz sobe, a manchete
+     assenta, em 1,2s e nunca mais.
+
+170. **A profundidade substituiu o claro-escuro.** Não havendo mais duas cores
+     de fundo para alternar, o que separa as seções agora é elevação: quatro
+     degraus de breu, fio de alta luz na borda de cima de cada superfície, e
+     holofote atrás dos títulos dos momentos fortes. Nas duas marcas, a
+     empresa é a folha levantada com borda de ouro e a mentoria é rebaixada,
+     mais funda que o chão.
+
+171. **Um defeito real achado pela medição:** as cores de classe do catálogo
+     ainda eram as calibradas para papel e rendiam 2,3 a 3,3:1 sobre o breu.
+     Passaram para os sinais do padrão escuro. Sobram oito apontamentos, todos
+     de texto em gradiente; conferidos no pixel, dão 14,0 a 18,0:1.
+
+172. **Mais uma colisão de cascata,** desta vez no guia: `.cor .fx span` vencia
+     `.ct.bom` e os selos do laudo saíam em cinza. O guia agora mede 172
+     trechos e reprova um só — o rótulo do botão de ouro, que é gradiente.
+
+173. **O sistema continua claro,** de propósito: o site é vitrine e precisa
+     impressionar em dez segundos; o sistema é onde se passa o dia. Os tokens
+     ficam no topo do `a-fatorial.css` para reverter em bloco se ela preferir.
