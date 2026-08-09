@@ -46,17 +46,22 @@ FATORIAL pesado, a assinatura embaixo, o avião ao lado. Sobre papel claro o
 "A!" usa o ouro que se lê e "FATORIAL" usa tinta — o ouro da marca sobre papel
 rende 2:1 e some. Sobre preto entra a rampa metálica inteira, como no impresso.
 
-**O símbolo manuscrito ainda falta.** Duas tentativas de redesenhá-lo saíram
-erradas (a segunda vira um sigma grego) e dezesseis fontes script foram
-testadas contra o original — nenhuma bate, porque o logo é lettering feito à
-mão. Logo aproximado é pior que logo ausente, então fica o avião, que é
-elemento real da marca.
+**O símbolo é uma INTERPRETAÇÃO, não o original.** O logo é lettering feito à
+mão; aqui ele só existe como foto, e foto colada na conversa não vira arquivo
+que o código possa recortar. O que está no ar é uma reconstrução da
+construção da letra: o laço alongado e inclinado desenhado como fita
+caligráfica (grossa embaixo-esquerda, fina em cima-direita), o traço longo que
+desce do alto e **cruza** o laço — é esse cruzamento que faz a letra ler A e
+não O —, a exclamação e o avião com o rastro. Proporção e contraste não são os
+do original.
 
-Para colocar o símbolo de verdade, o arquivo precisa ser **anexado como
-arquivo** (SVG, PNG ou AI) — print colado na conversa não vira arquivo. Com
-ele em mãos é uma linha: um `<img>` ou `<svg>` dentro de `.af-marca-s`
-substitui o avião no cabeçalho, no rodapé, no login e nas duas marcas de uma
-vez.
+Chegou aí depois de descartar: duas construções erradas (uma vira sigma grego)
+e dezesseis fontes script testadas contra a foto, nenhuma batendo.
+
+**Para pôr o símbolo de verdade:** troque o token `--simbolo` no
+`a-fatorial.css` pelo arquivo (`--simbolo:url(marca.svg)`), rode
+`python3 montar.py`, e ele entra no cabeçalho, no rodapé, no login e nas duas
+marcas de uma vez. No sistema o token é `--afx-simbolo`.
 
 **As seis submarcas** aparecem na seção `#sobre`, com avião, nome e assinatura
 própria, divididas por fio — como na barra inferior do material impresso.

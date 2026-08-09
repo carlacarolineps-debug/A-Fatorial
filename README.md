@@ -1388,3 +1388,31 @@ pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
      do lockup e transformava "Grupo" em caixa alta; e a assinatura da marca,
      em `white-space:nowrap`, empurrava a folha estreita 9px além da tela no
      celular.
+
+## O símbolo entrou — versão 0908.08
+
+162. **A foto na parede mostrou a construção da letra**, e com ela a
+     reconstrução finalmente ficou de pé. O que faltava nas tentativas
+     anteriores era o **cruzamento**: o traço longo desce do alto e cruza o
+     laço, e é isso que faz a letra ler A e não O. Sem ele saía um "O!" ou um
+     sigma.
+
+163. **O símbolo é interpretação, não o original,** e está escrito assim no
+     código. O laço é fita caligráfica por duas elipses deslocadas — grossa
+     embaixo-esquerda, fina em cima-direita —, mais o traço que cruza, a
+     exclamação e o avião com rastro. Proporção e contraste não são os do
+     lettering feito à mão.
+
+164. **Vai como máscara,** para poder ser ouro metálico sobre preto e ouro
+     fechado sobre papel: as duas leituras que o ouro precisa ter. Um token
+     só (`--simbolo` no site, `--afx-simbolo` no sistema) alimenta cabeçalho,
+     rodapé, login, cadastro público, barra lateral e as duas marcas.
+
+165. **A palavra "Grupo" ficou manuscrita.** Dezesseis fontes script foram
+     testadas contra a foto; nenhuma serve para o símbolo, mas a Yellowtail
+     acerta a palavra — mesma escrita de pincel, mesmo peso. Entrou como
+     quarta letra do padrão, com esse trabalho só.
+
+**Troca pelo original:** `--simbolo:url(marca.svg)` no `a-fatorial.css` +
+`python3 montar.py`. Uma linha, e o símbolo de verdade entra em todos os
+lugares de uma vez.
