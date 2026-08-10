@@ -235,7 +235,23 @@ Em **Source**, escolha **GitHub Actions**.
 
 Não tem botão de Save nessa opção: ela salva ao escolher.
 
-### 4.3
+### 4.3 A segunda trava, que só aparece agora
+
+Ao ligar o Pages, o GitHub cria um ambiente chamado `github-pages` com uma
+regra de fábrica: **só o branch principal pode publicar**. Como o app vive
+num branch de trabalho, a publicação é recusada antes de começar, em dois
+segundos, sem log nenhum.
+
+1. Abra: **https://github.com/carlacarolineps-debug/A-Fatorial/settings/environments**
+2. Clique em **github-pages**
+3. Role até **Deployment branches and tags**
+4. Onde está **Selected branches and tags**, escolha **No restriction**
+
+> Se preferir manter a trava, clique em **Add deployment branch or tag
+> rule** e digite `claude/*`. Dá o mesmo resultado e continua barrando
+> branch estranho.
+
+### 4.4
 
 Vá em **Actions**, no menu de cima do repositório, clique em **Publicar o
 app** na lista da esquerda, e depois em **Run workflow**.
@@ -243,13 +259,13 @@ app** na lista da esquerda, e depois em **Run workflow**.
 Isso dispara a publicação. Ela leva cerca de 1 minuto e fica verde quando
 termina.
 
-### 4.4
+### 4.5
 
 Volte em **Settings**, **Pages**. Aparece uma faixa com o endereço:
 
 **https://carlacarolineps-debug.github.io/A-Fatorial/**
 
-### 4.5
+### 4.6
 
 Abra esse endereço **no seu celular**.
 
@@ -394,7 +410,8 @@ antes.
 | "Acesso ainda não liberado" | Você entrou com outro e-mail |
 | "E-mail ou senha não conferem" | Use a senha que veio por e-mail, ou toque em Esqueci a minha senha |
 | O endereço do site dá 404 | Espere mais 2 minutos. O GitHub demora na primeira vez |
-| A publicação fica vermelha em Actions | O Source do passo 4.2 não está como GitHub Actions |
+| A publicação fica vermelha em Actions | O Source do 4.2 não está como GitHub Actions |
+| A publicação falha em 2 segundos, sem log | É a trava do 4.3: o ambiente github-pages só deixa o branch principal publicar |
 | A mesa não aparece em Mais | Você entrou com outro e-mail. Precisa ser o gestaogrupoa@gmail.com |
 
 Em qualquer um deles: me manda o print da tela que eu te digo o que é.
