@@ -56,13 +56,13 @@ const MODELO_PADRAO = {
  * que o cliente leu antes de mandar mensagem.
  */
 const FATOS = `
-GRUPO A! FATORIAL — consultoria de gestão para empresas e franquias.
+GRUPO A! FATORIAL, consultoria de gestão para empresas e franquias.
 CNPJ 30.361.388/0001-17. Santo André, São Paulo. @afatorialsolucoes.
 Atua na EMPRESA: processo, preço, caixa, pessoas, expansão e valuation.
 Tem equipe própria, rede de parceiras, catálogo de 83 serviços e um
 sistema próprio onde a execução roda com etapa, dono e prazo registrados.
 
-CARLA CAROLINE — mentoria comportamental e estratégia. @pscarlacaroline.
+CARLA CAROLINE, mentoria comportamental e estratégia. @pscarlacaroline.
 Atua na PESSOA QUE DIRIGE: comportamento, forma de decidir, delegação.
 O método EMC (Estratégia, Mentalidade, Comportamento) é dela, não do
 grupo: é a ordem em que ela lê um negócio. Programas: Operação Blindada,
@@ -73,15 +73,15 @@ de comportamento vira manual na gaveta; comportamento sem estrutura vira
 motivação que passa na segunda-feira. Dá para começar por uma só.
 
 OS CINCO SERVIÇOS QUE APARECEM NO SITE:
-1. Raio-X do negócio — diagnóstico em 9 dimensões, 48 perguntas, 8
+1. Raio-X do negócio, diagnóstico em 9 dimensões, 48 perguntas, 8
    indicadores tirados do balanço. É o serviço mais barato do catálogo e
    o ponto de entrada natural. Entrega plano de 90 dias em três ondas.
-2. Arquitetura de preço — carga tributária pelos três regimes, custo por
+2. Arquitetura de preço, carga tributária pelos três regimes, custo por
    item, markup divisor, margem por hora do gargalo, limite de desconto.
-3. Reestruturação e caixa — fluxo de 13 semanas, mapa de dívida, ponte de
+3. Reestruturação e caixa, fluxo de 13 semanas, mapa de dívida, ponte de
    EBITDA, rota de renegociação.
-4. Valuation — quanto a empresa vale, com faixa de negociação defensável.
-5. Franqueabilidade — se dá ou não para franquear, e por quê.
+4. Valuation, quanto a empresa vale, com faixa de negociação defensável.
+5. Franqueabilidade, se dá ou não para franquear, e por quê.
 
 COMO TRABALHAM: tudo termina em documento assinado, com norma e lei
 citadas no laudo. O cliente acompanha pelo portal, etapa por etapa, e

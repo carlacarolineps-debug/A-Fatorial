@@ -468,7 +468,7 @@ function montar(app, cfg) {
     res.json({ ok: true, conta: limpo(u) });
   });
 
-  console.log('[equipe] pronto — ' + CONTAS.usuarios.length + ' conta(s), versão ' + ESTADO.rev);
+  console.log('[equipe] pronto, ' + CONTAS.usuarios.length + ' conta(s), versão ' + ESTADO.rev);
 }
 
 /** Tudo o que mudou depois de `desde`. */

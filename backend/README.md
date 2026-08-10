@@ -1,18 +1,18 @@
-# Ponte do WhatsApp — Kanban operacional
+# Ponte do WhatsApp para o Kanban operacional
 
 Servidorzinho que recebe o aviso do kanban e entrega no WhatsApp pela **API
 oficial da Meta (WhatsApp Cloud API)**.
 
 Você só precisa dele para o modo **⚡ Automático**. O modo **🔗 Link direto**
-(padrão do sistema) funciona sem servidor nenhum — ele abre a conversa com o
+(padrão do sistema) funciona sem servidor nenhum: ele abre a conversa com o
 texto já escrito e você só aperta enviar.
 
 ```
 index.html (kanban)  ──POST──▶  este servidor  ──▶  Graph API da Meta  ──▶  WhatsApp
 ```
 
-O token do WhatsApp fica **aqui, no servidor**. Ele nunca vai para o navegador
-— se fosse para o navegador, qualquer pessoa que abrisse o código da página
+O token do WhatsApp fica **aqui, no servidor**. Ele nunca vai para o navegador.
+Se fosse para o navegador, qualquer pessoa que abrisse o código da página
 conseguiria ler e usar seu token.
 
 ## Passo a passo
@@ -44,8 +44,8 @@ A aprovação costuma sair em minutos. Os cinco parâmetros são preenchidos pel
 servidor nesta ordem: nome, título da tarefa, prioridade, prazo e etapa.
 
 > Template é exigência da Meta para **você iniciar** a conversa. Depois que a
-> pessoa responde, abre uma janela de 24h em que dá para mandar mensagem livre
-> — é o `MENSAGEM_MODO=texto`, que envia o texto completo com emoji e quebras
+> pessoa responde, abre uma janela de 24h em que dá para mandar mensagem livre.
+> É o `MENSAGEM_MODO=texto`, que envia o texto completo com emoji e quebras
 > de linha, do jeitinho que aparece na tela do kanban.
 
 **3. Subir o servidor**
@@ -110,5 +110,5 @@ Corpo que o kanban envia:
 - Só a API oficial é usada aqui. Bibliotecas que automatizam o WhatsApp comum
   (as que leem QR Code) violam os termos de uso e podem derrubar seu número.
 - A Meta cobra por conversa iniciada pela empresa. Mensagens do tipo *Utility*
-  são baratas e há uma cota gratuita mensal — confira a tabela atual no painel
+  são baratas e há uma cota gratuita mensal, confira a tabela atual no painel
   da sua conta.

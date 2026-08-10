@@ -42,43 +42,47 @@ Dentro disso, os dois casos que ela citou como já doendo hoje:
 - confirmação de agenda que não é mandada
 - frequência de mentoria que ninguém controla
 
-**A metade 2 já está construída** (`backend/obrigacoes.js`): o processo
-gera a obrigação, o servidor cumpre sozinho o que consegue, cobra o dono
-e escala para a direção. Os dois casos acima são os dois primeiros que
-ela resolve.
+**As duas metades estão construídas.**
 
-**Falta a metade 1**, o documento que não vira arquivo. O desenho:
+A metade 2 é o `backend/obrigacoes.js`: o processo gera a obrigação, o
+servidor cumpre sozinho o que consegue, cobra o dono e escala para a
+direção. Os dois casos acima são os dois primeiros que ela resolve.
 
-- o documento é montado **no servidor**, na hora de ver, e nunca existe
-  como arquivo no computador de ninguém
-- o funcionário **vê**, com marca d'água; não há botão de baixar
-- o cliente recebe **link com prazo**, amarrado ao telefone dele, não
-  anexo. Abrir o link é a prova de que o documento chegou, e ela fecha
-  sozinha a obrigação "cliente abrir o documento"
-- **baixar é direito do cliente**, não da equipe: no portal dele o botão
-  existe, com o nome dele carimbado
+A metade 1 é o `backend/documentos.js`, e o documento não vira arquivo:
+
+- montado **no servidor**, na hora de ver, e nunca existe como arquivo no
+  computador de ninguém
+- o funcionário **vê**, com marca d'água com o nome dele; a rota de baixar
+  não existe para a equipe, não é botão escondido
+- o cliente recebe **link com prazo**, amarrado ao telefone dele, e
+  confirma os 4 últimos dígitos para abrir. Abrir é a prova de que chegou,
+  e fecha sozinha a obrigação
+- **baixar é direito do cliente**, não da equipe
+- o **portal do cliente** guarda tudo o que já foi enviado, e esse
+  endereço não expira
 - contrato continua indo para o **D4Sign**, que já está integrado; o que
   muda é que ninguém precisa baixar o PDF para mandar
 
-O que isso apaga: os seis pontos de exportação do item 5 deixam de
-existir em vez de virarem exceção controlada.
+**Falta ligar isso às telas do sistema**, que é o item 5.
 
 ### 3. Importar e distribuir leads
 Subir lista de leads por **serviço** ou **segmento**, e distribuir na
 **quantidade** que ela quiser, para **quem** ela quiser.
 
-### 4. Documento só para o número do cliente
-O envio compara o destino com o telefone cadastrado do cliente e recusa
-qualquer outro, para ninguém mandar material sigiloso para fora.
+### 4. Ligar os documentos às telas do sistema
+O servidor está pronto e provado. O que falta é o sistema usar:
 
-### 5. Exportações passando pelo servidor
-Hoje há **seis** pontos que geram CSV e PDF direto no navegador
-(`cliExportarPDF`, `finExportarCSV`, `relatorioPDF`, `backupExportar`,
-`leadExportar` e o backup do sistema). Sem passar pelo servidor, não há
-registro nem bloqueio possível. Com o item 2 decidido, a maioria deles
-deixa de existir em vez de ser controlada.
+- a tela do cliente gera proposta, laudo e contrato pelo `POST /doc` em
+  vez de montar PDF no navegador
+- os **seis** pontos que hoje geram CSV e PDF direto no navegador
+  (`cliExportarPDF`, `finExportarCSV`, `relatorioPDF`, `backupExportar`,
+  `leadExportar` e o backup do sistema) passam a sair pelo servidor ou
+  deixam de existir. Sem passar pelo servidor não há registro nem
+  bloqueio possível
+- o cartão do cliente mostra o endereço do portal dele e quem já abriu
+  o quê
 
-### 6. Cadastro de prestador e banco de talentos
+### 5. Cadastro de prestador e banco de talentos
 O maior dos abertos. Pedido dela, por partes:
 
 - página onde a pessoa **se cadastra como prestadora**
@@ -183,6 +187,22 @@ Cada linha tem commit. `git log` conta a história completa.
 - Regra que barra, pedido de autorização com liberação de uso único
 - Desfazer que reverte e não roda duas vezes
 - Marca d'água com o nome de quem está vendo
+
+**Documento do cliente**
+- O documento nasce e vive no servidor, e a equipe não tem rota de baixar
+- Envio recusado para qualquer número que não seja o do cliente
+- Link com prazo de 14 dias, aberto só com os 4 últimos dígitos do
+  WhatsApp dele
+- Portal do cliente que não expira e guarda tudo o que já foi enviado
+- Trilha visual no documento: enviado, aberto por você, aprovado
+- Visual refeito para cliente visual: cabeçalho da marca em ouro sobre
+  breu, corpo claro para ler e imprimir, um desenho por tipo de documento
+
+**Obrigações**
+- O processo gera a obrigação, o servidor cumpre o que consegue sozinho,
+  cobra o dono e escala para a direção
+- Confirmação de agenda e frequência de mentoria deixam de depender de
+  alguém lembrar
 
 **Documentação**
 - `backend/HOSPEDAGEM.md`, comparativo com números

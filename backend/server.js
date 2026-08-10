@@ -87,7 +87,9 @@ function montarEnvio(dados) {
     };
   }
 
-  const limpo = v => String(v == null || v === '' ? '—' : v).replace(/[\n\t]+/g, ' ').slice(0, 900);
+  /* campo vazio vira "a definir", não travessão: o texto sai no WhatsApp
+     do cliente e travessão não entra em nada que ela manda */
+  const limpo = v => String(v == null || v === '' ? 'a definir' : v).replace(/[\n\t]+/g, ' ').slice(0, 900);
   return {
     messaging_product: 'whatsapp',
     to: numero,

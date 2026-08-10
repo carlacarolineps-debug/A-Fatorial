@@ -1574,3 +1574,70 @@ As skills de design deram o critério que faltava, e ele expôs um buraco real.
      subiu para 93%), e a frase da saída de exceção passava por baixo da caixa
      de ajuste · a altura do viewBox cresceu e o traço tracejado passou a
      encostar na frase, em vez de terminar no vazio.
+
+## O documento virou endereço, e o cliente ganhou casa · versão 1008.02
+
+Pedido dela, em duas frases: *"isso tudo deve ficar salvo no painel do
+cliente mesmo ele recebendo no WhatsApp"* e *"melhore o visual do documento
+do cliente, todos os meus clientes são extremamente visuais"*.
+
+192. **O documento não é mais arquivo, é endereço.** Proposta, laudo e
+     contrato são montados no servidor na hora de ver. A equipe abre e lê,
+     com o nome de quem está lendo carimbado em marca d'água na folha
+     inteira, e não existe rota de baixar para a equipe: não é botão
+     escondido na tela, é endereço que não existe no servidor. O envio
+     compara o destino com o telefone gravado **dentro do documento** e
+     recusa qualquer outro número, então ninguém redireciona material de
+     cliente. O cliente abre com link de 14 dias e confirma os 4 últimos
+     dígitos do WhatsApp dele, para que o link encaminhado por engano não
+     abra sozinho. Abrir é a prova de que chegou, e fecha sozinha a
+     obrigação de entrega, sem ninguém perguntar "recebeu?".
+
+193. **O link tem prazo, a casa não.** Link solto que vive para sempre é
+     vazamento esperando acontecer, mas o cliente não pode perder o
+     material por causa disso. Então são dois endereços com papéis
+     diferentes: o do documento é o convite, vence em 14 dias e serve para
+     o WhatsApp; o do portal é a casa, não expira e guarda tudo o que já
+     foi enviado para aquele cliente. A mensagem do WhatsApp leva os dois,
+     e diz qual é qual.
+
+194. **O visual, refeito para quem enxerga antes de ler.** Material de
+     consultoria costuma parecer documento de cartório. Agora o cabeçalho
+     é breu com o símbolo e o nome em ouro, o título grande, "preparado
+     para" com o nome do cliente, e a identificação do documento em fonte
+     de máquina. O corpo é claro, para ler e imprimir, com título de
+     seção sob um traço de ouro, caixa de destaque e tabela sem grade.
+     Celular primeiro, porque o endereço chega pelo WhatsApp e é ali que
+     ele abre. Sem JavaScript nenhum: se o navegador for velho, abre igual.
+
+195. **A trilha de estado, dentro do próprio documento.** Enviado, aberto
+     por você, aprovado, com a data de cada passo. O cliente não precisa
+     perguntar em que pé está, e ela não precisa mandar mensagem contando.
+
+196. **No portal, cada tipo tem o seu desenho.** Proposta, contrato, laudo,
+     agenda e recibo têm ícone próprio, desenhado à mão em SVG, sobre selo
+     breu, ouro quando é novo e verde quando está aprovado. Cliente visual
+     reconhece a forma antes de ler o nome. O estado aparece na etiqueta:
+     novo, lido, aprovado.
+
+197. **Três defeitos de desenho corrigidos por medição, não por opinião.**
+     A barra de ações com três botões comia 40% da tela do celular ·
+     virou aprovar na linha de cima e as duas secundárias dividindo a de
+     baixo. O texto ficava colado à esquerda da folha, deixando um vazio à
+     direita no computador · a coluna passou a ser centrada. E o cartão de
+     título comprido no portal empurrava o ícone para uma linha só dele ·
+     base zero em vez de automática, e o título quebra dentro do cartão
+     em vez de derrubá-lo.
+
+198. **Aprovar virou a ação de ouro.** Estava em ouro o botão de baixar,
+     que é o que ela menos quer estimular. Agora o botão em ouro é aprovar,
+     baixar fica ao lado em branco, e o caminho para o portal é um link
+     discreto. Depois de aprovado, o botão some e no lugar fica a data.
+
+199. **Uma armadilha fechada antes de virar problema:** o guarda do envio
+     lia o campo `para`, e quem cria o documento manda `telefone`. Quem
+     fosse ligar a tela usaria o nome errado e o guarda não dispararia.
+     Passou a aceitar os dois nomes.
+
+200. **Travessão que ainda vazava para o cliente.** Campo vazio no aviso do
+     WhatsApp virava travessão. Agora vira "a definir".
