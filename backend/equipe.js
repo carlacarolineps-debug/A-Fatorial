@@ -37,6 +37,7 @@ const crypto = require('crypto');
    o backup pega a pasta errada e uma reinstalação apaga tudo. O
    atendente.js já respeitava esta variável e este arquivo não, o que
    deixaria os dados da equipe num lugar e as conversas em outro. */
+const auditoria = require('./auditoria');
 const DIR = process.env.DADOS_DIR || path.join(__dirname, 'dados');
 const F_ESTADO = path.join(DIR, 'estado.json');
 const F_CONTAS = path.join(DIR, 'contas.json');
@@ -293,9 +294,23 @@ function montar(app, cfg) {
     if (mudancas.length > 500) return res.status(413).json({ ok: false, erro: 'lote_grande' });
 
     const agora = new Date().toISOString();
-    const aceitos = [], conflitos = [];
+    const aceitos = [], conflitos = [], barrados = [];
+
+    /* TODA gravação do sistema passa por esta função. É o único lugar
+       onde precisa existir porteiro e trilha, e é por isso que a
+       auditoria fica completa sem espalhar chamada por dezenas de
+       telas: quem não passa por aqui não grava nada. */
     mudancas.forEach(m => {
       if (!m || !m.col) return;
+
+      const porta = auditoria.permitir(req, req.eu,
+        m.apagado ? 'apagar' : 'gravar', m.col,
+        (m.col + (m.id ? ':' + m.id : '')), (req.body || {}).liberacao);
+      if (!porta.ok) {
+        barrados.push({ col: m.col, id: m.id, pedido: porta.pedido.id,
+                        motivo: porta.regra.motivo || 'ação sob autorização' });
+        return;
+      }
       const ehDoc = !m.id;
       const chave = ehDoc ? m.col : (m.col + ':' + m.id);
       const bolsa = ehDoc ? ESTADO.docs : ESTADO.registros;
@@ -304,8 +319,13 @@ function montar(app, cfg) {
       if (m.apagado) {
         if (!atual) { aceitos.push({ col: m.col, id: m.id, rev: ESTADO.rev }); return; }
         ESTADO.rev++;
+        const eraApagado = atual.dado;
         bolsa[chave] = { col: m.col, id: m.id, dado: null, apagado: true, rev: ESTADO.rev, por: req.eu.id, porNome: req.eu.nome, em: agora };
         aceitos.push({ col: m.col, id: m.id, rev: ESTADO.rev });
+        /* apagar é a ação que mais precisa de "antes": é a única em que
+           o dado deixa de existir e só a trilha pode trazer de volta */
+        auditoria.registrar(req, req.eu, { acao: 'apagar', col: m.col, alvo: chave,
+                                           antes: eraApagado, depois: null });
         return;
       }
 
@@ -315,6 +335,8 @@ function montar(app, cfg) {
         const base = m.valor !== undefined ? m.valor : aplicarRemendo({}, m.remendo || {}).valor;
         bolsa[chave] = { col: m.col, id: m.id, dado: base, rev: ESTADO.rev, por: req.eu.id, porNome: req.eu.nome, em: agora };
         aceitos.push({ col: m.col, id: m.id, rev: ESTADO.rev });
+        auditoria.registrar(req, req.eu, { acao: 'criar', col: m.col, alvo: chave,
+                                           antes: null, depois: base });
         return;
       }
 
@@ -328,15 +350,22 @@ function montar(app, cfg) {
           return;
         }
         ESTADO.rev++;
+        const eraSub = atual.dado;
         bolsa[chave] = { col: m.col, id: m.id, dado: m.valor, rev: ESTADO.rev, por: req.eu.id, porNome: req.eu.nome, em: agora };
         aceitos.push({ col: m.col, id: m.id, rev: ESTADO.rev });
+        auditoria.registrar(req, req.eu, { acao: 'substituir', col: m.col, alvo: chave,
+                                           antes: eraSub, depois: m.valor });
         return;
       }
 
       // remendo por campo: junta com o que já existe
       const antes = desatualizado ? JSON.parse(JSON.stringify(atual.dado || {})) : null;
+      const eraRemendo = JSON.parse(JSON.stringify(atual.dado || {}));
       const { valor, tocados } = aplicarRemendo(atual.dado || {}, m.remendo || {});
       ESTADO.rev++;
+      auditoria.registrar(req, req.eu, { acao: 'alterar', col: m.col, alvo: chave,
+                                         campos: tocados.slice(0, 20),
+                                         antes: eraRemendo, depois: valor });
       bolsa[chave] = { col: m.col, id: m.id, dado: valor, rev: ESTADO.rev, por: req.eu.id, porNome: req.eu.nome, em: agora };
       aceitos.push({ col: m.col, id: m.id, rev: ESTADO.rev, juntado: desatualizado });
 
@@ -359,12 +388,39 @@ function montar(app, cfg) {
     // depois da junção o registro carrega também a contribuição dos outros, e
     // filtrar "o que é meu" faria justamente quem gravou por último nunca
     // receber o que o colega tinha escrito
-    res.json({ ok: true, rev: ESTADO.rev, aceitos, conflitos, mudancas: desdeRev(Number(desde || 0) || 0) });
+    /* `barrados` volta junto: sem isso a pessoa continuaria digitando
+       achando que gravou, e só descobriria amanhã que nada foi salvo. */
+    res.json({ ok: true, rev: ESTADO.rev, aceitos, conflitos, barrados,
+               mudancas: desdeRev(Number(desde || 0) || 0) });
   });
 
   app.get('/equipe/quem', exigeLogin, (_req, res) => res.json({ ok: true, online: online() }));
 
   app.get('/equipe/log', exigeLogin, (_req, res) => res.json({ ok: true, log: ESTADO.log.slice(0, 80) }));
+
+  /* ── governança ──
+     O desfazer precisa saber escrever no estado, e só este arquivo sabe.
+     Por isso a auditoria recebe a função em vez de importar o estado:
+     ela cuida da política, este arquivo cuida do dado. */
+  auditoria.montar(app, {
+    exigeLogin, exigeAdmin,
+    aplicarDesfazer: (r, eu) => {
+      if (!r.col || !r.alvo) return false;
+      const id = String(r.alvo).split(':').slice(1).join(':');
+      const ehDoc = !id;
+      const bolsa = ehDoc ? ESTADO.docs : ESTADO.registros;
+      ESTADO.rev++;
+      if (r.antes === null || r.antes === undefined) {
+        bolsa[r.alvo] = { col: r.col, id, dado: null, apagado: true, rev: ESTADO.rev,
+                          por: eu.id, porNome: eu.nome, em: new Date().toISOString() };
+      } else {
+        bolsa[r.alvo] = { col: r.col, id, dado: r.antes, rev: ESTADO.rev,
+                          por: eu.id, porNome: eu.nome, em: new Date().toISOString() };
+      }
+      salvar();
+      return true;
+    }
+  });
 
   /* — contas (só quem é admin) — */
   app.get('/equipe/contas', exigeLogin, exigeAdmin, (_req, res) => {

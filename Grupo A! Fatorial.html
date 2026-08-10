@@ -2236,6 +2236,37 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
   .pr-prazo{margin-left:0;width:100%;}
 }
 /* ═══ EQUIPE · presença e sincronização ═══ */
+/* ═══ MARCA D'ÁGUA DE QUEM ESTÁ VENDO ═══
+   Print não se impede em navegador. Nenhum sistema web impede, nem os
+   grandes: bloquear PrintScreen, botão direito e seleção é contornável
+   em segundos e não faz nada contra uma foto de celular.
+
+   O que existe de verdade é mudar o incentivo. Com o nome, o e-mail e a
+   hora repetidos por cima da tela, qualquer print que vaze aponta para
+   quem o tirou. A pessoa sabe disso antes de tirar, e é aí que a marca
+   funciona: ela não impede o print, ela impede o anonimato.
+
+   pointer-events:none para não atrapalhar o trabalho, e opacidade baixa
+   o bastante para ler por baixo e alta o bastante para sobreviver a uma
+   captura e a uma impressão. */
+#dagua{position:fixed;inset:0;z-index:9998;pointer-events:none;display:none;
+  overflow:hidden;mix-blend-mode:multiply;}
+#dagua.on{display:block;}
+#dagua .lin{position:absolute;white-space:nowrap;font-size:12px;font-weight:600;
+  letter-spacing:.14em;color:rgba(20,20,30,.085);transform:rotate(-26deg);
+  transform-origin:left center;}
+@media print{ #dagua{display:block!important;} #dagua .lin{color:rgba(20,20,30,.20);} }
+
+/* ═══ AVISO DE AÇÃO BARRADA ═══ */
+#gov-barrado{position:fixed;left:50%;top:22px;transform:translate(-50%,-14px);z-index:500;
+  max-width:min(34rem,92vw);padding:13px 17px;border-radius:13px;
+  border:1px solid var(--kb-c8);background:var(--panel);color:var(--ink);
+  font-size:12.5px;line-height:1.55;box-shadow:0 16px 44px rgba(0,0,0,.34);
+  opacity:0;pointer-events:none;transition:.22s;}
+#gov-barrado.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
+#gov-barrado b{color:var(--kb-c8);display:block;margin-bottom:3px;}
+#gov-barrado small{display:block;margin-top:6px;color:var(--ink-faint);font-size:11.5px;}
+
 /* ═══ QUEM ESTÁ NESTE REGISTRO AGORA ═══
    A marca no cartão precisa ser vista de canto de olho, sem competir com
    o conteúdo: um ponto que pulsa e as iniciais. Quem quiser o nome passa
@@ -24228,6 +24259,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             if(!r.ok) throw new Error('HTTP '+r.status);
             let j=await r.json();
             SYNC.estado='ok'; SYNC.ultimoErro=''; SYNC.ultimaTroca=Date.now();
+            if(j.barrados&&j.barrados.length) govBarrado(j.barrados);
             if(j.conflitos&&j.conflitos.length) syncReconciliar(j.conflitos);
             if(j.mudancas&&j.mudancas.length) syncAplicar(j.mudancas);
             SYNC.rev=j.rev||SYNC.rev;
@@ -24270,7 +24302,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             SYNC.online=j.online||[];
             if(j.mudancas&&j.mudancas.length) syncAplicar(j.mudancas);
             SYNC.rev=j.rev||SYNC.rev;
-            syncBarra(); syncFocoVigiar(); syncFocoPintar();
+            syncBarra(); syncFocoVigiar(); syncFocoPintar(); daguaPintar();
           }catch(e){
             SYNC.estado='offline'; SYNC.ultimoErro=String(e.message||e); syncBarra();
           }
@@ -24375,7 +24407,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             if (p2 && topo) p2.scrollTop = topo;
             if (topoJanela) window.scrollTo(0, topoJanela);
             /* o redesenho apaga as marcas junto com o resto: repõe */
-            try{ syncFocoPintar(); }catch(e){}
+            try{ syncFocoPintar(); daguaPintar(); }catch(e){}
           });
         }
 
@@ -24400,6 +24432,60 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         function syncCfgSalvar(){
           try{ localStorage.setItem('af_sync', JSON.stringify({url:SYNC.url, token:SYNC.token,
                usuario:SYNC.usuario, rev:SYNC.rev, reentrada:SYNC.reentrada})); }catch(e){}
+        }
+
+
+        /* ══════════════════════════════════════════════════════════════
+           MARCA D'ÁGUA E AVISO DE BLOQUEIO
+           ──────────────────────────────────────────────────────────────
+           As duas coisas que o navegador PODE fazer por segurança. Todo
+           o resto (quem pode o quê, o que fica registrado, o que é
+           barrado) é decidido no servidor, porque tudo que é decidido
+           aqui é enfeite: quem abre o console passa por cima.
+           ══════════════════════════════════════════════════════════════ */
+
+        /* Telas onde há dado de cliente. Fora delas a marca não aparece,
+           para não poluir o trabalho interno. */
+        const DAGUA_TELAS = ['funil','propostas','portal','financeiro','fin360','caixa',
+                             'valuation','franquia','preco','meusleads','entregaveis','demandas'];
+
+        function daguaPintar(){
+          let el = document.getElementById('dagua');
+          if (!el){ el = document.createElement('div'); el.id = 'dagua';
+                    el.setAttribute('aria-hidden','true'); document.body.appendChild(el); }
+          const u = (typeof AUTH!=='undefined' && AUTH.user) || {};
+          const eu = (SYNC.usuario && SYNC.usuario.nome) || u.nome || u.apelido || 'sessão local';
+          const id = (SYNC.usuario && SYNC.usuario.email) || u.login || '';
+          const q = new Date();
+          const carimbo = eu + (id ? ' · ' + id : '') + ' · ' +
+            q.toLocaleDateString('pt-BR') + ' ' + q.toLocaleTimeString('pt-BR').slice(0,5) +
+            ' · A! FATORIAL CONFIDENCIAL';
+          if (el.getAttribute('data-c') !== carimbo){
+            el.setAttribute('data-c', carimbo);
+            let h = '';
+            for (let y = -10; y < 130; y += 11)
+              for (let x = -10; x < 120; x += 34)
+                h += '<span class="lin" style="left:' + x + '%;top:' + y + '%">' + uiEsc(carimbo) + '</span>';
+            el.innerHTML = h;
+          }
+          const tela = syncTelaAtual();
+          el.classList.toggle('on', DAGUA_TELAS.indexOf(tela) >= 0);
+        }
+
+        /* O servidor recusou. A pessoa precisa saber AGORA, senão segue
+           digitando achando que salvou. */
+        function govBarrado(lista){
+          if (!lista || !lista.length) return;
+          let el = document.getElementById('gov-barrado');
+          if (!el){ el = document.createElement('div'); el.id = 'gov-barrado';
+                    el.setAttribute('role','status'); document.body.appendChild(el); }
+          const um = lista[0];
+          el.innerHTML = '<b>Esta ação precisa de autorização</b>' +
+            uiEsc(um.motivo || 'A direção precisa liberar antes.') +
+            '<small>O pedido já foi enviado para a direção. Nada foi gravado, e o que você escreveu continua na tela.</small>';
+          el.classList.add('on');
+          clearTimeout(el._t);
+          el._t = setTimeout(function(){ el.classList.remove('on'); }, 9000);
         }
 
         /* ══════════════════════════════════════════════════════════════
