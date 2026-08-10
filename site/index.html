@@ -829,7 +829,10 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
   transition:right var(--med) var(--curva)}
 .nav-menu a:hover{color:var(--ciano)}
 .nav-menu a:hover::after{right:0}
-@media(max-width:940px){.nav-menu a{display:none}}
+/* na folha estreita só ficam a marca e o Entrar. O botão da Carla entra
+   na regra junto com os links: é <button> e não <a>, e por isso escapava
+   dela, empurrando o menu 39px para fora da tela. */
+@media(max-width:940px){.nav-menu a,.nav-cc{display:none}}
 #barra{position:fixed;top:0;left:0;height:2px;z-index:100;width:0;
   background:linear-gradient(90deg,var(--violeta),var(--ciano) 34%,var(--ouro) 74%,var(--ouro-alta));
   box-shadow:0 0 14px rgba(95,227,216,.55);transition:width .1s linear}
@@ -1412,7 +1415,7 @@ footer{color:var(--creme-2);padding-block:var(--e-8) var(--e-5);
 .foot .marca .mt{color:#fff}
 .foot .marca .ms{color:var(--ouro-alta)}
 .foot-fim{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-top:1.2rem;
-  font-family:var(--mono);font-size:var(--t-11);letter-spacing:.06em;color:var(--creme-2);opacity:.75}
+  font-family:var(--mono);font-size:var(--t-11);letter-spacing:.06em;color:var(--creme-2);opacity:.75;padding-bottom:3.6rem}
 @media(max-width:860px){.foot{grid-template-columns:1fr 1fr}}
 @media(max-width:540px){.foot{grid-template-columns:1fr}}
 
@@ -1523,6 +1526,37 @@ footer{color:var(--creme-2);padding-block:var(--e-8) var(--e-5);
   .vaz>div{padding-block:1.2rem}
 }
 
+
+
+/* ── A SETA DE VOLTAR AO TOPO ──
+   A página do grupo tem dezesseis seções e mais de dezesseis mil pixels
+   de rolagem. Quem chega ao fim e quer rever alguma coisa hoje precisa
+   arrastar tudo de volta, porque o menu leva a âncoras mas não ao
+   começo.
+   Aparece perto do fim e não desde o início: botão que fica a viagem
+   inteira na tela é ruído, e no começo não há para onde voltar. Fica à
+   esquerda porque a direita é do WhatsApp, e o par não pode disputar o
+   mesmo canto. */
+#ao-topo{position:fixed;left:1.5rem;bottom:1.5rem;z-index:90;
+  display:flex;align-items:center;gap:.55rem;
+  padding:.7rem .95rem;border-radius:var(--r-pill);
+  font-family:var(--mono);font-size:var(--t-12);letter-spacing:.06em;
+  color:var(--ouro-alta);background:var(--vidro);
+  -webkit-backdrop-filter:var(--desfoque);backdrop-filter:var(--desfoque);
+  border:1px solid var(--ouro-fio);box-shadow:var(--alta-luz),0 .8rem 2rem rgba(0,0,0,.5);
+  opacity:0;transform:translateY(.7rem) scale(.96);pointer-events:none;
+  transition:opacity var(--med),transform var(--med),color var(--rap),border-color var(--rap)}
+#ao-topo.ver{opacity:1;transform:none;pointer-events:auto}
+#ao-topo svg{width:1.05rem;height:1.05rem;flex:none}
+#ao-topo:hover{color:#fff;border-color:var(--ouro)}
+/* do lado dela a seta é fúcsia, como todo o resto */
+body.na-carla #ao-topo{color:#ff9ac9;border-color:rgba(255,61,154,.3)}
+body.na-carla #ao-topo:hover{color:#fff;border-color:#ff3d9a}
+@media(max-width:560px){
+  #ao-topo{left:1rem;bottom:1rem;padding:.65rem}
+  #ao-topo span{display:none}
+}
+@media(prefers-reduced-motion:reduce){#ao-topo{transition:opacity var(--med)}}
 
 /* ── a ponte para a página da Carla ──
    Aparece três vezes no site do grupo: na seção do método, no texto das
@@ -1752,7 +1786,7 @@ body.na-carla #zap-cc{display:flex}
 }
 
 /* ── o rodapé dela ── */
-.cc-rodape{border-top:1px solid var(--acento-fio);padding-block:var(--e-7);
+.cc-rodape{border-top:1px solid var(--acento-fio);padding-block:var(--e-7) 5rem;
   position:relative;z-index:1}
 .cc-rodape-in{display:flex;justify-content:space-between;gap:var(--e-6);flex-wrap:wrap}
 .cc-rodape-in>div{display:flex;flex-direction:column;gap:.5rem;align-items:flex-start}
@@ -1771,6 +1805,11 @@ body.na-carla #zap-cc{display:flex}
 @media(max-width:620px){
   .cc-passos{grid-template-columns:1fr}
   #topo-cc .nav-menu a{display:none}
+  /* o botão de volta encolhe para a seta: com o texto inteiro ele
+     empurrava o cabeçalho 34px para fora numa tela de 360 */
+  .cc-bt-voltar{font-size:0;padding:.5rem .7rem}
+  .cc-bt-voltar::before{content:'←';font-family:var(--mono);font-size:1rem}
+  .cc-marca-t span{display:none}
   .cc-fim-a{align-items:flex-start}
   .cc-rodape-in>div:last-child{align-items:flex-start;text-align:left}
 }
@@ -2691,6 +2730,14 @@ body.na-carla #zap-cc{display:flex}
 </div>
 
 
+<button id="ao-topo" aria-label="Voltar ao início da página">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>
+  </svg>
+  <span>Ao topo</span>
+</button>
+
 <button id="zap" data-zap data-msg="Olá! Vim pelo site da A! Fatorial e quero conversar sobre a minha empresa." aria-label="Falar no WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.26 8.26 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 4.54 0 8.24 3.7 8.24 8.24s-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.51.11-.11.25-.29.37-.43.13-.15.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.13.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.16-.47-.28z"/></svg>
   <span>Falar com a A! Fatorial</span>
@@ -2908,6 +2955,34 @@ function varrer(){
   medir();
 })();
 
+/* ═══ A SETA DE VOLTAR AO TOPO ═══
+   Aparece quando falta menos de uma tela e meia para o fim, que é o
+   momento em que a pessoa já leu e pode querer rever. Some ao subir.
+   Um só ouvinte de rolagem, estrangulado em requestAnimationFrame,
+   mexendo só em classe. */
+(function(){
+  var bt=document.getElementById('ao-topo'); if(!bt) return;
+  var manso=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function ver(){
+    var fim=document.documentElement.scrollHeight-window.innerHeight;
+    var perto=(fim-window.scrollY)<window.innerHeight*1.5;
+    bt.classList.toggle('ver', perto && fim>window.innerHeight);
+  }
+  var esperando=false;
+  window.addEventListener('scroll',function(){
+    if(esperando) return; esperando=true;
+    requestAnimationFrame(function(){ esperando=false; ver(); });
+  },{passive:true});
+  window.addEventListener('resize',ver,{passive:true});
+  bt.addEventListener('click',function(){
+    window.scrollTo({top:0,behavior:manso?'auto':'smooth'});
+    var foco=document.querySelector('body.na-carla #topo-cc a, #topo a');
+    if(foco) setTimeout(function(){ try{foco.focus({preventScroll:true});}catch(e){} }, manso?0:600);
+  });
+  window.AF_SETA=ver;
+  ver();
+})();
+
 /* ═══ A AGULHA DA BÚSSOLA ═══
    Movida pela rolagem, porque o que ela mostra é posição, não tempo.
    Ao atravessar a seção do método a agulha vai de E (0°) para M (120°)
@@ -2967,6 +3042,7 @@ function varrer(){
        página anterior */
     if(window.AF_CEU && window.AF_CEU.remedir) window.AF_CEU.remedir();
     if(window.AF_BUSSOLA) window.AF_BUSSOLA();
+    if(window.AF_SETA) window.AF_SETA();
     try{ document.title = naCarla?TITULO_CARLA:TITULO_GRUPO; }catch(e){}
     try{ history.replaceState(null,'',naCarla?'#carla':'#inicio'); }catch(e){}
   }

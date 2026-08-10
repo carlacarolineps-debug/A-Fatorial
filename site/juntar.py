@@ -177,29 +177,38 @@ doc = f"""<!DOCTYPE html>
 <!-- ══ O INTERRUPTOR ══ vem por último, porque precisa vencer os dois ══ -->
 <style>
 /* ══════════════════════════════════════════════════════════════════════
-   ARQUIVO ÚNICO — o site e o sistema no mesmo documento
+   ARQUIVO ÚNICO · o site e o sistema no mesmo documento
    ──────────────────────────────────────────────────────────────────────
    Duas aplicações completas convivem aqui. O SISTEMA ficou intocado, no
    escopo global, exatamente como já funcionava. O SITE foi embrulhado em
-   #porta e todo o CSS dele levou esse prefixo — inclusive os tokens, que
+   #porta e todo o CSS dele levou esse prefixo, inclusive os tokens, que
    saíram do :root. Sem isso, 37 nomes de classe repetidos fariam uma
    pintar a outra.
 
    O detalhe que quase passou: o sistema declara
    body{{display:flex;height:100vh;overflow:hidden}} porque é um painel de
-   tela cheia. Com isso o site não rolava — a página inteira ficava presa
+   tela cheia. Com isso o site não rolava. A página inteira ficava presa
    na primeira dobra e nada revelava. Por isso o corpo troca de regime
    junto com o lado, e este bloco vem por último, para vencer os dois.
 
      .na-porta   → o site: corpo que rola, fundo breu
      .no-sistema → o sistema: painel de tela cheia
 
-   Gerado por site/juntar.py — não edite este arquivo à mão.
+   Gerado por site/juntar.py, não edite este arquivo à mão.
    ══════════════════════════════════════════════════════════════════════ */
 html{{scroll-behavior:smooth}}
 @media(prefers-reduced-motion:reduce){{html{{scroll-behavior:auto}}}}
 
-#porta{{display:block;min-height:100vh;position:relative;letter-spacing:normal}}
+/* overflow:visible é obrigatório e custou um diagnóstico: o prefixador
+   reescreve o body{{overflow-x:hidden}} do site como #porta{{overflow-x:hidden}},
+   e overflow-x:hidden com overflow-y:visible computa para overflow-y:auto.
+   Com isso o #porta virava contêiner de rolagem, e o cabeçalho sticky
+   passava a grudar num scroll que nunca acontece: ele subia junto com a
+   página e sumia. No site sozinho o mesmo CSS funciona, porque ali quem
+   tem o overflow é o próprio body, que É o contêiner de rolagem. O corte
+   horizontal continua existindo, uma camada acima, no body.na-porta. */
+#porta{{display:block;min-height:100vh;position:relative;letter-spacing:normal;
+  overflow:visible}}
 
 body.na-porta{{display:block;height:auto;min-height:100vh;overflow-x:hidden;overflow-y:visible;
   background:var(--breu,#0a0a09)}}
