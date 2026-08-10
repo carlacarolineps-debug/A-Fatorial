@@ -55,7 +55,12 @@ function gravar(arq, valor) {
 
 let ESTADO = ler(F_ESTADO, { rev: 0, registros: {}, docs: {}, log: [] });
 let CONTAS = ler(F_CONTAS, { usuarios: [], sessoes: {}, seq: 1 });
-const PRESENCA = new Map();                    // uid -> {nome, tela, em}
+/* uid -> {nome, tela, foco, em}
+   `foco` é o registro que a pessoa está com aberto AGORA, no formato
+   "leads:L1". Sem ele a presença só sabia dizer em que tela cada um
+   está, o que não evita a colisão que importa: duas pessoas dentro do
+   MESMO lead, cada uma achando que é a única. */
+const PRESENCA = new Map();
 
 let gravarPendente = null;
 /** Junta várias gravações próximas em uma só, sem perder nada. */
@@ -139,7 +144,22 @@ function online() {
   const fora = [];
   PRESENCA.forEach((v, k) => { if (new Date(v.em).getTime() < corte) fora.push(k); });
   fora.forEach(k => PRESENCA.delete(k));
-  return [...PRESENCA.entries()].map(([uid, v]) => ({ uid, nome: v.nome, tela: v.tela, em: v.em }));
+  return [...PRESENCA.entries()].map(([uid, v]) => ({ uid, nome: v.nome, tela: v.tela, foco: v.foco || '', em: v.em }));
+}
+
+/* Marca onde a pessoa está. Chamada pelo GET e pelo POST de dados, que
+   já acontecem de qualquer jeito: a presença pega carona e não gera
+   nenhuma requisição a mais. */
+function marcarPresenca(eu, tela, foco) {
+  const antes = PRESENCA.get(eu.id) || {};
+  PRESENCA.set(eu.id, {
+    nome: eu.nome,
+    tela: tela !== undefined && tela !== null ? String(tela).slice(0, 40) : (antes.tela || ''),
+    /* string vazia é "fechei o registro" e precisa apagar o foco; só
+       undefined quer dizer "não estou dizendo nada sobre isso agora" */
+    foco: foco !== undefined && foco !== null ? String(foco).slice(0, 60) : (antes.foco || ''),
+    em: new Date().toISOString()
+  });
 }
 
 /* ═══ ROTAS ═══ */
@@ -259,14 +279,16 @@ function montar(app, cfg) {
   /* — o que mudou desde a versão que eu tenho — */
   app.get('/equipe/dados', exigeLogin, (req, res) => {
     const desde = Number(req.query.desde || 0) || 0;
-    if (req.query.tela) PRESENCA.set(req.eu.id, { nome: req.eu.nome, tela: String(req.query.tela).slice(0, 40), em: new Date().toISOString() });
+    if (req.query.tela !== undefined || req.query.foco !== undefined)
+      marcarPresenca(req.eu, req.query.tela, req.query.foco);
     res.json({ ok: true, rev: ESTADO.rev, mudancas: desdeRev(desde), online: online() });
   });
 
   /* — o que eu mudei — */
   app.post('/equipe/dados', exigeLogin, (req, res) => {
     const { desde, mudancas, tela } = req.body || {};
-    if (tela) PRESENCA.set(req.eu.id, { nome: req.eu.nome, tela: String(tela).slice(0, 40), em: new Date().toISOString() });
+    if (tela !== undefined || (req.body || {}).foco !== undefined)
+      marcarPresenca(req.eu, tela, (req.body || {}).foco);
     if (!Array.isArray(mudancas)) return res.status(400).json({ ok: false, erro: 'formato' });
     if (mudancas.length > 500) return res.status(413).json({ ok: false, erro: 'lote_grande' });
 

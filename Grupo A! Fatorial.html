@@ -2236,6 +2236,31 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
   .pr-prazo{margin-left:0;width:100%;}
 }
 /* ═══ EQUIPE · presença e sincronização ═══ */
+/* ═══ QUEM ESTÁ NESTE REGISTRO AGORA ═══
+   A marca no cartão precisa ser vista de canto de olho, sem competir com
+   o conteúdo: um ponto que pulsa e as iniciais. Quem quiser o nome passa
+   o mouse. Dentro do registro aberto, aí sim por extenso, porque ali a
+   informação muda o que a pessoa vai fazer nos próximos segundos. */
+.foco-selo{position:absolute;top:-9px;right:12px;z-index:3;display:inline-flex;align-items:center;
+  gap:4px;padding:2px 8px 2px 6px;border-radius:20px;background:var(--panel);
+  border:1px solid var(--kb-c4);box-shadow:0 3px 10px rgba(0,0,0,.22);cursor:default;}
+.foco-selo i{width:6px;height:6px;border-radius:50%;background:var(--kb-c4);flex:none;
+  animation:focoPulsa 1.8s ease-in-out infinite;}
+.foco-selo b{font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--kb-c4);}
+@keyframes focoPulsa{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.78)}}
+@media(prefers-reduced-motion:reduce){.foco-selo i{animation:none}}
+.com-foco{outline:1px solid color-mix(in srgb,var(--kb-c4) 45%,transparent);outline-offset:2px;}
+
+#foco-junto{position:fixed;left:50%;bottom:22px;transform:translate(-50%,14px);z-index:400;
+  display:flex;align-items:flex-start;gap:9px;max-width:min(38rem,92vw);
+  padding:11px 15px;border-radius:13px;border:1px solid var(--kb-c4);
+  background:var(--panel);color:var(--ink);font-size:12px;line-height:1.5;
+  box-shadow:0 14px 40px rgba(0,0,0,.34);opacity:0;pointer-events:none;transition:.22s;}
+#foco-junto.on{opacity:1;transform:translate(-50%,0);}
+#foco-junto i{width:7px;height:7px;border-radius:50%;background:var(--kb-c4);flex:none;margin-top:5px;
+  animation:focoPulsa 1.8s ease-in-out infinite;}
+#foco-junto b{color:var(--kb-c4);}
+
 #sync-selo{display:none;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;
   border:1px solid var(--line);background:var(--panel-soft);font-size:11px;color:var(--ink-soft);
   cursor:default;white-space:nowrap;}
@@ -10623,6 +10648,7 @@ $('en-form').addEventListener('submit', function(ev){
         /* ===== CLIENT OVERLAY ===== */
         function cliAbrir(id){
           let p=DB.propostas.find(x=>x.id===id); if(!p)return;
+          try{ syncFoco('propostas', id, p.empresa||''); }catch(e){}
           p.views++; if(p.status!=='aprovada')p.status='aberta'; cliActive=p;
           document.getElementById('cli-emp').innerText=p.empresa;
           renderPropostaSite(p);
@@ -15631,6 +15657,7 @@ $('en-form').addEventListener('submit', function(ev){
         }
         function kbEditar(id){
           let t=KANBAN.tarefas.find(x=>x.id===id); if(!t) return;
+          try{ syncFoco('kanban', id, t.titulo||''); }catch(e){}
           document.getElementById('kb-modal-titulo').innerText='Editar tarefa';
           document.getElementById('kb-f-id').value=t.id;
           document.getElementById('kb-f-titulo').value=t.titulo||'';
@@ -16500,6 +16527,7 @@ $('en-form').addEventListener('submit', function(ev){
         function leadPerdaAbrir(id){
           _leadPerda=id;
           let l=DB.leads.find(x=>x.id===id); if(!l) return;
+          try{ syncFoco('leads', id, l.nome||''); }catch(e){}
           document.getElementById('lp-nome').innerHTML='<b>'+uiEsc(l.nome)+'</b>'+(l.empresa?' · '+uiEsc(l.empresa):'')+' · '+brl(l.valor||0);
           document.getElementById('lp-opts').innerHTML=uiOpts('lp-motivo', LEAD_MOTIVOS, l.motivo||'preco');
           document.getElementById('lp-obs').value=l.motivoObs||'';
@@ -17539,6 +17567,7 @@ $('en-form').addEventListener('submit', function(ev){
         function demEntregarAbrir(id){
           let d=DB.demandas.find(x=>x.id===id); if(!d) return;
           _demEntrega=id;
+          try{ syncFoco('demandas', id, d.titulo||d.nome||''); }catch(e){}
           document.getElementById('de-tit').innerHTML='<b>'+uiEsc(d.titulo)+'</b>';
           document.getElementById('de-checks').innerHTML=(d.entregaveis||[]).length
             ? (d.entregaveis||[]).map((e,i)=>`<label class="dm-check"><input type="checkbox" id="de-c${i}"> ${uiEsc(e)}</label>`).join('')
@@ -24063,7 +24092,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           ligado:false, estado:'desligado',   // desligado | conectando | ok | offline | erro
           rev:0, online:[], fila:[], sombra:{}, ultimoErro:'',
           empurrando:false, timer:null, ultimaTroca:0,
-          reentrada:'', reentrando:null
+          reentrada:'', reentrando:null,
+          foco:'', focoRotulo:''
         };
         /* Quais chaves são da empresa (vão para o servidor) e quais listas
            dentro de cada uma têm id, é isso que dá junção por registro. */
@@ -24186,7 +24216,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           try{
             let mudancas=lote.map(x=>({col:x.col, id:null, rev:SYNC.rev,
               valor:x.valor!==undefined?x.valor:undefined, remendo:x.remendo}));
-            const corpo=JSON.stringify({desde:SYNC.rev, tela:syncTelaAtual(), mudancas});
+            const corpo=JSON.stringify({desde:SYNC.rev, tela:syncTelaAtual(), foco:SYNC.foco||'', mudancas});
             let r=await fetch(SYNC.url+'/equipe/dados', {method:'POST', headers:syncCab(), body:corpo});
             /* 401 aqui quase nunca é "perdeu o acesso": é a sessão que
                sumiu do servidor. Reentra sozinho e refaz o envio. Só
@@ -24229,7 +24259,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         async function syncPuxar(){
           if(!SYNC.ligado) return;
           try{
-            const alvo=SYNC.url+'/equipe/dados?desde='+SYNC.rev+'&tela='+encodeURIComponent(syncTelaAtual());
+            const alvo=SYNC.url+'/equipe/dados?desde='+SYNC.rev+'&tela='+encodeURIComponent(syncTelaAtual())
+                       +'&foco='+encodeURIComponent(SYNC.foco||'');
             let r=await fetch(alvo, {headers:syncCab()});
             if(r.status===401 && await syncReentrar()) r=await fetch(alvo, {headers:syncCab()});
             if(r.status===401){ syncCair('A sessão da equipe encerrou. Entre de novo quando puder.'); return; }
@@ -24239,7 +24270,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             SYNC.online=j.online||[];
             if(j.mudancas&&j.mudancas.length) syncAplicar(j.mudancas);
             SYNC.rev=j.rev||SYNC.rev;
-            syncBarra();
+            syncBarra(); syncFocoVigiar(); syncFocoPintar();
           }catch(e){
             SYNC.estado='offline'; SYNC.ultimoErro=String(e.message||e); syncBarra();
           }
@@ -24343,6 +24374,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             const p2 = document.querySelector('.view.on');
             if (p2 && topo) p2.scrollTop = topo;
             if (topoJanela) window.scrollTo(0, topoJanela);
+            /* o redesenho apaga as marcas junto com o resto: repõe */
+            try{ syncFocoPintar(); }catch(e){}
           });
         }
 
@@ -24367,6 +24400,107 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         function syncCfgSalvar(){
           try{ localStorage.setItem('af_sync', JSON.stringify({url:SYNC.url, token:SYNC.token,
                usuario:SYNC.usuario, rev:SYNC.rev, reentrada:SYNC.reentrada})); }catch(e){}
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           QUEM ESTÁ NESTE REGISTRO AGORA
+           ──────────────────────────────────────────────────────────────
+           O remendo por campo já impede que uma pessoa apague o trabalho
+           da outra. O que ele não impede é o desperdício: duas pessoas
+           escrevendo a mesma proposta ao mesmo tempo, cada uma achando
+           que é a única, e uma delas jogando meia hora fora.
+
+           A presença já existia por tela. Aqui ela desce para o registro:
+           quem está com ESTE lead aberto agora.
+
+           Três decisões:
+
+           1. Pega carona. O foco vai junto com a requisição de
+              sincronização, que já acontece de qualquer jeito. Nenhuma
+              chamada nova, nenhum custo.
+           2. Pinta por varredura, não por render. Os cartões já têm
+              data-id, então a marca é aplicada por cima depois de
+              desenhar, e nenhuma das dezenas de funções de render precisa
+              saber que isto existe. Cartão novo entra sozinho.
+           3. Solta sozinho. Em vez de confiar que toda função de fechar
+              vai avisar (são muitas, e uma delas seria esquecida), o foco
+              é limpo quando não há mais modal na tela. Fechar pelo X,
+              pelo Esc ou clicando fora dá no mesmo.
+           ══════════════════════════════════════════════════════════════ */
+        function syncFoco(col, id, rotulo){
+          let novo = (col && id) ? (col + ':' + id) : '';
+          if (novo === SYNC.foco) return;
+          SYNC.foco = novo; SYNC.focoRotulo = rotulo || '';
+          /* avisa na hora: esperar o próximo ciclo deixaria a outra pessoa
+             entrar no mesmo registro nesse intervalo */
+          if (SYNC.ligado) syncPuxar();
+          syncFocoPintar();
+        }
+
+        /* Ninguém com modal aberto quer dizer ninguém dentro de registro. */
+        function syncFocoVigiar(){
+          if (!SYNC.foco) return;
+          let algum = [].slice.call(document.querySelectorAll('.modal.on')).some(function(m){
+            let s = getComputedStyle(m), r = m.getBoundingClientRect();
+            return s.display !== 'none' && s.visibility !== 'hidden' && r.width > 1 && r.height > 1;
+          });
+          if (!algum) syncFoco('', '');
+        }
+
+        /* Quem mais está com este registro aberto, sem contar eu. */
+        function syncFocoDeOutros(){
+          let eu = SYNC.usuario && SYNC.usuario.id, mapa = {};
+          (SYNC.online || []).forEach(function(p){
+            if (!p.foco || p.uid === eu) return;
+            (mapa[p.foco] = mapa[p.foco] || []).push(p.nome || 'alguém');
+          });
+          return mapa;
+        }
+
+        function syncIniciais(nome){
+          return String(nome || '?').trim().split(/\s+/).map(function(x){ return x[0]; })
+                 .slice(0, 2).join('').toUpperCase();
+        }
+
+        /* Passa por cima do que já foi desenhado. Não conhece nenhuma tela. */
+        function syncFocoPintar(){
+          let mapa = syncFocoDeOutros();
+          let porId = {};
+          Object.keys(mapa).forEach(function(k){ porId[k.split(':').pop()] = mapa[k]; });
+
+          [].slice.call(document.querySelectorAll('[data-id]')).forEach(function(el){
+            let quem = porId[el.getAttribute('data-id')];
+            let selo = el.querySelector(':scope > .foco-selo');
+            if (!quem){ if (selo) selo.remove(); el.classList.remove('com-foco'); return; }
+            el.classList.add('com-foco');
+            let txt = quem.join(', ') + (quem.length > 1 ? ' estão aqui agora' : ' está aqui agora');
+            if (!selo){
+              selo = document.createElement('span');
+              selo.className = 'foco-selo';
+              el.insertBefore(selo, el.firstChild);
+            }
+            if (selo.getAttribute('title') !== txt){
+              selo.setAttribute('title', txt);
+              selo.innerHTML = '<i></i>' + quem.map(function(n){
+                return '<b>' + syncIniciais(n) + '</b>'; }).join('');
+            }
+          });
+
+          /* e dentro do registro aberto, por extenso: no cartão a marca
+             avisa, aqui ela precisa dizer o nome de quem está junto */
+          let aviso = document.getElementById('foco-junto');
+          let comigo = SYNC.foco ? mapa[SYNC.foco] : null;
+          if (comigo && comigo.length){
+            if (!aviso){
+              aviso = document.createElement('div');
+              aviso.id = 'foco-junto';
+              document.body.appendChild(aviso);
+            }
+            aviso.innerHTML = '<i></i><span><b>' + comigo.join(', ') + '</b> ' +
+              (comigo.length > 1 ? 'estão' : 'está') +
+              ' neste mesmo registro agora. O que cada uma escrever em campos diferentes é somado; no mesmo campo, vale a última.</span>';
+            aviso.classList.add('on');
+          } else if (aviso){ aviso.classList.remove('on'); }
         }
 
         /* ── REENTRADA SILENCIOSA ──
