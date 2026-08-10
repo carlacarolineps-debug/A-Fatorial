@@ -224,8 +224,13 @@ function alternarTema(){
   var b = $('#btn-tema'); if(b) b.textContent = novo === 'escuro' ? '☀️' : '🌙';
 }
 function aplicarTemaSalvo(){
-  var t = 'claro';
-  try{ t = localStorage.getItem(CHAVE_TEMA) || 'claro'; }catch(e){}
+  var t = null;
+  try{ t = localStorage.getItem(CHAVE_TEMA); }catch(e){}
+  if(!t){
+    // sem escolha salva: segue o tema do sistema de quem está abrindo
+    t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ? 'escuro' : 'claro';
+  }
   document.documentElement.setAttribute('data-tema', t);
   var b = $('#btn-tema'); if(b) b.textContent = t === 'escuro' ? '☀️' : '🌙';
 }

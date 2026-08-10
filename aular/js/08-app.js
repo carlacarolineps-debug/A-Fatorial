@@ -265,4 +265,7 @@ function iniciar(){
     if(e.key === 'Escape') fecharModal();
   });
 }
-document.addEventListener('DOMContentLoaded', iniciar);
+/* Se os scripts entrarem depois que o documento já carregou (o que acontece
+   quando a página é montada num único arquivo), o DOMContentLoaded já passou. */
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+else iniciar();
