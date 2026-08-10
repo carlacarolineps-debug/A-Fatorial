@@ -3,7 +3,7 @@
 Escrito para ser seguido sem entender nada de programação. Cada passo diz
 exatamente onde clicar e o que tem que aparecer na tela quando dá certo.
 
-**Sobraram 3 passos.** Uns 25 minutos no total.
+**Sobraram 4 passos.** Uns 25 minutos no total.
 
 ---
 
@@ -98,6 +98,21 @@ etapas ainda não está ligada. Volte ao 1.1.
 
 5. Se houver **Minimum interval between emails**, deixe `60`
 6. **Save**
+
+> **Vai aparecer um aviso: "Check your SMTP provider".** Ele diz que o
+> provedor que você colocou é de e-mail pessoal, não transacional. É um
+> **aviso, não um erro**: pode salvar e seguir. O Supabase mostra isso para
+> qualquer Gmail, Outlook ou Yahoo.
+>
+> Escolhi o Gmail de propósito. Sem domínio próprio, um serviço de terceiro
+> mandando em nome de um `@gmail.com` não consegue provar que tem
+> autorização, e os provedores tratam como suspeito: cai no spam. Saindo do
+> próprio Gmail, o e-mail chega na caixa de entrada, porque não tem como
+> parecer falso.
+>
+> **Confira uma coisa:** o **Sender email** precisa ser exatamente igual ao
+> **Username** (`gestaogrupoa@gmail.com`). O Google obriga o e-mail a sair
+> como a conta autenticada, e se estiver diferente ele reescreve ou recusa.
 
 ### 2.2 O texto do e-mail
 

@@ -99,6 +99,15 @@ de Notas: você vai usar duas vezes, no passo B e no passo C.
 5. Se aparecer um campo **Minimum interval between emails**, deixe em `60`
 6. Clique em **Save**
 
+> **O aviso "Check your SMTP provider" vai aparecer.** Ele diz que o
+> provedor é de e-mail pessoal, não transacional. É aviso, não erro: salve
+> e siga. O Supabase mostra isso para todo Gmail, Outlook e Yahoo.
+>
+> O que ele está dizendo de verdade são três coisas, e nenhuma impede hoje:
+> o teto de 500 por dia; o Google pode segurar um envio em massa; e o
+> remetente é fixo, então o **Sender email** tem que ser exatamente igual ao
+> **Username**, senão o Google reescreve ou recusa.
+
 ## B.2 Deixar o texto do e-mail em português
 
 Com o SMTP ligado, os modelos ficam editáveis.
