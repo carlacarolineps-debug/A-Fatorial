@@ -290,6 +290,31 @@ require('./equipe').montar(app, {
   }
 });
 
+/* ── documentos que não viram arquivo ──
+   Precisa de quatro coisas de fora: registrar na trilha, provar
+   obrigação, mandar no WhatsApp e saber o próprio endereço público.
+   BASE_URL é obrigatório em produção: o link que vai para o cliente
+   precisa apontar para fora, e o servidor não tem como adivinhar o
+   domínio sozinho atrás de um proxy. */
+const auditoria = require('./auditoria');
+const obrigacoes = require('./obrigacoes');
+require('./documentos').montar(app, {
+  exigeLogin: (req, res, next) => {
+    const eu = req.eu || null;
+    if (eu) return next();
+    /* reaproveita a sessão da equipe: o módulo de documentos não precisa
+       saber como o login funciona */
+    const t = String(req.headers.authorization || '').replace(/^Bearer /, '');
+    const s = require('./equipe').sessao && require('./equipe').sessao(t);
+    if (!s) return res.status(401).json({ ok: false, erro: 'sessao_invalida' });
+    req.eu = s; next();
+  },
+  registrar: auditoria.registrar,
+  provar: obrigacoes.provar,
+  enviarZap: zapTexto,
+  baseUrl: () => process.env.BASE_URL || ('http://localhost:' + PORT)
+});
+
 /* A varredura roda sozinha. É ela que faz o papel de babá: sem isso,
    obrigação vencida só apareceria se alguém abrisse a tela. */
 setInterval(() => {

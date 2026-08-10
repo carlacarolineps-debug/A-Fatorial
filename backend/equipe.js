@@ -495,4 +495,16 @@ function recorta(obj, caminhos) {
   return out;
 }
 
-module.exports = { montar, _interno: { aplicarRemendo, hashSenha, senhaConfere, APAGAR, ehApagar } };
+/* Outros módulos precisam saber quem é a pessoa por trás do token sem
+   reimplementar o login. Uma função, um lugar: se a regra de sessão
+   mudar, muda aqui e vale para todos. */
+function sessao(token) {
+  const s = CONTAS.sessoes[token];
+  if (!s) return null;
+  const u = CONTAS.usuarios.find(x => x.id === s.uid && x.ativo !== false);
+  if (!u) return null;
+  s.ultimoEm = new Date().toISOString();
+  return u;
+}
+
+module.exports = { montar, sessao, _interno: { aplicarRemendo, hashSenha, senhaConfere, APAGAR, ehApagar } };
