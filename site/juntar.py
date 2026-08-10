@@ -131,6 +131,74 @@ def prefixa_css(css):
         i = j
     return ''.join(saida)
 
+# ─────────────────────────────── a barreira contra vazamento de classe
+
+def declaracoes_por_classe(css):
+    """Para cada nome de classe, o conjunto de propriedades que a folha
+    declara para ela. Usado para levantar a barreira abaixo."""
+    fora = {}
+    prof, i, n = 0, 0, len(css)
+    cabec_ini = 0
+    while i < n:
+        c = css[i]
+        if c == '{':
+            if prof == 0:
+                cabec = css[cabec_ini:i]
+                fim, p2 = i+1, 1
+                while fim < n and p2:
+                    if css[fim] == '{': p2 += 1
+                    elif css[fim] == '}': p2 -= 1
+                    fim += 1
+                interior = css[i+1:fim-1]
+                nome = cabec.strip()
+                if nome.startswith('@media') or nome.startswith('@supports'):
+                    for k, v in declaracoes_por_classe(interior).items():
+                        fora.setdefault(k, set()).update(v)
+                elif not nome.startswith('@'):
+                    props = set()
+                    for d in re.split(r';(?![^(]*\))', interior):
+                        if ':' in d and '{' not in d:
+                            props.add(d.split(':', 1)[0].strip().lower())
+                    props.discard('')
+                    for cls in re.findall(r'(?<![\w-])\.([a-zA-Z][\w-]*)', cabec):
+                        fora.setdefault(cls, set()).update(props)
+                i = fim
+                cabec_ini = i
+                continue
+        i += 1
+    return fora
+
+
+def barreira(css_sistema, marcacao_site):
+    """O CSS do sistema fica no escopo global, então toda classe que os
+    dois usam com o mesmo nome vaza do sistema para o site. A prefixação
+    protege o site quando ele declara a mesma propriedade; quando ele não
+    declara, o valor do sistema entra sem oposição.
+
+    Foi assim que .cat, que no sistema é uma lista com max-height:340px e
+    overflow:auto, transformou a tabela de serviços do site num quadrinho
+    de rolagem. Vinte e quatro nomes colidem hoje, e cada um é uma
+    armadilha esperando a próxima classe nova.
+
+    Esta barreira devolve ao valor de origem (revert) exatamente as
+    propriedades que o sistema declara para as classes que o site usa.
+    Fica ANTES das regras do site, então o que o site declara continua
+    valendo; some só o que vazou. É recalculada a cada build: classe nova
+    entra sozinha na conta.
+    """
+    usadas = set()
+    limpo = re.sub(r'<script>.*?</script>', '', marcacao_site, flags=re.S)
+    limpo = re.sub(r'<style>.*?</style>', '', limpo, flags=re.S)
+    for m in re.finditer(r'class="([^"]+)"', limpo):
+        usadas.update(m.group(1).split())
+    mapa = declaracoes_por_classe(css_sistema)
+    linhas = []
+    for cls in sorted(usadas & set(mapa)):
+        props = sorted(mapa[cls])
+        if props:
+            linhas.append(f'{RAIZ} .{cls}{{' + ';'.join(f'{p}:revert' for p in props) + '}')
+    return len(linhas), '\n'.join(linhas)
+
 # ─────────────────────────────────────────────────────────────── montagem
 
 site = f_site.read_text(encoding='utf-8')
@@ -139,15 +207,26 @@ sis  = f_sis.read_text(encoding='utf-8')
 # ATENÇÃO: o corpo precisa sair SEM os scripts. Da primeira vez eu tirei
 # só os <style> e deixei os <script> no corpo — aí o JS entrava duas
 # vezes e o sistema quebrava com "RH_ABAS has already been declared".
-css_site, site_s1  = blocos(site, 'style')
-js_site,  site_sem = blocos(site_s1, 'script')
-css_sis,  sis_s1   = blocos(sis, 'style')
-js_sis,   sis_sem  = blocos(sis_s1, 'script')
+#
+# E A ORDEM IMPORTA: os <script> saem PRIMEIRO. O sistema monta janelas
+# de impressão com document.write('<html>…<style>…</style>…'), e essas
+# folhas moram dentro de strings de JavaScript. Tirando <style> antes,
+# dez delas eram arrancadas de dentro do código e viravam CSS de verdade
+# no documento. Uma trazia p{text-align:justify}, que não tinha
+# concorrente e passou a justificar todo parágrafo do site: as palavras
+# abriam buracos entre si e a página parecia mal espaçada. As outras
+# nove traziam body{font-family:Georgia;max-width:760px;color:#111}, que
+# só não estragou tudo porque havia regra mais específica por cima.
+js_site,  site_s1  = blocos(site, 'script')
+css_site, site_sem = blocos(site_s1, 'style')
+js_sis,   sis_s1   = blocos(sis, 'script')
+css_sis,  sis_sem  = blocos(sis_s1, 'style')
 
 # o JS de uma linha que marca "o JS está vivo" volta primeiro, global
 js_site = [x for x in js_site if 'className+=" js"' not in x]
 
-css_site_p = '\n'.join(prefixa_css(c) for c in css_site)
+n_barreira, css_barreira = barreira('\n'.join(css_sis), site)
+css_site_p = css_barreira + '\n' + '\n'.join(prefixa_css(c) for c in css_site)
 corpo_site = corpo(site_sem)
 corpo_sis  = corpo(sis_sem)
 
@@ -261,4 +340,5 @@ window.voltarParaPorta=function(){{
 saida.write_text(doc, encoding='utf-8')
 print(f'{saida.name}: {len(doc)//1024} KB')
 print(f'  site  → CSS {sum(len(c) for c in css_site)//1024} KB prefixado · JS {sum(len(j) for j in js_site)//1024} KB')
+print(f'  barreira → {n_barreira} classes que o sistema também estiliza, devolvidas ao valor de origem')
 print(f'  sistema → CSS {sum(len(c) for c in css_sis)//1024} KB · JS {sum(len(j) for j in js_sis)//1024} KB')
