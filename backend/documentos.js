@@ -99,10 +99,16 @@ function criar(dados, eu) {
 
 function pagina(doc, quem, opcoes) {
   const o = opcoes || {};
-  const carimbo = quem + ' · ' + new Date().toLocaleString('pt-BR') + ' · CONFIDENCIAL';
+  /* O carimbo é longo e a folha é estreita: com passo curto as linhas se
+     atropelavam e viravam borrão em vez de marca legível. Passo largo o
+     bastante para caber o texto inteiro, e a data sem os segundos, que
+     não acrescentam nada e só somam largura. */
+  const q = new Date();
+  const carimbo = quem + ' · ' + q.toLocaleDateString('pt-BR') + ' ' +
+                  q.toLocaleTimeString('pt-BR').slice(0, 5) + ' · CONFIDENCIAL';
   let marcas = '';
-  for (let y = -6; y < 130; y += 11)
-    for (let x = -10; x < 120; x += 34)
+  for (let y = -6; y < 130; y += 15)
+    for (let x = -14; x < 130; x += 58)
       marcas += '<span style="position:absolute;left:' + x + '%;top:' + y + '%;white-space:nowrap;' +
         'transform:rotate(-26deg);transform-origin:left center;font:600 12px system-ui;' +
         'letter-spacing:.14em;color:rgba(20,20,30,.085)">' + esc(carimbo) + '</span>';
