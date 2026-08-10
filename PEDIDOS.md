@@ -10,13 +10,7 @@ embaixo, para conferência.
 
 ## ABERTO · construir
 
-### 1. Tela de governança
-A trilha, as regras, os pedidos e o desfazer já existem no servidor e
-funcionam, testados. Falta a tela para ela usar: ver quem fez o quê e de
-onde, filtrar por pessoa, criar regra, responder pedido de autorização e
-desfazer com um clique.
-
-### 2. Nada baixado no computador de ninguém
+### 1. Nada baixado no computador de ninguém
 **Revisado por ela, e o pedido ficou maior e melhor do que "bloquear
 download".** O que ela quer:
 
@@ -63,26 +57,13 @@ A metade 1 é o `backend/documentos.js`, e o documento não vira arquivo:
 - contrato continua indo para o **D4Sign**, que já está integrado; o que
   muda é que ninguém precisa baixar o PDF para mandar
 
-**Falta ligar isso às telas do sistema**, que é o item 5.
+**Ligado às telas**, e é o que está no bloco de entregues abaixo.
 
-### 3. Importar e distribuir leads
+### 2. Importar e distribuir leads
 Subir lista de leads por **serviço** ou **segmento**, e distribuir na
 **quantidade** que ela quiser, para **quem** ela quiser.
 
-### 4. Ligar os documentos às telas do sistema
-O servidor está pronto e provado. O que falta é o sistema usar:
-
-- a tela do cliente gera proposta, laudo e contrato pelo `POST /doc` em
-  vez de montar PDF no navegador
-- os **seis** pontos que hoje geram CSV e PDF direto no navegador
-  (`cliExportarPDF`, `finExportarCSV`, `relatorioPDF`, `backupExportar`,
-  `leadExportar` e o backup do sistema) passam a sair pelo servidor ou
-  deixam de existir. Sem passar pelo servidor não há registro nem
-  bloqueio possível
-- o cartão do cliente mostra o endereço do portal dele e quem já abriu
-  o quê
-
-### 5. Cadastro de prestador e banco de talentos
+### 3. Cadastro de prestador e banco de talentos
 O maior dos abertos. Pedido dela, por partes:
 
 - página onde a pessoa **se cadastra como prestadora**
@@ -197,6 +178,33 @@ Cada linha tem commit. `git log` conta a história completa.
 - Trilha visual no documento: enviado, aberto por você, aprovado
 - Visual refeito para cliente visual: cabeçalho da marca em ouro sobre
   breu, corpo claro para ler e imprimir, um desenho por tipo de documento
+
+**Governança na tela**
+- A trilha com quem, de onde, o quê, e o que mudou campo a campo
+- Filtro por pessoa, por ação e só o que foi barrado
+- Botão "Barrar" em qualquer linha, que vira regra a partir de um caso
+  real, para a pessoa toda ou só para quem fez
+- Pedido de autorização com autorizar de uso único ou recusar
+- Desfazer com um clique, que devolve o valor de antes e também fica na
+  trilha
+- Ação da própria governança não se barra nem se desfaz, para ninguém
+  ficar sem saída
+
+**Os documentos ligados às telas**
+- Os nove laudos (valuation, franqueabilidade, COF, POP, diagnóstico,
+  precificação, reestruturação, lista de documentos e contrato) saem pelo
+  servidor em vez da janela de impressão
+- O desenho de cada laudo é preservado e fica preso dentro do corpo do
+  documento, para uma regra de laudo não alcançar o resto da página
+- A equipe abre por vista assinada de duas horas, e envia ao cliente pelo
+  botão da própria página, que é onde o servidor sabe o número
+- Lista de leads e de lançamentos deixam de virar arquivo e viram
+  documento no servidor, com carimbo e sem rota de baixar
+- Backup completo é só da administração, com aviso e registro
+- Impressão não se bloqueia no navegador, então o carimbo com o nome vai
+  junto na folha e a ação entra na trilha
+- O documento segue o padrão visual do sistema: mesma paleta, mesma
+  esteira, mesmos botões, vindos de `backend/estilo.js`
 
 **Obrigações**
 - O processo gera a obrigação, o servidor cumpre o que consegue sozinho,

@@ -157,6 +157,20 @@ function permitir(req, eu, acao, col, detalhe, liberacao) {
 function montar(app, dep) {
   const { exigeLogin, exigeAdmin, aplicarDesfazer } = dep;
 
+  /* ── o sistema conta uma ação que aconteceu no navegador ──
+     Impressão e download não passam pelo servidor, então o servidor não
+     tem como barrar nem como saber sozinho. O que dá para fazer é o
+     navegador avisar, e é isto. Vale como registro, não como controle,
+     e a trilha diz de onde veio para não confundir os dois. */
+  app.post('/gov/registrar', exigeLogin, (req, res) => {
+    const { acao, obs, col, alvo } = req.body || {};
+    if (!acao) return res.status(400).json({ ok: false, erro: 'sem_acao' });
+    registrar(req, req.eu, { acao: String(acao).slice(0, 60), col: col || 'navegador',
+                             alvo: alvo || '', obs: String(obs || '').slice(0, 200),
+                             origem: 'navegador' });
+    res.json({ ok: true });
+  });
+
   /* ── a trilha, com filtro ── */
   app.get('/gov/trilha', exigeLogin, exigeAdmin, (req, res) => {
     const { quem, acao, de, ate, so } = req.query;

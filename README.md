@@ -1641,3 +1641,92 @@ do cliente, todos os meus clientes são extremamente visuais"*.
 
 200. **Travessão que ainda vazava para o cliente.** Campo vazio no aviso do
      WhatsApp virava travessão. Agora vira "a definir".
+
+## O padrão do sistema chegou ao documento, e as telas ligaram · versão 1008.03
+
+Dois pedidos: *"finalize a ligação das telas"* e *"o padrão dos documentos
+precisa seguir o design padrão do sistema"*. E, no meio do caminho, *"pode
+fazer a governança também"*.
+
+201. **O documento deixou de ter desenho próprio.** Ele tinha ganhado
+     cabeçalho e cores só dele, e o cliente via duas empresas diferentes:
+     uma no sistema e outra no documento que chegava pelo WhatsApp. Agora
+     existe `backend/estilo.js`, que é cópia dos tokens e dos componentes
+     do `index.html`: mesma paleta, mesmas fontes, mesma folha clara com
+     cartão branco, a mesma ilha escura do portal do cliente, os mesmos
+     botões e as mesmas etiquetas. Quando um valor mudar no sistema, muda
+     num lugar só e as três páginas do servidor acompanham.
+
+202. **A trilha do documento virou a esteira do sistema.** Era uma fila de
+     bolinhas inventada aqui; agora é o mesmo componente das telas, com o
+     ponto cheio no que já aconteceu e a linha de ouro entre os passos
+     vencidos. O cliente vê no documento a mesma linguagem que veria se
+     entrasse no portal.
+
+203. **Os nove laudos saíram da janela de impressão.** Valuation,
+     franqueabilidade, COF, POP, diagnóstico, precificação, reestruturação,
+     a lista de documentos e o contrato eram montados no navegador e
+     abertos numa janela de imprimir. Dali em diante a empresa perdia o
+     rastro. Agora são publicados no servidor e abertos por endereço: fica
+     registrado quem gerou, quem abriu e quando.
+
+204. **O desenho de cada laudo foi preservado, e preso no lugar.** Cada um
+     carrega o CSS das próprias tabelas e caixas, e jogar isso na página
+     inteira repetiria um defeito que já aconteceu uma vez, quando um
+     `p{text-align:justify}` de janela de impressão vazou e justificou o
+     site todo. Então o CSS do laudo é escopado: todo seletor ganha o
+     prefixo do corpo do documento, e `body` do laudo vira o próprio corpo.
+     Uma regra de laudo não alcança o cabeçalho, a esteira nem os botões.
+
+205. **A aba nova não leva cabeçalho de autorização, e por isso existe a
+     vista assinada.** Quem gera o documento recebe um endereço que vale
+     duas horas e é de uma pessoa só. Não é atalho de segurança: é a mesma
+     identidade em outro formato, e continua indo inteira para a trilha.
+     Vista de um documento não abre outro.
+
+206. **Enviar ao cliente ficou dentro do próprio documento,** e não numa
+     tela do sistema, porque é ali que o servidor sabe o número do cliente
+     e é ali que o porteiro está. Não existe campo de destino: existe um
+     botão, e ele manda para o número gravado no documento, dizendo antes
+     para qual final vai.
+
+207. **Lista de leads e de lançamentos deixaram de virar arquivo.** Eram
+     CSV baixado, que é a informação mais fácil de levar embora e a mais
+     difícil de perceber que foi levada. Com a equipe conectada viram
+     documento no servidor, com o nome de quem está vendo carimbado por
+     cima e sem rota de baixar. Sem equipe conectada não existe equipe,
+     nem trilha, nem segundo usuário: ali o arquivo continua saindo, e o
+     sistema diz isso na cara em vez de fingir que protegeu alguma coisa.
+
+208. **O backup completo é da administração.** Ele leva a base inteira num
+     arquivo, então é a saída mais perigosa do sistema. Passou a exigir
+     papel de administração, avisar o que está em jogo e entrar na trilha.
+
+209. **Impressão não se bloqueia pelo navegador, e prometer isso seria
+     mentira.** O que dá para fazer está feito: o carimbo com o nome de
+     quem imprimiu vai junto na folha, e a ação entra na trilha. Havia até
+     um defeito nisso: a regra que isola a proposta na impressão escondia
+     o carimbo, que é filho direto do corpo da página. Corrigido.
+
+210. **A tela de governança.** O servidor já guardava tudo e ninguém
+     conseguia ver. Agora há a trilha com quem, de onde, o quê e o que
+     mudou campo a campo; filtro por pessoa, por ação e só o que foi
+     barrado; o botão **Barrar** em qualquer linha, que vira regra a partir
+     de um caso real; o pedido de autorização com autorizar de uso único
+     ou recusar; e o desfazer de um clique, que devolve o valor de antes e
+     também fica na trilha.
+
+211. **O que mudou aparece em vez do JSON inteiro.** Criar mostra o que
+     nasceu, apagar mostra o que sumiu, e alterar mostra campo a campo o
+     valor de antes riscado e o de agora em verde. Campos internos como
+     `id` e `em` ficam de fora, porque empurravam para longe justamente o
+     campo que mudou.
+
+212. **Ação da própria governança não se barra nem se desfaz.** Barrar um
+     "desfazer" é a receita de ficar sem saída, então esses botões nem
+     aparecem nessas linhas.
+
+213. **Uma armadilha de nome fechada:** o guarda do envio lia o campo
+     `para`, e quem cria o documento manda `telefone`. Quem fosse ligar a
+     tela usaria o nome errado e o guarda não dispararia. Passou a aceitar
+     os dois.

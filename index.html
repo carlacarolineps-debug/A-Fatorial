@@ -1086,18 +1086,61 @@ body.apresentacao #fi-tbody tr:hover{ filter:none; }
 #apr-banner{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9000;background:color-mix(in srgb,var(--gold) 95%,transparent);color:#1a1408;font-weight:700;font-size:12.5px;padding:9px 18px;border-radius:30px;box-shadow:0 10px 30px -8px rgba(0,0,0,.5);}
 body.apresentacao #apr-banner{display:block;}
 
+/* ═══ GOVERNANÇA ═══ */
+.gov-abas{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.gov-aba{padding:9px 15px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--panel);
+  color:var(--ink-soft);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.18s;}
+.gov-aba:hover{border-color:var(--gold);color:var(--ink);}
+.gov-aba.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+.gov-aba .n{margin-left:7px;font-size:11px;opacity:.7;}
+.gov-filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.gov-filtros .inp-sm{width:auto;min-width:150px;}
+/* uma linha da trilha: hora, quem, o quê, e o de onde em letra de máquina */
+.gov-l{display:grid;grid-template-columns:120px 150px 1fr auto;gap:14px;align-items:start;
+  padding:13px 14px;border-bottom:1px solid var(--line);font-size:13px;}
+.gov-l:hover{background:var(--panel-soft);}
+.gov-l.barrado{background:var(--bad-bg);}
+.gov-l .q{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);line-height:1.5;}
+.gov-l .quem{font-weight:600;}
+.gov-l .quem span{display:block;font-family:var(--font-mono);font-size:10.5px;
+  font-weight:400;color:var(--ink-faint);margin-top:2px;}
+.gov-l .oq b{font-weight:600;}
+.gov-l .oq .alvo{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);}
+.gov-l .oq .campos{display:block;font-size:11.5px;color:var(--ink-faint);margin-top:3px;}
+.gov-diff{display:block;margin-top:6px;font-family:var(--font-mono);font-size:11px;line-height:1.6;}
+.gov-diff i{font-style:normal;display:block;}
+.gov-diff .de{color:var(--bad);text-decoration:line-through;opacity:.85;}
+.gov-diff .para{color:var(--ok);}
+.gov-vazio{padding:34px 20px;text-align:center;color:var(--ink-soft);font-size:14px;}
+.gov-regra{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);
+  border-radius:var(--r-sm);margin-bottom:10px;background:var(--panel);flex-wrap:wrap;}
+.gov-regra .t{flex:1 1 260px;min-width:0;}
+.gov-regra .t b{display:block;font-size:14px;}
+.gov-regra .t span{font-size:12px;color:var(--ink-soft);}
+.gov-pedido{border:1px solid var(--gold);border-left:4px solid var(--gold);border-radius:0 var(--r-sm) var(--r-sm) 0;
+  padding:16px 18px;margin-bottom:12px;background:#fdfbf6;}
+.gov-pedido .t{font-size:14px;font-weight:700;margin-bottom:4px;}
+.gov-pedido .s{font-size:12.5px;color:var(--ink-soft);line-height:1.6;}
+.gov-pedido .acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+@media(max-width:900px){
+  .gov-l{grid-template-columns:1fr;gap:6px;}
+  .gov-l .q{order:-1;}
+}
+
 /* ═══ IMPRESSÃO / PDF · isola só o alvo (proposta ou relatório) ═══ */
 @media print{
   @page{ margin:12mm; }
   body.print-cli, body.print-rel{background:#fff !important;}
-  body.print-cli > *:not(#cli-ov){ display:none !important; }
+  /* o carimbo é filho direto do body: sem a exceção, a regra de cima o
+     escondia justamente na impressão, que é onde ele mais importa */
+  body.print-cli > *:not(#cli-ov):not(#dagua){ display:none !important; }
   body.print-cli #cli-ov{position:static !important;display:block !important;overflow:visible !important;background:#fff !important;height:auto !important;opacity:1 !important;transform:none !important;}
   body.print-cli #cli-ov .cli-wrap{overflow:visible !important;height:auto !important;max-height:none !important;}
   body.print-cli .cli-bar{position:static !important;}
   body.print-cli .cli-bar-acts{display:none !important;}
   body.print-cli .cli-cover{min-height:auto !important;page-break-after:always;}
   body.print-cli .cli-rodape{page-break-inside:avoid;}
-  body.print-rel > *:not(#rel-ov){ display:none !important; }
+  body.print-rel > *:not(#rel-ov):not(#dagua){ display:none !important; }
   body.print-rel #rel-ov{position:static !important;display:block !important;overflow:visible !important;background:#fff !important;height:auto !important;opacity:1 !important;transform:none !important;}
   body.print-rel #rel-ov .rel-acts{display:none !important;}
 }
@@ -3584,6 +3627,13 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
       <div id="prest-body"></div>
     </section>
 
+    <!-- ============ GOVERNANÇA ============ -->
+    <section class="view" id="v-governanca">
+      <div id="gov-hero"></div>
+      <div class="ui-stats" id="gov-stats"></div>
+      <div id="gov-body"></div>
+    </section>
+
     <!-- ============ KANBAN OPERACIONAL ============ -->
     <section class="view" id="v-kanban">
       <div id="kb-hero"></div>
@@ -4253,7 +4303,15 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
         }
 
         // ===== EXPORTAR PROPOSTA EM PDF ===== (usa o diálogo de impressão → Salvar como PDF)
-        function cliExportarPDF(){ document.body.classList.add('print-cli'); window.print(); setTimeout(()=>document.body.classList.remove('print-cli'),600); }
+        function cliExportarPDF(){
+          /* Impressão não se bloqueia pelo navegador, e prometer isso
+             seria mentira. O que dá para fazer é o que está feito aqui:
+             o carimbo com o nome de quem imprimiu vai junto na folha, e
+             a ação entra na trilha. */
+          docRegistrar('proposta.imprimir','proposta do cliente');
+          document.body.classList.add('print-cli'); window.print();
+          setTimeout(()=>document.body.classList.remove('print-cli'),600);
+        }
 
         /* ===== AS DUAS IDENTIDADES DE DOCUMENTO =====
            São duas marcas, então são dois papéis timbrados. Proposta de
@@ -4336,7 +4394,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dono','dash','vendas','funil','propostas','kanban','servicos','valuation','franquia','demandas','rede','parceiras','prestadores','meusleads','entregaveis','satisfacao','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
+          admin:      ['dono','dash','vendas','funil','propostas','kanban','servicos','valuation','franquia','demandas','rede','parceiras','prestadores','meusleads','entregaveis','satisfacao','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe','governanca'],
           colaborador:['colaborador','funil','propostas','kanban','meusleads'],
           cliente:    ['portal']
         };
@@ -4711,6 +4769,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
 
         /* ===== NAVEGAÇÃO ===== */
         const TITLES={
+          governanca:['Governança e <b>rastreio</b>','Quem fez o quê, de onde, e o que fica barrado'],
           dono:['Visão do <b>dono</b>','Cockpit executivo, o que importa hoje'],
           dash:['Gestão <b>à vista</b>','Ecossistema estratégico'],
           funil:['Esteira <b>comercial</b>','Do cadastro à prova real · 14 etapas conectadas'],
@@ -4779,6 +4838,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
           if(v==='franquia' && typeof frRender==='function') frRender();
           if(v==='processo' && typeof procRender==='function') procRender();
           if(v==='equipe' && typeof syncTelaRender==='function') syncTelaRender();
+          if(v==='governanca' && typeof govRender==='function') govRender();
           if(v==='raiox' && typeof rxRender==='function') rxRender();
           if(v==='preco' && typeof pcRender==='function') pcRender();
           if(v==='caixa' && typeof cxRender==='function') cxRender();
@@ -10115,14 +10175,27 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
         function finExportarCSV(){
           let ls=finFiltrados().slice().sort((a,b)=>(a.data||'').localeCompare(b.data||''));
           if(!ls.length) return alert('Nenhum lançamento no filtro atual para exportar.');
-          let esc=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
-          let linhas=[['Data','Descrição','Categoria','Conta','Valor'].join(';')];
-          ls.forEach(l=>{ linhas.push([ (l.data||'').split('-').reverse().join('/'), esc(l.desc||''), esc(l.cat||''), (l.ctx==='empresa'?'Empresa':'Pessoal'), fmtMoney(l.valor) ].join(';')); });
-          let csv='﻿'+linhas.join('\r\n'); // BOM p/ acentos no Excel
-          let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-          let a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-          a.download='lancamentos_afatorial_'+new Date().toISOString().slice(0,10)+'.csv';
-          document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+          const dia=d=>(d||'').split('-').reverse().join('/');
+          const total=ls.reduce((a,l)=>a+(l.valor||0),0);
+          docListaProtegida({
+            titulo:'Lançamentos · '+dia(ls[0].data)+' a '+dia(ls[ls.length-1].data),
+            corpo:'<p>'+ls.length+' lançamento'+(ls.length>1?'s':'')+' no filtro atual.</p>'
+                 +docTabela(['Data','Descrição','Categoria','Conta','Valor'],
+                     ls.map(l=>[dia(l.data), l.desc||'', l.cat||'',
+                                l.ctx==='empresa'?'Empresa':'Pessoal', brl(l.valor)]),
+                     ['','','','Total', brl(total)])
+          }, ()=>{
+            let esc=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+            let linhas=[['Data','Descrição','Categoria','Conta','Valor'].join(';')];
+            ls.forEach(l=>{ linhas.push([ dia(l.data), esc(l.desc||''), esc(l.cat||''),
+              (l.ctx==='empresa'?'Empresa':'Pessoal'), fmtMoney(l.valor) ].join(';')); });
+            let csv='﻿'+linhas.join('\r\n'); // BOM p/ acentos no Excel
+            let a=document.createElement('a');
+            a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+            a.download='lancamentos_afatorial_'+new Date().toISOString().slice(0,10)+'.csv';
+            document.body.appendChild(a); a.click();
+            setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+          });
         }
         function finAddLanc(){
           let data=document.getElementById('fl-data').value||new Date().toISOString().slice(0,10);
@@ -10793,12 +10866,25 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
             <div class="rel-foot">${BRAND.razao} · CNPJ ${BRAND.cnpj} · ${[BRAND.tel,BRAND.email,BRAND.site].filter(Boolean).join(' · ')}</div>`;
           let ov=document.getElementById('rel-ov'); ov.style.setProperty('--brand',BRAND.cor||'#d4af5e'); ov.classList.add('on');
         }
-        function relatorioPDF(){ document.body.classList.add('print-rel'); window.print(); setTimeout(()=>document.body.classList.remove('print-rel'),600); }
+        function relatorioPDF(){
+          docRegistrar('relatorio.imprimir','relatório da direção');
+          document.body.classList.add('print-rel'); window.print();
+          setTimeout(()=>document.body.classList.remove('print-rel'),600);
+        }
         function relatorioFechar(){ document.getElementById('rel-ov').classList.remove('on'); }
 
         /* ===== BACKUP / RESTAURAÇÃO ===== */
         const BACKUP_KEYS=['af_permissoes','af_perm_migr','af_brief_dia','af_ultimo_acesso','af_usuarios','af_fin','af_plano','af_brand','af_brand_cc','af_kanban','af_leads','af_leads_hist','af_vendas','af_demandas','af_projetos','af_rede','af_rede_migr','af_d4','af_treinos','af_som','af_vol','af_accent'];
         function backupExportar(){
+          /* O backup leva a base inteira num arquivo, então é a saída mais
+             perigosa do sistema. Fica com quem é dona da empresa, e passa
+             pela trilha como qualquer outra ação. */
+          if(SYNC.ligado && SYNC.usuario && SYNC.usuario.papel!=='admin')
+            return alert('O backup completo é da administração.\n\nPeça a quem administra o sistema.');
+          if(!confirm('Baixar a base inteira para este computador?\n\n'
+            +'O arquivo sai do sistema e do controle de acesso: quem tiver o arquivo tem tudo. '
+            +'Guarde em lugar seguro e apague quando não precisar mais.')) return;
+          docRegistrar('backup.exportar','base completa do sistema');
           let dados={}; BACKUP_KEYS.forEach(k=>{ let v=localStorage.getItem(k); if(v!=null) dados[k]=v; });
           let pacote={app:'A! Fatorial', versao:1, data:new Date().toISOString(), dados};
           let blob=new Blob([JSON.stringify(pacote,null,2)],{type:'application/json'});
@@ -12150,12 +12236,23 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
         function leadExportar(segK){
           let sg=leadSeg(segK);
           let L=DB.leads.filter(l=>leadSegmentoDe(l)===segK);
-          let linhas=[['Nome','Empresa','Segmento','Natureza','WhatsApp','E-mail','Telefone','Cidade','Endereço','Origem','Status','Valor previsto']]
-            .concat(L.map(l=>[l.nome,l.empresa||'',sg.l,sg.tipo,l.contato||'',l.email||'',l.telefone||'',l.cidade||'',l.endereco||'',l.origem||'',(LEAD_STATUS[l.status]||{}).l||'',String(l.valor||0).replace('.',',')]));
-          let csv='\ufeff'+linhas.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
-          let a=document.createElement('a');
-          a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-          a.download='contatos-'+segK+'.csv'; a.click();
+          if(!L.length) return alert('Nenhum contato neste segmento.');
+          const cab=['Nome','Empresa','WhatsApp','E-mail','Telefone','Cidade','Origem','Status','Valor previsto'];
+          const linha=l=>[l.nome,l.empresa||'',l.contato||'',l.email||'',l.telefone||'',
+                          l.cidade||'',l.origem||'',(LEAD_STATUS[l.status]||{}).l||'',brl(l.valor||0)];
+          docListaProtegida({
+            titulo:'Contatos · '+sg.l,
+            corpo:'<p>'+L.length+' contato'+(L.length>1?'s':'')+' de <b>'+uiEsc(sg.l)+'</b> ('+uiEsc(sg.tipo)+'), '
+                 +'na situação de '+leadHoje().split('-').reverse().join('/')+'.</p>'
+                 +docTabela(cab, L.map(linha))
+          }, ()=>{
+            let linhas=[cab.concat(['Segmento','Natureza','Endereço'])]
+              .concat(L.map(l=>linha(l).concat([sg.l,sg.tipo,l.endereco||''])));
+            let csv='\ufeff'+linhas.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
+            let a=document.createElement('a');
+            a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+            a.download='contatos-'+segK+'.csv'; a.click();
+          });
         }
 
         /* ── CARTÃO DE LEAD ── */
@@ -14018,7 +14115,8 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
            sub:'catálogo, acessos e marca', frase:'O que o sistema usa para calcular e quem pode ver o quê.',
            passos:[
              {v:'catalogo', l:'Catálogo',        d:'serviços, preços e horas'},
-             {v:'equipe',   l:'Equipe e acessos',d:'usuários, permissões e marca'}
+             {v:'equipe',   l:'Equipe e acessos',d:'usuários, permissões e marca'},
+             {v:'governanca',l:'Governança',     d:'quem fez o quê, e o que fica barrado'}
            ]}
         ];
         function areaDe(view){ return AREAS.find(a=>a.passos.some(p=>p.v===view))||null; }
@@ -14564,6 +14662,457 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
           return DB.projetos[0]||null;
         }
 
+        /* ═══════════════════════════════════════════════════════════════
+           O LAUDO NÃO VIRA ARQUIVO            === BACKEND ===
+
+           Pedido dela: "quero uma estrutura que não seja necessário o
+           funcionário baixar nada, quero amenizar o risco de uso indevido
+           de material e de se perder o processo".
+
+           Antes, cada laudo abria uma janela de impressão. Dali em diante
+           a empresa perdia o rastro: quem salvou, para onde mandou, se
+           mandou. Agora o laudo é publicado no servidor e aberto por
+           endereço. Fica registrado quem gerou, quem abriu e quando, e o
+           envio ao cliente só vai para o número cadastrado dele.
+
+           Sem servidor conectado o sistema faz o que sempre fez, a janela
+           de impressão, e diz na cara que aquela cópia não fica
+           registrada. Travar o trabalho de quem abriu o arquivo sozinho
+           no navegador seria pior do que o problema.
+           ═══════════════════════════════════════════════════════════════ */
+
+        /** A janela de impressão de sempre. Só sobra quando não há servidor. */
+        function docImprimirLocal(titulo, css, corpo){
+          let w=window.open('', '_blank');
+          if(!w){ alert('O navegador bloqueou a janela de impressão.'); return false; }
+          w.document.write('<html><head><meta charset="utf-8"><title>'+uiEsc(titulo)+'</title>'
+            +'<style>'+css+'</style></head><body>'+corpo+'</body></html>');
+          w.document.close(); setTimeout(()=>w.print(),320);
+          return true;
+        }
+
+        /**
+         * Publica o documento no servidor e abre o endereço dele.
+         * d = {tipo, titulo, corpo, estilo, cliente, clienteId, telefone}
+         */
+        async function docPublicar(d){
+          if(!SYNC.ligado || !SYNC.token){
+            docImprimirLocal(d.titulo, d.estilo, d.corpo);
+            notify('equipe','📄 Documento gerado fora do servidor',
+              'Sem equipe conectada, este documento não fica registrado nem some do computador de quem imprimir. '
+              +'Conecte a equipe em Ajustes para que ele passe a viver no servidor.','ajustes');
+            return null;
+          }
+          const corpo=JSON.stringify({
+            tipo:d.tipo||'documento', titulo:d.titulo||'Documento',
+            corpo:d.corpo||'', estilo:d.estilo||'',
+            cliente:d.cliente||'', clienteId:d.clienteId||'', telefone:d.telefone||''
+          });
+          try{
+            let r=await fetch(SYNC.url+'/doc',{method:'POST',headers:syncCab(),body:corpo});
+            /* 401 aqui quase nunca é "perdeu o acesso": é a sessão que sumiu
+               do servidor. Reentra sozinho e refaz o envio. */
+            if(r.status===401 && await syncReentrar())
+              r=await fetch(SYNC.url+'/doc',{method:'POST',headers:syncCab(),body:corpo});
+            if(!r.ok) throw new Error('HTTP '+r.status);
+            let j=await r.json();
+            if(!j.ok||!j.doc) throw new Error('resposta inesperada');
+            let jan=window.open(SYNC.url+j.doc.ver,'_blank');
+            if(!jan) alert('O navegador bloqueou a aba do documento.\n\nLibere as janelas para este endereço e gere de novo.');
+            return j.doc;
+          }catch(e){
+            /* o trabalho dela não pode parar porque o servidor caiu */
+            if(!confirm('Não consegui publicar no servidor ('+e.message+').\n\n'
+              +'Abrir a janela de impressão? Essa cópia NÃO fica registrada.')) return null;
+            docImprimirLocal(d.titulo, d.estilo, d.corpo);
+            return null;
+          }
+        }
+
+        /**
+         * Uma lista NÃO vira arquivo no computador de ninguém.
+         *
+         * Pedido dela, palavra por palavra: "não permitir tirar print,
+         * baixar lista de leads, ou informações sem autorização". Lista de
+         * contato baixada é a informação mais fácil de levar embora e a
+         * mais difícil de perceber que foi levada.
+         *
+         * Com a equipe conectada, a lista vira documento no servidor: dá
+         * para ver, com o nome de quem está vendo carimbado por cima, e
+         * fica na trilha. Não há rota de baixar.
+         *
+         * Sem equipe conectada não existe equipe, nem trilha, nem
+         * segundo usuário: é o navegador dela, sozinha. Ali o arquivo
+         * continua saindo, e o sistema diz isso na cara em vez de fingir
+         * que protegeu alguma coisa.
+         *
+         * @param baixar  função que gera o arquivo, usada só sem servidor
+         */
+        function docListaProtegida(d, baixar){
+          if(SYNC.ligado && SYNC.token){
+            docPublicar({tipo:'lista', titulo:d.titulo, corpo:d.corpo, estilo:CSS_LISTA});
+            return;
+          }
+          if(!confirm(d.titulo+'\n\n'
+            +'A equipe não está conectada, então este arquivo vai ser baixado para este computador '
+            +'e não fica registrado em lugar nenhum.\n\nBaixar assim mesmo?')) return;
+          baixar();
+        }
+
+        /* o desenho da tabela da lista, no padrão do sistema */
+        const CSS_LISTA='table{width:100%;border-collapse:collapse;font-size:12px}'
+          +'th{text-align:left;padding:9px 8px;border-bottom:1.5px solid #13131a;font-size:9.5px;'
+          +'text-transform:uppercase;letter-spacing:.09em;color:#62626d;white-space:nowrap}'
+          +'td{padding:9px 8px;border-bottom:1px solid #e9e9ee;vertical-align:top}'
+          +'tr:nth-child(even) td{background:#fafafb}'
+          +'.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}'
+          +'.tot td{border-top:1.5px solid #13131a;border-bottom:0;font-weight:700;background:#fff}';
+
+        /** Uma tabela HTML a partir de cabeçalho e linhas. */
+        function docTabela(cab, linhas, rodape){
+          return '<table><thead><tr>'+cab.map(c=>'<th>'+uiEsc(c)+'</th>').join('')+'</tr></thead><tbody>'
+            +linhas.map(r=>'<tr>'+r.map((c,i)=>'<td'+(typeof c==='number'?' class="n"':'')+'>'
+                +uiEsc(c==null?'':c)+'</td>').join('')+'</tr>').join('')
+            +(rodape?'<tr class="tot">'+rodape.map(c=>'<td>'+uiEsc(c==null?'':c)+'</td>').join('')+'</tr>':'')
+            +'</tbody></table>';
+        }
+
+        /**
+         * Manda uma ação para a trilha do servidor.
+         *
+         * Sem servidor, não faz nada e não atrapalha: o sistema tem que
+         * continuar funcionando no navegador sozinho.
+         */
+        function docRegistrar(acao, obs){
+          if(!SYNC.ligado || !SYNC.token) return;
+          try{
+            fetch(SYNC.url+'/gov/registrar',{method:'POST',headers:syncCab(),
+              body:JSON.stringify({acao, obs})}).catch(()=>{});
+          }catch(e){}
+        }
+
+        /** Título é texto puro: quem escapa é o servidor. Escapar aqui
+            também faria "Ótica & Cia" chegar como "Ótica &amp; Cia". */
+        function docTxt(v){ return v==null?'':String(v); }
+
+        /** Número no formato que o WhatsApp aceita: com código do país. */
+        function docZap(t){
+          t=String(t||'').replace(/\D/g,'');
+          return t.length>=10&&t.length<=11 ? '55'+t : t;
+        }
+
+        /** Os dados do cliente que todo laudo de projeto carrega igual. */
+        function docDoProjeto(p){
+          return { cliente:p.empresa||'', clienteId:p.id||'', telefone:docZap(p.tel) };
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           GOVERNANÇA                          === BACKEND ===
+
+           Pedido dela: "rastreabilidade com usuário, ip, localização,
+           ação, botão para bloquear ação semelhante futura sem
+           autorização, desfazer ação, recuperar, notificar usuário do
+           impedimento".
+
+           O servidor já fazia tudo isso e ninguém conseguia ver. Esta é
+           a tela: a trilha com quem, de onde, o quê e o que mudou; a
+           regra que barra daqui para a frente; o pedido de autorização
+           que chega quando alguém esbarra na regra; e o desfazer, que
+           devolve o valor de antes.
+
+           Tudo vem do servidor. Sem equipe conectada não existe trilha
+           para mostrar, e a tela diz isso em vez de mostrar tela vazia.
+           ═══════════════════════════════════════════════════════════════ */
+
+        let GOV={aba:'trilha', trilha:[], regras:[], pedidos:[], filtro:{quem:'',acao:'',so:''},
+                 carregando:false, erro:''};
+
+        /** Uma chamada à governança, com reentrada quando a sessão sumiu. */
+        async function govApi(caminho, corpo){
+          if(!SYNC.ligado || !SYNC.token) throw new Error('equipe_desligada');
+          const op={method:corpo?'POST':'GET', headers:syncCab()};
+          if(corpo) op.body=JSON.stringify(corpo);
+          let r=await fetch(SYNC.url+caminho, op);
+          if(r.status===401 && await syncReentrar()){
+            op.headers=syncCab(); r=await fetch(SYNC.url+caminho, op);
+          }
+          if(r.status===403) throw new Error('so_admin');
+          if(!r.ok) throw new Error('HTTP '+r.status);
+          return r.json();
+        }
+
+        function govAba(a){ GOV.aba=a; govRender(); }
+        function govFiltro(campo, valor){ GOV.filtro[campo]=valor; govCarregar(); }
+
+        async function govCarregar(){
+          if(!SYNC.ligado || !SYNC.token){ GOV.erro='equipe_desligada'; govPintar(); return; }
+          GOV.carregando=true; GOV.erro=''; govPintar();
+          try{
+            const f=GOV.filtro;
+            const q='?'+[f.quem?'quem='+encodeURIComponent(f.quem):'',
+                         f.acao?'acao='+encodeURIComponent(f.acao):'',
+                         f.so?'so='+f.so:''].filter(Boolean).join('&');
+            const [t,rg,pd]=await Promise.all([
+              govApi('/gov/trilha'+q), govApi('/gov/regras'), govApi('/gov/pedidos')
+            ]);
+            GOV.trilha=t.trilha||[]; GOV.regras=rg.regras||[]; GOV.pedidos=pd.pedidos||[];
+          }catch(e){ GOV.erro=e.message; }
+          GOV.carregando=false; govPintar();
+        }
+
+        function govRender(){ govPintar(); govCarregar(); }
+
+        /* Campos que existem em todo registro e não dizem nada sobre o que
+           a pessoa fez. Deixá-los na lista empurra para fora justamente o
+           campo que mudou. */
+        const GOV_INTERNOS=['id','em','criadoEm','atualizadoEm','rev','seq','pin'];
+
+        /** Como um registro se chama para um ser humano. */
+        function govNomeDe(o){
+          if(!o||typeof o!=='object') return '';
+          return String(o.nome||o.titulo||o.empresa||o.desc||o.cliente||o.t||'').slice(0,60);
+        }
+
+        /* Quando o valor é um objeto, mostrar o JSON inteiro afoga o que
+           mudou. Criar e apagar mostram o registro em uma linha; alterar
+           mostra campo a campo, de antes e de agora. */
+        function govDiff(r){
+          if(r.antes===undefined && r.depois===undefined) return '';
+          const val=(o,k)=>{
+            if(o==null) return '(nada)';
+            let v=k.split('.').reduce((a,c)=>(a==null?a:a[c]), o);
+            if(v==null||v==='') return '(vazio)';
+            if(typeof v==='object') return JSON.stringify(v).slice(0,70);
+            return String(v).slice(0,70);
+          };
+          // nasceu agora: o que interessa é o que nasceu, não uma coluna de "(nada)"
+          if(r.antes==null && r.depois!=null){
+            const nome=govNomeDe(r.depois);
+            return nome?'<span class="gov-diff"><i><span class="para">'+uiEsc(nome)+'</span></i></span>':'';
+          }
+          // sumiu: o que interessa é o que sumiu, porque é o que se recupera
+          if(r.depois==null && r.antes!=null){
+            const nome=govNomeDe(r.antes);
+            return nome?'<span class="gov-diff"><i><span class="de">'+uiEsc(nome)+'</span></i></span>':'';
+          }
+          let chaves=(r.campos&&r.campos.length) ? r.campos.slice()
+            : [...new Set([...Object.keys(r.antes||{}), ...Object.keys(r.depois||{})])];
+          chaves=chaves.filter(k=>GOV_INTERNOS.indexOf(String(k).split('.')[0])<0)
+                       .filter(k=>val(r.antes,k)!==val(r.depois,k));
+          const sobrou=Math.max(0, chaves.length-6);
+          chaves=chaves.slice(0,6);
+          if(!chaves.length) return '';
+          return '<span class="gov-diff">'+chaves.map(k=>
+            '<i><b>'+uiEsc(k)+'</b> '
+            +'<span class="de">'+uiEsc(val(r.antes,k))+'</span> '
+            +'<span class="para">'+uiEsc(val(r.depois,k))+'</span></i>').join('')
+            +(sobrou?'<i style="color:var(--ink-faint)">e mais '+sobrou+' campo'+(sobrou>1?'s':'')+'</i>':'')
+            +'</span>';
+        }
+
+        const GOV_ACOES={criar:'criou', alterar:'alterou', substituir:'substituiu', apagar:'APAGOU',
+          'documento.criar':'gerou o documento', 'documento.ver':'abriu o documento',
+          'documento.enviar':'enviou ao cliente', 'documento.aberto':'o cliente abriu',
+          'documento.baixado':'o cliente baixou', 'backup.exportar':'baixou a base inteira',
+          'proposta.imprimir':'imprimiu a proposta', 'relatorio.imprimir':'imprimiu o relatório',
+          'gov.desfazer':'desfez', 'gov.regra.criar':'criou a regra', 'gov.regra.desligar':'desligou a regra',
+          'gov.pedido.liberado':'autorizou', 'gov.pedido.negado':'recusou o pedido'};
+
+        /* As ações da própria governança não se barram nem se desfazem:
+           barrar um "desfazer" é a receita de ficar sem saída. */
+        const govEhGoverno=a=>String(a||'').indexOf('gov.')===0;
+
+        /** O texto da regra que barrou este pedido, para a dona lembrar por quê. */
+        function govRegraDe(pedido){
+          const r=GOV.regras.find(x=>x.id===pedido.regra);
+          return r?(r.motivo||'ação sob autorização'):'';
+        }
+
+        function govLinha(r){
+          const q=new Date(r.em);
+          const nome=GOV_ACOES[r.acao]||r.acao;
+          return `<div class="gov-l${r.bloqueado?' barrado':''}">
+            <span class="q">${q.toLocaleDateString('pt-BR')}<br>${q.toLocaleTimeString('pt-BR').slice(0,5)}</span>
+            <span class="quem">${uiEsc(r.nome||r.uid||'?')}<span>${uiEsc(r.ip||'sem ip')}${r.lugar?' · '+uiEsc(r.lugar):''}</span></span>
+            <span class="oq">
+              ${r.bloqueado?'<span class="pill pill-bad">barrado</span> ':''}
+              ${r.origem==='navegador'?'<span class="pill pill-mute">navegador</span> ':''}
+              <b>${uiEsc(nome)}</b>
+              <span class="alvo">${uiEsc(r.alvo||(r.origem==='navegador'?'':r.col)||'')}</span>
+              ${r.obs?`<span class="campos">${uiEsc(r.obs)}</span>`:''}
+              ${r.motivo?`<span class="campos">${uiEsc(r.motivo)}</span>`:''}
+              ${govDiff(r)}
+            </span>
+            <span style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${(r.antes!==undefined&&!r.bloqueado&&!r.desfeito&&!govEhGoverno(r.acao))
+                ?`<button class="btn btn-ghost btn-sm" onclick="govDesfazer('${r.id}')">Desfazer</button>`:''}
+              ${r.desfeito?`<span class="pill pill-mute" title="por ${uiEsc(r.desfeitoPor||'')}">desfeito</span>`:''}
+              ${(!r.bloqueado&&!govEhGoverno(r.acao))?`<button class="btn btn-ghost btn-sm" onclick="govBarrarDaqui('${uiEsc(r.acao)}','${uiEsc(r.col||'')}','${uiEsc(r.uid||'')}')" title="Exigir autorização para esta ação daqui para a frente">Barrar</button>`:''}
+            </span>
+          </div>`;
+        }
+
+        function govPintar(){
+          const hero=document.getElementById('gov-hero');
+          const stats=document.getElementById('gov-stats');
+          const body=document.getElementById('gov-body');
+          if(!body) return;
+
+          const barrados=GOV.trilha.filter(x=>x.bloqueado).length;
+          const abertos=GOV.pedidos.filter(x=>x.estado==='pendente').length;
+
+          if(hero) hero.innerHTML=uiHero({
+            eyebrow:'⚖ Governança · trilha, regra e desfazer',
+            titulo:'Nada acontece <b>sem deixar rastro</b>.',
+            texto:'Cada gravação passa por um lugar só, e é por isso que a trilha fica completa sem ninguém precisar lembrar de registrar nada. '
+              +'Aqui você vê quem fez, de onde, o que mudou, e desfaz o que não devia ter acontecido.'
+          });
+          if(stats) stats.innerHTML=uiStats([
+            {cor:'var(--kb-ouro)', ic:'◷', label:'Ações registradas', valor:GOV.trilha.length},
+            {cor:'var(--bad)',     ic:'⛔', label:'Barradas',          valor:barrados},
+            {cor:'var(--gold)',    ic:'✋', label:'Pedidos abertos',   valor:abertos},
+            {cor:'var(--info)',    ic:'▤', label:'Regras ligadas',     valor:GOV.regras.filter(r=>r.ativa!==false).length}
+          ]);
+
+          if(GOV.erro==='equipe_desligada'){
+            body.innerHTML=`<div class="card"><div class="gov-vazio">
+              <b>A trilha vive no servidor, e a equipe não está conectada.</b><br><br>
+              Sem servidor não existe segundo usuário, nem registro, nem bloqueio: é este navegador, sozinho.<br>
+              <button class="btn btn-gold" style="margin-top:16px" onclick="go('equipe')">Conectar a equipe</button>
+            </div></div>`;
+            return;
+          }
+          if(GOV.erro==='so_admin'){
+            body.innerHTML=`<div class="card"><div class="gov-vazio">
+              <b>A trilha é da administração.</b><br><br>
+              Quem não administra vê apenas o que está barrado para si.
+            </div></div>`;
+            return;
+          }
+
+          const aba=(k,l,n)=>`<button class="gov-aba${GOV.aba===k?' on':''}" onclick="govAba('${k}')">${l}${n?`<span class="n">${n}</span>`:''}</button>`;
+          let h=`<div class="gov-abas">
+            ${aba('trilha','A trilha', GOV.trilha.length)}
+            ${aba('pedidos','Pedidos de autorização', abertos)}
+            ${aba('regras','Regras que barram', GOV.regras.length)}
+          </div>`;
+
+          if(GOV.aba==='trilha'){
+            const acoes=[...new Set(GOV.trilha.map(x=>x.acao))].sort();
+            h+=`<div class="card">
+              <div class="gov-filtros">
+                <input class="inp-sm" placeholder="Filtrar por pessoa" value="${uiEsc(GOV.filtro.quem)}"
+                  onchange="govFiltro('quem',this.value)">
+                <select class="inp-sm" onchange="govFiltro('acao',this.value)">
+                  <option value="">Toda ação</option>
+                  ${acoes.map(a=>`<option value="${uiEsc(a)}"${GOV.filtro.acao===a?' selected':''}>${uiEsc(GOV_ACOES[a]||a)}</option>`).join('')}
+                </select>
+                <select class="inp-sm" onchange="govFiltro('so',this.value)">
+                  <option value="">Tudo</option>
+                  <option value="bloqueados"${GOV.filtro.so==='bloqueados'?' selected':''}>Só o que foi barrado</option>
+                </select>
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="govCarregar()">Atualizar</button>
+              </div>
+              ${GOV.carregando?'<div class="gov-vazio">Carregando a trilha...</div>'
+                : GOV.trilha.length?GOV.trilha.map(govLinha).join('')
+                : '<div class="gov-vazio">Nada registrado ainda com este filtro.</div>'}
+            </div>`;
+          }
+
+          if(GOV.aba==='pedidos'){
+            const lista=GOV.pedidos.filter(x=>x.estado==='pendente');
+            h+=`<div class="card">
+              <div class="card-h">Alguém esbarrou numa regra e está esperando você</div>
+              ${lista.length?lista.map(x=>`<div class="gov-pedido">
+                <div class="t">${uiEsc(x.nome||x.uid)} quer ${uiEsc(GOV_ACOES[x.acao]||x.acao)} ${uiEsc(x.detalhe||x.col||'')}</div>
+                <div class="s">Pedido em ${new Date(x.em).toLocaleString('pt-BR')}
+                  ${govRegraDe(x)?`<br>Regra: ${uiEsc(govRegraDe(x))}`:''}</div>
+                <div class="acts">
+                  <button class="btn btn-gold btn-sm" onclick="govResponder('${x.id}',true)">Autorizar uma vez</button>
+                  <button class="btn btn-ghost btn-sm" onclick="govResponder('${x.id}',false)">Recusar</button>
+                </div>
+              </div>`).join('')
+              :'<div class="gov-vazio">Nenhum pedido esperando. Quando alguém esbarrar numa regra, aparece aqui.</div>'}
+            </div>`;
+          }
+
+          if(GOV.aba==='regras'){
+            h+=`<div class="card">
+              <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Regras que barram
+                <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="govNovaRegra()">+ Nova regra</button>
+              </div>
+              <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;line-height:1.7;">
+                Uma regra não apaga o que já aconteceu: ela vale daqui para a frente. Quem esbarrar recebe o aviso
+                na hora, e o pedido cai na sua mão.
+              </p>
+              ${GOV.regras.length?GOV.regras.map(r=>`<div class="gov-regra">
+                <span class="pill ${r.ativa===false?'pill-mute':'pill-bad'}">${r.ativa===false?'desligada':'barrando'}</span>
+                <span class="t">
+                  <b>${uiEsc(GOV_ACOES[r.acao]||r.acao)} ${uiEsc(r.col||'qualquer área')}</b>
+                  <span>${r.uid==='*'?'para toda a equipe':'só para '+uiEsc(r.nome||r.uid)}${r.motivo?' · '+uiEsc(r.motivo):''}</span>
+                </span>
+                ${r.ativa===false?'':`<button class="btn btn-ghost btn-sm" onclick="govDesligarRegra('${r.id}')">Desligar</button>`}
+              </div>`).join('')
+              :'<div class="gov-vazio">Nenhuma regra. Use o botão <b>Barrar</b> em qualquer linha da trilha para criar a primeira a partir de um caso real.</div>'}
+            </div>`;
+          }
+
+          body.innerHTML=h;
+        }
+
+        /* ── as ações ── */
+
+        async function govDesfazer(id){
+          if(!confirm('Desfazer esta ação?\n\nO valor de antes volta, e o desfazer também entra na trilha.')) return;
+          try{
+            const r=await govApi('/gov/desfazer/'+id,{});
+            if(!r.ok) throw new Error(r.erro||'não deu');
+            /* o dado voltou no servidor; o navegador precisa buscar de novo,
+               senão a tela continua mostrando o valor errado */
+            if(typeof syncPuxar==='function') syncPuxar();
+            govCarregar();
+          }catch(e){ alert('Não consegui desfazer: '+e.message); }
+        }
+
+        async function govBarrarDaqui(acao, col, uid){
+          const soEsta=confirm('Exigir sua autorização para "'+(GOV_ACOES[acao]||acao)+'" daqui para a frente.\n\n'
+            +'OK = só para esta pessoa\nCancelar = para a equipe inteira');
+          const motivo=prompt('O que a pessoa vai ler quando for barrada:',
+            'Esta ação precisa da autorização da direção.');
+          if(motivo===null) return;
+          try{
+            await govApi('/gov/regras',{acao, col, uid:soEsta?uid:'*', motivo});
+            GOV.aba='regras'; govCarregar();
+          }catch(e){ alert('Não consegui criar a regra: '+e.message); }
+        }
+
+        async function govNovaRegra(){
+          const acao=prompt('Qual ação fica barrada?\n\nEx.: apagar, alterar, documento.enviar','apagar');
+          if(!acao) return;
+          const col=prompt('Em qual área? (vazio = todas)\n\nEx.: leads, projetos, fin, documentos','leads');
+          if(col===null) return;
+          const motivo=prompt('O que a pessoa vai ler quando for barrada:',
+            'Esta ação precisa da autorização da direção.');
+          if(motivo===null) return;
+          try{
+            await govApi('/gov/regras',{acao, col, uid:'*', motivo});
+            govCarregar();
+          }catch(e){ alert('Não consegui criar a regra: '+e.message); }
+        }
+
+        async function govDesligarRegra(id){
+          if(!confirm('Desligar esta regra? A ação volta a passar sem pedir autorização.')) return;
+          try{ await govApi('/gov/regras/'+id+'/desligar',{}); govCarregar(); }
+          catch(e){ alert('Não consegui desligar: '+e.message); }
+        }
+
+        async function govResponder(id, liberar){
+          try{
+            await govApi('/gov/pedidos/'+id+'/responder',{liberar});
+            govCarregar();
+          }catch(e){ alert('Não consegui responder: '+e.message); }
+        }
+
         /* ═══ TELA: SERVIÇOS EXECUTÁVEIS ═══ */
         function servRender(){
           let box=document.getElementById('sv-body'); if(!box) return;
@@ -14919,7 +15468,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
           document.getElementById('ct-corpo').innerHTML=vlContratoTexto(p);
           document.getElementById('ct-acoes').innerHTML=`
             <button class="btn btn-ghost" onclick="contratoFechar()">Fechar</button>
-            <button class="btn btn-ghost" onclick="contratoImprimir()">Imprimir / PDF</button>
+            <button class="btn btn-ghost" onclick="contratoImprimir()">Abrir o documento</button>
             ${p.contratoStatus!=='assinado'?`<button class="btn btn-gold" onclick="contratoFechar();vlContratoAssinar()">Registrar assinatura</button>`:''}`;
           document.getElementById('m-contrato').classList.add('on');
         }
@@ -14990,16 +15539,17 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
         }
         function vlDocImprimir(){
           let p=prjAtual(); if(!p) return;
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          let t=vlDocTotais(p);
-          w.document.write('<html><head><meta charset="utf-8"><title>Documentos · '+uiEsc(p.empresa)+'</title><style>'
+          docPublicar({tipo:'lista',
+            titulo:'Documentos · '+docTxt(p.empresa)+'',
+            estilo:''
             +'body{font-family:Georgia,serif;max-width:780px;margin:36px auto;color:#111;font-size:12.5px;line-height:1.6}'
             +'h1{font-size:17px;text-align:center;margin-bottom:4px}.sb{text-align:center;color:#666;font-size:11px;margin-bottom:22px}'
             +'h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8a6d1e;border-bottom:1px solid #ddd;padding-bottom:5px;margin:18px 0 8px}'
             +'.i{display:flex;gap:9px;padding:5px 0;border-bottom:1px solid #f0f0f0;page-break-inside:avoid}'
             +'.b{width:13px;height:13px;border:1.4px solid #999;border-radius:3px;flex:none;margin-top:3px;text-align:center;font-size:10px;line-height:12px}'
             +'.r{font-size:9px;color:#c0402e;font-weight:700;margin-left:auto;white-space:nowrap}'
-            +'.o{font-size:10.5px;color:#666;display:block}</style></head><body>'
+            +'.o{font-size:10.5px;color:#666;display:block}',
+            corpo:''
             +'<h1>Relação de documentos para a avaliação</h1>'
             +'<div class="sb">'+uiEsc(p.empresa||'')+(p.cnpj?' · CNPJ '+uiEsc(p.cnpj):'')+' · data-base '+kbDataMsg(p.dataBase)+' · '+t.ok+' de '+t.t+' recebidos</div>'
             +VL_DOCS.map((cat,ci)=>'<h2>'+uiEsc(cat.c)+'</h2>'+cat.itens.map((it,ii)=>{
@@ -15008,15 +15558,15 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
                   +(e.obs?'<span class="o">'+uiEsc(e.obs)+'</span>':'')+'</span>'+(it[1]?'<span class="r">obrigatório</span>':'')+'</div>';
               }).join('')).join('')
             +'<p style="margin-top:26px;font-size:10.5px;color:#777">Enviar em PDF (documentos e demonstrações) e Excel/CSV (planilhas). Período: 3 últimos exercícios fechados mais o balancete do ano corrente. Todos os documentos são tratados sob confidencialidade e usados exclusivamente para esta avaliação.</p>'
-            +'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),300);
+            +'',
+            ...docDoProjeto(p)});
         }
         function vlPaneDocumentos(p){
           let t=vlDocTotais(p);
           return `<div class="card">
             <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Documentos que o cliente precisa enviar
               <span class="pill ${t.faltamReq?'pill-mute':'pill-info'}" style="margin-left:auto;text-transform:none;letter-spacing:0;">${t.ok}/${t.t} recebidos</span>
-              <button class="btn btn-ghost btn-sm" onclick="vlDocImprimir()">Imprimir a lista</button>
+              <button class="btn btn-ghost btn-sm" onclick="vlDocImprimir()">Abrir a lista</button>
               <button class="btn btn-gold btn-sm" onclick="vlLinkCliente()">Link + PIN para o cliente</button></div>
             <p class="hint" style="margin:-6px 0 14px;">A mesma lista que o cliente vê. Ele marca o que enviou, você acompanha aqui e ninguém fica perguntando "o que falta mesmo?". Os <b>obrigatórios</b> travam a conclusão do laudo.</p>
             <div class="vd-barra" title="${t.pct}%"><i style="width:${t.pct}%;"></i></div>
@@ -15354,7 +15904,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
             <p class="hint" style="margin:10px 0 0;">O laudo é a prova do trabalho. Emitir com base incompleta é o que tira a credibilidade, o sistema não deixa.</p></div></div>`;
           return `<div class="card">
             <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Laudo de avaliação · pronto para emitir
-              <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="vlLaudoImprimir()">Imprimir / PDF</button>
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="vlLaudoImprimir()">Abrir o laudo</button>
               ${p.status!=='entregue'?`<button class="btn btn-gold btn-sm" onclick="vlLaudoEntregar()">Registrar entrega ao cliente</button>`:'<span class="dm-espera ok">Entregue em '+kbDataBR((p.entregueEm||'').slice(0,10))+'</span>'}</div>
             <p class="hint" style="margin:-6px 0 14px;">Sai com identificação, finalidade, metodologia, premissas, os quatro métodos, a conciliação, a faixa de valor, as ressalvas e o espaço de assinatura.</p>
             <div class="f"><span class="lbl">Ressalvas e limitações (vai no fim do laudo)</span>
@@ -15410,8 +15960,9 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           let p=prjAtual(); if(!p) return;
           let r=null; try{ r=vlCalcular(p.dados); }catch(e){}
           if(!r) return;
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><meta charset="utf-8"><title>Laudo de avaliação · '+uiEsc(p.empresa)+'</title><style>'
+          docPublicar({tipo:'laudo',
+            titulo:'Laudo de avaliação · '+docTxt(p.empresa)+'',
+            estilo:''
             +'body{font-family:Georgia,"Times New Roman",serif;max-width:760px;margin:34px auto;color:#111;font-size:12.5px;line-height:1.75}'
             +'h4{text-align:center;font-size:15px;letter-spacing:.04em;margin-bottom:4px}'
             +'.ct-v{text-align:center;color:#666;font-size:10.5px;margin-bottom:22px}'
@@ -15428,8 +15979,9 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
             +'.ct-ass{display:flex;gap:50px;margin-top:52px;page-break-inside:avoid}'
             +'.ct-ass div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center}'
             +'.ct-ass small{display:block;color:#666;font-size:9.5px}'
-            +'@page{margin:16mm}</style></head><body>'+vlLaudoHTML(p,r)+'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),350);
+            +'@page{margin:16mm}',
+            corpo:''+vlLaudoHTML(p,r)+'',
+            ...docDoProjeto(p)});
         }
         function vlLaudoEntregar(){
           let p=prjAtual(); if(!p) return;
@@ -16005,7 +16557,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           document.getElementById('ct-corpo').innerHTML=frContratoTexto(p);
           document.getElementById('ct-acoes').innerHTML=`
             <button class="btn btn-ghost" onclick="contratoFechar()">Fechar</button>
-            <button class="btn btn-ghost" onclick="contratoImprimir()">Imprimir / PDF</button>
+            <button class="btn btn-ghost" onclick="contratoImprimir()">Abrir o documento</button>
             ${p.contratoStatus!=='assinado'?`<button class="btn btn-gold" onclick="contratoFechar();frContratoAssinar()">Registrar assinatura</button>`:''}`;
           document.getElementById('m-contrato').classList.add('on');
         }
@@ -16168,21 +16720,23 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
         function frPopImprimir(i){
           let p=prjAtual(); if(!p) return;
           let o=p.dados.pops[i]; if(!o) return;
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><meta charset="utf-8"><title>'+uiEsc(o.cod)+' · '+uiEsc(o.t)+'</title><style>'
+          docPublicar({tipo:'pop',
+            titulo:''+docTxt(o.cod)+' · '+docTxt(o.t)+'',
+            estilo:''
             +'body{font-family:Georgia,serif;max-width:720px;margin:36px auto;color:#111;font-size:12.5px;line-height:1.7}'
             +'h1{font-size:16px;margin-bottom:2px}.sb{color:#666;font-size:11px;margin-bottom:18px}'
             +'.g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;font-size:11px}'
             +'.g b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#8a6d1e}'
             +'h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8a6d1e;border-bottom:1px solid #ddd;padding-bottom:4px;margin:16px 0 8px}'
-            +'ol{padding-left:20px}li{margin-bottom:6px}</style></head><body>'
+            +'ol{padding-left:20px}li{margin-bottom:6px}',
+            corpo:''
             +'<h1>'+uiEsc(o.cod)+' · '+uiEsc(o.t)+'</h1><div class="sb">'+uiEsc(p.empresa||'')+' · Procedimento Operacional Padrão</div>'
             +'<div class="g"><div><b>Área</b>'+uiEsc(o.area||'·')+'</div><div><b>Responsável</b>'+uiEsc(o.resp||'·')+'</div>'
             +'<div><b>Frequência</b>'+uiEsc(o.freq||'·')+'</div><div><b>Indicador</b>'+uiEsc(o.ind||'·')+'</div></div>'
             +(o.obj?'<h2>Objetivo</h2><p>'+uiEsc(o.obj)+'</p>':'')
             +'<h2>Passo a passo</h2><ol>'+(o.passos||[]).filter(Boolean).map(x=>'<li>'+uiEsc(x)+'</li>').join('')+'</ol>'
-            +'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),300);
+            +'',
+            ...docDoProjeto(p)});
         }
         function frPanePops(p){
           let pops=p.dados.pops||[];
@@ -16195,7 +16749,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
                 <div class="fr-pop-h">
                   <input class="inp cod" value="${uiEsc(o.cod)}" onchange="frPopSet(${i},'cod',this.value)">
                   <input class="inp tit" value="${uiEsc(o.t)}" onchange="frPopSet(${i},'t',this.value)">
-                  <button class="btn btn-ghost btn-sm" onclick="frPopImprimir(${i})">Imprimir</button>
+                  <button class="btn btn-ghost btn-sm" onclick="frPopImprimir(${i})">Abrir</button>
                   <button class="btn btn-ghost btn-sm" onclick="frPopRemover(${i})">✕</button>
                 </div>
                 <div class="grid">
@@ -16224,22 +16778,24 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
         }
         function frCofImprimir(){
           let p=prjAtual(); if(!p) return;
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><meta charset="utf-8"><title>COF · '+uiEsc(p.empresa)+'</title><style>'
+          docPublicar({tipo:'cof',
+            titulo:'COF · '+docTxt(p.empresa)+'',
+            estilo:''
             +'body{font-family:Georgia,serif;max-width:760px;margin:34px auto;color:#111;font-size:12.5px;line-height:1.7}'
             +'h1{font-size:16px;text-align:center;margin-bottom:3px}.sb{text-align:center;color:#666;font-size:11px;margin-bottom:24px}'
             +'h2{font-size:12px;color:#8a6d1e;border-bottom:1px solid #ddd;padding-bottom:4px;margin:20px 0 7px;page-break-after:avoid}'
             +'.d{font-size:10.5px;color:#777;font-style:italic;margin-bottom:6px}'
             +'p{text-align:justify;margin:0 0 10px;white-space:pre-wrap}'
-            +'.vazio{color:#b23a33;font-style:italic}</style></head><body>'
+            +'.vazio{color:#b23a33;font-style:italic}',
+            corpo:''
             +'<h1>CIRCULAR DE OFERTA DE FRANQUIA</h1>'
             +'<div class="sb">'+uiEsc(p.empresa||'')+(p.cnpj?' · CNPJ '+uiEsc(p.cnpj):'')+', elaborada conforme a Lei nº 13.966/2019, art. 2º</div>'
             +FR_COF.map((c,i)=>{ let e=(p.dados.cof||{})[i]||{};
                 return '<h2>'+uiEsc(c[0])+'</h2><div class="d">'+uiEsc(c[1])+'</div>'
                   +(e.txt?'<p>'+uiEsc(e.txt)+'</p>':'<p class="vazio">[conteúdo a preencher]</p>'); }).join('')
             +'<p style="margin-top:26px;font-size:10.5px;color:#777">Documento de trabalho. A COF deve ser entregue ao candidato com no mínimo 10 dias de antecedência da assinatura do contrato ou do pagamento de qualquer valor, sob pena de anulabilidade (art. 2º, §2º). Revisão jurídica obrigatória antes da oferta.</p>'
-            +'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),300);
+            +'',
+            ...docDoProjeto(p)});
         }
         function frPaneCof(p, r){
           let ok=r.cofOk;
@@ -16357,7 +16913,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
             <div class="dec-opiniao"><b>Ainda não dá para emitir:</b> ${travas.join('; ')}.</div></div>`;
           return `<div class="card">
             <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Laudo de franqueabilidade
-              <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="frLaudoImprimir()">Imprimir / PDF</button>
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="frLaudoImprimir()">Abrir o laudo</button>
               ${p.status!=='entregue'?`<button class="btn btn-gold btn-sm" onclick="frLaudoEntregar()">Registrar entrega</button>`:'<span class="dm-espera ok">Entregue em '+kbDataBR((p.entregueEm||'').slice(0,10))+'</span>'}</div>
             <p class="hint" style="margin:-6px 0 14px;">O documento que responde, com método, se o negócio pode virar rede, e o que precisa acontecer antes se a resposta for "ainda não".</p>
             <div class="vl-laudo">${frLaudoHTML(p,r)}</div>
@@ -16406,8 +16962,9 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           let p=prjAtual(); if(!p) return;
           let dg=frCalcDiag(p.dados), r={dg, vd:frVeredito(dg.indice), vb:frCalcViab(p.dados.viab), td:frDocTotais(p),
             cofOk:Object.keys(p.dados.cof||{}).filter(k=>p.dados.cof[k]&&p.dados.cof[k].ok).length};
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><meta charset="utf-8"><title>Laudo de franqueabilidade · '+uiEsc(p.empresa)+'</title><style>'
+          docPublicar({tipo:'laudo',
+            titulo:'Laudo de franqueabilidade · '+docTxt(p.empresa)+'',
+            estilo:''
             +'body{font-family:Georgia,"Times New Roman",serif;max-width:760px;margin:34px auto;color:#111;font-size:12.5px;line-height:1.75}'
             +'h4{text-align:center;font-size:15px;letter-spacing:.04em;margin-bottom:4px}'
             +'.ct-v{text-align:center;color:#666;font-size:10.5px;margin-bottom:22px}'
@@ -16419,8 +16976,9 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
             +'.ct-ass{display:flex;gap:50px;margin-top:52px;page-break-inside:avoid}'
             +'.ct-ass div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center}'
             +'.ct-ass small{display:block;color:#666;font-size:9.5px}'
-            +'@page{margin:16mm}</style></head><body>'+frLaudoHTML(p,r)+'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),350);
+            +'@page{margin:16mm}',
+            corpo:''+frLaudoHTML(p,r)+'',
+            ...docDoProjeto(p)});
         }
         function frLaudoEntregar(){
           let p=prjAtual(); if(!p) return;
@@ -16875,7 +17433,7 @@ ${r.campo.filter(f=>isFinite(f.mid)).map(f=>`<tr><td>${E(f.label)}</td><td>${brl
           document.getElementById('ct-corpo').innerHTML=rxContratoTexto(p);
           document.getElementById('ct-acoes').innerHTML=`
             <button class="btn btn-ghost" onclick="contratoFechar()">Fechar</button>
-            <button class="btn btn-ghost" onclick="contratoImprimir()">Imprimir / PDF</button>
+            <button class="btn btn-ghost" onclick="contratoImprimir()">Abrir o documento</button>
             ${p.contratoStatus!=='assinado'?`<button class="btn btn-gold" onclick="contratoFechar();rxContratoAssinar()">Registrar assinatura</button>`:''}`;
           document.getElementById('m-contrato').classList.add('on');
         }
@@ -17217,7 +17775,7 @@ ${presc.length?`<p><b>${r.temNumeros?'8':'7'}. Recomendação de trabalhos subse
             ${travas.length?`<div class="dec-opiniao mal" style="margin-bottom:14px;"><b>O laudo sai, mas incompleto:</b> ${uiEsc(travas.join('; '))}.</div>`:
               '<div class="dec-opiniao bem" style="margin-bottom:14px;"><b>Tudo pronto.</b> O laudo está completo e pode ser entregue.</div>'}
             <div class="dm-acts" style="margin-bottom:16px;">
-              <button class="btn btn-ghost btn-sm" onclick="rxLaudoImprimir()">Imprimir / PDF</button>
+              <button class="btn btn-ghost btn-sm" onclick="rxLaudoImprimir()">Abrir o laudo</button>
               ${p.status!=='entregue'?'<button class="btn btn-gold btn-sm" onclick="rxLaudoEntregar()">Registrar entrega</button>':'<span class="hint" style="margin:0;">Entregue em '+new Date(p.entregueEm).toLocaleString('pt-BR')+'.</span>'}
             </div>
             <div class="vl-laudo">${rxLaudoHTML(p, r)}</div>
@@ -17226,8 +17784,9 @@ ${presc.length?`<p><b>${r.temNumeros?'8':'7'}. Recomendação de trabalhos subse
         function rxLaudoImprimir(){
           let p=prjAtual(); if(!p) return;
           let r=rxCalcular(p.dados);
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><meta charset="utf-8"><title>Diagnóstico · '+uiEsc(p.empresa)+'</title><style>'
+          docPublicar({tipo:'laudo',
+            titulo:'Diagnóstico · '+docTxt(p.empresa)+'',
+            estilo:''
             +'body{font-family:Georgia,"Times New Roman",serif;max-width:760px;margin:34px auto;color:#111;font-size:12.5px;line-height:1.75}'
             +'h4{text-align:center;font-size:15px;letter-spacing:.04em;margin-bottom:4px}'
             +'.ct-v{text-align:center;color:#666;font-size:10.5px;margin-bottom:22px}'
@@ -17239,8 +17798,9 @@ ${presc.length?`<p><b>${r.temNumeros?'8':'7'}. Recomendação de trabalhos subse
             +'.ct-ass{display:flex;gap:50px;margin-top:52px;page-break-inside:avoid}'
             +'.ct-ass div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center}'
             +'.ct-ass small{display:block;color:#666;font-size:9.5px}'
-            +'@page{margin:16mm}</style></head><body>'+rxLaudoHTML(p,r)+'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),350);
+            +'@page{margin:16mm}',
+            corpo:''+rxLaudoHTML(p,r)+'',
+            ...docDoProjeto(p)});
         }
         function rxLaudoEntregar(){
           let p=prjAtual(); if(!p) return;
@@ -17633,7 +18193,7 @@ ${presc.length?`<p><b>${r.temNumeros?'8':'7'}. Recomendação de trabalhos subse
           document.getElementById('ct-corpo').innerHTML=pcContratoTexto(p);
           document.getElementById('ct-acoes').innerHTML=`
             <button class="btn btn-ghost" onclick="contratoFechar()">Fechar</button>
-            <button class="btn btn-ghost" onclick="contratoImprimir()">Imprimir / PDF</button>
+            <button class="btn btn-ghost" onclick="contratoImprimir()">Abrir o documento</button>
             ${p.contratoStatus!=='assinado'?`<button class="btn btn-gold" onclick="contratoFechar();pcContratoAssinar()">Registrar assinatura</button>`:''}`;
           document.getElementById('m-contrato').classList.add('on');
         }
@@ -18036,7 +18596,7 @@ ${abaixo.length?`<p><b>8. Recomendação de reposicionamento.</b> ${abaixo.lengt
             ${travas.length?`<div class="dec-opiniao mal" style="margin-bottom:14px;"><b>O laudo sai, mas incompleto:</b> ${uiEsc(travas.join('; '))}.</div>`:
               '<div class="dec-opiniao bem" style="margin-bottom:14px;"><b>Tudo pronto.</b> O laudo está completo e pode ser entregue.</div>'}
             <div class="dm-acts" style="margin-bottom:16px;">
-              <button class="btn btn-ghost btn-sm" onclick="pcLaudoImprimir()">Imprimir / PDF</button>
+              <button class="btn btn-ghost btn-sm" onclick="pcLaudoImprimir()">Abrir o laudo</button>
               ${p.status!=='entregue'?'<button class="btn btn-gold btn-sm" onclick="pcLaudoEntregar()">Registrar entrega</button>':'<span class="hint" style="margin:0;">Entregue em '+new Date(p.entregueEm).toLocaleString('pt-BR')+'.</span>'}
             </div>
             <div class="vl-laudo">${pcLaudoHTML(p, r)}</div>
@@ -18045,8 +18605,9 @@ ${abaixo.length?`<p><b>8. Recomendação de reposicionamento.</b> ${abaixo.lengt
         function pcLaudoImprimir(){
           let p=prjAtual(); if(!p) return;
           let r=pcCalcular(p.dados);
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><meta charset="utf-8"><title>Precificação · '+uiEsc(p.empresa)+'</title><style>'
+          docPublicar({tipo:'laudo',
+            titulo:'Precificação · '+docTxt(p.empresa)+'',
+            estilo:''
             +'body{font-family:Georgia,"Times New Roman",serif;max-width:760px;margin:34px auto;color:#111;font-size:12.5px;line-height:1.75}'
             +'h4{text-align:center;font-size:15px;letter-spacing:.04em;margin-bottom:4px}'
             +'.ct-v{text-align:center;color:#666;font-size:10.5px;margin-bottom:22px}'
@@ -18062,8 +18623,9 @@ ${abaixo.length?`<p><b>8. Recomendação de reposicionamento.</b> ${abaixo.lengt
             +'.ct-ass{display:flex;gap:50px;margin-top:52px;page-break-inside:avoid}'
             +'.ct-ass div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center}'
             +'.ct-ass small{display:block;color:#666;font-size:9.5px}'
-            +'@page{margin:16mm}</style></head><body>'+pcLaudoHTML(p,r)+'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),350);
+            +'@page{margin:16mm}',
+            corpo:''+pcLaudoHTML(p,r)+'',
+            ...docDoProjeto(p)});
         }
         function pcLaudoEntregar(){
           let p=prjAtual(); if(!p) return;
@@ -18480,7 +19042,7 @@ ${abaixo.length?`<p><b>8. Recomendação de reposicionamento.</b> ${abaixo.lengt
           document.getElementById('ct-corpo').innerHTML=cxContratoTexto(p);
           document.getElementById('ct-acoes').innerHTML=`
             <button class="btn btn-ghost" onclick="contratoFechar()">Fechar</button>
-            <button class="btn btn-ghost" onclick="contratoImprimir()">Imprimir / PDF</button>
+            <button class="btn btn-ghost" onclick="contratoImprimir()">Abrir o documento</button>
             ${p.contratoStatus!=='assinado'?`<button class="btn btn-gold" onclick="contratoFechar();cxContratoAssinar()">Registrar assinatura</button>`:''}`;
           document.getElementById('m-contrato').classList.add('on');
         }
@@ -18864,7 +19426,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             ${travas.length?`<div class="dec-opiniao mal" style="margin-bottom:14px;"><b>O plano sai, mas incompleto:</b> ${uiEsc(travas.join('; '))}.</div>`:
               '<div class="dec-opiniao bem" style="margin-bottom:14px;"><b>Tudo pronto.</b> O plano está completo e pode ser entregue.</div>'}
             <div class="dm-acts" style="margin-bottom:16px;">
-              <button class="btn btn-ghost btn-sm" onclick="cxLaudoImprimir()">Imprimir / PDF</button>
+              <button class="btn btn-ghost btn-sm" onclick="cxLaudoImprimir()">Abrir o laudo</button>
               ${p.status!=='entregue'?'<button class="btn btn-gold btn-sm" onclick="cxLaudoEntregar()">Registrar entrega</button>':'<span class="hint" style="margin:0;">Entregue em '+new Date(p.entregueEm).toLocaleString('pt-BR')+'.</span>'}
             </div>
             <div class="vl-laudo">${cxLaudoHTML(p, r)}</div>
@@ -18873,8 +19435,9 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         function cxLaudoImprimir(){
           let p=prjAtual(); if(!p) return;
           let r=cxCalcular(p.dados);
-          let w=window.open('','_blank'); if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><meta charset="utf-8"><title>Reestruturação · '+uiEsc(p.empresa)+'</title><style>'
+          docPublicar({tipo:'laudo',
+            titulo:'Reestruturação · '+docTxt(p.empresa)+'',
+            estilo:''
             +'body{font-family:Georgia,"Times New Roman",serif;max-width:760px;margin:34px auto;color:#111;font-size:12.5px;line-height:1.75}'
             +'h4{text-align:center;font-size:15px;letter-spacing:.04em;margin-bottom:4px}'
             +'.ct-v{text-align:center;color:#666;font-size:10.5px;margin-bottom:22px}'
@@ -18891,8 +19454,9 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             +'.ct-ass{display:flex;gap:50px;margin-top:52px;page-break-inside:avoid}'
             +'.ct-ass div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center}'
             +'.ct-ass small{display:block;color:#666;font-size:9.5px}'
-            +'@page{margin:16mm}</style></head><body>'+cxLaudoHTML(p,r)+'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),350);
+            +'@page{margin:16mm}',
+            corpo:''+cxLaudoHTML(p,r)+'',
+            ...docDoProjeto(p)});
         }
         function cxLaudoEntregar(){
           let p=prjAtual(); if(!p) return;
@@ -19309,18 +19873,27 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           let euMesmo=AUTH.user&&AUTH.user.papel==='colaborador'&&AUTH.user.id===c.id;
           document.getElementById('ct-acoes').innerHTML=`
             <button class="btn btn-ghost" onclick="contratoFechar()">Fechar</button>
-            <button class="btn btn-ghost" onclick="contratoImprimir()">Imprimir / PDF</button>
+            <button class="btn btn-ghost" onclick="contratoImprimir()">Abrir o documento</button>
             ${euMesmo&&c.contratoStatus==='enviado'?`<button class="btn btn-gold" onclick="contratoAssinarEu('${c.id}')">✍ Li e assino</button>`:''}
             ${(!euMesmo&&(!c.contratoStatus||c.contratoStatus==='nenhum'||c.contratoStatus==='cancelado'))?`<button class="btn btn-gold" onclick="contratoFechar();d4Enviar('${c.id}')">Enviar para assinatura</button>`:''}`;
           document.getElementById('m-contrato').classList.add('on');
         }
         function contratoFechar(){ _ctVer=null; document.getElementById('m-contrato').classList.remove('on'); }
         function contratoImprimir(){
-          let w=window.open('','_blank');
-          if(!w){ alert('O navegador bloqueou a janela de impressão.'); return; }
-          w.document.write('<html><head><title>Contrato de prestação de serviços</title><style>body{font-family:Georgia,serif;max-width:760px;margin:40px auto;line-height:1.7;color:#111;font-size:13px;}h4{text-align:center;font-size:15px;letter-spacing:.04em;}p{text-align:justify;margin:0 0 12px;}.ct-v{text-align:center;color:#666;font-size:11px;}.ct-ass{display:flex;gap:60px;margin-top:60px;}.ct-ass div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center;}.ct-ass small{display:block;color:#666;font-size:10px;}</style></head><body>'
-            +document.getElementById('ct-corpo').innerHTML+'</body></html>');
-          w.document.close(); setTimeout(()=>w.print(),300);
+          /* O mesmo modal mostra o contrato do projeto e o do prestador.
+             Quem estiver aberto é o dono do documento, e é para o portal
+             dele que ele vai. */
+          let c=_ctVer?DB.colaboradores.find(x=>x.id===_ctVer):null;
+          let p=c?null:prjAtual();
+          let dono=c?{cliente:c.nome||'', clienteId:c.id||'',
+                      telefone:docZap((c.pessoal&&c.pessoal.telefone)||'')}
+                   :(p?docDoProjeto(p):{});
+          docPublicar({tipo:'contrato',
+            titulo:'Contrato de prestação de serviços',
+            estilo:'body{font-family:Georgia,serif;max-width:760px;margin:40px auto;line-height:1.7;color:#111;font-size:13px;}h4{text-align:center;font-size:15px;letter-spacing:.04em;}p{text-align:justify;margin:0 0 12px;}.ct-v{text-align:center;color:#666;font-size:11px;}.ct-ass{display:flex;gap:60px;margin-top:60px;}.ct-ass div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center;}.ct-ass small{display:block;color:#666;font-size:10px;}',
+            corpo:''
+            +document.getElementById('ct-corpo').innerHTML+'',
+            ...dono});
         }
         function contratoAssinarEu(id){
           let c=DB.colaboradores.find(x=>x.id===id); if(!c) return;

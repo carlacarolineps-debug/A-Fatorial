@@ -311,6 +311,17 @@ require('./documentos').montar(app, {
     if (!s) return res.status(401).json({ ok: false, erro: 'sessao_invalida' });
     req.eu = s; next();
   },
+  /* A mesma leitura de sessão, mas sem recusar quem não tem: a página da
+     equipe abre em aba nova, que não leva cabeçalho, e ali quem
+     identifica é a vista assinada no endereço. */
+  talvezLogin: (req, res, next) => {
+    if (!req.eu) {
+      const t = String(req.headers.authorization || '').replace(/^Bearer /, '');
+      const s = require('./equipe').sessao && require('./equipe').sessao(t);
+      if (s) req.eu = s;
+    }
+    next();
+  },
   registrar: auditoria.registrar,
   provar: obrigacoes.provar,
   enviarZap: zapTexto,
