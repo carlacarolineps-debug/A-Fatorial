@@ -69,6 +69,12 @@ const E={name:'Carla',xp:2400,level:5,createdAt:Date.now()-11*864e5,
   ok('mudou na tela', /Carla Caroline/.test(await T()));
   ok('subiu para profiles', await p.evaluate(()=>window.__SB.perfis.some(x=>x.display_name==='Carla Caroline')));
   ok('e no topo tambem', (await p.evaluate(()=>document.getElementById('avatar').textContent)).trim().charAt(0)==='C');
+  /* a inicial precisa estar VISIVEL, nao so existir: o retrato tem um
+     disco escuro por cima, e texto sem posicao fica atras dele */
+  ok('e a inicial aparece na frente do disco', await p.evaluate(()=>{
+    const sp=document.querySelector('#avatar span');
+    return !!sp && getComputedStyle(sp).position==='relative';
+  }));
 
   console.log('\n6. A FOTO sobe para o balde certo e vira avatar');
   await p.evaluate(async()=>{
@@ -82,6 +88,12 @@ const E={name:'Carla',xp:2400,level:5,createdAt:Date.now()-11*864e5,
   ok('na pasta do dono', up.length===1 && up[0].caminho.indexOf('u-ana/')===0, JSON.stringify(up[0]||{}));
   ok('gravou a url no perfil', await p.evaluate(()=>window.__SB.perfis.some(x=>String(x.avatar_url||'').indexOf('avatares')>=0)));
   ok('o retrato do topo virou imagem', await p.evaluate(()=>!!document.querySelector('#avatar img')));
+  ok('e a foto aparece na frente do disco', await p.evaluate(()=>{
+    const a=document.getElementById('avatar'), im=a&&a.querySelector('img');
+    if(!im) return false;
+    const disco=getComputedStyle(a,'::before').display;
+    return disco==='none' && getComputedStyle(im).position==='relative';
+  }));
 
   console.log('\n7. A AJUDA e o suporte abrem');
   await p.evaluate(()=>pfAjuda()); await p.waitForTimeout(400);

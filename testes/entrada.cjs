@@ -34,13 +34,24 @@ async function nova(b, init){
   ok('nao entrega que a conta nao existe', !/não existe|nao existe|cadastr/i.test(e2));
   ok('e ensina o caminho do primeiro acesso', /primeiro acesso/i.test(e2));
 
-  console.log('\n3. PRIMEIRO ACESSO explica de onde vem a senha');
-  await pg.click('#ob-primeiro'); await pg.waitForTimeout(400);
+  console.log('\n3. PRIMEIRO ACESSO abre NA MESMA TELA, sem navegar');
+  await pg.fill('#ob-email','carla@exemplo.com');
+  await pg.click('#ob-primeiro'); await pg.waitForTimeout(500);
   const t3=await txt(pg)||'';
+  ok('os campos continuam na tela', await pg.evaluate(()=>!!document.getElementById('ob-senha')&&!!document.getElementById('ob-entrar')));
+  ok('e o e-mail continua escrito', (await pg.evaluate(()=>document.getElementById('ob-email').value))==='carla@exemplo.com');
+  ok('a explicacao apareceu ali mesmo', await pg.evaluate(()=>{
+    const c=document.getElementById('ob-cx1'); return !!c && c.style.display!=='none' && /tempor/i.test(c.innerText); }));
   ok('fala de senha temporaria', /tempor/i.test(t3), t3.slice(0,80));
-  ok('avisa que o app cobra a senha propria em seguida', /criar a sua pr/i.test(t3));
-  ok('cobra o mesmo e-mail da inscricao', /mesmo que voc|inscri/i.test(t3));
+  ok('manda usar os campos acima', /campos acima/i.test(t3));
+  ok('cobra o mesmo e-mail da inscricao', /mesmo e-mail/i.test(t3));
+  ok('o campo de senha diz qual senha e', /veio por e-mail/.test(await pg.evaluate(()=>document.getElementById('ob-senha').placeholder)),
+     JSON.stringify(await pg.evaluate(()=>document.getElementById('ob-senha').placeholder)));
+  ok('tem o caminho de quem nao recebeu', await pg.evaluate(()=>!!document.getElementById('ob-nao')));
   ok('nao pede codigo nenhum', !/6 d[ií]gitos/i.test(t3), t3.slice(0,80));
+  await pg.click('#ob-primeiro'); await pg.waitForTimeout(400);
+  ok('e fecha ao tocar de novo', await pg.evaluate(()=>document.getElementById('ob-cx1').style.display==='none'));
+  ok('devolvendo o campo ao normal', (await pg.evaluate(()=>document.getElementById('ob-senha').placeholder))==='sua senha');
 
   console.log('\n4. A SENHA TEMPORARIA entra, mas o app NAO abre');
   await pg.close();
@@ -132,18 +143,15 @@ async function nova(b, init){
   await pg.click('#ob-salvar'); await pg.waitForTimeout(2000);
   ok('e quando o servidor aceita, aí sim abre', await aberto(pg));
 
-  console.log('\n11. O E-MAIL DIGITADO nao se perde ao ver o primeiro acesso');
+  console.log('\n11. NAO RECEBI leva para o pedido, com o e-mail junto');
   await pg.close();
   pg=await nova(b);
   await pg.goto(U); await pg.waitForTimeout(1300);
   await pg.fill('#ob-email','carla@exemplo.com');
   await pg.click('#ob-primeiro'); await pg.waitForTimeout(500);
-  const t11=await txt(pg)||'';
-  ok('a tela diz que NAO cria conta aqui', /n.o existe criar conta/i.test(t11), t11.slice(0,80));
-  ok('e o botao diz para onde leva', /Voltar para a entrada/.test(t11));
-  await pg.click('#ob-volta'); await pg.waitForTimeout(500);
-  ok('voltou para a entrada', await pg.evaluate(()=>!!document.getElementById('ob-senha')));
-  ok('com o e-mail ainda escrito', (await pg.evaluate(()=>document.getElementById('ob-email').value))==='carla@exemplo.com',
+  await pg.click('#ob-nao'); await pg.waitForTimeout(600);
+  ok('foi para o pedido de senha nova', await pg.evaluate(()=>!!document.getElementById('ob-send')));
+  ok('levando o e-mail digitado', (await pg.evaluate(()=>document.getElementById('ob-email').value))==='carla@exemplo.com',
      JSON.stringify(await pg.evaluate(()=>document.getElementById('ob-email').value)));
 
   console.log('\n12. SEM ACESSO: a tela cobra o e-mail da inscricao');

@@ -4138,8 +4138,19 @@ main.wrap{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px)) !important
   .anav-lb{font-size:8.8px}
   .anav-ic svg{width:20px;height:20px}
 }
-/* abaixo disto o rótulo some e ficam os sete ícones, com folga */
-@media (max-width:405px){
+/* O NOME DA SEÇÃO FICA, e isto é o pedido da Carla, não um detalhe:
+   ícone sozinho obriga a pessoa a decorar sete desenhos, e a Bússola e o
+   Diário são justamente os que ela mais manda abrir. Num iPhone de 390px
+   cabem os sete nomes com 8,2px, medido em sete larguras. */
+@media (max-width:410px){
+  .anav-lb{font-size:8.2px;letter-spacing:-.01em}
+  .anav-ic svg{width:19px;height:19px}
+  .anav{min-height:45px;padding-top:4px;padding-bottom:3px}
+  .appnav{padding-left:3px;padding-right:3px}
+}
+/* só num aparelho muito estreito o nome sai, porque aí ele sairia
+   cortado, e nome pela metade é pior do que ícone sozinho */
+@media (max-width:339px){
   .anav-lb{display:none}
   .anav{min-height:46px}
   .anav-ic svg{width:22px;height:22px}
@@ -4214,11 +4225,30 @@ main.wrap{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px)) !important
 .pf-faq details[open] summary::before{content:"-"}
 .pf-faq details p{font-size:13px;color:var(--mute);line-height:1.6;margin:8px 0 2px;padding-left:18px}
 
+/* com foto, o disco escuro do miolo sai: ele cobriria a foto inteira,
+   do mesmo jeito que cobria a inicial */
 .avatar.com-foto{padding:0;overflow:hidden;background:var(--ink-3)}
+.avatar.com-foto::before{display:none}
+.avatar.com-foto img{position:relative;z-index:1;width:100%;height:100%;
+  object-fit:cover;border-radius:50%;display:block}
 @media (max-width:430px){
   .pf-nome{font-size:23px}
   .pf-row,.pf-sw{padding:12px 12px}
 }
+
+/* a faixa de versão nova: some sozinha do caminho, mas fica clicável */
+#ob-nova-versao{
+  position:fixed;left:12px;right:12px;
+  bottom:calc(74px + env(safe-area-inset-bottom,0px));
+  z-index:9998;display:flex;flex-direction:column;gap:1px;cursor:pointer;
+  padding:11px 16px;border-radius:14px;text-align:center;
+  background:linear-gradient(180deg,#f0cd7e,#d9a53a 60%,#c08f22);color:#20180a;
+  box-shadow:0 10px 30px -12px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.35) inset;
+  animation:obNvSobe .32s cubic-bezier(.2,.8,.2,1)}
+#ob-nova-versao b{font-size:13.5px;font-weight:700}
+#ob-nova-versao span{font-size:11.5px;opacity:.8}
+@keyframes obNvSobe{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#ob-nova-versao{animation:none}}
 
 </style>
 <script>window.PRINT_CSS="\n  html,body{background:#fff!important}\n  body>*{display:none!important}\n  #printSheet{display:block!important;color:#1c1c1e;background:#fff;\n    font-family:'Inter','Helvetica Neue',Arial,sans-serif;\n    -webkit-print-color-adjust:exact;print-color-adjust:exact;\n    --star:#1c1c1e;--mute:#5a5a5e;--mute-2:#8a8a8e;--steel:#3a3a3e;\n    --amber:#b6862c;--amber-deep:#8a6420;--sage:#1f7a52;--coral:#c0392b;--violet:#5b4bbf;\n    --line:#d6d2c8;--line-soft:#e8e4da;--ink:#faf8f3;--ink-2:#f3f0e9;--bg:#fff;\n    --serif:'Playfair Display',Georgia,serif;--mono:'JetBrains Mono','Courier New',monospace}\n  @page{size:A4;margin:15mm 16mm}\n\n  #printSheet .ps-top{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:2.5px solid #b6862c;margin-bottom:3px}\n  #printSheet .ps-shield{font-size:34px;line-height:1;filter:saturate(.2)}\n  #printSheet .ps-brand{font-family:'Playfair Display',Georgia,serif;font-size:23px;font-weight:800;letter-spacing:.06em;color:#1c1c1e}\n  #printSheet .ps-tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#b6862c;margin-top:3px;font-weight:600}\n  #printSheet .ps-titlebar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:18px 0 18px;padding-bottom:10px;border-bottom:1px solid #e2ddd2}\n  #printSheet .ps-doc{font-family:'Playfair Display',Georgia,serif;font-size:21px;font-weight:700;color:#1c1c1e;line-height:1.2}\n  #printSheet .ps-meta{font-size:11px;color:#8a8a8e;white-space:nowrap;letter-spacing:.02em}\n\n  #printSheet .ph-body{font-size:12.5px;line-height:1.6;color:#2a2a2e}\n  #printSheet .ph-body h3{font-family:'Playfair Display',Georgia,serif;font-size:18px;color:#1c1c1e;margin:0 0 8px}\n  #printSheet .ph-body h4{font-family:'Playfair Display',Georgia,serif;font-size:16px;color:#b6862c;margin:0 0 10px}\n  #printSheet .ph-body h5{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#8a6420;margin:16px 0 5px;font-weight:700}\n  #printSheet .ph-body p{margin:0 0 9px}\n  #printSheet .ph-body ul{padding-left:18px;margin:6px 0 12px}\n  #printSheet .ph-body li{margin:4px 0}\n  #printSheet .ph-body b{color:#1c1c1e}\n  #printSheet .ph-body .eyebrow,#printSheet .ph-body .tg-badge{display:inline-block;color:#5b4bbf;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}\n  #printSheet .ph-body .stat-num{font-family:'Playfair Display',Georgia,serif;font-size:34px;font-weight:800;color:#b6862c;line-height:1}\n  #printSheet .ph-body .stat-lbl{font-size:11px;color:#5a5a5e;margin-top:2px}\n  #printSheet .ph-body .card,#printSheet .ph-body .callout,#printSheet .ph-body .tg-result{\n    border:1px solid #e2ddd2!important;background:#faf8f3!important;border-left:3px solid #b6862c!important;\n    border-radius:8px;padding:13px 16px;margin:11px 0;page-break-inside:avoid}\n  #printSheet .ph-body .callout{display:flex;gap:10px;align-items:flex-start}\n  #printSheet .ph-body .callout .ic{font-size:16px}\n  #printSheet .ph-body .bar{background:#ece7db;border-radius:20px;height:7px;overflow:hidden;margin:5px 0}\n  #printSheet .ph-body .bar i{display:block;height:100%;background:linear-gradient(90deg,#b6862c,#d4a843)}\n  #printSheet .ph-body .metric{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #ece7db}\n  #printSheet .ph-body .metric:last-child{border-bottom:none}\n  #printSheet .ph-body .tg-flag{border:1px solid #e2ddd2;border-radius:8px;padding:10px 13px;margin:9px 0;font-size:12px}\n  #printSheet .ph-body .big{font-family:'Playfair Display',Georgia,serif;color:#b6862c;font-weight:700}\n\n  #printSheet .ps-foot{margin-top:26px;padding-top:11px;border-top:2px solid #b6862c;display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.06em;color:#8a8a8e;text-transform:uppercase}\n";</script>
@@ -4418,6 +4448,18 @@ window.OB = (function () {
     +   'background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent)}'
     + '.obg-pe{margin-top:22px;color:#6f6a61;font-size:11.5px;letter-spacing:.02em;line-height:1.6}'
     + '.obg-pe a{color:#a4894e;text-decoration:none;border-bottom:1px solid rgba(164,137,78,.35)}'
+    /* a caixa do primeiro acesso: abre DENTRO da tela de entrada, sem
+       levar a pessoa para lugar nenhum */
+    + '.obg-cx{text-align:left;margin:14px 0 2px;padding:14px 15px;border-radius:14px;'
+    +   'background:rgba(233,184,76,.06);border:1px solid rgba(233,184,76,.22);'
+    +   'font-size:12.6px;line-height:1.6;color:#b9b6ad;'
+    +   'animation:obgAbre .22s cubic-bezier(.2,.8,.2,1)}'
+    + '@keyframes obgAbre{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}'
+    + '.obg-cx b{color:#e8e6e1}'
+    + '.obg-cx .obg-cxt{display:block;color:#efe9de;font-size:13.5px;font-weight:600;margin-bottom:7px}'
+    + '.obg-cx ul{margin:8px 0 0;padding-left:17px}'
+    + '.obg-cx li{margin-bottom:4px}'
+    + '.obg-lk.aberto{color:#e9d4a0}'
     + '@media (max-width:380px){.obg-card{padding:24px 19px 22px}.obg-marca span{font-size:24px}}';
 
   function overlay(html) {
@@ -4536,8 +4578,9 @@ window.OB = (function () {
       + '<input id="ob-senha" type="password" autocomplete="current-password" placeholder="sua senha" class="obg-in"/>'
       + '<div id="ob-erro" style="color:#d98a8a;font-size:12.5px;margin:-4px 0 12px;min-height:16px">' + (aviso || '') + '</div>'
       + '<button id="ob-entrar" class="obg-bt">Entrar</button>'
-      + '<button id="ob-primeiro" class="obg-lk">&Eacute; o meu primeiro acesso</button><br>'
-      + '<button id="ob-esqueci" class="obg-lk" style="margin-top:8px">Esqueci a minha senha</button>'
+      + '<button id="ob-primeiro" class="obg-lk">&Eacute; o meu primeiro acesso</button>'
+      + '<div id="ob-cx1" style="display:none"></div>'
+      + '<br><button id="ob-esqueci" class="obg-lk" style="margin-top:8px">Esqueci a minha senha</button>'
       + linhaAjuda());
 
     var bt = document.getElementById("ob-entrar"),
@@ -4576,49 +4619,35 @@ window.OB = (function () {
         bt.textContent = "Entrar"; bt.disabled = false; erro.innerHTML = erroEmPortugues(e);
       });
     });
-    document.getElementById("ob-primeiro").addEventListener("click", function () { showPrimeiro(); });
+    /* Primeiro acesso NÃO troca de tela. A versão anterior levava a pessoa
+       para uma tela de explicação e o botão dela só voltava: parecia dar a
+       volta sem sair do lugar, e ainda lia como um cadastro. Agora a
+       explicação abre aqui embaixo, com os campos ainda cheios e à vista. */
+    var lk = document.getElementById("ob-primeiro"), cx = document.getElementById("ob-cx1");
+    lk.addEventListener("click", function () {
+      var abrindo = cx.style.display === "none";
+      lk.classList.toggle("aberto", abrindo);
+      lk.innerHTML = abrindo ? "&Eacute; o meu primeiro acesso &and;" : "&Eacute; o meu primeiro acesso";
+      if (!abrindo) { cx.style.display = "none"; cx.innerHTML = ""; sn.placeholder = "sua senha"; return; }
+      cx.innerHTML = '<div class="obg-cx">'
+        + '<span class="obg-cxt">A sua senha j&aacute; foi enviada</span>'
+        + 'Quando a sua inscri&ccedil;&atilde;o foi confirmada, mandamos uma <b>senha tempor&aacute;ria</b> '
+        + 'para o e-mail da inscri&ccedil;&atilde;o. <b>Entre com ela nos campos acima.</b> '
+        + 'O app pede na hora para voc&ecirc; criar a sua pr&oacute;pria senha, e a tempor&aacute;ria deixa de valer.'
+        + '<ul><li>Use o <b>mesmo e-mail</b> da inscri&ccedil;&atilde;o.</li>'
+        + '<li>N&atilde;o achou o e-mail? Olhe o <b>spam</b> e a aba promo&ccedil;&otilde;es.</li></ul>'
+        + '<button id="ob-nao" class="obg-bt" style="margin-top:12px;font-size:13.5px;padding:11px">Receber uma senha nova</button>'
+        + '</div>';
+      cx.style.display = "";
+      /* o campo passa a dizer qual senha é: sem isso ela digita a que ainda não criou */
+      sn.placeholder = "a senha que veio por e-mail";
+      document.getElementById("ob-nao").addEventListener("click", function () {
+        emailPedido = (em.value || "").trim().toLowerCase() || emailPedido;
+        showEsqueci();
+      });
+      try { cx.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) {}
+    });
     document.getElementById("ob-esqueci").addEventListener("click", function () { showEsqueci(); });
-  }
-
-  /* ---------- 2. primeiro acesso: explicar de onde vem a senha ----------
-     Esta tela não pede nada: ela responde a pergunta que a pessoa tem na
-     cabeça. Sem ela, quem nunca entrou fica procurando um botão de criar
-     conta que não existe, porque quem cria a conta é a inscrição. */
-  function showPrimeiro() {
-    overlay('<div style="font-size:15px;margin-bottom:10px"><b>&Eacute; o seu primeiro acesso</b></div>'
-      + '<div style="color:#b9b6ad;font-size:13px;line-height:1.65;text-align:left">'
-      + 'Quando a sua inscri&ccedil;&atilde;o foi confirmada, mandamos para o seu e-mail uma '
-      + '<b style="color:#e8e6e1">senha tempor&aacute;ria</b>.<br><br>'
-      + '<b style="color:#e8e6e1">1.</b> Entre com o e-mail da inscri&ccedil;&atilde;o e aquela senha.<br><br>'
-      + '<b style="color:#e8e6e1">2.</b> O app pede na hora para voc&ecirc; criar a sua pr&oacute;pria senha. '
-      + 'A tempor&aacute;ria deixa de valer nesse momento.<br><br>'
-      + '<span style="color:#c8a24a">O e-mail aqui precisa ser exatamente o mesmo que voc&ecirc; usou para se inscrever.</span>'
-      /* Sem esta linha a tela parece um cadastro, e a pessoa aperta o botao
-         esperando entrar. Nao existe criar conta aqui: quem cria a conta e
-         a inscricao. */
-      + '<br><br><span style="color:#7d7a73">Esta tela &eacute; s&oacute; a explica&ccedil;&atilde;o. N&atilde;o existe criar conta aqui: '
-      + 'a sua conta nasce quando a sua inscri&ccedil;&atilde;o &eacute; confirmada.</span>'
-      + '</div>'
-      + '<button id="ob-volta" class="obg-bt" style="margin-top:20px">Voltar para a entrada</button>'
-      + '<button id="ob-nao" class="obg-lk">N&atilde;o recebi a senha tempor&aacute;ria</button>');
-    document.getElementById("ob-volta").addEventListener("click", function () { showLogin(); });
-    document.getElementById("ob-nao").addEventListener("click", function () { showNaoRecebi(); });
-  }
-
-  function showNaoRecebi() {
-    var mail = emailPedido || "";
-    overlay('<div style="font-size:15px;margin-bottom:12px"><b>A senha n&atilde;o chegou</b></div>'
-      + '<div style="color:#b9b6ad;font-size:13px;line-height:1.65;text-align:left">'
-      + '<b style="color:#e8e6e1">1.</b> Olhe a caixa de spam e a aba promo&ccedil;&otilde;es. O primeiro e-mail costuma cair l&aacute;.<br><br>'
-      + '<b style="color:#e8e6e1">2.</b> Confira se est&aacute; procurando no e-mail certo: precisa ser o mesmo da inscri&ccedil;&atilde;o.<br><br>'
-      + '<b style="color:#e8e6e1">3.</b> Pe&ccedil;a uma senha nova pelo bot&atilde;o abaixo: chega em 1 minuto.<br><br>'
-      + '<b style="color:#e8e6e1">4.</b> Se nada disso funcionar, escreva para '
-      + '<a href="mailto:gestaogrupoa@gmail.com" style="color:#c8a24a">gestaogrupoa@gmail.com</a> dizendo o e-mail da sua inscri&ccedil;&atilde;o.'
-      + '</div>'
-      + '<button id="ob-pedir" class="obg-bt" style="margin-top:20px">Receber uma senha nova</button>'
-      + '<button id="ob-volta" class="obg-lk">Voltar</button>');
-    document.getElementById("ob-pedir").addEventListener("click", function () { emailPedido = mail; showEsqueci(); });
-    document.getElementById("ob-volta").addEventListener("click", function () { showLogin(); });
   }
 
   /* ---------- 3. esqueci a minha senha ----------
@@ -23459,15 +23488,20 @@ function pfRemoverFoto() {
 }
 
 /* o retrato do topo do app segue a foto do perfil */
+/* O <span> aqui não é enfeite, e custou um bug: o retrato tem um disco
+   escuro por cima (.avatar::before, posicionado), e só o que estiver
+   posicionado aparece na frente dele. Trocar o span por texto solto punha
+   a inicial ATRÁS do disco: a letra existia no HTML, com a cor certa, e a
+   pessoa via um círculo vazio. O mesmo valia para a foto. */
 function pfPintaTopo() {
   const el = document.getElementById('avatar'); if (!el) return;
   const url = pfFoto();
   if (url) {
-    el.innerHTML = `<img src="${escapeHtml(urlSegura(url))}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    el.innerHTML = `<img src="${escapeHtml(urlSegura(url))}" alt="">`;
     el.classList.add('com-foto');
   } else {
     el.classList.remove('com-foto');
-    el.textContent = (pfNome() || pfEmail() || 'O').trim().charAt(0).toUpperCase();
+    el.innerHTML = `<span>${escapeHtml((pfNome() || pfEmail() || 'O').trim().charAt(0).toUpperCase())}</span>`;
   }
 }
 
@@ -23732,6 +23766,19 @@ function obNativo(){
    arquivo já mora no aparelho, então não há o que cachear. */
 if('serviceWorker' in navigator && !window.EM_APP && location.protocol.indexOf('http')===0){
   window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+  /* O app agora abre com o arquivo guardado, na hora, e confere a versão
+     por trás. Este aviso é o que impede o efeito colateral disso: sem ele,
+     quem instalou ficaria numa versão antiga sem ter como perceber.
+     Não interrompe nada: é uma faixa que espera ser tocada. */
+  navigator.serviceWorker.addEventListener('message',function(ev){
+    if(!ev.data || ev.data.tipo!=='nova-versao' || window.__avisouVersao) return;
+    window.__avisouVersao=true;
+    var f=document.createElement('div');
+    f.id='ob-nova-versao';
+    f.innerHTML='<b>Tem uma versão nova do app.</b><span>Toque para atualizar</span>';
+    f.addEventListener('click',function(){ location.reload(); });
+    document.body.appendChild(f);
+  });
 }
 OB.start().then(boot).then(function(){
   if(window.obCheckUpdates) obCheckUpdates();
