@@ -1,4 +1,4 @@
-# A! Fatorial — Sistema de Gestão (Arquitetura de Lucro)
+# A! Fatorial. Sistema de Gestão (Arquitetura de Lucro)
 
 Aplicação de página única (um arquivo `index.html`, sem build, JavaScript puro).
 Abra o arquivo no navegador para usar.
@@ -11,18 +11,18 @@ Abra o arquivo no navegador para usar.
 | **Colaborador** | Portal do colaborador | Portal do colaborador, **Esteira comercial**, **Propostas e rastreio** e **Kanban operacional** (já filtrado nas demandas dele) |
 | **Cliente** | Portal do cliente | Portal do cliente |
 
-Todos os perfis usam **o mesmo visual** (tema claro, um só — ver "Um tema só")
-e a **mesma moldura** (menu lateral + topo) — cada um enxerga apenas os itens
+Todos os perfis usam **o mesmo visual** (tema claro, um só · ver "Um tema só")
+e a **mesma moldura** (menu lateral + topo) · cada um enxerga apenas os itens
 que tem permissão.
 
 ## Novidades desta versão
 
-1. **Mesmo visual para todos os acessos** — o tema escuro/neon do portal do
+1. **Mesmo visual para todos os acessos** · o tema escuro/neon do portal do
    colaborador passou a valer para o ecossistema inteiro (admin, colaborador e
    cliente), com a barra lateral sempre visível.
-2. **Esteira comercial e Propostas no portal do colaborador** — cada colaborador
+2. **Esteira comercial e Propostas no portal do colaborador** · cada colaborador
    acessa essas telas dentro da própria plataforma.
-3. **Permissões configuráveis** — em **Equipe e acessos**, o admin marca quais
+3. **Permissões configuráveis**, em **Equipe e acessos**, o admin marca quais
    telas cada perfil enxerga e define se o colaborador vê *todos* os negócios da
    empresa ou *apenas os seus*. As escolhas valem na hora e ficam salvas no
    navegador (chave `af_permissoes`). O acesso do admin à própria tela de
@@ -34,11 +34,11 @@ que tem permissão.
    - **Colaborador**: indicador da "próxima conquista a desbloquear" no cartão do
      jogador, somado à gamificação já existente (XP, níveis, badges, missões, saga).
 
-5. **CNAE / base da Nota Fiscal no catálogo** — cada serviço recebe uma sugestão
+5. **CNAE / base da Nota Fiscal no catálogo** · cada serviço recebe uma sugestão
    automática de CNAE, escolhida apenas entre os 6 CNAEs registrados no CNPJ da
    empresa (30.361.388/0001-17). O campo "Tipo de serviço (base da NF)" do funil
    também passou a exibir o CNAE de cada opção.
-6. **Gestão de usuários (Equipe e acessos → Equipe e responsáveis)** — login,
+6. **Gestão de usuários (Equipe e acessos → Equipe e responsáveis)** · login,
    senha, foto de perfil, apelido e status por usuário; ativar/desativar; alterar
    senha; criar novo usuário. Usuários inativos não conseguem entrar. Cada
    colaborador também personaliza foto e apelido no próprio portal ("Meu perfil").
@@ -48,7 +48,7 @@ que tem permissão.
    barra de topo, no briefing de entrada e nos cartões de pessoa. Trocar pelo
    próprio painel de usuários substitui essa; apagar volta para ela. O arquivo é
    gerado por `site/retrato.py`, a partir de `site/carla.jpg`.
-7. **Catálogo → aba "Oportunidades por CNAE"** — biblioteca curada de 49 serviços
+7. **Catálogo → aba "Oportunidades por CNAE"** · biblioteca curada de 49 serviços
    que a empresa PODE oferecer dentro dos CNAEs que já tem registrados (sem risco
    fiscal). Cada serviço traz descrição e preço sugerido; um clique ativa na
    carteira (entra no catálogo com o CNAE certo). Inclui um insight estratégico
@@ -71,7 +71,7 @@ que tem permissão.
      esteira já preenchida com o cliente e o serviço solicitado, convertendo o
      pedido em proposta. Funções: `renderSolicitacoes`, `solicitacaoConverter`,
      `solicitacaoAtender`, `solicitacaoVerCliente`, `listaSolicitacoes`.
-9. **Notificações sonoras** — sons curtos gerados via Web Audio (sem arquivos),
+9. **Notificações sonoras** · sons curtos gerados via Web Audio (sem arquivos),
    com timbres distintos por evento: XP/pontuação, notificação, conquista, subida
    de nível, **pagamento recebido (caixa registradora)**, **proposta/entrega
    aprovada e proposta gerada (sucesso)**, **novo pedido de cliente** e **perda**.
@@ -82,18 +82,18 @@ que tem permissão.
    `notify`, `colAddXP`, `colGanhaBadge`, `darBaixa`, `cliAprovar`/
    `ptAprovarProposta`, `confConfirmar`, `entAprovar`, `satSave`, `avalSalvar`,
    `depSave`, `perdaSave`, `portalSolicitarServico` e `loginEnter`.
-10. **Modo apresentação** — botão 🎤 na barra de topo borra os valores sensíveis
+10. **Modo apresentação** · botão 🎤 na barra de topo borra os valores sensíveis
     (KPIs do dashboard e do financeiro, tabela de recebíveis, custo/margem e nota
     interna do funil); passe o mouse para revelar. Marque mais elementos com a
     classe `sens`. Funções: `toggleApresentacao`.
-11. **Exportar proposta em PDF** — botão "⤓ Baixar PDF" no topo do portal/overlay
+11. **Exportar proposta em PDF** · botão "⤓ Baixar PDF" no topo do portal/overlay
     da proposta usa o diálogo de impressão (`@media print` isola só a proposta).
     Função: `cliExportarPDF`.
-12. **Tema claro/escuro** — botão 🌙/☀️ alterna entre o escuro "gamer" (padrão) e
+12. **Tema claro/escuro** · botão 🌙/☀️ alterna entre o escuro "gamer" (padrão) e
     um tema claro; a preferência fica em `localStorage` (`af_tema`). O portal do
     colaborador mantém a identidade gamer nos dois temas. Funções: `alternarTema`,
     `aplicarTema`.
-13. **Centro Financeiro 360** (nav "Centro Financeiro 360", admin) — gestão
+13. **Centro Financeiro 360** (nav "Centro Financeiro 360", admin) · gestão
     financeira pessoal + empresa num só lugar:
     - **Visão geral**: KPIs (entradas, saídas, resultado, mistura PF↔Empresa),
       gráfico de categorias, evolução mensal e o **Conselheiro** (analisa e diz o
@@ -105,7 +105,7 @@ que tem permissão.
     - Vem **semeado com extratos reais (jan–abr/2026)**. Persistência em
       `localStorage` (`af_fin`). Funções: `FIN360`, `finParseExtrato`,
       `finConselho`, `finVisaoGeral`, `finResumo`, `finCatFinal`.
-14. **Planejamento estratégico** (nav "Planejamento estratégico", admin) — metas
+14. **Planejamento estratégico** (nav "Planejamento estratégico", admin) · metas
     de venda ligadas ao pipeline e ao financeiro:
     - Cada meta: serviço, quantidade × valor (ou **recorrente** por unidade, ex.:
       Medical R$ 25/agendamento), prazo e **projeção de receita**.
@@ -124,13 +124,12 @@ que tem permissão.
       **rodapé** (razão social, CNPJ, contato), com a cor da marca; o PDF sai com
       a capa em página própria. Funções: `BRAND`, `renderBrand`, `brandLogoHTML`.
     - **Atalho de teclado Alt+P** alterna o modo apresentação.
-16. **Importação CSV / qualquer banco (Cora PJ)** — além do parser Nubank, o
+16. **Importação CSV / qualquer banco (Cora PJ)** · além do parser Nubank, o
     Centro Financeiro importa **CSV/planilha** de qualquer banco (Cora, Inter…),
     por colagem ou **upload de arquivo**. Detecta delimitador, datas e sinais
     (crédito/débito). Escolha o contexto **Empresa** para separar o PJ do pessoal.
     Função: `finParseCSV`.
-17. **Visão do dono** (nav "Visão do dono", admin — tela inicial do admin) —
-    cockpit executivo que une, numa tela: receita projetada × realizada, resultado
+17. **Visão do dono** (nav "Visão do dono", admin · tela inicial do admin) · cockpit executivo que une, numa tela: receita projetada × realizada, resultado
     financeiro, **valuation**, saúde financeira (saldo PF/PJ e mistura), funil
     comercial, **conselho do dia** (financeiro + comercial) e o progresso das
     metas. Função: `renderDono`.
@@ -154,7 +153,7 @@ que tem permissão.
     - **Metas do plano na projeção**: recorrência (alvo/12) + clientes fechados
       entram como receita futura no fluxo de caixa (toggle). `finProjMeses`.
     - **Mais gráficos na Gestão à vista**: resultado mensal, caixa projetado (6m)
-      e metas de venda — para decisão rápida. `renderDashCharts`, `miniBars`.
+      e metas de venda · para decisão rápida. `renderDashCharts`, `miniBars`.
 20. **Alertas inteligentes, exportar CSV e metas trimestrais**
     - **Alertas no sino**: caixa projetado negativo, meta de venda sem fechamentos
       perto do prazo, propostas não abertas, pedidos de cliente novos e avaliações
@@ -169,7 +168,7 @@ que tem permissão.
 21. **Simulador de futuro + backup + conciliação + meta do colaborador**
     - **Simulador de futuro** (nav própria): calculadora de premissas (receita,
       crescimento %/ano, custos fixos, custo variável %, pró-labore, rendimento
-      %/mês) projetando **6m, 1, 2, 5 e 10 anos** — quanto sobra/falta, caixa
+      %/mês) projetando **6m, 1, 2, 5 e 10 anos** · quanto sobra/falta, caixa
       acumulado, patrimônio investindo a sobra (juros compostos), **contas a
       reduzir** e **movimentos estratégicos**. `renderFuturo`, `futuroSerie`.
     - **Backup/Restauração** (Equipe e acessos): exporta/importa todo o sistema
@@ -208,8 +207,7 @@ que tem permissão.
     - **Comparar decisões**: o histórico recalcula o impacto em 1/5/10 anos e
       mostra um gráfico de qual decisão rende mais. `decImpacto`.
 
-25. **Kanban operacional com aviso no WhatsApp** (nav "Kanban operacional" —
-    admin e colaborador) — o quadro de demandas da equipe. Cada tarefa tem
+25. **Kanban operacional com aviso no WhatsApp** (nav "Kanban operacional" · admin e colaborador) · o quadro de demandas da equipe. Cada tarefa tem
     **dono, prazo e etapa**, e quem é responsável é avisado no WhatsApp.
     - **Formulário de tarefa**: título, etapa, onda, prioridade (sem prioridade
       / urgente / médio / pouco urgente), responsável, área, início, término e
@@ -217,18 +215,18 @@ que tem permissão.
     - **Quadro**: 5 etapas (Backlog → A fazer → Fazendo → Revisão e aguardando →
       Concluído) com **arrastar e soltar** entre colunas, ou as setas ‹ › do
       card no celular. `KB_ETAPAS`, `kbDrop`, `kbMover`.
-    - **Duas visões**: por etapa (kanban clássico) e **por responsável** — um
+    - **Duas visões**: por etapa (kanban clássico) e **por responsável** · um
       bloco "Tarefas de fulano" para cada pessoa. `kbToggleVisao`.
     - **Painel e filtros**: total, em andamento, concluídas, em atraso e % de
       conclusão; busca livre + filtros por pessoa (chips coloridos), área, onda
       e prioridade. `kbRenderKpis`, `kbFiltradas`.
     - **WhatsApp em 3 modos** (`KANBAN.wa.modo`):
-      **🔗 link direto** (padrão, sem configurar nada — abre a conversa com o
+      **🔗 link direto** (padrão, sem configurar nada · abre a conversa com o
       texto pronto), **⚡ automático** (envia sozinho pela WhatsApp Cloud API
       oficial através do servidor em `backend/`) e **🔕 desligado**.
       `kbNotificar`, `kbMontarMsg`.
     - **Quando avisa** (configurável): tarefa criada, mudança de etapa, troca de
-      responsável e cobrança de prazo — com três textos editáveis e variáveis
+      responsável e cobrança de prazo · com três textos editáveis e variáveis
       `{{nome}} {{tarefa}} {{prioridade}} {{etapa}} {{area}} {{onda}} {{prazo}}
       {{inicio}} {{situacao}} {{notas}}`. `KB_MSG_PADRAO`, `kbWaSet`.
     - **Números da equipe**: WhatsApp de cada pessoa (formato `5511999999999`),
@@ -254,32 +252,30 @@ que tem permissão.
       "1d de atraso"). Funções `kbRenderHero`, `kbRenderStats`,
       `kbRenderTrilha`, `kbColuna`, `kbCard`, `kbCardFoot`.
     - **Tema claro e escuro**: as cores do quadro saem dos tokens `--kb-c1..c8`,
-      `--kb-ouro`, `--kb-neutro` e `--kb-sobre`, definidos duas vezes no CSS —
-      fechadas no tema claro, neon no escuro. Nenhuma cor fixa no JavaScript,
+      `--kb-ouro`, `--kb-neutro` e `--kb-sobre`, definidos duas vezes no CSS · fechadas no tema claro, neon no escuro. Nenhuma cor fixa no JavaScript,
       então o quadro nasce legível nos dois (contraste medido ≥ 4,9:1).
     - **No sino**: alerta de demandas atrasadas e das que vencem hoje.
     - O colaborador entra vendo **as demandas dele** e não enxerga o painel de
       configuração do WhatsApp. Dados em `localStorage` chave `af_kanban`
       (incluída no backup).
 
-26. **Aparência do sistema (botão 🎨 na barra de topo)** — abre um painel com
+26. **Aparência do sistema (botão 🎨 na barra de topo)** · abre um painel com
     **tema** (escuro/claro) e **cor do sistema**: Dourado A!, Vinho, Magenta,
     Violeta, Oceano e Esmeralda. A cor reescreve os tokens `--gold*` no `<body>`,
     e como o app inteiro usa `var(--gold)`, **todas as telas** trocam de
-    personalidade de uma vez — menu, botões, gráficos, portal do cliente e
+    personalidade de uma vez · menu, botões, gráficos, portal do cliente e
     propostas. Fica salvo em `localStorage` (`af_accent`) e entra no backup.
     `AP_CORES`, `apAplicarCor`, `apRender`, `apInit`.
-    - Detalhe técnico: `--gold-grad` é declarado no `body`, não no `:root` —
-      um custom property declarado no `:root` já resolve os `var()` dele ali,
+    - Detalhe técnico: `--gold-grad` é declarado no `body`, não no `:root` · um custom property declarado no `:root` já resolve os `var()` dele ali,
       e o gradiente continuaria dourado depois da troca de cor.
 
-27. **Mesmo padrão visual na Gestão à vista e na Visão do dono** — o hero, os
+27. **Mesmo padrão visual na Gestão à vista e na Visão do dono** · o hero, os
     stat cards e a trilha que nasceram no Kanban viraram **componentes
     compartilhados** (`uiHero`, `uiStat`/`uiStats`, `uiTrilha`, `uiSpark`, classes
     com prefixo `ui-`). Mexer neles muda as três telas de uma vez.
     - **Gestão à vista**: hero com saudação e **anel de progresso da esteira**;
       6 stat cards (contratos, faturamento, a receber, aguardando você,
-      satisfação, demandas em aberto); e a **esteira virou trilha** — cada etapa
+      satisfação, demandas em aberto); e a **esteira virou trilha** · cada etapa
       é um passo com quantos clientes estão nela, e clicar abre o funil.
       `renderDashHero`, `renderDashTrilha`.
     - **Visão do dono**: hero com o número que precisa virar hoje (resultado
@@ -288,10 +284,9 @@ que tem permissão.
       PF/PJ. As ações (relatório PDF, recalcular alertas) subiram para o hero.
       `renderDonoHero`.
     - Corrigido: a **Visão do dono não tinha título na barra de topo** (faltava a
-      entrada em `TITLES`), e valores em reais quebravam em duas linhas no card —
-      agora usam a variante `.ui-stat-v.grana`.
+      entrada em `TITLES`), e valores em reais quebravam em duas linhas no card · agora usam a variante `.ui-stat-v.grana`.
 
-28. **Portal do colaborador no mesmo padrão** — a tela era a mais destoante
+28. **Portal do colaborador no mesmo padrão** · a tela era a mais destoante
     (moldura "gamer" com cantos, ciano fixo e uma barra lateral com 20 links
     empilhados). Agora usa os mesmos componentes das outras telas:
     - **Hero** com foto, saudação, nível/XP em texto e **anel do nível**;
@@ -308,10 +303,10 @@ que tem permissão.
     - Corrigidos três defeitos: o hero mostrava XP/nível **antes** de creditar
       as etapas concluídas (340 XP contra 580); etapas **já concluídas ficavam
       com cadeado** se uma etapa anterior estivesse em aberto (`colAbaLiberada`);
-      e o fundo fixo do portal **cobria a barra lateral** — invisível no tema
+      e o fundo fixo do portal **cobria a barra lateral** · invisível no tema
       escuro, gritante no claro (`.side` ganhou `z-index`).
 
-29. **Dimensionamento em telas de notebook (1280–1440px)** — o visual foi
+29. **Dimensionamento em telas de notebook (1280–1440px)** · o visual foi
     desenhado em tela larga e quebrava em 1366px:
     - **Barra de topo**: o subtítulo e o cargo do usuário quebravam em duas
       linhas e a barra crescia de 64 para 84px. Agora os textos ficam em uma
@@ -319,14 +314,14 @@ que tem permissão.
       avatar, e o controle de volume some.
     - **Stat cards**: com 6 cards a grade fazia 5 + 1, deixando um card órfão.
       O contêiner agora recebe a classe da quantidade (`.n4`…`.n6` via
-      `uiStatsRender`) e a grade escolhe colunas que fecham as linhas — em
+      `uiStatsRender`) e a grade escolhe colunas que fecham as linhas, em
       1366px: 3 + 3 para seis cards e 5 em linha para cinco.
     - **Trilha**: os 10 passos da jornada somavam 1180px em um espaço de
       976px e sumiam na rolagem. Abaixo de 1500px os passos encolhem
       (anel menor, fontes menores) e cabem sem rolar.
     - Corrigida a pontuação dupla "Chegou!." no texto do hero.
 
-30. **"Próximo passo" — o sistema diz o que fazer** (faixa fixa abaixo da barra
+30. **"Próximo passo" · o sistema diz o que fazer** (faixa fixa abaixo da barra
     de topo, em todas as telas). Varre os dados reais e mostra a ação mais
     urgente com um botão que leva direto ao lugar; o "+N depois" abre a fila.
     Cada perfil vê o que é dele: a gestão vê demandas atrasadas, entregas a
@@ -336,14 +331,14 @@ que tem permissão.
     pendente, sugere o próximo movimento em vez de ficar mudo.
     `proxPassos`, `renderProx`, `proxFazer`.
 
-31. **Formulário que ninguém precisa adivinhar** — cada campo da nova tarefa
+31. **Formulário que ninguém precisa adivinhar** · cada campo da nova tarefa
     ganhou uma dica curta embaixo, incluindo o que é **Onda** (lote de
     trabalho: "Onda 1 é o que entra primeiro, Onda 2 o bloco seguinte").
     Prioridade e Temperatura do lead deixaram de ser `<select>` com emoji
     (ficava amador) e viraram **pílulas com bolinha colorida e descrição**:
     Urgente *é para hoje*, Médio *esta semana*. Componente `uiOpts`/`uiOptSet`.
 
-32. **Configuração do WhatsApp só nas configurações** — o painel de
+32. **Configuração do WhatsApp só nas configurações** · o painel de
     integração, mensagens, números da equipe e histórico saiu do Kanban e
     passou para **Equipe e acessos**, tela que só o admin/gestor acessa. No
     Kanban ficou o selo de status, que leva à configuração em um clique.
@@ -352,32 +347,32 @@ que tem permissão.
     - Stat cards ganharam tinta suave no canto, ícone com relevo e topo em
       degradê; cards zerados ficam com opacidade menor para o olho ir ao que
       importa. Valor em texto ("ainda sem nota") não herda mais o espaçamento
-      negativo dos números — antes saía "aindasemnota".
+      negativo dos números · antes saía "aindasemnota".
     - Rótulos dos gráficos vazavam do card (`263.305,20`): agora saem curtos
       ("263 mil") com o valor cheio no tooltip. `brlCurto`.
     - Modal alto rola por dentro e o rodapé com **Salvar** fica fixo: numa tela
       de 640px o botão ficava fora da área visível.
     - Escala compacta para notebook (≤1500px ou ≤820px de altura): hero, anel,
       cards, espaçamento e barra de topo encolhem juntos. No portal do
-      colaborador a navegação subiu para antes dos números — a trilha da
+      colaborador a navegação subiu para antes dos números · a trilha da
       jornada agora aparece sem rolar.
 
-34. **Catálogo explicado** — os 77 serviços e os 8 grupos ganharam uma
+34. **Catálogo explicado** · os 77 serviços e os 8 grupos ganharam uma
     explicação curta ("o que é / o que o cliente recebe"), visível na tabela do
     catálogo e na hora de montar a proposta. Passando o mouse, um **resumo
     completo** aparece: preço, carga, valor da hora, CNAE da NF, quanto já foi
     vendido e com o que costuma ir junto. Serviço novo tem campo próprio de
     descrição. `CAT_DESC`, `CAT_GRUPOS_DESC`, `catDesc`, `hcServico`.
 
-35. **Assistente de decisão que começa pronto** — em vez de campo em branco, o
+35. **Assistente de decisão que começa pronto**, em vez de campo em branco, o
     "e se eu...?" abre com **decisões montadas a partir dos seus números**
     (contratar pelo salário médio da equipe, fechar mais 1 do serviço com maior
     meta, cortar 10% do custo fixo, reajustar a tabela em 5%, comprar
-    equipamento, subir o pró-labore) — cada uma já simulada, com o impacto em 5
+    equipamento, subir o pró-labore) · cada uma já simulada, com o impacto em 5
     anos no próprio cartão. E abre com uma **leitura**: qual delas mais melhora
     o caixa e qual mais pesa. `decSugestoes`, `decRanking`, `decSimularSugestao`.
 
-36. **Os painéis se conversam** — toda notificação recalcula a faixa "Próximo
+36. **Os painéis se conversam** · toda notificação recalcula a faixa "Próximo
     passo". Ações do cliente que antes morriam na tela dele agora avisam a
     gestão: documento anexado, entrega aprovada e avaliação recebida (com
     alerta quando a nota vem baixa). Documento sem conferência e entrega
@@ -389,7 +384,7 @@ que tem permissão.
       por resultado e **quais contratos cada um pode representar** (Medical ·
       A! Saúde, Consultoria, Franquias, Treinamentos), além da comissão e da
       meta de contatos por dia. O painel de cada pessoa mostra **só o que você
-      liberou** — quem representa consultoria PJ não enxerga lead PF da Medical.
+      liberou** · quem representa consultoria PJ não enxerga lead PF da Medical.
       `CONTRATOS`, `podeRepresentar`, `prestConfigHTML`.
     - **Painel de distribuição com trava**: quem pega o lead o tira do painel
       dos outros; um segundo prestador que tente pegar recebe o aviso de que já
@@ -401,7 +396,7 @@ que tem permissão.
     - **Carteira e follow-up**: WhatsApp em um clique, registro do que
       aconteceu, data do próximo passo e aviso de retorno atrasado.
     - **Base de contatos**: nome, WhatsApp, e-mail, telefone, cidade e endereço,
-      **separada automaticamente** — primeiro por natureza (PF / PJ) e dentro
+      **separada automaticamente** · primeiro por natureza (PF / PJ) e dentro
       dela por segmento, com exportação CSV por bloco. `leadBaseHTML`,
       `LEAD_SEGMENTOS`, `leadExportar`.
     - **Ganhos**: comissão calculada sobre o que a pessoa fechou.
@@ -411,7 +406,7 @@ que tem permissão.
       lead que precisa contatar antes de perder; você vê lead parado no painel
       e lead pego sem contato.
 
-38. **Briefing de entrada — "por onde eu começo hoje?"** (abre ao entrar; o
+38. **Briefing de entrada · "por onde eu começo hoje?"** (abre ao entrar; o
     botão 🧭 no topo reabre quando você quiser)
     - **O que mudou desde a sua última entrada**: leads novos, demandas
       criadas, demandas concluídas e negócios fechados enquanto você esteve
@@ -419,55 +414,55 @@ que tem permissão.
     - **O número que importa hoje**: para a gestão, quanto falta para a meta do
       plano; para o prestador, contatos feitos contra a meta do dia; para o
       colaborador, quantas demandas estão com o nome dele. `briefNumero`.
-    - **Três primeiros passos, na ordem** (nunca mais que três — lista grande
+    - **Três primeiros passos, na ordem** (nunca mais que três · lista grande
       paralisa), cada um com estimativa de tempo e clique que já leva à tela.
     - **Primeira entrada** explica onde ficam as coisas (menu, faixa "Agora",
       🎨 e 🔔) em vez de despejar tarefa em quem ainda não conhece o sistema.
-    - "Não mostrar de novo hoje" e fechar clicando fora — o aviso não prende
+    - "Não mostrar de novo hoje" e fechar clicando fora · o aviso não prende
       ninguém. `briefingAbrir`, `briefingIr`, `af_brief_dia`.
 
-39. **Correção na barra de topo** — o cargo do colaborador ("Analista de
+39. **Correção na barra de topo** · o cargo do colaborador ("Analista de
     Marketing · Marketing / Conteúdo") era cortado **pelo começo**, aparecendo
     "ARKETING …": o texto é alinhado à direita e o `text-overflow` do CSS corta
     do lado errado. Agora o corte é feito no próprio texto (fim + reticências),
     com o valor completo no tooltip.
 
-40. **"Meus leads" virou página no menu** — quem trabalha por resultado abre
+40. **"Meus leads" virou página no menu** · quem trabalha por resultado abre
     direto no que importa, sem passar pelo portal de desenvolvimento. A página
     tem hero com o foco do dia (o que está sem contato, o retorno atrasado ou
     quanto falta para a meta), stat cards, régua de contatos, painel de
     distribuição e a carteira. O item só aparece para quem tem vínculo "por
     resultado". `leadRenderPagina`, `v-meusleads`.
 
-41. **Bug crítico de CSS corrigido** — faltava o `}` de fechamento do bloco
+41. **Bug crítico de CSS corrigido** · faltava o `}` de fechamento do bloco
     `@media(max-height:720px)`, e **todas as 128 regras seguintes** (leads,
     prestadores, base de contatos, treinamentos e o briefing) eram descartadas
     pelo navegador: os cartões apareciam como texto solto. Fechado o bloco, o
     módulo inteiro voltou a renderizar.
 
-42. **Gráfico "XP por semana"** — o SVG usava `preserveAspectRatio="none"`, que
+42. **Gráfico "XP por semana"** · o SVG usava `preserveAspectRatio="none"`, que
     estica junto os rótulos e os números (ficavam borrados), e sem XP no período
     sobrava uma caixa vazia de 200px. Os rótulos saíram para HTML e, sem dados,
     entra um aviso explicando como o gráfico começa a subir.
 
-43. **Separação entre gestão e vendedor** — "Meus leads" é a tela de quem
+43. **Separação entre gestão e vendedor** · "Meus leads" é a tela de quem
     vende; sumiu do menu do admin. Você acompanha por **Prestadores e leads**,
     onde cada linha tem **"👁 Ver o painel dele"**: abre a tela do vendedor em
     modo prévia, com aviso no topo e botão de voltar. `leadPreview`.
 
-44. **Revisão e reorganização do sistema** — auditoria automática de menu,
+44. **Revisão e reorganização do sistema** · auditoria automática de menu,
     telas, títulos e permissões, papel por papel:
     - **Menu reagrupado por assunto** (antes eram 11 itens soltos em "Operação
       interna"): Meu dia · Comercial · Meu trabalho · Entrega e operação ·
       Financeiro · Pessoas · Cliente · Configuração. Grupos vazios somem
       sozinhos conforme a permissão de cada perfil.
-    - **Duas telas estavam órfãs** — *Auditoria de entregáveis* e *Satisfação e
+    - **Duas telas estavam órfãs** · *Auditoria de entregáveis* e *Satisfação e
       depoimentos* existiam mas não tinham item de menu nem entrada no
       configurador de permissões; só dava para chegar nelas por botão.
     - **Três telas sem título na barra de topo** (Centro Financeiro 360,
       Simulador de futuro e Planejamento estratégico) mostravam só a data.
     - Auditoria final: 17 telas no admin, 5 no vendedor, 4 no colaborador
-      contratado e 1 no cliente — nenhuma tela sem menu, nenhum menu sem tela,
+      contratado e 1 no cliente · nenhuma tela sem menu, nenhum menu sem tela,
       nenhum título faltando e nenhum erro de console em 27 aberturas.
 
 ## Integração com o WhatsApp (pasta `backend/`)
@@ -509,19 +504,19 @@ no [README do backend](backend/README.md).
   com justificativa) e `procDesvio`. Visual: `procTrilhaHTML` e
   `procCartaoHTML`, usados na tela **Execução** (`v-processo`) e dentro dos
   cards de lead e demanda. **Para acrescentar um processo**: uma entrada em
-  `PROCESSOS` com `itens`, `nome`, `etapaDe`, `desde` e as etapas — o resto
+  `PROCESSOS` com `itens`, `nome`, `etapaDe`, `desde` e as etapas · o resto
   (fila, gargalo, aderência, trava, desvio) passa a valer sozinho.
 - **Cor e legibilidade**: `--gold` (dourado de superfície: fundos, bordas,
   gradientes) e `--gold-txt` (dourado de texto, fechado o bastante para ler
-  no claro). A regra das **ilhas escuras** — `.ptg, .pt-hero, .in-hero,
-  .cad-box, .rel-ov, .cli-ov, #login-screen` — devolve o dourado claro só
+  no claro). A regra das **ilhas escuras** · `.ptg, .pt-hero, .in-hero,
+  .cad-box, .rel-ov, .cli-ov, #login-screen` · devolve o dourado claro só
   dentro delas. `--kb-ouro` aponta para o de texto, o que mantém legível
   tanto o ícone sobre o próprio tom quanto o branco sobre a tarja. O sistema
   tem **um tema só, claro**; a cor de destaque fica em `AP_CORES`/`apAplicarCor`.
 - **Gamificação do cliente**: `renderPortalGame` e `PT_BADGES_DEF`.
 - **Filtro de dados do colaborador**: `comercialVisivel` + `COL_ESCOPO_COMERCIAL`.
 - **CNAE / base da NF**: `CNAES_EMPRESA`, `sugerirCnae`, `cnaeOptions`.
-- **Serviços executáveis**: `SERV_EXEC` (o registro — cada serviço declara
+- **Serviços executáveis**: `SERV_EXEC` (o registro · cada serviço declara
   `fnDados`, `fnRender`, `fnAba` e `fnEtapa`, e o resto do sistema funciona
   igual para todos), `servFn` (chama a função declarada), `DB.projetos` (chave
   `af_projetos`), `prjNovo`/`prjAbrir`/`prjEtapaAtual`, `servRender`
@@ -552,8 +547,7 @@ no [README do backend](backend/README.md).
   `syncEmpacotar`/`syncDesempacotar` (lista ↔ objeto por id), `syncDif` (o
   remendo), `syncEmpurrar`/`syncPuxar`/`syncAplicar`, `syncReconciliar`
   (conflito nunca é descartado), `syncBarra` (selo de presença) e
-  `syncTelaRender` (Ajustes → Equipe). No servidor: `backend/equipe.js` —
-  `aplicarRemendo`, `desdeRev`, contas e presença.
+  `syncTelaRender` (Ajustes → Equipe). No servidor: `backend/equipe.js` · `aplicarRemendo`, `desdeRev`, contas e presença.
 - **Digitação e números**: `numBR`/`numDe`/`maskNum`/`inpMoeda` (máscara
   brasileira com cursor preservado), `uiFocoGuardar`/`uiFocoRestaurar`,
   `uiRedesenhar` (adia o redesenho) e `uiRedesenharSeParou` (nunca redesenha
@@ -591,76 +585,76 @@ no [README do backend](backend/README.md).
   `renderUsuarios`, `usuarioSalvar`, `colaboradorNovo` (persistência em
   `localStorage` chave `af_usuarios`; em produção, isso vai para o backend).
 
-45. **Vendas e metas — a área comercial** (`v-vendas`, `vendasRender`). É a
+45. **Vendas e metas · a área comercial** (`v-vendas`, `vendasRender`). É a
     tela que responde, nesta ordem: **quanto falta**, **por que falta** e **o
     que fazer agora**. Primeiro item do grupo Comercial, só para a gestão.
-    - **Placar da meta** — meta do mês, fechado, o que falta em reais **e em
+    - **Placar da meta** · meta do mês, fechado, o que falta em reais **e em
       número de contratos** ("faltam R$ 3.200 = 1 fechamento do seu tamanho
       médio"), e o que já está em negociação. A barra tem uma **marca cinza**
       no ponto do mês em que você está: se a barra dourada está atrás da marca,
-      você está atrasada — dá para ver sem ler número nenhum.
-    - **Funil em barras** — Leads recebidos → Assumidos → Contatados →
+      você está atrasada · dá para ver sem ler número nenhum.
+    - **Funil em barras**. Leads recebidos → Assumidos → Contatados →
       Reunião/proposta → Fecharam. Cada degrau mostra a **taxa de passagem** e
       quantos pararam ali, e o pior degrau ganha o selo **"o funil vaza aqui"**.
       É o que explica o resultado: não adianta buscar mais lead se a perda está
       na proposta.
-    - **"Por que o mês está assim"** — leitura em texto, calculada: ritmo
+    - **"Por que o mês está assim"** · leitura em texto, calculada: ritmo
       contra o calendário, onde o funil vaza, maior motivo de perda, leads
       parados no painel e a comparação com o mês anterior.
-    - **Motivo de perda** — ao marcar "não fechou", abre um modal com os
+    - **Motivo de perda** · ao marcar "não fechou", abre um modal com os
       motivos (preço, momento, concorrente, sumiu, perfil, outro) e um campo de
       detalhe. Vira o gráfico "Por que perdemos". `LEAD_MOTIVOS`,
       `leadPerdaAbrir`, `leadPerdaSalvar`.
-    - **Comparação entre períodos** — fechado, nº de vendas, taxa e ticket
+    - **Comparação entre períodos** · fechado, nº de vendas, taxa e ticket
       médio contra o mês anterior. Indicador que já é percentual compara em
       **pontos**, não em porcentagem de porcentagem.
-    - **Meta sugerida, não campo em branco** — nasce da meta do trimestre do
+    - **Meta sugerida, não campo em branco** · nasce da meta do trimestre do
       Planejamento; sem ela, da média do que você vem fechando **mais 20%**;
       depois do faturamento médio da empresa. `vendasMetaSugerida`.
     - **O que voltou para a sua mão**: a meta de contatos do dia com a régua de
       bolinhas, o **painel de leads livres com "Pegar para mim"** e a **sua
       carteira** com WhatsApp, registrar contato, mudar status e devolver.
 
-46. **A gestão também pega e distribui lead** — os cartões do painel eram só
+46. **A gestão também pega e distribui lead** · os cartões do painel eram só
     leitura para quem é admin (apareciam sem botão nenhum). Agora têm **"Pegar
     para mim"**, **"Entregar"** e edição, tanto em *Vendas e metas* quanto em
     *Prestadores e leads*. O modal de entrega mostra quem está **liberado em
-    cada contrato** — quem não está aparece marcado, com o motivo, em vez de
+    cada contrato** · quem não está aparece marcado, com o motivo, em vez de
     sumir da lista. `leadEntregar`, `leadEntregarOpcoes`.
 
-47. **Quem é "você" ao pegar um lead** — o admin herdava a identidade do
+47. **Quem é "você" ao pegar um lead** · o admin herdava a identidade do
     colaborador selecionado no portal, então o lead que ela pegava ia para
     outra pessoa. `leadEuId()` resolve a identidade pelo contexto: dentro do
     portal vale a pessoa mostrada; fora dele, quem está logado.
 
-48. **Histórico de vendas na base** — sem fechamentos e perdas anteriores, o
+48. **Histórico de vendas na base** · sem fechamentos e perdas anteriores, o
     funil, a taxa de conversão, os motivos de perda e a comparação entre meses
     nasciam zerados e a tela não ensinava nada. O sistema semeia um histórico
     do mês atual e do anterior (e migra quem já usava, uma única vez).
     `leadSemearHistorico`, chave `af_leads_hist`.
 
-49. **A meta do mês entra no "Agora" e no briefing** — quando você está atrás
+49. **A meta do mês entra no "Agora" e no briefing** · quando você está atrás
     do ritmo, o primeiro passo do dia passa a ser quanto falta e quantos
     fechamentos isso representa; e o ritmo de contatos entra logo abaixo.
 
-## A rede de prestadores — versão 0208
+## A rede de prestadores · versão 0208
 
 O sistema deixou de ser só a gestão da Carla e virou a plataforma do grupo:
 **8 marcas**, **8 contratos**, uma rede de prestadores autônomos e um mercado
 de trabalho interno. Nada roda antes do contrato assinado.
 
-50. **As marcas do grupo** (`MARCAS`) — Grupo A! Fatorial, A! Saúde, A! Fatorial
+50. **As marcas do grupo** (`MARCAS`). Grupo A! Fatorial, A! Saúde, A! Fatorial
     Representações, A! Treinamentos, A! Multiplicadora, PGE, A! Start Talk e
     Carla Caroline. Cada **contrato** (`CONTRATOS`) pertence a uma marca e tem
     tipo (PF/PJ) e comissão base própria. Toda demanda, todo lead e todo
     relatório sabem de qual negócio são.
 
-51. **Todo mundo é autônomo** — não existe mais CLT no sistema. A migração
+51. **Todo mundo é autônomo** · não existe mais CLT no sistema. A migração
     (`redeMigrar`) converte quem já estava cadastrado, deduz um **escopo** da
     área da pessoa, libera contratos coerentes e gera o contrato para
     assinatura. Ninguém é assinado no lugar da pessoa.
 
-52. **Contrato de prestação de serviços padrão** (`contratoTexto`) — um modelo
+52. **Contrato de prestação de serviços padrão** (`contratoTexto`) · um modelo
     só, 11 cláusulas: objeto (montado a partir do **escopo** escolhido),
     autonomia e ausência de vínculo (art. 593 do CC), remuneração (hora e/ou
     comissão), representação autorizada (só os contratos liberados),
@@ -668,14 +662,14 @@ de trabalho interno. Nada roda antes do contrato assinado.
     concorrência, vigência e rescisão, assinatura eletrônica (MP 2.200-2 e Lei
     14.063/2020) e foro. Dá para ler na íntegra e imprimir em PDF.
 
-53. **D4Sign** (`D4`, `d4Enviar`, `d4Assinar`) — dois modos, como no WhatsApp:
+53. **D4Sign** (`D4`, `d4Enviar`, `d4Assinar`) · dois modos, como no WhatsApp:
     **simulado** roda o fluxo inteiro sem credencial nenhuma; **oficial** manda
     o contrato pela ponte do backend (`/d4sign/enviar`, `/d4sign/status/:uuid`,
     `/d4sign/webhook`), com a chave guardada no servidor, nunca no navegador.
     `prestLiberado()` é a trava: **sem assinatura, a pessoa não vê lead nem
-    demanda** — e o portal dela explica exatamente isso.
+    demanda**, e o portal dela explica exatamente isso.
 
-54. **Central de demandas** (`v-demandas`) — o mercado de trabalho interno.
+54. **Central de demandas** (`v-demandas`) · o mercado de trabalho interno.
     A demanda nasce sua ou de uma empresa parceira, mostra **escopo, prazo,
     entregáveis, requisitos e quanto vale** antes de alguém decidir, e some do
     mural de todos quando é pega. Dois tipos: **por tempo** (o relógio conta e
@@ -683,57 +677,56 @@ de trabalho interno. Nada roda antes do contrato assinado.
     Fluxo completo: mural → pegar → cronômetro (pausa e retoma) → entregar com
     checklist → conferência → aprovar com nota → pagar.
 
-55. **O relógio** (`demSegundos`, `demPctTempo`) — cada demanda soma sessões de
+55. **O relógio** (`demSegundos`, `demPctTempo`) · cada demanda soma sessões de
     trabalho. Se o navegador fecha com o relógio rodando, a sessão encerra no
-    último ponto conhecido (`demFechaSessoesOrfas`) — o tempo não infla
+    último ponto conhecido (`demFechaSessoesOrfas`) · o tempo não infla
     sozinho. Na entrega, a gestão vê **tempo real contra o estimado**.
 
-56. **Níveis da rede** (`PREST_NIVEIS`) — Bronze, Prata, Ouro e Diamante, por
+56. **Níveis da rede** (`PREST_NIVEIS`). Bronze, Prata, Ouro e Diamante, por
     quanto a pessoa **já ganhou**. Não é enfeite: cada faixa vale **pontos a
     mais de comissão em tudo** (`comissaoDe` soma o bônus) e **abre as demandas
     antes** (`DEM_JANELA_H`: Bronze espera 12h, Diamante vê na hora). O portal
     mostra quanto falta para a próxima faixa e o que ela destrava.
 
-57. **Empresas parceiras** (`v-parceiras`) — a empresa se cadastra, você
+57. **Empresas parceiras** (`v-parceiras`) · a empresa se cadastra, você
     aprova, e as demandas dela caem em **triagem**. Você libera para o mural, a
-    sua rede executa e você fica com a margem — terceirização para dentro, sem
+    sua rede executa e você fica com a margem · terceirização para dentro, sem
     contratar ninguém.
 
-58. **Cadastro público** (`#cadastro`) — duas portas na tela de entrada:
+58. **Cadastro público** (`#cadastro`) · duas portas na tela de entrada:
     *quero prestar serviço* e *minha empresa quer enviar demandas*. Prestador
     cai em Rede de prestadores para aprovação (`candAprovar` cria o acesso);
     empresa cai em Empresas parceiras. O link é copiável em um clique
     (`cadLinkCopiar`) para mandar no WhatsApp ou no rodapé do site.
 
-59. **Desempenho por contrato, por pessoa e por negócio** (`v-rede`) —
-    contrato: leads, fechamentos, conversão, receita e **quantos da rede estão
+59. **Desempenho por contrato, por pessoa e por negócio** (`v-rede`) · contrato: leads, fechamentos, conversão, receita e **quantos da rede estão
     liberados** (contrato sem ninguém assinado aparece marcado, porque é
     receita que não tem quem vá buscar); pessoa: ganho total e do mês,
     negócios, demandas, nota média e pontualidade; negócio: receita, custo da
     rede e **margem por marca**.
 
-60. **Portal do prestador reconstruído** — quatro abas de trabalho antes de
+60. **Portal do prestador reconstruído** · quatro abas de trabalho antes de
     tudo: **⚔ Demandas** (mural + execução + histórico), **🎯 Meus leads**,
     **💰 Meus ganhos** e **📄 Meu contrato**.
     - *Meus ganhos* mostra o que a pessoa normalmente não olha: comissão parada
       na carteira, contatos pegos e não feitos, retornos atrasados, valor
       disponível no mural, **valor por hora real**, nota média, pontualidade,
       projeção do mês no ritmo atual, quanto falta para a próxima faixa e o que
-      ela vale — e o extrato linha a linha do que compôs o ganho.
+      ela vale, e o extrato linha a linha do que compôs o ganho.
     - *Meu contrato* traduz o contrato em seis blocos em português claro e
       mostra as faixas da rede com o que cada uma destrava.
 
-61. **Tudo conectado ao "Agora"** — entrega esperando conferência, cadastro
+61. **Tudo conectado ao "Agora"**, entrega esperando conferência, cadastro
     novo, empresa querendo entrar, demanda em triagem, prestador sem contrato,
     demanda atrasada: cada um vira um passo na faixa do topo e no briefing de
     entrada, com o botão que leva direto ao lugar certo.
 
-## Uma atividade, um lugar — versão 0208.02
+## Uma atividade, um lugar · versão 0208.02
 
 O menu tinha 22 telas espalhadas em 8 grupos. Agora tem **6 áreas**, e cada
 área é uma atividade inteira, com o mesmo raciocínio da esteira comercial:
 uma trilha numerada mostra em que passo você está, o que veio antes e o que
-vem depois — e leva ao próximo com um clique.
+vem depois, e leva ao próximo com um clique.
 
 62. **As áreas** (`AREAS`, `areaIr`, `renderRail`):
 
@@ -751,41 +744,41 @@ vem depois — e leva ao próximo com um clique.
 
 63. **A trilha** fica logo abaixo da faixa "Agora", em **toda** tela da área:
     nome da área, as etapas numeradas com a atual destacada, e um botão que
-    leva para a próxima. Ocupa 45px — as telas não perderam altura útil.
+    leva para a próxima. Ocupa 45px · as telas não perderam altura útil.
 
-64. **Nada foi perdido nem duplicado** — a auditoria confirma: toda tela
+64. **Nada foi perdido nem duplicado** · a auditoria confirma: toda tela
     pertence a exatamente uma área, nenhuma órfã, nenhuma repetida, todas com
     título e entrada no configurador de permissões.
 
-65. **A área tem o nome de quem olha** — a mesma área "A rede" chama-se **Meu
+65. **A área tem o nome de quem olha** · a mesma área "A rede" chama-se **Meu
     portal** para quem presta serviço; "Entregar" chama-se **Meu projeto** para
     o cliente. Etapas sem permissão somem da trilha, e a área inteira some do
     menu quando a pessoa não tem acesso a nenhuma delas.
 
-66. **Todo mundo trabalha por resultado — a distinção acabou.** Não existe
+66. **Todo mundo trabalha por resultado · a distinção acabou.** Não existe
     mais "contratado" contra "por resultado" no sistema: `prestadores()`
     devolve todo mundo que está ativo, `ehPrestador()` é sempre verdadeiro e o
     seletor de vínculo saiu (virou só ativar/desativar a pessoa). O que
     diferencia uma pessoa da outra é o **escopo**, os **contratos liberados** e
-    o **nível** — nunca o tipo de vínculo.
+    o **nível** · nunca o tipo de vínculo.
 
 67. **"Meus leads" saiu do menu e virou aba do portal.** Era o último item solto
     fora das áreas e duplicava a aba que já existia em *Meu portal*. A tela
-    continua existindo como **etapa oculta** da área "A rede" — é a superfície
+    continua existindo como **etapa oculta** da área "A rede", é a superfície
     que a gestão abre em "👁 Painel dele". O que trava o painel agora é o
     **contrato não assinado**, não o tipo de vínculo, e a tela diz isso.
 
 68. **A trilha sumia no tema claro.** `.area-rail` usava `var(--bg)`, que é o
-    fundo do documento e é quase preto **nos dois temas** — no claro dava texto
+    fundo do documento e é quase preto **nos dois temas** · no claro dava texto
     escuro sobre fundo escuro. Passou a usar `var(--panel)`, a superfície de
     verdade. Junto: a etapa não visitada levava duas atenuações somadas
     (opacidade 0,55 **mais** cor apagada) e quase desaparecia; agora a
     diferença é só de cor e peso. Contraste medido: mínimo **6,02:1** no claro
-    e **6,88:1** no escuro, etapa atual em 18,49 e 14,92 — bem acima dos 4,5:1
+    e **6,88:1** no escuro, etapa atual em 18,49 e 14,92 · bem acima dos 4,5:1
     exigidos.
 
 69. **Etapa não é a mesma coisa que prévia.** O *Portal do cliente* estava
-    listado como etapa 4 de "Entregar" — mas ele não é um passo do seu
+    listado como etapa 4 de "Entregar" · mas ele não é um passo do seu
     trabalho, é a tela de outra pessoa. Agora a trilha separa as duas coisas:
     as **etapas numeradas** são o que você executa, e depois de um divisor vêm
     os **botões de prévia** (👁), com borda tracejada, para espiar a tela do
@@ -800,33 +793,33 @@ vem depois — e leva ao próximo com um clique.
       e volta a ser etapa numerada. O cliente, que só tem o portal, entra
       direto nele sem trilha nenhuma.
 
-## Serviços executáveis — versão 0708.01
+## Serviços executáveis · versão 0708.01
 
 O que era vendido de boca virou processo. Cada serviço que a empresa domina
 ganha, dentro do sistema: **contrato próprio**, **lista de documentos**,
 **telas de execução** e um **entregável assinado**. O cliente vê método, não
 promessa. O primeiro é o Valuation; os próximos entram na mesma estrutura.
 
-70. **`SERV_EXEC` — o registro dos serviços com processo.** Cada serviço
+70. **`SERV_EXEC` · o registro dos serviços com processo.** Cada serviço
     declara marca, contrato do grupo, escopo, prazo, valor de partida, o
     método, o que o cliente recebe e as etapas. A tela **Serviços** (primeira
     etapa da área *Entregar*) mostra o catálogo executável e todos os projetos
     em execução, com a etapa de cada um. *Formatação de franquias* já aparece
-    ali marcada como em construção — é o slot do próximo.
+    ali marcada como em construção, é o slot do próximo.
 
 71. **Um projeto por cliente, não um por navegador** (`DB.projetos`, chave
     `af_projetos`). O sistema original guardava uma empresa por vez; aqui cada
     cliente tem o seu projeto, com dados, documentos, contrato e laudo
     próprios, e a lista mostra todos lado a lado.
 
-72. **A esteira do valuation** — oito etapas numeradas dentro do projeto:
+72. **A esteira do valuation** · oito etapas numeradas dentro do projeto:
     Cliente → Contrato → Documentos → Números → Premissas → Cálculo →
     Sensibilidade → Laudo. **O sistema deduz em que etapa o projeto está**
-    (`prjEtapaAtual`) — ela não precisa marcar nada — e trava o que não pode
+    (`prjEtapaAtual`), ela não precisa marcar nada, e trava o que não pode
     andar: sem contrato assinado não abre nada, sem os documentos obrigatórios
     não emite laudo.
 
-73. **Contrato de valuation** — 12 cláusulas geradas com os dados do projeto:
+73. **Contrato de valuation** · 12 cláusulas geradas com os dados do projeto:
     objeto com a **finalidade** informada (venda, entrada de sócio, partilha,
     garantia, sucessão), metodologia, o que **não** está incluído, prazo
     contado do recebimento integral dos documentos, preço, sigilo por 5 anos,
@@ -836,7 +829,7 @@ promessa. O primeiro é o Valuation; os próximos entram na mesma estrutura.
 74. **Ficha de documentos com portal do cliente.** As 8 categorias e 39 itens
     (15 obrigatórios) viraram checklist com progresso. **O cliente recebe um
     link com PIN** (`index.html#doc=<projeto>`), abre, marca o que já enviou e
-    escreve observações — e você vê tudo em tempo real do seu lado. A lista
+    escreve observações, e você vê tudo em tempo real do seu lado. A lista
     também imprime, para quem prefere papel.
 
 75. **O motor de avaliação, conferido número a número.** DCF com projeção
@@ -848,7 +841,7 @@ promessa. O primeiro é o Valuation; os próximos entram na mesma estrutura.
     WACC, Ke, EV, equity, valor concluído, faixa, score, PL, peso do valor
     terminal e CAGR).
 
-76. **Football field** — a faixa de cada método em barras, com o valor
+76. **Football field** · a faixa de cada método em barras, com o valor
     concluído destacado. Onde as barras se cruzam está o número defensável;
     onde uma foge das outras, há premissa para revisar.
 
@@ -865,11 +858,11 @@ promessa. O primeiro é o Valuation; os próximos entram na mesma estrutura.
     conciliação, situação econômico-financeira com o score, e as ressalvas
     editáveis. Sai em PDF com a assinatura das duas partes.
 
-79. **Ligado ao resto do sistema** — contrato sem assinar, documento faltando
+79. **Ligado ao resto do sistema** · contrato sem assinar, documento faltando
     e laudo pronto para entregar viram passos na faixa "Agora" e no briefing,
     com o botão que abre o projeto na etapa certa.
 
-## O segundo serviço executável — franquias · versão 0708.02
+## O segundo serviço executável · franquias · versão 0708.02
 
 O slot que ficou aberto foi preenchido. **Formatação de franquias** entrou na
 mesma estrutura do valuation, sem inventar arquitetura nova: mesmo `DB.projetos`,
@@ -879,15 +872,15 @@ mesma trilha numerada, mesmo fluxo de contrato, mesmo laudo imprimível.
     Viabilidade → Documentação → POPs → COF → Rede → Laudo. O sistema deduz
     onde o projeto está (`frEtapaAtual`) e trava o que não pode andar.
 
-81. **Índice de franqueabilidade** — 10 pilares com pesos diferentes
+81. **Índice de franqueabilidade** · 10 pilares com pesos diferentes
     (`FR_PILARES`), cada um com 3 ou 4 afirmações avaliadas de 0 a 10 em
     botões. Resultado de 0 a 100 com veredito em cinco faixas, de *altamente
     franqueável* a *não franqueável agora*. Abaixo, **por onde a formatação
     começa**: os pilares ordenados por *peso × o quanto falta*, mostrando
-    quantos pontos cada correção acrescenta ao índice — resolver o primeiro
+    quantos pontos cada correção acrescenta ao índice · resolver o primeiro
     vale mais que resolver os três últimos.
 
-82. **Viabilidade da unidade franqueada** — investimento, faturamento, custo
+82. **Viabilidade da unidade franqueada** · investimento, faturamento, custo
     variável e fixo, royalties e fundo de marketing. Sai margem de
     contribuição, lucro, ponto de equilíbrio, payback, ROI, VPL e TIR, com
     projeção ano a ano. E os avisos que evitam vender uma rede que não fecha:
@@ -896,19 +889,19 @@ mesma trilha numerada, mesmo fluxo de contrato, mesmo laudo imprimível.
     receita para a franqueadora, por mês e por ano.
 
 83. **Acervo de 31 documentos** em 7 categorias, cada um com estado (não
-    começou / em produção / pronto), responsável e prazo — vira o cronograma
+    começou / em produção / pronto), responsável e prazo · vira o cronograma
     da formatação.
 
-84. **Construtor de POPs** — código, área, responsável, frequência, objetivo,
+84. **Construtor de POPs** · código, área, responsável, frequência, objetivo,
     passo a passo e indicador. Cada POP imprime como documento próprio, pronto
     para o manual.
 
-85. **COF nos 16 itens da Lei 13.966/2019** — cada item com a descrição legal
+85. **COF nos 16 itens da Lei 13.966/2019** · cada item com a descrição legal
     e um campo de conteúdo; a Circular sai em documento imprimível, com a
     advertência do prazo de **10 dias de antecedência** (descumprir torna o
     contrato anulável, art. 2º §2º).
 
-86. **Rede e expansão** — 16 indicadores em 4 grupos com meta e referência de
+86. **Rede e expansão** · 16 indicadores em 4 grupos com meta e referência de
     mercado, funil de captação de franqueados (com o degrau que vaza marcado,
     igual ao funil comercial) e plano de expansão que calcula **quanto a
     franqueadora fatura** por ano: royalties e fundo das unidades ativas mais
@@ -917,7 +910,7 @@ mesma trilha numerada, mesmo fluxo de contrato, mesmo laudo imprimível.
 87. **Contrato de formatação** com 12 cláusulas, incluindo duas que protegem
     de verdade: a **base legal** (a CONTRATADA não presta advocacia; a
     validação jurídica final é do advogado do cliente) e a **condição de
-    franqueabilidade** — se o diagnóstico concluir que o negócio ainda não
+    franqueabilidade** · se o diagnóstico concluir que o negócio ainda não
     pode franquear, o contrato pode ser reconvertido em consultoria de
     estruturação por aditivo, aproveitando o que já foi pago.
 
@@ -926,66 +919,65 @@ mesma trilha numerada, mesmo fluxo de contrato, mesmo laudo imprimível.
     retorno da franqueadora, estado da documentação e da COF, a observação
     legal e as ressalvas.
 
-89. **Motor conferido contra o FRANQIA original** — índice, veredito, margem
+89. **Motor conferido contra o FRANQIA original** · índice, veredito, margem
     de contribuição, lucro, ponto de equilíbrio, payback, ROI, lucratividade,
     VPL, TIR e a projeção ano a ano: **todos batem**.
 
-## Três serviços novos e o teclado consertado — versão 0808.02
+## Três serviços novos e o teclado consertado · versão 0808.02
 
 A pergunta era "quais outros serviços dá para transformar em entregável".
 A resposta veio em três, escolhidos porque cobrem exatamente o que a empresa
-já vende — consultoria, melhoria de processos e reestruturação — e porque um
+já vende · consultoria, melhoria de processos e reestruturação, e porque um
 puxa o outro: o **Raio-X** é barato, rápido e prescreve os demais; a
 **Arquitetura de preço** é a de maior retorno imediato; a **Reestruturação**
 é a de maior valor por projeto.
 
 O registro de serviços deixou de ter ramificação fixa: cada serviço declara
-suas próprias funções e o resto do sistema funciona igual para todos —
-acrescentar o quarto, o quinto e o sexto agora é encaixar peça, não reescrever.
+suas próprias funções e o resto do sistema funciona igual para todos · acrescentar o quarto, o quinto e o sexto agora é encaixar peça, não reescrever.
 
-90. **Raio-X do negócio — o diagnóstico que já vende o próximo serviço**
+90. **Raio-X do negócio · o diagnóstico que já vende o próximo serviço**
     (`v-raiox`, `rxRender`). É a porta de entrada da consultoria: barato de
     contratar, rápido de entregar, e cada resultado dele aponta um serviço
     maior. **48 perguntas em 9 dimensões ponderadas**, numa escala de
-    maturidade de cinco níveis com âncora objetiva — a pergunta nunca é "você
+    maturidade de cinco níveis com âncora objetiva · a pergunta nunca é "você
     é bom nisso", é "isso existe, está escrito, é seguido, é medido, melhora
     sozinho". É isso que faz duas pessoas diferentes chegarem à mesma nota, e
     é o que separa diagnóstico de opinião.
 
-91. **Oito indicadores tirados do balanço, sem entrevista** — liquidez
+91. **Oito indicadores tirados do balanço, sem entrevista** · liquidez
     corrente e seca, endividamento, margem EBITDA e líquida, dívida
     líquida/EBITDA, retorno sobre o patrimônio e ciclo financeiro. Metade do
     diagnóstico sai da contabilidade.
 
-92. **Análise dinâmica do capital de giro** — separa capital de giro (CDG),
+92. **Análise dinâmica do capital de giro** · separa capital de giro (CDG),
     necessidade de capital de giro (NCG) e saldo em tesouraria, e classifica a
     empresa em **uma das seis estruturas financeiras**. É o que distingue
     problema de *ciclo* (vende bem, recebe tarde) de problema de *estrutura*
-    (imobilizado comprado com dinheiro de curto prazo) — diagnósticos
+    (imobilizado comprado com dinheiro de curto prazo) · diagnósticos
     diferentes, tratamentos diferentes, e confundir os dois é o erro mais caro
     que se comete em reestruturação.
 
-93. **Radar das nove dimensões e ranking do que quebra primeiro** — a ordem
+93. **Radar das nove dimensões e ranking do que quebra primeiro** · a ordem
     não é pela nota mais baixa, e sim pela nota mais baixa **na dimensão que
     mais pesa**: fraqueza em tecnologia atrasa a empresa, a mesma fraqueza em
     caixa fecha a empresa.
 
-94. **Prescrição automática** — cada fraqueza encontrada aponta o serviço do
+94. **Prescrição automática** · cada fraqueza encontrada aponta o serviço do
     grupo que a resolve, com valor e prazo, e o botão abre o projeto já com os
     dados do cliente copiados. A **cláusula 8ª do contrato** abate o valor
     pago pelo diagnóstico do primeiro serviço contratado em 90 dias: o cliente
     entende que não comprou um relatório, comprou o começo do trabalho.
 
-95. **Plano de 90 dias em três ondas** — o que para a sangria (dias 1–30), o
+95. **Plano de 90 dias em três ondas** · o que para a sangria (dias 1–30), o
     que organiza (31–60), o que faz crescer (61–90). A ordem é parte da
     recomendação. O botão "sugerir plano" lê as notas mais baixas das
     dimensões de maior peso e monta as três ondas com dono e efeito esperado.
 
-96. **Arquitetura de preço e margem** (`v-preco`, `pcRender`) — o trabalho de
+96. **Arquitetura de preço e margem** (`v-preco`, `pcRender`) · o trabalho de
     maior retorno imediato da consultoria: preço corrigido aparece no caixa no
     mês seguinte, sem investimento nenhum.
 
-97. **Carga tributária de verdade, pelos três regimes** — alíquota **efetiva**
+97. **Carga tributária de verdade, pelos três regimes** · alíquota **efetiva**
     do Simples pela fórmula da LC 123/2006, `(RBT12 × nominal − parcela a
     deduzir) ÷ RBT12`, com os cinco anexos e o **Fator R** decidindo
     automaticamente entre o Anexo III e o V; presunção do **art. 15 da Lei
@@ -993,12 +985,12 @@ acrescentar o quarto, o quinto e o sexto agora é encaixar peça, não reescreve
     mil/mês; PIS/COFINS não cumulativo com crédito no Lucro Real. O sistema
     diz qual é o mais barato e **quanto a troca devolve por ano**.
 
-98. **Markup divisor, não multiplicador** — `preço = custo ÷ (1 − impostos −
+98. **Markup divisor, não multiplicador** · `preço = custo ÷ (1 − impostos −
     variáveis − margem)`. O erro mais comum e mais caro do varejo e do serviço
     brasileiro é somar 40% ao custo achando que vai sobrar 40%: não sobra,
     porque imposto e comissão incidem sobre o preço, não sobre o custo.
 
-99. **Margem de contribuição por hora do recurso gargalo** — ordenar produto
+99. **Margem de contribuição por hora do recurso gargalo** · ordenar produto
     por margem percentual é o que faz empresa priorizar o item errado. Quando
     a capacidade é o que limita, quem manda é a margem por hora. A tela mostra
     a diferença em reais por hora entre o melhor e o pior item.
@@ -1007,77 +999,76 @@ acrescentar o quarto, o quinto e o sexto agora é encaixar peça, não reescreve
      segurança, grau de alavancagem operacional e **curva ABC** de onde vem a
      margem.
 
-101. **Limite de desconto com número** — com margem de contribuição *m*, um
+101. **Limite de desconto com número** · com margem de contribuição *m*, um
      desconto *d* exige `d ÷ (m − d)` a mais de volume só para empatar. A tela
      traz a tabela de 1% a 20%, o desconto que zera a margem de cada item, o
-     limite recomendado e o piso absoluto — abaixo do qual vender é pior que
+     limite recomendado e o piso absoluto · abaixo do qual vender é pior que
      não vender.
 
-102. **Reestruturação e fôlego de caixa** (`v-caixa`, `cxRender`) — para quem
+102. **Reestruturação e fôlego de caixa** (`v-caixa`, `cxRender`) · para quem
      está sem ar. O instrumento é o mesmo que as firmas de turnaround usam no
      mundo inteiro: o **fluxo de caixa de 13 semanas pelo método direto**, que
-     responde à única pergunta que importa — **em que semana o caixa vira**.
+     responde à única pergunta que importa · **em que semana o caixa vira**.
      Treze semanas são um trimestre: longe o bastante para dar tempo de agir,
      perto o bastante para ninguém inventar premissa.
 
 103. **Mapa de dívida** com custo médio ponderado, desembolso mensal, garantia
-     e situação por credor — porque às vezes a menor dívida é a que mais
+     e situação por credor · porque às vezes a menor dívida é a que mais
      machuca.
 
 104. **Portfólio de iniciativas** com dono, impacto em reais, **maturação** (em
      quantos meses o efeito chega ao caixa) e estágio. O total **ponderado
-     pelo estágio** — ideia vale 25%, aprovada 50%, em andamento 80%,
-     concluída 100% — é o número que se leva ao credor. Prometer o bruto é o
+     pelo estágio** · ideia vale 25%, aprovada 50%, em andamento 80%,
+     concluída 100%, é o número que se leva ao credor. Prometer o bruto é o
      que faz a segunda rodada de negociação ser muito pior que a primeira.
      Vêm **8 alavancas prontas** do mercado, cada uma com prazo típico,
      esforço e o risco de puxá-la.
 
-105. **Ponte de EBITDA** — do resultado de hoje ao alvo, barra por barra, com
+105. **Ponte de EBITDA** · do resultado de hoje ao alvo, barra por barra, com
      nome e dono em cada uma. Barra sem nome não entra na ponte.
 
-106. **Termômetro de insolvência** — **Altman Z''** para mercados emergentes e
+106. **Termômetro de insolvência** · **Altman Z''** para mercados emergentes e
      o **índice de Kanitz**, construído com dados de empresas brasileiras. Não
      é profecia: é comparação estatística, e serve para tirar a decisão do
      campo da emoção.
 
-107. **Rota de equacionamento** — renegociação privada, recuperação
+107. **Rota de equacionamento** · renegociação privada, recuperação
      extrajudicial ou recuperação judicial, cada uma com *quando se aplica*,
      *como funciona* e a **base legal** pela Lei 11.101/2005 na redação da Lei
      14.112/2020 (quóruns da extrajudicial, inclusão de crédito trabalhista
      por negociação coletiva, exclusão do crédito tributário, prazo de
      suspensão na judicial). O sistema indica a rota pelos números; a decisão
-     é da administração, com advogado — e o contrato diz isso na cláusula 4ª.
+     é da administração, com advogado, e o contrato diz isso na cláusula 4ª.
 
-108. **Digitar sem perder o cursor** — enquanto se digita, o painel não é mais
+108. **Digitar sem perder o cursor**, enquanto se digita, o painel não é mais
      reconstruído: só os blocos de número são reescritos, e o redesenho
      completo fica adiado até a pessoa sair do campo. O campo em foco nunca é
      destruído.
 
-109. **Números que se separam sozinhos** — todo campo de dinheiro se formata
+109. **Números que se separam sozinhos** · todo campo de dinheiro se formata
      no padrão brasileiro (`1.850.000,50`) enquanto se digita, com o cursor
      preservado depois da mesma quantidade de dígitos, inclusive ao editar no
      meio do número. A leitura entende as duas notações: campo com máscara e
      campo numérico do navegador, que sempre devolve ponto decimal.
 
-## Várias pessoas ao mesmo tempo — versão 0808.03
+## Várias pessoas ao mesmo tempo · versão 0808.03
 
 Era a última ponta solta: o sistema guardava tudo no navegador, então duas
 pessoas em máquinas diferentes não brigavam, mas também não viam o trabalho
-uma da outra. Agora existe um servidor de equipe — **opcional**. Sem ele
+uma da outra. Agora existe um servidor de equipe · **opcional**. Sem ele
 configurado, absolutamente nada muda: o `index.html` continua abrindo sozinho,
 offline, do jeito que é entregue.
 
 110. **Servidor de equipe** (`backend/equipe.js`, montado em `server.js`).
      Contas com senha (scrypt do próprio Node, sem dependência nova), sessões
-     por token, presença, e os dados em `backend/dados/` com escrita atômica —
-     grava em `.tmp` e renomeia, então nunca fica pela metade. **Faça backup
+     por token, presença, e os dados em `backend/dados/` com escrita atômica · grava em `.tmp` e renomeia, então nunca fica pela metade. **Faça backup
      dessa pasta: é o banco de dados.**
 
 111. **Ninguém derruba o trabalho de ninguém.** O navegador não manda o
      registro inteiro: manda um **remendo** com só o que mudou, campo a campo.
      Se a Beatriz mexe no telefone do lead enquanto a Carla mexe no status, o
      servidor junta as duas. Só existe conflito de verdade quando as duas
-     mexem no **mesmo campo** — e aí vale a última, mas o valor anterior fica
+     mexem no **mesmo campo**, e aí vale a última, mas o valor anterior fica
      registrado com nome e hora, em *Ajustes → Equipe → O que foi sobrescrito*.
 
 112. **Listas com id viram registros.** Antes de comparar, `leads`, `projetos`,
@@ -1089,10 +1080,10 @@ offline, do jeito que é entregue.
      fila local, o selo da topbar avisa quantas mudanças estão esperando, e
      tudo sobe sozinho quando a conexão volta. Nada se perde no caminho.
 
-114. **Presença ao vivo** — o selo na topbar mostra as iniciais de quem mais
+114. **Presença ao vivo** · o selo na topbar mostra as iniciais de quem mais
      está online e em que tela cada pessoa está. Clicando, abre a configuração.
 
-115. **Contas da equipe** (só quem é admin) — criar, trocar senha, desligar e
+115. **Contas da equipe** (só quem é admin) · criar, trocar senha, desligar e
      religar. Desligar uma conta **derruba a sessão dela na hora**, em todas as
      máquinas.
 
@@ -1100,36 +1091,36 @@ offline, do jeito que é entregue.
      as seguintes recebem essa base pronta. Por isso: conecte primeiro a
      máquina com os dados bons. Se duas conectarem juntas, o servidor recusa a
      segunda substituição inteira e o navegador reenvia a parte dela como
-     remendo — nada é descartado em silêncio.
+     remendo · nada é descartado em silêncio.
 
-## Um tema só: claro — versão 0808.04
+## Um tema só: claro · versão 0808.04
 
 O sistema tinha dois temas e o escuro era o padrão. Agora tem um só, e o
 botão de alternar saiu. Não é só apagar a classe: o tema claro nunca tinha
 sido usado de verdade, então carregava defeitos que ninguém via.
 
-117. **O tema escuro saiu inteiro** — 51 regras de CSS, o botão da barra de
+117. **O tema escuro saiu inteiro** · 51 regras de CSS, o botão da barra de
      cima, a linha "Tema" no painel de aparência e as funções que ligavam
      tudo. A chave `af_tema` de versões antigas é descartada na abertura,
      para ninguém reabrir no escuro sem querer. A **cor do sistema**
      continua (dourado, vinho, magenta, violeta, oceano, esmeralda).
 
 118. **`--gold-txt`: o dourado quando é texto.** O dourado da marca (#d4af5e)
-     rende 2:1 sobre branco — ilegível. Existia um segundo dourado, mais
+     rende 2:1 sobre branco · ilegível. Existia um segundo dourado, mais
      claro ainda, feito para brilhar no escuro, e ele aparecia como texto em
      103 lugares: valores do fluxo de caixa, colunas do simulador, chips de
      permissão. Agora todo dourado **de texto** usa um tom fechado (4,9:1);
-     o dourado **de superfície** — fundos, bordas, gradientes — continua o
+     o dourado **de superfície** · fundos, bordas, gradientes · continua o
      mesmo.
 
-119. **Ilhas escuras** — capa do portal do cliente, cadastro público,
+119. **Ilhas escuras** · capa do portal do cliente, cadastro público,
      relatório em tela cheia e a tela de entrada seguem escuros de
      propósito. Dentro delas o dourado de texto volta a ser o claro, por uma
      linha de CSS só. O portal do colaborador ficou de fora dessa lista de
      propósito: ele mistura fundo escuro com cartões claros e tem tokens
      próprios.
 
-120. **Iniciais dentro do avatar** — eram brancas sobre o dourado claro
+120. **Iniciais dentro do avatar**, eram brancas sobre o dourado claro
      (2:1). O avatar passou a usar o dourado fechado; o branco em cima dele
      rende 6:1, e a paleta inteira do kanban ficou entre 4,8 e 6,9.
 
@@ -1137,10 +1128,10 @@ sido usado de verdade, então carregava defeitos que ninguém via.
      campo de formulário, medindo a cor real sobre o fundo real (compondo
      transparência camada a camada). Resultado: **nenhum texto e nenhum campo
      abaixo do mínimo**. O único apontamento que sobra é do medidor, não da
-     tela — o número do funil fica sobre a barra colorida, e a ferramenta lê
+     tela · o número do funil fica sobre a barra colorida, e a ferramenta lê
      o trilho que está atrás.
 
-## O processo virou motor — versão 0808.02
+## O processo virou motor · versão 0808.02
 
 A crítica foi direta: só a esteira tinha lógica de fluxo; no resto cada um
 fazia o que queria e o processo se perdia. Inadmissível para uma empresa que
@@ -1148,23 +1139,23 @@ vende padronização. Então a esteira deixou de ser uma tela e virou **motor**.
 
 A esteira funciona porque obedece a cinco regras. Elas agora valem para tudo:
 
-1. Todo item está em **uma** etapa — nunca em duas, nunca em nenhuma.
+1. Todo item está em **uma** etapa · nunca em duas, nunca em nenhuma.
 2. Cada etapa tem **uma** ação, escrita, com o motivo de existir. Não é um
    menu de botões: é o próximo passo.
-3. Para sair da etapa existe **critério objetivo** — uma lista que o sistema
+3. Para sair da etapa existe **critério objetivo** · uma lista que o sistema
    confere sozinho. Não é opinião de ninguém.
 4. Toda etapa tem **dono e prazo**. Se a bola é de outra pessoa, o sistema diz
    de quem é e não deixa você fazer no lugar dela sem avisar.
 5. Pular etapa é possível para a gestão, mas exige **justificativa** e vira
-   **desvio registrado** — que é o que alimenta a melhoria contínua.
+   **desvio registrado** · que é o que alimenta a melhoria contínua.
 
 122. **Quatro processos declarados, 21 etapas.** Captação comercial (do lead
      ao negócio aberto), Execução de demanda (do mural ao pagamento), Serviço
      executável (do contrato ao laudo) e Entrada na rede (do cadastro à
-     primeira demanda). Cada etapa traz **por que existe** — o texto aparece
+     primeira demanda). Cada etapa traz **por que existe** · o texto aparece
      na tela, não fica num manual que ninguém lê.
 
-123. **Tela "Execução" — o primeiro passo do dia.** Passou a ser o passo 1 de
+123. **Tela "Execução" · o primeiro passo do dia.** Passou a ser o passo 1 de
      *Meu painel*, antes dos números: *o que é meu agora*, em ordem de
      urgência, com a ação de cada item. Ninguém precisa adivinhar por onde
      começar.
@@ -1174,36 +1165,36 @@ A esteira funciona porque obedece a cinco regras. Elas agora valem para tudo:
      está parada, o que falta pelo critério e o único botão. Sem sair da tela.
 
 125. **A trava.** Tentar agir numa etapa de outra pessoa é recusado com o nome
-     de quem tem a bola. A gestão pode fazer no lugar — mas o botão diz "fazer
+     de quem tem a bola. A gestão pode fazer no lugar · mas o botão diz "fazer
      no lugar de X" e o sistema avisa que o tempo daquela pessoa deixa de ser
      medido.
 
-126. **Onde o processo trava** — soma quantos itens estão parados em cada
+126. **Onde o processo trava** · soma quantos itens estão parados em cada
      etapa e o tempo médio de cada uma. Etapa com muita gente parada não é
      problema de pessoa: é critério confuso, prazo irreal ou dono errado. É a
      tela da melhoria contínua.
 
-127. **Aderência ao prazo** — percentual do trabalho que está dentro do prazo
+127. **Aderência ao prazo** · percentual do trabalho que está dentro do prazo
      da própria etapa, no topo da tela, ao vivo.
 
 128. **A ponte que faltava: lead que fechou entra na esteira.** Antes, "Fechou"
      era fim de linha e alguém redigitava tudo no Funil. Agora o lead leva os
      próprios dados para o cadastro, a esteira começa, e o lead passa a
-     apontar para o negócio — o elo se fecha.
+     apontar para o negócio · o elo se fecha.
 
-## Duas marcas, um sistema — versão 0908.03
+## Duas marcas, um sistema · versão 0908.03
 
 A estratégia mudou e o software tinha de acompanhar: **Grupo A! Fatorial** (o
 ecossistema empresarial) e **Carla Caroline** (mentoria comportamental e
 estratégia de negócios) são marcas separadas, com público, entregável e
-Instagram próprios — `@afatorialsolucoes` e `@pscarlacaroline`. Misturar as
+Instagram próprios · `@afatorialsolucoes` e `@pscarlacaroline`. Misturar as
 duas é o defeito que a consultoria corrige nos clientes: empresa cujo valor
 depende do nome da fundadora não se vende, não se delega e não se multiplica.
 
 129. **As duas casas viraram modelo, não texto.** `MARCAS` ganhou o campo
      `casa` (`grupo` | `pessoal`) e nasceu a tabela `CASAS`, com nome,
      público e Instagram de cada uma. `marcasDaCasa()`, `casaDe()` e
-     `casaDaMarca()` são o acesso — nenhum lugar do sistema precisa saber a
+     `casaDaMarca()` são o acesso · nenhum lugar do sistema precisa saber a
      regra de cor.
 
 130. **Desempenho por casa, não só por marca.** A tela "A rede" separa as sete
@@ -1222,14 +1213,14 @@ depende do nome da fundadora não se vende, não se delega e não se multiplica.
 
 133. **A proposta sai pela marca que a emite.** O cadastro do negócio ganhou
      "Marca que emite"; a proposta grava `casa` e o documento inteiro troca de
-     timbre — logo, cor, razão social, contato, Instagram e até a assinatura da
+     timbre · logo, cor, razão social, contato, Instagram e até a assinatura da
      carta ("CEO do Grupo A! Fatorial" ou "mentora comportamental e
      estrategista de negócios"). Proposta antiga, sem `casa`, continua saindo
      pela empresa: nada se perde.
 
 134. **A origem do lead virou medida de posicionamento.** "Instagram" era uma
-     opção só, apontando para o perfil pessoal. Agora são duas — o da empresa
-     e o da Carla — mais "Site da empresa". É o que permite responder qual das
+     opção só, apontando para o perfil pessoal. Agora são duas · o da empresa
+     e o da Carla · mais "Site da empresa". É o que permite responder qual das
      duas marcas traz cliente.
 
 135. **A wiki explica a separação e o que fazer com ela.** Artigo novo em
@@ -1238,15 +1229,15 @@ depende do nome da fundadora não se vende, não se delega e não se multiplica.
      marca pessoal.
 
 136. **`af_brand_cc` entrou na sincronização e no backup**, como qualquer
-     outra chave — a identidade da mentoria acompanha a equipe inteira.
+     outra chave · a identidade da mentoria acompanha a equipe inteira.
 
-## O site refeito: "o laudo" — versão 0908.04
+## O site refeito: "o laudo" · versão 0908.04
 
 A crítica foi que o site estava feio e amador. Tinha três causas, e as três
 eram de raiz.
 
 137. **As fontes nunca carregavam.** O `<link>` para o Google Fonts falha e a
-     página cai em Georgia + Arial — e um H1 gigante em Georgia é exatamente
+     página cai em Georgia + Arial, e um H1 gigante em Georgia é exatamente
      o que faz um site parecer documento do Word. Pior: eu vinha revisando
      capturas de tela renderizadas na fonte errada, ou seja, desenhando às
      cegas. Agora as três famílias estão **embutidas no CSS em base64**,
@@ -1255,36 +1246,36 @@ eram de raiz.
 
 138. **Era o visual genérico de máquina.** Creme quente + serifada de display
      + dourado, tudo em cartão branco arredondado com barrinha de destaque no
-     topo — a combinação que a própria referência de design lista como o
+     topo · a combinação que a própria referência de design lista como o
      clichê a evitar. Quinze seções com o mesmo padding e o mesmo grid de
      cartões.
 
 139. **Não havia grade nem ritmo.** Tudo centralizado na mesma medida, sem
      hierarquia de layout entre uma seção e outra.
 
-O novo padrão parte do que a empresa de fato vende — **laudo**: documento
+O novo padrão parte do que a empresa de fato vende · **laudo**: documento
 assinado, com método declarado, norma e lei citadas, número que se confere.
 Então a página é composta como documento técnico medido:
 
 140. **A estrutura é desenhada.** Grade de 12 colunas com fios visíveis
      correndo atrás do conteúdo, rótulo de seção rotacionado na margem, e
-     ritmo deliberadamente irregular — faixa medida de ponta a ponta, coluna
+     ritmo deliberadamente irregular · faixa medida de ponta a ponta, coluna
      estreita de leitura, tabela de dados. Cartão flutuante virou exceção.
 
 141. **Papel frio no lugar do creme.** `#f0f1ed` com viés verde-cinza, como
      vegetal de prancheta, e a tinta com o mesmo viés: cinza neutro sobre
      papel enviesado sempre parece sujo. O dourado da marca ficou, rebaixado
-     à sua única função — marcar resultado.
+     à sua única função · marcar resultado.
 
 142. **Três letras, três papéis.** Archivo (grotesca de sinalização) carrega
      títulos e informação, apertada e pesada; Newsreader itálico virou só a
-     voz enfática — inverte o arranjo de sempre, em que a serifada é o
+     voz enfática · inverte o arranjo de sempre, em que a serifada é o
      padrão; Plex Mono é o instrumento: todo número, rótulo, unidade e
      referência legal, tabular.
 
 143. **Os seis serviços viraram especificação.** Em vez de seis cartões
-     iguais, uma tabela onde cada serviço mostra os mesmos campos — número,
-     nome, classe, descrição e base legal — e dá para comparar.
+     iguais, uma tabela onde cada serviço mostra os mesmos campos · número,
+     nome, classe, descrição e base legal, e dá para comparar.
 
 144. **A calculadora virou painel de instrumento**, com entradas em cima e
      quatro leituras embaixo, cada uma com a premissa impressa.
@@ -1294,8 +1285,8 @@ Então a página é composta como documento técnico medido:
      em 46 lugares. Fechado para 5,0:1 no pior fundo em que assenta.
 
 146. **O medidor de contraste estava mentindo.** Ele lia `background-color`
-     como texto e não entendia `color(srgb …)` — o formato que o Chrome
-     devolve para `color-mix` —, então lia quase-preto onde havia papel e
+     como texto e não entendia `color(srgb …)` · o formato que o Chrome
+     devolve para `color-mix` · , então lia quase-preto onde havia papel e
      acusava 74 defeitos. Corrigido, sobram três apontamentos, todos de fundo
      em gradiente; conferidos no pixel renderizado, dão 12,7 a 15:1.
 
@@ -1308,13 +1299,13 @@ Então a página é composta como documento técnico medido:
      contraste de cada texto da própria página ao abrir e emite um laudo no
      fim. Hoje: 160 trechos medidos, nenhum abaixo do mínimo.
 
-## A marca de verdade — versão 0908.05
+## A marca de verdade · versão 0908.05
 
 Ela mandou o material impresso da marca, e ele corrigiu coisas que o código
 vinha propagando erradas.
 
 149. **A assinatura oficial é "Soluções para Empresas e Franquias".**
-     "Arquitetura de Lucro" saiu do site e do sistema — lockup, título da
+     "Arquitetura de Lucro" saiu do site e do sistema · lockup, título da
      página, meta, rodapé e tela de entrada. O cargo "Arquiteta de Lucro ·
      CEO" era derivado da assinatura removida e ficaria pendurado sozinho:
      virou "CEO · Grupo A! Fatorial", e o título de mentora fica na marca
@@ -1322,13 +1313,13 @@ vinha propagando erradas.
 
 150. **Contato corrigido nos dois lugares:** `contato@grupoafatorial.com.br`
      e `11 9.1101-2147`. Estava indo para um e-mail e um telefone diferentes
-     dos do material — proposta, contrato, rodapé e o botão de WhatsApp
+     dos do material · proposta, contrato, rodapé e o botão de WhatsApp
      mandavam o cliente para o lugar errado.
 
 151. **O avião de papel virou o elemento estrutural.** No material ele
      aparece três vezes: dentro do símbolo, na ponta do fio que divide o
      cabeçalho e no lockup de cada submarca. É a assinatura gráfica do
-     grupo, então é ele que marca direção na folha — desenhado como máscara,
+     grupo, então é ele que marca direção na folha · desenhado como máscara,
      em duas faces com alfas diferentes para dar a dobra do origami, tomando
      a cor do contexto. Usado em dois lugares só: o lockup e o fio da capa.
      Avião em todo canto vira enfeite, e enfeite é o contrário de assinatura.
@@ -1337,7 +1328,7 @@ vinha propagando erradas.
      metálico. O papel saiu do viés verde-cinza para um neutro levemente
      quente (`#f1f0ec`), a tinta acompanhou, e o `--ferro` deixou de ser
      verde-escuro para ser o preto da marca (`#111110`). O ouro virou rampa
-     metálica de três paradas — alta luz, corpo e sombra —, como no impresso.
+     metálica de três paradas · alta luz, corpo e sombra · , como no impresso.
 
 153. **As submarcas com o nome e a assinatura do material:** PGE **Lab**
      ("Inteligência que gera resultado."), A! Multiplicadora ("Processos
@@ -1352,12 +1343,12 @@ vinha propagando erradas.
 **Ainda pendente:** o símbolo real é um A! manuscrito com o avião saindo
 dele, e só existe como imagem achatada. Enquanto o vetor não chega, o selo
 usa o A! tipográfico no ouro metálico. O ponto de troca está pronto: basta
-pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
+pôr um `<img>` dentro de `.af-selo` · o CSS já o acomoda.
 
-## Arquivo único e o lockup da marca — versão 0908.06
+## Arquivo único e o lockup da marca · versão 0908.06
 
 155. **O site não estava sendo visto.** Ela abriu o `index.html` numa pasta do
-     Desktop sem o `a-fatorial.css` ao lado e a página apareceu crua — links
+     Desktop sem o `a-fatorial.css` ao lado e a página apareceu crua · links
      azuis sublinhados, Times, sem cor nem layout. Todo o redesenho estava
      invisível. Culpa da entrega em arquivos separados, não do design.
 
@@ -1367,7 +1358,7 @@ pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
      quatro fontes carregadas, layout inteiro de pé.
 
 157. **O lockup da marca substituiu o nome escrito** em todo lugar do site e
-     do sistema — cabeçalho, rodapé, login, folha da empresa, barra lateral,
+     do sistema · cabeçalho, rodapé, login, folha da empresa, barra lateral,
      tela de entrada e cadastro público. Reproduz a estrutura do material
      impresso: "Grupo" na voz manuscrita, A! FATORIAL pesado, assinatura
      embaixo, avião ao lado.
@@ -1377,14 +1368,14 @@ pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
      sobre papel rende 2:1 e some; sobre preto entra a rampa metálica inteira,
      como no impresso. Medido no pixel: 16,3:1 no cabeçalho, 13,0:1 no rodapé.
 
-159. **As seis submarcas entraram na seção das marcas** — PGE Lab, A!
+159. **As seis submarcas entraram na seção das marcas**. PGE Lab, A!
      Multiplicadora, A! Start Talk, A! Saúde, A! Treinamentos e A! Fatorial
-     Representações —, cada uma com avião, nome e assinatura própria,
+     Representações · , cada uma com avião, nome e assinatura própria,
      divididas por fio, como na barra inferior do material impresso.
 
 160. **O símbolo manuscrito não foi para o ar.** Tentei redesenhá-lo a partir
      da imagem em duas construções (elipse dupla e traço único) e as duas
-     saíram erradas — a segunda vira um sigma grego. Logo aproximado é pior
+     saíram erradas · a segunda vira um sigma grego. Logo aproximado é pior
      que logo ausente, então fica o avião, que é elemento real da marca e que
      dá para desenhar com fidelidade. O ponto de troca está pronto em
      `.af-marca-s`.
@@ -1394,7 +1385,7 @@ pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
      em `white-space:nowrap`, empurrava a folha estreita 9px além da tela no
      celular.
 
-## O símbolo entrou — versão 0908.08
+## O símbolo entrou · versão 0908.08
 
 162. **A foto na parede mostrou a construção da letra**, e com ela a
      reconstrução finalmente ficou de pé. O que faltava nas tentativas
@@ -1403,8 +1394,8 @@ pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
      sigma.
 
 163. **O símbolo é interpretação, não o original,** e está escrito assim no
-     código. O laço é fita caligráfica por duas elipses deslocadas — grossa
-     embaixo-esquerda, fina em cima-direita —, mais o traço que cruza, a
+     código. O laço é fita caligráfica por duas elipses deslocadas · grossa
+     embaixo-esquerda, fina em cima-direita · , mais o traço que cruza, a
      exclamação e o avião com rastro. Proporção e contraste não são os do
      lettering feito à mão.
 
@@ -1415,23 +1406,23 @@ pôr um `<img>` dentro de `.af-selo` — o CSS já o acomoda.
 
 165. **A palavra "Grupo" ficou manuscrita.** Dezesseis fontes script foram
      testadas contra a foto; nenhuma serve para o símbolo, mas a Yellowtail
-     acerta a palavra — mesma escrita de pincel, mesmo peso. Entrou como
+     acerta a palavra · mesma escrita de pincel, mesmo peso. Entrou como
      quarta letra do padrão, com esse trabalho só.
 
 **Troca pelo original:** `--simbolo:url(marca.svg)` no `a-fatorial.css` +
 `python3 montar.py`. Uma linha, e o símbolo de verdade entra em todos os
 lugares de uma vez.
 
-## O site virou a parede — versão 0908.09
+## O site virou a parede · versão 0908.09
 
 A crítica: a ideia e a lógica estavam boas, o visual continuava péssimo.
 Estava, e o erro era de premissa. Eu tinha composto um documento técnico bege
 enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
 
 166. **O argumento que decidiu:** o ouro da marca (#d4af5e) sobre papel claro
-     rende **2:1** — ilegível. Para usá-lo como texto era preciso rebaixá-lo a
+     rende **2:1** · ilegível. Para usá-lo como texto era preciso rebaixá-lo a
      um marrom fechado, e o ouro de verdade sumia da página. Sobre o breu o
-     mesmo ouro rende **9,4:1**. O ouro da marca só existe no preto — e é por
+     mesmo ouro rende **9,4:1**. O ouro da marca só existe no preto, e é por
      isso que o site inteiro passou a ser escuro.
 
 167. **O breu tem matéria.** Três camadas fixas atrás de tudo: o holofote
@@ -1440,13 +1431,13 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
      chapado, que é o que faz um site parecer feito às pressas.
 
 168. **O ouro virou metal.** Rampa de cinco paradas com alta luz no topo,
-     sombra projetada embaixo e halo. Aplicado só onde é grande — lockup,
+     sombra projetada embaixo e halo. Aplicado só onde é grande · lockup,
      manchete enfática, números da capa, botão de ação: em corpo pequeno o
      gradiente vira sujeira.
 
 169. **A escala ficou dramática.** A manchete foi a 98px e os rótulos a 11px:
      do maior ao menor corpo da página a razão é de 1 para 9. A capa virou
-     momento de tela cheia, com entrada encenada — a luz sobe, a manchete
+     momento de tela cheia, com entrada encenada · a luz sobe, a manchete
      assenta, em 1,2s e nunca mais.
 
 170. **A profundidade substituiu o claro-escuro.** Não havendo mais duas cores
@@ -1463,23 +1454,22 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
 
 172. **Mais uma colisão de cascata,** desta vez no guia: `.cor .fx span` vencia
      `.ct.bom` e os selos do laudo saíam em cinza. O guia agora mede 172
-     trechos e reprova um só — o rótulo do botão de ouro, que é gradiente.
+     trechos e reprova um só · o rótulo do botão de ouro, que é gradiente.
 
 173. **O sistema continua claro,** de propósito: o site é vitrine e precisa
      impressionar em dez segundos; o sistema é onde se passa o dia. Os tokens
      ficam no topo do `a-fatorial.css` para reverter em bloco se ela preferir.
 
-## Movimento, e tudo num arquivo só — versão 0908.10
+## Movimento, e tudo num arquivo só · versão 0908.10
 
 174. **A luz corre no metal.** Na parede o holofote é fixo e o metal é curvo,
      então a luz corre pela letra quando quem olha se move; na tela é a luz
-     que anda, uma passada a cada nove segundos. Só nos elementos grandes —
-     em corpo pequeno a passada vira cintilação.
+     que anda, uma passada a cada nove segundos. Só nos elementos grandes · em corpo pequeno a passada vira cintilação.
 
 175. **A esteira virou o momento assinatura.** O trilho se desenha da esquerda
      para a direita, o avião de papel voa por cima dele e as dez etapas
      acendem uma a uma na passagem. Não é enfeite: é a tese da empresa
-     desenhada — a sequência em que não se pula etapa.
+     desenhada · a sequência em que não se pula etapa.
 
 176. **Movimento no resto:** o holofote desliza com a rolagem, a régua da
      margem se preenche conforme a seção passa, os blocos revelam os filhos em
@@ -1489,10 +1479,10 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
      golpe.
 
 177. **Três defeitos de robustez achados pela medição do movimento:**
-     (a) **sem JavaScript a página ficava quase em branco** — 27 de 38 blocos
+     (a) **sem JavaScript a página ficava quase em branco** · 27 de 38 blocos
      nasciam invisíveis esperando o script; agora a revelação é opt-in, marcada
      por uma classe `js` no `<html>`, e sem script tudo aparece;
-     (b) o IntersectionObserver **perdia blocos em rolagem rápida** — ele
+     (b) o IntersectionObserver **perdia blocos em rolagem rápida**, ele
      entrega o estado do último quadro que conseguiu medir; trocado por uma
      varredura que pergunta a posição de verdade a cada quadro;
      (c) a primeira versão da varredura **descartava sem revelar** o que subia
@@ -1500,8 +1490,7 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
 
 178. **Tudo num arquivo só.** `Grupo A! Fatorial.html` traz site e sistema no
      mesmo documento: entrar troca de lado, sair volta para a porta, nada
-     recarrega. O site foi embrulhado em `#porta` e todo o CSS dele prefixado
-     — 37 nomes de classe se repetiam entre os dois. O sistema ficou intocado.
+     recarrega. O site foi embrulhado em `#porta` e todo o CSS dele prefixado · 37 nomes de classe se repetiam entre os dois. O sistema ficou intocado.
 
 179. **Quatro bugs na junção, todos achados por medição comparativa** entre o
      avulso e o combinado: o JS entrava duas vezes (o corpo saía com os
@@ -1511,10 +1500,10 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
      `body` do sistema, sendo painel de tela cheia com `overflow:hidden`,
      impedia o site de rolar.
 
-## A retícula fatorial — versão 0908.11
+## A retícula fatorial · versão 0908.11
 
 180. **O fundo virou o nome da empresa.** Uma retícula em profundidade onde
-     cada casca tem exatamente *k* nós — 1, 2, 3, 4, 5, 6, 7 — e cada nó se
+     cada casca tem exatamente *k* nós · 1, 2, 3, 4, 5, 6, 7, e cada nó se
      liga a todos os da casca seguinte: 1×2×3×4×5×6×7 = 5.040 caminhos. É o
      operador fatorial existindo no espaço, não explicado em legenda. A câmera
      avança com a rolagem, o ponteiro desloca o ponto de fuga, e a cor vai do
@@ -1522,7 +1511,7 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
 
 181. **O laudo desta leitura.** Um painel no canto audita a leitura em curso:
      a etapa e o fatorial multiplicando a cada seção atravessada. A empresa
-     diz que é o primeiro cliente do próprio método — aqui a página roda o
+     diz que é o primeiro cliente do próprio método · aqui a página roda o
      método nela mesma, à vista. O nome da marca deixa de ser metáfora e vira
      experiência.
 
@@ -1532,13 +1521,13 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
      retícula, e por último a retícula. Efeito bonito que engasga é pior que
      efeito nenhum.
 
-183. **As três luzes.** O ouro segue sendo o metal — matéria, peso, marca. O
+183. **As três luzes.** O ouro segue sendo o metal · matéria, peso, marca. O
      ciano (12,8:1), o violeta (7,5:1) e o âmbar (11,3:1) são luz: não
      preenchem, só marcam borda, halo e aresta. Frias contra o ouro quente; é
      o contraste de temperatura que faz o conjunto parecer futuro.
 
 184. **O vidro,** com os três ingredientes obrigatórios: desfoque, alta luz na
-     borda de cima e a aresta cromática — o desvio de cor na quina, que é o
+     borda de cima e a aresta cromática · o desvio de cor na quina, que é o
      que o olho lê como refração.
 
 185. **A profundidade de verdade:** ponto de fuga no contêiner, peças em planos
@@ -1551,26 +1540,26 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
      do padrão escuro.
 
 187. **Bug do canvas:** `position:fixed;inset:0` não estica elemento
-     substituído — o canvas ficou no tamanho intrínseco de 300×150 e a retícula
+     substituído · o canvas ficou no tamanho intrínseco de 300×150 e a retícula
      desenhava num carimbo. Precisa de `width:100%;height:100%` explícito.
 
-## O mecanismo desenhado — versão 1008.01
+## O mecanismo desenhado · versão 1008.01
 
 As skills de design deram o critério que faltava, e ele expôs um buraco real.
 
 188. **A página contava o mecanismo e nunca o desenhava.** O diferencial da
-     empresa é uma trava — etapa com dono, prazo e critério, e o sistema não
+     empresa é uma trava, etapa com dono, prazo e critério, e o sistema não
      deixa pular. Isso aparecia em prosa em cinco lugares e em desenho em
      nenhum; a esteira era uma lista de nomes, não um mecanismo. Agora há uma
      figura do caminho que uma entrega percorre: a trava do critério, a troca
      de dono, o retorno sem custo e a saída de exceção que registra desvio.
-     Regra do desenho — ciano é o que flui, âmbar é o que trava e volta, ouro
+     Regra do desenho · ciano é o que flui, âmbar é o que trava e volta, ouro
      é o que é seu; toda seta tem rótulo, porque seta sem rótulo quer dizer
      "relacionado de algum jeito".
 
 189. **Os três vazamentos são partes de um todo,** e partes de um todo pedem
      proporção. A calculadora ganhou a barra dividida entre margem, tempo e
-     caixa, nas mesmas cores dos três vazamentos acima — por isso dispensa
+     caixa, nas mesmas cores dos três vazamentos acima · por isso dispensa
      legenda. Aqui a paleta finalmente faz trabalho de informação, não de
      enfeite: cor por entidade, repetida onde a entidade reaparece.
 
@@ -1583,5 +1572,5 @@ As skills de design deram o critério que faltava, e ele expôs um buraco real.
 191. **Dois defeitos de desenho corrigidos por inspeção:** a retícula
      atravessava as caixas do diagrama e brigava com o texto (preenchimento
      subiu para 93%), e a frase da saída de exceção passava por baixo da caixa
-     de ajuste — a altura do viewBox cresceu e o traço tracejado passou a
+     de ajuste · a altura do viewBox cresceu e o traço tracejado passou a
      encostar na frase, em vez de terminar no vazio.

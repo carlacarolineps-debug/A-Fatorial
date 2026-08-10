@@ -1,11 +1,10 @@
-# Site — a porta de entrada do cliente
+# Site · a porta de entrada do cliente
 
 **Tudo num arquivo só.** O entregável é `Grupo A! Fatorial.html`, na raiz do
-projeto: o site e o sistema no mesmo documento. Entrar não recarrega nada —
-troca de lado. Sair volta para a porta. Sem internet, sem arquivo vizinho.
+projeto: o site e o sistema no mesmo documento. Entrar não recarrega nada · troca de lado. Sair volta para a porta. Sem internet, sem arquivo vizinho.
 
 > Isso não era assim, e quebrou: o site foi aberto uma vez com o CSS faltando
-> na pasta e apareceu cru — links azuis, Times, sem layout nenhum. Página que
+> na pasta e apareceu cru · links azuis, Times, sem layout nenhum. Página que
 > depende de arquivo vizinho quebra na primeira vez que alguém move só um
 > deles.
 
@@ -24,7 +23,7 @@ troca de lado. Sair volta para a porta. Sem internet, sem arquivo vizinho.
 
 O sistema tem 833 classes e o site 209; **37 nomes se repetem**. Coladas sem
 cuidado, uma pintaria a outra. Então o site foi embrulhado em `#porta` e todo
-o CSS dele levou esse prefixo — inclusive os tokens, que saíram do `:root`. O
+o CSS dele levou esse prefixo · inclusive os tokens, que saíram do `:root`. O
 sistema ficou intocado, no escopo global.
 
 Um detalhe que quase passou: o sistema declara
@@ -74,7 +73,7 @@ Uma classe, sem recarregar nada. Vai no `<body>` e também no `#porta` quando
 ele existe: no site sozinho quem existe é o body, e no arquivo único o
 `juntar.py` reescreve `body.na-carla` como `#porta.na-carla`.
 
-## O padrão visual — "a retícula"
+## O padrão visual · "a retícula"
 
 A marca existe fisicamente: letras douradas em relevo sobre parede preta, com
 holofote em cima. O site parte daí e vai adiante: o fundo não é textura, é o
@@ -106,7 +105,7 @@ céu desligado, o custo em quadros é zero.
 
 ### A retícula fatorial
 
-Cada casca tem exatamente *k* nós — 1, 2, 3, 4, 5, 6, 7 — e cada nó de uma
+Cada casca tem exatamente *k* nós · 1, 2, 3, 4, 5, 6, 7, e cada nó de uma
 casca se liga a **todos** os nós da casca seguinte. O número de caminhos de
 ponta a ponta é 1×2×3×4×5×6×7 = **5.040**. É o operador fatorial existindo em
 profundidade, não explicado em legenda. A câmera avança com a rolagem, então
@@ -116,7 +115,7 @@ cor vai do ouro (perto) ao violeta (fundo), passando pelo ciano.
 ### O laudo desta leitura
 
 No canto, um painel audita a leitura em curso: a etapa e o **fatorial
-multiplicando** a cada seção atravessada — 1!, 2!, 6!, 11!… A empresa vende
+multiplicando** a cada seção atravessada · 1!, 2!, 6!, 11!… A empresa vende
 execução auditável e diz que é o primeiro cliente do próprio método; aqui a
 página roda o método nela mesma, à vista. O nome da marca deixa de ser
 metáfora explicada e vira experiência: quem rola vê o produto multiplicar.
@@ -126,31 +125,30 @@ metáfora explicada e vira experiência: quem rola vê o produto multiplicar.
 A página mede a própria fluidez e se ajusta sozinha. Máquina boa recebe tudo;
 máquina apertada perde primeiro o desfoque do vidro (o item mais caro), depois
 a resolução da retícula, e por último a retícula. Efeito bonito que engasga é
-pior que efeito nenhum — e medir antes de opinar é o que a empresa vende.
+pior que efeito nenhum, e medir antes de opinar é o que a empresa vende.
 
 ### O mecanismo, desenhado
 
 A página dizia em prosa, cinco vezes, que "cada etapa tem dono e prazo e o
 sistema não deixa pular". Prosa não mostra mecanismo: mostra o nome dele. Na
-seção da esteira há agora um **desenho** do caminho que uma entrega percorre —
-a trava do critério, a troca de dono entre as etapas, o retorno sem custo e a
+seção da esteira há agora um **desenho** do caminho que uma entrega percorre · a trava do critério, a troca de dono entre as etapas, o retorno sem custo e a
 saída de exceção que registra desvio. É o diferencial da empresa em forma de
 figura, que é o que a concorrência não tem para mostrar.
 
 Regra do desenho: **ciano é o que flui, âmbar é o que trava e volta, ouro é o
-que é seu**. Três cores, três significados — nenhuma escolhida por gosto. Toda
+que é seu**. Três cores, três significados · nenhuma escolhida por gosto. Toda
 seta tem rótulo; seta sem rótulo quer dizer "relacionado de algum jeito".
 
 ### A barra dos vazamentos
 
 Três partes de um todo pedem proporção, não três números soltos. A barra da
 calculadora mostra a divisão real entre margem, tempo e caixa, nas mesmas
-cores dos três vazamentos logo acima — por isso ela dispensa legenda.
+cores dos três vazamentos logo acima · por isso ela dispensa legenda.
 
 ### O respiro
 
-Dezesseis seções na mesma densidade cansam. Existe um momento — entre a pessoa
-marcar os próprios sintomas e a conta chegar — em que a página não tem cartão,
+Dezesseis seções na mesma densidade cansam. Existe um momento, entre a pessoa
+marcar os próprios sintomas e a conta chegar, em que a página não tem cartão,
 painel nem número: só uma frase dela, a retícula à vista, e as palavras
 entrando uma a uma.
 
@@ -159,7 +157,7 @@ entrando uma a uma.
 A foto da Carla é de evento: teleobjetiva, luz de janela estourada atrás, mesa
 com garrafa e lata na frente, alguém filmando em pé no canto. Colada crua num
 site breu, abriria um buraco branco no meio da página. Todo o tratamento está
-em **`retrato.py`** — roda de novo quando ela mandar outra foto:
+em **`retrato.py`** · roda de novo quando ela mandar outra foto:
 
 ```
 python3 retrato.py     → retrato.webp (22 KB) e selo.webp (3 KB)
@@ -172,7 +170,7 @@ Quatro decisões, e o motivo de cada uma:
   Centralizado, um perfil parece encostado na borda. Três enquadramentos foram
   vistos lado a lado: o aberto deixava parede demais, o fechado tirava o ar.
 - **Curva por canal, não filtro.** A pele continua pele. O que muda é o pé da
-  curva — a sombra desce quase até o breu — e o topo, onde o azul cede: o
+  curva · a sombra desce quase até o breu, e o topo, onde o azul cede: o
   estouro da janela vira âmbar em vez de branco. É isso que faz a foto
   pertencer à paleta sem virar duotone de 2015.
 - **Rodapé desvanecido no alfa, não cortado.** A mesa e a garrafa somem por
@@ -181,19 +179,19 @@ Quatro decisões, e o motivo de cada uma:
   que apaga a costura.
 - **Halo âmbar na página.** É a mesma janela da foto continuada para fora do
   cartão. Funciona porque `box-shadow` não é cortado pelo `overflow:hidden` do
-  próprio elemento — o recorte vale para os filhos, não para a sombra de fora.
+  próprio elemento · o recorte vale para os filhos, não para a sombra de fora.
 
 O mesmo arquivo gera o **selo redondo** do cartão da mentoria, onde antes
 estavam as iniciais CC. O cartão da empresa abre com o logotipo, o da pessoa
 com o rosto dela: é a separação das duas marcas dita sem gastar uma palavra.
-O enquadramento do selo inclui o ombro de propósito — rosto fechado vira
+O enquadramento do selo inclui o ombro de propósito · rosto fechado vira
 mancha quando encolhe para 50px, e a única forma de julgar isso é olhar no
 tamanho real, não ampliado.
 
 Esse mesmo selo é a foto da conta da dona **dentro do sistema** (`FOTO_CARLA`,
 no `index.html` da raiz): entra no avatar da barra de topo, no briefing de
 entrada, nos cartões de pessoa do Kanban. Quem já usava o sistema tem
-`foto:''` gravado no navegador de versões anteriores — por isso o vazio volta
+`foto:''` gravado no navegador de versões anteriores · por isso o vazio volta
 para a de fábrica na leitura, e a de fábrica não é gravada de volta.
 
 O original está em **`carla.jpg`**, sem tratamento. Guardado de propósito: o
@@ -201,7 +199,7 @@ recorte é uma escolha, e escolha se revê.
 
 ### As três luzes
 
-O ouro continua sendo o **metal** — matéria, peso, marca. O ciano, o violeta e
+O ouro continua sendo o **metal** · matéria, peso, marca. O ciano, o violeta e
 o âmbar são **luz**: não preenchem nada, só marcam borda, halo e aresta de
 vidro. Frias contra o ouro quente: é o contraste de temperatura que faz o
 conjunto parecer futuro em vez de barroco.
@@ -210,14 +208,14 @@ conjunto parecer futuro em vez de barroco.
 
 Toda superfície levantada deixa a retícula passar por trás. Três ingredientes,
 os três obrigatórios: o **desfoque** (sem ele vira plástico), a **alta luz na
-borda de cima** (dá espessura à chapa) e a **aresta cromática** — um fio de
+borda de cima** (dá espessura à chapa) e a **aresta cromática** · um fio de
 ciano de um lado e violeta do outro. É o desvio de cor na quina que o olho lê
 como refração; sem isso não é vidro, é retângulo translúcido.
 
 ### A profundidade
 
 Não é "sombra maior": é perspectiva. O contêiner tem ponto de fuga e as peças
-ficam em planos diferentes de Z. Quando o ponteiro anda, a cena inclina — como
+ficam em planos diferentes de Z. Quando o ponteiro anda, a cena inclina · como
 olhar dentro de um diorama. Só com ponteiro fino; no toque fica parado.
 
 E a razão de tudo isso ainda ser escuro:
@@ -225,7 +223,7 @@ E a razão de tudo isso ainda ser escuro:
 o ouro
 da marca (`#d4af5e`) sobre papel claro rende **2:1**. Ilegível. Para usá-lo
 como texto era preciso rebaixá-lo a um marrom fechado, e o ouro de verdade
-sumia. Sobre o breu, o mesmo ouro rende **9,4:1** — legível em qualquer
+sumia. Sobre o breu, o mesmo ouro rende **9,4:1** · legível em qualquer
 tamanho. **O ouro da marca só existe no preto**, e é por isso que o site é
 escuro.
 
@@ -236,7 +234,7 @@ Cinco regras:
    feita às pressas.
 2. **O ouro tem relevo.** Não é uma cor, é metal: alta luz em cima, corpo no
    meio, sombra embaixo. Nos elementos grandes ele brilha; nos pequenos, só
-   reluz — em corpo pequeno o gradiente vira sujeira.
+   reluz, em corpo pequeno o gradiente vira sujeira.
 3. **A escala é dramática.** Manchete enorme contra rótulo minúsculo: do maior
    ao menor corpo da página vai de 1 para 9. Página onde tudo tem o mesmo peso
    não é lida, é rolada.
@@ -247,7 +245,7 @@ Cinco regras:
 
 **O avião de papel é a assinatura.** No material ele está no símbolo, na ponta
 do fio do cabeçalho e no lockup de cada submarca. Aqui aparece em dois lugares
-só — o lockup e o fio da capa. Avião em todo canto vira enfeite.
+só · o lockup e o fio da capa. Avião em todo canto vira enfeite.
 
 **O sistema continua claro.** Site e sistema fazem trabalhos diferentes: o site
 é a vitrine e precisa impressionar em dez segundos; o sistema é onde se passa o
@@ -256,7 +254,7 @@ estão todos no topo do `a-fatorial.css`.
 
 **O lockup reproduz a estrutura do material:** "Grupo" na voz manuscrita, A!
 FATORIAL pesado, a assinatura embaixo, o avião ao lado. Sobre papel claro o
-"A!" usa o ouro que se lê e "FATORIAL" usa tinta — o ouro da marca sobre papel
+"A!" usa o ouro que se lê e "FATORIAL" usa tinta · o ouro da marca sobre papel
 rende 2:1 e some. Sobre preto entra a rampa metálica inteira, como no impresso.
 
 **O símbolo é uma INTERPRETAÇÃO, não o original.** O logo é lettering feito à
@@ -264,8 +262,8 @@ mão; aqui ele só existe como foto, e foto colada na conversa não vira arquivo
 que o código possa recortar. O que está no ar é uma reconstrução da
 construção da letra: o laço alongado e inclinado desenhado como fita
 caligráfica (grossa embaixo-esquerda, fina em cima-direita), o traço longo que
-desce do alto e **cruza** o laço — é esse cruzamento que faz a letra ler A e
-não O —, a exclamação e o avião com o rastro. Proporção e contraste não são os
+desce do alto e **cruza** o laço, é esse cruzamento que faz a letra ler A e
+não O · , a exclamação e o avião com o rastro. Proporção e contraste não são os
 do original.
 
 Chegou aí depois de descartar: duas construções erradas (uma vira sigma grego)
@@ -277,21 +275,21 @@ e dezesseis fontes script testadas contra a foto, nenhuma batendo.
 marcas de uma vez. No sistema o token é `--afx-simbolo`.
 
 **As seis submarcas** aparecem na seção `#sobre`, com avião, nome e assinatura
-própria, divididas por fio — como na barra inferior do material impresso.
+própria, divididas por fio · como na barra inferior do material impresso.
 
 **Quatro letras, quatro papéis.** *Archivo* carrega os títulos e a informação;
 *Newsreader itálico* é só a voz enfática, na oração destacada de um título e
-na citação; *Plex Mono* é o instrumento — todo número, rótulo e referência
+na citação; *Plex Mono* é o instrumento · todo número, rótulo e referência
 legal; e *Yellowtail* tem um trabalho só, a palavra "Grupo" do lockup, que no
-material é manuscrita. Não é a letra do logo — o logo é lettering feito à mão,
-não fonte de catálogo —, mas é escrita de pincel do mesmo gênero.
+material é manuscrita. Não é a letra do logo · o logo é lettering feito à mão,
+não fonte de catálogo · , mas é escrita de pincel do mesmo gênero.
 
 ### As letras vêm dentro do CSS
 
 Não há `<link>` para CDN de fonte. As três famílias estão embutidas em
 base64 no `a-fatorial.css`, subset latino (o português inteiro cabe em
 U+0000–00FF). Custo: ~120 KB. Motivo: o site já rodou com o Google Fonts
-falhando e caindo em Georgia — e um H1 gigante em Georgia é o que faz uma
+falhando e caindo em Georgia, e um H1 gigante em Georgia é o que faz uma
 página parecer documento do Word. Assim ela abre igual em qualquer máquina,
 offline, sem piscar texto trocando de fonte.
 
@@ -308,8 +306,8 @@ mentoria comportamental atende a pessoa que dirige.
 
 Onde a separação está escrita no código:
 
-- `#sobre` — as duas folhas, cada uma com seu Instagram e seu botão
-- rodapé — contato da empresa e, abaixo, o bloco "Mentoria"
+- `#sobre` · as duas folhas, cada uma com seu Instagram e seu botão
+- rodapé · contato da empresa e, abaixo, o bloco "Mentoria"
 - `data-zap` fala com a empresa; `data-zap-cc` fala com a Carla
 
 ## Publicar
@@ -330,11 +328,11 @@ Estão no topo do `<script>` em `site/index.html`:
 var WHATSAPP    = '5511911012147'; // DDI+DDD+número da EMPRESA, só dígitos
 var WHATSAPP_CC = WHATSAPP;         // da MENTORIA; troque quando tiver linha própria
 var URL_SISTEMA = '../index.html';  // onde fica a área interna
-var URL_SERVIDOR = '';              // backend/ — vazio = login leva ao sistema
+var URL_SERVIDOR = '';              // backend/ · vazio = login leva ao sistema
 ```
 
 Com `URL_SERVIDOR` preenchido, o login autentica já no site e a pessoa entra
-no sistema com a sessão pronta — sem digitar duas vezes. Funciona quando site
+no sistema com a sessão pronta · sem digitar duas vezes. Funciona quando site
 e sistema estão no mesmo domínio.
 
 ## Antes de publicar
@@ -342,7 +340,7 @@ e sistema estão no mesmo domínio.
 - [ ] Conferir se 11 9.1101-2147 é mesmo o celular que atende no WhatsApp
 - [ ] Pedir ao designer o **vetor do símbolo** (SVG, AI ou EPS) e trocar o selo
 - [x] ~~Substituir a citação do bloco "Quem fundou o método" por uma foto real
-      da Carla~~ — feito; se aparecer uma foto melhor, é trocar `carla.jpg` e
+      da Carla~~ · feito; se aparecer uma foto melhor, é trocar `carla.jpg` e
       rodar `retrato.py`
 - [ ] Dar um número de WhatsApp próprio à mentoria (`WHATSAPP_CC`)
 - [ ] Revisar os números da capa (12 anos, +500 empresárias, 83 serviços)
