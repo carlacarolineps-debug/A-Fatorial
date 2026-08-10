@@ -1548,3 +1548,35 @@ enquanto a marca dela é ouro em relevo sobre parede preta com holofote.
 187. **Bug do canvas:** `position:fixed;inset:0` não estica elemento
      substituído — o canvas ficou no tamanho intrínseco de 300×150 e a retícula
      desenhava num carimbo. Precisa de `width:100%;height:100%` explícito.
+
+## O mecanismo desenhado — versão 1008.01
+
+As skills de design deram o critério que faltava, e ele expôs um buraco real.
+
+188. **A página contava o mecanismo e nunca o desenhava.** O diferencial da
+     empresa é uma trava — etapa com dono, prazo e critério, e o sistema não
+     deixa pular. Isso aparecia em prosa em cinco lugares e em desenho em
+     nenhum; a esteira era uma lista de nomes, não um mecanismo. Agora há uma
+     figura do caminho que uma entrega percorre: a trava do critério, a troca
+     de dono, o retorno sem custo e a saída de exceção que registra desvio.
+     Regra do desenho — ciano é o que flui, âmbar é o que trava e volta, ouro
+     é o que é seu; toda seta tem rótulo, porque seta sem rótulo quer dizer
+     "relacionado de algum jeito".
+
+189. **Os três vazamentos são partes de um todo,** e partes de um todo pedem
+     proporção. A calculadora ganhou a barra dividida entre margem, tempo e
+     caixa, nas mesmas cores dos três vazamentos acima — por isso dispensa
+     legenda. Aqui a paleta finalmente faz trabalho de informação, não de
+     enfeite: cor por entidade, repetida onde a entidade reaparece.
+
+190. **Faltava silêncio.** Dezesseis seções na mesma densidade cansam. Entre a
+     pessoa marcar os próprios sintomas e a conta chegar entrou um momento de
+     tela cheia sem cartão, painel nem número: só uma frase dela, a retícula à
+     vista, e as palavras entrando uma a uma. A frase saiu da faixa rolante,
+     onde passava despercebida.
+
+191. **Dois defeitos de desenho corrigidos por inspeção:** a retícula
+     atravessava as caixas do diagrama e brigava com o texto (preenchimento
+     subiu para 93%), e a frase da saída de exceção passava por baixo da caixa
+     de ajuste — a altura do viewBox cresceu e o traço tracejado passou a
+     encostar na frase, em vez de terminar no vazio.

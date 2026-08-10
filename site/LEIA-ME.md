@@ -62,6 +62,32 @@ máquina apertada perde primeiro o desfoque do vidro (o item mais caro), depois
 a resolução da retícula, e por último a retícula. Efeito bonito que engasga é
 pior que efeito nenhum — e medir antes de opinar é o que a empresa vende.
 
+### O mecanismo, desenhado
+
+A página dizia em prosa, cinco vezes, que "cada etapa tem dono e prazo e o
+sistema não deixa pular". Prosa não mostra mecanismo: mostra o nome dele. Na
+seção da esteira há agora um **desenho** do caminho que uma entrega percorre —
+a trava do critério, a troca de dono entre as etapas, o retorno sem custo e a
+saída de exceção que registra desvio. É o diferencial da empresa em forma de
+figura, que é o que a concorrência não tem para mostrar.
+
+Regra do desenho: **ciano é o que flui, âmbar é o que trava e volta, ouro é o
+que é seu**. Três cores, três significados — nenhuma escolhida por gosto. Toda
+seta tem rótulo; seta sem rótulo quer dizer "relacionado de algum jeito".
+
+### A barra dos vazamentos
+
+Três partes de um todo pedem proporção, não três números soltos. A barra da
+calculadora mostra a divisão real entre margem, tempo e caixa, nas mesmas
+cores dos três vazamentos logo acima — por isso ela dispensa legenda.
+
+### O respiro
+
+Dezesseis seções na mesma densidade cansam. Existe um momento — entre a pessoa
+marcar os próprios sintomas e a conta chegar — em que a página não tem cartão,
+painel nem número: só uma frase dela, a retícula à vista, e as palavras
+entrando uma a uma.
+
 ### As três luzes
 
 O ouro continua sendo o **metal** — matéria, peso, marca. O ciano, o violeta e
