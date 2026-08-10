@@ -106,8 +106,13 @@ const txt=pg=>pg.evaluate(()=>{ const g=document.getElementById('ob-gate'); retu
   ok('entrou', await pg6.evaluate(()=>{ const g=document.getElementById('ob-gate'); return !g||g.style.display==='none'; }));
   await pg6.evaluate(()=>{ window.__SB.acesso={status:'inactive',user_id:'u-ana',email:'ana@x.com'}; OB.reconferir(); });
   await pg6.waitForTimeout(800);
+  /* a primeira negativa NAO derruba, de proposito: com a turma inteira
+     dentro do app, uma resposta ruim isolada tirava do ar quem pagou */
+  ok('uma leitura negativa sozinha nao derruba', await pg6.evaluate(()=>{ const g=document.getElementById('ob-gate'); return !g||g.style.display==='none'; }));
+  await pg6.evaluate(()=>OB.reconferir());
+  await pg6.waitForTimeout(900);
   const t10=await txt(pg6)||'';
-  ok('a tela avisa na hora', /n.o liberado|suspenso/i.test(t10), JSON.stringify(t10.slice(0,70)));
+  ok('a segunda seguida avisa', /n.o liberado|suspenso/i.test(t10), JSON.stringify(t10.slice(0,70)));
   ok('sem oferta de compra', !/compr|assin|renov/i.test(t10));
   await pg6.close();
 

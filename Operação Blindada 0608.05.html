@@ -4806,7 +4806,11 @@ window.OB = (function () {
            servidor disse não" de "a pergunta nem chegou lá". */
         if (r.error) {
           var st = Number(r.status || 0);
-          if (!navigator.onLine || st === 0 || st >= 500) return { status: "OFFLINE" };
+          /* 429 é o que aparece quando a turma inteira abre o app na mesma
+             hora, e 408 quando a resposta demora demais. Os dois são "tente
+             de novo", não "você não tem acesso": tratá-los como negativa
+             derrubaria justamente quem está usando no horário de pico. */
+          if (!navigator.onLine || st === 0 || st === 408 || st === 429 || st >= 500) return { status: "OFFLINE" };
           return { status: "PENDENTE" };
         }
         if (!r.data) return { status: "PENDENTE" };
@@ -4845,8 +4849,14 @@ window.OB = (function () {
     if (PREVIEW || !sb || !user) return;
     clearInterval(timerAcesso);
     timerAcesso = setInterval(reconferir, 15 * 60 * 1000);
-    document.addEventListener("visibilitychange", function () { if (!document.hidden) { reconferir(); subirPendente(); } });
-    window.addEventListener("online", function () { reconferir(); subirPendente(); });
+    /* uma vez só: vigiarAcesso pode rodar de novo (troca de senha, volta
+       do link de recuperação) e cada chamada empilhava mais um ouvinte,
+       fazendo o app conferir o acesso várias vezes por toque na tela */
+    if (!ouvintesLigados) {
+      ouvintesLigados = true;
+      document.addEventListener("visibilitychange", function () { if (!document.hidden) { reconferir(); subirPendente(); } });
+      window.addEventListener("online", function () { reconferir(); subirPendente(); });
+    }
     try {
       if (canalAcesso) sb.removeChannel(canalAcesso);
       canalAcesso = sb.channel("acesso:" + user.id)
@@ -4860,19 +4870,32 @@ window.OB = (function () {
     if (donoLocal() && donoLocal() !== user.id) return;
     var st = estadoLocal(); if (st) subirEstado(st);
   }
-  var reconferindo = false;
+  var ouvintesLigados = false;
+  var reconferindo = false, negativasSeguidas = 0;
+  /* Tirar alguém do meio do trabalho é a coisa mais cara que esta função
+     faz, então ela exige DUAS leituras negativas seguidas antes de
+     mostrar a parede. Com a turma inteira dentro do app ao mesmo tempo,
+     uma resposta ruim isolada (limite de requisições, um 5xx passageiro,
+     o Wi-Fi que oscilou) deixa de derrubar a tela de quem está pagando e
+     usando. Se o acesso caiu de verdade, a segunda leitura confirma em
+     15 minutos, ou na hora, porque o Realtime chama aqui de novo. */
   function reconferir() {
     if (reconferindo || PREVIEW || !sb || !user) return;
     reconferindo = true;
     lerAcesso().then(function (a) {
       reconferindo = false;
-      if (a.status === "OFFLINE") return;
+      if (a.status === "OFFLINE") return;          // nem chegou ao servidor
       marcaOnline();
-      if (a.status === acesso.status) return;
-      var antes = acesso.status;
+      if (a.status === "ATIVO") {
+        negativasSeguidas = 0;
+        if (acesso.status !== "ATIVO") { acesso = { status: "ATIVO", desde: Date.now() }; closeOverlay(); location.reload(); }
+        return;
+      }
+      if (acesso.status !== "ATIVO") { acesso = { status: a.status, desde: Date.now() }; return; }
+      negativasSeguidas++;
+      if (negativasSeguidas < 2) return;           // a primeira negativa só conta
       acesso = { status: a.status, desde: Date.now() };
-      if (a.status === "ATIVO" && antes !== "ATIVO") { closeOverlay(); location.reload(); return; }
-      if (a.status !== "ATIVO" && antes === "ATIVO") showPending(user.email, a.status === "INATIVO" ? "inativo" : "");
+      showPending(user.email, a.status === "INATIVO" ? "inativo" : "");
     }, function () { reconferindo = false; });
   }
   /* ---------------------------------------------------------------
@@ -12730,7 +12753,31 @@ function renderDiario(){
   }).join('')}</div>`:'<div class="card"><p class="muted tiny" style="margin:0">Seu diário está em branco. A primeira anotação costuma ser a mais reveladora.</p></div>'}
   ${signature()}`;
 }
-function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* As aspas TAMBÉM saem, e isto não é excesso de zelo: sem elas, todo
+   lugar do app que monta um atributo com texto de usuário vira porta de
+   entrada. Uma legenda de foto como  x" onerror="...  fechava o src e
+   punha um atributo novo no lugar, e o pior alvo era o painel de
+   denúncias, que roda na sessão de quem pode suspender contas.
+   Escapar aqui conserta o app inteiro de uma vez, porque toda tela passa
+   por esta função.
+   O que isto NÃO conserta: texto de usuário dentro de onclick. Ali o
+   navegador desfaz a entidade antes de o JavaScript ler, então esses
+   casos são resolvidos passando índice em vez de texto. */
+function escapeHtml(s){
+  return (s==null?'':String(s))
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+/* Endereço que vai para href ou src. Só http e https passam: um
+   javascript: colado no link do encontro rodaria no aparelho de quem
+   clicasse, e quem publica encontro é uma conta a mais para invadir. */
+function urlSegura(u){
+  var v = String(u==null?'':u).trim();
+  if(!v) return '';
+  if(/^https?:\/\//i.test(v)) return v;
+  if(/^\//.test(v) && !/^\/\//.test(v)) return v;   // caminho do próprio site
+  return '';
+}
 function toggleDiaryFree(){ const d=$('#diaryFree'); if(d) d.style.display=(d.style.display==='none'||!d.style.display)?'block':'none'; }
 function addDiary(){
   const text=$('#diaryText').value.trim();
@@ -18818,7 +18865,7 @@ function renderAno(){
         <p>${anFmt(prox.quando)} às ${anHora(prox.quando)}${prox.local?' · '+escapeHtml(prox.local):''}</p>
       </div>
       <div class="an-proxbt">
-        ${prox.link?`<a class="btn primary sm" href="${escapeHtml(prox.link)}" target="_blank" rel="noopener">Entrar no encontro</a>`:''}
+        ${urlSegura(prox.link)?`<a class="btn primary sm" href="${escapeHtml(urlSegura(prox.link))}" target="_blank" rel="noopener">Entrar no encontro</a>`:''}
         <button class="btn ghost sm" onclick="anAgendar('${prox.id}')">Adicionar à agenda</button>
       </div>
     </div>`:`<div class="an-vazio">Nenhum encontro publicado ainda. Quando a mentora marcar, ele aparece aqui com link, lembrete e botão para a sua agenda.</div>`}
@@ -18853,7 +18900,7 @@ function renderAno(){
           <p>${anFmt(e.quando)} às ${anHora(e.quando)}${e.local?' · '+escapeHtml(e.local):''}</p>
         </div>
         <div class="an-evbt">
-          ${e.link&&!passou?`<a class="btn primary sm" href="${escapeHtml(e.link)}" target="_blank" rel="noopener">Entrar</a>`:''}
+          ${urlSegura(e.link)&&!passou?`<a class="btn primary sm" href="${escapeHtml(urlSegura(e.link))}" target="_blank" rel="noopener">Entrar</a>`:''}
           ${!passou?`<button class="btn ghost sm" onclick="anAgendar('${e.id}')">Agenda</button>`:''}
           ${!passou?`<button class="btn ${conf==='vou'?'sage':'ghost'} sm" onclick="anConfirmar('${e.id}','vou')">${conf==='vou'?'Eu vou ✓':'Eu vou'}</button>`:''}
           ${passou?(a.saidas&&a.saidas[e.id]
@@ -22310,7 +22357,7 @@ function modPainelLista(){
           <span class="dn-h${(aberta&&h>=20)?' urgente':''}">${h<1?'agora':h+'h'}</span></div>
         <p class="dn-tx">${escapeHtml(r.detalhe||'Sem detalhe.')}</p>
         <p class="dn-meta">${escapeHtml(r.alvo_tipo||'conteúdo')} · ${escapeHtml(String(r.alvo_id||'').slice(0,8))}</p>
-        ${(r.alvo_tipo==='galeria'&&porId[r.alvo_id])?`<img class="dn-foto" src="${escapeHtml(porId[r.alvo_id].url)}" alt="conteúdo denunciado">`:''}
+        ${(r.alvo_tipo==='galeria'&&porId[r.alvo_id])?`<img class="dn-foto" src="${escapeHtml(urlSegura(porId[r.alvo_id].url))}" alt="conteúdo denunciado">`:''}
         ${aberta?`<div class="btn-row" style="margin-top:8px">
           <button class="btn primary xs" onclick="modResolver('${r.id}','removida','${r.alvo_tipo||''}','${r.alvo_id||''}')">Remover o conteúdo</button>
           ${r.alvo_user_id?`<button class="btn xs" style="background:#7a2f2f;color:#fff" onclick="modSuspender('${r.alvo_user_id}','${r.id}')">Suspender a conta</button>`:''}
@@ -22788,20 +22835,26 @@ function adLiberar(email){
     adMsg('adLibMsg','Liberado. A senha temporária foi para o e-mail dela, e o app pede para trocar assim que ela entrar.', true);
   }, ()=>adMsg('adLibMsg','Não consegui liberar agora.'));
 }
+/* o e-mail guardado aqui em vez de dentro do onclick: escapar não
+   resolve atributo que vira código, porque o navegador desfaz a entidade
+   antes de o JavaScript ler a linha */
+let _adEncerrando = '';
 function adEncerrar(email){
+  _adEncerrando = email || '';
   modal(`<p class="eyebrow">Encerrar acesso</p><h3>Tirar o acesso de ${escapeHtml(email)}?</h3>
     <div class="lg-box">
       <p class="lg-forte">O progresso dela não é apagado.</p>
       <p>Ela perde o acesso ao conteúdo na hora e o cartão dela sai do mapa de membros. Se voltar, volta de onde parou.</p>
     </div>
     <div class="btn-row mt16">
-      <button class="btn" style="background:#7a2f2f;color:#fff" onclick="adEncerrarOk('${escapeHtml(email)}')">Encerrar</button>
+      <button class="btn" style="background:#7a2f2f;color:#fff" onclick="adEncerrarOk()">Encerrar</button>
       <button class="btn ghost" onclick="closeModal()">Cancelar</button>
     </div>`);
 }
 function adEncerrarOk(email){
+  email = email || _adEncerrando;
   closeModal();
-  if(!window.OB || !OB.encerrar) return;
+  if(!email || !window.OB || !OB.encerrar) return;
   OB.encerrar(email).then(r=>{
     const resp = (r && r.data) || '';
     toast('', resp === 'encerrado' ? 'Acesso encerrado' : 'Não deu', resp === 'encerrado' ? email + ' não entra mais.' : (resp || 'Tente de novo.'));
@@ -23175,9 +23228,12 @@ function pfEmail() {
   if (_pfRemoto && _pfRemoto.email) return _pfRemoto.email;
   return '';
 }
+/* A url da foto sai do banco, e quem escreveu a linha foi o próprio
+   dono dela: nada garante que seja mesmo um endereço de imagem. Passa
+   por urlSegura antes de virar atributo, aqui e no retrato do topo. */
 function pfFoto() {
-  if (_pfRemoto && _pfRemoto.avatar_url) return _pfRemoto.avatar_url;
-  return (PF().foto) || '';
+  const u = (_pfRemoto && _pfRemoto.avatar_url) || PF().foto || '';
+  return urlSegura(u);
 }
 function pfInicial() {
   const n = (pfNome() || pfEmail() || '?').trim();
@@ -23190,7 +23246,7 @@ function pfAvatar(px) {
   const tam = px || 84;
   if (url) {
     return `<span class="pf-av" style="width:${tam}px;height:${tam}px">
-      <img src="${escapeHtml(url)}" alt="" loading="lazy"></span>`;
+      <img src="${escapeHtml(urlSegura(url))}" alt="" loading="lazy"></span>`;
   }
   return `<span class="pf-av vazio" style="width:${tam}px;height:${tam}px;font-size:${Math.round(tam * .40)}px">${pfInicial()}</span>`;
 }
@@ -23396,7 +23452,7 @@ function pfPintaTopo() {
   const el = document.getElementById('avatar'); if (!el) return;
   const url = pfFoto();
   if (url) {
-    el.innerHTML = `<img src="${escapeHtml(url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    el.innerHTML = `<img src="${escapeHtml(urlSegura(url))}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
     el.classList.add('com-foto');
   } else {
     el.classList.remove('com-foto');

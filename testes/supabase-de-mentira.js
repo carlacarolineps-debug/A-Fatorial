@@ -20,6 +20,8 @@ window.__SB = {
   invocadas: [],       // as Edge Functions chamadas
   erroFuncao: false,   // a Edge Function nao esta publicada
   erroProgress: false,   // simula leitura do progresso que falha
+  statusAcesso: null,    // finge uma resposta ruim do servidor: 429, 503, 401...
+  lidasAcesso: 0,        // quantas vezes o app perguntou pelo acesso
   publicados: [],      // o que a mesa da mentoria publicou
   onAuth: null
 };
@@ -37,7 +39,12 @@ window.__SB = {
       order:function(){ return api; },
       maybeSingle:function(){
         if(window.__SB.falharRede) return Promise.reject(new Error('Failed to fetch'));
-        if(tabela==='access')   return resp(window.__SB.acesso);
+        if(tabela==='access'){
+          window.__SB.lidasAcesso++;
+          var st = window.__SB.statusAcesso;
+          if(st) return resp(null, {message:'erro '+st}, st);
+          return resp(window.__SB.acesso);
+        }
         if(tabela==='progress'){
           if(window.__SB.erroProgress) return resp(null,{message:'TypeError: Failed to fetch'},0);
           return resp(window.__SB.progresso);
