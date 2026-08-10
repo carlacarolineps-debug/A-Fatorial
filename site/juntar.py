@@ -210,12 +210,12 @@ body.no-sistema #porta{{display:none}}
 </head>
 <body class="na-porta">
 
-<!-- ══════════════ A PORTA — o site ══════════════ -->
+<!-- ══════════════ A PORTA · o site ══════════════ -->
 <div id="porta">
 {corpo_site.strip()}
 </div>
 
-<!-- ══════════════ A ÁREA INTERNA — o sistema ══════════════ -->
+<!-- ══════════════ A ÁREA INTERNA · o sistema ══════════════ -->
 {corpo_sis.strip()}
 
 <script>
@@ -226,13 +226,13 @@ window.entrarNoSistema=function(){{
   document.body.classList.remove('na-porta');
   document.body.classList.add('no-sistema');
   window.scrollTo(0,0);
-  try{{ document.title='A! Fatorial — área interna'; }}catch(e){{}}
+  try{{ document.title='A! Fatorial · área interna'; }}catch(e){{}}
 }};
 window.voltarParaPorta=function(){{
   document.body.classList.remove('no-sistema');
   document.body.classList.add('na-porta');
   window.scrollTo(0,0);
-  try{{ document.title='Grupo A! Fatorial — Soluções para Empresas e Franquias'; }}catch(e){{}}
+  try{{ document.title='Grupo A! Fatorial · Soluções para Empresas e Franquias'; }}catch(e){{}}
 }};
 </script>
 
