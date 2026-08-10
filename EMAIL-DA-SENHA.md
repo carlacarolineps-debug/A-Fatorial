@@ -158,14 +158,34 @@ confirmada. Sem ela, o acesso é liberado mas ninguém avisa a pessoa.
 ## C.1 Guardar os três segredos
 
 1. Abra: **https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/settings/functions**
-2. Procure **Edge Function Secrets** (ou **Secrets**)
-3. Clique em **Add new secret** e crie os três, um de cada vez:
+2. Procure **Edge Function Secrets**
+
+A página tem duas listas. A de baixo, **Default secrets**, é do próprio
+Supabase: já existe e não se mexe nela. A sua é **Custom secrets**, que
+começa vazia.
+
+O formulário do topo tem um link *"Insert or update multiple secrets at
+once by pasting key-value pairs"*. É o caminho mais curto: clique nele e
+cole os três de uma vez.
+
+```
+GMAIL_USER=gestaogrupoa@gmail.com
+GMAIL_APP_PASSWORD=as16letrassemespaco
+APP_URL=https://carlacarolineps-debug.github.io/A-Fatorial/
+```
+
+Ou preencha **Name** e **Value** um por um, usando **Add another** entre
+eles, e depois **Save**:
 
 | Name | Value |
 |---|---|
 | `GMAIL_USER` | `gestaogrupoa@gmail.com` |
 | `GMAIL_APP_PASSWORD` | as 16 letras do passo A.2, **sem espaços** |
 | `APP_URL` | `https://carlacarolineps-debug.github.io/A-Fatorial/` |
+
+Deu certo quando os três aparecerem em **Custom secrets**, cada um com um
+**Digest SHA256** do lado. O Supabase nunca mostra o valor de volta, nem
+para você: para trocar, grave por cima com o mesmo nome.
 
 **Estes segredos ficam só no servidor.** Eles nunca entram no aplicativo,
 e ninguém que baixe o app consegue lê-los.
