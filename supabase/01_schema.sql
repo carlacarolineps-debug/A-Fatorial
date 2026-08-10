@@ -1072,5 +1072,12 @@ grant execute on function public.bloqueado(uuid)             to authenticated;
 --      os segredos GMAIL_USER, GMAIL_APP_PASSWORD, APP_URL e
 --      TMB_WEBHOOK_SECRET
 --   e) conferir o Realtime em Database > Publications
+--   f) Authentication > Users > Add user: criar a conta da mentoria.
+--      Este arquivo deixa o acesso ativo e a marca de mentora prontos,
+--      mas NÃO cria a conta em si: senha vive no schema auth, com hash e
+--      linha em auth.identities, e forjar isso por SQL quebra calado.
+--      Sem a conta, "Esqueci a minha senha" não manda nada, e a tela diz
+--      a mesma coisa de sempre (de propósito: dizer que um e-mail não tem
+--      cadastro entrega a lista da turma). Marque Auto Confirm User.
 --   Tudo isso está em EMAIL-DA-SENHA.md, tela por tela.
 -- =====================================================================
