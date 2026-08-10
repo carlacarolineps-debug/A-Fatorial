@@ -203,17 +203,50 @@ function montar(app, cfg) {
       return res.status(401).json({ ok: false, erro: 'credenciais' });
     const token = novoToken();
     CONTAS.sessoes[token] = { uid: u.id, criadoEm: new Date().toISOString(), ultimoEm: new Date().toISOString() };
+    /* A chave de reentrada é o que evita a equipe inteira parar junto.
+       A sessão desaparece quando o servidor é reinstalado ou quando
+       alguém limpa as sessões, e nesse instante todo mundo levaria 401 ao
+       mesmo tempo e cairia na tela de login, no meio do expediente.
+       Com ela o navegador troca por uma sessão nova sozinho e a pessoa
+       não percebe. É separada do token de sessão de propósito: ela só
+       serve para pedir sessão, e é trocada a cada uso, então uma cópia
+       velha não vale duas vezes. */
+    const reentrada = crypto.randomBytes(32).toString('hex');
+    CONTAS.reentradas = CONTAS.reentradas || {};
+    CONTAS.reentradas[reentrada] = { uid: u.id, em: new Date().toISOString() };
     // limpa sessões paradas há mais de 30 dias
     const corte = Date.now() - 30 * 24 * 3600e3;
     Object.keys(CONTAS.sessoes).forEach(t => {
       if (new Date(CONTAS.sessoes[t].ultimoEm).getTime() < corte) delete CONTAS.sessoes[t];
     });
     salvar();
-    res.json({ ok: true, token, usuario: limpo(u), rev: ESTADO.rev });
+    res.json({ ok: true, token, reentrada, usuario: limpo(u), rev: ESTADO.rev });
+  });
+
+  /* — troca a chave de reentrada por uma sessão nova, sem pedir senha — */
+  app.post('/equipe/reentrar', (req, res) => {
+    const ch = String((req.body || {}).reentrada || '');
+    const r = (CONTAS.reentradas || {})[ch];
+    if (!r) return res.status(401).json({ ok: false, erro: 'reentrada_invalida' });
+    const u = CONTAS.usuarios.find(x => x.id === r.uid && x.ativo !== false);
+    if (!u) { delete CONTAS.reentradas[ch]; salvar(); return res.status(401).json({ ok: false, erro: 'conta_inativa' }); }
+    /* rotaciona: a chave usada morre aqui e uma nova vai junto com a
+       sessão. Chave roubada de um backup antigo não abre nada. */
+    delete CONTAS.reentradas[ch];
+    const token = crypto.randomBytes(24).toString('hex');
+    const nova = crypto.randomBytes(32).toString('hex');
+    CONTAS.sessoes[token] = { uid: u.id, criadoEm: new Date().toISOString(), ultimoEm: new Date().toISOString() };
+    CONTAS.reentradas[nova] = { uid: u.id, em: new Date().toISOString() };
+    salvar();
+    res.json({ ok: true, token, reentrada: nova, usuario: limpo(u), rev: ESTADO.rev });
   });
 
   app.post('/equipe/sair', exigeLogin, (req, res) => {
     delete CONTAS.sessoes[req.token];
+    /* sair de verdade também mata a reentrada: senão o navegador
+       voltaria sozinho no minuto seguinte */
+    const ch = String((req.body || {}).reentrada || '');
+    if (ch && CONTAS.reentradas) delete CONTAS.reentradas[ch];
     PRESENCA.delete(req.eu.id);
     salvar();
     res.json({ ok: true });

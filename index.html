@@ -19753,7 +19753,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           url:'', token:'', usuario:null,
           ligado:false, estado:'desligado',   // desligado | conectando | ok | offline | erro
           rev:0, online:[], fila:[], sombra:{}, ultimoErro:'',
-          empurrando:false, timer:null, ultimaTroca:0
+          empurrando:false, timer:null, ultimaTroca:0,
+          reentrada:'', reentrando:null
         };
         /* Quais chaves são da empresa (vão para o servidor) e quais listas
            dentro de cada uma têm id, é isso que dá junção por registro. */
@@ -19876,9 +19877,15 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           try{
             let mudancas=lote.map(x=>({col:x.col, id:null, rev:SYNC.rev,
               valor:x.valor!==undefined?x.valor:undefined, remendo:x.remendo}));
-            let r=await fetch(SYNC.url+'/equipe/dados', {method:'POST', headers:syncCab(),
-              body:JSON.stringify({desde:SYNC.rev, tela:syncTelaAtual(), mudancas})});
-            if(r.status===401){ syncCair('A sessão da equipe expirou. Entre de novo.'); return; }
+            const corpo=JSON.stringify({desde:SYNC.rev, tela:syncTelaAtual(), mudancas});
+            let r=await fetch(SYNC.url+'/equipe/dados', {method:'POST', headers:syncCab(), body:corpo});
+            /* 401 aqui quase nunca é "perdeu o acesso": é a sessão que
+               sumiu do servidor. Reentra sozinho e refaz o envio. Só
+               desiste se a reentrada também falhar. */
+            if(r.status===401 && await syncReentrar()){
+              r=await fetch(SYNC.url+'/equipe/dados', {method:'POST', headers:syncCab(), body:corpo});
+            }
+            if(r.status===401){ syncCair('A sessão da equipe encerrou. Entre de novo quando puder.'); return; }
             if(!r.ok) throw new Error('HTTP '+r.status);
             let j=await r.json();
             SYNC.estado='ok'; SYNC.ultimoErro=''; SYNC.ultimaTroca=Date.now();
@@ -19913,9 +19920,10 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         async function syncPuxar(){
           if(!SYNC.ligado) return;
           try{
-            let r=await fetch(SYNC.url+'/equipe/dados?desde='+SYNC.rev+'&tela='+encodeURIComponent(syncTelaAtual()),
-              {headers:syncCab()});
-            if(r.status===401){ syncCair('A sessão da equipe expirou. Entre de novo.'); return; }
+            const alvo=SYNC.url+'/equipe/dados?desde='+SYNC.rev+'&tela='+encodeURIComponent(syncTelaAtual());
+            let r=await fetch(alvo, {headers:syncCab()});
+            if(r.status===401 && await syncReentrar()) r=await fetch(alvo, {headers:syncCab()});
+            if(r.status===401){ syncCair('A sessão da equipe encerrou. Entre de novo quando puder.'); return; }
             if(!r.ok) throw new Error('HTTP '+r.status);
             let j=await r.json();
             SYNC.estado='ok'; SYNC.ultimoErro=''; SYNC.ultimaTroca=Date.now();
@@ -20031,7 +20039,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
 
         function syncCair(msg){
           SYNC.ligado=false; SYNC.estado='erro'; SYNC.ultimoErro=msg||'';
-          SYNC.token=''; SYNC.usuario=null; syncCfgSalvar(); syncBarra();
+          SYNC.token=''; SYNC.usuario=null; SYNC.reentrada=''; syncCfgSalvar(); syncBarra();
           /* Era alert(), que trava a página inteira até alguém clicar em OK.
              Uma oscilação de rede no meio do expediente virava uma janela
              do navegador na cara de todo mundo ao mesmo tempo. O aviso do
@@ -20043,11 +20051,45 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         function syncCfgCarregar(){
           try{
             let c=JSON.parse(localStorage.getItem('af_sync')||'null');
-            if(c){ SYNC.url=c.url||''; SYNC.token=c.token||''; SYNC.usuario=c.usuario||null; SYNC.rev=c.rev||0; }
+            if(c){ SYNC.url=c.url||''; SYNC.token=c.token||''; SYNC.usuario=c.usuario||null;
+                   SYNC.rev=c.rev||0; SYNC.reentrada=c.reentrada||''; }
           }catch(e){}
         }
         function syncCfgSalvar(){
-          try{ localStorage.setItem('af_sync', JSON.stringify({url:SYNC.url, token:SYNC.token, usuario:SYNC.usuario, rev:SYNC.rev})); }catch(e){}
+          try{ localStorage.setItem('af_sync', JSON.stringify({url:SYNC.url, token:SYNC.token,
+               usuario:SYNC.usuario, rev:SYNC.rev, reentrada:SYNC.reentrada})); }catch(e){}
+        }
+
+        /* ── REENTRADA SILENCIOSA ──
+           Um 401 no meio do expediente quase nunca quer dizer "esta pessoa
+           não tem mais acesso". Quer dizer que a sessão sumiu do servidor,
+           o que acontece numa reinstalação ou numa limpeza. Sem isto, todo
+           mundo caía na tela de login ao mesmo tempo, no meio do trabalho.
+
+           A chave de reentrada troca por uma sessão nova sem pedir senha,
+           e o pedido que falhou é refeito. A pessoa não vê nada.
+
+           Uma tentativa só, compartilhada: se cinco requisições levarem 401
+           juntas, elas esperam a mesma reentrada em vez de disparar cinco.
+           Se a reentrada também falhar, aí sim é logout de verdade. */
+        async function syncReentrar(){
+          if(!SYNC.reentrada) return false;
+          if(SYNC.reentrando) return SYNC.reentrando;      // já há uma em curso
+          SYNC.reentrando=(async()=>{
+            try{
+              let r=await fetch(SYNC.url+'/equipe/reentrar', {method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({reentrada:SYNC.reentrada})});
+              if(!r.ok) return false;
+              let j=await r.json();
+              if(!j.ok||!j.token) return false;
+              SYNC.token=j.token; SYNC.reentrada=j.reentrada||''; SYNC.usuario=j.usuario||SYNC.usuario;
+              syncCfgSalvar(); SYNC.estado='ok'; syncBarra();
+              return true;
+            }catch(e){ return false; }
+            finally{ setTimeout(()=>{ SYNC.reentrando=null; }, 0); }
+          })();
+          return SYNC.reentrando;
         }
         function syncUrlLimpa(u){ return String(u||'').trim().replace(/\/+$/,''); }
 
@@ -20064,7 +20106,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             body:JSON.stringify({email, senha})});
           let j=null; try{ j=await r.json(); }catch(e){}
           if(!r.ok||!j||!j.ok) return {ok:false, erro:(j&&j.erro)==='credenciais'?'E-mail ou senha não conferem.':'Não deu para entrar ('+r.status+').'};
-          SYNC.url=url; SYNC.token=j.token; SYNC.usuario=j.usuario; SYNC.rev=0; SYNC.sombra={}; SYNC.fila=[];
+          SYNC.url=url; SYNC.token=j.token; SYNC.reentrada=j.reentrada||''; SYNC.usuario=j.usuario;
+          SYNC.rev=0; SYNC.sombra={}; SYNC.fila=[];
           SYNC.ligado=true; SYNC.estado='conectando';
           syncCfgSalvar();
           await syncPrimeiraTroca();
