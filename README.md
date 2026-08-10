@@ -225,3 +225,13 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
 - **Usuários / acessos**: `ADMIN_USER`, `normalizaUsuarios`, `salvarUsuarios`,
   `renderUsuarios`, `usuarioSalvar`, `colaboradorNovo` (persistência em
   `localStorage` chave `af_usuarios`; em produção, isso vai para o backend).
+
+---
+
+## Outros projetos neste repositório
+
+- **[`aular/`](aular/)** — **AuLar**, plataforma de adoção e gestão animal
+  (vitrine com compatibilidade, calendário de vacinas, lares temporários,
+  doações por Pix e assinatura das ONGs com bloqueio automático).
+  Abra `aular/index.html` no navegador; a estratégia do negócio está em
+  [`aular/PROJETO.md`](aular/PROJETO.md).
