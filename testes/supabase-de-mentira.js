@@ -20,6 +20,7 @@ window.__SB = {
   invocadas: [],       // as Edge Functions chamadas
   erroFuncao: false,   // a Edge Function nao esta publicada
   erroProgress: false,   // simula leitura do progresso que falha
+  erroUpdate: null,      // simula o servidor recusando a troca de senha
   statusAcesso: null,    // finge uma resposta ruim do servidor: 429, 503, 401...
   lidasAcesso: 0,        // quantas vezes o app perguntou pelo acesso
   publicados: [],      // o que a mesa da mentoria publicou
@@ -95,6 +96,7 @@ window.__SB = {
             return resp(null,{message:'Invalid login credentials'});
           },
           updateUser: function(o){
+            if(window.__SB.erroUpdate) return resp(null,{message:window.__SB.erroUpdate});
             var mail=(window.__SB.sessao&&window.__SB.sessao.user.email)||'';
             if(o && o.password){
               window.__SB.senhas[mail]=o.password;

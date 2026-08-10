@@ -110,7 +110,43 @@ async function nova(b, init){
   ok('e entrou', await aberto(pg));
   ok('o token saiu da barra de endereco', !(await pg.evaluate(()=>location.hash)).includes('access_token'));
 
-  console.log('\n10. SEM ACESSO: a tela cobra o e-mail da inscricao');
+  console.log('\n10. APERTAR NAO BASTA: se o servidor recusar, o app NAO abre');
+  await pg.close();
+  pg=await nova(b, `window.__SB.senhas={'ana@x.com':'temp7788ab'};
+    window.__SB.temporaria={'ana@x.com':true};
+    window.__SB.acesso={status:'active',user_id:'u-ana',email:'ana@x.com'};`);
+  await pg.goto(U); await pg.waitForTimeout(1300);
+  await pg.fill('#ob-email','ana@x.com'); await pg.fill('#ob-senha','temp7788ab');
+  await pg.click('#ob-entrar'); await pg.waitForTimeout(1800);
+  ok('pediu a senha nova', await pg.evaluate(()=>!!document.getElementById('ob-s1')));
+  await pg.evaluate(()=>{ window.__SB.erroUpdate='Auth session missing'; });
+  await pg.fill('#ob-s1','blindada2026'); await pg.fill('#ob-s2','blindada2026');
+  await pg.click('#ob-salvar'); await pg.waitForTimeout(1500);
+  ok('o app NAO abriu', !(await aberto(pg)));
+  ok('continua pedindo a senha', await pg.evaluate(()=>!!document.getElementById('ob-s1')));
+  ok('e explicou o que houve', (await pg.evaluate(()=>document.getElementById('ob-erro').textContent)).length>5,
+     JSON.stringify(await pg.evaluate(()=>document.getElementById('ob-erro').textContent)));
+  ok('a marca de temporaria NAO caiu', await pg.evaluate(()=>!!window.__SB.temporaria['ana@x.com']));
+  ok('a senha NAO mudou', (await pg.evaluate(()=>window.__SB.senhas['ana@x.com']))==='temp7788ab');
+  await pg.evaluate(()=>{ window.__SB.erroUpdate=null; });
+  await pg.click('#ob-salvar'); await pg.waitForTimeout(2000);
+  ok('e quando o servidor aceita, aí sim abre', await aberto(pg));
+
+  console.log('\n11. O E-MAIL DIGITADO nao se perde ao ver o primeiro acesso');
+  await pg.close();
+  pg=await nova(b);
+  await pg.goto(U); await pg.waitForTimeout(1300);
+  await pg.fill('#ob-email','carla@exemplo.com');
+  await pg.click('#ob-primeiro'); await pg.waitForTimeout(500);
+  const t11=await txt(pg)||'';
+  ok('a tela diz que NAO cria conta aqui', /n.o existe criar conta/i.test(t11), t11.slice(0,80));
+  ok('e o botao diz para onde leva', /Voltar para a entrada/.test(t11));
+  await pg.click('#ob-volta'); await pg.waitForTimeout(500);
+  ok('voltou para a entrada', await pg.evaluate(()=>!!document.getElementById('ob-senha')));
+  ok('com o e-mail ainda escrito', (await pg.evaluate(()=>document.getElementById('ob-email').value))==='carla@exemplo.com',
+     JSON.stringify(await pg.evaluate(()=>document.getElementById('ob-email').value)));
+
+  console.log('\n12. SEM ACESSO: a tela cobra o e-mail da inscricao');
   await pg.close();
   pg=await nova(b, `window.__SB.senhas={'x@x.com':'blindada2026'}; window.__SB.acesso=null;`);
   await pg.goto(U); await pg.waitForTimeout(1300);

@@ -4547,6 +4547,11 @@ window.OB = (function () {
     [em, sn].forEach(function (i) {
       i.addEventListener("keydown", function (e) { if (e.key === "Enter") bt.click(); });
     });
+    /* guarda o e-mail enquanto ela digita, nao so quando aperta Entrar.
+       Sem isto, ir ver o primeiro acesso e voltar apagava o que ela tinha
+       escrito, e a tela parecia ter dado a volta sem fazer nada.
+       A senha NUNCA e guardada: ela existe so dentro do campo. */
+    em.addEventListener("input", function () { emailPedido = (em.value || "").trim().toLowerCase(); });
     bt.addEventListener("click", function () {
       var email = (em.value || "").trim().toLowerCase(), senha = sn.value || "";
       if (!validaEmail(email)) { erro.textContent = "Confira o e-mail: falta o @ ou o final."; em.focus(); return; }
@@ -4588,8 +4593,13 @@ window.OB = (function () {
       + '<b style="color:#e8e6e1">2.</b> O app pede na hora para voc&ecirc; criar a sua pr&oacute;pria senha. '
       + 'A tempor&aacute;ria deixa de valer nesse momento.<br><br>'
       + '<span style="color:#c8a24a">O e-mail aqui precisa ser exatamente o mesmo que voc&ecirc; usou para se inscrever.</span>'
+      /* Sem esta linha a tela parece um cadastro, e a pessoa aperta o botao
+         esperando entrar. Nao existe criar conta aqui: quem cria a conta e
+         a inscricao. */
+      + '<br><br><span style="color:#7d7a73">Esta tela &eacute; s&oacute; a explica&ccedil;&atilde;o. N&atilde;o existe criar conta aqui: '
+      + 'a sua conta nasce quando a sua inscri&ccedil;&atilde;o &eacute; confirmada.</span>'
       + '</div>'
-      + '<button id="ob-volta" class="obg-bt" style="margin-top:20px">Entrar agora</button>'
+      + '<button id="ob-volta" class="obg-bt" style="margin-top:20px">Voltar para a entrada</button>'
       + '<button id="ob-nao" class="obg-lk">N&atilde;o recebi a senha tempor&aacute;ria</button>');
     document.getElementById("ob-volta").addEventListener("click", function () { showLogin(); });
     document.getElementById("ob-nao").addEventListener("click", function () { showNaoRecebi(); });
@@ -4625,6 +4635,7 @@ window.OB = (function () {
       + linhaAjuda());
     var send = document.getElementById("ob-send"), inp = document.getElementById("ob-email"), erro = document.getElementById("ob-erro");
     inp.addEventListener("keydown", function (e) { if (e.key === "Enter") send.click(); });
+    inp.addEventListener("input", function () { emailPedido = (inp.value || "").trim().toLowerCase(); });
     send.addEventListener("click", function () {
       var email = (inp.value || "").trim().toLowerCase();
       if (!validaEmail(email)) { erro.textContent = "Confira o e-mail: falta o @ ou o final."; inp.focus(); return; }
