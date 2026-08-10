@@ -32,7 +32,12 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const DIR = path.join(__dirname, 'dados');
+/* DADOS_DIR existe para o servidor apontar a pasta de dados para um disco
+   montado, que é onde ela precisa ficar num servidor de verdade: sem isso
+   o backup pega a pasta errada e uma reinstalação apaga tudo. O
+   atendente.js já respeitava esta variável e este arquivo não, o que
+   deixaria os dados da equipe num lugar e as conversas em outro. */
+const DIR = process.env.DADOS_DIR || path.join(__dirname, 'dados');
 const F_ESTADO = path.join(DIR, 'estado.json');
 const F_CONTAS = path.join(DIR, 'contas.json');
 

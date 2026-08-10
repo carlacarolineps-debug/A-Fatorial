@@ -24080,7 +24080,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           af_d4:         {col:'d4',         listas:{}, salvar:'d4Salvar',                           recarregar:'d4Init'},
           af_brand:      {col:'brand',      listas:{}, salvar:'brandSalvar',                           recarregar:'brandCarregar'},
           af_brand_cc:   {col:'brand_cc',   listas:{}, salvar:'brandSalvar',                           recarregar:'brandCarregar'},
-          af_permissoes: {col:'permissoes', listas:{}, salvar:'salvarPermissoes',                           recarregar:'permRecarregar'}
+          af_permissoes: {col:'permissoes', listas:{}, salvar:'salvarPermissoes',                           recarregar:'permRecarregar'},
+          af_desvios:    {col:'desvios',    listas:{desvios:'id'}, salvar:'procSalvarDesvios',            recarregar:'procInit'}
         };
         const SYNC_APAGAR={__apagar:true};
 
@@ -24258,21 +24259,93 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           syncRedesenhar();
           if(quem.length) syncAviso(quem.join(', ')+(quem.length>1?' mudaram':' mudou')+' alguma coisa · sua tela já está atualizada.');
         }
-        /* redesenha a tela aberta, mas nunca com o cursor dentro de um campo */
-        function syncRedesenhar(){
-          let a=document.activeElement;
-          if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){
+        /* ── A TELA DE NINGUÉM PODE CAIR ──
+           Quando a mudança de outra pessoa chega, a tela precisa se
+           atualizar sem atropelar quem está trabalhando. Redesenhar é a
+           parte fácil; não estragar o que a pessoa está fazendo é o
+           trabalho de verdade.
+
+           Quatro situações em que redesenhar é proibido, e nenhuma delas
+           é hipótese: são as que aparecem no primeiro dia de duas
+           pessoas usando junto.
+
+             1. cursor dentro de um campo (já existia)
+             2. MODAL ABERTO. Redesenhar fecha a janela e joga fora o que
+                estava sendo preenchido. É o pior dos quatro, porque a
+                pessoa perde trabalho já feito.
+             3. digitando agora. O cursor pode estar fora do campo por uma
+                fração de segundo entre uma tecla e outra.
+             4. texto selecionado, que some no redesenho e leva junto o
+                que a pessoa ia copiar.
+
+           Quando é seguro redesenhar, a rolagem é devolvida ao lugar: sem
+           isso quem está no meio de uma lista longa é jogado para o topo,
+           que é a mesma sensação de a tela ter caído.
+
+           Enquanto qualquer uma das quatro trava, o desenho fica em
+           espera e tenta de novo. O dado já está guardado: o que espera é
+           só a pintura. */
+        let _ultimaTecla = 0;
+        document.addEventListener('keydown', function(){ _ultimaTecla = Date.now(); }, true);
+
+        function syncOcupado(){
+          const a = document.activeElement;
+          if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return 'campo';
+          if (a && a.isContentEditable) return 'campo';
+          /* A classe .on sozinha não prova que a janela está na tela: o
+             briefing de entrada continua com ela depois de fechado, e
+             contando só a classe a trava nunca soltava, deixando a tela de
+             todo mundo sem atualizar.
+             offsetParent também não serve, e essa é a pegadinha: em
+             elemento com position:fixed ele é SEMPRE nulo, que é
+             exatamente o caso de um modal. Usando ele, a trava nunca
+             pegava, que é o erro oposto e pior.
+             O que decide é ocupar espaço na tela de verdade. */
+          const visivel = function(el){
+            if (!el) return false;
+            const s = getComputedStyle(el);
+            if (s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) < 0.05) return false;
+            const r = el.getBoundingClientRect();
+            return r.width > 1 && r.height > 1;
+          };
+          if ([].slice.call(document.querySelectorAll('.modal.on')).some(visivel)) return 'modal';
+          if (Date.now() - _ultimaTecla < 2500) return 'digitando';
+          const sel = window.getSelection && window.getSelection();
+          if (sel && !sel.isCollapsed && String(sel).trim().length > 1) return 'selecao';
+          return '';
+        }
+
+        function syncRedesenhar(tentativa){
+          const motivo = syncOcupado();
+          if (motivo){
             clearTimeout(SYNC._redesenho);
-            SYNC._redesenho=setTimeout(syncRedesenhar, 1500); return;
+            /* desiste depois de dois minutos de espera: a essa altura a
+               pessoa deixou algo aberto e foi fazer outra coisa, e a tela
+               desatualizada passa a ser pior do que o redesenho */
+            const n = (tentativa || 0) + 1;
+            if (n < 80){ SYNC._redesenho = setTimeout(function(){ syncRedesenhar(n); }, 1500); return; }
           }
-          let v=syncTelaAtual(); if(!v) return;
-          try{ if(typeof go==='function') go(v); }catch(e){}
+          const v = syncTelaAtual(); if (!v) return;
+          /* guarda onde a pessoa estava lendo antes de repintar */
+          const painel = document.querySelector('.view.on') || document.scrollingElement;
+          const topo = (painel && painel.scrollTop) || 0;
+          const topoJanela = window.scrollY || 0;
+          try{ if (typeof go === 'function') go(v); }catch(e){}
+          requestAnimationFrame(function(){
+            const p2 = document.querySelector('.view.on');
+            if (p2 && topo) p2.scrollTop = topo;
+            if (topoJanela) window.scrollTo(0, topoJanela);
+          });
         }
 
         function syncCair(msg){
           SYNC.ligado=false; SYNC.estado='erro'; SYNC.ultimoErro=msg||'';
           SYNC.token=''; SYNC.usuario=null; syncCfgSalvar(); syncBarra();
-          if(msg) alert(msg);
+          /* Era alert(), que trava a página inteira até alguém clicar em OK.
+             Uma oscilação de rede no meio do expediente virava uma janela
+             do navegador na cara de todo mundo ao mesmo tempo. O aviso do
+             canto diz a mesma coisa e não interrompe ninguém. */
+          if (msg) { try{ syncAviso(msg); }catch(e){ console.warn('[equipe]', msg); } }
         }
 
         /* ── configuração (fica só neste navegador, nunca sincroniza) ── */
@@ -24567,9 +24640,16 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         const PROC_DESVIOS_CHAVE='af_desvios';
         let DESVIOS=[];
         function procInit(){
-          try{ DESVIOS=JSON.parse(localStorage.getItem(PROC_DESVIOS_CHAVE)||'[]'); }catch(e){ DESVIOS=[]; }
+          try{
+            let s=JSON.parse(localStorage.getItem(PROC_DESVIOS_CHAVE)||'null');
+            DESVIOS = Array.isArray(s) ? s : ((s&&s.desvios)||[]);   // lê o formato antigo também
+          }catch(e){ DESVIOS=[]; }
         }
-        function procSalvarDesvios(){ try{ localStorage.setItem(PROC_DESVIOS_CHAVE, JSON.stringify(DESVIOS.slice(0,400))); }catch(e){} }
+        /* Era localStorage.setItem direto, e por isso os desvios nunca
+           saíam do navegador de quem registrou. Justamente o dado que a
+           empresa vende como prova de aderência ficava invisível para o
+           resto da equipe. afGravar é o ponto único que também sincroniza. */
+        function procSalvarDesvios(){ afGravar(PROC_DESVIOS_CHAVE, JSON.stringify({desvios:DESVIOS.slice(0,400)})); }
 
         /* ── quem é a bola ── */
         const PROC_PAPEIS={
@@ -24873,7 +24953,11 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
 
         /* ── DESVIO: pular etapa é possível, mas fica registrado ── */
         function procDesvio(pk, item, etapa, faltam, justificativa){
-          DESVIOS.unshift({em:new Date().toISOString(), quem:(AUTH.user&&AUTH.user.nome)||'·',
+          /* id próprio: sem ele, dois desvios registrados ao mesmo tempo
+             por pessoas diferentes viravam substituição de lista inteira,
+             e o segundo apagava o primeiro. Com id, o servidor junta. */
+          DESVIOS.unshift({id:'DSV-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+            em:new Date().toISOString(), quem:(AUTH.user&&AUTH.user.nome)||'·',
             proc:pk, procL:procDe(pk).l, item:procDe(pk).nome(item), itemId:item.id,
             etapa:etapa.l, faltavam:faltam, justificativa});
           DESVIOS=DESVIOS.slice(0,400); procSalvarDesvios();
