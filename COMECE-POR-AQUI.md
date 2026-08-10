@@ -209,29 +209,47 @@ ninguém que baixe o app consegue lê-los.
 
 # PASSO 4: ligar o app no seu celular (3 minutos)
 
+O repositório já tem uma automação que publica o app a cada mudança. Ela
+tentou **ligar o GitHub Pages sozinha** e o GitHub recusou:
+
+```
+Create Pages site failed. Error: Resource not accessible by integration
+```
+
+A automação tem permissão para publicar, mas **não para criar o site pela
+primeira vez**. Isso só a dona da conta pode fazer, e é este o passo.
+
 ### 4.1
 
-Clique aqui: **https://github.com/carlacarolineps-debug/A-Fatorial/settings/pages**
+Abra: **https://github.com/carlacarolineps-debug/A-Fatorial/settings/pages**
 
 ### 4.2
 
-Em **Source**, escolha **Deploy from a branch**.
+Em **Source**, escolha **GitHub Actions**.
+
+> **Não escolha "Deploy from a branch".** As duas funcionariam, mas a
+> automação já existe e é feita para a primeira: escolhendo GitHub Actions,
+> ela passa a publicar sozinha a cada mudança e você nunca mais mexe aqui.
+> Com a outra opção, a automação continuaria falhando e mandando e-mail de
+> erro a cada envio.
+
+Não tem botão de Save nessa opção: ela salva ao escolher.
 
 ### 4.3
 
-Em **Branch**, escolha `claude/strategy-cards-mentoring-vygy1x`.
+Vá em **Actions**, no menu de cima do repositório, clique em **Publicar o
+app** na lista da esquerda, e depois em **Run workflow**.
+
+Isso dispara a publicação. Ela leva cerca de 1 minuto e fica verde quando
+termina.
 
 ### 4.4
 
-Na listinha ao lado (a da pasta), escolha **`/docs`**.
-
-### 4.5
-
-**Save**. Espere 2 minutos e recarregue: aparece uma faixa verde com
+Volte em **Settings**, **Pages**. Aparece uma faixa com o endereço:
 
 **https://carlacarolineps-debug.github.io/A-Fatorial/**
 
-### 4.6
+### 4.5
 
 Abra esse endereço **no seu celular**.
 
@@ -241,6 +259,9 @@ Abra esse endereço **no seu celular**.
 
 Pronto: o ícone do escudo dourado aparece junto com os outros aplicativos,
 e abre em tela cheia.
+
+> **Se o endereço der 404:** espere mais 2 minutos e recarregue. O GitHub
+> demora um pouco para o endereço começar a responder na primeira vez.
 
 ---
 
@@ -372,7 +393,8 @@ antes.
 | O link leva para uma página em branco | A Site URL do passo 2.3 está faltando |
 | "Acesso ainda não liberado" | Você entrou com outro e-mail |
 | "E-mail ou senha não conferem" | Use a senha que veio por e-mail, ou toque em Esqueci a minha senha |
-| O endereço do site dá 404 | Espere mais 2 minutos. O GitHub demora para publicar |
+| O endereço do site dá 404 | Espere mais 2 minutos. O GitHub demora na primeira vez |
+| A publicação fica vermelha em Actions | O Source do passo 4.2 não está como GitHub Actions |
 | A mesa não aparece em Mais | Você entrou com outro e-mail. Precisa ser o gestaogrupoa@gmail.com |
 
 Em qualquer um deles: me manda o print da tela que eu te digo o que é.
