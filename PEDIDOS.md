@@ -63,22 +63,17 @@ A metade 1 é o `backend/documentos.js`, e o documento não vira arquivo:
 Subir lista de leads por **serviço** ou **segmento**, e distribuir na
 **quantidade** que ela quiser, para **quem** ela quiser.
 
-### 3. Cadastro de prestador e banco de talentos
-O maior dos abertos. Pedido dela, por partes:
+### 3. O que sobrou do banco de talentos
+A bateria, os indicadores e o painel estão prontos (bloco de entregues).
+Falta:
 
-- página onde a pessoa **se cadastra como prestadora**
-- envio de **currículo**
-- **testes** que ela responde no cadastro
-- o resultado vira **banco de talentos que só a Carla vê**
-- a pessoa **só tem acesso ao sistema se for aprovada** e entrar na equipe
-- **alerta jurídico**: o que a lei não permite usar numa seleção precisa
-  de sinal e da **autorização dela** para ser compartilhado
-- comunicação automática de **agenda de entrevista**, **aprovado** e
-  **não aprovado**
-- **painel e perfil** de cada pessoa, para seleção futura
-
-Antes de construir, precisa da definição dela: **quais dados o teste
-coleta**, porque isso decide o que é permitido guardar.
+- **currículo em arquivo**: hoje a pessoa conta a experiência por escrito.
+  Anexo precisa de servidor, porque arquivo no navegador se perde
+- **comunicação automática** de aprovado e não aprovado. O convite de
+  entrevista já sai pelo WhatsApp com a data; falta o retorno dos dois
+  outros desfechos, que deve sair pelo motor de obrigações
+- **perfil e histórico** de cada pessoa entre processos, para comparar
+  quem já foi avaliada antes
 
 ---
 
@@ -178,6 +173,26 @@ Cada linha tem commit. `git log` conta a história completa.
 - Trilha visual no documento: enviado, aberto por você, aprovado
 - Visual refeito para cliente visual: cabeçalho da marca em ouro sobre
   breu, corpo claro para ler e imprimir, um desenho por tipo de documento
+
+**Banco de talentos**
+- Sete provas: julgamento situacional, fit cultural, DISC, números
+  aplicados, atenção ao detalhe, motivadores e escrita
+- Setenta questões, com o fit trazendo itens invertidos para pegar quem
+  responde o que soa bonito
+- Índice de 0 a 100 com pesos à vista, e a recomendação escrita:
+  entrevistar, vale conversar ou não agora
+- Bandeiras: parou no meio, respostas incoerentes, rápido demais, escrita
+  em branco, sigilo frouxo, não assume o que pega, perfil distante
+- O que perguntar na entrevista, gerado das notas mais baixas
+- Comparação com a média do banco
+- Nenhuma pergunta sobre idade, estado civil, filhos, religião, política,
+  saúde, deficiência, cor, origem, sindicato ou antecedentes
+- Dado sensível escrito pela pessoa por conta própria fica oculto e só
+  aparece com a autorização dela, que fica registrada
+- Consentimento, finalidade e prazo de guarda de 12 meses na tela de quem
+  responde
+- O cadastro público emenda direto na prova, com rascunho salvo a cada
+  resposta para ninguém perder o trabalho
 
 **Governança na tela**
 - A trilha com quem, de onde, o quê, e o que mudou campo a campo

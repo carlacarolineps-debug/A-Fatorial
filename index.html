@@ -1086,6 +1086,119 @@ body.apresentacao #fi-tbody tr:hover{ filter:none; }
 #apr-banner{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9000;background:color-mix(in srgb,var(--gold) 95%,transparent);color:#1a1408;font-weight:700;font-size:12.5px;padding:9px 18px;border-radius:30px;box-shadow:0 10px 30px -8px rgba(0,0,0,.5);}
 body.apresentacao #apr-banner{display:block;}
 
+/* ═══ BANCO DE TALENTOS · o painel dela ═══ */
+.tal-filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.tal-filtros .inp-sm{width:auto;min-width:160px;}
+.tal-l{display:grid;grid-template-columns:56px 1fr 200px 150px auto;gap:16px;align-items:center;
+  padding:16px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:.16s;}
+.tal-l:hover{background:var(--panel-soft);}
+.tal-l.aberta{background:var(--panel-soft);}
+/* o índice, grande, porque é o número que decide a agenda dela */
+.tal-ind{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;
+  font:700 19px/1 var(--font-display);color:#fff;flex:none;}
+.tal-nm b{display:block;font:600 16px/1.3 var(--font-display);letter-spacing:-.02em;}
+.tal-nm span{display:block;font-size:12px;color:var(--ink-soft);margin-top:3px;}
+.tal-nm .esc{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);}
+.tal-barras{display:flex;flex-direction:column;gap:5px;}
+.tal-b{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--ink-soft);}
+.tal-b i{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden;}
+.tal-b i span{display:block;height:100%;border-radius:3px;}
+.tal-b em{font-style:normal;width:26px;text-align:right;font-family:var(--font-mono);font-size:10px;}
+.tal-bandeiras{display:flex;gap:4px;flex-wrap:wrap;}
+.tal-fl{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;
+  background:var(--warn-bg);color:var(--warn);}
+.tal-fl.mal{background:var(--bad-bg);color:var(--bad);}
+.tal-fl.lei{background:#efe7fb;color:#5b34a8;}
+/* o laudo, aberto embaixo da linha */
+.tal-laudo{padding:22px 20px;background:var(--panel-soft);border-bottom:1px solid var(--line);}
+.tal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;}
+.tal-cx{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);padding:16px 18px;}
+.tal-cx h5{font:600 11px var(--font-body);text-transform:uppercase;letter-spacing:.9px;
+  color:var(--ink-soft);margin-bottom:12px;}
+.tal-disc{display:flex;gap:8px;}
+.tal-disc div{flex:1;text-align:center;}
+.tal-disc b{display:block;font:700 20px/1 var(--font-display);}
+.tal-disc span{display:block;font-size:10px;color:var(--ink-soft);margin-top:5px;}
+.tal-disc i{display:block;height:5px;border-radius:3px;margin-top:6px;background:var(--line);overflow:hidden;}
+.tal-disc i em{display:block;height:100%;}
+.tal-lista{list-style:none;}
+.tal-lista li{padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;line-height:1.6;}
+.tal-lista li:last-child{border-bottom:0;}
+.tal-lista li b{color:var(--ink);}
+.tal-perg{background:#fdfbf6;border:1px solid var(--gold);border-left:4px solid var(--gold);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;padding:14px 16px;margin-bottom:9px;}
+.tal-perg .tm{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--gold-txt);
+  font-weight:700;margin-bottom:5px;}
+.tal-perg .qq{font-size:13.5px;line-height:1.65;}
+.tal-alerta{background:#f6f1fe;border:1px solid #b79ceb;border-left:4px solid #7b4fd4;
+  border-radius:0 var(--r-sm) var(--r-sm) 0;padding:16px 18px;margin-bottom:14px;}
+.tal-alerta .t{font-weight:700;color:#4a2a8f;font-size:13.5px;margin-bottom:6px;}
+.tal-alerta .s{font-size:12.5px;color:#5b4a7a;line-height:1.7;}
+.tal-oculto{background:#efe7fb;color:#5b34a8;border-radius:4px;padding:1px 6px;font-size:11.5px;
+  font-family:var(--font-mono);cursor:help;}
+.tal-texto{font-size:13.5px;line-height:1.75;white-space:pre-wrap;color:var(--ink);}
+.tal-sinais{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+.tal-sinal{font-size:10.5px;padding:3px 9px;border-radius:20px;background:var(--ok-bg);color:var(--ok);}
+.tal-sinal.nao{background:var(--bad-bg);color:var(--bad);}
+.tal-vazio{padding:34px 20px;text-align:center;color:var(--ink-soft);font-size:14px;line-height:1.8;}
+@media(max-width:1100px){
+  .tal-l{grid-template-columns:52px 1fr auto;gap:12px;}
+  .tal-barras,.tal-bandeiras{grid-column:2 / -1;}
+}
+
+/* ═══ BANCO DE TALENTOS · a prova que a pessoa responde ═══ */
+.tp-topo{position:sticky;top:0;z-index:5;background:#0f1523;padding:14px 0 12px;margin-bottom:6px;
+  border-bottom:1px solid rgba(255,255,255,.08);}
+.tp-barra{height:5px;border-radius:4px;background:rgba(255,255,255,.09);overflow:hidden;}
+.tp-barra i{display:block;height:100%;background:var(--gold-grad);transition:width .35s var(--curva,ease);}
+.tp-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:9px;
+  font-size:12px;color:#9aa0b0;flex-wrap:wrap;}
+.tp-meta b{color:var(--gold-bright);}
+.tp-passos{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.tp-passo{font-size:10.5px;padding:4px 9px;border-radius:20px;border:1px solid rgba(255,255,255,.12);
+  color:#8a90a0;white-space:nowrap;}
+.tp-passo.on{border-color:var(--gold);color:var(--gold-bright);background:rgba(212,175,94,.12);}
+.tp-passo.ok{border-color:rgba(95,211,155,.4);color:#7fd3a3;}
+.tp-intro{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  padding:18px 20px;margin-bottom:18px;}
+.tp-intro h3{font-size:17px;color:#fff;margin-bottom:7px;}
+.tp-intro p{font-size:13.5px;color:#b9c0cf;line-height:1.7;}
+.tp-q{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  padding:18px 20px;margin-bottom:12px;}
+.tp-q .n{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-bright);
+  font-weight:700;margin-bottom:7px;}
+.tp-q .t{font-size:14.5px;color:#eef1f7;line-height:1.65;margin-bottom:14px;}
+.tp-op{display:block;width:100%;text-align:left;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);border-radius:11px;padding:12px 15px;margin-bottom:8px;
+  color:#dfe4ee;font-size:13.5px;line-height:1.55;cursor:pointer;font-family:inherit;transition:.16s;}
+.tp-op:hover{border-color:var(--gold);color:#fff;}
+.tp-op.on{border-color:var(--gold);background:rgba(212,175,94,.15);color:#fff;font-weight:500;}
+.tp-esc{display:flex;gap:7px;flex-wrap:wrap;}
+.tp-esc button{flex:1 1 auto;min-width:64px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:11px 6px;color:#c8cedb;
+  font-size:12px;cursor:pointer;font-family:inherit;text-align:center;transition:.16s;line-height:1.35;}
+.tp-esc button b{display:block;font-size:15px;color:#fff;margin-bottom:2px;}
+.tp-esc button:hover{border-color:var(--gold);}
+.tp-esc button.on{border-color:var(--gold);background:rgba(212,175,94,.16);}
+.tp-esc button.on b{color:var(--gold-bright);}
+.tp-txt{width:100%;min-height:150px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px 16px;color:#eef1f7;
+  font-family:inherit;font-size:14px;line-height:1.7;resize:vertical;outline:none;}
+.tp-txt:focus{border-color:var(--gold);}
+.tp-ruim{background:rgba(240,115,108,.09);border:1px solid rgba(240,115,108,.3);border-radius:10px;
+  padding:12px 15px;margin:12px 0;font-size:13.5px;color:#f0b6b2;font-style:italic;}
+.tp-acts{display:flex;gap:10px;justify-content:space-between;margin-top:20px;flex-wrap:wrap;}
+.tp-lgpd{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;
+  padding:15px 17px;margin:16px 0;font-size:12.5px;color:#9aa0b0;line-height:1.7;}
+.tp-lgpd b{color:#dfe4ee;}
+.tp-lgpd label{display:flex;gap:10px;align-items:flex-start;margin-top:12px;cursor:pointer;color:#dfe4ee;}
+.tp-lgpd input{margin-top:3px;width:17px;height:17px;accent-color:var(--gold);flex:none;}
+@media(max-width:620px){
+  .tp-esc button{min-width:0;flex:1 1 18%;font-size:10.5px;padding:10px 3px;}
+  .tp-esc button b{font-size:13px;}
+  .tp-q{padding:15px 15px;}
+}
+
 /* ═══ GOVERNANÇA ═══ */
 .gov-abas{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
 .gov-aba{padding:9px 15px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--panel);
@@ -3627,6 +3740,13 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
       <div id="prest-body"></div>
     </section>
 
+    <!-- ============ BANCO DE TALENTOS ============ -->
+    <section class="view" id="v-talentos">
+      <div id="tal-hero"></div>
+      <div class="ui-stats" id="tal-stats"></div>
+      <div id="tal-body"></div>
+    </section>
+
     <!-- ============ GOVERNANÇA ============ -->
     <section class="view" id="v-governanca">
       <div id="gov-hero"></div>
@@ -4394,7 +4514,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dono','dash','vendas','funil','propostas','kanban','servicos','valuation','franquia','demandas','rede','parceiras','prestadores','meusleads','entregaveis','satisfacao','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe','governanca'],
+          admin:      ['dono','dash','vendas','funil','propostas','kanban','servicos','valuation','franquia','demandas','rede','parceiras','prestadores','meusleads','entregaveis','satisfacao','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe','governanca','talentos'],
           colaborador:['colaborador','funil','propostas','kanban','meusleads'],
           cliente:    ['portal']
         };
@@ -4769,6 +4889,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
 
         /* ===== NAVEGAÇÃO ===== */
         const TITLES={
+          talentos:['Banco de <b>talentos</b>','Quem vale a sua hora de entrevista, e por quê'],
           governanca:['Governança e <b>rastreio</b>','Quem fez o quê, de onde, e o que fica barrado'],
           dono:['Visão do <b>dono</b>','Cockpit executivo, o que importa hoje'],
           dash:['Gestão <b>à vista</b>','Ecossistema estratégico'],
@@ -4839,6 +4960,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
           if(v==='processo' && typeof procRender==='function') procRender();
           if(v==='equipe' && typeof syncTelaRender==='function') syncTelaRender();
           if(v==='governanca' && typeof govRender==='function') govRender();
+          if(v==='talentos' && typeof talRender==='function') talRender();
           if(v==='raiox' && typeof rxRender==='function') rxRender();
           if(v==='preco' && typeof pcRender==='function') pcRender();
           if(v==='caixa' && typeof cxRender==='function') cxRender();
@@ -14097,6 +14219,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
            sub:'quem faz o trabalho', subCol:'jornada, demandas e ganhos', frase:'De quem se cadastra até quanto cada um recebe.',
            passos:[
              {v:'rede',        l:'Prestadores',    d:'cadastro, contrato e nível'},
+             {v:'talentos',    l:'Banco de talentos', d:'quem vale a entrevista'},
              {v:'parceiras',   l:'Empresas parceiras',d:'quem manda trabalho'},
              {v:'rh',          l:'Pessoas',        d:'perfil, clima e evolução'},
              {v:'colaborador', l:'Portal da pessoa', d:'a tela de quem presta serviço', previa:true, dono:'colaborador',
@@ -19603,6 +19726,1114 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           }).filter(x=>x.contratos>0);
         }
 
+        /* ═══════════════════════════════════════════════════════════════
+           BANCO DE TALENTOS · A BATERIA DE TESTES
+
+           Pedido dela: "os testes crie mais para me apontar quem vale a
+           pena entrevistar, disc, fit cultural, faça vários e inclua
+           indicadores".
+
+           O que este bloco resolve: hoje o cadastro traz nome, escopo e
+           um texto de experiência. Isso não separa quem vale a hora de
+           entrevista de quem não vale, e a hora dela é o recurso mais
+           caro da empresa.
+
+           SÃO SETE PROVAS, e cada uma existe por um motivo:
+
+             1. JULGAMENTO SITUACIONAL   o que mais prevê desempenho, e o
+                único que mostra o que a pessoa FAZ, não o que ela diz que
+                é. Cenários reais da operação dela.
+             2. FIT CULTURAL             contra os valores da casa, com
+                itens invertidos para pegar quem responde o que acha bonito.
+             3. DISC                     como a pessoa se comporta. Não é
+                nota, é encaixe: cada escopo pede um perfil diferente.
+             4. NÚMEROS APLICADOS        margem, markup, regra de três e
+                leitura de tabela. A empresa vive de laudo com número.
+             5. ATENÇÃO AO DETALHE       achar o erro. Documento com erro
+                que chega ao cliente custa mais do que o serviço inteiro.
+             6. MOTIVADORES              o que move a pessoa. Não reprova
+                ninguém: serve para saber como liderar e como pagar.
+             7. ESCRITA                  uma tarefa aberta. O negócio dela
+                é documento, e texto ruim aparece na primeira semana.
+
+           O QUE NÃO SE PERGUNTA, e por quê:
+           idade, estado civil, filhos, gravidez, religião, política,
+           saúde, deficiência, cor, origem, sindicato e antecedentes. No
+           Brasil isso é dado sensível (LGPD art. 11) e boa parte é
+           discriminação vedada na seleção (CLT art. 373-A, Súmula 443 do
+           TST). Nenhuma pergunta aqui toca nesses assuntos. E se a pessoa
+           escrever algo assim por conta própria num campo aberto, o
+           sistema esconde o trecho e pede autorização dela para revelar.
+           ═══════════════════════════════════════════════════════════════ */
+
+        /* ── OS VALORES DA CASA ──
+           Tirados do material dela, não inventados: o laudo em vez do
+           slide, etapa com dono e prazo, dado antes de opinião, o sigilo
+           do cliente grande, e a operação que não depende de babá.
+           Editáveis: se ela mudar um valor, o fit acompanha. */
+        const TAL_VALORES=[
+          {k:'metodo',  l:'Método acima de improviso',
+           d:'Segue o processo mesmo quando dá para "resolver rápido". Etapa tem dono, prazo e critério.'},
+          {k:'prova',   l:'Dado antes de opinião',
+           d:'Afirma com número na mão. Prefere dizer "não sei ainda" a chutar.'},
+          {k:'dono',    l:'Dono do que pegou',
+           d:'Assume até o fim, avisa antes de estourar o prazo e não espera ser cobrada.'},
+          {k:'sigilo',  l:'Sigilo como reflexo',
+           d:'Trata dado de cliente como se fosse o próprio. Não comenta, não leva, não guarda solto.'},
+          {k:'cliente', l:'O cliente sai melhor do que entrou',
+           d:'Entrega o que resolve, não o que impressiona. Fala a verdade mesmo quando desagrada.'},
+          {k:'direto',  l:'Conversa difícil na hora',
+           d:'Diz o problema para quem pode resolver, sem rodeio e sem bastidor.'}
+        ];
+        function talValor(k){ return TAL_VALORES.find(v=>v.k===k)||{k,l:k,d:''}; }
+
+        /* ── 1. JULGAMENTO SITUACIONAL ──
+           Cenários reais da operação. Cada resposta vale de 0 a 3, e o
+           peso não é "certo ou errado" abstrato: é o que ela quer que a
+           pessoa faça. `v` marca o valor da casa que o cenário testa. */
+        const TAL_SJT=[
+          {id:'s1', v:'dono',
+           t:'Você fechou o laudo às 18h de sexta e percebeu que um número da página 4 está errado. O cliente recebe o documento na segunda de manhã.',
+           o:[['Corrijo agora e reenvio, mesmo que atrase meu fim de semana.',3],
+              ['Aviso a gestão na hora e pergunto se corrijo hoje ou segunda cedo.',3],
+              ['Corrijo na segunda cedo, antes do horário combinado, e não comento.',1],
+              ['Deixo passar: é um número só, e ninguém vai reparar.',0]]},
+          {id:'s2', v:'sigilo',
+           t:'Uma amiga sua trabalha numa empresa do mesmo setor de um cliente nosso. Ela pergunta, de brincadeira, como vai o projeto.',
+           o:[['Digo que não posso falar de cliente, e mudo de assunto.',3],
+              ['Falo só em termos gerais, sem citar o nome da empresa.',1],
+              ['Conto por cima, é amiga e não vai usar contra ninguém.',0],
+              ['Digo que não posso falar e aviso a gestão que fui perguntada.',3]]},
+          {id:'s3', v:'prova',
+           t:'Na reunião, o cliente pergunta quanto ele economiza com a mudança que você propôs. Você tem uma ideia, mas não fez a conta.',
+           o:[['Dou um número aproximado, ele quer ouvir algo agora.',0],
+              ['Digo que faço a conta e mando ainda hoje, com a memória de cálculo.',3],
+              ['Explico o mecanismo da economia e combino a conta para o mesmo dia.',3],
+              ['Digo que depende de muitas variáveis e deixo em aberto.',1]]},
+          {id:'s4', v:'direto',
+           t:'Uma colega está entregando fora do prazo há três semanas e isso está atrasando o seu trabalho.',
+           o:[['Falo direto com ela, mostro o impacto e combino uma saída.',3],
+              ['Falo com ela e, se não mudar, levo para a gestão com os fatos.',3],
+              ['Levo direto para a gestão, para não criar atrito com ela.',1],
+              ['Vou cobrindo o atraso dela e sigo, para não gerar problema.',0]]},
+          {id:'s5', v:'metodo',
+           t:'O cliente pede para pular a etapa de leitura de estoque e ir direto para o plano, porque tem pressa.',
+           o:[['Pulo: cliente com pressa é cliente que cancela.',0],
+              ['Explico o que se perde ao pular, e proponho uma versão enxuta da etapa.',3],
+              ['Explico que sem a etapa o plano vira chute e o resultado não se sustenta.',2],
+              ['Concordo em pular e aviso que o resultado pode não vir.',1]]},
+          {id:'s6', v:'cliente',
+           t:'Terminado o diagnóstico, ficou claro que o serviço que o cliente contratou não resolve o problema dele. Outro, mais barato, resolveria.',
+           o:[['Entrego o contratado e ofereço o outro depois, como novo projeto.',1],
+              ['Digo a ele no mesmo dia, mostro a conta e proponho a troca.',3],
+              ['Entrego o contratado, é o que foi vendido e assinado.',0],
+              ['Levo à gestão com a conta pronta e uma proposta de troca.',3]]},
+          {id:'s7', v:'dono',
+           t:'Você recebeu uma demanda no mural, pegou, e no meio do caminho percebeu que não vai conseguir entregar no prazo.',
+           o:[['Aviso assim que percebo, com uma data nova e o motivo.',3],
+              ['Aviso no dia do prazo, pode ser que eu consiga virar.',0],
+              ['Devolvo a demanda ao mural na hora, para outra pessoa pegar.',2],
+              ['Entrego pela metade no prazo e completo depois.',1]]},
+          {id:'s8', v:'sigilo',
+           t:'Você precisa trabalhar no fim de semana e pensa em baixar os documentos do cliente no seu computador pessoal.',
+           o:[['Baixo, é o meu computador e eu apago depois.',0],
+              ['Acesso pelo sistema, sem baixar nada.',3],
+              ['Peço autorização à gestão antes de baixar qualquer coisa.',2],
+              ['Baixo só o que preciso e mando por e-mail para mim mesma.',0]]},
+          {id:'s9', v:'metodo',
+           t:'Você achou um jeito mais rápido de fazer uma tarefa que tem procedimento escrito.',
+           o:[['Uso o meu jeito, o resultado é o que importa.',0],
+              ['Faço pelo procedimento e proponho a mudança com o ganho medido.',3],
+              ['Uso o meu jeito e aviso depois que deu certo.',1],
+              ['Testo o meu jeito uma vez em paralelo, comparo e levo o resultado.',3]]},
+          {id:'s10', v:'prova',
+           t:'A gestão pede a sua opinião sobre um problema em que você tem pouca informação.',
+           o:[['Digo o que acho, foi o que ela pediu.',1],
+              ['Digo o que sei, o que não sei, e o que preciso para responder direito.',3],
+              ['Prefiro não opinar sem estudar antes.',1],
+              ['Dou a opinião deixando claro que é palpite, não análise.',2]]}
+        ];
+
+        /* ── 2. FIT CULTURAL ──
+           Concorda de 1 a 5. `inv:true` inverte a pontuação: quem
+           concorda com tudo o que soa bonito cai nos invertidos, e é
+           exatamente esse o objetivo deles. */
+        const TAL_FIT=[
+          {id:'f1',  v:'metodo',  t:'Processo escrito atrapalha mais do que ajuda quando a pessoa é boa.', inv:true},
+          {id:'f2',  v:'metodo',  t:'Prefiro trabalhar com etapa, dono e prazo definidos do que com liberdade total.'},
+          {id:'f3',  v:'prova',   t:'Antes de afirmar alguma coisa para um cliente, eu confiro o número.'},
+          {id:'f4',  v:'prova',   t:'Experiência vale mais do que dado: quem tem estrada sabe sem precisar medir.', inv:true},
+          {id:'f5',  v:'dono',    t:'Se eu vejo que vou atrasar, aviso antes mesmo de tentar virar.'},
+          {id:'f6',  v:'dono',    t:'Se a demanda não era minha, o atraso também não é problema meu.', inv:true},
+          {id:'f7',  v:'sigilo',  t:'Documento de cliente eu nunca guardo no meu computador nem no meu celular.'},
+          {id:'f8',  v:'sigilo',  t:'Comentar um caso de cliente sem citar o nome não é quebra de sigilo.', inv:true},
+          {id:'f9',  v:'cliente', t:'Prefiro dizer ao cliente uma verdade que ele não quer ouvir a entregar o que ele pediu sabendo que não resolve.'},
+          {id:'f10', v:'cliente', t:'Cliente satisfeito é mais importante do que cliente com resultado.', inv:true},
+          {id:'f11', v:'direto',  t:'Quando tenho um problema com alguém da equipe, falo com a pessoa antes de falar de la.'},
+          {id:'f12', v:'direto',  t:'Evito conversas difíceis: costumam gerar mais problema do que resolvem.', inv:true},
+          {id:'f13', v:'metodo',  t:'Registrar o que foi feito é parte do trabalho, não burocracia depois dele.'},
+          {id:'f14', v:'cliente', t:'Se o cliente elogiou, o trabalho foi bom, independentemente do número.', inv:true}
+        ];
+
+        /* ── 3. DISC ──
+           Catorze blocos de quatro palavras: em cada um, a pessoa marca a
+           que MAIS se parece com ela. Perfil, não nota. O que vira
+           indicador é a distância entre o perfil dela e o que o escopo
+           pede. */
+        const TAL_DISC=[
+          [['Decidida','D'],['Animada','I'],['Paciente','S'],['Precisa','C']],
+          [['Direta','D'],['Convincente','I'],['Constante','S'],['Cuidadosa','C']],
+          [['Competitiva','D'],['Sociável','I'],['Calma','S'],['Analítica','C']],
+          [['Objetiva','D'],['Otimista','I'],['Leal','S'],['Detalhista','C']],
+          [['Firme','D'],['Comunicativa','I'],['Previsível','S'],['Metódica','C']],
+          [['Corajosa','D'],['Entusiasmada','I'],['Acolhedora','S'],['Rigorosa','C']],
+          [['Impaciente','D'],['Falante','I'],['Discreta','S'],['Reservada','C']],
+          [['Assume o comando','D'],['Puxa conversa','I'],['Ouve até o fim','S'],['Confere duas vezes','C']],
+          [['Gosta de risco','D'],['Gosta de gente','I'],['Gosta de rotina','S'],['Gosta de regra','C']],
+          [['Resolve rápido','D'],['Motiva o time','I'],['Sustenta o time','S'],['Organiza o time','C']],
+          [['Foca no resultado','D'],['Foca na relação','I'],['Foca na harmonia','S'],['Foca na exatidão','C']],
+          [['Confronta','D'],['Persuade','I'],['Concilia','S'],['Argumenta com dado','C']],
+          [['Decide sozinha','D'],['Decide conversando','I'],['Decide com o grupo','S'],['Decide com a norma','C']],
+          [['Impõe ritmo','D'],['Contagia','I'],['Estabiliza','S'],['Padroniza','C']]
+        ];
+        const TAL_DISC_PERFIL={
+          D:{l:'Dominância', ic:'▲', cor:'var(--kb-c8)',
+             forte:'decide rápido, encara conflito, puxa resultado',
+             risco:'atropela processo e pessoas quando está sob pressão',
+             lider:'dê meta e autonomia, cobre resultado, não microgerencie'},
+          I:{l:'Influência', ic:'◉', cor:'var(--kb-c6)',
+             forte:'abre porta, convence, aguenta rejeição',
+             risco:'promete além do combinado e se perde no registro',
+             lider:'dê palco e reconhecimento público, cobre o registro por escrito'},
+          S:{l:'Estabilidade', ic:'▬', cor:'var(--kb-c3)',
+             forte:'sustenta rotina, é leal, não abandona no meio',
+             risco:'demora a dizer que discorda e engole atrito',
+             lider:'dê previsibilidade e avise mudanças com antecedência'},
+          C:{l:'Conformidade', ic:'◆', cor:'var(--kb-c5)',
+             forte:'exatidão, norma, documento sem erro',
+             risco:'trava por excesso de análise e evita decidir sem certeza',
+             lider:'dê critério claro e prazo, e diga quando "bom" já basta'}
+        };
+        /* O que cada escopo pede. Distância grande não reprova: vira
+           conversa na entrevista, porque perfil não é defeito. */
+        const TAL_DISC_VAGA={
+          comercial:      {D:30,I:40,S:15,C:15, obs:'porta que abre e conversa que fecha'},
+          marketing:      {D:15,I:35,S:20,C:30, obs:'criação com calendário e método'},
+          publicidade:    {D:20,I:35,S:15,C:30, obs:'campanha no ar e verba controlada'},
+          administrativo: {D:10,I:15,S:35,C:40, obs:'rotina, documento e exatidão'},
+          operacional:    {D:20,I:15,S:35,C:30, obs:'execução constante, sem drama'},
+          consultoria:    {D:25,I:20,S:15,C:40, obs:'laudo defensável e conversa difícil'},
+          treinamento:    {D:20,I:35,S:25,C:20, obs:'sala na mão e conteúdo em ordem'}
+        };
+
+        /* ── 4. NÚMEROS APLICADOS ──
+           Tudo o que aparece num laudo dela. Uma resposta certa por item. */
+        const TAL_NUM=[
+          {id:'n1', t:'Um produto custa R$ 60 e é vendido por R$ 100. Qual a margem sobre a venda?',
+           o:['40%','66,7%','60%','25%'], c:0},
+          {id:'n2', t:'O mesmo produto: qual o markup aplicado sobre o custo?',
+           o:['40%','60%','66,7%','100%'], c:2},
+          {id:'n3', t:'A loja vendia R$ 80 mil por mês e passou a vender R$ 92 mil. Quanto cresceu?',
+           o:['12%','15%','13%','8,7%'], c:1},
+          {id:'n4', t:'Estoque de R$ 300 mil e custo das vendas de R$ 1,2 milhão no ano. Qual o giro?',
+           o:['2 vezes','4 vezes','0,25 vez','12 vezes'], c:1},
+          {id:'n5', t:'Custo fixo de R$ 30 mil por mês e margem de contribuição de 40%. Qual o ponto de equilíbrio?',
+           o:['R$ 42 mil','R$ 50 mil','R$ 75 mil','R$ 120 mil'], c:2},
+          {id:'n6', t:'Um cliente pede 12% de desconto num produto com margem de 30%. A margem cai para:',
+           o:['18%','20,5%','26,4%','15%'], c:1},
+          {id:'n7', t:'Entrou R$ 45 mil, saiu R$ 51 mil, e o caixa abriu o mês com R$ 20 mil. Fecha com:',
+           o:['R$ 14 mil','R$ 26 mil','R$ 6 mil negativos','R$ 16 mil'], c:0},
+          {id:'n8', t:'Três lojas vendem 40, 25 e 35 por cento do total. A do meio faturou R$ 250 mil. O total é:',
+           o:['R$ 625 mil','R$ 1 milhão','R$ 750 mil','R$ 500 mil'], c:1},
+          {id:'n9', t:'Uma parcela de R$ 9.466 três vezes soma quanto, e qual o valor à vista com 8% de desconto?',
+           o:['R$ 28.398 e R$ 26.126','R$ 28.398 e R$ 25.926','R$ 27.000 e R$ 24.840','R$ 28.398 e R$ 30.670'], c:0},
+          {id:'n10', t:'O prazo médio de recebimento é 45 dias e o de pagamento é 20. Isso significa que a empresa:',
+           o:['Financia o cliente por 25 dias','É financiada pelo fornecedor por 25 dias',
+              'Está equilibrada','Recebe antes de pagar'], c:0}
+        ];
+
+        /* ── 5. ATENÇÃO AO DETALHE ──
+           Achar o erro. É o teste que mais se parece com o trabalho: ler
+           um documento que vai para o cliente e ver o que está torto. */
+        const TAL_DET=[
+          {id:'d1', t:'Numa tabela, a soma da coluna está assim: 12.400 + 8.150 + 3.470 = 24.020. O total está:',
+           o:['Certo','Errado, o certo é 24.020','Errado, o certo é 24.120','Errado, o certo é 23.020'], c:0},
+          {id:'d2', t:'Um contrato diz "vigência de 12 (doze) meses, iniciando em 01/03/2026 e encerrando em 28/02/2026". O erro está:',
+           o:['No número de meses','No ano de encerramento','No dia de início','Não há erro'], c:1},
+          {id:'d3', t:'Uma proposta traz: subtotal R$ 18.000, desconto 10%, total R$ 16.400. O total está:',
+           o:['Certo','Errado, o certo é R$ 16.200','Errado, o certo é R$ 17.200','Errado, o certo é R$ 19.800'], c:1},
+          {id:'d4', t:'No CNPJ 30.361.388/0001-17 escrito como 30.361.388/001-17, o que está errado?',
+           o:['Falta um dígito no número da filial','O dígito verificador','A raiz do CNPJ','Nada'], c:0},
+          {id:'d5', t:'Um laudo diz "o giro caiu de 71 para 49 dias, uma piora de 31%". A frase está:',
+           o:['Certa','Errada: é melhora, não piora','Errada: a conta é 45%','Errada: é melhora e a conta é 31%'], c:3},
+          {id:'d6', t:'Numa lista de e-mails aparece "contato@paonosso.com.br" e "contato@paonoso.com.br". Você:',
+           o:['Manda para os dois, um vai chegar','Confirma qual é o certo antes de mandar',
+              'Manda para o primeiro, parece o certo','Ignoro, é detalhe de digitação'], c:1},
+          {id:'d7', t:'Um relatório mostra 2026 na capa e 2025 no rodapé de todas as páginas. Você:',
+           o:['Corrijo o rodapé e reviso o documento inteiro antes de entregar',
+              'Corrijo só o rodapé','Entrego assim, a capa é o que importa','Aviso e deixo para quem fez corrigir'], c:0},
+          {id:'d8', t:'Percentuais de uma pizza: 34%, 28%, 21% e 16%. O gráfico está:',
+           o:['Certo','Errado, soma 99%','Errado, soma 101%','Não dá para saber'], c:2}
+        ];
+
+        /* ── 6. MOTIVADORES ──
+           Distribui o que move a pessoa. Não reprova ninguém: serve para
+           ela saber como liderar, como pagar e o que faz a pessoa sair. */
+        const TAL_MOT=[
+          {id:'m1', t:'Ter autonomia para decidir como faço o meu trabalho.', k:'autonomia'},
+          {id:'m2', t:'Ganhar mais quando entrego mais, mesmo que o mês ruim pese.', k:'resultado'},
+          {id:'m3', t:'Ter previsibilidade de renda e de rotina.', k:'seguranca'},
+          {id:'m4', t:'Aprender coisa nova e ficar melhor no que faço.', k:'dominio'},
+          {id:'m5', t:'Ser reconhecida publicamente pelo que entreguei.', k:'reconhecimento'},
+          {id:'m6', t:'Trabalhar em algo que muda a vida de quem é atendido.', k:'causa'},
+          {id:'m7', t:'Escolher os meus horários e o meu jeito de trabalhar.', k:'autonomia'},
+          {id:'m8', t:'Bater meta e ver o número subir.', k:'resultado'},
+          {id:'m9', t:'Saber exatamente o que esperam de mim, sem surpresa.', k:'seguranca'},
+          {id:'m10',t:'Virar referência técnica no que faço.', k:'dominio'},
+          {id:'m11',t:'Ter o meu nome associado aos bons resultados.', k:'reconhecimento'},
+          {id:'m12',t:'Sentir que o trabalho tem um propósito além do dinheiro.', k:'causa'}
+        ];
+        const TAL_MOT_NOME={
+          autonomia:{l:'Autonomia', d:'quer o como nas próprias mãos', lider:'combine o resultado e solte o caminho'},
+          resultado:{l:'Resultado', d:'move-se por meta e por ganho variável', lider:'meta clara e comissão visível'},
+          seguranca:{l:'Segurança', d:'precisa de previsibilidade', lider:'contrato firme, rotina e aviso antecipado'},
+          dominio:{l:'Domínio', d:'quer ficar boa no ofício', lider:'dê problema difícil e formação'},
+          reconhecimento:{l:'Reconhecimento', d:'precisa ser vista', lider:'elogie em público e dê nome à entrega'},
+          causa:{l:'Causa', d:'precisa de sentido', lider:'mostre o efeito no cliente, não só o número'}
+        };
+
+        /* ── 7. ESCRITA ──
+           Uma tarefa só, aberta. O sistema não dá nota de conteúdo: ele
+           levanta sinais objetivos e ela lê. Julgar texto é trabalho de
+           gente. */
+        const TAL_ESCRITA={
+          t:'Reescreva a mensagem abaixo para enviar a um cliente. Ela precisa ser educada, clara e terminar com um próximo passo com data.',
+          ruim:'"oi td bem? entao aquele documento nao ficou pronto ainda pq deu uns problema aqui, qq coisa me avisa"',
+          min:220, max:900
+        };
+
+        /* ═══════════════════════════════════════════════════════════════
+           A CORREÇÃO E OS INDICADORES
+
+           Uma nota só não decide nada. O que decide é: quanto a pessoa
+           acertou, se ela foi coerente, quanto tempo levou, e o quanto o
+           perfil dela encaixa no escopo. Por isso cada prova devolve nota
+           e o conjunto devolve bandeiras.
+           ═══════════════════════════════════════════════════════════════ */
+
+        /** Nota de 0 a 100 de um bloco de acertos. */
+        function talPct(feito, total){ return total?Math.round(feito/total*1000)/10:0; }
+
+        /** SJT: soma dos pesos escolhidos sobre o máximo possível. */
+        function talCorrigirSJT(r){
+          let ganho=0, teto=0, porValor={};
+          TAL_SJT.forEach(q=>{
+            const max=Math.max(...q.o.map(o=>o[1]));
+            teto+=max;
+            const esc=r&&r[q.id];
+            const v=(esc!==undefined&&q.o[esc])?q.o[esc][1]:0;
+            ganho+=v;
+            porValor[q.v]=porValor[q.v]||{ganho:0,teto:0};
+            porValor[q.v].ganho+=v; porValor[q.v].teto+=max;
+          });
+          const porV={}; Object.keys(porValor).forEach(k=>porV[k]=talPct(porValor[k].ganho,porValor[k].teto));
+          return {nota:talPct(ganho,teto), porValor:porV, respondidas:TAL_SJT.filter(q=>r&&r[q.id]!==undefined).length};
+        }
+
+        /** Fit: escala 1 a 5, invertidos contam ao contrário. */
+        function talCorrigirFit(r){
+          let ganho=0, teto=0, porValor={}, diretos=[], invertidos=[];
+          TAL_FIT.forEach(q=>{
+            const v=Number((r&&r[q.id])||0);
+            if(!v) { teto+=4; porValor[q.v]=porValor[q.v]||{g:0,t:0}; porValor[q.v].t+=4; return; }
+            const pontos=q.inv ? (5-v) : (v-1);        // 0 a 4
+            ganho+=pontos; teto+=4;
+            porValor[q.v]=porValor[q.v]||{g:0,t:0};
+            porValor[q.v].g+=pontos; porValor[q.v].t+=4;
+            (q.inv?invertidos:diretos).push(pontos);
+          });
+          const porV={}; Object.keys(porValor).forEach(k=>porV[k]=talPct(porValor[k].g,porValor[k].t));
+          /* Coerência: quem responde de verdade pontua parecido nos
+             diretos e nos invertidos. Distância grande é sinal de quem
+             está marcando o que acha bonito, não o que faz. */
+          const med=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+          const coerencia=Math.round(100-Math.min(100,Math.abs(med(diretos)-med(invertidos))/4*100));
+          return {nota:talPct(ganho,teto), porValor:porV, coerencia,
+                  respondidas:TAL_FIT.filter(q=>r&&r[q.id]).length};
+        }
+
+        /** DISC: conta as escolhas e devolve porcentagem por letra. */
+        function talCorrigirDisc(r){
+          const c={D:0,I:0,S:0,C:0}; let n=0;
+          TAL_DISC.forEach((bloco,i)=>{
+            const esc=r&&r['b'+i];
+            if(esc===undefined||!bloco[esc]) return;
+            c[bloco[esc][1]]++; n++;
+          });
+          const pct={}; Object.keys(c).forEach(k=>pct[k]=n?Math.round(c[k]/n*100):0);
+          const ordem=Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
+          return {pct, dominante:ordem[0], segundo:ordem[1], respondidas:n,
+                  perfil:ordem[0]+(pct[ordem[1]]>=25?ordem[1]:'')};
+        }
+
+        /** Quanto o perfil encaixa no que o escopo pede. */
+        function talEncaixeDisc(disc, escopos){
+          const alvos=(escopos||[]).map(e=>TAL_DISC_VAGA[e]).filter(Boolean);
+          if(!alvos.length||!disc.respondidas) return {nota:null, alvo:null, distancia:null};
+          /* média dos alvos quando a pessoa marcou mais de um escopo */
+          const alvo={D:0,I:0,S:0,C:0};
+          alvos.forEach(a=>['D','I','S','C'].forEach(k=>alvo[k]+=a[k]/alvos.length));
+          /* distância média absoluta; 0 é encaixe perfeito, 100 é o oposto */
+          const dist=['D','I','S','C'].reduce((s,k)=>s+Math.abs(disc.pct[k]-alvo[k]),0)/2;
+          return {nota:Math.max(0,Math.round(100-dist)), alvo, distancia:Math.round(dist),
+                  obs:alvos.map(a=>a.obs).join(' · ')};
+        }
+
+        /** Provas de resposta única. */
+        function talCorrigirCerto(banco, r){
+          let ok=0, n=0;
+          banco.forEach(q=>{ const e=r&&r[q.id]; if(e===undefined) return; n++; if(e===q.c) ok++; });
+          return {nota:talPct(ok,banco.length), acertos:ok, total:banco.length, respondidas:n};
+        }
+
+        /** Motivadores: 1 a 5 em cada item, agrupado por eixo. */
+        function talCorrigirMot(r){
+          const soma={}, cont={};
+          TAL_MOT.forEach(q=>{
+            const v=Number((r&&r[q.id])||0); if(!v) return;
+            soma[q.k]=(soma[q.k]||0)+v; cont[q.k]=(cont[q.k]||0)+1;
+          });
+          const eixos=Object.keys(TAL_MOT_NOME).map(k=>({
+            k, l:TAL_MOT_NOME[k].l, d:TAL_MOT_NOME[k].d, lider:TAL_MOT_NOME[k].lider,
+            nota: cont[k]?Math.round(soma[k]/cont[k]/5*100):0
+          })).sort((a,b)=>b.nota-a.nota);
+          return {eixos, principal:eixos[0], segundo:eixos[1],
+                  respondidas:TAL_MOT.filter(q=>r&&r[q.id]).length};
+        }
+
+        /** Escrita: sinais objetivos. A leitura é dela. */
+        function talCorrigirEscrita(txt){
+          txt=String(txt||'').trim();
+          const palavras=txt?txt.split(/\s+/).length:0;
+          const sinais=[
+            {k:'tamanho',   ok:txt.length>=TAL_ESCRITA.min, l:'Tem corpo suficiente'},
+            {k:'saudacao',  ok:/^(ol[áa]|bom dia|boa tarde|boa noite|prezad)/i.test(txt), l:'Abre com saudação'},
+            {k:'proximo',   ok:/(at[ée]|dia \d|\d{1,2}\/\d{1,2}|segunda|ter[çc]a|quarta|quinta|sexta|amanh[ãa]|pr[óo]xim)/i.test(txt), l:'Marca um próximo passo com data'},
+            {k:'semgiria',  ok:!/\b(pq|vc|qq|td|blz|tbm|kkk|hj)\b/i.test(txt), l:'Sem abreviação de recado'},
+            {k:'semcopia',  ok:txt.length>0 && !txt.toLowerCase().includes('nao ficou pronto ainda pq'), l:'Não copiou o enunciado'},
+            {k:'travessao', ok:txt.indexOf('\u2014')<0, l:'Sem travessão'},
+            {k:'maiuscula', ok:!txt || txt[0]===txt[0].toUpperCase(), l:'Começa com maiúscula'}
+          ];
+          const bons=sinais.filter(s=>s.ok).length;
+          return {texto:txt, palavras, sinais, nota:talPct(bons,sinais.length), respondida:txt.length>40};
+        }
+
+        /* ── O QUE A LEI NÃO DEIXA USAR ──
+           Se a pessoa escrever por conta própria algo que é dado sensível
+           ou base de discriminação, o trecho não pode simplesmente ficar
+           à vista, nem ser repassado a terceiro sem autorização dela.
+           O sistema esconde, marca em vermelho e espera a decisão. */
+        const TAL_SENSIVEL=[
+          {k:'saude',    r:/\b(depress[ãa]o|ansiedade|transtorno|laudo m[ée]dico|cid[- ]?\d|doen[çc]a|c[âa]ncer|hiv|diabet|epileps|autis|tdah|bipolar|medicamento|tratamento psic)/i, l:'saúde'},
+          {k:'deficiencia', r:/\b(defici[êe]ncia|pcd|cadeirante|surdez|cegueira|amputa)/i, l:'deficiência'},
+          {k:'gravidez', r:/\b(gr[áa]vida|gesta[çc][ãa]o|licen[çc]a maternidade|amamenta)/i, l:'gravidez'},
+          {k:'religiao', r:/\b(evang[ée]lic|cat[óo]lic|esp[íi]rita|umbanda|candombl[ée]|judai|mu[çc]ulman|ate[íi]s|igreja|congrega[çc])/i, l:'religião'},
+          {k:'politica', r:/\b(partido|petist|bolsonarist|esquerda pol[íi]tica|direita pol[íi]tica|vot(ei|o em))/i, l:'posição política'},
+          {k:'raca',     r:/\b(negr[oa]|pard[oa]|branc[oa] de cor|ind[íi]gena|amarel[oa] \(ra[çc]a\)|cota racial)/i, l:'raça ou cor'},
+          {k:'familia',  r:/\b(casad[oa]|solteir[oa]|divorciad[oa]|vi[úu]v[oa]|tenho \d+ filh|meus filhos|minha esposa|meu marido|gr[áa]vida)/i, l:'estado civil ou filhos'},
+          {k:'idade',    r:/\b(tenho \d{2} anos|\d{2} anos de idade|nasci em (19|20)\d\d)/i, l:'idade'},
+          {k:'sindical', r:/\b(sindicato|sindicaliz|greve)/i, l:'filiação sindical'},
+          {k:'criminal', r:/\b(antecedentes criminais|ficha limpa|processo criminal|fui preso|cumpri pena)/i, l:'antecedentes'}
+        ];
+
+        /** Varre os textos livres e devolve o que a lei manda tratar com cuidado. */
+        function talSensivel(k){
+          const campos=[['experiencia',k.experiencia],['escrita',(k.testes&&k.testes.escrita)||''],
+                        ['portfolio',k.portfolio]];
+          const achados=[];
+          campos.forEach(([campo,txt])=>{
+            if(!txt) return;
+            TAL_SENSIVEL.forEach(s=>{
+              const m=String(txt).match(s.r);
+              if(m) achados.push({campo, tipo:s.k, l:s.l, trecho:m[0]});
+            });
+          });
+          return achados;
+        }
+
+        /** Esconde o trecho sensível até ela autorizar. */
+        function talMascarar(txt, achados, liberado){
+          if(liberado||!achados.length) return uiEsc(txt||'');
+          let saida=uiEsc(txt||'');
+          achados.forEach(a=>{
+            const t=uiEsc(a.trecho);
+            saida=saida.split(t).join('<span class="tal-oculto" title="Dado sensível: '
+              +uiEsc(a.l)+'. Precisa da sua autorização para aparecer.">[oculto: '+uiEsc(a.l)+']</span>');
+          });
+          return saida;
+        }
+
+        /* ── O ÍNDICE E A RECOMENDAÇÃO ──
+           Os pesos dizem o que ela valoriza, e estão à vista de propósito.
+           Julgamento pesa mais porque é o que mais prevê desempenho.
+           Motivador não entra no índice: não existe motivador errado. */
+        const TAL_PESOS={sjt:32, fit:24, num:14, det:14, disc:10, escrita:6};
+
+        function talIndice(k){
+          const t=k.testes||{};
+          const sjt=talCorrigirSJT(t.sjt), fit=talCorrigirFit(t.fit);
+          const disc=talCorrigirDisc(t.disc), encaixe=talEncaixeDisc(disc, k.escopos);
+          const num=talCorrigirCerto(TAL_NUM, t.num), det=talCorrigirCerto(TAL_DET, t.det);
+          const mot=talCorrigirMot(t.mot), esc=talCorrigirEscrita(t.escrita);
+
+          const partes=[
+            {k:'sjt', l:'Julgamento situacional', nota:sjt.nota, peso:TAL_PESOS.sjt},
+            {k:'fit', l:'Fit cultural',           nota:fit.nota, peso:TAL_PESOS.fit},
+            {k:'num', l:'Números aplicados',      nota:num.nota, peso:TAL_PESOS.num},
+            {k:'det', l:'Atenção ao detalhe',     nota:det.nota, peso:TAL_PESOS.det},
+            {k:'disc',l:'Encaixe no escopo',      nota:encaixe.nota===null?50:encaixe.nota, peso:TAL_PESOS.disc},
+            {k:'escrita',l:'Escrita',             nota:esc.nota, peso:TAL_PESOS.escrita}
+          ];
+          const somaPesos=partes.reduce((a,p)=>a+p.peso,0);
+          const indice=Math.round(partes.reduce((a,p)=>a+p.nota*p.peso,0)/somaPesos);
+
+          /* ── as bandeiras ──
+             Cada uma é um motivo concreto para olhar duas vezes, e todas
+             aparecem para ela. Bandeira não reprova sozinha. */
+          const bandeiras=[];
+          const total=TAL_SJT.length+TAL_FIT.length+TAL_DISC.length+TAL_NUM.length+TAL_DET.length+TAL_MOT.length;
+          const feitas=sjt.respondidas+fit.respondidas+disc.respondidas+num.respondidas+det.respondidas+mot.respondidas;
+          if(feitas<total) bandeiras.push({c:'mal', l:'Parou no meio',
+            d:'Respondeu '+feitas+' de '+total+' questões. Quem não termina o teste costuma não terminar a entrega.'});
+          if(fit.coerencia<60) bandeiras.push({c:'mal', l:'Respostas incoerentes',
+            d:'Concordou com afirmações opostas. Coerência de '+fit.coerencia+'%, o que sugere resposta pelo que soa bonito.'});
+          if(t.segundos && feitas && (t.segundos/feitas)<4) bandeiras.push({c:'mal', l:'Rápido demais',
+            d:'Média de '+Math.round(t.segundos/feitas)+' segundos por questão. Não dá tempo de ler.'});
+          if(t.segundos && feitas && (t.segundos/feitas)>180) bandeiras.push({c:'', l:'Muito devagar',
+            d:'Média de '+Math.round(t.segundos/feitas/60)+' minutos por questão. Pode ter feito com ajuda ou em várias sessões.'});
+          if(!esc.respondida) bandeiras.push({c:'mal', l:'Deixou a escrita em branco',
+            d:'O negócio é documento. Texto é o trabalho, não um extra.'});
+          if(sjt.porValor.sigilo!==undefined && sjt.porValor.sigilo<60) bandeiras.push({c:'mal', l:'Sigilo frouxo',
+            d:'Pontuou '+sjt.porValor.sigilo+'% nos cenários de sigilo. Com cliente grande, isso é risco direto.'});
+          if(fit.porValor.dono!==undefined && fit.porValor.dono<50) bandeiras.push({c:'mal', l:'Não assume o que pega',
+            d:'Baixo em "dono do que pegou". É exatamente a pessoa que precisa de babá.'});
+          if(encaixe.nota!==null && encaixe.nota<45) bandeiras.push({c:'', l:'Perfil distante do escopo',
+            d:'O comportamento dela ('+disc.perfil+') está longe do que '+(k.escopos||[]).map(e=>escopoDe(e).l).join(' e ')+' costuma pedir. Não reprova, mas vale perguntar.'});
+          const sens=talSensivel(k);
+          if(sens.length) bandeiras.push({c:'lei', l:'Dado sensível no texto',
+            d:'A pessoa escreveu por conta própria algo sobre '+[...new Set(sens.map(s=>s.l))].join(', ')
+              +'. Está oculto e não pode ser usado na seleção nem repassado sem a sua autorização.'});
+
+          /* ── a recomendação ── */
+          const grave=bandeiras.filter(b=>b.c==='mal').length;
+          let rec, cor, porque;
+          if(feitas===0){ rec='Ainda não fez os testes'; cor='var(--ink-faint)';
+            porque='Mande o link dos testes e volte aqui quando ela responder.'; }
+          else if(indice>=75 && grave===0){ rec='Entrevistar'; cor='var(--ok)';
+            porque='Índice '+indice+' sem bandeira grave. Vale a sua hora.'; }
+          else if(indice>=75){ rec='Entrevistar com atenção'; cor='var(--warn)';
+            porque='Índice '+indice+', mas com '+grave+' bandeira'+(grave>1?'s':'')+' para checar na conversa.'; }
+          else if(indice>=58){ rec='Vale conversar'; cor='var(--warn)';
+            porque='Índice '+indice+'. Não é destaque, mas pode servir para um escopo mais simples.'; }
+          else { rec='Não agora'; cor='var(--bad)';
+            porque='Índice '+indice+'. Guarde no banco: outro momento, outra vaga.'; }
+
+          /* ── o que perguntar na entrevista ──
+             Sai das notas mais baixas e das bandeiras, para a conversa
+             atacar a dúvida em vez de repetir o currículo. */
+          const perguntas=[];
+          const baixas=partes.filter(p=>p.nota<65).sort((a,b)=>a.nota-b.nota);
+          const PERG={
+            sjt:'Conte uma vez em que você percebeu um erro seu depois que o trabalho já tinha saído. O que você fez?',
+            fit:'Descreva uma situação em que você discordou de como a empresa queria fazer. Como resolveu?',
+            num:'Se um cliente pede 12% de desconto num produto com 30% de margem, o que você responde para ele?',
+            det:'Como você confere um documento antes de mandar para o cliente? Me descreva o passo a passo.',
+            disc:'Em que tipo de trabalho você rende mais, e em que tipo você trava?',
+            escrita:'Peça para escrever, na hora, um recado de duas linhas adiando uma entrega para o cliente.'
+          };
+          baixas.slice(0,3).forEach(p=>perguntas.push({tema:p.l, nota:p.nota, q:PERG[p.k]}));
+          if(fit.coerencia<60) perguntas.push({tema:'Coerência', nota:fit.coerencia,
+            q:'Você marcou que processo escrito atrapalha e também que prefere etapa com dono e prazo. Me explica como as duas coisas convivem no seu dia.'});
+          if(mot.principal&&mot.principal.nota>=70) perguntas.push({tema:'Motivador', nota:mot.principal.nota,
+            q:'O que mais te move é '+mot.principal.l.toLowerCase()+'. O que precisaria acontecer aqui para você querer sair?'});
+
+          return {indice, rec, cor, porque, partes, bandeiras, perguntas, sensivel:sens,
+                  sjt, fit, disc, encaixe, num, det, mot, escrita:esc, feitas, total};
+        }
+
+        /** A média do banco, para saber se 68 é bom ou ruim aqui dentro. */
+        function talMedia(){
+          const com=(DB.candidatos||[]).filter(k=>k.testes&&k.testes.fim);
+          if(!com.length) return null;
+          const ind=com.map(k=>talIndice(k));
+          const m=c=>Math.round(ind.reduce((a,x)=>a+x[c].nota,0)/ind.length);
+          return {n:com.length, indice:Math.round(ind.reduce((a,x)=>a+x.indice,0)/ind.length),
+                  sjt:m('sjt'), fit:m('fit'), num:m('num'), det:m('det')};
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           A PROVA, DO LADO DE QUEM RESPONDE
+
+           Sete etapas, uma tela por vez, com a barra mostrando quanto
+           falta. Cada resposta é gravada na hora: se a pessoa fechar o
+           navegador no meio, volta de onde parou em vez de recomeçar,
+           porque quem recomeça não termina.
+
+           O tempo é medido, e não para castigar ninguém: quem responde
+           quarenta questões em dois minutos não leu, e isso precisa
+           aparecer no laudo dela.
+           ═══════════════════════════════════════════════════════════════ */
+
+        const TAL_ETAPAS=[
+          {k:'lgpd',   l:'Combinado', ic:'✓'},
+          {k:'sjt',    l:'Situações', ic:'◈'},
+          {k:'fit',    l:'Como você trabalha', ic:'◉'},
+          {k:'disc',   l:'Seu jeito', ic:'▲'},
+          {k:'num',    l:'Números', ic:'▤'},
+          {k:'det',    l:'Detalhe', ic:'◆'},
+          {k:'mot',    l:'O que te move', ic:'★'},
+          {k:'escrita',l:'Escrita', ic:'✎'}
+        ];
+        const TAL_RASCUNHO='af_teste_rascunho';
+        let TP={cand:null, etapa:0, r:{sjt:{},fit:{},disc:{},num:{},det:{},mot:{},escrita:'',aceite:false},
+                inicio:0, segundos:0};
+
+        /** Guarda o que já foi respondido, para ninguém perder o trabalho. */
+        function tpGravar(){
+          TP.r.segundos=TP.segundos+Math.round((Date.now()-TP.inicio)/1000);
+          try{ localStorage.setItem(TAL_RASCUNHO, JSON.stringify({cand:TP.cand, etapa:TP.etapa, r:TP.r})); }catch(e){}
+        }
+        function tpRetomar(){
+          try{
+            const g=JSON.parse(localStorage.getItem(TAL_RASCUNHO)||'null');
+            if(g&&g.cand){ TP.cand=g.cand; TP.etapa=g.etapa||0; TP.r=Object.assign(TP.r,g.r||{});
+                           TP.segundos=Number(TP.r.segundos||0); return true; }
+          }catch(e){}
+          return false;
+        }
+
+        /** Abre a prova para um candidato recém-cadastrado. */
+        function tpAbrir(candId){
+          TP.cand=candId; TP.etapa=0; TP.inicio=Date.now();
+          if(!TP.r.aceite) TP.etapa=0;
+          /* o seletor "prestador / empresa" não faz sentido dentro da prova,
+             e vazio ele ainda desenha a pastilha */
+          const seg=document.getElementById('cad-seg');
+          seg.innerHTML=''; seg.style.display='none';
+          tpRender();
+        }
+
+        function tpIr(n){
+          tpGravar();
+          TP.etapa=Math.max(0,Math.min(TAL_ETAPAS.length-1,n));
+          TP.inicio=Date.now();
+          document.querySelector('.cad-box').scrollIntoView({block:'start'});
+          tpRender();
+        }
+
+        /** Quantas questões da etapa já têm resposta. */
+        function tpFeitasNa(k){
+          const r=TP.r[k]||{};
+          if(k==='lgpd') return TP.r.aceite?1:0;
+          if(k==='escrita') return String(TP.r.escrita||'').length>40?1:0;
+          if(k==='disc') return TAL_DISC.filter((_,i)=>r['b'+i]!==undefined).length;
+          const banco={sjt:TAL_SJT, fit:TAL_FIT, num:TAL_NUM, det:TAL_DET, mot:TAL_MOT}[k]||[];
+          return banco.filter(q=>r[q.id]!==undefined).length;
+        }
+        function tpTotalDa(k){
+          if(k==='lgpd'||k==='escrita') return 1;
+          if(k==='disc') return TAL_DISC.length;
+          return ({sjt:TAL_SJT, fit:TAL_FIT, num:TAL_NUM, det:TAL_DET, mot:TAL_MOT}[k]||[]).length;
+        }
+
+        function tpResponder(etapa, id, valor){
+          TP.r[etapa]=TP.r[etapa]||{};
+          TP.r[etapa][id]=valor;
+          tpGravar(); tpRender();
+        }
+
+        function tpTopo(){
+          const feitas=TAL_ETAPAS.reduce((a,e)=>a+tpFeitasNa(e.k),0);
+          const total=TAL_ETAPAS.reduce((a,e)=>a+tpTotalDa(e.k),0);
+          const pct=Math.round(feitas/total*100);
+          return `<div class="tp-topo">
+            <div class="tp-barra"><i style="width:${pct}%"></i></div>
+            <div class="tp-meta">
+              <span><b>${feitas}</b> de ${total} respondidas · ${pct}%</span>
+              <span>Etapa ${TP.etapa+1} de ${TAL_ETAPAS.length}</span>
+            </div>
+            <div class="tp-passos">${TAL_ETAPAS.map((e,i)=>{
+              const f=tpFeitasNa(e.k), t=tpTotalDa(e.k);
+              const cls=i===TP.etapa?'on':(f>=t?'ok':'');
+              return `<span class="tp-passo ${cls}">${e.ic} ${uiEsc(e.l)}${f>=t?' ✓':''}</span>`;
+            }).join('')}</div>
+          </div>`;
+        }
+
+        const TP_ESCALA=[[1,'Discordo<br>muito'],[2,'Discordo'],[3,'Mais ou<br>menos'],[4,'Concordo'],[5,'Concordo<br>muito']];
+
+        function tpRender(){
+          const box=document.getElementById('cad-corpo'); if(!box) return;
+          const e=TAL_ETAPAS[TP.etapa];
+          let corpo='';
+
+          if(e.k==='lgpd'){
+            corpo=`<div class="tp-intro">
+              <h3>Antes de começar, o combinado</h3>
+              <p>São sete blocos curtos, no total uns <b>20 a 25 minutos</b>. Não existe pegadinha e não
+              existe resposta que a gente "espera": o que serve para nós é o que é verdade sobre você,
+              porque encaixe errado machuca os dois lados.</p>
+            </div>
+            <div class="tp-lgpd">
+              <b>O que perguntamos e o que não perguntamos.</b><br>
+              As perguntas são sobre trabalho: como você decide, como trata prazo e sigilo, como lida com
+              número e com texto. <b>Não perguntamos</b> idade, estado civil, filhos, religião, posição
+              política, saúde, deficiência, cor, origem, sindicato nem antecedentes. Nada disso entra na
+              avaliação, e se aparecer por acaso num campo aberto, fica oculto no nosso sistema.<br><br>
+              <b>O que fazemos com as respostas.</b> Servem só para decidir quem convidamos para
+              conversar. Ficam guardadas por <b>12 meses</b> e depois são apagadas. Você pode pedir para
+              ver, corrigir ou apagar tudo a qualquer momento, pelo mesmo WhatsApp do cadastro.
+              <label><input type="checkbox" ${TP.r.aceite?'checked':''} onchange="TP.r.aceite=this.checked;tpGravar();tpRender();">
+                <span>Li, entendi e concordo em responder. Sei que posso parar quando quiser.</span></label>
+            </div>`;
+          }
+
+          if(e.k==='sjt'){
+            corpo=`<div class="tp-intro"><h3>Situações que acontecem de verdade</h3>
+              <p>Dez cenários tirados do nosso dia. Marque o que <b>você faria</b>, não o que soa mais
+              bonito. Mais de uma opção pode parecer certa, escolha a que você faria mesmo.</p></div>`
+              +TAL_SJT.map((q,i)=>`<div class="tp-q">
+                <div class="n">Situação ${i+1} de ${TAL_SJT.length}</div>
+                <div class="t">${uiEsc(q.t)}</div>
+                ${q.o.map((o,j)=>`<button class="tp-op ${TP.r.sjt[q.id]===j?'on':''}"
+                  onclick="tpResponder('sjt','${q.id}',${j})">${uiEsc(o[0])}</button>`).join('')}
+              </div>`).join('');
+          }
+
+          if(e.k==='fit'){
+            corpo=`<div class="tp-intro"><h3>Como você trabalha</h3>
+              <p>Diga o quanto concorda com cada frase. Algumas afirmam o contrário das outras de
+              propósito: é assim que a gente vê se as respostas se sustentam.</p></div>`
+              +TAL_FIT.map((q,i)=>`<div class="tp-q">
+                <div class="n">${i+1} de ${TAL_FIT.length}</div>
+                <div class="t">${uiEsc(q.t)}</div>
+                <div class="tp-esc">${TP_ESCALA.map(([v,l])=>`<button class="${TP.r.fit[q.id]===v?'on':''}"
+                  onclick="tpResponder('fit','${q.id}',${v})"><b>${v}</b>${l}</button>`).join('')}</div>
+              </div>`).join('');
+          }
+
+          if(e.k==='disc'){
+            corpo=`<div class="tp-intro"><h3>O seu jeito</h3>
+              <p>Em cada linha, marque a palavra que <b>mais</b> se parece com você. Não há palavra
+              melhor nem pior: é encaixe, e cada trabalho pede um jeito diferente.</p></div>`
+              +TAL_DISC.map((bloco,i)=>`<div class="tp-q">
+                <div class="n">Bloco ${i+1} de ${TAL_DISC.length}</div>
+                <div class="tp-esc">${bloco.map((w,j)=>`<button class="${TP.r.disc['b'+i]===j?'on':''}"
+                  style="flex:1 1 22%" onclick="tpResponder('disc','b${i}',${j})">${uiEsc(w[0])}</button>`).join('')}</div>
+              </div>`).join('');
+          }
+
+          if(e.k==='num'||e.k==='det'){
+            const banco=e.k==='num'?TAL_NUM:TAL_DET;
+            const intro=e.k==='num'
+              ? {h:'Números do dia a dia', p:'Nada de matemática de escola: é a conta que aparece num laudo nosso. Faça de cabeça ou no papel, sem pressa.'}
+              : {h:'Achar o que está torto', p:'Documento com erro que chega ao cliente custa mais caro que o serviço inteiro. Leia com calma.'};
+            corpo=`<div class="tp-intro"><h3>${intro.h}</h3><p>${intro.p}</p></div>`
+              +banco.map((q,i)=>`<div class="tp-q">
+                <div class="n">${i+1} de ${banco.length}</div>
+                <div class="t">${uiEsc(q.t)}</div>
+                ${q.o.map((o,j)=>`<button class="tp-op ${TP.r[e.k][q.id]===j?'on':''}"
+                  onclick="tpResponder('${e.k}','${q.id}',${j})">${uiEsc(o)}</button>`).join('')}
+              </div>`).join('');
+          }
+
+          if(e.k==='mot'){
+            corpo=`<div class="tp-intro"><h3>O que te move</h3>
+              <p>Aqui não existe resposta certa nem errada, e nada disso reprova ninguém. Serve para a
+              gente saber como trabalhar com você, e o que faria você querer ficar.</p></div>`
+              +TAL_MOT.map((q,i)=>`<div class="tp-q">
+                <div class="n">${i+1} de ${TAL_MOT.length}</div>
+                <div class="t">${uiEsc(q.t)}</div>
+                <div class="tp-esc">${TP_ESCALA.map(([v,l])=>`<button class="${TP.r.mot[q.id]===v?'on':''}"
+                  onclick="tpResponder('mot','${q.id}',${v})"><b>${v}</b>${l}</button>`).join('')}</div>
+              </div>`).join('');
+          }
+
+          if(e.k==='escrita'){
+            corpo=`<div class="tp-intro"><h3>Escreva para um cliente</h3>
+              <p>${uiEsc(TAL_ESCRITA.t)}</p></div>
+              <div class="tp-ruim">${uiEsc(TAL_ESCRITA.ruim)}</div>
+              <textarea class="tp-txt" id="tp-escrita" placeholder="Escreva aqui a sua versão."
+                oninput="TP.r.escrita=this.value;tpGravar();tpContar();">${uiEsc(TP.r.escrita||'')}</textarea>
+              <div class="tp-meta" style="margin-top:8px"><span id="tp-conta">${String(TP.r.escrita||'').length} caracteres</span>
+                <span>o bom costuma ter de 3 a 6 linhas</span></div>`;
+          }
+
+          const primeiro=TP.etapa===0, ultimo=TP.etapa===TAL_ETAPAS.length-1;
+          const podeAvancar = e.k!=='lgpd' || TP.r.aceite;
+          box.innerHTML=tpTopo()+corpo+`<div class="tp-acts">
+            <button class="btn btn-ghost" onclick="${primeiro?'tpSair()':'tpIr('+(TP.etapa-1)+')'}">
+              ${primeiro?'Deixar para depois':'Voltar'}</button>
+            ${ultimo
+              ? `<button class="btn btn-gold" onclick="tpEnviar()">Terminar e enviar</button>`
+              : `<button class="btn btn-gold" ${podeAvancar?'':'disabled'} onclick="tpIr(${TP.etapa+1})">
+                   ${podeAvancar?'Continuar':'Marque o combinado para seguir'}</button>`}
+          </div>`;
+        }
+
+        function tpContar(){
+          const el=document.getElementById('tp-conta');
+          if(el) el.textContent=String(TP.r.escrita||'').length+' caracteres';
+        }
+
+        function tpSair(){
+          tpGravar();
+          cadSucesso('Cadastro enviado, testes guardados',
+            'O seu cadastro já está com a gestão. Os testes ficaram salvos neste navegador: '
+            +'abra o mesmo link e você volta de onde parou. Quem completa os testes é avaliado primeiro.');
+        }
+
+        function tpEnviar(){
+          tpGravar();
+          const feitas=TAL_ETAPAS.reduce((a,e)=>a+tpFeitasNa(e.k),0);
+          const total=TAL_ETAPAS.reduce((a,e)=>a+tpTotalDa(e.k),0);
+          if(feitas<total*0.8 && !confirm('Você respondeu '+feitas+' de '+total+'.\n\n'
+            +'Dá para enviar assim, mas quem responde tudo é avaliado primeiro. Enviar mesmo assim?')) return;
+          const k=DB.candidatos.find(x=>x.id===TP.cand);
+          if(k){
+            k.testes=Object.assign({}, TP.r, {fim:new Date().toISOString(), segundos:TP.r.segundos||0});
+            redeSalvar();
+            if(typeof notify==='function'){
+              const ind=talIndice(k);
+              notify('equipe','◈ '+k.nome+' terminou os testes',
+                'Índice '+ind.indice+' de 100 · '+ind.rec+'. '+ind.porque,'talentos');
+            }
+          }
+          try{ localStorage.removeItem(TAL_RASCUNHO); }catch(e){}
+          cadSucesso('Pronto, obrigada!',
+            'As suas respostas chegaram. A gestão avalia e entra em contato pelo WhatsApp que você '
+            +'informou, aprovada ou não. Se for aprovada, você recebe o contrato e passa a ver as demandas.');
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           O BANCO DE TALENTOS, DO LADO DELA
+
+           A tela responde uma pergunta só: quem vale a minha hora de
+           entrevista, e por quê. Por isso o índice vem grande, a
+           recomendação vem escrita, e o laudo abre embaixo com o que
+           perguntar na conversa.
+
+           Só a administração entra aqui. Quem não é dona não vê perfil de
+           candidato nem resposta de teste.
+           ═══════════════════════════════════════════════════════════════ */
+
+        let TAL={aberto:null, ordem:'indice', filtro:'', escopo:'', liberados:{}};
+        try{ TAL.liberados=JSON.parse(localStorage.getItem('af_tal_liberados')||'{}'); }catch(e){}
+
+        function talCor(i){
+          if(i>=75) return 'var(--ok)';
+          if(i>=58) return 'var(--warn)';
+          return 'var(--bad)';
+        }
+        function talAbrir(id){ TAL.aberto=TAL.aberto===id?null:id; talRender(); }
+        function talOrdenar(v){ TAL.ordem=v; talRender(); }
+        function talFiltrar(campo,v){ TAL[campo]=v; talRender(); }
+
+        /** Ela autoriza, caso a caso, revelar um dado sensível que a
+            pessoa escreveu sozinha. Fica registrado, porque autorização
+            sem registro não vale nada numa auditoria. */
+        function talLiberarSensivel(id){
+          const k=DB.candidatos.find(x=>x.id===id); if(!k) return;
+          const achados=talSensivel(k);
+          if(!confirm('Revelar o dado sensível que '+k.nome+' escreveu?\n\n'
+            +'Tipo: '+[...new Set(achados.map(a=>a.l))].join(', ')+'\n\n'
+            +'Isto NÃO torna o dado utilizável na seleção: continua proibido decidir com base nele. '
+            +'A autorização serve para você ler e decidir o que fazer, e fica registrada com o seu nome.')) return;
+          TAL.liberados[id]={por:(AUTH.user&&AUTH.user.nome)||'gestão', em:new Date().toISOString()};
+          try{ localStorage.setItem('af_tal_liberados', JSON.stringify(TAL.liberados)); }catch(e){}
+          if(typeof docRegistrar==='function')
+            docRegistrar('talento.sensivel.liberar','revelou dado sensível de '+k.nome);
+          talRender();
+        }
+
+        function talBarra(l, nota, cor){
+          return `<span class="tal-b">${l}<i><span style="width:${Math.max(2,nota)}%;background:${cor}"></span></i>
+            <em>${nota}</em></span>`;
+        }
+
+        /** O laudo de uma pessoa, aberto embaixo da linha. */
+        function talLaudo(k, ind, media){
+          const d=ind.disc, pf=TAL_DISC_PERFIL[d.dominante]||{};
+          const liberado=!!TAL.liberados[k.id];
+          const sens=ind.sensivel;
+          const cmp=(nota,ref)=>ref==null?'':`<span style="color:${nota>=ref?'var(--ok)':'var(--ink-faint)'}">
+            ${nota>=ref?'+':''}${nota-ref} vs média</span>`;
+
+          return `<div class="tal-laudo">
+            ${sens.length?`<div class="tal-alerta">
+              <div class="t">⚖ Dado sensível escrito pela própria pessoa</div>
+              <div class="s">Ela mencionou <b>${uiEsc([...new Set(sens.map(a=>a.l))].join(', '))}</b> num campo aberto.
+                Isso é dado sensível pela LGPD e não pode entrar na decisão de contratar, nem ser repassado a
+                terceiro. O trecho está oculto${liberado?', e você autorizou revelar em '
+                  +new Date(TAL.liberados[k.id].em).toLocaleString('pt-BR'):''}.
+                ${liberado?'':'<br><br><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();talLiberarSensivel(\''+k.id+'\')">Autorizar e revelar para mim</button>'}
+              </div></div>`:''}
+
+            <div class="tal-grid">
+              <div class="tal-cx">
+                <h5>De onde vem o índice ${ind.indice}</h5>
+                <div class="tal-barras">
+                  ${ind.partes.map(pt=>talBarra(pt.l+' <small>('+pt.peso+'%)</small>', pt.nota, talCor(pt.nota))).join('')}
+                </div>
+                ${media?`<p style="font-size:11.5px;color:var(--ink-faint);margin-top:12px;line-height:1.6">
+                  Média do banco: <b>${media.indice}</b> em ${media.n} pessoa${media.n>1?'s':''}.
+                  Esta está <b style="color:${ind.indice>=media.indice?'var(--ok)':'var(--bad)'}">
+                  ${ind.indice>=media.indice?'acima':'abaixo'}</b> em ${Math.abs(ind.indice-media.indice)} pontos.</p>`:''}
+              </div>
+
+              <div class="tal-cx">
+                <h5>Perfil ${uiEsc(d.perfil||'não respondeu')}</h5>
+                <div class="tal-disc">
+                  ${['D','I','S','C'].map(x=>{const q=TAL_DISC_PERFIL[x];
+                    return `<div><b style="color:${q.cor}">${d.pct[x]}%</b>
+                      <i><em style="width:${d.pct[x]}%;background:${q.cor}"></em></i>
+                      <span>${q.ic} ${uiEsc(q.l)}</span></div>`;}).join('')}
+                </div>
+                ${pf.forte?`<ul class="tal-lista" style="margin-top:14px">
+                  <li><b>Onde brilha:</b> ${uiEsc(pf.forte)}</li>
+                  <li><b>Onde quebra:</b> ${uiEsc(pf.risco)}</li>
+                  <li><b>Como liderar:</b> ${uiEsc(pf.lider)}</li>
+                  ${ind.encaixe.nota!==null?`<li><b>Encaixe no escopo:</b> ${ind.encaixe.nota} de 100
+                    · o escopo pede ${uiEsc(ind.encaixe.obs||'')}</li>`:''}
+                </ul>`:''}
+              </div>
+
+              <div class="tal-cx">
+                <h5>Valores da casa</h5>
+                <div class="tal-barras">
+                  ${TAL_VALORES.map(v=>{
+                    const nf=ind.fit.porValor[v.k], ns=ind.sjt.porValor[v.k];
+                    const n=nf===undefined?ns:(ns===undefined?nf:Math.round((nf+ns)/2));
+                    return n===undefined?'':talBarra(uiEsc(v.l), n, talCor(n));
+                  }).join('')}
+                </div>
+                <p style="font-size:11.5px;color:var(--ink-faint);margin-top:12px;line-height:1.6">
+                  Coerência das respostas: <b style="color:${ind.fit.coerencia>=60?'var(--ok)':'var(--bad)'}">
+                  ${ind.fit.coerencia}%</b>. Abaixo de 60 costuma ser gente respondendo o que soa bonito.</p>
+              </div>
+
+              <div class="tal-cx">
+                <h5>O que move esta pessoa</h5>
+                <ul class="tal-lista">
+                  ${ind.mot.eixos.slice(0,3).map(x=>`<li><b>${uiEsc(x.l)} · ${x.nota}</b><br>
+                    ${uiEsc(x.d)}. Para liderar: ${uiEsc(x.lider)}.</li>`).join('')}
+                </ul>
+              </div>
+
+              <div class="tal-cx" style="grid-column:1 / -1">
+                <h5>Escrita, do jeito que ela escreveu</h5>
+                ${ind.escrita.respondida
+                  ? `<div class="tal-texto">${talMascarar(ind.escrita.texto, sens, liberado)}</div>
+                     <div class="tal-sinais">${ind.escrita.sinais.map(sg=>
+                       `<span class="tal-sinal ${sg.ok?'':'nao'}">${sg.ok?'✓':'✕'} ${uiEsc(sg.l)}</span>`).join('')}</div>`
+                  : '<p style="color:var(--bad);font-size:13px">Deixou em branco. O negócio é documento, e texto é o trabalho.</p>'}
+              </div>
+
+              ${k.experiencia?`<div class="tal-cx" style="grid-column:1 / -1">
+                <h5>O que ela contou da experiência</h5>
+                <div class="tal-texto">${talMascarar(k.experiencia, sens, liberado)}</div>
+              </div>`:''}
+
+              <div class="tal-cx" style="grid-column:1 / -1">
+                <h5>O que perguntar na entrevista</h5>
+                ${ind.perguntas.length?ind.perguntas.map(q=>`<div class="tal-perg">
+                  <div class="tm">${uiEsc(q.tema)} · ${q.nota}</div>
+                  <div class="qq">${uiEsc(q.q)}</div></div>`).join('')
+                  :'<p style="font-size:13px;color:var(--ink-soft)">Nada de baixo para checar. Use a entrevista para vender a empresa e combinar escopo, prazo e valor.</p>'}
+              </div>
+
+              ${ind.bandeiras.length?`<div class="tal-cx" style="grid-column:1 / -1">
+                <h5>Bandeiras</h5>
+                <ul class="tal-lista">${ind.bandeiras.map(b=>`<li>
+                  <b style="color:${b.c==='mal'?'var(--bad)':b.c==='lei'?'#5b34a8':'var(--warn)'}">${uiEsc(b.l)}.</b>
+                  ${uiEsc(b.d)}</li>`).join('')}</ul>
+              </div>`:''}
+            </div>
+
+            <div class="dm-acts" style="margin-top:18px">
+              <button class="btn btn-gold btn-sm" onclick="event.stopPropagation();talConvidar('${k.id}')">Convidar para entrevista</button>
+              <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();candAprovar('${k.id}')">Aprovar e criar acesso</button>
+              <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();talLaudoDoc('${k.id}')">Abrir o laudo completo</button>
+              <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();candZap('${k.id}')">WhatsApp</button>
+              <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();candRecusar('${k.id}')">Não agora</button>
+            </div>
+          </div>`;
+        }
+
+        /** Convite de entrevista pelo WhatsApp, com data combinada. */
+        function talConvidar(id){
+          const k=DB.candidatos.find(x=>x.id===id); if(!k) return;
+          const quando=prompt('Quando é a entrevista?\n\nEscreva do jeito que vai aparecer na mensagem.\n'
+            +'Ex.: quinta, 14 de agosto, às 15h, por videochamada','');
+          if(!quando) return;
+          k.entrevista={quando, marcadaEm:new Date().toISOString(),
+                        por:(AUTH.user&&AUTH.user.nome)||'gestão'};
+          k.status='entrevista'; redeSalvar();
+          if(typeof docRegistrar==='function') docRegistrar('talento.entrevista','convidou '+k.nome);
+          const msg='Olá '+String(k.nome).split(' ')[0]+'! Aqui é '+((AUTH.user&&AUTH.user.nome)||'a gestão')
+            +', do Grupo A! Fatorial. Recebemos o seu cadastro e os testes, e gostamos do que vimos. '
+            +'Podemos conversar '+quando+'? Se esse horário não der, me diga dois que deem para você.';
+          const num=String(k.tel||'').replace(/\D/g,'');
+          if(num) window.open('https://wa.me/'+(num.length<=11?'55'+num:num)+'?text='+encodeURIComponent(msg),'_blank');
+          else alert('Sem WhatsApp cadastrado. Mensagem sugerida:\n\n'+msg);
+          talRender();
+        }
+
+        /** O laudo vira documento no servidor, com carimbo e sem download. */
+        function talLaudoDoc(id){
+          const k=DB.candidatos.find(x=>x.id===id); if(!k) return;
+          const ind=talIndice(k), liberado=!!TAL.liberados[k.id];
+          const linha=(l,v)=>'<tr><td>'+uiEsc(l)+'</td><td class="n">'+v+'</td></tr>';
+          const corpo='<p>Laudo de avaliação de '+uiEsc(k.nome)+', gerado a partir da bateria de testes '
+            +'respondida em '+(k.testes&&k.testes.fim?new Date(k.testes.fim).toLocaleDateString('pt-BR'):'data não registrada')+'.</p>'
+            +'<div class="destaque"><b>Índice '+ind.indice+' de 100 · '+uiEsc(ind.rec)+'.</b> '+uiEsc(ind.porque)+'</div>'
+            +'<h2>As notas</h2><table><tr><th>Prova</th><th>Nota</th></tr>'
+            +ind.partes.map(pt=>linha(pt.l+' (peso '+pt.peso+'%)', pt.nota)).join('')+'</table>'
+            +'<h2>Perfil comportamental</h2><p>Perfil <b>'+uiEsc(ind.disc.perfil||'não respondido')+'</b>. '
+            +['D','I','S','C'].map(x=>TAL_DISC_PERFIL[x].l+' '+ind.disc.pct[x]+'%').join(', ')+'.</p>'
+            +(TAL_DISC_PERFIL[ind.disc.dominante]?'<p>Onde brilha: '+uiEsc(TAL_DISC_PERFIL[ind.disc.dominante].forte)
+              +'. Onde quebra: '+uiEsc(TAL_DISC_PERFIL[ind.disc.dominante].risco)+'.</p>':'')
+            +'<h2>O que perguntar na entrevista</h2><ol>'
+            +ind.perguntas.map(q=>'<li>'+uiEsc(q.q)+'</li>').join('')+'</ol>'
+            +(ind.bandeiras.length?'<h2>Bandeiras</h2><ul>'
+              +ind.bandeiras.map(b=>'<li><b>'+uiEsc(b.l)+'.</b> '+uiEsc(b.d)+'</li>').join('')+'</ul>':'')
+            +'<h2>Escrita</h2><p>'+(ind.escrita.respondida
+              ? talMascarar(ind.escrita.texto, ind.sensivel, liberado) : 'Deixou em branco.')+'</p>'
+            +'<div class="destaque">Este laudo avalia apenas comportamento de trabalho e conhecimento aplicado. '
+            +'Nenhum critério de idade, estado civil, filhos, religião, política, saúde, deficiência, cor, '
+            +'origem, sindicato ou antecedentes foi coletado ou usado.</div>';
+          if(typeof docPublicar==='function')
+            docPublicar({tipo:'laudo', titulo:'Avaliação de '+k.nome, corpo, estilo:CSS_LISTA});
+        }
+
+        function talRender(){
+          const box=document.getElementById('tal-body'); if(!box) return;
+          const todos=(DB.candidatos||[]).filter(k=>k.status!=='recusado');
+          const media=talMedia();
+          const comTeste=todos.filter(k=>k.testes&&k.testes.fim);
+          const semTeste=todos.filter(k=>!k.testes||!k.testes.fim);
+
+          let lista=todos.map(k=>({k, ind:talIndice(k)}));
+          if(TAL.filtro){
+            const q=TAL.filtro.toLowerCase();
+            lista=lista.filter(x=>(x.k.nome||'').toLowerCase().includes(q)
+              || (x.k.cidade||'').toLowerCase().includes(q));
+          }
+          if(TAL.escopo) lista=lista.filter(x=>(x.k.escopos||[]).includes(TAL.escopo));
+          lista.sort((a,b)=> TAL.ordem==='nome' ? String(a.k.nome).localeCompare(String(b.k.nome))
+                           : TAL.ordem==='novos' ? String(b.k.em||'').localeCompare(String(a.k.em||''))
+                           : b.ind.indice-a.ind.indice);
+
+          const entrevistar=lista.filter(x=>x.ind.rec.indexOf('Entrevistar')===0).length;
+
+          uiStatsRender(document.getElementById('tal-stats'), [
+            {cor:'var(--kb-c3)', ic:'★', label:'Valem a entrevista', valor:entrevistar,
+             pe:entrevistar?'índice 75 ou mais':'ninguém passou de 75 ainda'},
+            {cor:'var(--kb-ouro)', ic:'◈', label:'Fizeram os testes', valor:comTeste.length+'/'+todos.length,
+             pe:semTeste.length?semTeste.length+' só se cadastraram':'todo mundo respondeu'},
+            {cor:'var(--kb-c5)', ic:'▤', label:'Média do banco', valor:media?media.indice:'·',
+             pe:media?'de '+media.n+' avaliações':'sem base ainda'},
+            {cor:'var(--kb-c8)', ic:'⚖', label:'Com dado sensível',
+             valor:lista.filter(x=>x.ind.sensivel.length).length, pe:'ocultos até você autorizar'}
+          ]);
+
+          document.getElementById('tal-hero').innerHTML=uiHero({
+            eyebrow:'◱ Banco de talentos · sete provas, um índice',
+            titulo: entrevistar?'<b>'+entrevistar+'</b> pessoa'+(entrevistar>1?'s valem':' vale')+' a sua hora.'
+                  : comTeste.length?'Ninguém passou de <b>75</b> ainda.'
+                  : 'Ninguém respondeu os testes <b>ainda</b>.',
+            texto:'A sua hora de entrevista é o recurso mais caro da empresa. Cada pessoa responde sete provas, '
+              +'e o índice diz quem merece essa hora: julgamento em situação real pesa mais, porque é o que '
+              +'mostra o que a pessoa faz, não o que ela diz que é. Abra qualquer linha para ver o laudo e '
+              +'as perguntas certas para a conversa.',
+            acoes:['<button class="btn btn-gold btn-sm" onclick="cadLinkCopiar()">Link de cadastro e testes</button>',
+                   '<button class="btn btn-ghost btn-sm" onclick="go(\'rede\')">Rede de prestadores</button>'],
+            donut:{pct: todos.length?Math.round(comTeste.length/todos.length*100):0,
+                   valor:comTeste.length+'/'+todos.length, label:'testaram'}
+          });
+
+          const linha=(x)=>{
+            const {k, ind}=x, aberta=TAL.aberto===k.id;
+            const graves=ind.bandeiras.filter(b=>b.c==='mal');
+            return `<div class="tal-l ${aberta?'aberta':''}" onclick="talAbrir('${k.id}')">
+              <span class="tal-ind" style="background:${ind.cor}">${ind.feitas?ind.indice:'·'}</span>
+              <span class="tal-nm"><b>${uiEsc(k.nome)}</b>
+                <span>${uiEsc(ind.rec)} · ${uiEsc(ind.porque)}</span>
+                <span class="esc">${uiEsc((k.escopos||[]).map(e=>escopoDe(e).l).join(' · ')||'sem escopo')}${k.cidade?' · '+uiEsc(k.cidade):''}</span>
+              </span>
+              <span class="tal-barras">
+                ${ind.feitas?ind.partes.slice(0,4).map(pt=>talBarra(pt.l.split(' ')[0], pt.nota, talCor(pt.nota))).join('')
+                  :'<span style="font-size:12px;color:var(--ink-faint)">ainda não respondeu</span>'}
+              </span>
+              <span class="tal-bandeiras">
+                ${k.entrevista?`<span class="tal-fl" style="background:var(--info-bg);color:var(--info)">entrevista marcada</span>`:''}
+                ${graves.slice(0,2).map(b=>`<span class="tal-fl mal">${uiEsc(b.l)}</span>`).join('')}
+                ${ind.sensivel.length?'<span class="tal-fl lei">dado sensível</span>':''}
+                ${(!graves.length&&!ind.sensivel.length&&ind.feitas)?'<span class="tal-fl" style="background:var(--ok-bg);color:var(--ok)">sem bandeira</span>':''}
+              </span>
+              <span style="color:var(--ink-faint);font-size:18px">${aberta?'▴':'▾'}</span>
+            </div>${aberta?talLaudo(k, ind, media):''}`;
+          };
+
+          box.innerHTML=`<div class="card">
+            <div class="tal-filtros">
+              <input class="inp-sm" placeholder="Buscar por nome ou cidade" value="${uiEsc(TAL.filtro)}"
+                oninput="talFiltrar('filtro',this.value)">
+              <select class="inp-sm" onchange="talFiltrar('escopo',this.value)">
+                <option value="">Todo escopo</option>
+                ${ESCOPOS.map(e=>`<option value="${e.k}"${TAL.escopo===e.k?' selected':''}>${uiEsc(e.l)}</option>`).join('')}
+              </select>
+              <select class="inp-sm" onchange="talOrdenar(this.value)">
+                <option value="indice"${TAL.ordem==='indice'?' selected':''}>Maior índice primeiro</option>
+                <option value="novos"${TAL.ordem==='novos'?' selected':''}>Mais recentes</option>
+                <option value="nome"${TAL.ordem==='nome'?' selected':''}>Nome</option>
+              </select>
+              <span style="margin-left:auto;font-size:12px;color:var(--ink-soft)">${lista.length} pessoa${lista.length===1?'':'s'}</span>
+            </div>
+            ${lista.length?lista.map(linha).join('')
+              :`<div class="tal-vazio"><b>Ninguém no banco ainda.</b><br>
+                Copie o link de cadastro e mande no Instagram ou no WhatsApp.<br>
+                Quem se cadastra já cai direto nos testes, e o índice aparece aqui quando terminar.</div>`}
+          </div>
+
+          <div class="card">
+            <div class="card-h">Como o índice é montado, e o que ele não faz</div>
+            <div class="tal-grid">
+              <div class="tal-cx"><h5>Os pesos</h5><ul class="tal-lista">
+                ${[['Julgamento situacional',TAL_PESOS.sjt,'o que mais prevê desempenho: mostra o que a pessoa faz, não o que diz'],
+                   ['Fit cultural',TAL_PESOS.fit,'contra os valores da casa, com itens invertidos para pegar resposta ensaiada'],
+                   ['Números aplicados',TAL_PESOS.num,'margem, markup e leitura de tabela, que é o que aparece no laudo'],
+                   ['Atenção ao detalhe',TAL_PESOS.det,'erro que chega ao cliente custa mais que o serviço'],
+                   ['Encaixe no escopo',TAL_PESOS.disc,'distância entre o perfil dela e o que a função pede'],
+                   ['Escrita',TAL_PESOS.escrita,'sinais objetivos apenas: o texto quem lê é você']]
+                  .map(([l,pp,d])=>`<li><b>${l} · ${pp}%</b><br>${d}</li>`).join('')}
+              </ul></div>
+              <div class="tal-cx"><h5>O que o índice não faz</h5><ul class="tal-lista">
+                <li><b>Não contrata sozinho.</b> Ele ordena a fila da sua agenda, e nada mais.</li>
+                <li><b>Não reprova por perfil.</b> DISC é encaixe, não nota: perfil distante vira pergunta na entrevista.</li>
+                <li><b>Não julga o texto.</b> A escrita entra com sinais objetivos; o conteúdo você lê.</li>
+                <li><b>Não usa dado proibido.</b> Idade, estado civil, filhos, religião, política, saúde, deficiência, cor, origem, sindicato e antecedentes não são perguntados nem entram na conta.</li>
+              </ul></div>
+              <div class="tal-cx"><h5>O que a lei exige, e está feito</h5><ul class="tal-lista">
+                <li><b>Consentimento antes.</b> A pessoa marca que leu e concorda, e pode parar quando quiser.</li>
+                <li><b>Finalidade escrita.</b> As respostas servem para decidir quem é convidado a conversar.</li>
+                <li><b>Prazo.</b> Guardadas por 12 meses, depois apagadas.</li>
+                <li><b>Dado sensível escrito por acaso</b> fica oculto e só aparece com a sua autorização, que fica registrada.</li>
+              </ul></div>
+            </div>
+          </div>`;
+        }
+
         /* ═══ TELA: REDE DE PRESTADORES ═══ */
         function prestRender(){
           let box=document.getElementById('rede-body'); if(!box) return;
@@ -19987,6 +21218,7 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         function cadTipo(t){ _cadTipo=t; cadRender(); }
         function cadRender(){
           let box=document.getElementById('cad-corpo'); if(!box) return;
+          document.getElementById('cad-seg').style.display='';
           document.getElementById('cad-seg').innerHTML=`
             <button class="${_cadTipo==='prestador'?'on':''}" onclick="cadTipo('prestador')">Quero prestar serviço</button>
             <button class="${_cadTipo==='empresa'?'on':''}" onclick="cadTipo('empresa')">Quero enviar demandas</button>`;
@@ -20061,9 +21293,13 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
             escopos:_cadEscopos.slice(), disponibilidade:Number(document.getElementById('cd-disp').value)||20,
             experiencia:g('cd-exp'), portfolio:g('cd-port'), status:'novo', em:new Date().toISOString()
           });
+          const novoId='K'+(_cdSeq-1), quantas=_cadEscopos.length;
           _cadEscopos=[]; redeSalvar();
-          if(typeof notify==='function') notify('equipe','👋 Novo cadastro de prestador', g('cd-nome')+' quer entrar na rede · '+_cadEscopos.length+' áreas. Avalie em Rede de prestadores.','rede');
-          cadSucesso('Cadastro enviado!','Recebemos seus dados. A gestão avalia e entra em contato pelo WhatsApp que você informou. Se aprovado, você recebe o contrato por e-mail e começa a ver as demandas disponíveis.');
+          if(typeof notify==='function') notify('equipe','👋 Novo cadastro de prestador', g('cd-nome')+' quer entrar na rede · '+quantas+' áreas. Avalie em Rede de prestadores.','rede');
+          /* O cadastro sozinho não separa quem vale a hora de entrevista.
+             Emenda direto na prova, enquanto a pessoa ainda está aqui:
+             mandar link depois é perder metade das pessoas no caminho. */
+          tpAbrir(novoId);
         }
         function cadEnviarEmpresa(){
           const g=(k)=>(document.getElementById(k).value||'').trim();

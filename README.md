@@ -1730,3 +1730,81 @@ fazer a governança também"*.
      `para`, e quem cria o documento manda `telefone`. Quem fosse ligar a
      tela usaria o nome errado e o guarda não dispararia. Passou a aceitar
      os dois.
+
+## Sete provas para saber quem vale a entrevista · versão 1008.04
+
+Pedido dela: *"os testes crie mais para me apontar quem vale a pena
+entrevistar, disc, fit cultural, faça vários e inclua indicadores"*.
+
+214. **O problema é a hora dela, não o cadastro.** O formulário público já
+     recebia nome, escopo e um texto de experiência, e isso não separa
+     quem merece uma hora de entrevista de quem não merece. Agora quem se
+     cadastra emenda direto em sete provas, e sai de lá com um número.
+
+215. **Julgamento situacional é a prova que mais pesa,** 32% do índice.
+     Dez cenários tirados da operação real: o número errado descoberto na
+     sexta à noite, a amiga que pergunta do cliente, o desconto pedido sem
+     conta feita, a colega que atrasa, o cliente com pressa querendo pular
+     etapa, e o documento que dá vontade de baixar no computador pessoal.
+     É o único teste que mostra o que a pessoa **faz**, e não o que ela
+     diz que é.
+
+216. **O fit cultural é contra os valores da casa,** tirados do material
+     dela e não inventados: método acima de improviso, dado antes de
+     opinião, dono do que pegou, sigilo como reflexo, o cliente sai melhor
+     do que entrou, conversa difícil na hora. Sete das catorze frases
+     afirmam o contrário das outras de propósito: quem responde o que soa
+     bonito concorda com as duas e cai na medida de coerência.
+
+217. **DISC é encaixe, não nota.** Catorze blocos de quatro palavras. O
+     que vira indicador é a distância entre o perfil da pessoa e o que o
+     escopo pede, e cada escopo pede um perfil diferente: comercial quer
+     porta que abre, administrativo quer exatidão, consultoria quer laudo
+     defensável com conversa difícil. Perfil distante não reprova, vira
+     pergunta na entrevista.
+
+218. **Números aplicados e atenção ao detalhe** são as duas provas de
+     ofício. A primeira tem margem, markup, giro, ponto de equilíbrio e o
+     efeito de um desconto na margem, que é a conta que aparece nos laudos
+     dela. A segunda pede para achar o erro: soma que não fecha, vigência
+     que termina antes de começar, pizza que soma 101% e e-mail com uma
+     letra a menos.
+
+219. **Motivadores não reprovam ninguém.** Autonomia, resultado,
+     segurança, domínio, reconhecimento e causa. Serve para ela saber como
+     liderar cada uma e o que faria a pessoa querer sair.
+
+220. **A escrita o sistema não julga, só instrumenta.** A pessoa reescreve
+     uma mensagem ruim para um cliente, e o sistema levanta sinais
+     objetivos: abriu com saudação, marcou próximo passo com data, não usou
+     abreviação de recado, não copiou o enunciado. O texto quem lê é ela,
+     porque julgar texto é trabalho de gente.
+
+221. **As bandeiras são o que faz o índice ser honesto.** Parou no meio,
+     respostas incoerentes, rápido demais (menos de quatro segundos por
+     questão não dá tempo de ler), escrita em branco, sigilo frouxo, não
+     assume o que pega, perfil distante do escopo. Bandeira não reprova
+     sozinha, aparece.
+
+222. **A entrevista já vem com as perguntas certas.** Saem das notas mais
+     baixas e das bandeiras, para a conversa atacar a dúvida em vez de
+     repetir o currículo.
+
+223. **O que a lei não deixa perguntar não é perguntado.** Idade, estado
+     civil, filhos, religião, posição política, saúde, deficiência, cor,
+     origem, sindicato e antecedentes ficaram de fora, porque no Brasil
+     isso é dado sensível pela LGPD e boa parte é discriminação vedada na
+     seleção. E se a pessoa escrever algo assim por conta própria num campo
+     aberto, o trecho fica **oculto** no laudo e só aparece com a
+     autorização dela, que fica registrada com nome e hora. A autorização
+     serve para ela ler e decidir, e a tela diz na cara que continua
+     proibido decidir com base naquilo.
+
+224. **A pessoa sabe o combinado antes de começar.** Tempo estimado, o que
+     é perguntado, o que não é, para que serve, quanto tempo fica guardado
+     (12 meses) e o direito de ver, corrigir ou apagar. Ela marca que leu, e
+     sem isso a prova não avança.
+
+225. **Ninguém perde o que respondeu.** Cada resposta é gravada na hora, e
+     quem fecha o navegador no meio volta de onde parou, porque quem
+     recomeça não termina.
