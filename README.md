@@ -1808,3 +1808,80 @@ entrevistar, disc, fit cultural, faça vários e inclua indicadores"*.
 225. **Ninguém perde o que respondeu.** Cada resposta é gravada na hora, e
      quem fecha o navegador no meio volta de onde parou, porque quem
      recomeça não termina.
+
+## Importar leads, currículo, os três desfechos e o histórico · versão 1008.05
+
+*"faça tudo agora"*. Os quatro itens que restavam da lista dela.
+
+226. **Importar lista de leads, em três passos, e o do meio é o que evita
+     o estrago.** Cola ou sobe o CSV, confere, distribui. As colunas são
+     reconhecidas escritas de qualquer jeito, o telefone sai normalizado
+     com código do país e o valor é lido no formato brasileiro. A
+     conferência mostra, linha a linha e com o motivo escrito: sem nome,
+     sem contato, telefone quebrado, e-mail inválido, repetido dentro da
+     própria lista e repetido na base. Importar sem conferir é exatamente
+     como uma base de contato apodrece.
+
+227. **A distribuição é dela, não do sistema.** Pessoa por pessoa, na
+     quantidade que ela escolher, com atalho de dividir igual. O que não
+     for distribuído cai no painel livre de propósito: lead parado com
+     dono é pior do que lead na fila. Só aparece para receber quem tem
+     contrato assinado, porque sem contrato a pessoa não pode representar
+     nada.
+
+228. **Currículo que não vira arquivo no computador de ninguém.** Mesma
+     regra do documento de cliente, pelo mesmo motivo: é dado pessoal de
+     quem confiou na empresa. A pessoa anexa no cadastro, o arquivo vive
+     no servidor, a dona abre por endereço e a abertura entra na trilha.
+     Não existe rota de baixar.
+
+229. **O tipo é conferido pela assinatura do arquivo, não pelo nome.**
+     Renomear um executável para .pdf engana a extensão, não os primeiros
+     bytes. E o servidor entrega inline, com `no-store`, para não sobrar
+     no disco de quem leu.
+
+230. **O limite de 6 MB que a tela promete era mentira, e virou verdade.**
+     Base64 engorda o arquivo em um terço, então um PDF de 6 MB chegava
+     como 8 MB de corpo e o próprio Express recusava antes de o módulo
+     conseguir explicar o motivo. O limite da rota do currículo subiu para
+     10 MB, e agora o número que aparece na tela é o número real.
+
+231. **Os três desfechos da seleção saem sozinhos.** Convite de
+     entrevista, aprovado e não aprovado viraram eventos do motor de
+     obrigações. O que dói de verdade não é o aprovado: é o NÃO aprovado,
+     que quase nunca é mandado, e a pessoa que gastou meia hora
+     respondendo teste fica esperando resposta que não vem. Agora o
+     retorno tem prazo de uma hora e quem manda é o servidor.
+
+232. **A recusa é decente por construção.** Sem "infelizmente", sem
+     promessa vaga, sem o motivo real (que cria discussão e, dependendo
+     do que for, cria processo). Diz o que aconteceu, diz que o cadastro
+     fica, agradece o tempo e oferece apagar os dados. O motivo que ela
+     escreve fica só no sistema, para lembrar numa próxima.
+
+233. **Um defeito silencioso do motor de obrigações, achado por acidente.**
+     Uma regra que o servidor cumpre sozinho executava no nascimento,
+     sempre. Isso significa que a confirmação de agenda "24 horas antes"
+     saía no instante em que a reunião era marcada, três semanas
+     adiantada, e a de verdade nunca saía. Agora existem dois tipos: o que
+     tem prazo faz agora, e o que tem hora marcada fica agendado e é
+     disparado pela varredura na hora certa.
+
+234. **E outro que derrubava a requisição inteira.** Uma agenda escrita
+     por gente ("quinta, 14 de agosto, às 15h") vira Invalid Date, e o
+     `toISOString` disso lança. Data escrita por humano não pode matar o
+     motor: sem data legível a obrigação nasce com prazo contado de agora,
+     e quando a regra depende de uma âncora que não existe ela fica aberta
+     para uma pessoa, com o motivo escrito, em vez de disparar um lembrete
+     junto com o convite.
+
+235. **Gente boa volta, e o banco passou a saber disso.** Cada bateria
+     respondida vira uma avaliação datada. Quem se cadastra de novo é
+     reconhecida pelo documento, e-mail ou WhatsApp, e as duas fichas
+     viram uma só, com o currículo antigo preservado se o novo não veio.
+
+236. **A evolução em uma frase.** "Subiu 46 pontos em 8 meses. Gente que
+     melhora é gente que aprende." E a tabela mostra índice, recomendação,
+     perfil e o escopo de cada época, porque a pessoa que se candidatou
+     para o administrativo há oito meses pode estar se candidatando para
+     consultoria hoje, e isso diz mais do que a nota.

@@ -101,6 +101,34 @@ const REGRAS = {
   'documento.enviado': [
     { o: 'Cliente abrir o documento', prazo: 72, cobra: 24, escala: 48,
       prova: 'documento.aberto', deQuem: 'cliente' }
+  ],
+
+  /* ── seleção ──
+     Pedido dela: "receber a comunicação de agenda de entrevista, aprovado
+     ou não aprovado". O que dói de verdade não é o aprovado: é o NÃO
+     aprovado, que quase nunca é mandado. A pessoa gastou meia hora
+     respondendo teste e fica esperando resposta que nunca vem, e isso é
+     a empresa queimando a própria marca com quem um dia pode voltar.
+     Aqui o retorno é obrigação do processo, e o servidor manda sozinho. */
+  'candidato.entrevista': [
+    { o: 'Avisar a pessoa da entrevista', prazo: 1, sozinho: 'selecao.entrevista',
+      prova: 'mensagem.enviada' },
+    { o: 'Lembrar a pessoa da entrevista', antes: 24, sozinho: 'selecao.lembrete',
+      prova: 'mensagem.enviada' },
+    { o: 'Dar o retorno depois da entrevista', depois: 48, cobra: 12, escala: 48,
+      prova: 'selecao.decidida' }
+  ],
+  'candidato.aprovado': [
+    { o: 'Avisar que foi aprovada', prazo: 1, sozinho: 'selecao.aprovado',
+      prova: 'mensagem.enviada' },
+    { o: 'Enviar o contrato de prestação', prazo: 48, cobra: 12, escala: 24,
+      prova: 'documento.enviado', alvo: 'contrato' }
+  ],
+  'candidato.reprovado': [
+    /* prazo de uma hora e feito pelo servidor: é o único jeito de isso
+       não depender de alguém ter coragem de dar a notícia */
+    { o: 'Avisar que não seguiu desta vez', prazo: 1, sozinho: 'selecao.reprovado',
+      prova: 'mensagem.enviada' }
   ]
 };
 
@@ -115,10 +143,20 @@ function acontecer(evento, ctx, executor) {
   const nascidas = [];
   regras.forEach(r => {
     /* `antes` é relativo ao horário do evento agendado (confirmar 24h
-       antes da reunião); `prazo` e `depois` são relativos a agora. */
+       antes da reunião); `prazo` e `depois` são relativos a agora.
+
+       `quando` pode chegar como texto de gente ("quinta, 14 de agosto,
+       às 15h"), e new Date disso é Invalid Date, cujo toISOString
+       DERRUBA a requisição inteira. Uma agenda escrita por humano não
+       pode matar o motor: sem data legível, a obrigação nasce com prazo
+       contado de agora e a pessoa resolve. */
+    const marcado = ctx.quando ? new Date(ctx.quando).getTime() : NaN;
+    const temData = !isNaN(marcado);
     let vence;
-    if (r.antes && ctx.quando) vence = new Date(new Date(ctx.quando).getTime() - r.antes * H).toISOString();
-    else if (r.depois && ctx.quando) vence = new Date(new Date(ctx.quando).getTime() + r.depois * H).toISOString();
+    if (r.antes && temData)       vence = new Date(marcado - r.antes * H).toISOString();
+    else if (r.depois && temData) vence = new Date(marcado + r.depois * H).toISOString();
+    else if (r.antes && !temData) vence = daqui(r.prazo || 24);
+    else if (r.depois && !temData) vence = daqui((r.prazo || 0) + r.depois);
     else vence = daqui(r.prazo || 24);
 
     const ob = {
@@ -132,9 +170,36 @@ function acontecer(evento, ctx, executor) {
       cobrado: false, escalado: false
     };
 
-    /* o que o servidor faz sozinho não deveria nem aparecer para
-       ninguém: nasce e morre no mesmo segundo */
-    if (r.sozinho && executor) {
+    /* O que o servidor faz sozinho não deveria aparecer para ninguém.
+       Mas há dois tipos de "sozinho", e tratar os dois igual era um
+       defeito silencioso:
+
+         SEM HORA MARCADA (prazo)  faz agora. Avisar que foi aprovada,
+           mandar o acesso do portal: quanto antes, melhor.
+
+         COM HORA MARCADA (antes)  espera a hora. Confirmar a agenda 24h
+           antes só é confirmação se sair 24h antes. Saindo no instante
+           em que a reunião foi marcada, três semanas adiantada, não
+           confirma nada e a de verdade nunca sai.
+
+       A segunda fica agendada e quem dispara é a varredura. */
+    const agendada = r.antes && temData && (new Date(vence).getTime() - Date.now()) > 2 * 60e3;
+    /* `antes` sem data legível não tem âncora nenhuma. Disparar agora
+       seria mandar o lembrete junto com o convite, que é mensagem
+       repetida na cara da pessoa. Então a obrigação nasce aberta para
+       gente, dizendo o que falta. */
+    const semAncora = r.antes && !temData;
+    if (r.sozinho && semAncora) {
+      ob.obs = 'A data veio como texto, não como data. Faça na mão ou remarque com dia e hora.';
+    } else if (r.sozinho && agendada) {
+      ob.sozinho = r.sozinho;
+      ob.deQuem = 'sistema';
+      /* só o que o executor precisa, e nada além: guardar o ctx inteiro
+         seria copiar dado de cliente para dentro da fila de tarefas */
+      ob.ctx = { telefone: ctx.telefone || '', nome: ctx.nome || '', quando: ctx.quando || '',
+                 porExtenso: ctx.porExtenso || '', titulo: ctx.titulo || '',
+                 link: ctx.link || '', assina: ctx.assina || '' };
+    } else if (r.sozinho && executor) {
       try {
         const ev = executor(r.sozinho, ob, ctx);
         if (ev) { ob.estado = 'feita'; ob.feitoEm = new Date().toISOString();
@@ -178,12 +243,27 @@ function provar(prova, ctx) {
  * A varredura. Roda de tempos em tempos e faz o papel que hoje é de
  * alguém lembrar: cobra quem tem a bola e escala o que passou do ponto.
  */
-function varrer(avisar) {
+function varrer(avisar, executor) {
   const t = Date.now();
-  const saida = { cobrados: [], escalados: [], vencidas: 0 };
+  const saida = { cobrados: [], escalados: [], vencidas: 0, disparados: [] };
   O.itens.forEach(ob => {
     if (ob.estado !== 'aberta') return;
     const venceEm = new Date(ob.vence).getTime();
+
+    /* a hora chegou: o servidor faz o que ficou agendado. É aqui que a
+       confirmação de 24 horas antes realmente sai. */
+    if (ob.sozinho && executor && t >= venceEm) {
+      try {
+        const ev = executor(ob.sozinho, ob, ob.ctx || {});
+        if (ev) {
+          ob.estado = 'feita'; ob.feitoEm = new Date().toISOString();
+          ob.feitoPor = 'sistema'; ob.evidencia = String(ev).slice(0, 200);
+          saida.disparados.push(ob);
+          return;
+        }
+      } catch (e) { ob.erro = String(e.message || e); }
+    }
+
     if (t > venceEm) ob.estado = 'vencida';
     if (ob.estado === 'vencida') saida.vencidas++;
 
@@ -196,7 +276,7 @@ function varrer(avisar) {
       if (avisar) avisar('escalar', ob);
     }
   });
-  if (saida.cobrados.length || saida.escalados.length || saida.vencidas) salvar();
+  if (saida.cobrados.length || saida.escalados.length || saida.vencidas || saida.disparados.length) salvar();
   return saida;
 }
 

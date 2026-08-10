@@ -19,6 +19,12 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+/* O currículo vai em base64, e base64 engorda o arquivo em um terço: um
+   PDF de 6 MB chega como 8 MB de corpo. Sem esta linha antes do limite
+   geral, o próprio Express recusaria o arquivo antes de o módulo poder
+   dar uma resposta que explique o motivo, e o limite de 6 MB que a tela
+   promete seria mentira. */
+app.use('/cv', express.json({ limit: '10mb' }));
 app.use(express.json({ limit: '8mb' }));   // o primeiro envio do sync leva a base inteira
 
 // Só o endereço do seu sistema pode chamar esta ponte.
@@ -254,12 +260,7 @@ async function zapTexto(para, texto) {
   return 'enviado para ' + String(para).replace(/\D/g, '').slice(-4);
 }
 
-require('./equipe').montar(app, {
-  donoNome: process.env.DONO_NOME,
-  donoEmail: process.env.DONO_EMAIL,
-  donoSenha: process.env.DONO_SENHA,
-
-  executor: (tipo, ob, ctx) => {
+function executorDaOperacao(tipo, ob, ctx) {
     /* devolve a evidência quando conseguiu; devolver nada deixa a
        obrigação aberta para uma pessoa resolver, que é o certo quando o
        automático falha: some do jeito errado seria pior */
@@ -279,8 +280,62 @@ require('./equipe').montar(app, {
         .catch(e => console.error('[obrigacoes] acesso falhou:', e.message));
       return 'acesso do portal disparado';
     }
-    return null;
-  },
+
+    /* ── seleção ──
+       O texto está aqui e não na tela de propósito: assim ninguém
+       improvisa a recusa na hora, que é quando ela sai mal escrita ou
+       simplesmente não sai. */
+    const primeiro = String(ctx.nome || '').split(' ')[0] || 'tudo bem';
+    const assina = ctx.assina || 'Grupo A! Fatorial';
+    /* `quando` é data para o motor ancorar o lembrete; para a pessoa ler,
+       vale a versão por extenso, e ISO nenhum vai para o WhatsApp */
+    const dito = ctx.porExtenso || (ctx.quando && !isNaN(new Date(ctx.quando))
+      ? new Date(ctx.quando).toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' })
+      : ctx.quando);
+    if (tipo === 'selecao.entrevista') {
+      zapTexto(ctx.telefone,
+        'Olá ' + primeiro + '! Aqui é do ' + assina + '. Recebemos o seu cadastro e os testes, e '
+        + 'gostamos do que vimos. A sua entrevista ficou para ' + (ctx.quando || 'a combinar')
+        + '. Se esse horário não der, me diga dois que deem para você.')
+        .catch(e => console.error('[selecao] convite falhou:', e.message));
+      return 'convite de entrevista disparado';
+    }
+    if (tipo === 'selecao.lembrete') {
+      zapTexto(ctx.telefone,
+        'Olá ' + primeiro + '! Passando para lembrar da nossa conversa: ' + (dito || 'amanhã')
+        + '. Até lá!')
+        .catch(e => console.error('[selecao] lembrete falhou:', e.message));
+      return 'lembrete disparado';
+    }
+    if (tipo === 'selecao.aprovado') {
+      zapTexto(ctx.telefone,
+        'Olá ' + primeiro + '! Boa notícia: você foi aprovada para fazer parte da nossa rede. '
+        + 'O próximo passo é o contrato de prestação de serviços, que chega para assinatura em '
+        + 'até dois dias úteis. Bem-vinda!')
+        .catch(e => console.error('[selecao] aprovação falhou:', e.message));
+      return 'aprovação comunicada';
+    }
+    if (tipo === 'selecao.reprovado') {
+      /* Sem "infelizmente" e sem promessa vaga: diz o que aconteceu, diz
+         que o cadastro fica, e agradece o tempo que a pessoa gastou. */
+      zapTexto(ctx.telefone,
+        'Olá ' + primeiro + '! Obrigada por ter dedicado seu tempo ao nosso processo. '
+        + 'Desta vez seguimos com outro perfil, mas o seu cadastro fica com a gente e você continua '
+        + 'no nosso banco para as próximas oportunidades. Se quiser que a gente apague os seus dados, '
+        + 'é só responder esta mensagem.')
+        .catch(e => console.error('[selecao] retorno falhou:', e.message));
+      return 'retorno comunicado';
+    }
+  return null;
+}
+
+require('./equipe').montar(app, {
+  donoNome: process.env.DONO_NOME,
+  donoEmail: process.env.DONO_EMAIL,
+  donoSenha: process.env.DONO_SENHA,
+
+  executor: executorDaOperacao,
+
 
   avisar: (tipo, ob) => {
     /* Por enquanto vai para o log do servidor, que é honesto: cobrar por
@@ -328,12 +383,44 @@ require('./documentos').montar(app, {
   baseUrl: () => process.env.BASE_URL || ('http://localhost:' + PORT)
 });
 
+/* O currículo segue a mesma regra do documento de cliente: vive no
+   servidor, é lido por endereço e ninguém baixa. Reaproveita os mesmos
+   porteiros. */
+const curriculos = require('./curriculos');
+curriculos.montar(app, {
+  exigeLogin: (req, res, next) => {
+    if (req.eu) return next();
+    const t = String(req.headers.authorization || '').replace(/^Bearer /, '');
+    const s = require('./equipe').sessao && require('./equipe').sessao(t);
+    if (!s) return res.status(401).json({ ok: false, erro: 'sessao_invalida' });
+    req.eu = s; next();
+  },
+  talvezLogin: (req, _res, next) => {
+    if (!req.eu) {
+      const t = String(req.headers.authorization || '').replace(/^Bearer /, '');
+      const s = require('./equipe').sessao && require('./equipe').sessao(t);
+      if (s) req.eu = s;
+    }
+    next();
+  },
+  registrar: auditoria.registrar
+});
+
 /* A varredura roda sozinha. É ela que faz o papel de babá: sem isso,
    obrigação vencida só apareceria se alguém abrisse a tela. */
 setInterval(() => {
-  try { require('./obrigacoes').varrer((t, ob) => {
-    console.log('[obrigacoes] ' + t + ': ' + ob.o + ' · vence ' + ob.vence);
-  }); } catch (e) { console.error('[obrigacoes] varredura:', e.message); }
+  try {
+    const ob = require('./obrigacoes');
+    /* a varredura leva o executor junto: é ela que dispara o que ficou
+       agendado para uma hora certa, como a confirmação de 24h antes */
+    const r = ob.varrer((t, o) => {
+      console.log('[obrigacoes] ' + t + ': ' + o.o + ' · vence ' + o.vence);
+    }, executorDaOperacao);
+    r.disparados.forEach(o => console.log('[obrigacoes] o servidor fez: ' + o.o));
+  } catch (e) { console.error('[obrigacoes] varredura:', e.message); }
+  /* currículo tem prazo, e prazo que ninguém varre é prazo que não
+     existe: guardar dado sem finalidade é o erro mais comum da LGPD */
+  try { curriculos.varrer(); } catch (e) { console.error('[curriculos] varredura:', e.message); }
 }, 15 * 60e3).unref();
 
 /* ══════════════════════════════════════════════════════════════════════

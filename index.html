@@ -1146,6 +1146,53 @@ body.apresentacao #apr-banner{display:block;}
   .tal-barras,.tal-bandeiras{grid-column:2 / -1;}
 }
 
+/* ═══ IMPORTAR E DISTRIBUIR LEADS ═══ */
+.imp-passos{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.imp-p{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-faint);
+  padding:8px 14px;border:1px solid var(--line);border-radius:20px;}
+.imp-p b{width:20px;height:20px;border-radius:50%;background:var(--line);color:var(--ink-faint);
+  display:grid;place-items:center;font-size:11px;}
+.imp-p.on{border-color:var(--gold);color:var(--ink);}
+.imp-p.on b{background:var(--gold);color:#1a1408;}
+.imp-p.ok b{background:var(--ok);color:#fff;}
+.imp-cola{width:100%;min-height:160px;border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:13px 15px;font-family:var(--font-mono);font-size:12.5px;line-height:1.7;resize:vertical;
+  background:var(--panel);color:var(--ink);outline:none;}
+.imp-cola:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,162,74,.12);}
+.imp-exemplo{background:var(--panel-soft);border:1px dashed var(--line);border-radius:var(--r-sm);
+  padding:13px 15px;font-family:var(--font-mono);font-size:11.5px;line-height:1.8;color:var(--ink-soft);
+  margin:12px 0;overflow-x:auto;white-space:pre;}
+.imp-tab{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;}
+.imp-tab th{padding:10px 11px;text-align:left;font-size:10px;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--ink-soft);border-bottom:1px solid var(--ink);white-space:nowrap;}
+.imp-tab td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.imp-tab tr.ruim td{background:var(--bad-bg);}
+.imp-tab tr.repete td{background:var(--warn-bg);}
+.imp-tab .pq{font-size:11px;color:var(--ink-soft);}
+.imp-caixa{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:18px;}
+.imp-num{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px 16px;}
+.imp-num b{display:block;font:600 24px/1 var(--font-display);}
+.imp-num span{display:block;font-size:11px;color:var(--ink-soft);text-transform:uppercase;
+  letter-spacing:.6px;margin-top:6px;}
+.imp-num.mal b{color:var(--bad);} .imp-num.aviso b{color:var(--warn);} .imp-num.bem b{color:var(--ok);}
+/* a distribuição: quem recebe, quantos, e o que sobra */
+.imp-gente{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
+.imp-pessoa{display:flex;align-items:center;gap:12px;border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:12px 14px;background:var(--panel);transition:.16s;}
+.imp-pessoa.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,162,74,.10);}
+.imp-pessoa .id{flex:1;min-width:0;}
+.imp-pessoa .id b{display:block;font-size:13.5px;}
+.imp-pessoa .id span{display:block;font-size:11px;color:var(--ink-soft);}
+.imp-pessoa input[type=number]{width:66px;padding:8px 8px;border:1px solid var(--line);
+  border-radius:8px;font-family:var(--font-mono);font-size:13px;text-align:center;
+  background:var(--panel);color:var(--ink);outline:none;}
+.imp-pessoa input[type=number]:focus{border-color:var(--gold);}
+.imp-sobra{padding:14px 16px;border-radius:var(--r-sm);font-size:13px;line-height:1.7;margin-top:16px;}
+.imp-sobra.bem{background:var(--ok-bg);color:var(--ok);}
+.imp-sobra.aviso{background:var(--warn-bg);color:var(--warn);}
+.imp-sobra.mal{background:var(--bad-bg);color:var(--bad);}
+@media(max-width:700px){ .imp-tab{font-size:11.5px} .imp-tab th,.imp-tab td{padding:8px 7px} }
+
 /* ═══ BANCO DE TALENTOS · a prova que a pessoa responde ═══ */
 .tp-topo{position:sticky;top:0;z-index:5;background:#0f1523;padding:14px 0 12px;margin-bottom:6px;
   border-bottom:1px solid rgba(255,255,255,.08);}
@@ -2833,6 +2880,13 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
     <div class="login-note">
       🔒 Simulação de acesso. A separação real de dados por perfil é aplicada no <b>backend</b> (servidor + banco), onde cada usuário recebe somente o que tem permissão de ver. Os pontos de integração já estão marcados no código.
     </div>
+  </div>
+</div>
+
+<div class="modal" id="m-importar" onclick="if(event.target===this)impFechar()">
+  <div class="modal-card" style="max-width:1020px;">
+    <h3>Importar e distribuir leads</h3>
+    <div id="imp-corpo" style="margin-top:14px;"></div>
   </div>
 </div>
 
@@ -12335,7 +12389,7 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
             if(!L.length) return '';
             return `<div class="base-seg" style="--kbc:${sg.cor};">
               <div class="base-seg-h"><span class="dot"></span>${sg.l}<span class="n">${L.length}</span>
-                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="leadExportar('${sg.k}')">⤓ CSV</button></div>
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="leadExportar('${sg.k}')">Ver a lista</button></div>
               ${L.map(l=>`<div class="base-item">
                 <span class="base-nm"><b>${uiEsc(l.nome)}</b>${l.empresa?`<span>${uiEsc(l.empresa)}</span>`:''}</span>
                 <span class="base-ct">
@@ -12664,8 +12718,9 @@ body{ --gold-grad:linear-gradient(135deg,var(--gold-bright),var(--gold) 45%,var(
             ])}</div>
             ${parados.length?`<div class="dec-opiniao"><b>⚠ ${parados.length} lead${parados.length>1?'s':''} pego${parados.length>1?'s':''} e sem contato:</b> ${parados.map(l=>uiEsc(l.nome)+' ('+(leadDono(l)?leadDono(l).nome:'?')+')').join(', ')}. Se passar de ${LEAD_SLA_H}h, volta sozinho para o painel.</div>`:''}
             <div class="card">
-              <div class="card-h" style="display:flex;align-items:center;gap:10px;">Ritmo da equipe · contatos de hoje
-                <button class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="leadNovo()">+ Novo lead no painel</button></div>
+              <div class="card-h" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Ritmo da equipe · contatos de hoje
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="impAbrir()">⤒ Importar lista</button>
+                <button class="btn btn-gold btn-sm" onclick="leadNovo()">+ Novo lead no painel</button></div>
               <p class="hint" style="margin:-8px 0 14px;">Cada bolinha é um contato registrado hoje. Fila cheia = prestador trabalhando.</p>
               ${linhas}
             </div>
@@ -19665,14 +19720,30 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           DB.colaboradores.push(c);
           k.status='aprovado'; k.colaboradorId=novoId;
           salvarUsuarios&&salvarUsuarios(); redeSalvar(); prestRender();
+          /* a pessoa fica sabendo pelo processo, não pela memória de
+             alguém: com servidor sai sozinho, sem servidor abre o WhatsApp */
+          selDesfecho('aprovado', k);
           notify('equipe','👤 Prestador aprovado', k.nome+' entrou na rede. Falta liberar os contratos e enviar o contrato para assinatura.','rede');
           setTimeout(()=>alert('✓ '+k.nome+' está na rede.\n\nPróximo passo, no cartão dela:\n1) escolha o escopo do serviço\n2) libere os contratos que ela pode representar\n3) envie o contrato para assinatura\n\nSó depois de assinar ela vê leads e demandas.'),150);
         }
         function candRecusar(id){
           let k=DB.candidatos.find(x=>x.id===id); if(!k) return;
-          let m=prompt('Por que não vai seguir com '+k.nome+'?','');
+          /* o motivo é para a empresa lembrar depois, e nunca vai na
+             mensagem: dizer o motivo real numa recusa cria discussão e,
+             dependendo do que for, cria processo */
+          let m=prompt('Por que não vai seguir com '+k.nome+'?\n\n'
+            +'Isto fica só no sistema, para você lembrar numa próxima vez. A pessoa não vê.','');
           if(m===null) return;
-          k.status='recusado'; k.motivo=m; redeSalvar(); prestRender();
+          k.status='recusado'; k.motivo=m; k.recusadoEm=new Date().toISOString();
+          redeSalvar();
+          selDesfecho('reprovado', k).then(r=>{
+            if(r.modo==='servidor')
+              alert('Retorno enviado.\n\nA pessoa fica sabendo hoje, e não daqui a nunca. '
+                +'O cadastro dela continua no banco para uma próxima.');
+            prestRender();
+            if(typeof talRender==='function' && document.getElementById('v-talentos')
+               && document.getElementById('v-talentos').classList.contains('on')) talRender();
+          });
         }
         function candZap(id){
           let k=DB.candidatos.find(x=>x.id===id); if(!k||!k.tel){ alert('Sem WhatsApp cadastrado.'); return; }
@@ -19724,6 +19795,478 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
               custo:dem.filter(d=>d.status==='aprovada'||d.status==='paga').reduce((a,d)=>a+demValorFinal(d),0),
               dem:dem.length, time:time.length};
           }).filter(x=>x.contratos>0);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           OS TRÊS DESFECHOS DA SELEÇÃO      === BACKEND ===
+
+           Pedido dela: "receber a comunicação de agenda de entrevista,
+           aprovado ou não aprovado".
+
+           O que dói de verdade não é o aprovado, é o NÃO aprovado. A
+           pessoa gastou meia hora respondendo teste e fica esperando uma
+           resposta que quase nunca vem, e isso é a empresa queimando a
+           própria marca com quem um dia pode voltar. Por isso o retorno
+           não é decisão de ninguém: é obrigação do processo, e o servidor
+           manda sozinho em até uma hora.
+
+           Sem servidor, abre o WhatsApp com o texto pronto, que é o que
+           dá para fazer quando o sistema roda sozinho no navegador. O
+           texto é o mesmo dos dois lados, para a recusa não sair
+           improvisada, que é quando ela sai mal escrita ou não sai.
+           ═══════════════════════════════════════════════════════════════ */
+
+        function selTexto(tipo, k, quando){
+          const primeiro=String(k.nome||'').split(' ')[0]||'tudo bem';
+          const assina=(typeof BRAND!=='undefined'&&BRAND.nome)||'Grupo A! Fatorial';
+          if(tipo==='entrevista') return 'Olá '+primeiro+'! Aqui é do '+assina
+            +'. Recebemos o seu cadastro e os testes, e gostamos do que vimos. A sua entrevista ficou '
+            +'para '+(quando||'a combinar')+'. Se esse horário não der, me diga dois que deem para você.';
+          if(tipo==='aprovado') return 'Olá '+primeiro+'! Boa notícia: você foi aprovada para fazer parte '
+            +'da nossa rede. O próximo passo é o contrato de prestação de serviços, que chega para '
+            +'assinatura em até dois dias úteis. Bem-vinda!';
+          return 'Olá '+primeiro+'! Obrigada por ter dedicado seu tempo ao nosso processo. Desta vez '
+            +'seguimos com outro perfil, mas o seu cadastro fica com a gente e você continua no nosso '
+            +'banco para as próximas oportunidades. Se quiser que a gente apague os seus dados, é só '
+            +'responder esta mensagem.';
+        }
+
+        /**
+         * Dispara o desfecho. Com servidor, vira obrigação e ele manda.
+         * Sem servidor, abre a conversa com o texto pronto.
+         */
+        async function selDesfecho(tipo, k, extra){
+          const evento={entrevista:'candidato.entrevista', aprovado:'candidato.aprovado',
+                        reprovado:'candidato.reprovado'}[tipo];
+          const quando=(extra&&extra.quando)||'';
+          const tel=docZap(k.tel);
+
+          if(SYNC.ligado && SYNC.token){
+            try{
+              const r=await fetch(SYNC.url+'/obrigacoes/evento',{method:'POST',headers:syncCab(),
+                body:JSON.stringify({evento, ctx:{
+                  ref:k.id, nome:k.nome, telefone:tel,
+                  /* o motor ancora o lembrete em `quando`: manda a data
+                     quando existir, e a frase só quando não existir */
+                  quando:(extra&&extra.iso)||quando,
+                  porExtenso:quando,
+                  dono:(AUTH.user&&AUTH.user.nome)||'gestão',
+                  assina:(typeof BRAND!=='undefined'&&BRAND.nome)||'Grupo A! Fatorial'
+                }})});
+              if(r.ok){
+                if(typeof docRegistrar==='function') docRegistrar('selecao.'+tipo, k.nome);
+                return {modo:'servidor'};
+              }
+            }catch(e){}
+          }
+
+          /* sem servidor: a mensagem é a mesma, só quem aperta enviar muda */
+          const msg=selTexto(tipo, k, quando);
+          if(tel) window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
+          else alert('Sem WhatsApp cadastrado. Mensagem sugerida:\n\n'+msg);
+          return {modo:'navegador'};
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CURRÍCULO ANEXADO           === BACKEND ===
+
+           Mesma regra do documento de cliente, pelo mesmo motivo:
+           currículo é dado pessoal de gente que confiou na empresa, e
+           arquivo baixado é arquivo esquecido numa pasta qualquer.
+
+           A pessoa manda uma vez, no cadastro. A dona abre por endereço,
+           e a abertura fica na trilha. Não existe rota de baixar, e o
+           arquivo é apagado sozinho depois de 12 meses.
+
+           Sem servidor não há onde guardar arquivo: o campo diz isso e o
+           cadastro segue com o texto de experiência, que é o que existe
+           quando o sistema roda sozinho no navegador.
+           ═══════════════════════════════════════════════════════════════ */
+
+        let _cadCv=null;
+        const CV_TETO=6*1024*1024;
+
+        function cadCvEscolher(input){
+          const el=document.getElementById('cd-cv-nome');
+          const f=input.files&&input.files[0];
+          if(!f){ _cadCv=null; el.textContent='PDF, DOC, DOCX, PNG ou JPG, até 6 MB'; return; }
+          if(f.size>CV_TETO){
+            _cadCv=null; input.value='';
+            el.innerHTML='<b style="color:var(--bad)">Arquivo grande demais.</b> O limite é 6 MB.';
+            return;
+          }
+          if(!SYNC.ligado || !SYNC.token){
+            _cadCv=null; input.value='';
+            el.innerHTML='<b style="color:var(--warn)">Anexo precisa do servidor.</b> '
+              +'Sem ele o arquivo não tem onde ficar. Conte a experiência no campo de texto.';
+            return;
+          }
+          _cadCv=f;
+          el.innerHTML='<b>'+uiEsc(f.name)+'</b> · '+Math.round(f.size/1024)+' KB';
+        }
+
+        /** Sobe o arquivo depois que o candidato já existe, com o id dele. */
+        async function cadCvEnviar(candidatoId){
+          if(!_cadCv || !SYNC.ligado || !SYNC.token) return null;
+          const f=_cadCv;
+          try{
+            const dados=await new Promise((ok,erro)=>{
+              const fr=new FileReader();
+              fr.onload=e=>ok(String(e.target.result||''));
+              fr.onerror=()=>erro(new Error('não deu para ler o arquivo'));
+              fr.readAsDataURL(f);
+            });
+            const r=await fetch(SYNC.url+'/cv',{method:'POST',headers:syncCab(),
+              body:JSON.stringify({candidatoId, nome:f.name, arquivo:f.name, tipo:f.type, dados})});
+            const j=await r.json().catch(()=>({}));
+            if(!r.ok||!j.ok) throw new Error(j.detalhe||j.erro||('HTTP '+r.status));
+            const k=DB.candidatos.find(x=>x.id===candidatoId);
+            if(k){ k.cv={id:j.cv.id, tipo:j.cv.tipo, bytes:j.cv.bytes, em:new Date().toISOString(),
+                         nome:f.name}; redeSalvar(); }
+            _cadCv=null;
+            return j.cv;
+          }catch(e){
+            alert('O cadastro foi enviado, mas o currículo não subiu: '+e.message
+              +'\n\nVocê pode mandar o arquivo depois, pelo WhatsApp.');
+            return null;
+          }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           IMPORTAR E DISTRIBUIR LEADS
+
+           Pedido dela: "sinto falta de um caminho para subir a lista de
+           leads por serviço ou segmento, quero poder distribuir os leads
+           na quantidade que eu quero e para quem eu quero".
+
+           Três passos, e o do meio é o que evita o estrago: colar ou subir
+           o arquivo, CONFERIR antes de gravar, e distribuir. Importar
+           lista sem conferir é como a base de contato apodrece: nome
+           vazio, telefone quebrado e o mesmo lead entrando três vezes com
+           três donos diferentes.
+
+           A distribuição é dela, não do sistema: ela diz quantos e para
+           quem, pessoa por pessoa. O rodízio existe como atalho, não como
+           regra.
+           ═══════════════════════════════════════════════════════════════ */
+
+        let IMP={passo:1, bruto:'', segmento:'empresa', origem:'', servico:'',
+                 linhas:[], quotas:{}, arquivo:''};
+
+        function impAbrir(){
+          IMP={passo:1, bruto:'', segmento:'empresa', origem:'Lista importada', servico:'',
+               linhas:[], quotas:{}, arquivo:''};
+          document.getElementById('m-importar').classList.add('on');
+          impRender();
+        }
+        function impFechar(){ document.getElementById('m-importar').classList.remove('on'); }
+
+        /** Separa por vírgula, ponto e vírgula ou tabulação, respeitando aspas. */
+        function impPartir(linha){
+          const sep = (linha.match(/;/g)||[]).length >= (linha.match(/,/g)||[]).length
+            ? (linha.indexOf('\t')>=0 ? '\t' : ';')
+            : (linha.indexOf('\t')>=0 ? '\t' : ',');
+          const out=[]; let campo='', aspas=false;
+          for(let i=0;i<linha.length;i++){
+            const c=linha[i];
+            if(c==='"'){ if(aspas&&linha[i+1]==='"'){campo+='"';i++;} else aspas=!aspas; continue; }
+            if(c===sep && !aspas){ out.push(campo.trim()); campo=''; continue; }
+            campo+=c;
+          }
+          out.push(campo.trim());
+          return out;
+        }
+
+        /* Os nomes de coluna que as pessoas usam de verdade. A ordem
+           importa: o primeiro que casar vence. */
+        const IMP_COLUNAS=[
+          ['nome',     /^(nome|contato|cliente|respons[áa]vel|pessoa|lead)$/i],
+          ['empresa',  /^(empresa|raz[ãa]o|raz[ãa]o social|neg[óo]cio|estabelecimento|loja)$/i],
+          ['contato',  /^(whats|whatsapp|celular|cel|zap|telefone \(whats\))$/i],
+          ['telefone', /^(telefone|fone|tel|fixo)$/i],
+          ['email',    /^(e-?mail|correio)$/i],
+          ['cidade',   /^(cidade|munic[íi]pio|local|cidade\/uf)$/i],
+          ['endereco', /^(endere[çc]o|rua|logradouro)$/i],
+          ['valor',    /^(valor|ticket|potencial|or[çc]amento|previsto)$/i],
+          ['obs',      /^(obs|observa[çc][ãa]o|nota|coment[áa]rio|detalhe)$/i],
+          ['origem',   /^(origem|fonte|canal|de onde)$/i]
+        ];
+
+        function impMapear(cabecalho){
+          const mapa={};
+          cabecalho.forEach((c,i)=>{
+            const par=IMP_COLUNAS.find(([,re])=>re.test(String(c).trim()));
+            if(par && mapa[par[0]]===undefined) mapa[par[0]]=i;
+          });
+          return mapa;
+        }
+
+        function impSoDigito(t){ return String(t||'').replace(/\D/g,''); }
+
+        /** Lê o texto colado e devolve as linhas já conferidas. */
+        function impLer(){
+          const txt=String(IMP.bruto||'').replace(/\r/g,'').trim();
+          if(!txt){ IMP.linhas=[]; return; }
+          const cruas=txt.split('\n').filter(l=>l.trim());
+          if(!cruas.length){ IMP.linhas=[]; return; }
+
+          let mapa=impMapear(impPartir(cruas[0]));
+          let inicio=1;
+          /* sem cabeçalho reconhecível, assume a ordem mais comum e não
+             joga a primeira linha fora */
+          if(mapa.nome===undefined && mapa.empresa===undefined && mapa.contato===undefined){
+            mapa={nome:0, empresa:1, contato:2, email:3, cidade:4};
+            inicio=0;
+          }
+
+          /* o que já existe na base, para não entrar duas vezes */
+          const jaTem=new Set();
+          (DB.leads||[]).forEach(l=>{
+            const z=impSoDigito(l.contato)||impSoDigito(l.telefone);
+            if(z) jaTem.add(z.slice(-9));
+            if(l.email) jaTem.add(String(l.email).toLowerCase());
+          });
+          const nesta=new Set();
+
+          IMP.linhas=cruas.slice(inicio).map((linha,n)=>{
+            const c=impPartir(linha);
+            const v=k=>mapa[k]===undefined?'':String(c[mapa[k]]||'').trim();
+            const zap=impSoDigito(v('contato'))||impSoDigito(v('telefone'));
+            const email=v('email').toLowerCase();
+            const nome=v('nome')||v('empresa');
+            const chaves=[zap?zap.slice(-9):'', email].filter(Boolean);
+
+            const problemas=[];
+            if(!nome) problemas.push('sem nome');
+            if(!zap && !email) problemas.push('sem WhatsApp nem e-mail');
+            if(zap && (zap.length<10 || zap.length>13)) problemas.push('WhatsApp com '+zap.length+' dígitos');
+            if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) problemas.push('e-mail inválido');
+
+            const repetido = chaves.some(k=>jaTem.has(k)) ? 'já está na base'
+                           : chaves.some(k=>nesta.has(k)) ? 'repetido nesta lista' : '';
+            chaves.forEach(k=>nesta.add(k));
+
+            return {n:n+1, nome, empresa:v('empresa'),
+                    contato: zap ? (zap.length<=11 ? '55'+zap : zap) : '',
+                    email, cidade:v('cidade'), endereco:v('endereco'),
+                    valor: Number(String(v('valor')).replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'))||0,
+                    obs:v('obs'), origem:v('origem')||IMP.origem,
+                    problemas, repetido,
+                    ok: !problemas.length && !repetido};
+          });
+        }
+
+        function impLerArquivo(input){
+          const f=input.files&&input.files[0]; if(!f) return;
+          if(f.size>3*1024*1024){ alert('Arquivo grande demais. Use até 3 MB, ou cole o conteúdo na caixa.'); return; }
+          const fr=new FileReader();
+          fr.onload=e=>{ IMP.bruto=String(e.target.result||''); IMP.arquivo=f.name; impLer(); impRender(); };
+          fr.readAsText(f, 'utf-8');
+        }
+
+        /* ── a distribuição ── */
+        function impQuemPode(){
+          /* só quem assinou contrato recebe lead: sem contrato a pessoa
+             não pode representar nada, e mandar lead para ela é expor
+             cliente sem cobertura */
+          return prestadores().filter(prestLiberado);
+        }
+        function impTotalQuotas(){
+          return Object.keys(IMP.quotas).reduce((a,k)=>a+(Number(IMP.quotas[k])||0),0);
+        }
+        function impQuota(id, v){
+          const n=Math.max(0, Math.floor(Number(v)||0));
+          IMP.quotas[id]=n; impPintarSobra();
+        }
+        function impRodizio(){
+          const gente=impQuemPode(); if(!gente.length) return;
+          const bons=IMP.linhas.filter(l=>l.ok).length;
+          const base=Math.floor(bons/gente.length), resto=bons%gente.length;
+          IMP.quotas={};
+          gente.forEach((c,i)=>IMP.quotas[c.id]=base+(i<resto?1:0));
+          impRender();
+        }
+        function impZerar(){ IMP.quotas={}; impRender(); }
+
+        function impPintarSobra(){
+          const el=document.getElementById('imp-sobra'); if(!el) return;
+          const bons=IMP.linhas.filter(l=>l.ok).length, dado=impTotalQuotas();
+          const sobra=bons-dado;
+          el.className='imp-sobra '+(dado>bons?'mal':sobra===0?'bem':'aviso');
+          el.innerHTML = dado>bons
+            ? `<b>Você distribuiu ${dado} e só existem ${bons} contatos bons.</b> Os ${dado-bons} a mais não têm de onde sair. Ajuste as quantidades.`
+            : sobra===0 && dado>0
+            ? `<b>Tudo distribuído.</b> ${dado} contato${dado===1?'':'s'} com dono, nenhum sobrando.`
+            : `<b>${dado} distribuído${dado===1?'':'s'}, ${sobra} vai${sobra===1?'':'ão'} para o painel livre.</b> Quem estiver no painel de leads pega o que sobrou, e isso é proposital: lead parado com dono é pior do que lead na fila.`;
+        }
+
+        /** Grava de verdade. */
+        function impGravar(){
+          const bons=IMP.linhas.filter(l=>l.ok);
+          if(!bons.length){ alert('Nenhum contato bom para importar.'); return; }
+          const dado=impTotalQuotas();
+          if(dado>bons.length){ alert('Você distribuiu mais do que existe. Ajuste as quantidades.'); return; }
+
+          /* monta a fila de donos: cada pessoa aparece tantas vezes quanto
+             a quota dela, e o resto fica sem dono */
+          const fila=[];
+          Object.keys(IMP.quotas).forEach(id=>{
+            for(let i=0;i<(Number(IMP.quotas[id])||0);i++) fila.push(id);
+          });
+
+          const agora=new Date().toISOString();
+          const criados=[];
+          bons.forEach((l,i)=>{
+            const dono=fila[i]||null;
+            const novo={
+              id:'L'+(_leadSeq++), nome:l.nome, empresa:l.empresa,
+              segmento:IMP.segmento, contato:l.contato, email:l.email,
+              telefone:'', cidade:l.cidade, endereco:l.endereco,
+              origem:l.origem||IMP.origem||'Lista importada',
+              servico:IMP.servico||'', valor:l.valor, obs:l.obs,
+              entrouEm:agora, importadoEm:agora,
+              status: dono?'meu':'livre', dono, pegoEm: dono?agora:null,
+              tentativas:[]
+            };
+            DB.leads.push(novo); criados.push(novo);
+          });
+          /* leadSalvar já passa pelo afGravar, que sobe o remendo para a
+             equipe: cada lead novo aparece na tela de todo mundo sozinho */
+          leadSalvar();
+          if(typeof docRegistrar==='function')
+            docRegistrar('leads.importar', criados.length+' leads de '+leadSeg(IMP.segmento).l
+              +', '+fila.length+' com dono');
+
+          /* avisa quem recebeu, porque lead entregue e não avisado é lead
+             que ninguém liga */
+          const porDono={};
+          criados.forEach(l=>{ if(l.dono) porDono[l.dono]=(porDono[l.dono]||0)+1; });
+          const quem=Object.keys(porDono).map(id=>{
+            const pes=kbPessoa(id);
+            return ((pes&&(pes.apelido||pes.nome))||id)+' '+porDono[id];
+          });
+          if(typeof notify==='function'&&quem.length)
+            notify('colaborador','◎ Leads novos no painel',
+              quem.join(' · ')+'. Vieram de uma lista de '+leadSeg(IMP.segmento).l+'.','meusleads');
+
+          impFechar();
+          if(typeof leadRenderGestao==='function') leadRenderGestao();
+          alert(criados.length+' contato'+(criados.length===1?'':'s')+' importado'+(criados.length===1?'':'s')+'.\n\n'
+            +fila.length+' com dono definido por você.\n'
+            +(criados.length-fila.length)+' no painel livre, para quem chegar primeiro.');
+        }
+
+        function impRender(){
+          const box=document.getElementById('imp-corpo'); if(!box) return;
+          const passos=[[1,'Colar ou subir'],[2,'Conferir'],[3,'Distribuir']];
+          const bons=IMP.linhas.filter(l=>l.ok);
+          const ruins=IMP.linhas.filter(l=>l.problemas.length);
+          const repetidos=IMP.linhas.filter(l=>!l.problemas.length&&l.repetido);
+
+          let h=`<div class="imp-passos">${passos.map(([n,l])=>
+            `<span class="imp-p ${IMP.passo===n?'on':''} ${IMP.passo>n?'ok':''}">
+              <b>${IMP.passo>n?'✓':n}</b>${l}</span>`).join('')}</div>`;
+
+          if(IMP.passo===1){
+            h+=`<p class="hint" style="margin-bottom:14px;">Cole a lista aqui ou suba um arquivo CSV.
+              A primeira linha pode ser o cabeçalho: o sistema reconhece nome, empresa, WhatsApp,
+              e-mail, cidade, valor e observação, escritos de qualquer jeito.</p>
+            <div class="imp-exemplo">nome;empresa;whatsapp;email;cidade;valor
+Regina Salles;Ótica UltraVisão;11987654321;regina@otica.com.br;Santo André;8500
+Anderson Melo;AM Transportes;11966665555;anderson@am.com;São Paulo;15000</div>
+            <textarea class="imp-cola" id="imp-cola" placeholder="Cole aqui"
+              oninput="IMP.bruto=this.value">${uiEsc(IMP.bruto)}</textarea>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px;">
+              <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0;">
+                ⤒ Subir arquivo CSV
+                <input type="file" accept=".csv,.txt,text/csv,text/plain" style="display:none"
+                  onchange="impLerArquivo(this)"></label>
+              ${IMP.arquivo?`<span style="font-size:12px;color:var(--ink-soft)">${uiEsc(IMP.arquivo)}</span>`:''}
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:20px;">
+              <div><span class="lbl">Segmento desta lista</span>
+                <select class="inp" onchange="IMP.segmento=this.value">
+                  ${LEAD_SEGMENTOS.map(sg=>`<option value="${sg.k}"${IMP.segmento===sg.k?' selected':''}>${uiEsc(sg.l)} · ${sg.tipo}</option>`).join('')}
+                </select></div>
+              <div><span class="lbl">Serviço de interesse (opcional)</span>
+                <select class="inp" onchange="IMP.servico=this.value">
+                  <option value="">Nenhum em especial</option>
+                  ${(typeof SERV_EXEC!=='undefined'?SERV_EXEC:[]).map(sv=>`<option value="${sv.k}"${IMP.servico===sv.k?' selected':''}>${uiEsc(sv.l)}</option>`).join('')}
+                </select></div>
+              <div><span class="lbl">De onde veio</span>
+                <input class="inp" value="${uiEsc(IMP.origem)}" oninput="IMP.origem=this.value"
+                  placeholder="Ex.: feira, lista comprada, indicação"></div>
+            </div>
+
+            <div class="modal-acts">
+              <button class="btn btn-ghost" onclick="impFechar()">Cancelar</button>
+              <button class="btn btn-gold" onclick="IMP.passo=2;impLer();impRender()">Conferir a lista</button>
+            </div>`;
+          }
+
+          if(IMP.passo===2){
+            h+=`<div class="imp-caixa">
+              <div class="imp-num bem"><b>${bons.length}</b><span>Prontos para entrar</span></div>
+              <div class="imp-num aviso"><b>${repetidos.length}</b><span>Já estavam na base</span></div>
+              <div class="imp-num mal"><b>${ruins.length}</b><span>Com problema</span></div>
+              <div class="imp-num"><b>${IMP.linhas.length}</b><span>Linhas lidas</span></div>
+            </div>
+            <p class="hint" style="margin-bottom:12px;">Só as linhas verdes entram. Repetido não entra de
+              novo, porque contato duplicado vira duas pessoas ligando para a mesma empresa.</p>
+            <div style="max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);">
+              <table class="imp-tab">
+                <thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>WhatsApp</th><th>E-mail</th>
+                  <th>Cidade</th><th>Situação</th></tr></thead>
+                <tbody>${IMP.linhas.slice(0,200).map(l=>`
+                  <tr class="${l.problemas.length?'ruim':l.repetido?'repete':''}">
+                    <td>${l.n}</td><td>${uiEsc(l.nome)||'<i class="pq">vazio</i>'}</td>
+                    <td>${uiEsc(l.empresa)}</td><td>${uiEsc(l.contato)}</td>
+                    <td>${uiEsc(l.email)}</td><td>${uiEsc(l.cidade)}</td>
+                    <td class="pq">${l.problemas.length?uiEsc(l.problemas.join(', '))
+                      :l.repetido?uiEsc(l.repetido):'<span style="color:var(--ok)">entra</span>'}</td>
+                  </tr>`).join('')}</tbody>
+              </table>
+            </div>
+            ${IMP.linhas.length>200?`<p class="hint" style="margin-top:10px">Mostrando as 200 primeiras de ${IMP.linhas.length}. Todas serão processadas.</p>`:''}
+            <div class="modal-acts">
+              <button class="btn btn-ghost" onclick="IMP.passo=1;impRender()">Voltar</button>
+              <button class="btn btn-gold" ${bons.length?'':'disabled'} onclick="IMP.passo=3;impRender()">
+                ${bons.length?'Distribuir os '+bons.length:'Nada bom para importar'}</button>
+            </div>`;
+          }
+
+          if(IMP.passo===3){
+            const gente=impQuemPode();
+            h+=`<p class="hint" style="margin-bottom:16px;">Diga quantos vão para cada pessoa. O que você
+              não distribuir cai no painel livre, e quem chegar primeiro pega. Só aparece aqui quem tem
+              contrato assinado: sem contrato a pessoa não pode representar nada.</p>
+            ${gente.length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+              <button class="btn btn-ghost btn-sm" onclick="impRodizio()">Dividir igual entre ${gente.length}</button>
+              <button class="btn btn-ghost btn-sm" onclick="impZerar()">Zerar tudo</button>
+              <span style="margin-left:auto;font-size:12px;color:var(--ink-soft);align-self:center;">
+                ${bons.length} contato${bons.length===1?'':'s'} para dividir</span>
+            </div>
+            <div class="imp-gente">${gente.map(c=>{
+              const q=Number(IMP.quotas[c.id])||0;
+              const p=kbPessoa(c.id);
+              return `<label class="imp-pessoa ${q?'on':''}">
+                ${kbAv(p,true)}
+                <span class="id"><b>${uiEsc(c.apelido||c.nome)}</b>
+                  <span>${uiEsc((c.escopos||[]).map(e=>escopoDe(e).l).join(' · ')||'sem escopo')}</span></span>
+                <input type="number" min="0" max="${bons.length}" value="${q}"
+                  oninput="impQuota('${c.id}',this.value)" onchange="impRender()">
+              </label>`;}).join('')}</div>`
+            :`<div class="kb-empty">Ninguém com contrato assinado ainda. Tudo vai para o painel livre.</div>`}
+            <div class="imp-sobra" id="imp-sobra"></div>
+            <div class="modal-acts">
+              <button class="btn btn-ghost" onclick="IMP.passo=2;impRender()">Voltar</button>
+              <button class="btn btn-gold" onclick="impGravar()">Importar e distribuir</button>
+            </div>`;
+          }
+
+          box.innerHTML=h;
+          if(IMP.passo===3) impPintarSobra();
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -20502,6 +21045,9 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           const k=DB.candidatos.find(x=>x.id===TP.cand);
           if(k){
             k.testes=Object.assign({}, TP.r, {fim:new Date().toISOString(), segundos:TP.r.segundos||0});
+            /* a bateria vira uma avaliação datada, e se esta pessoa já
+               passou por aqui as duas fichas viram uma só */
+            talArquivar(k); talJuntar(k);
             redeSalvar();
             if(typeof notify==='function'){
               const ind=talIndice(k);
@@ -20513,6 +21059,92 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           cadSucesso('Pronto, obrigada!',
             'As suas respostas chegaram. A gestão avalia e entra em contato pelo WhatsApp que você '
             +'informou, aprovada ou não. Se for aprovada, você recebe o contrato e passa a ver as demandas.');
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           A MESMA PESSOA, MAIS DE UMA VEZ
+
+           Gente boa volta. A pessoa que ficou em 62 há oito meses fez
+           outra coisa da vida nesse tempo, e o banco precisa saber disso:
+           sem histórico, ela é sempre uma desconhecida e a empresa
+           reavalia do zero uma pessoa que já conhece.
+
+           Duas coisas acontecem aqui. Primeiro, cada bateria respondida
+           vira uma AVALIAÇÃO datada, e a última é só a mais recente, não
+           a única. Segundo, quando alguém se cadastra de novo, o sistema
+           reconhece pelo documento, e-mail ou WhatsApp e junta as duas
+           fichas em vez de criar uma segunda pessoa.
+           ═══════════════════════════════════════════════════════════════ */
+
+        /** As chaves que identificam a mesma pessoa entre cadastros. */
+        function talChaves(k){
+          const doc=String(k.doc||'').replace(/\D/g,'');
+          const tel=String(k.tel||'').replace(/\D/g,'');
+          return [doc.length>=11?doc:'', String(k.email||'').trim().toLowerCase(),
+                  tel.length>=10?tel.slice(-9):''].filter(Boolean);
+        }
+
+        /** Quem no banco é a mesma pessoa que esta. */
+        function talMesmaPessoa(k){
+          const minhas=talChaves(k);
+          if(!minhas.length) return [];
+          return (DB.candidatos||[]).filter(x=>x.id!==k.id
+            && talChaves(x).some(c=>minhas.includes(c)));
+        }
+
+        /** Guarda a bateria recém-respondida como uma avaliação datada. */
+        function talArquivar(k){
+          if(!k || !k.testes || !k.testes.fim) return;
+          k.avaliacoes=k.avaliacoes||[];
+          /* não arquiva duas vezes a mesma: a data de fim é a assinatura */
+          if(k.avaliacoes.some(a=>a.fim===k.testes.fim)) return;
+          const ind=talIndice(k);
+          k.avaliacoes.push({
+            fim:k.testes.fim, indice:ind.indice, rec:ind.rec,
+            escopos:(k.escopos||[]).slice(),
+            notas:ind.partes.reduce((o,p)=>{o[p.k]=p.nota;return o;},{}),
+            disc:ind.disc.perfil, coerencia:ind.fit.coerencia,
+            bandeiras:ind.bandeiras.map(b=>b.l)
+          });
+          k.avaliacoes.sort((a,b)=>String(a.fim).localeCompare(String(b.fim)));
+        }
+
+        /**
+         * Junta o cadastro novo com o antigo: o histórico de avaliações
+         * segue a pessoa, e não a ficha.
+         */
+        function talJuntar(novo){
+          const antigos=talMesmaPessoa(novo);
+          if(!antigos.length) return null;
+          /* arquiva o que cada ficha tinha antes de fundir */
+          antigos.forEach(talArquivar); talArquivar(novo);
+          const historico=[];
+          antigos.forEach(a=>{ (a.avaliacoes||[]).forEach(x=>historico.push(x)); });
+          novo.avaliacoes=(novo.avaliacoes||[]).concat(historico)
+            .filter((x,i,arr)=>arr.findIndex(y=>y.fim===x.fim)===i)
+            .sort((a,b)=>String(a.fim).localeCompare(String(b.fim)));
+          novo.voltou=antigos.length;
+          novo.desdeQuando=antigos.map(a=>a.em).sort()[0]||null;
+          /* mantém o currículo antigo se o novo não trouxe um */
+          if(!novo.cv){ const comCv=antigos.find(a=>a.cv); if(comCv) novo.cv=comCv.cv; }
+          /* as fichas antigas saem: uma pessoa, uma ficha */
+          DB.candidatos=DB.candidatos.filter(x=>!antigos.some(a=>a.id===x.id));
+          redeSalvar();
+          return {juntou:antigos.length, avaliacoes:novo.avaliacoes.length};
+        }
+
+        /** A evolução, em uma frase, para a linha do painel. */
+        function talEvolucao(k){
+          const av=(k.avaliacoes||[]);
+          if(av.length<2) return null;
+          const antes=av[av.length-2], agora=av[av.length-1];
+          const dif=agora.indice-antes.indice;
+          const meses=Math.max(1,Math.round(
+            (new Date(agora.fim)-new Date(antes.fim))/(30*24*3600e3)));
+          return {dif, meses, antes:antes.indice, agora:agora.indice, quantas:av.length,
+            frase: dif>=8 ? 'Subiu '+dif+' pontos em '+meses+' '+(meses===1?'mês':'meses')+'. Gente que melhora é gente que aprende.'
+                 : dif<=-8 ? 'Caiu '+Math.abs(dif)+' pontos em '+meses+' '+(meses===1?'mês':'meses')+'. Vale entender o que mudou.'
+                 : 'Estável em '+meses+' '+(meses===1?'mês':'meses')+', de '+antes.indice+' para '+agora.indice+'.'};
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -20639,9 +21271,35 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
                   : '<p style="color:var(--bad);font-size:13px">Deixou em branco. O negócio é documento, e texto é o trabalho.</p>'}
               </div>
 
-              ${k.experiencia?`<div class="tal-cx" style="grid-column:1 / -1">
-                <h5>O que ela contou da experiência</h5>
-                <div class="tal-texto">${talMascarar(k.experiencia, sens, liberado)}</div>
+              ${(k.experiencia||k.cv)?`<div class="tal-cx" style="grid-column:1 / -1">
+                <h5>Experiência e currículo</h5>
+                ${k.experiencia?`<div class="tal-texto">${talMascarar(k.experiencia, sens, liberado)}</div>`:''}
+                ${k.cv?`<p style="margin-top:14px">
+                  <a class="btn btn-ghost btn-sm" href="${SYNC.url}/cv/${uiEsc(k.cv.id)}" target="_blank"
+                     rel="noopener" onclick="event.stopPropagation()">📎 Abrir o currículo</a>
+                  <span style="font-size:11.5px;color:var(--ink-faint);margin-left:10px">
+                    ${uiEsc(k.cv.nome||'arquivo')} · ${Math.round((k.cv.bytes||0)/1024)} KB ·
+                    abre no navegador, sem baixar, e a abertura fica na trilha</span></p>`
+                :'<p style="font-size:12.5px;color:var(--ink-faint);margin-top:12px">Sem currículo anexado.</p>'}
+              </div>`:''}
+
+              ${(k.avaliacoes&&k.avaliacoes.length>1)?`<div class="tal-cx" style="grid-column:1 / -1">
+                <h5>Já passou por aqui · ${k.avaliacoes.length} avaliações</h5>
+                ${(()=>{const ev=talEvolucao(k);
+                  return ev?`<p style="font-size:13.5px;margin-bottom:14px;line-height:1.7">
+                    <b style="color:${ev.dif>=8?'var(--ok)':ev.dif<=-8?'var(--bad)':'var(--ink)'}">${uiEsc(ev.frase)}</b></p>`:'';})()}
+                <table class="tbl"><thead><tr><th>Quando</th><th>Índice</th><th>Recomendação</th>
+                  <th>Perfil</th><th>Escopo de então</th></tr></thead><tbody>
+                ${k.avaliacoes.slice().reverse().map(a=>`<tr>
+                  <td>${new Date(a.fim).toLocaleDateString('pt-BR')}</td>
+                  <td><b style="color:${talCor(a.indice)}">${a.indice}</b></td>
+                  <td>${uiEsc(a.rec)}</td>
+                  <td>${uiEsc(a.disc||'·')}</td>
+                  <td style="font-size:11.5px;color:var(--ink-soft)">${uiEsc((a.escopos||[]).map(e=>escopoDe(e).l).join(', ')||'·')}</td>
+                </tr>`).join('')}</tbody></table>
+                ${k.voltou?`<p style="font-size:12px;color:var(--ink-faint);margin-top:12px;line-height:1.6">
+                  ${k.voltou} cadastro${k.voltou>1?'s antigos foram juntados':' antigo foi juntado'} a esta ficha,
+                  reconhecido${k.voltou>1?'s':''} pelo documento, e-mail ou WhatsApp.</p>`:''}
               </div>`:''}
 
               <div class="tal-cx" style="grid-column:1 / -1">
@@ -20671,22 +21329,42 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
         }
 
         /** Convite de entrevista pelo WhatsApp, com data combinada. */
+        /** "14/08/2026 15:00" vira data de verdade, para o lembrete existir. */
+        function selData(txt){
+          const m=/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/.exec(String(txt||''));
+          if(!m) return null;
+          const d=new Date(Number(m[3]), Number(m[2])-1, Number(m[1]), Number(m[4]), Number(m[5]));
+          return isNaN(d.getTime())?null:d;
+        }
+        function selPorExtenso(d){
+          return d.toLocaleDateString('pt-BR',{weekday:'long', day:'numeric', month:'long'})
+            +', às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+        }
+
         function talConvidar(id){
           const k=DB.candidatos.find(x=>x.id===id); if(!k) return;
-          const quando=prompt('Quando é a entrevista?\n\nEscreva do jeito que vai aparecer na mensagem.\n'
-            +'Ex.: quinta, 14 de agosto, às 15h, por videochamada','');
-          if(!quando) return;
-          k.entrevista={quando, marcadaEm:new Date().toISOString(),
+          /* pede dia e hora como data, e não como frase: é o que permite
+             o sistema mandar o lembrete 24 horas antes sozinho. Frase
+             solta o sistema aceita, mas aí o lembrete fica com você. */
+          const cru=prompt('Quando é a entrevista?\n\n'
+            +'Escreva dia e hora assim: 14/08/2026 15:00\n'
+            +'Com data de verdade, o sistema lembra a pessoa 24 horas antes sozinho.','');
+          if(!cru) return;
+          const data=selData(cru);
+          const quando=data?selPorExtenso(data):cru;
+          if(!data && !confirm('Não reconheci uma data em "'+cru+'".\n\n'
+            +'O convite sai assim mesmo, mas o lembrete de 24 horas antes fica com você. '
+            +'Continuar?')) return;
+          k.entrevista={quando, iso:data?data.toISOString():null,
+                        marcadaEm:new Date().toISOString(),
                         por:(AUTH.user&&AUTH.user.nome)||'gestão'};
           k.status='entrevista'; redeSalvar();
-          if(typeof docRegistrar==='function') docRegistrar('talento.entrevista','convidou '+k.nome);
-          const msg='Olá '+String(k.nome).split(' ')[0]+'! Aqui é '+((AUTH.user&&AUTH.user.nome)||'a gestão')
-            +', do Grupo A! Fatorial. Recebemos o seu cadastro e os testes, e gostamos do que vimos. '
-            +'Podemos conversar '+quando+'? Se esse horário não der, me diga dois que deem para você.';
-          const num=String(k.tel||'').replace(/\D/g,'');
-          if(num) window.open('https://wa.me/'+(num.length<=11?'55'+num:num)+'?text='+encodeURIComponent(msg),'_blank');
-          else alert('Sem WhatsApp cadastrado. Mensagem sugerida:\n\n'+msg);
-          talRender();
+          selDesfecho('entrevista', k, {quando, iso:data?data.toISOString():null}).then(r=>{
+            if(r.modo==='servidor')
+              alert('Convite disparado.\n\nO servidor manda a mensagem e ainda lembra a pessoa '
+                +'24 horas antes. Depois da entrevista ele cobra de você o retorno.');
+            talRender();
+          });
         }
 
         /** O laudo vira documento no servidor, com carimbo e sem download. */
@@ -20776,6 +21454,8 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
                   :'<span style="font-size:12px;color:var(--ink-faint)">ainda não respondeu</span>'}
               </span>
               <span class="tal-bandeiras">
+                ${(k.avaliacoes&&k.avaliacoes.length>1)?`<span class="tal-fl" style="background:var(--info-bg);color:var(--info)"
+                  title="Já respondeu ${k.avaliacoes.length} vezes">já passou por aqui</span>`:''}
                 ${k.entrevista?`<span class="tal-fl" style="background:var(--info-bg);color:var(--info)">entrevista marcada</span>`:''}
                 ${graves.slice(0,2).map(b=>`<span class="tal-fl mal">${uiEsc(b.l)}</span>`).join('')}
                 ${ind.sensivel.length?'<span class="tal-fl lei">dado sensível</span>':''}
@@ -21238,6 +21918,15 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
                 <div class="c5 f"><span class="lbl">WhatsApp *</span><input class="inp" id="cd-tel" placeholder="11999999999"></div>
                 <div class="c3 f"><span class="lbl">Horas por semana</span><input type="number" class="inp" id="cd-disp" value="20" min="1" max="60"></div>
                 <div class="c4 f"><span class="lbl">Portfólio / Instagram</span><input class="inp" id="cd-port" placeholder="link ou @"></div>
+                <div class="c12 f"><span class="lbl">Currículo (opcional)</span>
+                  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                    <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0;">
+                      📎 Anexar currículo
+                      <input type="file" id="cd-cv" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                        style="display:none" onchange="cadCvEscolher(this)"></label>
+                    <span id="cd-cv-nome" style="font-size:12px;color:var(--ink-faint);">
+                      PDF, DOC, DOCX, PNG ou JPG, até 6 MB</span>
+                  </div></div>
                 <div class="c12 f"><span class="lbl">O que você sabe fazer *</span>
                   <div class="ui-opts" id="cd-escopos">${ESCOPOS.map(e=>`
                     <button type="button" class="ui-opt" style="--kbc:${e.cor};" onclick="cadEscopo(this,'${e.k}')" title="${uiEsc(e.obj)}">
@@ -21295,6 +21984,9 @@ ${p.dados.parecer?`<p><b>Parecer do consultor.</b> ${E(p.dados.parecer)}</p>`:''
           });
           const novoId='K'+(_cdSeq-1), quantas=_cadEscopos.length;
           _cadEscopos=[]; redeSalvar();
+          /* o arquivo só sobe depois que a pessoa existe, porque é o id
+             dela que amarra o currículo ao cadastro no servidor */
+          cadCvEnviar(novoId);
           if(typeof notify==='function') notify('equipe','👋 Novo cadastro de prestador', g('cd-nome')+' quer entrar na rede · '+quantas+' áreas. Avalie em Rede de prestadores.','rede');
           /* O cadastro sozinho não separa quem vale a hora de entrevista.
              Emenda direto na prova, enquanto a pessoa ainda está aqui:

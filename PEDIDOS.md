@@ -8,9 +8,18 @@ embaixo, para conferência.
 
 ---
 
-## ABERTO · construir
+## ABERTO
 
-### 1. Nada baixado no computador de ninguém
+Nada. Tudo o que ela pediu para construir está construído, e o que está
+em cada bloco tem prova rodando. O que resta depende dela, logo abaixo.
+
+---
+
+## O PEDIDO QUE MOVEU TUDO
+
+Vale guardar, porque é dele que sai quase todo o resto.
+
+### Nada baixado no computador de ninguém
 **Revisado por ela, e o pedido ficou maior e melhor do que "bloquear
 download".** O que ela quer:
 
@@ -58,22 +67,6 @@ A metade 1 é o `backend/documentos.js`, e o documento não vira arquivo:
   muda é que ninguém precisa baixar o PDF para mandar
 
 **Ligado às telas**, e é o que está no bloco de entregues abaixo.
-
-### 2. Importar e distribuir leads
-Subir lista de leads por **serviço** ou **segmento**, e distribuir na
-**quantidade** que ela quiser, para **quem** ela quiser.
-
-### 3. O que sobrou do banco de talentos
-A bateria, os indicadores e o painel estão prontos (bloco de entregues).
-Falta:
-
-- **currículo em arquivo**: hoje a pessoa conta a experiência por escrito.
-  Anexo precisa de servidor, porque arquivo no navegador se perde
-- **comunicação automática** de aprovado e não aprovado. O convite de
-  entrevista já sai pelo WhatsApp com a data; falta o retorno dos dois
-  outros desfechos, que deve sair pelo motor de obrigações
-- **perfil e histórico** de cada pessoa entre processos, para comparar
-  quem já foi avaliada antes
 
 ---
 
@@ -193,6 +186,45 @@ Cada linha tem commit. `git log` conta a história completa.
   responde
 - O cadastro público emenda direto na prova, com rascunho salvo a cada
   resposta para ninguém perder o trabalho
+
+**Importar e distribuir leads**
+- Colar a lista ou subir CSV, com as colunas reconhecidas escritas de
+  qualquer jeito
+- Conferência antes de gravar: sem nome, sem contato, telefone quebrado,
+  e-mail inválido, repetido na lista e repetido na base, cada um com o
+  motivo escrito
+- Distribuição pessoa por pessoa, na quantidade que ela quiser, com
+  atalho de dividir igual, e o que não for distribuído cai no painel
+  livre
+- Só quem tem contrato assinado aparece para receber
+- Telefone normalizado com código do país, valor lido no formato
+  brasileiro, e a importação inteira registrada na trilha
+
+**Currículo em arquivo**
+- A pessoa anexa no cadastro, o arquivo vive no servidor
+- A dona abre por endereço, e a abertura entra na trilha
+- Não existe rota de baixar, e o arquivo abre no navegador sem ficar no
+  disco de quem leu
+- Executável ou HTML renomeado para .pdf é recusado pela assinatura do
+  arquivo, não pelo nome
+- Reenviar troca, não acumula, e o antigo some
+- Apagado sozinho depois de 12 meses, que é o prazo que a tela promete
+
+**Os três desfechos da seleção**
+- Convite de entrevista, aprovado e não aprovado saem pelo motor de
+  obrigações, com o texto pronto e igual dos dois lados
+- A recusa sai em até uma hora, porque é a que mais deixa de sair
+- Ela pede dia e hora como data, e o lembrete de 24 horas antes fica
+  agendado; sem data legível o lembrete fica aberto para uma pessoa, em
+  vez de sair junto com o convite
+- O motivo da recusa fica só no sistema e nunca vai na mensagem
+
+**Histórico entre processos**
+- Cada bateria vira uma avaliação datada
+- Quem se cadastra de novo é reconhecida pelo documento, e-mail ou
+  WhatsApp, e as fichas viram uma só
+- A evolução aparece em uma frase, e a tabela mostra índice, recomendação
+  e escopo de cada época
 
 **Governança na tela**
 - A trilha com quem, de onde, o quê, e o que mudou campo a campo
