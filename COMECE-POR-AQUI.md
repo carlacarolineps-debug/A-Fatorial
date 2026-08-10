@@ -3,171 +3,165 @@
 Escrito para ser seguido sem entender nada de programação. Cada passo diz
 exatamente onde clicar e o que tem que aparecer na tela quando dá certo.
 
-São 4 passos obrigatórios. Uns 20 minutos no total.
+**Sobraram 3 passos.** Uns 25 minutos no total.
+
+---
+
+## O que eu já fiz por você (não precisa mexer)
+
+Eu entrei no seu Supabase e deixei pronto:
+
+- as **18 tabelas** do banco, com todas as proteções ligadas
+- a coluna da **foto de perfil** e o lugar onde as fotos ficam guardadas
+- as **16 funções** de segurança, e fechei o acesso delas: quem não está
+  logado não consegue chamar nenhuma
+- as **duas funções do servidor** publicadas: a `liberar-aluna` (que manda
+  a senha temporária) e a `tmb-webhook` (que recebe a inscrição da TMB)
+- o **seu acesso ativo** e a sua conta marcada como mentora
+
+**Só falta o que depende de você**, porque envolve a sua conta do Google e
+os seus segredos, que eu não posso nem devo ver.
 
 ---
 
 # PASSO 0: ver o app agora (1 minuto)
 
-Antes de qualquer coisa, dá para você já olhar tudo.
-
 1. Baixe o arquivo `Operação Blindada 0608.05.html` que eu te mandei.
 2. **Dê dois cliques nele.** Abre no navegador.
 3. Passeie à vontade.
 
-O que você vai ver: o app inteiro funcionando, com as 43 trilhas, as 170
-cartas, a apostila, o plano, o diário. Tudo isso já roda sem banco nenhum,
-guardando no próprio computador.
+O app inteiro funciona aqui, com as 43 trilhas, as 170 cartas, a apostila,
+o plano, o diário, guardando no próprio computador.
 
 **A sua mesa de mentoria não aparece aqui, e isso é de propósito.** Ela só
 existe depois que você entra com a conta `gestaogrupoa@gmail.com`, e quem
-decide isso é a regra dentro do banco de dados, não o aplicativo. Se
-bastasse abrir o arquivo para ver a área de admin, qualquer pessoa que
-baixasse o app veria também. Os passos abaixo é que ligam a sua conta.
+decide isso é a regra dentro do banco, não o aplicativo. Se bastasse abrir
+o arquivo para ver a área de admin, qualquer pessoa que baixasse o app
+veria também.
 
 ---
 
-# PASSO 1: ligar o banco de dados (5 minutos)
+# PASSO 1: a senha de aplicativo do Google (8 minutos)
 
-O banco é onde ficam as contas das alunas, o progresso, os áudios, as aulas.
-Sem ele o app funciona, mas cada pessoa fica sozinha no próprio celular.
+Isso é o que faz os e-mails saírem. São dois e-mails diferentes (a senha
+temporária e o link de esqueci a senha), e os dois usam esta mesma senha.
 
-### 1.1
+### 1.1 Ligar a verificação em duas etapas
 
-Clique aqui: **https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/sql/new**
+Se você já tem, pule para o 1.2.
 
-Vai abrir uma tela preta grande, com um botão verde escrito **Run** no canto
-de baixo à direita.
+1. Abra: **https://myaccount.google.com/security**
+2. Entre com `gestaogrupoa@gmail.com`
+3. Procure **Verificação em duas etapas** e clique
+4. **Começar**, e siga: ele pede o seu celular e manda um código
+5. No fim tem que aparecer **Ativada**
 
-### 1.2
+### 1.2 Criar a senha de aplicativo
 
-Abra esta outra página numa aba nova:
+É uma senha separada, só para o app usar. Ela não é a sua senha do Gmail,
+e você pode apagar quando quiser sem mexer na sua conta.
 
-**https://github.com/carlacarolineps-debug/A-Fatorial/blob/claude/strategy-cards-mentoring-vygy1x/supabase/01_schema.sql**
+1. Abra: **https://myaccount.google.com/apppasswords**
+2. Se pedir a senha do Gmail de novo, digite
+3. No campo do nome, escreva: `Operacao Blindada`
+4. **Criar**
+5. Aparece uma caixa amarela com **16 letras**, tipo `abcd efgh ijkl mnop`
 
-No canto de cima do quadro de código tem um **ícone de duas folhinhas**
-(copiar). Clique nele. Pronto, copiou tudo.
+**COPIE ESSAS 16 LETRAS AGORA.** O Google só mostra uma vez. Cole no Bloco
+de Notas: você vai usar nos passos 2 e 3.
 
-### 1.3
+> **Na hora de colar, tire os espaços.** O que aparece como
+> `abcd efgh ijkl mnop` você cola como `abcdefghijklmnop`.
 
-Volte na aba do Supabase, clique dentro da área preta e cole
-(**Ctrl + V**, ou **Cmd + V** no Mac).
+**Se a página disser que não está disponível:** a verificação em duas
+etapas ainda não está ligada. Volte ao 1.1.
 
-### 1.4
+---
 
-Clique em **Run**.
+# PASSO 2: o e-mail do "esqueci a senha" (8 minutos)
 
-**Deu certo se:** aparecer **Success. No rows returned** em verde embaixo.
+### 2.1 O SMTP
 
-**Deu errado se:** aparecer uma faixa vermelha. Nesse caso copie a mensagem
-inteira e me mande. Não rode de novo antes de eu olhar.
+1. Abra: **https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/settings/auth**
+2. Role até **SMTP Settings**
+3. Ligue a chavinha **Enable Custom SMTP**
+4. Preencha:
 
-> Pode rodar esse mesmo arquivo quantas vezes quiser. Ele foi feito para
-> isso, e não apaga nada de ninguém.
+| Campo | O que colocar |
+|---|---|
+| **Sender email** | `gestaogrupoa@gmail.com` |
+| **Sender name** | `Operação Blindada` |
+| **Host** | `smtp.gmail.com` |
+| **Port number** | `587` |
+| **Username** | `gestaogrupoa@gmail.com` |
+| **Password** | as 16 letras do passo 1.2, **sem espaços** |
 
-**Se preferir, use o arquivo que eu te mandei no chat** em vez de copiar do
-GitHub. Abra ele no Bloco de Notas, selecione tudo (Ctrl + A), copie
-(Ctrl + C) e cole no Supabase. Às vezes o botão de copiar do GitHub não pega
-o arquivo inteiro quando ele é grande, e aí o final fica faltando e dá erro.
+5. Se houver **Minimum interval between emails**, deixe `60`
+6. **Save**
 
-**Sobre duas mensagens específicas:** se aparecer algo com `pg_cron` ou com
-`publicacao`, **pode ignorar**. As duas agora são avisos, não erros. O resto
-do arquivo roda normalmente e as 18 tabelas são criadas do mesmo jeito.
+### 2.2 O texto do e-mail
 
-### 1.5 Conferir se deu certo mesmo (30 segundos)
+Com o SMTP ligado, os modelos ficam editáveis (antes aparecia aquele aviso
+cinza *"Set up custom SMTP to edit templates"*).
 
-Não precisa procurar tabela nenhuma na mão. Abra o arquivo
-`supabase/02_conferir.sql`, copie tudo, cole no mesmo SQL Editor e clique em
-**Run**.
-
-Ele não muda nada, só olha. A resposta vem em cinco linhas, em português:
+1. Abra: **https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/auth/templates**
+2. Clique em **Reset Password**. É este, **não** o Magic Link
+3. Em **Subject**, apague e escreva:
 
 ```
-1. tabelas     TUDO CERTO: as 18 tabelas existem
-2. seguranca   TUDO CERTO: todas protegidas
-3. funcoes     TUDO CERTO: as 9 funcoes existem
-4. seu acesso  TUDO CERTO: o seu acesso esta ativo
-5. mentora     TUDO CERTO: voce esta na lista de mentoras
+Escolher uma senha nova: Operacao Blindada
 ```
 
-Se as cinco disserem TUDO CERTO, pode seguir para o passo 2. Se alguma
-disser ATENCAO ou FALTAM, me manda o print.
+4. Em **Body**, apague tudo e cole:
+
+```html
+<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:28px;background:#0b0a0c;color:#e8e6e1;border-radius:16px">
+  <p style="color:#c8a24a;font-size:11px;letter-spacing:4px;margin:0 0 4px">OPERACAO</p>
+  <h1 style="font-size:26px;letter-spacing:3px;margin:0 0 22px;color:#efe9de">BLINDADA</h1>
+  <p style="font-size:15px;line-height:1.6;margin:0 0 20px">Voce pediu para trocar a sua senha. Toque no botao abaixo e escolha a nova.</p>
+  <p style="margin:0 0 22px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#d9a53a;color:#20180a;text-decoration:none;font-weight:bold;font-size:15px;padding:13px 30px;border-radius:999px">Escolher a senha nova</a></p>
+  <p style="font-size:13px;line-height:1.6;color:#9a8f78;margin:0">Abra este e-mail no mesmo celular em que voce usa o app. O link vale por 1 hora. Se nao foi voce quem pediu, ignore.</p>
+</div>
+```
+
+5. **Save**
+
+> O pedaço `{{ .ConfirmationURL }}` é o que vira o link. Precisa ficar
+> escrito exatamente assim. Sem ele, o e-mail chega sem link.
+
+### 2.3 Para onde o link volta
+
+1. Ainda em **Authentication**, procure **URL Configuration**
+2. Em **Site URL**, coloque:
+   `https://carlacarolineps-debug.github.io/A-Fatorial/`
+3. Em **Redirect URLs**, acrescente o mesmo endereço
+4. **Save**
+
+Sem isso o link do e-mail leva para um lugar que não existe.
 
 ---
 
-# PASSO 2: o e-mail que manda a senha (20 minutos)
+# PASSO 3: os três segredos (4 minutos)
 
-Não existe mais código de 6 dígitos. Agora funciona assim:
+Isso é o que faz a senha temporária sair. A função já está publicada, ela
+só não sabe ainda de qual e-mail mandar.
 
-1. a inscrição é confirmada, ou você libera a pessoa na sua mesa;
-2. o servidor cria a conta e manda uma **senha temporária** por e-mail;
-3. ela entra com o e-mail da inscrição e aquela senha;
-4. o app **exige na hora** que ela crie a senha dela.
+1. Abra: **https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/settings/functions**
+2. Procure **Edge Function Secrets** (ou **Secrets**)
+3. **Add new secret**, e crie os três, um de cada vez:
 
-Quem esquece a senha usa **Esqueci a minha senha** e recebe um link.
+| Name | Value |
+|---|---|
+| `GMAIL_USER` | `gestaogrupoa@gmail.com` |
+| `GMAIL_APP_PASSWORD` | as 16 letras do passo 1.2, **sem espaços** |
+| `APP_URL` | `https://carlacarolineps-debug.github.io/A-Fatorial/` |
 
-Para os dois e-mails saírem, o app precisa do seu Gmail. **O passo a
-passo inteiro está em `EMAIL-DA-SENHA.md`**, com as telas do Google e as
-do Supabase, uma por uma. Em resumo:
-
-1. ligue a verificação em duas etapas na sua conta Google
-2. crie uma **senha de aplicativo** (16 letras, é diferente da sua senha)
-3. no Supabase, em **Project Settings**, **Authentication**, **SMTP
-   Settings**, preencha com `smtp.gmail.com`, porta `587`, o seu e-mail e
-   aquelas 16 letras
-4. ajuste o modelo **Reset Password** (é este, não o Magic Link) e a
-   **Site URL**
-5. guarde três segredos (`GMAIL_USER`, `GMAIL_APP_PASSWORD`, `APP_URL`) e
-   publique a função `liberar-aluna`
-
-Usamos o seu próprio Gmail de propósito: o e-mail sai dos servidores do
-Google e **chega na caixa de entrada**. Serviços de terceiros mandando em
-nome de um Gmail costumam cair no spam, e aí a aluna paga e não recebe a
-senha.
-
-Limite: 500 e-mails por dia, de graça. Para uma turma, sobra muito.
+**Estes segredos ficam só no servidor.** Eles nunca entram no aplicativo, e
+ninguém que baixe o app consegue lê-los.
 
 ---
 
-# PASSO 3: entrar no app e virar a mentora (3 minutos)
-
-### 3.1
-
-Abra o app **hospedado**, não o do seu computador. Se você ainda não fez
-o passo 4, pode pular para lá e voltar aqui depois.
-
-### 3.2
-
-O passo 1 já deixou o seu acesso ativo, mas a sua conta ainda não tem
-senha. Na tela de entrada, clique em **Esqueci a minha senha**.
-
-### 3.3
-
-Digite `gestaogrupoa@gmail.com` e clique em **Enviar o link**.
-
-### 3.4
-
-Abra o seu e-mail. **Olhe também o spam**, o primeiro sempre cai lá.
-Toque no link, **no mesmo aparelho**.
-
-### 3.5
-
-O app abre direto na tela de criar a senha. Pelo menos 8 caracteres, com
-letras e números. **Anote em lugar seguro.**
-
-### 3.6
-
-Pronto, o app abre. Vá em **Mais**: o primeiro item da lista é **A sua mesa**.
-
-> Você não precisa fazer o "Comece por aqui" das alunas. Quem conduz entra
-> com tudo aberto.
-
-**Se aparecer "Acesso ainda não liberado":** significa que o passo 1 não
-terminou. Volte e confira se apareceu o Success verde.
-
----
-
-# PASSO 4: ligar o app no seu celular (2 minutos)
+# PASSO 4: ligar o app no seu celular (3 minutos)
 
 ### 4.1
 
@@ -179,8 +173,7 @@ Em **Source**, escolha **Deploy from a branch**.
 
 ### 4.3
 
-Em **Branch**, abra a listinha e escolha:
-`claude/strategy-cards-mentoring-vygy1x`
+Em **Branch**, escolha `claude/strategy-cards-mentoring-vygy1x`.
 
 ### 4.4
 
@@ -188,114 +181,137 @@ Na listinha ao lado (a da pasta), escolha **`/docs`**.
 
 ### 4.5
 
-Clique em **Save**.
-
-### 4.6
-
-Espere 2 minutos e recarregue a página. Vai aparecer uma faixa verde com um
-endereço parecido com este:
+**Save**. Espere 2 minutos e recarregue: aparece uma faixa verde com
 
 **https://carlacarolineps-debug.github.io/A-Fatorial/**
 
-### 4.7
+### 4.6
 
 Abra esse endereço **no seu celular**.
 
-- **Android**: toque nos três pontinhos em cima e escolha
-  **Instalar aplicativo**
-- **iPhone**: toque no botão de compartilhar (quadrado com seta para cima),
-  role para baixo e escolha **Adicionar à Tela de Início**
+- **Android**: três pontinhos em cima, **Instalar aplicativo**
+- **iPhone**: botão de compartilhar (quadrado com seta para cima), role
+  para baixo, **Adicionar à Tela de Início**
 
-Pronto: o ícone do escudo dourado aparece junto com os outros aplicativos, e
-abre em tela cheia.
+Pronto: o ícone do escudo dourado aparece junto com os outros aplicativos,
+e abre em tela cheia.
 
 ---
 
-# Agora sim: usando a sua mesa
+# AGORA TESTE (5 minutos)
 
-Entre no app, vá em **Mais**, depois **A sua mesa**.
+## A. Criar a sua senha
+
+A sua conta ainda não tem senha (o acesso está ativo, mas ninguém nunca
+entrou).
+
+1. Abra o app **hospedado**, pelo endereço do passo 4
+2. **Esqueci a minha senha**
+3. Digite `gestaogrupoa@gmail.com`, **Enviar o link**
+4. Abra o e-mail. **Olhe o spam**, o primeiro sempre cai lá
+5. Toque no link, **no mesmo aparelho**
+6. O app abre direto na tela de criar a senha. Pelo menos 8 caracteres,
+   com letras e números. **Anote em lugar seguro**
+7. Pronto, o app abre. Em **Mais**, o primeiro item é **A sua mesa**
+
+**Se não chegou o e-mail:** o passo 2 não terminou. No Supabase, em
+**Logs**, procure **Auth Logs**: o erro aparece lá. Me manda o print.
+
+## B. A senha temporária
+
+1. Na sua mesa, aba **Alunas**
+2. No campo de e-mail, coloque **outro e-mail seu** (um Gmail pessoal)
+3. **Liberar e mandar a senha**
+
+**Deu certo se:** aparecer *"A senha temporária foi para o e-mail dela"*, e
+chegar um e-mail preto e dourado com uma senha de 10 caracteres.
+
+**Se disser "acesso liberado, mas a senha não foi por e-mail":** algum dos
+três segredos do passo 3 está errado. Confira principalmente se as 16
+letras foram coladas sem espaço.
+
+4. Abra o app numa **janela anônima**, entre com aquele e-mail e a senha do
+   e-mail. **Tem que aparecer a tela pedindo para criar a senha.**
+
+---
+
+# Usando a sua mesa
+
+Entre no app, **Mais**, **A sua mesa**.
 
 ## Publicar o áudio do dia
 
-1. Aba **Publicar**
-2. No primeiro quadro, **O áudio do dia**
-3. Escreva um título (opcional)
-4. Em **Arquivo do áudio**, escolha o áudio que você gravou no celular.
-   Ou, se ele já está em algum lugar na internet, cole o endereço no campo
-   de baixo
-5. Se quiser, escreva a transcrição (ajuda quem não pode ouvir na hora)
-6. **Publicar o áudio**
+1. Aba **Publicar**, primeiro quadro
+2. Título (opcional)
+3. Em **Arquivo do áudio**, escolha o áudio do celular. Ou cole o endereço
+   no campo de baixo, se ele já estiver na internet
+4. Se quiser, a transcrição (ajuda quem não pode ouvir na hora)
+5. **Publicar o áudio**
 
 Deu certo quando aparecer, em verde: *Publicado. Já aparece no Início das
 alunas.*
 
 ## Subir a aula da semana
 
-1. Mesma aba **Publicar**, segundo quadro
-2. Título da aula
-3. **Link do vídeo**: cole o endereço do YouTube ou do Vimeo
-4. Escreva em uma frase o que a pessoa leva daquela aula
-5. **Publicar a aula**
+1. Mesma aba, segundo quadro
+2. Título, **Link do vídeo** (YouTube ou Vimeo), e em uma frase o que a
+   pessoa leva daquela aula
+3. **Publicar a aula**
 
-Ela aparece em **O Ano**, na aba das aulas da semana, com o contador de
-quantas já saíram naquela semana.
+Ela aparece em **O Ano**, na aba das aulas da semana.
 
 ## Marcar o encontro
 
 1. Terceiro quadro
-2. Título, data, hora
-3. Online ou presencial
-4. Cole o link da sala (ou o endereço, se for presencial)
-5. Escreva a pauta
-6. **Publicar o encontro**
+2. Título, data, hora, online ou presencial, o link da sala, a pauta
+3. **Publicar o encontro**
 
 Quem confirmar presença ganha o lembrete 24 horas antes e a entrada na
 agenda do celular.
 
 ## Liberar uma aluna na mão
 
-1. Aba **Alunas**
-2. Digite o e-mail dela no primeiro campo
-3. **Liberar o acesso**
+1. Aba **Alunas**, digite o e-mail, **Liberar e mandar a senha**
 
-Ela recebe **na hora**, por e-mail, uma senha temporária. Entra com
-aquele mesmo e-mail e aquela senha, e o app já pede para ela criar a
-senha dela. Serve para quando a inscrição não chegou sozinha, ou para uma
-convidada.
+Ela recebe a senha temporária na hora. Entra com aquele mesmo e-mail e
+aquela senha, e o app já pede para ela criar a senha dela.
 
 Se alguém perdeu a senha e não consegue nem usar o "esqueci", procure o
 nome na lista e clique em **Reenviar a senha**: sai outra temporária, e o
 progresso não é tocado.
 
-Para tirar o acesso de alguém: procure o nome na lista e clique em
-**Encerrar**. O progresso dela **não é apagado**: se voltar, volta de onde
-parou.
+Para tirar o acesso de alguém: **Encerrar**. O progresso **não é apagado**:
+se voltar, volta de onde parou.
 
 ---
 
 # Depois, sem pressa
 
-Estas três coisas não impedem você de começar hoje.
+## A. A liberação automática pela TMB
 
-## A. E-mail próprio (antes de abrir para a turma)
+Hoje você libera cada aluna na mão. Para a inscrição virar acesso sozinha,
+falta só cadastrar o segredo e apontar os webhooks:
+
+1. Em **Edge Function Secrets**, crie `TMB_WEBHOOK_SECRET` com uma senha
+   longa que você inventar (30 letras aleatórias servem)
+2. Na TMB, cadastre os dois webhooks (Vendas e Financeiro) apontando para
+   `https://okoylfnniukzwoxevyow.supabase.co/functions/v1/tmb-webhook`
+   com o cabeçalho `x-webhook-secret` valendo aquela mesma senha
+
+A função já está publicada e esperando.
+
+## B. O limite de e-mails
 
 O Gmail entrega 500 por dia, e isso cobre uma turma inteira com folga.
 Quando a base passar disso, vale comprar um domínio (cerca de R$ 40 por
-ano) e usar o Resend, que faz 3.000 por mês sem custo e não tem teto
-diário. Os detalhes estão em `loja/passo-a-passo-supabase.md`.
-
-## B. A liberação automática pela TMB
-
-Hoje você libera cada aluna na mão, pela aba Alunas. Para a inscrição virar
-acesso sozinha, tem o passo 5 do arquivo `loja/passo-a-passo-supabase.md`.
-Dá para fazer tudo pelo navegador, em 10 minutos.
+ano) e usar o Resend, que faz 3.000 por mês sem custo.
 
 ## C. As lojas
 
 O caminho completo, campo a campo, está em `SUBIR-NAS-LOJAS.md`. O que
-importa saber agora: **o Google exige 14 dias de teste com 12 pessoas antes
-de deixar publicar**, então é por ele que se começa. A Apple costuma
-aprovar antes.
+importa agora: **o Google exige 14 dias de teste com 12 pessoas antes de
+deixar publicar**, então é por ele que se começa. A Apple costuma aprovar
+antes.
 
 ---
 
@@ -303,9 +319,12 @@ aprovar antes.
 
 | O que aparece | O que fazer |
 |---|---|
-| Faixa vermelha no Supabase | Copie a mensagem inteira e me mande |
-| "Acesso ainda não liberado" | O passo 1 não terminou. Confira o Success verde |
-| A senha não chega | Olhe o spam. Na mesa, use Reenviar a senha |
+| "Set up custom SMTP to edit templates" | O passo 2.1 não terminou |
+| A senha temporária não chega | Olhe o spam. Confira os 3 segredos do passo 3 |
+| "acesso liberado, mas a senha não foi por e-mail" | Segredo errado. Quase sempre é espaço nas 16 letras |
+| O link do "esqueci a senha" não chega | Passo 2.2 sem o `{{ .ConfirmationURL }}`, ou 2.1 incompleto |
+| O link leva para uma página em branco | A Site URL do passo 2.3 está faltando |
+| "Acesso ainda não liberado" | Você entrou com outro e-mail |
 | "E-mail ou senha não conferem" | Use a senha que veio por e-mail, ou toque em Esqueci a minha senha |
 | O endereço do site dá 404 | Espere mais 2 minutos. O GitHub demora para publicar |
 | A mesa não aparece em Mais | Você entrou com outro e-mail. Precisa ser o gestaogrupoa@gmail.com |

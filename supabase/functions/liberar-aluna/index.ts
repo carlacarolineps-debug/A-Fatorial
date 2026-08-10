@@ -25,7 +25,10 @@
 //   supabase secrets set APP_URL=https://carlacarolineps-debug.github.io/A-Fatorial/
 // =====================================================================
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { SMTPClient } from "jsr:@denodrivers/smtp@0.12";
+/* denomailer, e não o pacote do JSR: o @denodrivers/smtp existe no
+   deno.land mas NÃO está publicado no JSR, e o bundler da Edge Function
+   recusa a publicação inteira quando não acha o pacote. */
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const URL_SB  = Deno.env.get("SUPABASE_URL")!;
 const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

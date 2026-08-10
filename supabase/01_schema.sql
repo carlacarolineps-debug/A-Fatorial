@@ -1020,13 +1020,57 @@ $$;
 grant execute on function public.resumo_admin() to authenticated;
 
 -- =====================================================================
--- 14. O QUE NÃO DÁ PARA FAZER POR SQL (fica no painel)
---   a) Authentication > Emails > Templates > Magic Link:
---      incluir {{ .Token }} no corpo, senão o código de 6 dígitos não chega
---   b) Authentication > Emails > SMTP Settings:
---      configurar um e-mail próprio antes de abrir para a turma. O e-mail
---      embutido do Supabase manda pouquíssimos por hora e é só para teste
---   c) Edge Functions: publicar tmb-webhook e cadastrar o segredo
+-- 14. FECHAR O EXECUTE, POR ÚLTIMO
+--   O Postgres dá EXECUTE para PUBLIC em toda função nova. Sem este
+--   bloco, quem nem está logado pode chamar as funções da mesa pela API
+--   com a chave anon. Elas conferem eh_mentora() por dentro, então não
+--   havia furo, mas superfície que não serve para nada não deve existir,
+--   e é isso que o linter do Supabase aponta.
+--   Vem depois de TODAS as funções, de propósito: cada create or replace
+--   devolve o EXECUTE para PUBLIC, então rodar isto no meio não adianta.
+-- =====================================================================
+do $$
+declare f record;
+begin
+  for f in
+    select p.oid::regprocedure as assinatura, p.proname
+    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.prosecdef
+  loop
+    execute format('revoke execute on function %s from public, anon', f.assinatura);
+    -- as internas não são chamadas pelo app: marca_mentora é gatilho de
+    -- tabela, rls_auto_enable é gatilho de evento, e a régua roda pelo cron
+    if f.proname in ('marca_mentora','rls_auto_enable','aplicar_regua_inadimplencia') then
+      execute format('revoke execute on function %s from authenticated', f.assinatura);
+    end if;
+  end loop;
+end $$;
+
+-- e devolve só o que o app precisa
+grant execute on function public.tem_acesso()                to authenticated;
+grant execute on function public.eh_mentora()                to authenticated;
+grant execute on function public.casar_meu_acesso()          to authenticated;
+grant execute on function public.excluir_minha_conta()       to authenticated;
+grant execute on function public.suspender_membro(uuid)      to authenticated;
+grant execute on function public.remover_conteudo(text,text) to authenticated;
+grant execute on function public.liberar_acesso(text)        to authenticated;
+grant execute on function public.encerrar_acesso(text)       to authenticated;
+grant execute on function public.alunas_admin(text)          to authenticated;
+grant execute on function public.resumo_admin()              to authenticated;
+grant execute on function public.get_ranking(integer)        to authenticated;
+grant execute on function public.bloqueado(uuid)             to authenticated;
+
+-- =====================================================================
+-- 15. O QUE NÃO DÁ PARA FAZER POR SQL (fica no painel)
+--   a) Authentication > Emails > Templates > Reset Password:
+--      o corpo precisa ter {{ .ConfirmationURL }}, senão o link de
+--      esqueci a minha senha chega vazio
+--   b) Authentication > URL Configuration: a Site URL tem que ser o
+--      endereço do app, senão o link do e-mail leva para lugar nenhum
+--   c) Authentication > SMTP Settings: o Gmail com a senha de aplicativo
+--   d) Edge Functions: publicar liberar-aluna e tmb-webhook, e cadastrar
+--      os segredos GMAIL_USER, GMAIL_APP_PASSWORD, APP_URL e
 --      TMB_WEBHOOK_SECRET
---   d) conferir o Realtime em Database > Publications
+--   e) conferir o Realtime em Database > Publications
+--   Tudo isso está em EMAIL-DA-SENHA.md, tela por tela.
 -- =====================================================================

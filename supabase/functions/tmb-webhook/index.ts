@@ -57,9 +57,9 @@ function data(v: unknown): string | null {
 
 /* ------------------------------------------------------------------ */
 /* acha ou cria a conta. O aluno compra antes de existir no Auth, então  */
-/* a conta nasce aqui, sem senha: ele entra depois pelo código de 6      */
-/* dígitos. Nunca devolve erro fatal: sem user_id o access ainda casa    */
-/* por e-mail quando ele fizer o primeiro login.                        */
+/* a conta nasce aqui. A senha temporária é posta logo depois, pela      */
+/* liberar-aluna. Nunca devolve erro fatal: sem user_id o access ainda   */
+/* casa por e-mail quando ele fizer o primeiro login.                    */
 /* ------------------------------------------------------------------ */
 async function acharOuCriarUsuario(email: string): Promise<string | null> {
   if (!email) return null;
