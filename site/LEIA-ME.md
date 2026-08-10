@@ -88,6 +88,51 @@ marcar os próprios sintomas e a conta chegar — em que a página não tem cart
 painel nem número: só uma frase dela, a retícula à vista, e as palavras
 entrando uma a uma.
 
+### O retrato
+
+A foto da Carla é de evento: teleobjetiva, luz de janela estourada atrás, mesa
+com garrafa e lata na frente, alguém filmando em pé no canto. Colada crua num
+site breu, abriria um buraco branco no meio da página. Todo o tratamento está
+em **`retrato.py`** — roda de novo quando ela mandar outra foto:
+
+```
+python3 retrato.py     → retrato.webp (22 KB) e selo.webp (3 KB)
+```
+
+Quatro decisões, e o motivo de cada uma:
+
+- **Recorte 4:5 fechado, não centralizado.** Ela está de perfil olhando para a
+  direita; o rosto fica à esquerda do centro, com o espaço à frente do olhar.
+  Centralizado, um perfil parece encostado na borda. Três enquadramentos foram
+  vistos lado a lado: o aberto deixava parede demais, o fechado tirava o ar.
+- **Curva por canal, não filtro.** A pele continua pele. O que muda é o pé da
+  curva — a sombra desce quase até o breu — e o topo, onde o azul cede: o
+  estouro da janela vira âmbar em vez de branco. É isso que faz a foto
+  pertencer à paleta sem virar duotone de 2015.
+- **Rodapé desvanecido no alfa, não cortado.** A mesa e a garrafa somem por
+  transparência. Corte deixaria borda dura; assim a foto termina em nada, e a
+  citação começa dentro do que sobrou. A margem negativa do `figcaption` é o
+  que apaga a costura.
+- **Halo âmbar na página.** É a mesma janela da foto continuada para fora do
+  cartão. Funciona porque `box-shadow` não é cortado pelo `overflow:hidden` do
+  próprio elemento — o recorte vale para os filhos, não para a sombra de fora.
+
+O mesmo arquivo gera o **selo redondo** do cartão da mentoria, onde antes
+estavam as iniciais CC. O cartão da empresa abre com o logotipo, o da pessoa
+com o rosto dela: é a separação das duas marcas dita sem gastar uma palavra.
+O enquadramento do selo inclui o ombro de propósito — rosto fechado vira
+mancha quando encolhe para 50px, e a única forma de julgar isso é olhar no
+tamanho real, não ampliado.
+
+Esse mesmo selo é a foto da conta da dona **dentro do sistema** (`FOTO_CARLA`,
+no `index.html` da raiz): entra no avatar da barra de topo, no briefing de
+entrada, nos cartões de pessoa do Kanban. Quem já usava o sistema tem
+`foto:''` gravado no navegador de versões anteriores — por isso o vazio volta
+para a de fábrica na leitura, e a de fábrica não é gravada de volta.
+
+O original está em **`carla.jpg`**, sem tratamento. Guardado de propósito: o
+recorte é uma escolha, e escolha se revê.
+
 ### As três luzes
 
 O ouro continua sendo o **metal** — matéria, peso, marca. O ciano, o violeta e
@@ -230,7 +275,9 @@ e sistema estão no mesmo domínio.
 
 - [ ] Conferir se 11 9.1101-2147 é mesmo o celular que atende no WhatsApp
 - [ ] Pedir ao designer o **vetor do símbolo** (SVG, AI ou EPS) e trocar o selo
-- [ ] Substituir a citação do bloco "Quem fundou o método" por uma foto real da Carla
+- [x] ~~Substituir a citação do bloco "Quem fundou o método" por uma foto real
+      da Carla~~ — feito; se aparecer uma foto melhor, é trocar `carla.jpg` e
+      rodar `retrato.py`
 - [ ] Dar um número de WhatsApp próprio à mentoria (`WHATSAPP_CC`)
 - [ ] Revisar os números da capa (12 anos, +500 empresárias, 83 serviços)
 - [ ] Abrir `marca.html` e conferir que o laudo de contraste segue aprovado

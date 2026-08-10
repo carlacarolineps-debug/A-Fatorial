@@ -43,6 +43,11 @@ que tem permissão.
    senha; criar novo usuário. Usuários inativos não conseguem entrar. Cada
    colaborador também personaliza foto e apelido no próprio portal ("Meu perfil").
    Login agora valida senha e status (com senha padrão de demonstração).
+   A conta da dona já vem com foto: `FOTO_CARLA`, embutida no arquivo (o sistema
+   roda sem servidor, então imagem só existe se vier junto). Aparece no avatar da
+   barra de topo, no briefing de entrada e nos cartões de pessoa. Trocar pelo
+   próprio painel de usuários substitui essa; apagar volta para ela. O arquivo é
+   gerado por `site/retrato.py`, a partir de `site/carla.jpg`.
 7. **Catálogo → aba "Oportunidades por CNAE"** — biblioteca curada de 49 serviços
    que a empresa PODE oferecer dentro dos CNAEs que já tem registrados (sem risco
    fiscal). Cada serviço traz descrição e preço sugerido; um clique ativa na
