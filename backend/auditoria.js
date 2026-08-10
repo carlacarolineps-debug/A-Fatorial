@@ -157,7 +157,7 @@ function permitir(req, eu, acao, col, detalhe, liberacao) {
 function montar(app, dep) {
   const { exigeLogin, exigeAdmin, aplicarDesfazer } = dep;
 
-  /* — a trilha, com filtro — */
+  /*: a trilha, com filtro: */
   app.get('/gov/trilha', exigeLogin, exigeAdmin, (req, res) => {
     const { quem, acao, de, ate, so } = req.query;
     let l = A.trilha;
@@ -169,7 +169,7 @@ function montar(app, dep) {
     res.json({ ok: true, total: l.length, trilha: l.slice(0, 300) });
   });
 
-  /* — o que uma pessoa fez, para a conversa difícil — */
+  /*: o que uma pessoa fez, para a conversa difícil: */
   app.get('/gov/pessoa/:uid', exigeLogin, exigeAdmin, (req, res) => {
     const l = A.trilha.filter(x => x.uid === req.params.uid);
     const porAcao = {};
@@ -178,7 +178,7 @@ function montar(app, dep) {
                ultimas: l.slice(0, 60) });
   });
 
-  /* — regras — */
+  /*: regras: */
   app.get('/gov/regras', exigeLogin, exigeAdmin, (_req, res) => res.json({ ok: true, regras: A.regras }));
 
   app.post('/gov/regras', exigeLogin, exigeAdmin, (req, res) => {
@@ -202,7 +202,7 @@ function montar(app, dep) {
     res.json({ ok: true, regra: r });
   });
 
-  /* — pedidos de autorização — */
+  /*: pedidos de autorização: */
   app.get('/gov/pedidos', exigeLogin, (req, res) => {
     /* a pessoa vê os próprios; a dona vê todos */
     const meus = req.eu.papel === 'admin' ? A.pedidos : A.pedidos.filter(p => p.uid === req.eu.id);
@@ -222,8 +222,7 @@ function montar(app, dep) {
     res.json({ ok: true, pedido: p });
   });
 
-  /* — desfazer —
-     Só o que tem "antes" pode voltar. O desfazer entra na trilha como
+  /*: desfazer · Só o que tem "antes" pode voltar. O desfazer entra na trilha como
      evento próprio: corrigir também é uma ação que alguém tomou. */
   app.post('/gov/desfazer/:id', exigeLogin, exigeAdmin, (req, res) => {
     const r = A.trilha.find(x => x.id === req.params.id);
@@ -241,7 +240,7 @@ function montar(app, dep) {
     res.json({ ok: true, revertido: r.id });
   });
 
-  /* — o que está barrado para mim agora, para o aviso no navegador — */
+  /*: o que está barrado para mim agora, para o aviso no navegador: */
   app.get('/gov/meus-bloqueios', exigeLogin, (req, res) => {
     const regras = A.regras.filter(r => r.ativa !== false && (r.uid === '*' || r.uid === req.eu.id));
     res.json({ ok: true, admin: req.eu.papel === 'admin',

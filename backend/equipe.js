@@ -38,6 +38,7 @@ const crypto = require('crypto');
    atendente.js já respeitava esta variável e este arquivo não, o que
    deixaria os dados da equipe num lugar e as conversas em outro. */
 const auditoria = require('./auditoria');
+const obrigacoes = require('./obrigacoes');
 const DIR = process.env.DADOS_DIR || path.join(__dirname, 'dados');
 const F_ESTADO = path.join(DIR, 'estado.json');
 const F_CONTAS = path.join(DIR, 'contas.json');
@@ -402,6 +403,17 @@ function montar(app, cfg) {
      O desfazer precisa saber escrever no estado, e só este arquivo sabe.
      Por isso a auditoria recebe a função em vez de importar o estado:
      ela cuida da política, este arquivo cuida do dado. */
+  /* As obrigações precisam saber MANDAR (confirmação de agenda, acesso
+     ao portal) e AVISAR (cobrar o dono, escalar para a direção). Quem
+     sabe falar com o WhatsApp é o server.js, então ele passa as duas
+     funções para cá. Este arquivo não conhece a Meta, e o módulo de
+     obrigações não conhece nem a Meta nem o estado: cada um faz uma
+     coisa e o encanamento fica visível num lugar só. */
+  obrigacoes.montar(app, {
+    exigeLogin, exigeAdmin,
+    executor: cfg.executor, avisar: cfg.avisar
+  });
+
   auditoria.montar(app, {
     exigeLogin, exigeAdmin,
     aplicarDesfazer: (r, eu) => {

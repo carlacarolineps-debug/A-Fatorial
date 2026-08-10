@@ -232,11 +232,71 @@ app.post('/d4sign/webhook', (req, res) => {
 
 // ── EQUIPE: várias pessoas no mesmo sistema, ao mesmo tempo ──
 // Contas, sessões, sincronização por campo e presença. Ver backend/equipe.js.
+/* ── o encanamento das obrigações ──
+   O módulo de obrigações decide O QUE precisa acontecer e quando. Ele
+   não sabe falar com o WhatsApp, e não deve saber. Estas duas funções
+   são a ponte, e ficam aqui porque é aqui que mora o token da Meta.
+
+   `executor` é o que faz a obrigação nascer já cumprida: confirmação de
+   agenda e acesso ao portal o servidor manda sozinho, e ninguém precisa
+   lembrar. `avisar` é a cobrança e o escalonamento. */
+async function zapTexto(para, texto) {
+  if (!WHATSAPP_TOKEN || !PHONE_ID) throw new Error('ponte do WhatsApp não configurada');
+  const r = await fetch(GRAPH + '/' + PHONE_ID + '/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + WHATSAPP_TOKEN },
+    body: JSON.stringify({ messaging_product: 'whatsapp', to: String(para).replace(/\D/g, ''),
+                           type: 'text', text: { body: texto } })
+  });
+  if (!r.ok) throw new Error('WhatsApp respondeu ' + r.status);
+  return 'enviado para ' + String(para).replace(/\D/g, '').slice(-4);
+}
+
 require('./equipe').montar(app, {
   donoNome: process.env.DONO_NOME,
   donoEmail: process.env.DONO_EMAIL,
-  donoSenha: process.env.DONO_SENHA
+  donoSenha: process.env.DONO_SENHA,
+
+  executor: (tipo, ob, ctx) => {
+    /* devolve a evidência quando conseguiu; devolver nada deixa a
+       obrigação aberta para uma pessoa resolver, que é o certo quando o
+       automático falha: some do jeito errado seria pior */
+    if (!ctx || !ctx.telefone) return null;
+    if (tipo === 'agenda.confirmar') {
+      zapTexto(ctx.telefone,
+        'Olá! Passando para confirmar: ' + (ctx.titulo || 'nosso encontro') +
+        (ctx.quando ? ' em ' + new Date(ctx.quando).toLocaleString('pt-BR') : '') +
+        '. Se precisar remarcar, é só responder por aqui.')
+        .catch(e => console.error('[obrigacoes] confirmação falhou:', e.message));
+      return 'confirmação disparada';
+    }
+    if (tipo === 'portal.acesso') {
+      zapTexto(ctx.telefone,
+        'Olá! O seu portal já está no ar: ' + (ctx.link || '(link do portal)') +
+        '. Por ele você acompanha cada etapa, aprova as entregas e assina o que for preciso.')
+        .catch(e => console.error('[obrigacoes] acesso falhou:', e.message));
+      return 'acesso do portal disparado';
+    }
+    return null;
+  },
+
+  avisar: (tipo, ob) => {
+    /* Por enquanto vai para o log do servidor, que é honesto: cobrar por
+       WhatsApp interno exige o número de cada pessoa da equipe cadastrado,
+       e isso ainda não existe. Quando existir, é uma linha. */
+    console.log('[obrigacoes] ' + (tipo === 'escalar' ? 'ESCALOU PARA A DIREÇÃO' : 'cobrando') +
+                ': ' + ob.o + (ob.cliente ? ' · ' + ob.cliente : '') +
+                (ob.dono ? ' · com ' + ob.dono : '') + ' · vence ' + ob.vence);
+  }
 });
+
+/* A varredura roda sozinha. É ela que faz o papel de babá: sem isso,
+   obrigação vencida só apareceria se alguém abrisse a tela. */
+setInterval(() => {
+  try { require('./obrigacoes').varrer((t, ob) => {
+    console.log('[obrigacoes] ' + t + ': ' + ob.o + ' · vence ' + ob.vence);
+  }); } catch (e) { console.error('[obrigacoes] varredura:', e.message); }
+}, 15 * 60e3).unref();
 
 /* ══════════════════════════════════════════════════════════════════════
    O WEBHOOK DO WHATSAPP — por onde a mensagem da pessoa entra
