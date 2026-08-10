@@ -238,6 +238,120 @@ require('./equipe').montar(app, {
   donoSenha: process.env.DONO_SENHA
 });
 
+/* ══════════════════════════════════════════════════════════════════════
+   O WEBHOOK DO WHATSAPP — por onde a mensagem da pessoa entra
+   ──────────────────────────────────────────────────────────────────────
+   Até aqui esta ponte só sabia FALAR: o kanban pedia e ela enviava. Para
+   a IA atender, ela precisa ESCUTAR. A Meta faz isso por webhook: você
+   cadastra um endereço no painel, ela confere com um GET e depois manda
+   cada mensagem recebida num POST.
+
+   Duas coisas obrigatórias e fáceis de esquecer:
+
+   1. RESPONDER 200 NA HORA. A Meta reenvia o que demorar, e reenvio vira
+      resposta duplicada para o cliente. Por isso o 200 sai antes de
+      chamar o modelo, e o resto acontece depois.
+
+   2. CONFERIR A ASSINATURA. O endereço é público: sem checar o
+      X-Hub-Signature-256, qualquer um pode fingir ser a Meta e fazer o
+      atendente conversar, e gastar cota, com quem quiser.
+
+   A resposta vai como texto livre, o que só a janela de 24 horas
+   permite. Como quem escreveu primeiro foi a pessoa, a janela está
+   aberta: é exatamente este o caso de uso. Até 1/10/2026 essas respostas
+   são gratuitas; depois passam a custar cerca de US$ 0,0068 cada.
+   ══════════════════════════════════════════════════════════════════════ */
+const crypto = require('crypto');
+const atendente = require('./atendente');
+const { META_VERIFY_TOKEN, META_APP_SECRET } = process.env;
+
+/* O corpo cru é necessário para conferir a assinatura: o JSON já
+   reserializado não bate byte a byte com o que a Meta assinou. */
+app.use('/webhook', express.json({
+  verify: (req, _res, buf) => { req.cru = buf; }
+}));
+
+function assinaturaConfere(req) {
+  if (!META_APP_SECRET) return true;             // sem segredo, não bloqueia (só em teste)
+  const cab = req.headers['x-hub-signature-256'] || '';
+  const meu = 'sha256=' + crypto.createHmac('sha256', META_APP_SECRET)
+                                .update(req.cru || Buffer.from('')).digest('hex');
+  try { return crypto.timingSafeEqual(Buffer.from(cab), Buffer.from(meu)); }
+  catch (e) { return false; }
+}
+
+/* A Meta confere o endereço uma vez, com este GET. */
+app.get('/webhook', (req, res) => {
+  const q = req.query;
+  if (q['hub.mode'] === 'subscribe' && q['hub.verify_token'] === META_VERIFY_TOKEN) {
+    return res.status(200).send(q['hub.challenge']);
+  }
+  res.sendStatus(403);
+});
+
+app.post('/webhook', (req, res) => {
+  if (!assinaturaConfere(req)) return res.sendStatus(401);
+  res.sendStatus(200);                            // primeiro o 200, sempre
+
+  const msgs = [];
+  for (const e of (req.body && req.body.entry || [])) {
+    for (const ch of (e.changes || [])) {
+      const v = ch.value || {};
+      const nome = v.contacts && v.contacts[0] && v.contacts[0].profile && v.contacts[0].profile.name;
+      for (const m of (v.messages || [])) {
+        if (m.type === 'text' && m.text && m.text.body) msgs.push({ de: m.from, texto: m.text.body, nome });
+        else if (m.type) msgs.push({ de: m.from, texto: '(a pessoa mandou ' + m.type + ')', nome });
+      }
+    }
+  }
+  for (const m of msgs) responder(m).catch(e => console.error('[webhook]', e.message));
+});
+
+async function responder({ de, texto, nome }) {
+  if (!atendente.ligada()) return;                // trava: IA_LIGADA=sim para atender
+  const r = await atendente.atender(de, texto, nome);
+  if (r.responder) {
+    await fetch(GRAPH + '/' + PHONE_ID + '/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + WHATSAPP_TOKEN },
+      body: JSON.stringify({ messaging_product: 'whatsapp', to: de,
+                             type: 'text', text: { body: r.responder } })
+    });
+  }
+  if (r.humano) console.log('[atendente] passou para gente:', de, JSON.stringify(r.lead || {}));
+}
+
+/* Painel do atendimento: o sistema lista as conversas e você assume uma
+   na mão quando quiser. Protegido pela mesma senha do kanban. */
+app.get('/atendimentos', (req, res) => {
+  if (!autorizado(req)) return res.status(401).json({ erro: 'não autorizado' });
+  res.json({ ligada: atendente.ligada(), conversas: atendente.listar() });
+});
+app.post('/atendimentos/:de/assumir', (req, res) => {
+  if (!autorizado(req)) return res.status(401).json({ erro: 'não autorizado' });
+  res.json(atendente.assumir(req.params.de));
+});
+app.post('/atendimentos/:de/devolver', (req, res) => {
+  if (!autorizado(req)) return res.status(401).json({ erro: 'não autorizado' });
+  res.json(atendente.devolver(req.params.de));
+});
+
+/* O site grava aqui o lead do aprofundamento do diagnóstico. Sem isto, o
+   lead de quem desiste no meio morre no navegador da pessoa. */
+app.post('/lead', (req, res) => {
+  const l = req.body || {};
+  try {
+    const fsl = require('fs'), pl = require('path');
+    const dir = process.env.DADOS_DIR || pl.join(__dirname, 'dados');
+    fsl.mkdirSync(dir, { recursive: true });
+    const arq = pl.join(dir, 'leads.json');
+    const todos = fsl.existsSync(arq) ? JSON.parse(fsl.readFileSync(arq, 'utf8')) : [];
+    todos.push(Object.assign({ recebido: new Date().toISOString() }, l));
+    fsl.writeFileSync(arq, JSON.stringify(todos, null, 1));
+  } catch (e) { console.error('[lead]', e.message); }
+  res.json({ ok: true });
+});
+
 app.get('/health', (_req, res) => {
   res.json({
     ok: true,
@@ -245,7 +359,8 @@ app.get('/health', (_req, res) => {
     template: TEMPLATE_NAME,
     configurado: Boolean(WHATSAPP_TOKEN && PHONE_ID),
     d4sign: Boolean(D4_TOKEN && D4_CRIPTO),
-    equipe: true
+    equipe: true,
+    atendente: atendente.ligada()
   });
 });
 

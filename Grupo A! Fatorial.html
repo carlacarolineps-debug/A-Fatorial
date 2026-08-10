@@ -7394,7 +7394,18 @@ function varrer(){
     var lead={ quando:new Date().toISOString(), sintomas:marcados, respostas:resp,
                etapa:passo, origem:'aprofundamento do diagnóstico' };
     try{ localStorage.setItem('af_lead', JSON.stringify(lead)); }catch(e){}
-    /* fetch(URL_SERVIDOR+'/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)}); */
+    /* Com o servidor no ar, o lead sai do navegador da pessoa e entra no
+       funil na mesma hora. keepalive para a última gravação sobreviver ao
+       fechamento da aba, e o erro é engolido de propósito: servidor fora
+       do ar não pode travar o diagnóstico de quem está respondendo. */
+    if (typeof URL_SERVIDOR === 'string' && URL_SERVIDOR) {
+      try{
+        fetch(URL_SERVIDOR.replace(/\/$/,'')+'/lead', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(lead), keepalive:true
+        }).catch(function(){});
+      }catch(e){}
+    }
   }
 
   function trilha(){
@@ -7685,6 +7696,10 @@ window.AF_CEU={tinta:[212,175,94], forca:1};
 
   var peso={};
   function pintar(){
+    /* nenhuma âncora visível quer dizer que o site não está à frente: o
+       sistema tomou a tela. Sem esta guarda, a rolagem dentro do sistema
+       chamava pontos[0] numa lista vazia. */
+    if(!pontos.length) return;
     var y=window.scrollY+window.innerHeight*0.42;
     var i=0; while(i<pontos.length-1 && pontos[i+1].y<=y) i++;
     var a=pontos[i], b=pontos[Math.min(i+1,pontos.length-1)];
