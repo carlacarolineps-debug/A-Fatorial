@@ -32,11 +32,77 @@ Um detalhe que quase passou: o sistema declara
 cheia. Com isso o site não rolava. O corpo troca de regime junto com o lado:
 `.na-porta` rola, `.no-sistema` é painel.
 
+## Os três lados do arquivo
+
+O arquivo tinha dois lados: a porta (o site do grupo) e a área interna (o
+sistema). Agora tem três.
+
+    grupo     o site da empresa: estrutura, execução, catálogo
+    carla     a página dela, onde mora o EMC
+    sistema   a área interna
+
+O motivo do terceiro não é organização, é verdade: **o EMC é como a Carla lê
+um negócio, não um produto do grupo**. Enquanto morava no site da empresa,
+prometia que a consultoria pensava como ela, o que obrigaria a empresa a
+depender dela para sempre, que é exatamente o problema que o método diz
+resolver. No site do grupo ficou uma ponte curta, com o rosto dela.
+
+Mesma casa, outra voz. O grupo é ouro sobre breu, painel de instrumento,
+grotesca apertada. A página dela segue a identidade do Instagram: **preto,
+cinza, branco, dourado e fúcsia**, com a serifada mandando no título e o
+texto em primeira pessoa. Tudo passa por três tokens locais dentro de
+`#carla`, então nenhuma regra do grupo é tocada.
+
+### A bússola
+
+O EMC é direção, não receita. A agulha não inventa o norte: mostra onde você
+está. Por isso é movida pela rolagem e não por um laço automático, e a
+camada apontada acende junto. O movimento é a explicação, não enfeite em
+cima dela. O tremor de meio grau existe porque bússola de verdade nunca fica
+parada, e sem ele o desenho parece um mostrador quebrado.
+
+### Os programas
+
+O EMC é a leitura; **Operação Blindada**, **DNA da Liderança** e
+**Comunicação Pão com Manteiga** são os caminhos. O texto do DNA da
+Liderança veio do catálogo do sistema; os outros dois estão escritos a
+partir do nome e **precisam da revisão dela**.
+
+### A troca de lado
+
+Uma classe, sem recarregar nada. Vai no `<body>` e também no `#porta` quando
+ele existe: no site sozinho quem existe é o body, e no arquivo único o
+`juntar.py` reescreve `body.na-carla` como `#porta.na-carla`.
+
 ## O padrão visual — "a retícula"
 
 A marca existe fisicamente: letras douradas em relevo sobre parede preta, com
 holofote em cima. O site parte daí e vai adiante: o fundo não é textura, é o
 **nome da empresa desenhado no espaço**.
+
+### O céu que viaja
+
+O fundo era uma constante: dois halos dourados no alto, sempre no mesmo
+canto. A retícula andava, mas a luz não, e luz parada faz página comprida
+parecer uma tela só. Agora cada seção declara o ambiente que traz consigo
+(`data-amb`) e a rolagem faz a travessia:
+
+    ouro     abertura, catálogo e origem
+    violeta  os sintomas e o diagnóstico
+    vazio    o respiro e as perguntas
+    brasa    o custo, queimando
+    ciano    o método e o sistema
+    fim      o fechamento
+    rosa     a página da Carla
+
+A cor não é enfeite, é o argumento dito em luz. Duas coisas fazem funcionar:
+o **chão** muda de temperatura junto (uma cor num elemento, o mais barato
+que existe e o que o olho mais percebe), e a **faixa** com fundo opaco virou
+clareamento por transparência, senão metade das seções tapava o ambiente.
+
+Duas camadas, não seis: só há dois ambientes em jogo a qualquer momento, e o
+gradiente só é reescrito ao cruzar uma fronteira. Medido lado a lado com o
+céu desligado, o custo em quadros é zero.
 
 ### A retícula fatorial
 
