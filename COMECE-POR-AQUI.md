@@ -283,22 +283,47 @@ e abre em tela cheia.
 
 # AGORA TESTE (5 minutos)
 
-## A. Criar a sua senha
+## A. Criar a SUA conta (só a sua, e uma vez)
 
-A sua conta ainda não tem senha (o acesso está ativo, mas ninguém nunca
-entrou).
+O schema deixa o seu acesso ativo e a sua marca de mentora prontos, mas
+**não cria a conta em si**. Ela precisa nascer no painel, uma vez.
 
-1. Abra o app **hospedado**, pelo endereço do passo 4
-2. **Esqueci a minha senha**
-3. Digite `gestaogrupoa@gmail.com`, **Enviar o link**
-4. Abra o e-mail. **Olhe o spam**, o primeiro sempre cai lá
-5. Toque no link, **no mesmo aparelho**
-6. O app abre direto na tela de criar a senha. Pelo menos 8 caracteres,
-   com letras e números. **Anote em lugar seguro**
-7. Pronto, o app abre. Em **Mais**, o primeiro item é **A sua mesa**
+> Isto vale só para você. A conta das alunas nasce sozinha quando a
+> inscrição chega, ou quando você libera na mesa.
 
-**Se não chegou o e-mail:** o passo 2 não terminou. No Supabase, em
-**Logs**, procure **Auth Logs**: o erro aparece lá. Me manda o print.
+**Por que o "Esqueci a minha senha" não resolve isto:** ele só manda
+e-mail se a conta existir, e mostra **a mesma mensagem** exista ou não, de
+propósito. Dizer "esse e-mail não tem cadastro" entregaria a lista da
+turma para quem ficasse chutando endereços. A proteção está certa, mas é
+ela que esconde justamente este caso.
+
+1. Abra: **https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/auth/users**
+2. **Add user**, depois **Create new user**
+3. **Email**: `gestaogrupoa@gmail.com`
+4. **Password**: escolha a sua, pelo menos 8 caracteres com letras e
+   números. **Anote em lugar seguro**
+5. Marque **Auto Confirm User**. Sem isso o Supabase pede uma confirmação
+   por e-mail antes de deixar você entrar
+6. **Create user**
+
+Agora abra o app e entre com esse e-mail e essa senha. Em **Mais**, o
+primeiro item é **A sua mesa**.
+
+## A.2 Testar o e-mail, e nesta ordem
+
+Cada teste isola uma coisa. Fazendo na ordem, você sabe onde mexer sem
+chutar.
+
+**Teste 1, o e-mail em si.** Saia da conta e clique em **Esqueci a minha
+senha**. Se o e-mail chegar agora, o **passo 2** (o SMTP do Gmail) está
+certo.
+
+**Teste 2, a senha temporária.** É o B abaixo. Se chegar, o **passo 3**
+(os três segredos) está certo.
+
+Se o teste 1 falhar, o problema é o SMTP. Se o 1 passar e o 2 falhar, é um
+dos três segredos. No Supabase, em **Logs**, procure **Auth Logs**: o erro
+aparece lá com todas as letras. Me manda o print.
 
 ## B. A senha temporária
 
@@ -404,6 +429,7 @@ antes.
 |---|---|
 | "Set up custom SMTP to edit templates" | O passo 2.1 não terminou |
 | A senha temporária não chega | Olhe o spam. Confira os 3 segredos do passo 3 |
+| Você pede o link e não chega nada | A sua conta ainda não existe em Authentication > Users. Veja o A |
 | "acesso liberado, mas a senha não foi por e-mail" | Segredo errado. Quase sempre é espaço nas 16 letras |
 | O link do "esqueci a senha" não chega | Passo 2.2 sem o `{{ .ConfirmationURL }}`, ou 2.1 incompleto |
 | O link leva para uma página em branco | A Site URL do passo 2.3 está faltando |
