@@ -6,6 +6,7 @@ const MOCK=fs.readFileSync(__dirname+'/supabase-de-mentira.js','utf8');
 const VIEWS=['home','programa','bussola','trilhas','plano','diario','apostila','ano',
              'ferramentas','gestao','pesquisas','conquistas','comunidade','mentora','perfil','menu'];
 const E={name:'Carla Caroline',xp:2400,level:5,createdAt:Date.now()-40*864e5,
+  modules:{recrutamento:{completed:true,steps:{0:true}}},
   af:{metodo:true,welcomed:true},termo:{versao:'1.0',em:Date.now()},diagnostic:{answers:{}},
   bussola:{diag:{f:1},pacto:{q:1},kpis:[{n:'Faturamento',v:1}],ritual:[{t:1}]},
   plan:[{id:'p1',title:'Ação',bnaipe:'direcao'}],unlocks:{jornada_ok:Date.now()}};
@@ -38,7 +39,15 @@ const E={name:'Carla Caroline',xp:2400,level:5,createdAt:Date.now()-40*864e5,
           /* texto cortado por overflow escondido, numa caixa que nao rola */
           const rolavel = /auto|scroll/.test(cs.overflowX);
           const cortado = el.scrollWidth > el.clientWidth+1 && !rolavel && cs.overflow!=='visible';
-          const passou  = r.right > larg+1 || r.left < -1;
+          /* passar da tela dentro de uma faixa que rola na horizontal nao e
+             defeito: e o proprio desenho das abas, que deslizam de proposito.
+             Sem esta checagem o relatorio enche de aba e esconde o que
+             realmente estoura a pagina */
+          let emRolagem = false;
+          for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+            if (/auto|scroll/.test(getComputedStyle(a).overflowX)) { emRolagem = true; break; }
+          }
+          const passou  = !emRolagem && (r.right > larg+1 || r.left < -1);
           if(!cortado && !passou) return;
           const t=(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,42);
           const chave=el.className+'|'+t;

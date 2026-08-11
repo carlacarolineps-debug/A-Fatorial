@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 0608.05.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 1108.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,120 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### O passe da Human Interface Guidelines (1108.01)
+A Carla mandou o endereço da HIG oficial e o pedido: consultar a
+documentação antes de mexer, aplicar os princípios sem copiar o visual do
+iOS, e **não inventar número dizendo que é padrão da Apple**. Quando a
+Apple publica a medida, usa-se a dela; quando não publica, escolhe-se um
+valor coerente e explica-se por quê.
+
+**Como a HIG foi lida de verdade.** O site da Apple é uma página que se
+monta no navegador: buscar o endereço direto devolve só o título, e foi
+por isso que passes anteriores citaram a HIG de memória (é dessa época o
+"a Apple fala em até 5 abas" de 0508.06, que **a página de tab bars não
+diz**: ela pede o número necessário, sem máximo, e pede rótulo em todas).
+`tools/hig.py` lê o JSON que alimenta a página
+(`/tutorials/data/design/human-interface-guidelines/<pagina>.json`) e
+devolve o texto. Onze páginas lidas, e o que veio delas está citado abaixo
+palavra por palavra.
+
+**O que é número da Apple, e onde ele está escrito:**
+- *"As a general rule, a button needs a hit region of at least 44x44 pt"*
+  (Buttons). Repare em **hit region**: é região de toque, não tamanho
+  desenhado. Foi essa palavra que permitiu corrigir 240 alvos sem
+  redesenhar nada;
+- *"Platform | Default control size | Minimum control size / iOS, iPadOS |
+  44x44 pt | 28x28 pt"* (Accessibility). Os 28 são o piso do **desenho**;
+- *"Platform | Default size | Minimum size / iOS, iPadOS | 17 pt | 11 pt"*
+  (Typography). O app tinha texto de 9px, 9,5px e 10px;
+- *"Up to 17 pts | All | 4.5:1"* (Accessibility);
+- *"it works well to add about 12 points of padding around elements that
+  include a bezel"* (Accessibility).
+
+**O que NÃO é número da Apple, e por que foi escolhido assim.** A HIG não
+publica escala de raio nem escala de espaçamento. As três escalas do app
+foram derivadas da hierarquia que ele já tinha:
+- **raio 8 / 12 / 18 / 24**: selo, controle, cartão, bloco herói. Eram 39
+  valores declarados;
+- **espaçamento 4 / 8 / 12 / 16 / 20 / 24 / 32**: grade de 4, com o 12 no
+  meio porque é o número que a Apple publica para folga em volta de
+  controle. Eram 35 valores;
+- **tipografia 11 / 12,5 / 13,5 / 15 / 17 / 20 / 23 / 28 / 34**: o 11 e o
+  17 são da Apple (piso e corpo padrão), o resto é o que o produto já
+  usava, arredondado para caber entre eles. Eram 91 valores.
+
+**A auditoria veio antes da mudança, como ela pediu.**
+`testes/design-audit.cjs` abre as 16 telas e conta o que chega no
+aparelho, não o que está escrito no CSS. O primeiro retrato:
+39 raios, 91 tamanhos de letra, 35 espaçamentos, **240 de 500 alvos abaixo
+de 44x44** e o texto terciário em 3,35:1. O retrato final: **5 raios (4
+mais os círculos), 8 tamanhos, 6 espaçamentos, 0 alvos abaixo de 44x44, 0
+desenhados abaixo de 28x28, 0 falhas de contraste**.
+
+**A parte que mais deu trabalho não foi o CSS, foi achar onde o CSS
+morava.** As folhas de estilo respondiam por metade: o resto estava em
+`style="..."` dentro de template string, em CSS concatenado em variável
+JavaScript (a tela de entrada inteira, que tem estilo próprio de
+propósito) e nos `clamp()` dos títulos fluidos, cujos dois extremos foram
+escritos um a um e viravam 19, 21, 25, 27, 29, 32. Num celular de 390px o
+`vw` quase nunca ganha, então o que aparecia era o mínimo: era daí que
+vinham os 19px e 26px que sobravam depois das primeiras passadas.
+
+**A técnica que salvou a identidade visual.** Engordar 240 alvos para
+44x44 descaracterizaria o topo, as fichas de condução e as linhas da
+apostila. Como o pedido da Apple é sobre **região**, a região cresce com
+um pseudo-elemento transparente e centrado, e o desenho fica onde está.
+Clique em pseudo-elemento é entregue ao dono. O desenho só cresceu onde
+estava abaixo dos 28 publicados: o × da jornada (21x21), o "marcar" da
+apostila (26), a caixa do plano (26) e o × que remove a linha (20).
+Efeito colateral achado e corrigido: a região ampliada de um controle
+estreito encostado na borda direita passa da tela e a página ganha arrasto
+lateral. `overflow-x:clip` no `main` corta a sobra sem virar caixa de
+rolagem, que é o que `overflow:hidden` faria, e o que quebraria o topo
+grudado.
+
+**`--mute-2` subiu de `#6f685a` para `#8b8574`.** O tom antigo dava 3,26:1
+sobre o cartão, abaixo dos 4,5:1 pedidos. O novo dá de 4,50 a 5,43
+conforme o fundo, e continua bem abaixo do `--mute` (6,85 a 7,61), então a
+hierarquia de três níveis de texto continua existindo. As 26 ocorrências
+sumiram de uma vez porque era um token só.
+
+**Os 60 avisos de contraste que sobraram são erro da conta, e isso foi
+verificado, não presumido.** Quando o fundo é gradiente (botão de ouro,
+retrato), a `background-color` não é a cor que está atrás do texto. Medido
+no pixel da tela: o botão de ouro dá **10,47:1** e o retrato **14,20:1**.
+A auditoria passou a separar as duas listas em vez de somar tudo.
+
+**Tela estreita: um defeito antigo, que ela tinha reclamado.** De 320 a
+375px a página estourava a largura nas 16 telas. A causa era uma correção
+antiga: `.btn.sm` ganhou `white-space:nowrap` para "Registrar número" não
+quebrar em duas linhas, só que o rodapé de condução usa esse mesmo botão
+carregando o nome inteiro da ferramenta, e com `flex:none` ele não podia
+nem quebrar nem encolher. Agora, até 400px, rótulo comprido quebra e
+centraliza. Somado ao topo, que abaixo de 360px não cabia (marca de 204px
+mais patente, sino e retrato), o resultado é **0 cortes de 320 a 430px**.
+
+**Dois defeitos que este passe criou e corrigiu no mesmo dia:** a
+assinatura da tela de entrada subiu de 8,6px para 11px (o piso da Apple) e
+passou a não caber em uma linha, saindo cortada em "ESTRATÉGIA QUE ESCAL";
+e o wordmark do topo, espremido a 320px, cortava no meio da palavra. A
+primeira quebra em duas linhas, o segundo desce para 13,5px.
+
+**Também corrigido:** a rotina do dia truncava com reticências justamente
+a parte que diz o que fazer ("Preencher: Ficha de Cargo Guiad..."). Passou
+a caber em duas linhas.
+
+**A auditoria de design estava medindo a tela errada.** O estado de teste
+não tinha o passo 6 da jornada, então 13 das 16 telas devolviam o cadeado
+e o que era medido era a tela de cadeado. Com o estado completo, o número
+de alvos foi de 258 para 500. Vale a lição de sempre: teste que não
+reproduz a situação real aprova o que vai quebrar.
+
+**Números desta entrega:** 50 conferências da auditoria, 46 da entrada, 43
+do perfil, 24 da sessão, 26 da mesa, 12 de carga, 16 de ataque de tela, 0
+erros de JavaScript, 0 travessões, e a velocidade intacta (pintura de
+248ms na terceira abertura, troca de seção de 30 a 92ms).
 
 ### A senha temporária, o perfil, e a barra de volta com sete (0608.05)
 A Carla: "esquça esse negocio de codigo de 6 digitos, so preciso que a pessoa
