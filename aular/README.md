@@ -6,6 +6,9 @@ começando pelo Grande ABC e já preparada para o Brasil inteiro.
 **Para usar: abra o arquivo `index.html` no navegador.** Sem instalação, sem
 servidor, sem internet obrigatória. Os dados ficam salvos no próprio navegador.
 
+A primeira tela é o **site de divulgação** — a porta de entrada, com o que é,
+para quem serve, os planos e as perguntas frequentes. Dali se entra no portal.
+
 > A estratégia do negócio — pesquisa de mercado, as 18 formas de monetizar, a
 > arquitetura de credibilidade do Fundo de Impacto (incluindo o que precisa
 > estar resolvido juridicamente) e como isso vira produção — está em
@@ -13,10 +16,52 @@ servidor, sem internet obrigatória. Os dados ficam salvos no próprio navegador
 
 ---
 
+## Entrar
+
+Cada pessoa tem a **própria conta**, com e-mail, senha e papel. A tela de login
+lista as contas de demonstração — clique em uma e o formulário se preenche.
+A senha de todas é `aular123`.
+
+| Conta | Papel | Enxerga |
+|---|---|---|
+| `carla@aular.app` | Dona da plataforma | o negócio inteiro |
+| `dono@patas-do-abc.org` | Dona da ONG | tudo da organização, incluindo plano e equipe |
+| `patricia@patasdoabc.org` | Gestora | o dia a dia, menos plano, cobrança e equipe |
+| `marcelo@patasdoabc.org` | Voluntário | animais, adoções, lares e feiras |
+| `helena@vetlar.com.br` | Veterinária | animais e carteira de vacinas — nada de dinheiro |
+
+A permissão é aplicada **na entrada da tela**, não apenas escondendo o menu:
+digitar o endereço de uma tela proibida também não passa.
+
+---
+
+## Várias pessoas ao mesmo tempo
+
+| O que | Situação |
+|---|---|
+| Cada pessoa com conta, senha e papel próprios | ✅ funciona |
+| Ver quem está online agora e em que tela | ✅ funciona |
+| Duas janelas do mesmo computador se atualizando sozinhas | ✅ funciona |
+| Cada ação assinada por quem a fez | ✅ funciona |
+| **Computadores diferentes** | ⚠️ **exige servidor** |
+
+Os três primeiros itens dá para testar agora: abra o sistema em **duas janelas**
+do navegador, entre com contas diferentes e cadastre um animal numa delas — a
+outra se atualiza sozinha, e o avatar de quem está online aparece no topo.
+
+O último item não é questão de esforço: dois navegadores em máquinas distintas
+não compartilham memória, e nenhuma quantidade de JavaScript resolve isso sem um
+banco no meio. Essa peça está pronta em **[`servidor/schema.sql`](servidor/schema.sql)** —
+Postgres completo com isolamento por organização (RLS), controle de edição
+simultânea, tempo real e a régua de cobrança rodando no banco. Foi executado
+contra um PostgreSQL 16 de verdade: 18 tabelas, 58 políticas de segurança, e os
+testes de isolamento e de conflito passaram.
+
+---
+
 ## Os três perfis
 
-A tela inicial deixa escolher por onde entrar, e o botão **Trocar de perfil**
-(canto inferior esquerdo) alterna a qualquer momento.
+O botão **Trocar de perfil** (canto inferior esquerdo) alterna a qualquer momento.
 
 | Perfil | O que vê |
 |---|---|
@@ -68,6 +113,8 @@ A tela inicial deixa escolher por onde entrar, e o botão **Trocar de perfil**
   de acabar e pedido de doação pronto para o grupo.
 - **Prestação de contas** — página pública que se monta sozinha com os dados do
   sistema, traduzindo valores em impacto concreto.
+- **Equipe e acessos** — convide pessoas, defina o papel de cada uma e veja o
+  histórico assinado de quem fez o quê.
 - **Meu selo** — a nota do Selo de Confiança, o que está pesando contra, quanto
   já entrou do Fundo e a cota estimada da próxima rodada. O plano contratado
   não vale um ponto: o selo mede trabalho, não pagamento.
@@ -129,7 +176,11 @@ aular/
 │   ├── 06-gestao.js      telas da ONG
 │   ├── 07-plataforma.js  telas do dono do negócio
 │   ├── 09-fundo.js       selo, fundo de impacto e patrocínio
+│   ├── 10-site.js        site de divulgação (a porta de entrada)
+│   ├── 11-contas.js      contas, papéis, presença e sincronização
 │   └── 08-app.js         menu, login e inicialização
+├── css/site.css          identidade do site de divulgação
+├── servidor/schema.sql   Postgres com RLS, para o acesso entre computadores
 ├── PROJETO.md            estratégia, pesquisa e monetização
 └── README.md
 ```
@@ -149,6 +200,9 @@ aular/
 | Cotas de patrocínio | `09-fundo.js` → `COTAS_PATROCINIO` |
 | Cidades e praças de operação | `01-seed.js` → `PRACAS` e `UFS` |
 | Cores e tipografia | `css/app.css` → bloco `:root` |
+| Textos e seções do site | `10-site.js` → `montarSite` e as funções de seção |
+| Papéis e permissões | `11-contas.js` → `PAPEIS` |
+| Banco de produção | `servidor/schema.sql` |
 
 ---
 

@@ -416,6 +416,81 @@ Nada disso é código, mas tudo isso trava o lançamento se ficar para depois.
 
 ---
 
+## 6.1 Acesso simultâneo: o que já funciona e o que exige servidor
+
+Você pediu que o portal suportasse várias pessoas ao mesmo tempo. Isso é, na
+verdade, quatro problemas diferentes — e eles têm respostas diferentes.
+
+| # | O problema | Onde se resolve |
+|---|---|---|
+| 1 | Cada pessoa com conta e permissão próprias | navegador — **feito** |
+| 2 | Saber quem está online agora | navegador — **feito** |
+| 3 | Duas janelas da mesma máquina se atualizando | navegador — **feito** |
+| 4 | **Computadores diferentes** | **só com servidor** |
+
+### 1 a 3 — resolvidos em `js/11-contas.js`
+
+- **Contas de verdade**: e-mail, senha (SHA-256, conferido contra a
+  implementação do Node) e papel dentro da organização. Quatro papéis —
+  dono, gestor, voluntário e veterinário — cada um com um conjunto de telas.
+  A permissão é checada **na entrada da tela**, no roteador, não só escondendo
+  o item do menu.
+- **Presença**: cada aba anuncia quem é e em que tela está, com pulso a cada
+  12 segundos, e some sozinha 40 segundos depois de fechar. Os avatares
+  aparecem na barra do topo.
+- **Sincronização entre janelas**: `BroadcastChannel` avisa na hora, e o evento
+  `storage` cobre navegadores que não têm o canal. Cada gravação incrementa uma
+  revisão; quem recebe o aviso relê a base e redesenha a tela — sem F5.
+- **Autoria**: toda atividade guarda quem a fez. Vira o histórico assinado em
+  *Equipe e acessos*, que é o que responde "quem foi que marcou este animal
+  como adotado?".
+
+### 4 — a peça que só o servidor entrega
+
+Dois navegadores em máquinas distintas não compartilham memória. Não existe
+truque de JavaScript que resolva: precisa de um banco no meio. O arquivo
+`servidor/schema.sql` é exatamente essa peça, e não é rascunho — **foi executado
+contra um PostgreSQL 16 real**, com os testes descritos abaixo passando.
+
+O que ele traz:
+
+- **18 tabelas** cobrindo tudo que o sistema usa hoje.
+- **58 políticas de RLS**. Toda tabela tem `organizacao_id` e uma política que
+  só devolve as linhas da organização de que a pessoa participa. **O isolamento
+  entre ONGs mora no banco, não no JavaScript** — se alguém abrir o console e
+  tentar puxar dados de outra organização, o Postgres devolve zero linhas.
+  Testado: a Carla vê os animais dela, o Marcos vê os dele e a vitrine pública,
+  e a tentativa de escrever na organização alheia é recusada pelo banco.
+- **Controle de edição simultânea**. Cada registro tem uma `versao`; se duas
+  pessoas abrem o mesmo cadastro e a segunda salva com a versão velha, o banco
+  levanta erro em vez de apagar o trabalho da primeira em silêncio. Testado:
+  a segunda gravação recebe *"conflito: este registro foi alterado por outra
+  pessoa"*.
+- **Tempo real** via `supabase_realtime`, já filtrado pelo RLS — ninguém recebe
+  evento de organização que não é dele.
+- **O Selo calculado no banco** (`view selo_organizacoes`). Isso importa: a nota
+  decide quanto cada ONG recebe do Fundo. Calculada no navegador, bastaria abrir
+  o console para "melhorar" a própria nota.
+- **A régua de cobrança como função** (`aplicar_regua`), para rodar num `cron`
+  diário em vez de depender de alguém abrir o sistema. Testado: 45 dias de
+  atraso deixaram a organização suspensa, como manda a regra.
+
+### Para ligar isso
+
+1. Criar um projeto no Supabase.
+2. Colar `servidor/schema.sql` no SQL Editor e rodar.
+3. Trocar a camada de persistência: onde hoje há `localStorage`, passa a haver
+   chamada ao PostgREST. As regras de negócio — compatibilidade, protocolo
+   vacinal, selo, régua — não mudam de forma; passam a rodar do lado seguro
+   da porta.
+4. Publicar o front em Vercel ou Netlify (é estático).
+
+Custo estimado no começo: **zero**. O plano gratuito do Supabase e da Vercel
+aguenta as primeiras ONGs com folga. A conta só aparece quando o volume
+justificar.
+
+---
+
 ## 7. Notas técnicas
 
 **Gerador de QR Code próprio.** O cartaz do pet e o Pix copia-e-cola precisam de
@@ -435,11 +510,21 @@ cães (V10, antirrábica, gripe canina, giárdia, vermífugo, antipulgas) e gato
 idade e reforços encadeados. O sistema organiza; a prescrição continua sendo do
 veterinário responsável.
 
+**Site de divulgação.** `js/10-site.js` e `css/site.css`. A direção visual não é
+"site de startup": é cartaz de rua — manchete pesada, ficha do bicho com fita
+adesiva e carimbo. Os números exibidos saem da própria base, nunca inventados.
+É a primeira tela de quem chega; quem já entrou uma vez vai direto ao portal.
+
 **Testes.** A aplicação inteira é percorrida por um roteiro automatizado em
-navegador real: 44 verificações cobrindo os três perfis, o swipe, o quiz, o
-cadastro de animal, a geração automática de vacinas, o funil, a régua de
-cobrança (bloqueio, suspensão e remoção, com viagem no tempo) e a ausência de
-rolagem horizontal no celular.
+navegador real: **74 verificações** cobrindo o site de divulgação, os três
+perfis, o swipe, o quiz, o cadastro de animal, a geração automática de vacinas,
+o funil, o Fundo de Impacto (rateio, taxa e exclusão de não certificada), a
+régua de cobrança com viagem no tempo, o login por senha, as permissões por
+papel e — abrindo **duas janelas de verdade** — a presença e a sincronização
+entre elas.
+
+Além disso, o `servidor/schema.sql` é executado contra um PostgreSQL 16 real,
+com testes de isolamento entre organizações e de conflito de edição simultânea.
 
 ---
 

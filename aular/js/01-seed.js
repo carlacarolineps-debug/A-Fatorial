@@ -115,7 +115,7 @@ function semear(){
     ongs: [], pets: [], pessoas: [], interesses: [], adocoes: [], doacoes: [],
     faturas: [], estoque: [], movEstoque: [], vacinas: [], eventos: [], achados: [],
     tarefas: [], atividades: [], listaRisco: [], patrocinadores: [], presentes: [],
-    notificacoes: [], swipes: [], patrociniosPlataforma: [],
+    notificacoes: [], swipes: [], patrociniosPlataforma: [], usuarios: [], rev: 0,
     fundo: { ativo:true, taxaGestao:12, saldo:0, diaDistribuicao:10, rodadas:[] }
   };
 
@@ -588,6 +588,27 @@ function semear(){
       });
     }
   });
+
+  /* ---------------- contas de acesso ----------------
+     Cada pessoa entra com a própria conta e enxerga só o que o papel permite.
+     Senha de demonstração igual para todas, para você poder testar rápido. */
+  var SENHA_DEMO = 'aular123';
+  function novoUsuario(uid, nome, email, papel, ongId, plataforma){
+    D.usuarios.push({
+      id:uid, ongId:ongId || null, plataforma:!!plataforma, pessoaId:null,
+      nome:nome, email:email, senhaHash:hashSenha(SENHA_DEMO, uid),
+      papel:papel, ativo:true, criadoEm:maisMeses(hj,-6), ultimoAcesso:null
+    });
+  }
+  novoUsuario('u_carla', 'Carla Caroline', 'carla@aular.app', 'dono', null, true);
+  D.ongs.forEach(function(o, ix){
+    novoUsuario('u_' + ix + '_dono', o.responsavel,
+                'dono@' + slug(o.nome).slice(0,14) + '.org', 'dono', o.id);
+  });
+  // a ONG da demonstração tem equipe de verdade, para dar o que ver
+  novoUsuario('u_0_gestor', 'Patrícia Ramos', 'patricia@patasdoabc.org', 'gestor', D.ongs[0].id);
+  novoUsuario('u_0_vol',    'Marcelo Dias',   'marcelo@patasdoabc.org',  'voluntario', D.ongs[0].id);
+  novoUsuario('u_0_vet',    'Dra. Helena Costa', 'helena@vetlar.com.br', 'veterinario', D.ongs[0].id);
 
   /* ---------------- atividades ---------------- */
   D.atividades = [];

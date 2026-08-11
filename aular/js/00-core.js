@@ -9,7 +9,8 @@ var DB = null;              // banco inteiro (multi-tenant) — ver 01-seed.js
 var SESSAO = {              // quem está usando agora
   papel: null,              // 'adotante' | 'ong' | 'plataforma'
   ongId: null,              // tenant ativo quando papel === 'ong'
-  pessoaId: null            // adotante logado
+  pessoaId: null,           // adotante logado
+  usuarioId: null           // conta de quem entrou (ver 11-contas.js)
 };
 var HOJE = null;            // data "de hoje" do sistema (permite viajar no tempo na demo)
 
@@ -19,8 +20,12 @@ var CHAVE_TEMA = 'aular_tema';
 var CHAVE_HOJE = 'aular_hoje';
 
 function salvar(){
+  /* Cada gravação incrementa a revisão. É por ela que as outras abas
+     percebem que os dados mudaram e se atualizam sozinhas. */
+  DB.rev = (DB.rev || 0) + 1;
   try{ localStorage.setItem(CHAVE, JSON.stringify(DB)); }
   catch(e){ console.warn('Não consegui salvar (armazenamento cheio?)', e); }
+  if(typeof propagarGravacao === 'function') propagarGravacao();
 }
 function salvarSessao(){
   try{ localStorage.setItem(CHAVE_SESSAO, JSON.stringify(SESSAO)); }catch(e){}
@@ -245,6 +250,18 @@ function ir(chave, param){
   var cfg = REGISTRO_TELAS[chave];
   if(!cfg){ console.warn('Tela desconhecida:', chave); return; }
 
+  // trava de permissão: o papel de quem entrou define o que ele alcança
+  if(typeof podeVerTela === 'function' && !podeVerTela(chave)){
+    TELA_ATUAL = chave; pintarNav(chave);
+    $('#tela-titulo').textContent = cfg.titulo;
+    $('#tela-sub').textContent = 'sem permissão';
+    $$('.tela').forEach(function(t){ t.classList.remove('on'); });
+    var semP = garantirTela(chave);
+    semP.classList.add('on');
+    semP.innerHTML = telaSemPermissao(chave);
+    $('.rolagem').scrollTop = 0;
+    return;
+  }
   // trava de assinatura: telas de gestão ficam bloqueadas se a ONG estiver inadimplente
   if(cfg.precisaAtiva && SESSAO.papel === 'ong'){
     var ong = ongAtual();
@@ -273,6 +290,7 @@ function ir(chave, param){
   $('.rolagem').scrollTop = 0;
   document.body.classList.remove('menu-aberto');
   if(cfg.depois) cfg.depois(param);
+  if(typeof registrarPresenca === 'function') registrarPresenca();
 }
 function garantirTela(chave){
   var el = document.getElementById('tela-' + chave);
@@ -734,8 +752,10 @@ function anel(valor, max, cor, tamanho){
 
 /* ------------------------------------------------------------------ registro de atividade */
 function registrar(ongId, tipo, texto, ref){
+  var u = typeof usuarioAtual === 'function' ? usuarioAtual() : null;
   DB.atividades.unshift({
     id: id('at'), ongId: ongId, tipo: tipo, texto: texto, ref: ref || null,
+    autor: u ? u.nome : null,          // quem fez — importa quando são várias pessoas
     quando: isoHoje(), carimbo: Date.now()
   });
   if(DB.atividades.length > 600) DB.atividades.length = 600;

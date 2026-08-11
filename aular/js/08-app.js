@@ -36,6 +36,7 @@ var MENUS = {
     { tela:'ong-rede', ic:'🛡️', txt:'Rede de proteção' },
     { grupo:'Conta' },
     { tela:'ong-assinatura', ic:'💳', txt:'Meu plano' },
+    { tela:'ong-equipe', ic:'👥', txt:'Equipe e acessos' },
     { tela:'ong-config', ic:'⚙️', txt:'Configurações' },
     { grupo:'Vitrine pública' },
     { tela:'descobrir', ic:'🧭', txt:'Ver a vitrine' },
@@ -66,7 +67,8 @@ function montarMenu(){
   var itens = MENUS[SESSAO.papel] || MENUS.adotante;
   var o = ongAtual();
   html('#side-nav', itens.map(function(i){
-    if(i.grupo) return '<div class="nav-g">' + i.grupo + '</div>';
+    if(i.grupo) return '<div class="nav-g" data-grupo="1">' + i.grupo + '</div>';
+    if(typeof podeVerTela === 'function' && !podeVerTela(i.tela)) return '';
     var etiq = '';
     if(i.tela === 'ong-adocoes' && o){
       var q = filtrar(DB.interesses, function(x){ return x.ongId === o.id && x.etapa === 'interesse'; }).length;
@@ -88,7 +90,13 @@ function montarMenu(){
     return '<button class="nav-i" data-tela="' + i.tela + '" onclick="ir(\'' + i.tela + '\')">' +
       '<span class="ic">' + i.ic + '</span><span>' + i.txt + '</span>' + etiq + '</button>';
   }).join(''));
+  // some com grupo que ficou sem nenhum item por causa da permissão
+  $$('#side-nav .nav-g').forEach(function(g){
+    var prox = g.nextElementSibling;
+    if(!prox || prox.hasAttribute('data-grupo')) g.style.display = 'none';
+  });
   pintarNav(TELA_ATUAL);
+  if(typeof pintarPresenca === 'function') pintarPresenca();
 }
 
 function pintarTopo(){
@@ -154,8 +162,8 @@ function marcarLidas(){
 
 /* ------------------------------------------------------------------ login */
 function pintarLogin(){
-  var ongDona = filtrar(DB.ongs, function(o){ return o.dono; })[0] || DB.ongs[0];
   var petsN = filtrar(DB.pets, function(p){ return p.status !== 'adotado'; }).length;
+  var contas = ordenar(DB.usuarios || [], function(u){ return u.plataforma ? 0 : (u.ongId ? 1 : 2); });
   html('#login',
     '<div class="login-cx">' +
       '<div class="login-e">' +
@@ -163,46 +171,78 @@ function pintarLogin(){
         '<div><b style="font-size:22px;letter-spacing:-.03em">AuLar</b>' +
         '<div class="s11 c3" style="letter-spacing:.12em;text-transform:uppercase">' +
         'rede de adoção e gestão animal</div></div></div>' +
-        '<h1>Todo focinho<br>merece um lar.</h1>' +
-        '<p class="sub">Entre pelo perfil que quiser — dá para trocar a qualquer momento.</p>' +
-        '<button class="perfil-b" onclick="entrar(\'adotante\')">' +
-          '<span class="e">🧭</span><span><b>Quero adotar, doar ou ajudar</b>' +
-          '<small>vitrine com match, doação, lar temporário e achados e perdidos</small></span></button>' +
-        '<button class="perfil-b" onclick="entrar(\'ong\',\'' + ongDona.id + '\')">' +
-          '<span class="e">🏢</span><span><b>Sou ONG ou protetor</b>' +
-          '<small>' + esc(ongDona.nome) + ' — gestão completa dos animais</small></span></button>' +
-        '<button class="perfil-b" onclick="entrar(\'plataforma\')">' +
-          '<span class="e">📊</span><span><b>Sou dono da plataforma</b>' +
-          '<small>assinaturas, cobrança, receita e expansão</small></span></button>' +
+        '<h1>Entrar</h1>' +
+        '<p class="sub">Cada pessoa da equipe tem a própria conta e a própria permissão.</p>' +
+
+        '<div class="f mb14"><label>E-mail</label>' +
+          '<input class="i" id="lg-email" type="email" placeholder="voce@organizacao.org" ' +
+          'onkeydown="if(event.key===\'Enter\')document.getElementById(\'lg-senha\').focus()"></div>' +
+        '<div class="f mb14"><label>Senha</label>' +
+          '<input class="i" id="lg-senha" type="password" placeholder="sua senha" ' +
+          'onkeydown="if(event.key===\'Enter\')fazerLogin()"></div>' +
+        '<div id="lg-erro"></div>' +
+        '<button class="b b-p b-g b-bloco" onclick="fazerLogin()">Entrar</button>' +
+
+        '<div class="sep"></div>' +
+        '<div class="rot mb8">Ou entre sem conta, só para conhecer</div>' +
+        '<div class="linha">' +
+          '<button class="b b-f b-s" onclick="entrar(\'adotante\')">🧭 Ver como adotante</button>' +
+          '<button class="b b-f b-s" onclick="voltarAoSite()">← Voltar ao site</button>' +
+        '</div>' +
         '<p class="s11 c3 mt14">Demonstração com dados fictícios do Grande ABC. ' +
-        'Tudo fica salvo só neste navegador.</p>' +
+        'Tudo fica salvo só neste navegador. ' +
+        '<a href="#" onclick="voltarAoSite();return false">← voltar ao site</a></p>' +
       '</div>' +
       '<div class="login-d">' +
-        '<div class="rot mb14">A demonstração já vem com</div>' +
+        '<div class="rot mb8">Contas para testar</div>' +
+        '<p class="s12 c2 mb14">Todas usam a senha <b class="mono">aular123</b>. ' +
+        'Clique numa e o campo é preenchido.</p>' +
+        '<div style="max-height:330px;overflow-y:auto;margin:0 -4px;padding:0 4px">' +
+        contas.map(function(u){
+          var p = PAPEIS[u.papel] || PAPEIS.voluntario;
+          var onde = u.plataforma ? 'AuLar (dona da plataforma)' :
+                     (achar(DB.ongs, u.ongId) || {nome:'—'}).nome;
+          return '<button class="perfil-b" style="margin-bottom:7px;padding:10px" ' +
+            'onclick="preencherLogin(\'' + esc(u.email) + '\')">' +
+            '<span class="e" style="width:34px;height:34px;font-size:13px;background:' + p.cor +
+              ';color:#fff">' + iniciais(u.nome) + '</span>' +
+            '<span style="min-width:0"><b style="font-size:13px">' + esc(u.nome) + '</b>' +
+            '<small style="display:block;overflow:hidden;text-overflow:ellipsis">' +
+            p.nome + ' · ' + esc(truncar(onde, 26)) + '</small></span></button>';
+        }).join('') +
+        '</div>' +
+        '<div class="sep"></div>' +
         '<div class="g g2">' +
           numLogin(DB.ongs.length, 'ONGs no ABC') +
           numLogin(petsN, 'animais cadastrados') +
-          numLogin(DB.adocoes.length, 'adoções feitas') +
-          numLogin(DB.doacoes.length, 'doações registradas') +
         '</div>' +
-        '<div class="sep"></div>' +
-        '<div class="rot mb8">O que dá para fazer</div>' +
-        ['🧭 Deslizar como no Tinder — com nota de compatibilidade de verdade',
-         '💉 Calendário de vacinas que se monta sozinho pelo protocolo',
-         '🤝 Funil de adoção do interesse ao termo assinado',
-         '💛 Doação por Pix, cartão, recorrente e apadrinhamento',
-         '🎁 Lista de presentes de ração em vez de saco na porta',
-         '🛡️ Rede de proteção compartilhada entre as ONGs',
-         '💳 Bloqueio automático por falta de pagamento',
-         '💰 15 formas de monetizar, com simulador'
-        ].map(function(t){ return '<div class="s12 c2 mb8">' + t + '</div>'; }).join('') +
+        '<div class="aviso aviso-i mt14 mb0"><span class="em">👥</span><div>' +
+          '<b>Teste o acesso simultâneo</b>Entre com uma conta aqui e com outra numa segunda janela ' +
+          'do navegador. As duas se atualizam sozinhas.</div></div>' +
       '</div>' +
     '</div>');
+}
+function preencherLogin(email){
+  $('#lg-email').value = email;
+  $('#lg-senha').value = 'aular123';
+  $('#lg-senha').focus();
+}
+function fazerLogin(){
+  var r = autenticar($('#lg-email').value, $('#lg-senha').value);
+  var err = $('#lg-erro');
+  if(r.erro){
+    err.innerHTML = '<div class="aviso aviso-p"><span class="em">⚠️</span><div>' + r.erro + '</div></div>';
+    return;
+  }
+  err.innerHTML = '';
+  entrarComoUsuario(r.usuario);
 }
 function numLogin(v, r){
   return '<div><div class="num-grande ca">' + n(v) + '</div><div class="s11 c3">' + r + '</div></div>';
 }
 function entrar(papel, ongId){
+  var s = $('#site'); if(s) s.style.display = 'none';
+  document.body.style.overflow = '';
   SESSAO.papel = papel;
   SESSAO.ongId = papel === 'ong' ? ongId : null;
   if(papel === 'adotante' && !SESSAO.pessoaId){
@@ -230,6 +270,7 @@ function trocarPapel(){
         '<span><b>' + esc(o.nome) + '</b><small>' + esc(o.cidade) + ' · plano ' + planoDa(o).nome +
         ' · ' + o.situacao + '</small></span></button>';
     }).join(''),
+    '<button class="b b-d" onclick="fecharModal();sairDaConta()">Sair da conta</button>' +
     '<button class="b b-f" onclick="fecharModal()">Fechar</button>', 'estreita');
 }
 
@@ -249,7 +290,8 @@ function iniciar(){
 
   // migrações leves: garante que campos novos existam em bases antigas
   ['swipes','notificacoes','presentes','listaRisco','patrocinadores','tarefas','movEstoque',
-   'patrociniosPlataforma'].forEach(function(k){ if(!DB[k]) DB[k] = []; });
+   'patrociniosPlataforma','usuarios'].forEach(function(k){ if(!DB[k]) DB[k] = []; });
+  if(DB.rev === undefined) DB.rev = 0;
   if(!DB.fundo) DB.fundo = { ativo:true, taxaGestao:12, saldo:0, diaDistribuicao:10, rodadas:[] };
   // bases antigas nao tinham destino: tudo que existia era doacao para ONG
   DB.doacoes.forEach(function(d){ if(!d.destino) d.destino = 'ong'; });
@@ -264,12 +306,22 @@ function iniciar(){
 
   pintarLogin();
   if(SESSAO.papel){
+    // quem já está logado vai direto para o sistema
+    $('#site').style.display = 'none';
     $('#login').style.display = 'none';
     montarMenu(); pintarTopo();
     var inicial = SESSAO.papel === 'ong' ? 'ong-painel' :
                   (SESSAO.papel === 'plataforma' ? 'pl-painel' : 'descobrir');
     ir(inicial);
+  } else {
+    // primeira visita: o site de divulgação vem antes do portal
+    var jaViu = false;
+    try{ jaViu = localStorage.getItem(SITE_VISTO) === '1'; }catch(e){}
+    if(jaViu) $('#login').style.display = '';
+    else mostrarSite();
   }
+
+  ligarSincronizacao();
 
   // atalho: Esc fecha o modal
   document.addEventListener('keydown', function(e){
