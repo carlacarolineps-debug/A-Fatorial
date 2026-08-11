@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — compatibilidade entre pessoa e animal.
+   P de PATA — compatibilidade entre pessoa e animal.
 
    Por que isso existe: aplicativo de adoção que só mostra foto e deixa deslizar
    gera muito interesse e muita devolução. O animal volta, ocupa vaga de novo e

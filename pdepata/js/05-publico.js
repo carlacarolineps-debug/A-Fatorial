@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — telas de quem adota, doa ou vira lar temporário.
+   P de PATA — telas de quem adota, doa ou vira lar temporário.
    ========================================================================= */
 'use strict';
 
@@ -376,7 +376,7 @@ function interessarPor(petId){
 /* ---- cartaz para imprimir (feira de adoção) ---- */
 function cartazPet(petId){
   var p = achar(DB.pets, petId), o = ongDoPet(p);
-  var link = 'https://aular.app/p/' + slug(p.nome) + '-' + p.id.slice(-4);
+  var link = 'https://pdepata.app/p/' + slug(p.nome) + '-' + p.id.slice(-4);
   modal('Cartaz de ' + esc(p.nome),
     '<div class="imprimir-area" style="text-align:center;padding:18px;border:2px solid var(--linha);border-radius:16px">' +
       '<div style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--tinta-3);font-weight:700">' +
@@ -428,7 +428,7 @@ function verOng(ongId){
     '</div>' +
     (pets.length ? '<div class="rot mt20 mb8">Quem está esperando</div>' +
       '<div class="g g-a">' + pets.slice(0,6).map(cardPet).join('') + '</div>' : ''),
-    '<button class="b b-f" onclick="abrirZap(\'' + o.telefone + '\',\'Olá! Vi o perfil de vocês no AuLar.\')">💬 WhatsApp</button>' +
+    '<button class="b b-f" onclick="abrirZap(\'' + o.telefone + '\',\'Olá! Vi o perfil de vocês no P de PATA.\')">💬 WhatsApp</button>' +
     '<button class="b b-r" onclick="abrirDoacao(\'' + o.id + '\')">💛 Doar</button>',
     'larga');
 }
@@ -484,7 +484,7 @@ registrarTela('meus-interesses', {
           brData(i.visita.data) + ' às ' + esc(i.visita.hora) + ' — ' + esc(i.visita.local) + '</div></div>' : '') +
         '<div class="linha mt14"><button class="b b-f b-s" onclick="verPet(\'' + p.id + '\')">Ver perfil</button>' +
         '<button class="b b-f b-s" onclick="abrirZap(\'' + o.telefone + '\',\'Olá! Tenho interesse no ' +
-          esc(p.nome) + ' (AuLar).\')">💬 Falar com a ONG</button></div>' +
+          esc(p.nome) + ' (P de PATA).\')">💬 Falar com a ONG</button></div>' +
       '</div>';
     }).join('') + '</div>';
   }
@@ -615,7 +615,7 @@ function pintarDoar(qual){
    Três destinos possíveis, e a tela nunca deixa dúvida sobre qual é:
      'ong'        — vai para a organização escolhida
      'fundo'      — vai para o Fundo de Impacto, dividido entre as certificadas
-     'plataforma' — vai para a AuLar. Aqui não se chama doação em lugar nenhum. */
+     'plataforma' — vai para o P de PATA. Aqui não se chama doação em lugar nenhum. */
 var DOA = { ongId:null, petId:null, valor:50, tipo:'unica', meio:'pix', cobre:true, destino:'ong' };
 function abrirDoacao(ongId, petId, destino, valor){
   destino = destino || 'ong';
@@ -677,7 +677,7 @@ function pintarDoacao(){
     '<button class="b b-r" onclick="confirmarDoacao()">Confirmar ' + brl(totalPago) + '</button>');
 }
 function blocoPix(o, valor){
-  var codigo = pixBRCode(o.pixChave, o.nome, o.cidade, valor, 'AULAR' + Date.now().toString(36).slice(-8));
+  var codigo = pixBRCode(o.pixChave, o.nome, o.cidade, valor, 'PDEPATA' + Date.now().toString(36).slice(-8));
   return '<div class="cx plana mt14" style="text-align:center;background:var(--sup-2);margin:0">' +
     '<div class="rot mb8">Pix copia e cola</div>' +
     '<div style="display:inline-block;background:#fff;padding:8px;border-radius:12px">' + QR.svg(codigo, 132) + '</div>' +
@@ -722,28 +722,28 @@ function pintarDoacaoFundo(){
       '<div class="rot mb8">Para onde vai o seu dinheiro</div>' +
       '<div class="entre s13"><span class="c2">Dividido entre as ONGs certificadas</span>' +
         '<b class="mono ok">' + brl(paraOngs) + '</b></div>' +
-      '<div class="entre s13 mt8"><span class="c2">Gestão do Fundo e auditoria (AuLar)</span>' +
+      '<div class="entre s13 mt8"><span class="c2">Gestão do Fundo e auditoria (P de PATA)</span>' +
         '<b class="mono">' + brl(gestao) + '</b></div>' +
       '<div class="sep" style="margin:10px 0"></div>' +
       '<div class="entre s13"><span class="neg">Você paga</span>' +
         '<b class="mono s16">' + brl(DOA.valor) + '</b></div>' +
     '</div>' +
-    '<p class="s11 c3 mt8">A AuLar é uma empresa e cobra ' + pct(f.taxaGestao) + ' para operar o Fundo: ' +
+    '<p class="s11 c3 mt8">O P de PATA é uma empresa e cobra ' + pct(f.taxaGestao) + ' para operar o Fundo: ' +
       'auditar as organizações, processar os repasses e publicar o extrato. Está escrito aqui antes ' +
       'de você decidir, e não muda depois.</p>' +
     (DOA.meio === 'pix' || DOA.meio === 'pix_automatico'
-      ? blocoPixBruto(DB.plataforma.pixChave, 'FUNDO AULAR', DB.plataforma.cidade, DOA.valor) : ''),
+      ? blocoPixBruto(DB.plataforma.pixChave, 'FUNDO P DE PATA', DB.plataforma.cidade, DOA.valor) : ''),
     '<button class="b b-f" onclick="fecharModal()">Cancelar</button>' +
     '<button class="b b-p" onclick="confirmarDoacao()">Doar ' + brl(DOA.valor) + ' ao Fundo</button>');
 }
 
 /* ---- destino: a própria plataforma ---- */
 function pintarApoioPlataforma(){
-  modal('🧰 Apoiar a AuLar',
+  modal('🧰 Apoiar o P de PATA',
     '<div class="aviso aviso-a"><span class="em">⚠️</span><div>' +
       '<b>Este valor não vai para os animais</b>' +
       'Ele mantém a plataforma no ar: desenvolvimento, servidores e a auditoria das organizações. ' +
-      'A AuLar é uma empresa, não uma ONG, e não emite recibo de doação. ' +
+      'O P de PATA é uma empresa, não uma ONG, e não emite recibo de doação. ' +
       'Se você quer ajudar animal, ' +
       '<a href="#" onclick="fecharModal();ir(\'doar\');return false">doe para uma ONG</a> ou para o ' +
       '<a href="#" onclick="DOA.destino=\'fundo\';DOA.cobre=false;pintarDoacao();return false">Fundo de Impacto</a>.' +
@@ -759,7 +759,7 @@ function pintarApoioPlataforma(){
       '<input class="i i-s" style="width:110px" type="number" min="5" placeholder="outro" ' +
         'onchange="DOA.valor=+this.value||5;pintarDoacao()"></div></div>' +
     '<div class="cx plana" style="background:var(--sup-2);margin:0">' +
-      '<div class="entre s13"><span class="c2">Vai para a manutenção da AuLar</span>' +
+      '<div class="entre s13"><span class="c2">Vai para a manutenção do P de PATA</span>' +
         '<b class="mono">' + brl(DOA.valor) + '</b></div>' +
       '<div class="entre s13 mt8"><span class="c2">Vai para os animais</span>' +
         '<b class="mono c3">' + brl(0) + '</b></div>' +
@@ -771,7 +771,7 @@ function pintarApoioPlataforma(){
     '<button class="b b-p" onclick="confirmarDoacao()">Apoiar com ' + brl(DOA.valor) + '</button>');
 }
 function blocoPixBruto(chave, nome, cidade, valor){
-  var codigo = pixBRCode(chave, nome, cidade, valor, 'AULAR' + Date.now().toString(36).slice(-8));
+  var codigo = pixBRCode(chave, nome, cidade, valor, 'PDEPATA' + Date.now().toString(36).slice(-8));
   return '<div class="cx plana mt14" style="text-align:center;background:var(--sup-2);margin:0">' +
     '<div class="rot mb8">Pix copia e cola</div>' +
     '<div style="display:inline-block;background:#fff;padding:8px;border-radius:12px">' + QR.svg(codigo, 132) + '</div>' +
@@ -814,7 +814,7 @@ function confirmarDoacao(){
     salvar(); fecharModal();
     modal('🧰 Obrigada!',
       '<div style="text-align:center;padding:14px"><div style="font-size:48px">🧰</div>' +
-      '<h3 style="margin:10px 0 6px">' + brl(DOA.valor) + ' para manter a AuLar de pé</h3>' +
+      '<h3 style="margin:10px 0 6px">' + brl(DOA.valor) + ' para manter o P de PATA de pé</h3>' +
       '<p class="s13 c2">É o que permite que o protetor que não pode pagar continue usando o sistema ' +
       'de graça. Obrigada de verdade.</p></div>',
       '<button class="b b-p" onclick="fecharModal()">Fechar</button>', 'estreita');
@@ -1016,7 +1016,7 @@ function cardAchado(a){
     '<div class="s12 c2">' + esc(truncar(a.descricao, 90)) + '</div>' +
     (a.recompensa ? '<div class="et et-al mt8">recompensa ' + brl(a.recompensa) + '</div>' : '') +
     '<div class="linha mt8"><button class="b b-p b-s" onclick="abrirZap(\'' + a.contato + '\',\'' +
-      'Vi o anúncio no AuLar sobre o animal ' + (a.tipo==='perdido'?'perdido':'encontrado') + '.\')">💬 Falar</button>' +
+      'Vi o anúncio no P de PATA sobre o animal ' + (a.tipo==='perdido'?'perdido':'encontrado') + '.\')">💬 Falar</button>' +
     '<button class="b b-f b-s" onclick="resolverAchado(\'' + a.id + '\')">✓ Reencontrado</button></div>' +
     '</div></div>';
 }
@@ -1112,7 +1112,7 @@ function pedirCadastro(depois){
         todasCidades().map(function(c){ return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
     '</div>' +
     '<label class="check mt14"><input type="checkbox" id="cad-lgpd"><span class="s12">' +
-      'Autorizo o AuLar e a ONG escolhida a usarem meus dados para o processo de adoção. ' +
+      'Autorizo o P de PATA e a ONG escolhida a usarem meus dados para o processo de adoção. ' +
       'Posso pedir exclusão a qualquer momento.</span></label>',
     '<button class="b b-f" onclick="fecharModal()">Agora não</button>' +
     '<button class="b b-p" onclick="salvarCadastro()">Criar cadastro</button>', 'estreita');

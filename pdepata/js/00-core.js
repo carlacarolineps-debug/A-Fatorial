@@ -1,8 +1,11 @@
 /* =========================================================================
-   AuLar — núcleo: estado, persistência, utilidades, roteador, UI base.
+   P de PATA — núcleo: estado, persistência, utilidades, roteador, UI base.
    Sem dependências. Funciona abrindo o index.html direto no navegador.
    ========================================================================= */
 'use strict';
+
+/* A marca (símbolo, nome e cores) vive em js/00-marca.js, que carrega antes
+   deste arquivo. As imagens de lá são o arquivo original, não um redesenho. */
 
 /* ------------------------------------------------------------------ estado */
 var DB = null;              // banco inteiro (multi-tenant) — ver 01-seed.js
@@ -14,10 +17,28 @@ var SESSAO = {              // quem está usando agora
 };
 var HOJE = null;            // data "de hoje" do sistema (permite viajar no tempo na demo)
 
-var CHAVE = 'aular_db_v1';
-var CHAVE_SESSAO = 'aular_sessao_v1';
-var CHAVE_TEMA = 'aular_tema';
-var CHAVE_HOJE = 'aular_hoje';
+var CHAVE = 'pdepata_db_v1';
+var CHAVE_SESSAO = 'pdepata_sessao_v1';
+var CHAVE_TEMA = 'pdepata_tema';
+var CHAVE_HOJE = 'pdepata_hoje';
+
+/* Quem já usava o sistema com o nome antigo não pode perder os dados só
+   porque a marca mudou: na primeira abertura, o conteúdo é transferido
+   para as chaves novas e o rastro antigo é apagado. */
+function migrarChavesAntigas(){
+  var de = ['aular_db_v1','aular_sessao_v1','aular_tema','aular_hoje','aular_site_visto','aular_presenca'];
+  var para = ['pdepata_db_v1','pdepata_sessao_v1','pdepata_tema','pdepata_hoje','pdepata_site_visto','pdepata_presenca'];
+  try{
+    for(var i=0;i<de.length;i++){
+      var v = localStorage.getItem(de[i]);
+      if(v !== null){
+        if(localStorage.getItem(para[i]) === null) localStorage.setItem(para[i], v);
+        localStorage.removeItem(de[i]);
+      }
+    }
+    localStorage.removeItem('aular_ping');
+  }catch(e){}
+}
 
 function salvar(){
   /* Cada gravação incrementa a revisão. É por ela que as outras abas
@@ -705,7 +726,7 @@ function pixBRCode(chave, nome, cidade, valor, txid){
     c('52','0000') + c('53','986') +
     (valor ? c('54', (+valor).toFixed(2)) : '') +
     c('58','BR') +
-    c('59', ascii(nome || 'AULAR', 25) || 'AULAR') +
+    c('59', ascii(nome || 'PDEPATA', 25) || 'PDEPATA') +
     c('60', ascii(cidade || 'SANTO ANDRE', 15) || 'SAO PAULO') +
     c('62', c('05', String(txid || '***').slice(0,25)));
   payload += '6304';

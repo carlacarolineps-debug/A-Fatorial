@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — telas de quem é dono da plataforma.
+   P de PATA — telas de quem é dono da plataforma.
    Aqui mora o negócio: assinaturas, inadimplência, receita e expansão.
    ========================================================================= */
 'use strict';
@@ -168,7 +168,7 @@ registrarTela('pl-ongs', {
         '<div class="linha mt14">' +
           '<button class="b b-f b-s" onclick="entrarComoOng(\'' + o.id + '\')">Entrar na conta</button>' +
           '<button class="b b-f b-s" onclick="mudarPlanoOng(\'' + o.id + '\')">Trocar plano</button>' +
-          '<button class="b b-f b-s" onclick="abrirZap(\'' + o.telefone + '\',\'Oi! Aqui é do AuLar.\')">💬</button>' +
+          '<button class="b b-f b-s" onclick="abrirZap(\'' + o.telefone + '\',\'Oi! Aqui é do P de PATA.\')">💬</button>' +
         '</div></div>';
     }).join('') + '</div>';
   }
@@ -227,12 +227,12 @@ function salvarNovaOng(){
         quantidade:+p[3], minimo:10, consumoDia:+p[4] });
     });
   emitirFaturasDoMes();
-  registrar(o.id, 'sistema', 'Conta criada no AuLar');
+  registrar(o.id, 'sistema', 'Conta criada no P de PATA');
   salvar(); fecharModal(); recarregar();
   aviso('🎉 ' + nome + ' está na plataforma!', 'ok');
 }
 function exportarOngs(){
-  exportarCSV('ongs-aular.csv',
+  exportarCSV('ongs-pdepata.csv',
     ['ONG','Cidade','Responsável','Plano','Mensalidade','Situação','Dias de atraso','Animais','Cliente desde'],
     DB.ongs.map(function(o){
       return [o.nome, o.cidade, o.responsavel, planoDa(o).nome,
@@ -338,7 +338,7 @@ function cobrar(ongId){
   var o = achar(DB.ongs, ongId), f = faturaAberta(ongId);
   var d = diasAtraso(o);
   var txt = 'Oi ' + (o.responsavel||'').split(' ')[0] + ', tudo bem?\n\n' +
-    'A mensalidade do AuLar (' + planoDa(o).nome + ' — ' + brl(f?f.valor:0) + ') venceu em ' +
+    'A mensalidade do P de PATA (' + planoDa(o).nome + ' — ' + brl(f?f.valor:0) + ') venceu em ' +
     (f?brData(f.vence):'') + ' e está com ' + d + ' dias de atraso.\n\n' +
     (o.situacao === 'bloqueada' ? 'O acesso à gestão está bloqueado, mas os perfis dos animais de vocês ' +
       'continuam no ar. Assim que o pagamento entrar, tudo volta na hora.\n\n' : '') +
@@ -403,7 +403,7 @@ function simuladorReceita(){
     ['Mensalidade das ONGs', mensal], ['Taxa sobre doações', taxa],
     ['Kit adoção', kit], ['Comissão de plano de saúde', seguro],
     ['Patrocínio corporativo', patro], ['Contratos públicos', pref],
-    ['Clube AuLar (tutores)', clube]
+    ['Clube P de PATA (tutores)', clube]
   ].filter(function(l){ return l[1] > 0; });
   return '<div class="cx"><div class="cx-h"><div><h3>Simulador</h3>' +
     '<div class="desc">mexa nos números e veja o negócio inteiro mudar</div></div></div>' +
@@ -546,7 +546,7 @@ registrarTela('pl-config', {
         (HOJE ? ' <span class="et et-al">simulada</span>' : '') + '</div></div>' +
     '<div class="cx"><div class="cx-h"><h3>Dados</h3></div>' +
       '<div class="linha">' +
-        '<button class="b b-f" onclick="baixarArquivo(\'aular-backup-\'+isoHoje()+\'.json\',' +
+        '<button class="b b-f" onclick="baixarArquivo(\'pdepata-backup-\'+isoHoje()+\'.json\',' +
           'JSON.stringify(DB,null,2),\'application/json\')">⤓ Backup completo</button>' +
         '<button class="b b-d" onclick="zerarTudo()">🗑 Apagar tudo e recomeçar</button>' +
       '</div></div>';

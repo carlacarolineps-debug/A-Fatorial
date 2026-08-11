@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — Selo de Confiança, Fundo de Impacto e Patrocínio.
+   P de PATA — Selo de Confiança, Fundo de Impacto e Patrocínio.
 
    Três instrumentos DIFERENTES, de propósito separados. Misturar os três é o
    jeito mais rápido de destruir a credibilidade que eles existem para criar:
@@ -12,7 +12,7 @@
       certificadas, por uma regra pública. A plataforma retém uma taxa de
       gestão, declarada ANTES da doação, no mesmo tamanho de letra.
 
-   3. PATROCÍNIO / APOIO   — dinheiro para a AuLar, e só. Empresa que patrocina
+   3. PATROCÍNIO / APOIO   — dinheiro para o P de PATA, e só. Empresa que patrocina
       a plataforma ou pessoa que quer manter o sistema no ar. Isso NÃO é doação
       para animal, não é chamado de doação em lugar nenhum, e a tela diz com
       todas as letras para onde vai.
@@ -202,13 +202,13 @@ function distribuirFundo(){
   // cada cota vira uma doação registrada na ONG, marcada como vinda do Fundo
   r.cotas.forEach(function(c){
     DB.doacoes.unshift({
-      id:id('doa'), ongId:c.ong.id, pessoaId:null, pessoaNome:'Fundo de Impacto AuLar',
+      id:id('doa'), ongId:c.ong.id, pessoaId:null, pessoaNome:'Fundo de Impacto P de PATA',
       tipo:'fundo', meio:'repasse', valor:c.valor, data:isoHoje(), status:'confirmada',
       petId:null, taxa:0, coberta:true, destino:'ong'
     });
     registrar(c.ong.id, 'doacao', 'Repasse do Fundo de Impacto — ' + brl(c.valor) +
       ' (selo ' + c.nivel.nome + ')');
-    notificar(c.ong.id, 'doacao', '🏅 Você recebeu ' + brl(c.valor) + ' do Fundo de Impacto AuLar.');
+    notificar(c.ong.id, 'doacao', '🏅 Você recebeu ' + brl(c.valor) + ' do Fundo de Impacto P de PATA.');
   });
   salvar();
   aviso('Rodada fechada: ' + brl(r.liquido) + ' distribuídos entre ' + r.cotas.length + ' ONGs. 🏅', 'ok');
@@ -217,7 +217,7 @@ function distribuirFundo(){
 /* ================================================================ PATROCÍNIO DA PLATAFORMA */
 var COTAS_PATROCINIO = [
   { chave:'apoiador', nome:'Apoiador', preco:490, cor:'var(--info)',
-    entrega:['Selo "Apoiador AuLar" no rodapé da vitrine',
+    entrega:['Selo "Apoiador P de PATA" no rodapé da vitrine',
              'Relatório de impacto trimestral com os números da rede',
              'Menção nas publicações de balanço'] },
   { chave:'parceiro', nome:'Parceiro', preco:1900, cor:'var(--verde)', destaque:true,
@@ -283,8 +283,8 @@ registrarTela('fundo', {
         regraFundo('60%', 'pela necessidade', 'Proporcional ao número de animais que a ONG tem sob cuidado hoje. ' +
           'Quem cuida de mais bicho recebe mais.') +
         regraFundo('40%', 'pelo mérito', 'Proporcional à nota do Selo de Confiança. Quem trabalha melhor recebe mais.') +
-        regraFundo(pct(f.taxaGestao), 'de gestão', 'Fica com a AuLar para operar o Fundo: auditar as ONGs, ' +
-          'processar os repasses e manter a plataforma no ar. A AuLar é uma empresa, e isso está dito aqui.') +
+        regraFundo(pct(f.taxaGestao), 'de gestão', 'Fica com o P de PATA para operar o Fundo: auditar as ONGs, ' +
+          'processar os repasses e manter a plataforma no ar. O P de PATA é uma empresa, e isso está dito aqui.') +
       '</div>' +
       '<div class="aviso aviso-i mt14 mb0"><span class="em">🔒</span><div>' +
         '<b>Quem não é certificada não recebe</b>Nota abaixo de 40 no Selo fica de fora da divisão até melhorar. ' +
@@ -346,14 +346,14 @@ function tabelaCotas(cotas){
 
 /* ================================================================ APOIAR A PLATAFORMA */
 registrarTela('apoiar', {
-  titulo:'Apoiar a AuLar',
+  titulo:'Apoiar o P de PATA',
   sub:'quem mantém isso de pé também precisa se manter',
   render:function(){
     var p = patrocinios();
     return '' +
     '<div class="aviso aviso-a"><span class="em">📣</span><div>' +
       '<b>Leia antes: este dinheiro não vai para os animais</b>' +
-      'A AuLar é uma empresa, não uma ONG. O que entra por esta página mantém o sistema no ar, ' +
+      'O P de PATA é uma empresa, não uma ONG. O que entra por esta página mantém o sistema no ar, ' +
       'paga o desenvolvimento e a auditoria das organizações. Se a sua intenção é ajudar animal, ' +
       'use <a href="#" onclick="ir(\'doar\');return false">Doar</a> ou o ' +
       '<a href="#" onclick="ir(\'fundo\');return false">Fundo de Impacto</a> — ali o valor vai para as ONGs.' +
@@ -363,7 +363,7 @@ registrarTela('apoiar', {
       '<div style="font-size:34px">🧰</div><div>' +
       '<h3 style="font-size:17px">Por que uma plataforma paga é melhor para os animais</h3>' +
       '<p class="s13 c2 mb0">Ferramenta gratuita que ninguém sustenta fecha, e quando fecha leva junto ' +
-      'o cadastro de centenas de animais. A AuLar cobra de quem pode pagar justamente para poder ' +
+      'o cadastro de centenas de animais. O P de PATA cobra de quem pode pagar justamente para poder ' +
       'ser gratuita para o protetor que não pode. Cada real aqui é um mês a mais de plano grátis ' +
       'para uma ONG pequena.</p></div></div></div>' +
 
@@ -407,7 +407,7 @@ registrarTela('apoiar', {
 });
 function quenoPatrocinio(chave){
   var c = null; COTAS_PATROCINIO.forEach(function(k){ if(k.chave === chave) c = k; });
-  var txt = 'Olá! Tenho interesse na cota ' + c.nome + ' de patrocínio da AuLar (' +
+  var txt = 'Olá! Tenho interesse na cota ' + c.nome + ' de patrocínio do P de PATA (' +
     brl(c.preco) + '/mês).\n\nMinha empresa: \nContato: ';
   modal('Patrocínio ' + c.nome,
     '<div class="cx plana" style="background:var(--sup-2);margin:0 0 14px">' +
@@ -591,7 +591,7 @@ function exportarFundo(){
                    String(c.valor).replace('.',','), String(r.taxa).replace('.',',')]);
     });
   });
-  exportarCSV('fundo-impacto-aular.csv',
+  exportarCSV('fundo-impacto-pdepata.csv',
     ['Data','ONG','Selo','Nota','Animais','Cota','Taxa da rodada'], linhas);
   aviso('CSV baixado.', 'ok');
 }

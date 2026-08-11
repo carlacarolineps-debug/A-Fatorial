@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — contas de usuário, papéis, presença e sincronização ao vivo.
+   P de PATA — contas de usuário, papéis, presença e sincronização ao vivo.
 
    O que "várias pessoas ao mesmo tempo" exige, e o que está resolvido aqui:
 
@@ -113,7 +113,7 @@ var SHA256 = (function(){
     return H.map(function(x){ return ('00000000' + (x>>>0).toString(16)).slice(-8); }).join('');
   };
 })();
-function hashSenha(senha, salt){ return SHA256('aular$' + (salt||'') + '$' + senha); }
+function hashSenha(senha, salt){ return SHA256('pdepata$' + (salt||'') + '$' + senha); }
 
 /* ------------------------------------------------------------------ login */
 function autenticar(email, senha){
@@ -146,7 +146,7 @@ function sairDaConta(){
 /* Cada aba anuncia que está viva. A lista fica no localStorage para as outras
    abas lerem, e some sozinha depois de 40s sem sinal. */
 var ABA_ID = 'aba_' + Math.random().toString(36).slice(2, 9);
-var CHAVE_PRESENCA = 'aular_presenca';
+var CHAVE_PRESENCA = 'pdepata_presenca';
 var PULSO = null;
 
 function lerPresenca(){
@@ -192,12 +192,12 @@ function quemEstaOnline(){
    - o evento 'storage' cobre navegadores sem BroadcastChannel e janelas
      abertas antes deste código existir. */
 var CANAL = null;
-try{ CANAL = new BroadcastChannel('aular'); }catch(e){ CANAL = null; }
+try{ CANAL = new BroadcastChannel('pdepata'); }catch(e){ CANAL = null; }
 
 function avisarOutrasAbas(tipo){
   var msg = { tipo:tipo, origem:ABA_ID, rev: DB && DB.rev ? DB.rev : 0, quando:Date.now() };
   if(CANAL) try{ CANAL.postMessage(msg); }catch(e){}
-  try{ localStorage.setItem('aular_ping', JSON.stringify(msg)); }catch(e){}
+  try{ localStorage.setItem('pdepata_ping', JSON.stringify(msg)); }catch(e){}
 }
 function receberDeOutraAba(msg){
   if(!msg || msg.origem === ABA_ID) return;
@@ -215,7 +215,7 @@ function receberDeOutraAba(msg){
 function ligarSincronizacao(){
   if(CANAL) CANAL.onmessage = function(ev){ receberDeOutraAba(ev.data); };
   window.addEventListener('storage', function(ev){
-    if(ev.key === 'aular_ping' && ev.newValue){
+    if(ev.key === 'pdepata_ping' && ev.newValue){
       try{ receberDeOutraAba(JSON.parse(ev.newValue)); }catch(e){}
     }
   });
@@ -230,7 +230,7 @@ function propagarGravacao(){
   var msg = { tipo:'dados', origem:ABA_ID, rev: DB.rev || 0,
               autor: u ? u.nome.split(' ')[0] : null, quando:Date.now() };
   if(CANAL) try{ CANAL.postMessage(msg); }catch(e){}
-  try{ localStorage.setItem('aular_ping', JSON.stringify(msg)); }catch(e){}
+  try{ localStorage.setItem('pdepata_ping', JSON.stringify(msg)); }catch(e){}
 }
 
 /* ------------------------------------------------------------------ topo: quem está online */
@@ -353,7 +353,7 @@ function convidarPessoa(){
           'onclick="$$(\'#cv-papel .op\').forEach(function(b){b.classList.remove(\'on\',\'car\')});' +
           'this.classList.add(\'on\',\'car\')">' + PAPEIS[k].nome + '</button>'; }).join('') + '</div>' +
       '<div class="aj" id="cv-desc">' + PAPEIS.gestor.o_que + '</div></div>' +
-    '<div class="f mt14"><label>Senha provisória</label><input class="i" id="cv-senha" value="aular123">' +
+    '<div class="f mt14"><label>Senha provisória</label><input class="i" id="cv-senha" value="pata2026">' +
       '<div class="aj">Em produção isso vira um convite por e-mail, e a pessoa cria a própria senha. ' +
       'Aqui a senha é definida direto para você poder testar agora.</div></div>',
     '<button class="b b-f" onclick="fecharModal()">Cancelar</button>' +
@@ -369,7 +369,7 @@ function salvarPessoa(){
   var uid = id('u');
   DB.usuarios.push({
     id:uid, ongId:SESSAO.ongId, plataforma:false, pessoaId:null,
-    nome:nome, email:email, senhaHash:hashSenha($('#cv-senha').value || 'aular123', uid),
+    nome:nome, email:email, senhaHash:hashSenha($('#cv-senha').value || 'pata2026', uid),
     papel:papel, ativo:true, criadoEm:isoHoje(), ultimoAcesso:null
   });
   registrar(SESSAO.ongId, 'equipe', nome + ' entrou na equipe como ' + PAPEIS[papel].nome);

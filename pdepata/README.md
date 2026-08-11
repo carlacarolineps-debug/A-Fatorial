@@ -1,4 +1,8 @@
-# 🐾 AuLar — Rede de Adoção e Gestão Animal
+# P de PATA — Conectando vidas, transformando histórias
+
+<p align="center">
+  <img src="img/completo.png" alt="P de PATA — Adoção · Gestão · Conexão" width="300">
+</p>
 
 Plataforma de adoção responsável e gestão para ONGs e protetores de animais,
 começando pelo Grande ABC e já preparada para o Brasil inteiro.
@@ -20,11 +24,11 @@ para quem serve, os planos e as perguntas frequentes. Dali se entra no portal.
 
 Cada pessoa tem a **própria conta**, com e-mail, senha e papel. A tela de login
 lista as contas de demonstração — clique em uma e o formulário se preenche.
-A senha de todas é `aular123`.
+A senha de todas é `pata2026`.
 
 | Conta | Papel | Enxerga |
 |---|---|---|
-| `carla@aular.app` | Dona da plataforma | o negócio inteiro |
+| `carla@pdepata.app` | Dona da plataforma | o negócio inteiro |
 | `dono@patas-do-abc.org` | Dona da ONG | tudo da organização, incluindo plano e equipe |
 | `patricia@patasdoabc.org` | Gestora | o dia a dia, menos plano, cobrança e equipe |
 | `marcelo@patasdoabc.org` | Voluntário | animais, adoções, lares e feiras |
@@ -88,9 +92,9 @@ O botão **Trocar de perfil** (canto inferior esquerdo) alterna a qualquer momen
   dividido todo mês entre as ONGs certificadas: 60% pela quantidade de animais
   sob cuidado, 40% pela nota do Selo. O extrato de quem recebeu o quê é público,
   e a taxa de gestão aparece na tela antes de você confirmar.
-- **Apoiar a AuLar** — cotas de patrocínio para empresas e apoio mensal para
+- **Apoiar o P de PATA** — cotas de patrocínio para empresas e apoio mensal para
   pessoas. A tela avisa em letras grandes que este valor **não** vai para os
-  animais: a AuLar é empresa, não ONG.
+  animais: o P de PATA é empresa, não ONG.
 - **Ser lar temporário** — cadastro de capacidade e disponibilidade.
 - **Achados e perdidos** — publicar animal perdido ou encontrado por região.
 - **Agenda** — feiras de adoção e mutirões de castração das prefeituras do ABC.
@@ -160,13 +164,45 @@ e são removidas de verdade.
 
 ---
 
+## A marca
+
+O logotipo é o arquivo enviado pela Carla — nada foi redesenhado. Ele foi
+recortado em três peças, com o fundo branco removido, e vive embutido em
+`js/00-marca.js` (base64) para que o sistema continue abrindo com dois cliques,
+sem servidor e sem pasta ao lado. Os arquivos soltos ficam em `img/`.
+
+| Peça | Onde aparece | Função |
+|---|---|---|
+| `img/simbolo.png` | ícone da aba, barra lateral, cabeçalho do site | o "P" com a pata, sozinho |
+| `img/nome.png` | ao lado do símbolo, na trava horizontal | o nome escrito |
+| `img/completo.png` | tela de entrada | marca inteira, com pilares e lema |
+| `img/logo-original.png` | — | o arquivo original, guardado como referência |
+
+As cores do sistema foram **medidas dentro do arquivo**, não escolhidas:
+
+| Cor | Código | Onde |
+|---|---|---|
+| Laranja | `#FD6B01` | a cor principal, botões e destaques |
+| Marrom | `#422813` | o texto do sistema inteiro |
+| Verde | `#0D9B87` | saúde, vacinas e o pilar *Gestão* |
+| Roxo | `#5D3CB5` | compatibilidade e o pilar *Conexão* |
+
+Uma regra só: o **"PATA" do nome é marrom**, então a trava com o nome nunca vai
+direto sobre fundo escuro — ali ela entra dentro de `.logo-placa`, a mesma
+plaquinha clara em que a marca foi desenhada. O símbolo sozinho dispensa a
+plaquinha: o laranja aguenta os dois fundos.
+
+---
+
 ## Estrutura
 
 ```
-aular/
+pdepata/
 ├── index.html            moldura da aplicação
 ├── css/app.css           design system (tokens, tema claro e escuro)
+├── img/                  o logotipo original e os recortes usados no sistema
 ├── js/
+│   ├── 00-marca.js       o logotipo embutido, cores e lema da marca
 │   ├── 00-core.js        estado, datas, moeda, roteador, modal, QR, Pix
 │   ├── 01-seed.js        dados de demonstração do ABC + praças e UFs
 │   ├── 02-vacinas.js     protocolo vacinal e geração da agenda
@@ -194,6 +230,7 @@ aular/
 | Peso de cada critério do match | `03-match.js` → `PESOS` e `compatibilidade` |
 | Perguntas do teste | `03-match.js` → `QUIZ` |
 | Protocolo de vacinas | `02-vacinas.js` → `PROTOCOLO` |
+| Logotipo e cores da marca | `00-marca.js` → `MARCA`; os arquivos soltos em `img/` |
 | Fontes de receita e simulador | `04-billing.js` → `FONTES_RECEITA` |
 | Critérios e pesos do Selo | `09-fundo.js` → `CRITERIOS` e `NIVEIS` |
 | Rateio e taxa do Fundo | `09-fundo.js` → `cotasFundo`, `fundo().taxaGestao` |
@@ -229,8 +266,8 @@ aular/
 | | Quem paga | Para onde vai |
 |---|---|---|
 | **Doar para uma ONG** | doador que já escolheu | 100% para ela, menos a taxa de serviço (que o doador pode cobrir) |
-| **Fundo de Impacto** | doador que não sabe escolher | dividido entre as ONGs certificadas; 12% de gestão ficam com a AuLar |
-| **Apoiar a AuLar** | empresa (patrocínio) ou pessoa | 100% para a AuLar — e a tela diz isso com todas as letras |
+| **Fundo de Impacto** | doador que não sabe escolher | dividido entre as ONGs certificadas; 12% de gestão ficam com o P de PATA |
+| **Apoiar o P de PATA** | empresa (patrocínio) ou pessoa | 100% para o P de PATA — e a tela diz isso com todas as letras |
 
 Nenhuma tela deixa o dinheiro mudar de dono sem avisar antes, no mesmo lugar e
 no mesmo tamanho de letra. É isso que sustenta a credibilidade que o Fundo

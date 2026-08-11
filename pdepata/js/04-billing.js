@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — assinatura, cobrança e régua de inadimplência.
+   P de PATA — assinatura, cobrança e régua de inadimplência.
 
    Regra do negócio (configurável em Plataforma → Cobrança):
      vencimento + carência  →  BLOQUEIO   (gestão trava)
@@ -259,7 +259,7 @@ function exportarDadosOng(ongId){
     eventos: filtrar(DB.eventos, function(e){ return e.ongId === ongId; }),
     faturas: faturasDa(ongId)
   };
-  baixarArquivo('aular-' + slug(o.nome) + '-' + isoHoje() + '.json',
+  baixarArquivo('pdepata-' + slug(o.nome) + '-' + isoHoje() + '.json',
                 JSON.stringify(pacote, null, 2), 'application/json');
   aviso('Seus dados foram baixados. São seus — sempre.', 'ok');
 }
@@ -363,7 +363,7 @@ var FONTES_RECEITA = [
 
   { id:'vitrine', nome:'Vitrine patrocinada (comércio local)', emoji:'📣', grupo:'Publicidade',
     quem:'Clínicas, pet shops, banho e tosa',
-    como:'Selo "Parceiro AuLar" e destaque para quem está no bairro do adotante. ' +
+    como:'Selo "Parceiro P de PATA" e destaque para quem está no bairro do adotante. ' +
          'R$ 149 a R$ 490/mês por estabelecimento — venda local, ciclo curto.',
     base:function(){ return 0; }, unidade:'mês', potencial:1494,
     esforco:'baixo', prazo:'90 dias' },
@@ -383,7 +383,7 @@ var FONTES_RECEITA = [
     base:function(){ return 0; }, unidade:'mês', potencial:8000,
     esforco:'alto', prazo:'12 meses' },
 
-  { id:'clube', nome:'Clube AuLar (assinatura do tutor)', emoji:'⭐', grupo:'Recorrência',
+  { id:'clube', nome:'Clube P de PATA (assinatura do tutor)', emoji:'⭐', grupo:'Recorrência',
     quem:'Adotantes e tutores em geral',
     como:'R$ 19,90/mês: carteirinha digital do pet, lembrete de vacina, teleorientação veterinária ' +
          'e desconto na rede parceira. Os tutores são 100x mais numerosos que as ONGs — ' +
@@ -406,7 +406,7 @@ var FONTES_RECEITA = [
     base:function(){ return 0; }, unidade:'mês', potencial:1200,
     esforco:'médio', prazo:'12 meses' },
 
-  { id:'academia', nome:'Academia AuLar (cursos e certificação)', emoji:'🎓', grupo:'Conteúdo',
+  { id:'academia', nome:'Academio P de PATA (cursos e certificação)', emoji:'🎓', grupo:'Conteúdo',
     quem:'Protetores e voluntários',
     como:'Curso de gestão de ONG, captação, triagem de adotante e primeiros socorros. ' +
          'R$ 197 por curso; certificado de "Lar Temporário Certificado" vira selo na plataforma.',

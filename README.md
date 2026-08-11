@@ -230,8 +230,8 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
 
 ## Outros projetos neste repositório
 
-- **[`aular/`](aular/)** — **AuLar**, plataforma de adoção e gestão animal
+- **[`pdepata/`](pdepata/)** — **P de PATA**, plataforma de adoção e gestão animal
   (vitrine com compatibilidade, calendário de vacinas, lares temporários,
   doações por Pix e assinatura das ONGs com bloqueio automático).
-  Abra `aular/index.html` no navegador; a estratégia do negócio está em
-  [`aular/PROJETO.md`](aular/PROJETO.md).
+  Abra `pdepata/index.html` no navegador; a estratégia do negócio está em
+  [`pdepata/PROJETO.md`](pdepata/PROJETO.md).

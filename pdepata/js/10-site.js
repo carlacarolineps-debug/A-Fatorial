@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — site de divulgação, a tela que vem antes do portal.
+   P de PATA — site de divulgação, a tela que vem antes do portal.
 
    É a porta de entrada: quem chega pela primeira vez cai aqui, entende o que
    é, para quem serve e quanto custa, e só então entra no sistema. Os números
@@ -8,7 +8,7 @@
    ========================================================================= */
 'use strict';
 
-var SITE_VISTO = 'aular_site_visto';
+var SITE_VISTO = 'pdepata_site_visto';
 
 function mostrarSite(){
   var el = $('#site');
@@ -63,7 +63,7 @@ function montarSite(){
 
 function cabecalhoSite(){
   return '<header class="topo"><div class="env">' +
-    '<a class="marca" href="#topo"><span class="m">🐾</span><b>AuLar</b></a>' +
+    '<a class="marca" href="#topo">' + logoTrava(36) + '</a>' +
     '<nav class="menu">' +
       '<a href="#para-quem">Para quem é</a>' +
       '<a href="#diferenca">O que muda</a>' +
@@ -79,10 +79,12 @@ function heroiSite(pet, qtdPets, cidades){
   return '<section class="heroi" id="topo"><div class="env">' +
     '<div>' +
       '<span class="rot">Grande ABC · São Paulo</span>' +
-      '<h1>Todo focinho merece um <em>lar</em>.<br>Toda ONG merece um <em>sistema</em>.</h1>' +
-      '<p class="sub">O AuLar junta as duas pontas: um lugar onde as pessoas encontram o animal que ' +
+      '<h1>Conectando vidas,<br>transformando <em>histórias</em>.</h1>' +
+      '<p class="sub">O P de PATA junta as duas pontas: um lugar onde as pessoas encontram o animal que ' +
         'realmente combina com a vida delas, e a ferramenta que faz a organização parar de trabalhar ' +
         'em caderno e planilha.</p>' +
+      '<div class="pilares">' + MARCA.pilares.map(function(p){
+        return '<span style="color:' + p.cor + '">' + p.txt + '</span>'; }).join('') + '</div>' +
       '<div class="acoes">' +
         '<button class="bt" onclick="entrarNoPortal();setTimeout(function(){entrar(\'adotante\')},60)">' +
           '🧭 Quero adotar</button>' +
@@ -168,7 +170,7 @@ function diferenciaisSite(){
      'o sistema organiza.'],
     ['03', 'A rede de proteção entre as organizações',
      'Quem revende filhote ou maltrata não volta na mesma ONG: vai na próxima, na cidade vizinha, que ' +
-     'não tem como saber. No AuLar a ocorrência registrada por uma organização vira ' +
+     'não tem como saber. No P de PATA a ocorrência registrada por uma organização vira ' +
      '<span class="marca-txt">alerta para todas as outras no momento exato da triagem</span>. ' +
      'Guarda só iniciais e CPF parcial, exige descrição do fato e não é veto automático — a decisão ' +
      'continua sendo de cada ONG.'],
@@ -205,7 +207,7 @@ function fundoSite(certificadas){
         '<p>A regra fica publicada e não muda caso a caso:</p>' +
         '<ul><li><b>60%</b> pela necessidade — quantos animais a ONG tem sob cuidado</li>' +
         '<li><b>40%</b> pelo mérito — a nota do selo</li>' +
-        '<li><b>12%</b> de gestão ficam com a AuLar, e isso aparece na tela antes de você confirmar</li></ul></div>' +
+        '<li><b>12%</b> de gestão ficam com o P de PATA, e isso aparece na tela antes de você confirmar</li></ul></div>' +
       '<div class="cartao sobe"><span class="ico">🚫</span><h3>O que dinheiro não compra</h3>' +
         '<p>O plano contratado <b>não vale um único ponto</b> no selo. Uma ONG do plano gratuito pode ' +
         'ter nota maior que uma do plano mais caro — e receber mais por isso.</p>' +
@@ -270,8 +272,8 @@ function perguntasSite(){
      'O plano Semente é gratuito, sem prazo e sem cartão de crédito: até 15 animais ativos, vitrine ' +
      'pública, carteira de vacinas, funil de adoção e recebimento de doações por Pix. Você só paga se ' +
      'crescer e precisar de mais — e, mesmo aí, a mensalidade começa em R$ 39,90.'],
-    ['Como a AuLar se sustenta, então?',
-     'A AuLar é uma empresa, não uma ONG, e isso está dito em todas as telas. Ela vive de mensalidade ' +
+    ['Como o P de PATA se sustenta, então?',
+     'O P de PATA é uma empresa, não uma ONG, e isso está dito em todas as telas. Ela vive de mensalidade ' +
      'de quem pode pagar, de uma taxa de serviço sobre as doações processadas, da gestão do Fundo de ' +
      'Impacto e de patrocínio de empresas. O que nunca acontece é dinheiro mudar de dono sem aviso: ' +
      'em cada tela de doação você vê exatamente quanto vai para a ONG e quanto fica com a plataforma, ' +
@@ -324,8 +326,10 @@ function rodapeSite(){
   var ano = isoHoje().slice(0,4);
   return '<footer class="pe-site"><div class="env">' +
     '<div class="g">' +
-      '<div><b>AuLar</b><p style="color:#9C8D80;font-size:13.5px;max-width:26em">' +
-        'Rede de adoção e gestão animal. Uma empresa que existe para que quem cuida possa cuidar — ' +
+      '<div><span class="logo-placa marca-pe">' + logoTrava(34) + '</span>' +
+        '<p class="lema">' + MARCA.lema + '</p>' +
+        '<p style="color:#9C8D80;font-size:13.5px;max-width:26em">' +
+        'Adoção, gestão e conexão no mesmo lugar. Uma empresa que existe para que quem cuida possa cuidar — ' +
         'e para que ninguém precise confiar no acaso na hora de doar.</p></div>' +
       '<div><b>Produto</b>' +
         '<a href="#para-quem">Para quem é</a><a href="#diferenca">O que muda</a>' +
@@ -339,8 +343,8 @@ function rodapeSite(){
         '<a href="#perguntas">Como nos sustentamos</a>' +
         '<a href="#perguntas">Privacidade e LGPD</a></div>' +
     '</div>' +
-    '<div class="fim"><span>© ' + ano + ' AuLar · ' + esc(DB.plataforma.cidade) + '/' + DB.plataforma.uf + '</span>' +
-      '<span>A AuLar é uma empresa, não uma ONG. Doações vão para as organizações; ' +
+    '<div class="fim"><span>© ' + ano + ' P de PATA · ' + esc(DB.plataforma.cidade) + '/' + DB.plataforma.uf + '</span>' +
+      '<span>O P de PATA é uma empresa, não uma ONG. Doações vão para as organizações; ' +
       'patrocínio e apoio mantêm a plataforma.</span></div>' +
   '</div></footer>';
 }

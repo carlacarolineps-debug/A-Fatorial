@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — protocolo vacinal e vermifugação.
+   P de PATA — protocolo vacinal e vermifugação.
    O calendário não é digitado à mão: o sistema conhece o protocolo brasileiro
    e monta a agenda sozinho a partir da espécie e da data de nascimento.
    Sempre revisado pelo veterinário responsável — o app organiza, não prescreve.

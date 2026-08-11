@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — telas de gestão da ONG (o tenant).
+   P de PATA — telas de gestão da ONG (o tenant).
    Tudo aqui respeita o plano contratado e a régua de inadimplência.
    ========================================================================= */
 'use strict';
@@ -1399,7 +1399,7 @@ function prepararFeira(evId){
     '<p class="s13 c2 no-print">' + pets.length + ' animais disponíveis. Cada folha sai com o QR ' +
       'que abre o perfil completo.</p>' +
     '<div class="imprimir-area">' + pets.map(function(p){
-      var link = 'https://aular.app/p/' + slug(p.nome) + '-' + p.id.slice(-4);
+      var link = 'https://pdepata.app/p/' + slug(p.nome) + '-' + p.id.slice(-4);
       return '<div style="page-break-inside:avoid;border:1px solid var(--linha);border-radius:12px;' +
         'padding:12px;margin-bottom:10px;display:flex;gap:12px;align-items:center">' +
         '<div class="pav g" style="' + estiloFoto(p) + '"></div>' +

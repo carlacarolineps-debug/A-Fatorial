@@ -1,4 +1,4 @@
-# AuLar — o projeto por trás do sistema
+# P de PATA — o projeto por trás do sistema
 
 Documento de estratégia. O sistema em si está em `index.html` (abra no navegador).
 Aqui está o raciocínio: o que o mercado mostrou, o que eu mudaria no seu plano
@@ -44,7 +44,7 @@ mostra que taxas de devolução caem quando a triagem é feita com calma e sobem
 quando o processo é apressado ou idealizado. Swipe puro acelera o "quero" e não
 acelera o "consigo".
 
-Por isso o AuLar tem swipe **com nota de compatibilidade calculada** (arquivo
+Por isso o P de PATA tem swipe **com nota de compatibilidade calculada** (arquivo
 `js/03-match.js`): 13 perguntas sobre espaço, horas sozinho, energia disponível,
 convivência, experiência e orçamento, cruzadas com sete atributos do animal. A
 nota nunca esconde ninguém — ela ordena a fila e diz, em português, o que vai
@@ -60,7 +60,7 @@ jurídica, com adequação dos contratos até 1º de janeiro de 2026. Na prátic
 
 Isso importa mais para ONG do que para qualquer outro setor: o doador típico de
 protetor de animais não tem cartão de crédito com limite sobrando, e a doação
-via cartão morre quando o cartão vence. O AuLar já oferece Pix Automático como
+via cartão morre quando o cartão vence. O P de PATA já oferece Pix Automático como
 opção padrão para doação recorrente e apadrinhamento.
 
 ### O que a lei exige (e vira funcionalidade)
@@ -83,7 +83,7 @@ mês e [digitalizou o agendamento de castração](https://web.santoandre.sp.gov.
 Mauá oferece castração gratuita aos domingos.
 
 Esses eventos **já reúnem, presencialmente, exatamente o público que você quer**.
-A agenda pública do AuLar nasce semeada com eles: é conteúdo útil desde o
+A agenda pública do P de PATA nasce semeada com eles: é conteúdo útil desde o
 primeiro dia, antes mesmo de a vitrine estar cheia — e é a porta de entrada
 natural para o contrato com a prefeitura (seção 4, fonte 9).
 
@@ -130,7 +130,7 @@ acontece sem vendedor.
 
 ---
 
-## 3. O que ninguém no mercado está fazendo (e o AuLar faz)
+## 3. O que ninguém no mercado está fazendo (e o P de PATA faz)
 
 ### Rede de proteção — a razão de ninguém sair depois de entrar
 
@@ -138,7 +138,7 @@ Quem revende filhote ou maltrata **não volta na mesma ONG**: vai na próxima, n
 cidade vizinha, que não tem como saber. Hoje isso circula em print de WhatsApp
 entre protetoras, sem qualquer organização.
 
-No AuLar, a ocorrência registrada por uma organização aparece como alerta para
+No P de PATA, a ocorrência registrada por uma organização aparece como alerta para
 todas as outras **no momento exato da triagem**, dentro da ficha do interessado.
 Guarda apenas iniciais e CPF parcial, exige descrição do fato, permite que outra
 ONG confirme (uma ocorrência confirmada por duas pesa diferente de uma isolada) e
@@ -158,7 +158,7 @@ de ração" de um jeito que escala — e rende comissão.
 
 ### Tradução de impacto
 
-Ninguém doa para "custo operacional". No AuLar, R$ 50 aparece como *"12 dias de
+Ninguém doa para "custo operacional". No P de PATA, R$ 50 aparece como *"12 dias de
 comida para um animal que está esperando"*, e a prestação de contas se monta
 sozinha com os dados que já estão no sistema. Transparência aqui não é
 burocracia: é o que faz o doador voltar no mês seguinte.
@@ -202,10 +202,10 @@ pesquisa e do desenho do Fundo (seção 4.1). Todas estão no sistema, em
 | 7 | **Vitrine patrocinada** | comércio local | R$ 149 a 490/mês | 90 dias |
 | 8 | **Patrocínio corporativo e ESG** | empresas | R$ 6k a 60k/ano | 6 meses |
 | 9 | **Contrato com prefeituras** | poder público | R$ 2k a 15k/mês | 12 meses |
-| 10 | **Clube AuLar** | tutores | R$ 19,90/mês | 12 meses |
+| 10 | **Clube P de PATA** | tutores | R$ 19,90/mês | 12 meses |
 | 11 | **Rifas e vaquinhas** | comunidade | 6% sobre o arrecadado | 90 dias |
 | 12 | **Focinho ID** | marca patrocinadora | patrocínio | 12 meses |
-| 13 | **Academia AuLar** | protetores | R$ 197 por curso | 12 meses |
+| 13 | **Academia P de PATA** | protetores | R$ 197 por curso | 12 meses |
 | 14 | **Troco solidário** | clientes do comércio | patrocínio + taxa | 12 meses |
 | 15 | **Inteligência de mercado** | indústria pet | relatório trimestral | 18 meses |
 | 16 | **Gestão do Fundo de Impacto** | doadores que não escolhem a ONG | 12% sobre o arrecadado | já |
@@ -225,7 +225,7 @@ contrato municipal vale de 20 a 100 assinaturas de ONG, tem previsão
 orçamentária e renova sozinho. É a receita mais difícil de conseguir e a mais
 difícil de perder.
 
-**10 — Clube AuLar.** Existem 400 ONGs no país e dezenas de milhões de tutores.
+**10 — Clube P de PATA.** Existem 400 ONGs no país e dezenas de milhões de tutores.
 Carteirinha digital do pet, lembrete de vacina, teleorientação veterinária e
 desconto na rede parceira, por R$ 19,90/mês. **É aqui que este negócio deixa de
 ter teto.** Mil assinantes já superam toda a receita possível de mensalidade de
@@ -252,12 +252,12 @@ existem para criar.
 | | Quem paga | Para onde vai | Como a tela chama |
 |---|---|---|---|
 | **Doação para uma ONG** | doador que já escolheu | 100% para a ONG (menos a taxa de serviço, que o doador pode cobrir) | "Doar" |
-| **Fundo de Impacto** | doador que não sabe escolher | dividido entre as ONGs certificadas; 12% de gestão fica com a AuLar | "Doar ao Fundo" |
-| **Patrocínio / Apoio** | empresa ou pessoa | 100% para a AuLar | "Apoiar a AuLar" — a palavra *doação* não aparece |
+| **Fundo de Impacto** | doador que não sabe escolher | dividido entre as ONGs certificadas; 12% de gestão fica com o P de PATA | "Doar ao Fundo" |
+| **Patrocínio / Apoio** | empresa ou pessoa | 100% para o P de PATA | "Apoiar o P de PATA" — a palavra *doação* não aparece |
 
 A regra que amarra tudo: **em nenhuma tela o dinheiro muda de dono sem o
 usuário ser avisado antes, na mesma tela e no mesmo tamanho de letra.** Na tela
-do Fundo, o doador vê "R$ 44,00 vão para as ONGs / R$ 6,00 ficam com a AuLar"
+do Fundo, o doador vê "R$ 44,00 vão para as ONGs / R$ 6,00 ficam com o P de PATA"
 *antes* de confirmar. Na tela de apoio à plataforma, o aviso é ainda mais
 direto: *"este valor não vai para os animais"*, com link para as outras duas
 opções. Isso não é excesso de escrúpulo: é o que separa uma marca confiável de
@@ -333,11 +333,11 @@ não se resolve com código:
    - **Escrow no PSP** (Asaas, Pagar.me): o dinheiro fica numa conta de
      pagamento e é dividido por *split* no dia do repasse. Nunca entra no seu
      caixa; só a taxa de 12% entra. É o caminho mais rápido.
-   - **Instituto AuLar**, uma associação sem fins lucrativos separada da
+   - **Instituto P de PATA**, uma associação sem fins lucrativos separada da
      empresa, que administra o Fundo e contrata a plataforma como prestadora.
      Dá mais trabalho, abre porta para editais e doação dedutível, e é o que
      eu faria se o Fundo passar de uns R$ 20 mil por mês.
-2. **Contrato de adesão com cada ONG**, autorizando a AuLar a receber em nome
+2. **Contrato de adesão com cada ONG**, autorizando o P de PATA a receber em nome
    dela e descrevendo a regra de rateio. Sem isso, o repasse é informal e você
    fica exposta.
 3. **A taxa precisa estar no contrato e na tela.** Já está na tela. Falta o

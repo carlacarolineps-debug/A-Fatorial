@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — dados de demonstração.
+   P de PATA — dados de demonstração.
    Semeado com a realidade do ABC Paulista (Santo André, São Bernardo, São
    Caetano, Diadema, Mauá, Ribeirão Pires, Rio Grande da Serra), já com a
    estrutura preparada para o Brasil inteiro (ver UFS / REGIOES).
@@ -100,9 +100,9 @@ function semear(){
     versao: 1,
     criadoEm: hj,
     plataforma: {
-      nome:'AuLar', dono:'Carla Caroline',
+      nome:'P de PATA', dono:'Carla Caroline',
       cidade:'Santo André', uf:'SP',
-      pixChave:'contato@aular.app',
+      pixChave:'contato@pdepata.app',
       taxaDoacao: 4.9,          // % retido sobre doações processadas
       taxaPresente: 8.0,        // % sobre a lista de presentes (ração etc.)
       carenciaBloqueio: 0,      // dias de tolerância após o vencimento
@@ -592,7 +592,7 @@ function semear(){
   /* ---------------- contas de acesso ----------------
      Cada pessoa entra com a própria conta e enxerga só o que o papel permite.
      Senha de demonstração igual para todas, para você poder testar rápido. */
-  var SENHA_DEMO = 'aular123';
+  var SENHA_DEMO = 'pata2026';
   function novoUsuario(uid, nome, email, papel, ongId, plataforma){
     D.usuarios.push({
       id:uid, ongId:ongId || null, plataforma:!!plataforma, pessoaId:null,
@@ -600,7 +600,7 @@ function semear(){
       papel:papel, ativo:true, criadoEm:maisMeses(hj,-6), ultimoAcesso:null
     });
   }
-  novoUsuario('u_carla', 'Carla Caroline', 'carla@aular.app', 'dono', null, true);
+  novoUsuario('u_carla', 'Carla Caroline', 'carla@pdepata.app', 'dono', null, true);
   D.ongs.forEach(function(o, ix){
     novoUsuario('u_' + ix + '_dono', o.responsavel,
                 'dono@' + slug(o.nome).slice(0,14) + '.org', 'dono', o.id);
@@ -613,7 +613,7 @@ function semear(){
   /* ---------------- atividades ---------------- */
   D.atividades = [];
   D.ongs.forEach(function(o){
-    registrarEm(D, o.id, 'sistema', 'Conta criada no AuLar', maisDias(o.criadaEm, 0));
+    registrarEm(D, o.id, 'sistema', 'Conta criada no P de PATA', maisDias(o.criadaEm, 0));
   });
 
   return D;

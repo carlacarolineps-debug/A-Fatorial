@@ -1,5 +1,5 @@
 -- =============================================================================
--- AuLar — banco de dados para acesso simultâneo de verdade
+-- P de PATA — banco de dados para acesso simultâneo de verdade
 --
 -- POR QUE ESTE ARQUIVO EXISTE
 -- O sistema no navegador já suporta várias pessoas ao mesmo tempo: cada uma tem
@@ -62,7 +62,7 @@ create table membros (
   id                uuid primary key default gen_random_uuid(),
   usuario_id        uuid not null,             -- references auth.users(id)
   organizacao_id    uuid references organizacoes(id) on delete cascade,
-  plataforma        bool not null default false,   -- true = equipe da AuLar
+  plataforma        bool not null default false,   -- true = equipe do P de PATA
   nome              text not null,
   email             text not null,
   papel             text not null default 'voluntario'

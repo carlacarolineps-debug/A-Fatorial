@@ -1,5 +1,5 @@
 /* =========================================================================
-   AuLar — inicialização, menu lateral e troca de papel.
+   P de PATA — inicialização, menu lateral e troca de papel.
    ========================================================================= */
 'use strict';
 
@@ -17,7 +17,7 @@ var MENUS = {
     { tela:'achados', ic:'🔎', txt:'Achados e perdidos' },
     { tela:'agenda', ic:'📅', txt:'Agenda' },
     { grupo:'A plataforma' },
-    { tela:'apoiar', ic:'🧰', txt:'Apoiar a AuLar' }
+    { tela:'apoiar', ic:'🧰', txt:'Apoiar o P de PATA' }
   ],
   ong: [
     { grupo:'Dia a dia' },
@@ -59,11 +59,20 @@ var MENUS = {
     { tela:'descobrir', ic:'🧭', txt:'Vitrine' },
     { tela:'doar', ic:'💛', txt:'Doar' },
     { tela:'fundo', ic:'🏅', txt:'Fundo de Impacto' },
-    { tela:'apoiar', ic:'🧰', txt:'Apoiar a AuLar' }
+    { tela:'apoiar', ic:'🧰', txt:'Apoiar o P de PATA' }
   ]
 };
 
+function pintarMarcaLateral(){
+  /* A barra é escura e o "PATA" do nome é marrom: por isso a trava inteira
+     vai sobre uma plaquinha clara, que é o fundo em que a marca foi feita. */
+  html('#side-marca',
+    '<span class="logo-placa">' + logoTrava(30) + '</span>' +
+    '<small>adoção · gestão · conexão</small>');
+}
+
 function montarMenu(){
+  pintarMarcaLateral();
   var itens = MENUS[SESSAO.papel] || MENUS.adotante;
   var o = ongAtual();
   html('#side-nav', itens.map(function(i){
@@ -167,10 +176,7 @@ function pintarLogin(){
   html('#login',
     '<div class="login-cx">' +
       '<div class="login-e">' +
-        '<div class="linha mb14"><div class="logo">🐾</div>' +
-        '<div><b style="font-size:22px;letter-spacing:-.03em">AuLar</b>' +
-        '<div class="s11 c3" style="letter-spacing:.12em;text-transform:uppercase">' +
-        'rede de adoção e gestão animal</div></div></div>' +
+        '<div class="login-marca">' + logoCompleto(230) + '</div>' +
         '<h1>Entrar</h1>' +
         '<p class="sub">Cada pessoa da equipe tem a própria conta e a própria permissão.</p>' +
 
@@ -195,12 +201,12 @@ function pintarLogin(){
       '</div>' +
       '<div class="login-d">' +
         '<div class="rot mb8">Contas para testar</div>' +
-        '<p class="s12 c2 mb14">Todas usam a senha <b class="mono">aular123</b>. ' +
+        '<p class="s12 c2 mb14">Todas usam a senha <b class="mono">pata2026</b>. ' +
         'Clique numa e o campo é preenchido.</p>' +
         '<div style="max-height:330px;overflow-y:auto;margin:0 -4px;padding:0 4px">' +
         contas.map(function(u){
           var p = PAPEIS[u.papel] || PAPEIS.voluntario;
-          var onde = u.plataforma ? 'AuLar (dona da plataforma)' :
+          var onde = u.plataforma ? 'P de PATA (dona da plataforma)' :
                      (achar(DB.ongs, u.ongId) || {nome:'—'}).nome;
           return '<button class="perfil-b" style="margin-bottom:7px;padding:10px" ' +
             'onclick="preencherLogin(\'' + esc(u.email) + '\')">' +
@@ -224,7 +230,7 @@ function pintarLogin(){
 }
 function preencherLogin(email){
   $('#lg-email').value = email;
-  $('#lg-senha').value = 'aular123';
+  $('#lg-senha').value = 'pata2026';
   $('#lg-senha').focus();
 }
 function fazerLogin(){
@@ -276,6 +282,7 @@ function trocarPapel(){
 
 /* ------------------------------------------------------------------ boot */
 function iniciar(){
+  migrarChavesAntigas();
   aplicarTemaSalvo();
 
   if(!carregar()){
