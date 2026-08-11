@@ -911,6 +911,60 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
   line-height:1.55;color:var(--creme-2)}
 .painel-pe b{color:var(--creme)}
 
+/* ═══ O PAINEL É A ÁREA DO CLIENTE, e não o quadro da gestão ═══
+   Antes ele mostrava "94% no prazo · 21 etapas com dono · 0 desvios",
+   que são números de quem TOCA a operação, não de quem contrata. Quem
+   contrata quer saber três coisas: em que etapa estamos, o que está
+   esperando por mim, e onde ficam os meus documentos. É a mesma tela
+   que o sistema entrega, encolhida. */
+.painel-quem{display:flex;align-items:center;gap:.6rem;padding:.85rem .95rem;
+  border-bottom:1px solid var(--fio)}
+.painel-quem .av{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:var(--metal);color:#241c07;font:600 var(--t-12)/1 var(--grot)}
+.painel-quem .nm{flex:1;min-width:0}
+.painel-quem .nm b{display:block;font:600 var(--t-15)/1.25 var(--grot);color:var(--creme);
+  letter-spacing:-.01em;text-transform:none}
+.painel-quem .nm span{display:block;font-family:var(--mono);font-size:var(--t-11);
+  color:var(--creme-3);margin-top:.15rem}
+
+/* a jornada, em pontos, igual à esteira do sistema */
+.painel-jor{display:flex;align-items:center;padding:.75rem .95rem;gap:.18rem;
+  border-bottom:1px solid var(--fio)}
+.painel-jor i{width:7px;height:7px;border-radius:50%;background:var(--fio-forte);flex:none}
+.painel-jor i.ok{background:var(--ouro)}
+.painel-jor i.aqui{background:var(--ouro-alta);width:11px;height:11px;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--ouro) 22%,transparent)}
+.painel-jor u{flex:1;height:1px;background:var(--fio-forte);text-decoration:none}
+.painel-jor u.ok{background:var(--ouro-fio-forte)}
+.painel-jor .etq{margin-left:auto;padding-left:.6rem;font-family:var(--mono);
+  font-size:var(--t-11);color:var(--ouro);white-space:nowrap}
+
+/* a linha de documento, com o estado do lado do cliente */
+.painel-lin .qd{font-family:var(--mono);font-size:var(--t-11);color:var(--creme-3);white-space:nowrap}
+.painel-lin.voce{background:color-mix(in srgb,var(--espera) 7%,transparent)}
+.painel-lin.voce .et{color:var(--creme)}
+
+/* a barra das parcelas, que é o que todo cliente procura */
+.painel-pg{display:flex;align-items:center;gap:.6rem;padding:.7rem .95rem;
+  border-bottom:1px solid var(--fio);font-size:var(--t-12);color:var(--creme-3)}
+.painel-pg .bar{flex:1;height:5px;border-radius:3px;background:var(--fio-forte);overflow:hidden}
+.painel-pg .bar i{display:block;height:100%;background:var(--ok);border-radius:3px}
+.painel-pg b{color:var(--creme-2);font-family:var(--mono);font-size:var(--t-11);white-space:nowrap}
+
+/* No celular o painel fica estreito e o nome do documento era o primeiro
+   a ser cortado, justamente o que a pessoa precisa ler. Então o nome
+   passa a quebrar em duas linhas e a coluna do meio sai: "recebido" e
+   "em produção" são contexto, o nome é o assunto. */
+@media(max-width:760px){
+  .painel-lin{flex-wrap:wrap;gap:.35rem .6rem;padding:.7rem .8rem}
+  .painel-lin .et{flex:1 1 100%;white-space:normal;overflow:visible;text-overflow:clip;
+    line-height:1.35;color:var(--creme)}
+  .painel-lin .qd{order:2}
+  .painel-lin .af-tag{order:3;margin-left:auto}
+  .painel-quem,.painel-jor,.painel-pg,.painel-pe,.painel-kpi>div{padding-left:.8rem;padding-right:.8rem}
+  .painel-jor .etq{font-size:.72rem}
+}
+
 /* ═══ FAIXA DAS QUATRO PERGUNTAS ═══
    O que a pessoa quer saber antes de qualquer outra coisa, em quatro
    colunas separadas por fio. Sem cartão: é uma tabela de definição. */
@@ -1952,17 +2006,34 @@ body.na-carla #zap-cc{display:flex}
     </div>
 
     <div class="painel af-vidro ouro af-peca rev">
-      <div class="painel-h"><span class="pt" aria-hidden="true"></span><b>Painel de execução</b><span class="ao">ao vivo</span></div>
-      <div class="painel-kpi">
-        <div><div class="v af-num ok" data-conta="94" data-suf="%">0</div><div class="l">No prazo da etapa</div></div>
-        <div><div class="v af-num" data-conta="21">0</div><div class="l">Etapas com dono</div></div>
-        <div><div class="v af-num at" data-conta="0">0</div><div class="l">Desvios do mês</div></div>
+      <div class="painel-h"><span class="pt" aria-hidden="true"></span><b>Área do cliente</b><span class="ao">o que você vê</span></div>
+
+      <div class="painel-quem">
+        <span class="av" aria-hidden="true">RS</span>
+        <span class="nm"><b>Ótica UltraVisão</b><span>Regina Salles · desde 12 de maio</span></span>
       </div>
-      <div class="painel-lin"><span class="et">Proposta comercial</span><span class="dn">A! Fatorial</span><span class="af-tag ok">✓ aprovada</span></div>
-      <div class="painel-lin"><span class="et">Contrato assinado</span><span class="dn">D4Sign</span><span class="af-tag ok">✓ concluído</span></div>
-      <div class="painel-lin"><span class="et">Mapa de gargalos por área</span><span class="dn">é com você</span><span class="af-tag esp">◐ aprovar</span></div>
-      <div class="painel-lin"><span class="et">Plano de ação priorizado</span><span class="dn">em produção</span><span class="af-tag at">3 dias</span></div>
-      <div class="painel-pe">Este é o painel real do nosso sistema. <b>Somos o primeiro cliente do nosso próprio método</b>, e é o mesmo painel que você recebe.</div>
+
+      <div class="painel-jor" aria-label="Etapa 6 de 14 da esteira comercial">
+        <i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="aqui"></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i>
+        <span class="etq">etapa 6 de 14</span>
+      </div>
+
+      <div class="painel-kpi">
+        <div><div class="v af-num" data-conta="6">0</div><div class="l">Etapa atual</div></div>
+        <div><div class="v af-num at" data-conta="1">0</div><div class="l">Aguardando você</div></div>
+        <div><div class="v af-num ok" data-conta="7">0</div><div class="l">Documentos no portal</div></div>
+      </div>
+
+      <div class="painel-lin voce"><span class="et">Mapa de gargalos por área</span><span class="qd">é com você</span><span class="af-tag esp">◐ aprovar</span></div>
+      <div class="painel-lin"><span class="et">Diagnóstico dos 9 pontos</span><span class="qd">recebido</span><span class="af-tag ok">✓ aprovado</span></div>
+      <div class="painel-lin"><span class="et">Contrato de prestação</span><span class="qd">D4Sign</span><span class="af-tag ok">✓ assinado</span></div>
+      <div class="painel-lin"><span class="et">Plano de ação priorizado</span><span class="qd">em produção</span><span class="af-tag at">chega em 3 dias</span></div>
+
+      <div class="painel-pg"><span>Pagamentos</span>
+        <span class="bar"><i style="width:66%"></i></span><b>2 de 3 pagas</b></div>
+
+      <div class="painel-pe">É esta a tela que você abre, do seu lado. <b>Você aprova cada entrega, vê onde o
+        trabalho está e guarda todo documento num lugar só</b>, sem depender de e-mail nem de quem lembrou de mandar.</div>
     </div>
   </div>
 </section>
