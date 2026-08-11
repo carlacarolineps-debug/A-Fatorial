@@ -40,6 +40,38 @@ function segredoConfere(recebido: string): boolean {
 
 const texto = (v: unknown): string => (v == null ? "" : String(v)).trim();
 const mail  = (v: unknown): string => texto(v).toLowerCase();
+
+/* ------------------------------------------------------------------ */
+/* O status vinha comparado por igualdade exata com "Efetivado". Um     */
+/* acento a mais, uma caixa diferente ou a plataforma trocando a        */
+/* palavra e quem PAGOU fica sem acesso, calado, sem ninguém saber. Num */
+/* fluxo automático esse é o pior defeito possível: ele só aparece pela */
+/* reclamação da aluna.                                                 */
+/*                                                                      */
+/* Agora a palavra é normalizada (sem acento, minúscula) e comparada    */
+/* com listas explícitas. O que importa é que as listas são FECHADAS:   */
+/* palavra desconhecida NÃO libera e NÃO corta, ela vira registro       */
+/* visível na mesa. Abrir acesso no escuro seria dar o produto para     */
+/* quem não pagou; ignorar no escuro seria negar para quem pagou.       */
+/* ------------------------------------------------------------------ */
+function normaliza(v: unknown): string {
+  return texto(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+const PAGOU = new Set([
+  "efetivado", "efetivada", "aprovado", "aprovada", "pago", "paga",
+  "confirmado", "confirmada", "concluido", "concluida", "recebido", "recebida",
+]);
+const CAIU = new Set([
+  "cancelado", "cancelada", "estornado", "estornada", "reembolsado", "reembolsada",
+  "recusado", "recusada", "chargeback", "expirado", "expirada",
+]);
+/* estes são conhecidos e não fazem nada de propósito: a venda ainda não
+   aconteceu. Ficam listados para não caírem em "desconhecido" e virarem
+   alarme falso na mesa */
+const ESPERANDO = new Set([
+  "aguardando pagamento", "aguardando", "pendente", "em analise",
+  "processando", "iniciado", "iniciada", "aberta", "aberto",
+]);
 const num   = (v: unknown): number | null => {
   if (v == null || v === "") return null;
   const n = Number(String(v).replace(/[^\d,.-]/g, "").replace(",", "."));
@@ -118,15 +150,17 @@ async function mandarSenha(email: string) {
     const j = await r.json().catch(() => null);
     if (!r.ok || !j || j.ok !== true) {
       await db.from("webhook_log").insert({
-        origem: "tmb-webhook", processado: false,
-        erro: "acesso ativado mas a senha nao foi enviada: " + JSON.stringify(j ?? r.status),
+        origem: "senha", processado: false, email,
+        acao: "o acesso foi liberado, mas o e-mail com a senha nao saiu",
+        erro: "liberar-aluna respondeu: " + JSON.stringify(j ?? r.status),
         payload: { email } as never,
       });
     }
   } catch (e) {
     await db.from("webhook_log").insert({
-      origem: "tmb-webhook", processado: false,
-      erro: "acesso ativado mas a senha nao foi enviada: " + String((e as Error)?.message ?? e),
+      origem: "senha", processado: false, email,
+      acao: "o acesso foi liberado, mas o e-mail com a senha nao saiu",
+      erro: String((e as Error)?.message ?? e),
       payload: { email } as never,
     });
   }
@@ -137,21 +171,30 @@ async function mandarSenha(email: string) {
 /* ------------------------------------------------------------------ */
 async function vendas(p: Record<string, unknown>) {
   const email  = mail(p.email ?? (p as any)?.cliente_email);
-  const status = texto(p.status_pedido);
+  const bruto  = texto(p.status_pedido ?? (p as any)?.status);
+  const status = normaliza(bruto);
   const ref    = texto(p.external_ref ?? (p as any)?.pedido_id ?? (p as any)?.id);
-  if (!email) return { ok: false, motivo: "sem e-mail" };
+  if (!email) return { ok: false, email: "", acao: "chegou sem e-mail, nao deu para fazer nada" };
 
-  if (status === "Efetivado") {
+  if (PAGOU.has(status)) {
     // pagou o boleto de ENTRADA. Não é "pagou tudo": as parcelas seguem
     // chegando pelo webhook Financeiro.
     await gravarAcesso(email, "active", ref);
-    return { ok: true, acao: "acesso ativado" };
+    return { ok: true, email, acao: "acesso liberado e senha enviada" };
   }
-  if (status === "Cancelado") {
+  if (CAIU.has(status)) {
     await gravarAcesso(email, "inactive", ref);
-    return { ok: true, acao: "acesso cancelado" };
+    return { ok: true, email, acao: "compra " + bruto + ": acesso encerrado" };
   }
-  return { ok: true, acao: "status ignorado: " + status };
+  if (ESPERANDO.has(status)) {
+    return { ok: true, email, acao: "ainda nao pagou (" + bruto + "), nada a fazer" };
+  }
+  /* palavra que este código não conhece. Não liberar e não cortar é a
+     decisão certa, mas ficar calado não é: vai para a mesa em vermelho */
+  return {
+    ok: false, email,
+    acao: 'a TMB mandou o status "' + bruto + '", que o app nao conhece. Ninguem foi liberado nem cortado.',
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -160,28 +203,32 @@ async function vendas(p: Record<string, unknown>) {
 /* ------------------------------------------------------------------ */
 async function financeiro(itens: unknown[]) {
   const feito: string[] = [];
-  for (const bruto of itens) {
-    const item   = (bruto ?? {}) as Record<string, unknown>;
+  const emails: string[] = [];
+  let tudoConhecido = true;
+  for (const cru of itens) {
+    const item   = (cru ?? {}) as Record<string, unknown>;
     const d      = ((item.dados ?? item) ?? {}) as Record<string, unknown>;
     const email  = mail(d.cliente_email ?? d.email);
-    const status = texto(item.status_pagamento ?? d.status_pagamento);
+    const bruto  = texto(item.status_pagamento ?? d.status_pagamento);
+    const status = normaliza(bruto);
     const ref    = texto(d.external_ref ?? d.pedido_id ?? item.external_ref ?? "");
     const numero = Number(num(d.parcela ?? d.numero_parcela ?? d.numero) ?? 1) || 1;
     const venc   = data(d.vencimento ?? d.data_vencimento);
     const valor  = num(d.valor ?? d.valor_parcela);
-    if (!email) { feito.push("linha sem e-mail"); continue; }
+    if (!email) { feito.push("linha sem e-mail"); tudoConhecido = false; continue; }
+    if (!emails.includes(email)) emails.push(email);
 
     /* DELETED é renegociação ou cancelamento: fica no log, sem corte
        automático. A Carla olha caso a caso. */
-    if (status === "DELETED") { feito.push("DELETED registrado, sem ação"); continue; }
+    if (status === "deleted") { feito.push("renegociacao registrada, sem corte automatico"); continue; }
 
-    const mapa: Record<string, string> = {
-      "Aguardando pagamento": "aberta",
-      "Recebido": "paga",
-      "Vencido": "vencida",
-      "Estornado": "estornada",
-    };
-    const st = mapa[status] ?? "aberta";
+    const venceu = status === "vencido" || status === "vencida" || status === "atrasado" || status === "atrasada";
+
+    const st = PAGOU.has(status) ? "paga"
+             : venceu ? "vencida"
+             : (status === "estornado" || status === "estornada") ? "estornada"
+             : ESPERANDO.has(status) ? "aberta"
+             : "aberta";
 
     if (ref) {
       await db.from("parcelas").upsert({
@@ -190,31 +237,37 @@ async function financeiro(itens: unknown[]) {
       }, { onConflict: "external_ref,numero" });
     }
 
-    if (status === "Aguardando pagamento") {
+    if (ESPERANDO.has(status)) {
       // não ignorar: é o insumo da régua de inadimplência
       feito.push(`parcela ${numero} registrada, vence ${venc ?? "sem data"}`);
       continue;
     }
-    if (status === "Recebido") {
+    if (PAGOU.has(status)) {
       const { data: abertas } = await db.from("parcelas")
         .select("id").eq("email", email).in("status", ["aberta", "vencida"])
         .lt("vencimento", new Date().toISOString().slice(0, 10));
       if (!abertas || abertas.length === 0) {
         await gravarAcesso(email, "active", ref);
-        feito.push("pago e acesso reativado");
+        feito.push(`parcela ${numero} paga, acesso liberado`);
       } else {
-        feito.push(`pago, mas ainda há ${abertas.length} parcela(s) vencida(s)`);
+        feito.push(`parcela ${numero} paga, mas ainda ha ${abertas.length} vencida(s): acesso segue como esta`);
       }
       continue;
     }
-    if (status === "Vencido" || status === "Estornado") {
+    if (venceu || status === "estornado" || status === "estornada") {
       await gravarAcesso(email, "inactive", ref);
-      feito.push(status === "Vencido" ? "vencido, acesso cortado" : "estornado, acesso cortado");
+      feito.push(venceu ? `parcela ${numero} vencida, acesso encerrado`
+                        : `parcela ${numero} estornada, acesso encerrado`);
       continue;
     }
-    feito.push("status ignorado: " + status);
+    tudoConhecido = false;
+    feito.push(`a TMB mandou o status "${bruto}", que o app nao conhece. Nada foi mexido.`);
   }
-  return { ok: true, itens: feito };
+  return {
+    ok: tudoConhecido,
+    email: emails.join(", "),
+    acao: feito.join(" | ") || "chegou vazio",
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -240,8 +293,16 @@ Deno.serve(async (req) => {
       ? await financeiro(cru)
       : await vendas((cru ?? {}) as Record<string, unknown>);
 
+    /* o resumo em português vai junto do log, porque é ele que a Carla lê
+       na mesa. O payload cru continua guardado, mas nunca sai do servidor:
+       ele carrega dado pessoal de quem comprou */
     if (log?.id) {
-      await db.from("webhook_log").update({ processado: true }).eq("id", log.id);
+      await db.from("webhook_log").update({
+        processado: r.ok === true,
+        email: (r as { email?: string }).email ?? null,
+        acao: (r as { acao?: string }).acao ?? null,
+        erro: r.ok === true ? null : ((r as { acao?: string }).acao ?? "nao processado"),
+      }).eq("id", log.id);
     }
     // 200 sempre que o payload foi entendido: a TMB reenviaria em erro,
     // e reenvio sem necessidade é ruído. Erro real vai no log.

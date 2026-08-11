@@ -105,6 +105,26 @@ async function entrar(b, mentora){
   }
   ok('a moderacao mostra o compromisso de 24h', /24 horas/.test(await pg.evaluate(()=>document.querySelector('#view-admin').innerText)));
 
+  console.log('\n6b. VENDAS: o que a TMB mandou');
+  await pg.evaluate(()=>adGo('vendas')); await pg.waitForTimeout(800);
+  const tv = await pg.evaluate(()=>document.getElementById('adVendasLista').innerText);
+  ok('a aba Vendas existe na barra', await pg.evaluate(()=>[...document.querySelectorAll('#view-admin .gtab')].some(x=>/Vendas/.test(x.textContent))));
+  ok('mostra a venda que deu certo', /acesso liberado e senha enviada/.test(tv), tv.split('\n')[0]);
+  ok('mostra o e-mail de quem comprou', /nova@x\.com/.test(tv));
+  ok('avisa o status que o app nao conhece', /Em Conferencia/.test(tv));
+  ok('avisa quando o e-mail da senha nao saiu', /e-mail com a senha nao saiu/.test(tv));
+  /* a cor e o que ela le de longe: verde deu certo, vermelho pede acao */
+  const cores = await pg.evaluate(()=>[...document.querySelectorAll('#adVendasLista .linha')]
+    .map(x=>getComputedStyle(x).borderLeftColor));
+  ok('a primeira linha e verde e as outras vermelhas', cores.length===3 && cores[0]!==cores[1] && cores[1]===cores[2], JSON.stringify(cores));
+  /* e o payload cru da compra nunca chega na tela */
+  ok('nao mostra o dado cru da compra', !/payload|cpf|documento/i.test(tv));
+  /* lista vazia tem que ensinar o que fazer, e nao ficar em branco */
+  await pg.evaluate(()=>{ window.__SB.webhooks=[]; adVendasCarregar(); });
+  await pg.waitForTimeout(600);
+  const tvz = await pg.evaluate(()=>document.getElementById('adVendasLista').innerText);
+  ok('lista vazia explica o que fazer', /ainda n[aã]o chamou/i.test(tvz) && /COMECE-POR-AQUI/.test(tvz), tvz.slice(0,70));
+
   console.log('\n7. A mesa nao aparece para aluna nem no mapa da Home');
   await pg.close();
   pg=await entrar(b,false);

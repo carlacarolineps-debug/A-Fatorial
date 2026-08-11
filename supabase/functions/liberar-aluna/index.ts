@@ -58,7 +58,17 @@ function senhaTemporaria(): string {
    O e-mail. Vai como texto E como html: cliente de e-mail que recusa
    html ainda mostra a senha, e é a senha que importa.
    --------------------------------------------------------------------- */
-function corpoHtml(senha: string, primeiraVez: boolean): string {
+/* O endereco vai escrito no e-mail, e nao so a senha. A conta e amarrada
+   ao e-mail da compra: quem tenta entrar com outro endereco bate na
+   parede de acesso nao liberado sem entender por que, e essa e a causa
+   numero um de mensagem para o suporte. Dizer qual e o endereco resolve
+   antes de acontecer. */
+function escapar(s: string): string {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function corpoHtml(email: string, senha: string, primeiraVez: boolean): string {
   const titulo = primeiraVez ? "O seu acesso está liberado" : "A sua senha temporária";
   return `
 <div style="font-family:Arial,Helvetica,sans-serif;background:#0b0a0c;padding:30px 20px">
@@ -67,13 +77,18 @@ function corpoHtml(senha: string, primeiraVez: boolean): string {
     <h1 style="font-size:25px;letter-spacing:3px;margin:0 0 22px;color:#efe9de;font-weight:700">BLINDADA</h1>
     <p style="font-size:17px;color:#efe9de;margin:0 0 14px;font-weight:600">${titulo}</p>
     <p style="font-size:14.5px;line-height:1.6;margin:0 0 20px;color:#b9b6ad">
-      Entre no aplicativo com o <b style="color:#e8e6e1">seu e-mail</b> e a senha abaixo.
-      Assim que entrar, o app pede para voce criar a sua propria senha.
+      Entre no aplicativo com os dois dados abaixo. Assim que entrar, o app
+      pede para voce criar a sua propria senha.
     </p>
     <div style="background:#0b0a0c;border:1px solid rgba(233,184,76,.3);border-radius:14px;padding:18px;text-align:center;margin:0 0 20px">
+      <p style="font-size:11px;letter-spacing:2px;color:#9a8f78;margin:0 0 8px">O SEU E-MAIL DE ACESSO</p>
+      <p style="font-size:17px;font-weight:bold;color:#f0cd7e;margin:0 0 18px;word-break:break-all">${escapar(email)}</p>
       <p style="font-size:11px;letter-spacing:2px;color:#9a8f78;margin:0 0 8px">SUA SENHA TEMPORARIA</p>
       <p style="font-size:30px;letter-spacing:4px;font-weight:bold;color:#f0cd7e;margin:0;font-family:monospace">${senha}</p>
     </div>
+    <p style="font-size:13px;line-height:1.6;color:#b9b6ad;margin:0 0 18px">
+      E este endereco mesmo, o da sua inscricao. O app so reconhece ele.
+    </p>
     ${APP_URL ? `<p style="text-align:center;margin:0 0 20px">
       <a href="${APP_URL}" style="display:inline-block;background:#d9a53a;color:#20180a;text-decoration:none;font-weight:bold;font-size:15px;padding:13px 30px;border-radius:999px">Abrir o aplicativo</a>
     </p>` : ""}
@@ -88,13 +103,16 @@ function corpoHtml(senha: string, primeiraVez: boolean): string {
 </div>`;
 }
 
-function corpoTexto(senha: string): string {
+function corpoTexto(email: string, senha: string): string {
   return `OPERACAO BLINDADA
 
-Entre no aplicativo com o seu e-mail e a senha abaixo.
+Entre no aplicativo com os dois dados abaixo.
 Assim que entrar, o app pede para voce criar a sua propria senha.
 
+O SEU E-MAIL DE ACESSO: ${email}
 SUA SENHA TEMPORARIA: ${senha}
+
+E este endereco mesmo, o da sua inscricao. O app so reconhece ele.
 ${APP_URL ? `\nAbra o aplicativo: ${APP_URL}\n` : ""}
 Esta senha e temporaria e serve so para a primeira entrada.
 Se nao foi voce quem se inscreveu, ignore este e-mail.`;
@@ -115,8 +133,8 @@ async function mandarEmail(para: string, senha: string, primeiraVez: boolean) {
       from: `Operacao Blindada <${GMAIL}>`,
       to: para,
       subject: primeiraVez ? "O seu acesso a Operacao Blindada esta liberado" : "A sua senha temporaria",
-      content: corpoTexto(senha),
-      html: corpoHtml(senha, primeiraVez),
+      content: corpoTexto(para, senha),
+      html: corpoHtml(para, senha, primeiraVez),
     });
   } finally {
     try { await cliente.close(); } catch { /* fechar não pode derrubar o resto */ }

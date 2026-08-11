@@ -3,7 +3,10 @@
 Escrito para ser seguido sem entender nada de programação. Cada passo diz
 exatamente onde clicar e o que tem que aparecer na tela quando dá certo.
 
-**Sobraram 4 passos.** Uns 25 minutos no total.
+**Sobraram 5 passos.** Uns 30 minutos no total.
+
+Os passos 1 a 4 fazem o app funcionar. O **passo 5** é o que faz a venda
+na TMB virar acesso sozinha, sem você liberar ninguém na mão.
 
 ---
 
@@ -281,6 +284,92 @@ e abre em tela cheia.
 
 ---
 
+# PASSO 5: a venda virar acesso sozinha (6 minutos)
+
+Este é o passo que você pediu: a pessoa compra na TMB e **recebe o e-mail
+com o acesso dela sem você fazer nada**. O caminho inteiro já está escrito
+e publicado; falta ligar as duas pontas.
+
+## O que vai acontecer depois deste passo
+
+1. a pessoa compra na TMB;
+2. a TMB avisa o app, na hora;
+3. o app cria a conta **com o mesmo e-mail da compra**;
+4. o app sorteia uma senha temporária;
+5. a pessoa recebe um e-mail dizendo **qual é o e-mail dela** e **qual é a
+   senha temporária**;
+6. ela entra, e o app exige que ela troque a senha antes de abrir.
+
+Você não toca em nada. O botão "Liberar" da mesa continua existindo para
+a exceção: a convidada, a cortesia, a inscrição que não veio.
+
+## 5.1 Invente o segredo
+
+É uma senha que só a TMB e o app conhecem, e serve para ninguém mais
+conseguir liberar acesso fingindo ser a TMB. Invente uma linha comprida,
+sem espaço, tipo:
+
+```
+blindada-tmb-7f4c2e9a8d1b6350fae2
+```
+
+Escreva num papel. Você vai colar essa mesma linha em dois lugares, e
+tem que ser **idêntica** nos dois, sem espaço sobrando no fim.
+
+**Nunca ponha esse segredo em mensagem, em documento compartilhado ou no
+GitHub.** Ele vive só nos dois campos abaixo.
+
+## 5.2 Cole no Supabase
+
+1. Abra https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/settings/functions
+2. Em **Edge Function Secrets**, clique em **Add new secret**
+3. Name: `TMB_WEBHOOK_SECRET`
+4. Value: a linha que você inventou
+5. **Save**
+
+## 5.3 Cole na TMB
+
+Na TMB, procure **Integrações**, **Webhooks** ou **Notificações**
+(o nome muda conforme a versão). Você vai cadastrar **dois**, os dois
+apontando para o mesmo endereço:
+
+| Campo | O que colar |
+|---|---|
+| Endereço / URL | `https://okoylfnniukzwoxevyow.supabase.co/functions/v1/tmb-webhook` |
+| Método | `POST` |
+| Cabeçalho (header) | nome `x-webhook-secret`, valor: a sua linha |
+
+Cadastre um para **Vendas** e outro para **Financeiro**. Se a TMB só
+deixar cadastrar um, cadastre o de Vendas: é ele que libera o acesso. O
+Financeiro serve para a mensalidade (corta quem parou de pagar e devolve
+quando volta a pagar).
+
+## 5.4 Confira, sem precisar esperar uma venda
+
+Abra o app: **Mais → A sua mesa → Vendas**. É uma aba nova, e ela responde
+a única pergunta que importa:
+
+- **"A TMB ainda não chamou o app"**: nada chegou. O cadastro na TMB não
+  está certo, ou a TMB ainda não teve venda nenhuma desde que você
+  cadastrou;
+- **linha verde**: chegou e o acesso saiu. Se a aluna disser que não
+  recebeu, o e-mail caiu no spam dela;
+- **linha vermelha**: chegou e deu problema, e a linha diz qual.
+
+Para testar de verdade sem esperar cliente: faça uma compra de teste na
+TMB, se ela permitir. Se não permitir, o teste do **PASSO 4** (liberar
+pela mesa) já prova que a parte do e-mail funciona, e a aba Vendas prova
+a parte da TMB assim que a primeira venda entrar.
+
+## Se aparecer uma linha vermelha dizendo "status que o app não conhece"
+
+Quer dizer que a TMB usa uma palavra diferente da esperada para dizer
+"pagou". **Ninguém foi liberado e ninguém foi cortado**, de propósito:
+liberar no escuro daria o produto para quem não pagou. Me mande a palavra
+exata que aparece na linha e eu acrescento na lista.
+
+---
+
 # AGORA TESTE (5 minutos)
 
 ## A. Criar a SUA conta (só a sua, e uma vez)
@@ -395,26 +484,13 @@ se voltar, volta de onde parou.
 
 # Depois, sem pressa
 
-## A. A liberação automática pela TMB
-
-Hoje você libera cada aluna na mão. Para a inscrição virar acesso sozinha,
-falta só cadastrar o segredo e apontar os webhooks:
-
-1. Em **Edge Function Secrets**, crie `TMB_WEBHOOK_SECRET` com uma senha
-   longa que você inventar (30 letras aleatórias servem)
-2. Na TMB, cadastre os dois webhooks (Vendas e Financeiro) apontando para
-   `https://okoylfnniukzwoxevyow.supabase.co/functions/v1/tmb-webhook`
-   com o cabeçalho `x-webhook-secret` valendo aquela mesma senha
-
-A função já está publicada e esperando.
-
-## B. O limite de e-mails
+## A. O limite de e-mails
 
 O Gmail entrega 500 por dia, e isso cobre uma turma inteira com folga.
 Quando a base passar disso, vale comprar um domínio (cerca de R$ 40 por
 ano) e usar o Resend, que faz 3.000 por mês sem custo.
 
-## C. As lojas
+## B. As lojas
 
 O caminho completo, campo a campo, está em `SUBIR-NAS-LOJAS.md`. O que
 importa agora: **o Google exige 14 dias de teste com 12 pessoas antes de

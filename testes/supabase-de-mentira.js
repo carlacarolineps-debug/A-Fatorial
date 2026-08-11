@@ -135,6 +135,18 @@ window.__SB = {
         {email:'ana@x.com', nome:'Ana', status:'active', user_id:'u-ana', xp:1200, nivel:4, entrou:new Date().toISOString(), mexeu:new Date(Date.now()-86400000).toISOString()},
         {email:'bia@x.com', nome:'Bia', status:'inactive', user_id:'u-bia', xp:300, nivel:2, entrou:new Date().toISOString(), mexeu:null}
       ]);
+      /* o que a TMB mandou: uma que deu certo, uma que a plataforma
+         mandou com palavra desconhecida, e uma em que o e-mail nao saiu */
+      if(nome==='webhooks_admin') return resp(window.__SB.webhooks || [
+        {id:'w1', quando:new Date().toISOString(), origem:'vendas', email:'nova@x.com',
+         acao:'acesso liberado e senha enviada', deu_certo:true, erro:null},
+        {id:'w2', quando:new Date(Date.now()-3600000).toISOString(), origem:'vendas', email:'duvida@x.com',
+         acao:'a TMB mandou o status "Em Conferencia", que o app nao conhece. Ninguem foi liberado nem cortado.',
+         deu_certo:false, erro:'a TMB mandou o status "Em Conferencia", que o app nao conhece. Ninguem foi liberado nem cortado.'},
+        {id:'w3', quando:new Date(Date.now()-7200000).toISOString(), origem:'senha', email:'sememail@x.com',
+         acao:'o acesso foi liberado, mas o e-mail com a senha nao saiu', deu_certo:false,
+         erro:'faltam os segredos GMAIL_USER e GMAIL_APP_PASSWORD'}
+      ]);
       if(nome==='liberar_acesso') return resp('liberado');
       if(nome==='encerrar_acesso') return resp('encerrado');
       return resp(true);

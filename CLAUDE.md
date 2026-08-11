@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 1108.01.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 1108.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,66 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A venda da TMB virando acesso sozinha (1108.02)
+A Carla: "quero saber como vou fazer para o app reconhecer o mesmo email
+que ele fez a compra na TMB, preciso que seja automatico, preciso que a
+pessoa seja adcionada automaticamente, e quando a pessoa comprar que ela
+ja receba um email com o acesso dela com o email que ela comprou e a senha
+temporaria".
+
+**A cadeia já existia inteira**, escrita em 0608.05: a `tmb-webhook` recebe
+a venda, cria a conta com o e-mail da compra, ativa o acesso e chama a
+`liberar-aluna`, que sorteia a senha e manda o e-mail. O que faltava eram
+dois campos que só ela pode preencher (o segredo no Supabase e o endereço
+na TMB). Este passe arrumou quatro coisas que fariam essa automação falhar
+calada, que é o pior jeito de uma automação falhar.
+
+**1. O e-mail não dizia qual era o e-mail.** Ele mandava "entre com o seu
+e-mail e a senha abaixo", e mostrava só a senha. A conta é amarrada ao
+endereço da compra: quem tenta com outro bate na parede de acesso não
+liberado sem entender por quê, e essa é a causa número um de mensagem para
+o suporte. Agora os dois vão escritos, e uma linha diz que é aquele
+endereço mesmo.
+
+**2. O status era comparado por igualdade exata com "Efetivado".** Um
+acento, uma caixa diferente ou a plataforma trocando a palavra e quem
+**pagou** ficava sem acesso, calado. Agora a palavra é normalizada (sem
+acento, minúscula) e comparada com listas explícitas, e as listas são
+**fechadas**: palavra desconhecida não libera e não corta, ela vira linha
+vermelha na mesa. Abrir no escuro seria dar o produto para quem não pagou;
+ignorar no escuro seria negar para quem pagou. O mesmo vale para as
+parcelas.
+
+**3. Não havia como saber se a TMB tinha chamado.** A pergunta "vendi e a
+pessoa não recebeu nada, chegou alguma coisa aí?" só tinha resposta
+abrindo uma tabela no Supabase, o que na prática é não ter resposta. Nasceu
+a aba **Vendas** na mesa: data e hora, o e-mail, o que o app fez, e o erro
+em vermelho quando houve. Lista vazia não fica em branco: ela diz que a
+TMB não chamou e para onde ir.
+
+**O que a aba NÃO mostra, de propósito:** o payload cru da compra. Ele
+carrega nome, valor e o que mais a plataforma resolver mandar sobre quem
+comprou, e a tela não precisa disso para responder a pergunta. Quem lê é a
+`webhooks_admin()`, `security definer` com `eh_mentora()` dentro, porque a
+tabela não tem policy nenhuma. Dois cenários de ataque novos provam as duas
+metades: a aluna não lê pela função e não lê a tabela crua. **45 cenários
+passando**, nos dois modos de publicação.
+
+**4. A lista de abas da mesa estava escrita em dois lugares** (o desenho da
+tela e o redesenho da barra). Duas cópias da mesma lista é um lugar onde a
+aba nova aparece só na metade das vezes. Virou uma constante só.
+
+**O guia mudou de lugar:** a automação da TMB estava em "Depois, sem
+pressa" e virou o **PASSO 5** do `COMECE-POR-AQUI.md`, com o que colar em
+cada campo, o que aparece quando dá certo e o que fazer quando a TMB manda
+uma palavra que o app não conhece.
+
+**Números:** 45 cenários de ataque ao banco, 18 tabelas, 3 rodadas
+idempotentes nos dois modos, 34 conferências da mesa (8 novas só da aba
+Vendas), 50 da auditoria, 46 da entrada, 43 do perfil, 0 erros de
+JavaScript, 0 travessões, e as escalas de 1108.01 intactas (5 raios, 8
+tamanhos, 0 alvos abaixo de 44x44, 0 falhas de contraste).
 
 ### O passe da Human Interface Guidelines (1108.01)
 A Carla mandou o endereço da HIG oficial e o pedido: consultar a

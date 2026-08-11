@@ -635,8 +635,44 @@ create table if not exists public.webhook_log (
   processado  boolean not null default false,
   erro        text
 );
+-- o resumo legível, para a mesa não precisar abrir o payload cru.
+-- Só acrescenta coluna: nada é apagado nem alterado, então rodar por cima
+-- de um banco que já tem dados é seguro.
+alter table public.webhook_log add column if not exists email text;
+alter table public.webhook_log add column if not exists acao  text;
+create index if not exists webhook_log_quando_ix
+  on public.webhook_log (recebido_em desc);
 alter table public.webhook_log enable row level security;
--- nenhuma policy: só service_role
+-- nenhuma policy: só service_role escreve e lê a tabela direto.
+-- A mesa lê pela função abaixo, que devolve só o resumo.
+
+-- ---------------------------------------------------------------------
+-- webhooks_admin: o que a TMB mandou, em português, para a mesa.
+--
+-- O payload cru NÃO sai daqui. Ele guarda nome, e-mail, valor e o que
+-- mais a plataforma resolver mandar sobre quem comprou: é dado de
+-- terceiro, e a tela não precisa dele para responder a única pergunta que
+-- importa, que é "chegou alguma coisa da TMB, e o que o app fez?".
+--
+-- security definer porque a tabela não tem policy nenhuma; a autorização
+-- é o eh_mentora() aqui dentro, e não o fato de o botão estar escondido.
+-- ---------------------------------------------------------------------
+create or replace function public.webhooks_admin(p_limite integer default 40)
+returns table (
+  id uuid, quando timestamptz, origem text, email text,
+  acao text, deu_certo boolean, erro text
+)
+language sql security definer set search_path = public as $$
+  select w.id, w.recebido_em, w.origem, w.email,
+         coalesce(w.acao, case when w.processado then 'processado' else 'nao processado' end),
+         w.processado, w.erro
+    from public.webhook_log w
+   where public.eh_mentora()
+   order by w.recebido_em desc
+   limit greatest(1, least(coalesce(p_limite, 40), 200));
+$$;
+revoke execute on function public.webhooks_admin(integer) from public, anon;
+grant  execute on function public.webhooks_admin(integer) to authenticated;
 
 -- =====================================================================
 -- 7. PUSH

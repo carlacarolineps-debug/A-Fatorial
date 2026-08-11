@@ -197,6 +197,20 @@ select case when count(*)=0 then 'PASSOU: lista vazia' else 'FALHOU: leu '||coun
 select case when coalesce(public.resumo_admin(),'{}'::jsonb) = '{}'::jsonb
             then 'PASSOU: sem numeros' else 'FALHOU: '||public.resumo_admin()::text end;
 
+\echo '--- 27b. aluna tenta ler o que a TMB mandou: volta vazio'
+-- o payload da TMB carrega nome, e-mail e valor de quem comprou. A tabela
+-- nao tem policy nenhuma; a funcao da mesa e security definer, entao quem
+-- protege e o eh_mentora() dentro dela, e e isso que este teste prova.
+select case when count(*)=0 then 'PASSOU: sem webhooks' else 'FALHOU: leu '||count(*) end
+  from public.webhooks_admin(50);
+
+\echo '--- 27c. aluna tenta ler a tabela crua dos webhooks: recusado'
+do $$ declare n integer; begin
+  select count(*) into n from public.webhook_log;
+  if n = 0 then raise notice 'PASSOU: tabela crua vazia para a aluna';
+  else raise notice 'FALHOU: leu % linhas cruas', n; end if;
+exception when others then raise notice 'PASSOU: recusado (%)', SQLERRM; end $$;
+
 \echo '--- 27. aluna tenta ler o progresso de todas pelo painel: so o dela'
 select case when count(*)<=1 then 'PASSOU: so o proprio' else 'FALHOU: leu '||count(*) end
   from public.progress;
