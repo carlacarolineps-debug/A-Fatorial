@@ -306,18 +306,27 @@ a exceção: a convidada, a cortesia, a inscrição que não veio.
 ## 5.1 Invente o segredo
 
 É uma senha que só a TMB e o app conhecem, e serve para ninguém mais
-conseguir liberar acesso fingindo ser a TMB. Invente uma linha comprida,
-sem espaço, tipo:
+conseguir liberar acesso fingindo ser a TMB.
 
-```
-blindada-tmb-7f4c2e9a8d1b6350fae2
-```
+**Não copie nenhuma linha que esteja escrita aqui.** Este arquivo mora no
+GitHub, que é público: qualquer linha impressa nele já nasce queimada, e
+quem a lesse conseguiria liberar acesso de graça. (Este aviso existe
+porque a primeira versão deste guia trazia um exemplo com cara de senha
+de verdade, e exemplo com cara de senha vira senha.)
 
-Escreva num papel. Você vai colar essa mesma linha em dois lugares, e
-tem que ser **idêntica** nos dois, sem espaço sobrando no fim.
+Gere a sua assim, sem inventar de cabeça:
 
-**Nunca ponha esse segredo em mensagem, em documento compartilhado ou no
-GitHub.** Ele vive só nos dois campos abaixo.
+- **no celular**: abra o app de notas e escreva 30 letras e números
+  batendo o dedo sem olhar, ou use qualquer gerador de senha;
+- **no computador**: abra https://www.random.org/strings/ e peça 3
+  sequências de 12 caracteres, depois junte as três.
+
+Escreva a sua num papel. Você vai colar essa mesma linha em dois lugares,
+e tem que ser **idêntica** nos dois, sem espaço sobrando no fim.
+
+**Nunca mande esse segredo por mensagem, e nunca escreva num arquivo do
+projeto.** Ele vive só nos dois campos abaixo. Se um dia ele vazar, troque
+nos dois lugares e pronto: nada mais quebra.
 
 ## 5.2 Cole no Supabase
 
