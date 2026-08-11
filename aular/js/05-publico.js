@@ -416,7 +416,8 @@ function verOng(ongId){
     '<div class="linha mb14"><div class="pav g" style="background:' + o.cor + ';color:#fff">' +
       iniciais(o.nome) + '</div><div><div class="s13 c2">' + esc(o.cidade) + '/' + o.uf +
       ' · desde ' + brData(o.criadaEm).slice(3) + '</div>' +
-      '<div class="linha mt8">' + (o.transparencia ? etiqueta('🔍 Prestação de contas aberta','et-ok') : '') +
+      '<div class="linha mt8">' + seloEtiqueta(o) +
+      (o.transparencia ? etiqueta('🔍 Prestação de contas aberta','et-ok') : '') +
       etiqueta(esc(o.instagram||'')) + '</div></div></div>' +
     '<p class="s13" style="line-height:1.6">' + esc(o.sobre) + '</p>' +
     '<div class="g g4 mt14">' +
@@ -525,7 +526,22 @@ function pintarDoar(qual){
   var ongs = filtrar(DB.ongs, function(o){ return vitrineVisivel(o); });
 
   if(qual === 'dinheiro'){
-    el.innerHTML = '<div class="g g-b">' + ongs.map(function(o){
+    el.innerHTML =
+      /* O Fundo vem antes das ONGs de propósito: é a resposta para quem quer
+         ajudar e trava na hora de escolher — que é a maioria. */
+      '<div class="cx" style="background:linear-gradient(120deg,var(--caramelo-clr),var(--sup));' +
+        'border-color:var(--caramelo)"><div class="linha" style="flex-wrap:nowrap;align-items:flex-start">' +
+        '<div style="font-size:34px">🏅</div>' +
+        '<div style="flex:1;min-width:0"><h3 style="font-size:16px">Não sabe qual escolher?</h3>' +
+        '<p class="s12 c2 mb0">Doe para o <b>Fundo de Impacto</b> e o valor é dividido todo mês entre as ' +
+        'ONGs que provaram trabalho — contas publicadas, vacina em dia, pós-adoção acompanhado. ' +
+        'O extrato de quem recebeu o quê fica público.</p></div>' +
+        '<div class="linha" style="flex-direction:column;gap:6px">' +
+        '<button class="b b-p" onclick="abrirDoacao(null,null,\'fundo\')">🏅 Doar ao Fundo</button>' +
+        '<button class="b b-t b-s" onclick="ir(\'fundo\')">Como funciona</button></div>' +
+      '</div></div>' +
+      '<div class="rot mb8">Ou escolha uma organização</div>' +
+      '<div class="g g-b">' + ordenar(ongs, function(o){ return calcularSelo(o).score; }, true).map(function(o){
       var pets = filtrar(petsDa(o.id), function(p){ return p.status !== 'adotado'; }).length;
       var custoMes = somar(filtrar(petsDa(o.id), function(p){ return p.status !== 'adotado'; }),
                            function(p){ return p.custoMensal; });
@@ -536,6 +552,7 @@ function pintarDoar(qual){
           ';color:#fff">' + iniciais(o.nome) + '</div>' +
         '<div style="flex:1;min-width:0"><div class="neg corte">' + esc(o.nome) + '</div>' +
         '<div class="s11 c3">' + esc(o.cidade) + ' · ' + pets + ' animais sob cuidado</div></div></div>' +
+        '<div class="linha mt8">' + seloEtiqueta(o) + '</div>' +
         '<div class="rot mt14">Precisa de ' + brl(custoMes) + ' por mês</div>' +
         '<div class="barra mt8"><i style="width:' + limite(arrec/(custoMes||1)*100,0,100) + '%"></i></div>' +
         '<div class="entre mt8"><span class="s11 c3">arrecadado este mês</span>' +
@@ -594,14 +611,25 @@ function pintarDoar(qual){
   }
 }
 
-/* ---- fluxo de doação ---- */
-var DOA = { ongId:null, petId:null, valor:50, tipo:'unica', meio:'pix', cobre:true };
-function abrirDoacao(ongId, petId){
-  DOA = { ongId:ongId, petId:petId||null, valor: petId ? 30 : 50,
-          tipo: petId ? 'apadrinhamento' : 'unica', meio:'pix', cobre:true };
+/* ---- fluxo de doação ----
+   Três destinos possíveis, e a tela nunca deixa dúvida sobre qual é:
+     'ong'        — vai para a organização escolhida
+     'fundo'      — vai para o Fundo de Impacto, dividido entre as certificadas
+     'plataforma' — vai para a AuLar. Aqui não se chama doação em lugar nenhum. */
+var DOA = { ongId:null, petId:null, valor:50, tipo:'unica', meio:'pix', cobre:true, destino:'ong' };
+function abrirDoacao(ongId, petId, destino, valor){
+  destino = destino || 'ong';
+  DOA = { ongId:ongId || null, petId:petId || null,
+          valor: valor || (petId ? 30 : (destino === 'plataforma' ? 25 : 50)),
+          tipo: petId ? 'apadrinhamento' : (destino === 'plataforma' ? 'recorrente' : 'unica'),
+          meio: destino === 'plataforma' ? 'pix_automatico' : 'pix',
+          cobre: destino === 'ong', destino:destino };
   pintarDoacao();
 }
 function pintarDoacao(){
+  if(DOA.destino === 'plataforma'){ pintarApoioPlataforma(); return; }
+  if(DOA.destino === 'fundo'){ pintarDoacaoFundo(); return; }
+
   var o = achar(DB.ongs, DOA.ongId);
   var pet = DOA.petId ? achar(DB.pets, DOA.petId) : null;
   var taxa = Math.round(DOA.valor * DB.plataforma.taxaDoacao) / 100;
@@ -657,16 +685,149 @@ function blocoPix(o, valor){
       ',\'Código Pix copiado!\')">📋 Copiar código</button>' +
     '<div class="s11 c3 mt8">Chave: ' + esc(o.pixChave) + '</div></div>';
 }
+/* ---- destino: Fundo de Impacto ---- */
+function pintarDoacaoFundo(){
+  var f = fundo();
+  var gestao = Math.round(DOA.valor * f.taxaGestao) / 100;
+  var paraOngs = DOA.valor - gestao;
+  var certificadas = filtrar(DB.ongs, function(o){
+    return o.situacao !== 'removida' && certificada(o); }).length;
+
+  modal('🏅 Doar para o Fundo de Impacto',
+    '<div class="aviso aviso-c"><span class="em">🏅</span><div>' +
+      '<b>Você não escolhe a ONG — o critério escolhe</b>' +
+      'O valor entra num bolo e é dividido no dia ' + f.diaDistribuicao + ' entre as <b>' +
+      certificadas + ' organizações certificadas</b>: 60% pela quantidade de animais sob cuidado e ' +
+      '40% pela nota do Selo de Confiança. O extrato de quem recebeu o quê fica público.' +
+    '</div></div>' +
+    '<div class="f mb14"><label>Tipo</label><div class="opcoes">' +
+      [['unica','Doação única'],['recorrente','Todo mês']].map(function(t){
+        return '<button class="op ' + (DOA.tipo===t[0]?'on car':'') + '" onclick="DOA.tipo=\'' + t[0] +
+          '\';pintarDoacao()">' + t[1] + '</button>'; }).join('') + '</div></div>' +
+    '<div class="f mb14"><label>Valor' + (DOA.tipo !== 'unica' ? ' por mês' : '') + '</label>' +
+      '<div class="opcoes">' + [25,50,100,250].map(function(v){
+        return '<button class="op ' + (DOA.valor===v?'on car':'') + '" onclick="DOA.valor=' + v +
+          ';pintarDoacao()">' + brl(v).replace(',00','') + '</button>'; }).join('') +
+      '<input class="i i-s" style="width:110px" type="number" min="5" placeholder="outro" ' +
+        'onchange="DOA.valor=+this.value||5;pintarDoacao()"></div></div>' +
+    '<div class="f mb14"><label>Como pagar</label><div class="opcoes">' +
+      (DOA.tipo === 'unica'
+        ? [['pix','⚡ Pix'],['credito','💳 Crédito'],['debito','🏦 Débito']]
+        : [['pix_automatico','⚡ Pix Automático'],['credito','💳 Crédito recorrente']]
+      ).map(function(m){
+        return '<button class="op ' + (DOA.meio===m[0]?'on car':'') + '" onclick="DOA.meio=\'' + m[0] +
+          '\';pintarDoacao()">' + m[1] + '</button>'; }).join('') + '</div></div>' +
+
+    '<div class="cx plana" style="background:var(--sup-2);margin:0">' +
+      '<div class="rot mb8">Para onde vai o seu dinheiro</div>' +
+      '<div class="entre s13"><span class="c2">Dividido entre as ONGs certificadas</span>' +
+        '<b class="mono ok">' + brl(paraOngs) + '</b></div>' +
+      '<div class="entre s13 mt8"><span class="c2">Gestão do Fundo e auditoria (AuLar)</span>' +
+        '<b class="mono">' + brl(gestao) + '</b></div>' +
+      '<div class="sep" style="margin:10px 0"></div>' +
+      '<div class="entre s13"><span class="neg">Você paga</span>' +
+        '<b class="mono s16">' + brl(DOA.valor) + '</b></div>' +
+    '</div>' +
+    '<p class="s11 c3 mt8">A AuLar é uma empresa e cobra ' + pct(f.taxaGestao) + ' para operar o Fundo: ' +
+      'auditar as organizações, processar os repasses e publicar o extrato. Está escrito aqui antes ' +
+      'de você decidir, e não muda depois.</p>' +
+    (DOA.meio === 'pix' || DOA.meio === 'pix_automatico'
+      ? blocoPixBruto(DB.plataforma.pixChave, 'FUNDO AULAR', DB.plataforma.cidade, DOA.valor) : ''),
+    '<button class="b b-f" onclick="fecharModal()">Cancelar</button>' +
+    '<button class="b b-p" onclick="confirmarDoacao()">Doar ' + brl(DOA.valor) + ' ao Fundo</button>');
+}
+
+/* ---- destino: a própria plataforma ---- */
+function pintarApoioPlataforma(){
+  modal('🧰 Apoiar a AuLar',
+    '<div class="aviso aviso-a"><span class="em">⚠️</span><div>' +
+      '<b>Este valor não vai para os animais</b>' +
+      'Ele mantém a plataforma no ar: desenvolvimento, servidores e a auditoria das organizações. ' +
+      'A AuLar é uma empresa, não uma ONG, e não emite recibo de doação. ' +
+      'Se você quer ajudar animal, ' +
+      '<a href="#" onclick="fecharModal();ir(\'doar\');return false">doe para uma ONG</a> ou para o ' +
+      '<a href="#" onclick="DOA.destino=\'fundo\';DOA.cobre=false;pintarDoacao();return false">Fundo de Impacto</a>.' +
+    '</div></div>' +
+    '<div class="f mb14"><label>Tipo</label><div class="opcoes">' +
+      [['recorrente','Todo mês'],['unica','Uma vez só']].map(function(t){
+        return '<button class="op ' + (DOA.tipo===t[0]?'on car':'') + '" onclick="DOA.tipo=\'' + t[0] +
+          '\';pintarDoacao()">' + t[1] + '</button>'; }).join('') + '</div></div>' +
+    '<div class="f mb14"><label>Valor' + (DOA.tipo === 'recorrente' ? ' por mês' : '') + '</label>' +
+      '<div class="opcoes">' + [10,25,50,100].map(function(v){
+        return '<button class="op ' + (DOA.valor===v?'on car':'') + '" onclick="DOA.valor=' + v +
+          ';pintarDoacao()">' + brl(v).replace(',00','') + '</button>'; }).join('') +
+      '<input class="i i-s" style="width:110px" type="number" min="5" placeholder="outro" ' +
+        'onchange="DOA.valor=+this.value||5;pintarDoacao()"></div></div>' +
+    '<div class="cx plana" style="background:var(--sup-2);margin:0">' +
+      '<div class="entre s13"><span class="c2">Vai para a manutenção da AuLar</span>' +
+        '<b class="mono">' + brl(DOA.valor) + '</b></div>' +
+      '<div class="entre s13 mt8"><span class="c2">Vai para os animais</span>' +
+        '<b class="mono c3">' + brl(0) + '</b></div>' +
+    '</div>' +
+    '<p class="s11 c3 mt8">Sem contrapartida e sem promessa: é apoio a quem construiu a ferramenta. ' +
+      'Empresas que querem visibilidade em troca devem usar as ' +
+      '<a href="#" onclick="fecharModal();ir(\'apoiar\');return false">cotas de patrocínio</a>.</p>',
+    '<button class="b b-f" onclick="fecharModal()">Cancelar</button>' +
+    '<button class="b b-p" onclick="confirmarDoacao()">Apoiar com ' + brl(DOA.valor) + '</button>');
+}
+function blocoPixBruto(chave, nome, cidade, valor){
+  var codigo = pixBRCode(chave, nome, cidade, valor, 'AULAR' + Date.now().toString(36).slice(-8));
+  return '<div class="cx plana mt14" style="text-align:center;background:var(--sup-2);margin:0">' +
+    '<div class="rot mb8">Pix copia e cola</div>' +
+    '<div style="display:inline-block;background:#fff;padding:8px;border-radius:12px">' + QR.svg(codigo, 132) + '</div>' +
+    '<button class="b b-f b-s b-bloco mt8" onclick="copiar(' + JSON.stringify(codigo).replace(/"/g,'&quot;') +
+      ',\'Código Pix copiado!\')">📋 Copiar código</button>' +
+    '<div class="s11 c3 mt8">Chave: ' + esc(chave) + '</div></div>';
+}
+
 function confirmarDoacao(){
   var pes = pessoaAtual();
   if(!pes){ fecharModal(); pedirCadastro(function(){ pintarDoacao(); }); return; }
+  if(pes.papeis.indexOf('doador') < 0) pes.papeis.push('doador');
+
+  /* --- Fundo de Impacto --- */
+  if(DOA.destino === 'fundo'){
+    var gestao = Math.round(DOA.valor * fundo().taxaGestao) / 100;
+    DB.doacoes.unshift({
+      id:id('doa'), ongId:null, pessoaId:pes.id, pessoaNome:pes.nome, destino:'fundo',
+      tipo:DOA.tipo, meio:DOA.meio, valor:DOA.valor, data:isoHoje(),
+      status:'confirmada', petId:null, taxa:gestao, coberta:false
+    });
+    salvar(); fecharModal();
+    modal('🏅 Obrigada!',
+      '<div style="text-align:center;padding:14px"><div style="font-size:48px">🏅</div>' +
+      '<h3 style="margin:10px 0 6px">' + brl(DOA.valor) + ' no Fundo de Impacto</h3>' +
+      '<p class="s13 c2">No dia ' + fundo().diaDistribuicao + ' este valor é dividido entre as ONGs ' +
+      'certificadas, e o extrato de quem recebeu o quê aparece na página do Fundo.</p>' +
+      '<button class="b b-f b-s mt14" onclick="fecharModal();ir(\'fundo\')">Ver a página do Fundo</button></div>',
+      '<button class="b b-p" onclick="fecharModal()">Fechar</button>', 'estreita');
+    return;
+  }
+
+  /* --- apoio à plataforma --- */
+  if(DOA.destino === 'plataforma'){
+    DB.doacoes.unshift({
+      id:id('doa'), ongId:null, pessoaId:pes.id, pessoaNome:pes.nome, destino:'plataforma',
+      tipo:DOA.tipo, meio:DOA.meio, valor:DOA.valor, data:isoHoje(),
+      status:'confirmada', petId:null, taxa:0, coberta:false
+    });
+    salvar(); fecharModal();
+    modal('🧰 Obrigada!',
+      '<div style="text-align:center;padding:14px"><div style="font-size:48px">🧰</div>' +
+      '<h3 style="margin:10px 0 6px">' + brl(DOA.valor) + ' para manter a AuLar de pé</h3>' +
+      '<p class="s13 c2">É o que permite que o protetor que não pode pagar continue usando o sistema ' +
+      'de graça. Obrigada de verdade.</p></div>',
+      '<button class="b b-p" onclick="fecharModal()">Fechar</button>', 'estreita');
+    return;
+  }
+
+  /* --- doação para uma ONG --- */
   var taxa = Math.round(DOA.valor * DB.plataforma.taxaDoacao) / 100;
   DB.doacoes.unshift({
-    id:id('doa'), ongId:DOA.ongId, pessoaId:pes.id, pessoaNome:pes.nome,
+    id:id('doa'), ongId:DOA.ongId, pessoaId:pes.id, pessoaNome:pes.nome, destino:'ong',
     tipo:DOA.tipo, meio:DOA.meio, valor:DOA.valor, data:isoHoje(),
     status:'confirmada', petId:DOA.petId, taxa:taxa, coberta:DOA.cobre
   });
-  if(pes.papeis.indexOf('doador') < 0) pes.papeis.push('doador');
   var o = achar(DB.ongs, DOA.ongId);
   registrar(DOA.ongId, 'doacao', 'Doação de ' + brl(DOA.valor) + ' — ' + pes.nome);
   notificar(DOA.ongId, 'doacao', '💛 ' + pes.nome + ' doou ' + brl(DOA.valor) +

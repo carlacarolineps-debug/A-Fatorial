@@ -172,14 +172,18 @@ function inadimplencia(){
   return { qtd:abertas.length, valor:somar(abertas, function(f){ return f.valor; }),
            ongs:unicos(abertas.map(function(f){ return f.ongId; })).length };
 }
-/** Receita da plataforma vinda das taxas sobre doações. */
+/** Taxa de serviço sobre doações feitas DIRETO para uma ONG.
+    Não inclui o Fundo: ali a receita só se realiza quando a rodada fecha
+    (receitaFundo), e somar os dois contaria o mesmo dinheiro duas vezes. */
 function receitaTaxas(dias){
   var de = maisDias(isoHoje(), -(dias || 30));
-  return somar(filtrar(DB.doacoes, function(d){ return d.data >= de && d.status === 'confirmada'; }),
+  return somar(filtrar(DB.doacoes, function(d){
+    return d.data >= de && d.status === 'confirmada' && (d.destino || 'ong') === 'ong'; }),
     function(d){ return d.taxa || 0; });
 }
+/** Tudo que entra para a empresa num mês, de todas as fontes já ligadas. */
 function receitaTotalPlataforma(){
-  return mrr() + receitaTaxas(30);
+  return mrr() + receitaTaxas(30) + receitaFundo(30) + mrrPatrocinio() + apoioMensal();
 }
 
 /* ------------------------------------------------------------------ notificações */
@@ -301,6 +305,29 @@ var FONTES_RECEITA = [
     como:'De 3% a 5% sobre cada doação. Com a caixinha "quero cobrir a taxa" marcada por padrão, ' +
          'a maioria dos doadores assume o custo e a ONG recebe 100%.',
     base:function(){ return receitaTaxas(30); }, unidade:'mês',
+    esforco:'baixo', prazo:'já' },
+
+  { id:'fundo', nome:'Taxa de gestão do Fundo de Impacto', emoji:'🏅', grupo:'Transação',
+    quem:'Doadores que não querem escolher a ONG',
+    como:'12% sobre o que entra no Fundo, declarado na tela antes da doação. Mas o valor real não é ' +
+         'a taxa: é virar quem decide o que é uma ONG séria. Essa autoridade é o que faz prefeitura, ' +
+         'marca e imprensa procurarem você.',
+    base:function(){ return receitaFundo(30); }, unidade:'mês',
+    esforco:'médio', prazo:'já' },
+
+  { id:'patrocinio_plataforma', nome:'Patrocínio da plataforma', emoji:'🏢', grupo:'B2B',
+    quem:'Empresas que querem marca associada a impacto',
+    como:'Cotas de R$ 490 a R$ 6.500/mês por visibilidade na vitrine, presença nas feiras e relatório ' +
+         'ESG pronto para o balanço. É contrato comercial com nota fiscal, não doação — por isso ' +
+         'entra como despesa de marketing e fecha muito mais rápido.',
+    base:function(){ return mrrPatrocinio(); }, unidade:'mês',
+    esforco:'médio', prazo:'90 dias' },
+
+  { id:'apoio_pessoas', nome:'Apoio de pessoas à plataforma', emoji:'🧰', grupo:'Recorrência',
+    quem:'Quem gosta da ferramenta e quer que ela continue',
+    como:'A partir de R$ 9,90/mês, com a tela dizendo em letras grandes que aquilo NÃO vai para os ' +
+         'animais. Honestidade converte melhor do que disfarce, e protege você juridicamente.',
+    base:function(){ return apoioMensal(); }, unidade:'mês',
     esforco:'baixo', prazo:'já' },
 
   { id:'apadrinhamento', nome:'Apadrinhamento recorrente', emoji:'🎗️', grupo:'Recorrência',

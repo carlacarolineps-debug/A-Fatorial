@@ -13,7 +13,7 @@ registrarTela('pl-painel', {
     var gratis = filtrar(DB.ongs, function(o){ return planoDa(o).preco === 0 && o.situacao !== 'removida'; });
     var inad = inadimplencia();
     var taxas = receitaTaxas(30);
-    var receita = mrr() + taxas;
+    var receita = receitaTotalPlataforma();
     var petsTotal = filtrar(DB.pets, function(p){ return p.status !== 'adotado'; }).length;
     var adoMes = filtrar(DB.adocoes, function(a){ return a.data >= isoHoje().slice(0,8)+'01'; }).length;
     var conv = pagantes.length / Math.max(1, DB.ongs.length) * 100;
@@ -29,9 +29,9 @@ registrarTela('pl-painel', {
     return '' +
     leituraDoNegocio(receita, inad, conv, gratis.length, pagantes.length) +
     '<div class="g g4">' +
-      kpiCard('Receita recorrente (MRR)', brl(mrr()), '📈', 'v') +
-      kpiCard('Taxas sobre doações (30d)', brl(taxas), '💸', 'r') +
       kpiCard('Receita total do mês', brl(receita), '💰', '') +
+      kpiCard('Mensalidade das ONGs', brl(mrr()), '📈', 'v') +
+      kpiCard('Patrocínio de empresas', brl(mrrPatrocinio()), '🏢', 'u') +
       kpiCard('Em atraso', brl(inad.valor), '⚠️', inad.valor?'p':'v') +
     '</div>' +
     '<div class="g g4">' +
@@ -93,7 +93,9 @@ registrarTela('pl-painel', {
 function leituraDoNegocio(receita, inad, conv, gratis, pagantes){
   var partes = [];
   partes.push('Você fatura <b>' + brl(receita) + '</b> por mês: ' + brl(mrr()) +
-    ' de mensalidade e ' + brl(receitaTaxas(30)) + ' de taxa sobre doações.');
+    ' de mensalidade das ONGs, ' + brl(mrrPatrocinio()) + ' de patrocínio de empresas, ' +
+    brl(receitaTaxas(30)) + ' de taxa sobre doações, ' + brl(receitaFundo(30)) +
+    ' de gestão do Fundo e ' + brl(apoioMensal()) + ' de apoio de pessoas.');
   if(inad.ongs) partes.push('<b class="pe">' + inad.ongs + ' ONG(s) em atraso</b>, somando ' +
     brl(inad.valor) + ' — a régua já bloqueou quem passou do prazo.');
   if(gratis) partes.push('Você tem <b>' + gratis + '</b> no plano grátis. ' +
@@ -105,7 +107,10 @@ function leituraDoNegocio(receita, inad, conv, gratis, pagantes){
   else if(inad.ongs > 1) proximo = 'Antes de buscar ONG nova, recupere quem está em atraso: ' +
     'custa muito menos e o dinheiro entra esta semana.';
   else proximo = 'A base está saudável. É hora de atacar a receita que não depende de ONG pagar: ' +
-    'taxa sobre doação, apadrinhamento e o primeiro contrato de prefeitura.';
+    'crescer o Fundo de Impacto, fechar mais cotas de patrocínio e ir atrás do primeiro contrato de prefeitura.';
+  var semOng = receita - mrr();
+  partes.push('Hoje <b>' + pct(semOng / (receita || 1) * 100) + '</b> da sua receita não depende de ' +
+    'nenhuma ONG pagar mensalidade — é esse número que precisa subir.');
 
   return '<div class="cx" style="background:linear-gradient(120deg,var(--caramelo-clr),var(--sup));' +
     'border-color:var(--caramelo)"><div class="linha" style="flex-wrap:nowrap;align-items:flex-start">' +

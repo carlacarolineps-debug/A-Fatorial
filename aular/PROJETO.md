@@ -2,7 +2,8 @@
 
 Documento de estratégia. O sistema em si está em `index.html` (abra no navegador).
 Aqui está o raciocínio: o que o mercado mostrou, o que eu mudaria no seu plano
-original e por quê, as 15 formas de ganhar dinheiro e o caminho do ABC até o Brasil.
+original e por quê, as 18 formas de ganhar dinheiro, a arquitetura de
+credibilidade do Fundo de Impacto e o caminho do ABC até o Brasil.
 
 ---
 
@@ -29,8 +30,8 @@ com quem não cobra nada.
 **Conclusão que muda o desenho do negócio:** a mensalidade deve existir (está
 implementada exatamente como você pediu), mas ela é a *menor* das receitas. O
 dinheiro de verdade está no movimento que a plataforma cria — doação, adoção,
-tutor, comércio local, empresa e prefeitura. As 15 fontes da seção 4 seguem essa
-lógica: **11 delas não dependem de nenhuma ONG pagar nada.**
+tutor, comércio local, empresa e prefeitura. As 18 fontes da seção 4 seguem essa
+lógica: **14 delas não dependem de nenhuma ONG pagar nada.**
 
 ### O "Tinder de pets" já existe — e é por isso que ele não basta
 
@@ -184,10 +185,11 @@ sete anos vendo quarenta cães saírem antes dele.
 
 ---
 
-## 4. As 15 formas de ganhar dinheiro
+## 4. As 18 formas de ganhar dinheiro
 
-As três primeiras são as que você já tinha em mente. As outras doze saíram da
-pesquisa. Todas estão no sistema, em **Plataforma → Monetização**, com simulador.
+As três primeiras são as que você já tinha em mente. As outras quinze saíram da
+pesquisa e do desenho do Fundo (seção 4.1). Todas estão no sistema, em
+**Plataforma → Monetização**, com simulador.
 
 | # | Fonte | Quem paga | Modelo | Prazo |
 |---|---|---|---|---|
@@ -206,6 +208,9 @@ pesquisa. Todas estão no sistema, em **Plataforma → Monetização**, com simu
 | 13 | **Academia AuLar** | protetores | R$ 197 por curso | 12 meses |
 | 14 | **Troco solidário** | clientes do comércio | patrocínio + taxa | 12 meses |
 | 15 | **Inteligência de mercado** | indústria pet | relatório trimestral | 18 meses |
+| 16 | **Gestão do Fundo de Impacto** | doadores que não escolhem a ONG | 12% sobre o arrecadado | já |
+| 17 | **Patrocínio da plataforma** | empresas | R$ 490 a 6.500/mês por cota | 90 dias |
+| 18 | **Apoio de pessoas à plataforma** | quem gosta da ferramenta | a partir de R$ 9,90/mês | já |
 
 ### As quatro que eu colocaria acima da mensalidade
 
@@ -231,6 +236,122 @@ ONG no Brasil inteiro.
 aceita, a ONG recebe 100% e você fatura sem tirar um centavo de ninguém que
 precisa. Acima de 8% a ONG passa a pedir Pix direto e você perde a transação
 inteira — o simulador mostra esse ponto.
+
+---
+
+## 4.1 Fundo de Impacto, Selo e Patrocínio — a arquitetura da credibilidade
+
+Você pediu três coisas ao mesmo tempo: **dar visibilidade a quem leva a sério**,
+**não tirar do doador a liberdade de escolher** e **ter receita para bancar o
+seu trabalho**. As três cabem juntas, mas só se forem instrumentos **separados**.
+Misturar é o jeito mais rápido de destruir exatamente a credibilidade que eles
+existem para criar.
+
+### Os três instrumentos, e por que nunca se encostam
+
+| | Quem paga | Para onde vai | Como a tela chama |
+|---|---|---|---|
+| **Doação para uma ONG** | doador que já escolheu | 100% para a ONG (menos a taxa de serviço, que o doador pode cobrir) | "Doar" |
+| **Fundo de Impacto** | doador que não sabe escolher | dividido entre as ONGs certificadas; 12% de gestão fica com a AuLar | "Doar ao Fundo" |
+| **Patrocínio / Apoio** | empresa ou pessoa | 100% para a AuLar | "Apoiar a AuLar" — a palavra *doação* não aparece |
+
+A regra que amarra tudo: **em nenhuma tela o dinheiro muda de dono sem o
+usuário ser avisado antes, na mesma tela e no mesmo tamanho de letra.** Na tela
+do Fundo, o doador vê "R$ 44,00 vão para as ONGs / R$ 6,00 ficam com a AuLar"
+*antes* de confirmar. Na tela de apoio à plataforma, o aviso é ainda mais
+direto: *"este valor não vai para os animais"*, com link para as outras duas
+opções. Isso não é excesso de escrúpulo: é o que separa uma marca confiável de
+uma denúncia no Procon.
+
+### O Selo de Confiança é o ativo — a taxa é o troco
+
+O Fundo rende 12% de gestão. Isso é pouco. O que ele **realmente** compra é
+autoridade: **quem decide quais ONGs são sérias vira a referência do setor.** É
+com quem a prefeitura conversa, é quem a marca procura para patrocinar, é quem a
+imprensa liga quando quer falar de adoção. E é o que faz uma ONG querer estar na
+plataforma mesmo quando não precisa do software.
+
+O Selo é calculado ao vivo, sobre nove critérios que saem de dados que a ONG já
+alimenta — nada é auto-declarado:
+
+| Critério | Peso |
+|---|---|
+| Presta contas em público | 15 |
+| Saúde dos animais em dia | 15 |
+| Acompanha depois da adoção | 15 |
+| Poucas devoluções | 12 |
+| Responde quem demonstra interesse | 12 |
+| Perfis completos e com história | 11 |
+| Animais adultos castrados | 10 |
+| Microchip e RGA | 5 |
+| Tempo de estrada na plataforma | 5 |
+
+Níveis: **Em avaliação** (< 40, não recebe do Fundo) → **Verificada** (40) →
+**Confiança** (60) → **Referência** (80).
+
+Uma decisão que parece contraintuitiva e é o coração da coisa: **o plano
+contratado não vale um único ponto no Selo.** Uma ONG do plano gratuito pode ter
+nota maior que uma do plano mais caro — e receber mais do Fundo por isso. No dia
+em que pagar mensalidade melhorar a nota, a nota deixa de significar qualquer
+coisa, e junto com ela vai embora o ativo inteiro. Há um teste automatizado que
+falha se alguém mexer nisso.
+
+Efeito colateral que vale ouro: o Selo faz as ONGs **quererem** publicar contas,
+manter vacina em dia e acompanhar o pós-adoção — o que melhora os dados da
+plataforma, que melhoram o match, que melhoram as adoções. Ele é, ao mesmo
+tempo, o produto de marketing e o motor de qualidade.
+
+### Como o Fundo divide
+
+`60% pela necessidade` (animais sob cuidado) `+ 40% pelo mérito` (nota do Selo).
+
+Só necessidade premiaria acumular animal. Só mérito concentraria tudo em duas ou
+três ONGs grandes e organizadas, e o Fundo perderia o sentido. A regra fica
+publicada e **não muda caso a caso** — no minuto em que houver exceção para uma
+ONG amiga, o Selo vira favor e acabou.
+
+### Patrocínio: a receita mais limpa que existe aqui
+
+Três cotas mensais — **Apoiador R$ 490**, **Parceiro R$ 1.900**, **Mantenedor
+R$ 6.500** — vendendo o que a empresa realmente precisa: visibilidade associada
+a impacto e um relatório pronto para o balanço de sustentabilidade.
+
+O detalhe que faz fechar mais rápido: **patrocínio não é filantropia, é
+marketing.** Sai do orçamento de comunicação, não do de doação; tem nota fiscal
+de serviço, contrato e contrapartida objetiva. Empresa aprova despesa de
+marketing muito mais fácil do que doação — e ninguém precisa discutir se aquilo
+era caridade.
+
+### O que precisa estar resolvido antes do primeiro real
+
+Aqui é onde eu preciso ser direta com você, porque é a única parte disso que
+não se resolve com código:
+
+1. **O Fundo não pode passar pela conta da empresa.** Uma S/A ou LTDA que recebe
+   dinheiro "para animais" e redistribui está, na prática, administrando recurso
+   de terceiro. Dois caminhos limpos, e você escolhe um:
+   - **Escrow no PSP** (Asaas, Pagar.me): o dinheiro fica numa conta de
+     pagamento e é dividido por *split* no dia do repasse. Nunca entra no seu
+     caixa; só a taxa de 12% entra. É o caminho mais rápido.
+   - **Instituto AuLar**, uma associação sem fins lucrativos separada da
+     empresa, que administra o Fundo e contrata a plataforma como prestadora.
+     Dá mais trabalho, abre porta para editais e doação dedutível, e é o que
+     eu faria se o Fundo passar de uns R$ 20 mil por mês.
+2. **Contrato de adesão com cada ONG**, autorizando a AuLar a receber em nome
+   dela e descrevendo a regra de rateio. Sem isso, o repasse é informal e você
+   fica exposta.
+3. **A taxa precisa estar no contrato e na tela.** Já está na tela. Falta o
+   contrato.
+4. **"Apoio à plataforma" não é doação** e não gera recibo de doação. É receita
+   da empresa, com nota fiscal de serviço. O sistema já separa esse registro dos
+   demais justamente para o contador não misturar.
+5. **Converse com o contador sobre a natureza da taxa de gestão** antes de
+   transacionar. E fique de olho no *split payment* tributário do IBS/CBS, que
+   entra em vigor gradualmente a partir de 2026 e muda como o imposto é retido
+   em plataformas.
+
+Nada disso é caro nem demorado. Mas se ficar para depois, trava o lançamento
+exatamente no dia em que o dinheiro começar a entrar.
 
 ---
 

@@ -115,7 +115,8 @@ function semear(){
     ongs: [], pets: [], pessoas: [], interesses: [], adocoes: [], doacoes: [],
     faturas: [], estoque: [], movEstoque: [], vacinas: [], eventos: [], achados: [],
     tarefas: [], atividades: [], listaRisco: [], patrocinadores: [], presentes: [],
-    notificacoes: [], swipes: []
+    notificacoes: [], swipes: [], patrociniosPlataforma: [],
+    fundo: { ativo:true, taxaGestao:12, saldo:0, diaDistribuicao:10, rodadas:[] }
   };
 
   /* ---------------- ONGs (a primeira é a "sua") ---------------- */
@@ -390,12 +391,72 @@ function semear(){
       pessoaNome: D.pessoas[d % D.pessoas.length].nome,
       tipo: apadrinha ? 'apadrinhamento' : (recorrente ? 'recorrente' : 'unica'),
       meio: apadrinha || recorrente ? (d % 2 ? 'pix_automatico' : 'credito') : meios[d % 3],
-      valor:valor, data:quando2, status:'confirmada',
+      valor:valor, data:quando2, status:'confirmada', destino:'ong',
       petId: apadrinha ? D.pets[d % D.pets.length].id : null,
       taxa: Math.round(valor * D.plataforma.taxaDoacao) / 100,
       coberta: d % 3 === 0
     });
   }
+
+  /* ---------------- Fundo de Impacto ---------------- */
+  /* Doações de quem não quis escolher uma ONG específica. */
+  for(var q=0; q<18; q++){
+    var vf = [25,50,100,250,500][q % 5];
+    D.doacoes.push({
+      id:'fun_' + q, ongId:null, destino:'fundo',
+      pessoaId: D.pessoas[q % D.pessoas.length].id,
+      pessoaNome: D.pessoas[q % D.pessoas.length].nome,
+      tipo: q % 3 === 0 ? 'recorrente' : 'unica',
+      meio: q % 2 ? 'pix_automatico' : 'credito',
+      valor:vf, data:maisDias(hj, -(q*4 + 2)), status:'confirmada',
+      petId:null, taxa: Math.round(vf * 12) / 100, coberta:false
+    });
+  }
+  /* Apoio de pessoas físicas à empresa — dinheiro que não é dos animais. */
+  for(var ap=0; ap<9; ap++){
+    var va = [10,25,50][ap % 3];
+    D.doacoes.push({
+      id:'apo_' + ap, ongId:null, destino:'plataforma',
+      pessoaId: D.pessoas[(ap+3) % D.pessoas.length].id,
+      pessoaNome: D.pessoas[(ap+3) % D.pessoas.length].nome,
+      tipo:'recorrente', meio: ap % 2 ? 'pix_automatico' : 'credito',
+      valor:va, data:maisDias(hj, -(ap*3 + 1)), status:'confirmada',
+      petId:null, taxa:0, coberta:false
+    });
+  }
+  /* Duas rodadas já fechadas, para a página do Fundo abrir com histórico. */
+  [1,2].forEach(function(m2){
+    var bruto = m2 === 1 ? 2340 : 1890;
+    var taxa = Math.round(bruto * 12) / 100;
+    var liquido = bruto - taxa;
+    var elegiveis = [D.ongs[0], D.ongs[4], D.ongs[1], D.ongs[2]];
+    var notas = [86, 81, 64, 47];
+    var animais = [8, 3, 3, 2];
+    var somaN = notas.reduce(function(a,b){ return a+b; }, 0);
+    var somaA = animais.reduce(function(a,b){ return a+b; }, 0);
+    D.fundo.rodadas.push({
+      id:'rod_' + m2, data: maisMeses(hj, -m2).slice(0,8) + '10',
+      bruto:bruto, taxa:taxa, liquido:liquido,
+      cotas: elegiveis.map(function(o, i){
+        return { ongId:o.id, ongNome:o.nome,
+                 valor: Math.round((liquido*0.6*(animais[i]/somaA) + liquido*0.4*(notas[i]/somaN)) * 100) / 100,
+                 score:notas[i], nivel: notas[i]>=80?'Referência':(notas[i]>=60?'Confiança':'Verificada'),
+                 animais:animais[i] };
+      })
+    });
+  });
+
+  /* ---------------- patrocínio da plataforma (receita comercial) ---------------- */
+  D.patrociniosPlataforma = [
+    { id:'pp1', empresa:'Rede VetLar — clínicas do ABC', contato:'comercial@vetlar.com.br',
+      plano:'parceiro', valor:1900, desde:maisMeses(hj,-5), ativo:true },
+    { id:'pp2', empresa:'Cobasi Santo André', contato:'(11) 4004-0000',
+      plano:'apoiador', valor:490, desde:maisMeses(hj,-9), ativo:true },
+    { id:'pp3', empresa:'Metalúrgica Prisma (ESG)', contato:'sustentabilidade@prisma.ind.br',
+      plano:'mantenedor', valor:6500, desde:maisMeses(hj,-2), ativo:true },
+    { id:'pp4', empresa:'Pet Shop Amigo Fiel', contato:'(11) 4330-1122',
+      plano:'apoiador', valor:490, desde:maisMeses(hj,-14), ativo:false }
+  ];
 
   /* ---------------- estoque de ração ---------------- */
   D.ongs.forEach(function(o, ix){

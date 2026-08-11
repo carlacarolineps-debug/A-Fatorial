@@ -6,8 +6,9 @@ começando pelo Grande ABC e já preparada para o Brasil inteiro.
 **Para usar: abra o arquivo `index.html` no navegador.** Sem instalação, sem
 servidor, sem internet obrigatória. Os dados ficam salvos no próprio navegador.
 
-> A estratégia do negócio — pesquisa de mercado, as 15 formas de monetizar,
-> o que eu recomendo mudar no plano e como isso vira produção — está em
+> A estratégia do negócio — pesquisa de mercado, as 18 formas de monetizar, a
+> arquitetura de credibilidade do Fundo de Impacto (incluindo o que precisa
+> estar resolvido juridicamente) e como isso vira produção — está em
 > **[PROJETO.md](PROJETO.md)**.
 
 ---
@@ -19,9 +20,9 @@ A tela inicial deixa escolher por onde entrar, e o botão **Trocar de perfil**
 
 | Perfil | O que vê |
 |---|---|
-| **🧭 Adotante** | Vitrine com swipe e compatibilidade, doações, lar temporário, achados e perdidos, agenda |
-| **🏢 ONG / protetor** | Gestão completa: animais, vacinas, adoções, lares, doações, estoque, prestação de contas, rede de proteção |
-| **📊 Dono da plataforma** | Assinaturas, cobrança, receita, monetização e expansão |
+| **🧭 Adotante** | Vitrine com swipe e compatibilidade, doações, Fundo de Impacto, lar temporário, achados e perdidos, agenda |
+| **🏢 ONG / protetor** | Gestão completa: animais, vacinas, adoções, lares, doações, estoque, prestação de contas, Selo de Confiança, rede de proteção |
+| **📊 Dono da plataforma** | Assinaturas, cobrança, Fundo de Impacto, patrocínios, monetização e expansão |
 
 ---
 
@@ -38,6 +39,13 @@ A tela inicial deixa escolher por onde entrar, e o botão **Trocar de perfil**
 - **Meus interesses** — em que etapa está cada conversa com cada ONG.
 - **Doar** — Pix, cartão, doação mensal, apadrinhamento e lista de presentes de
   ração. Com a opção de cobrir a taxa para a ONG receber 100%.
+- **Fundo de Impacto** — para quem quer ajudar mas não sabe escolher. O valor é
+  dividido todo mês entre as ONGs certificadas: 60% pela quantidade de animais
+  sob cuidado, 40% pela nota do Selo. O extrato de quem recebeu o quê é público,
+  e a taxa de gestão aparece na tela antes de você confirmar.
+- **Apoiar a AuLar** — cotas de patrocínio para empresas e apoio mensal para
+  pessoas. A tela avisa em letras grandes que este valor **não** vai para os
+  animais: a AuLar é empresa, não ONG.
 - **Ser lar temporário** — cadastro de capacidade e disponibilidade.
 - **Achados e perdidos** — publicar animal perdido ou encontrado por região.
 - **Agenda** — feiras de adoção e mutirões de castração das prefeituras do ABC.
@@ -60,6 +68,9 @@ A tela inicial deixa escolher por onde entrar, e o botão **Trocar de perfil**
   de acabar e pedido de doação pronto para o grupo.
 - **Prestação de contas** — página pública que se monta sozinha com os dados do
   sistema, traduzindo valores em impacto concreto.
+- **Meu selo** — a nota do Selo de Confiança, o que está pesando contra, quanto
+  já entrou do Fundo e a cota estimada da próxima rodada. O plano contratado
+  não vale um ponto: o selo mede trabalho, não pagamento.
 - **Feiras e eventos** — um clique gera os cartazes com QR de todos os animais.
 - **Rede de proteção** — lista de ocorrências compartilhada entre as ONGs, que
   aparece como alerta na hora da triagem.
@@ -70,7 +81,11 @@ A tela inicial deixa escolher por onde entrar, e o botão **Trocar de perfil**
 - **ONGs e assinaturas** — carteira completa, com LTV, e o botão de entrar na
   conta da ONG para dar suporte vendo o que ela vê.
 - **Cobrança** — a régua configurável: bloqueio, suspensão e remoção.
-- **Monetização** — as 15 fontes de receita, com simulador.
+- **Fundo de Impacto** — saldo, prévia do rateio, fechamento da rodada e o selo
+  de cada ONG. A taxa de gestão e o dia da distribuição são configuráveis.
+- **Patrocínios** — carteira de empresas, três cotas e o argumento de venda
+  pronto com os números reais da rede.
+- **Monetização** — as 18 fontes de receita, com simulador.
 - **Expansão** — praças, densidade por cidade e as 27 UFs prontas.
 
 ---
@@ -113,6 +128,7 @@ aular/
 │   ├── 05-publico.js     telas de quem adota, doa e hospeda
 │   ├── 06-gestao.js      telas da ONG
 │   ├── 07-plataforma.js  telas do dono do negócio
+│   ├── 09-fundo.js       selo, fundo de impacto e patrocínio
 │   └── 08-app.js         menu, login e inicialização
 ├── PROJETO.md            estratégia, pesquisa e monetização
 └── README.md
@@ -128,6 +144,9 @@ aular/
 | Perguntas do teste | `03-match.js` → `QUIZ` |
 | Protocolo de vacinas | `02-vacinas.js` → `PROTOCOLO` |
 | Fontes de receita e simulador | `04-billing.js` → `FONTES_RECEITA` |
+| Critérios e pesos do Selo | `09-fundo.js` → `CRITERIOS` e `NIVEIS` |
+| Rateio e taxa do Fundo | `09-fundo.js` → `cotasFundo`, `fundo().taxaGestao` |
+| Cotas de patrocínio | `09-fundo.js` → `COTAS_PATROCINIO` |
 | Cidades e praças de operação | `01-seed.js` → `PRACAS` e `UFS` |
 | Cores e tipografia | `css/app.css` → bloco `:root` |
 
@@ -148,6 +167,25 @@ aular/
   saem limpos no `Ctrl+P`, sem menu nem botões.
 - **Seus dados são seus.** Em Meu plano → Meus dados, a ONG baixa tudo em JSON —
   inclusive quando a conta está bloqueada.
+
+---
+
+## As três formas de dinheiro entrar — e por que ficam separadas
+
+| | Quem paga | Para onde vai |
+|---|---|---|
+| **Doar para uma ONG** | doador que já escolheu | 100% para ela, menos a taxa de serviço (que o doador pode cobrir) |
+| **Fundo de Impacto** | doador que não sabe escolher | dividido entre as ONGs certificadas; 12% de gestão ficam com a AuLar |
+| **Apoiar a AuLar** | empresa (patrocínio) ou pessoa | 100% para a AuLar — e a tela diz isso com todas as letras |
+
+Nenhuma tela deixa o dinheiro mudar de dono sem avisar antes, no mesmo lugar e
+no mesmo tamanho de letra. É isso que sustenta a credibilidade que o Fundo
+existe para criar.
+
+O **Selo de Confiança** decide quem recebe do Fundo. São nove critérios
+calculados ao vivo sobre o trabalho de verdade — e **o plano contratado não vale
+um único ponto**, de propósito: no dia em que pagar mensalidade melhorar a nota,
+a nota deixa de valer. Há um teste automatizado que falha se alguém mexer nisso.
 
 ---
 

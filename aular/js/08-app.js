@@ -11,10 +11,13 @@ var MENUS = {
     { tela:'meus-interesses', ic:'💚', txt:'Meus interesses' },
     { grupo:'Ajudar' },
     { tela:'doar', ic:'💛', txt:'Doar' },
+    { tela:'fundo', ic:'🏅', txt:'Fundo de Impacto' },
     { tela:'lar-temporario', ic:'🏠', txt:'Ser lar temporário' },
     { grupo:'Comunidade' },
     { tela:'achados', ic:'🔎', txt:'Achados e perdidos' },
-    { tela:'agenda', ic:'📅', txt:'Agenda' }
+    { tela:'agenda', ic:'📅', txt:'Agenda' },
+    { grupo:'A plataforma' },
+    { tela:'apoiar', ic:'🧰', txt:'Apoiar a AuLar' }
   ],
   ong: [
     { grupo:'Dia a dia' },
@@ -27,6 +30,7 @@ var MENUS = {
     { tela:'ong-doacoes', ic:'💛', txt:'Doações' },
     { tela:'ong-estoque', ic:'🍽️', txt:'Estoque e ração' },
     { tela:'ong-transparencia', ic:'🔍', txt:'Prestação de contas' },
+    { tela:'ong-selo', ic:'🏅', txt:'Meu selo' },
     { grupo:'Rede' },
     { tela:'ong-eventos', ic:'🎪', txt:'Feiras e eventos' },
     { tela:'ong-rede', ic:'🛡️', txt:'Rede de proteção' },
@@ -42,6 +46,9 @@ var MENUS = {
     { tela:'pl-painel', ic:'📊', txt:'Visão do dono' },
     { tela:'pl-ongs', ic:'🏢', txt:'ONGs e assinaturas' },
     { tela:'pl-cobranca', ic:'💳', txt:'Cobrança' },
+    { grupo:'Impacto e marca' },
+    { tela:'pl-fundo', ic:'🏅', txt:'Fundo de Impacto' },
+    { tela:'pl-patrocinios', ic:'🏢', txt:'Patrocínios' },
     { grupo:'Crescimento' },
     { tela:'pl-monetizacao', ic:'💰', txt:'Monetização' },
     { tela:'pl-expansao', ic:'🗺️', txt:'Expansão' },
@@ -50,7 +57,8 @@ var MENUS = {
     { grupo:'Ver como público' },
     { tela:'descobrir', ic:'🧭', txt:'Vitrine' },
     { tela:'doar', ic:'💛', txt:'Doar' },
-    { tela:'achados', ic:'🔎', txt:'Achados e perdidos' }
+    { tela:'fundo', ic:'🏅', txt:'Fundo de Impacto' },
+    { tela:'apoiar', ic:'🧰', txt:'Apoiar a AuLar' }
   ]
 };
 
@@ -240,8 +248,11 @@ function iniciar(){
   }catch(e){}
 
   // migrações leves: garante que campos novos existam em bases antigas
-  ['swipes','notificacoes','presentes','listaRisco','patrocinadores','tarefas','movEstoque']
-    .forEach(function(k){ if(!DB[k]) DB[k] = []; });
+  ['swipes','notificacoes','presentes','listaRisco','patrocinadores','tarefas','movEstoque',
+   'patrociniosPlataforma'].forEach(function(k){ if(!DB[k]) DB[k] = []; });
+  if(!DB.fundo) DB.fundo = { ativo:true, taxaGestao:12, saldo:0, diaDistribuicao:10, rodadas:[] };
+  // bases antigas nao tinham destino: tudo que existia era doacao para ONG
+  DB.doacoes.forEach(function(d){ if(!d.destino) d.destino = 'ong'; });
 
   emitirFaturasDoMes();
   aplicarRegua();
