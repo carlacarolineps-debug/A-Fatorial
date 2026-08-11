@@ -510,8 +510,12 @@ function semear(){
       var comp = maisMeses(hj, -m);
       var vence = comp.slice(0,8) + ('0'+o.diaVenc).slice(-2);
       var atrasada = difDias(vence, hj) > 0;
-      var pagou = m > 0 || !atrasada;
-      // ONGs com atraso não pagaram as últimas
+      /* Todas começam em dia, inclusive a do mês corrente. Sem isso, quem
+         abrisse a demonstração depois do dia do vencimento encontraria a
+         própria ONG já bloqueada — péssima primeira impressão, e nada a ver
+         com o que a régua deveria demonstrar. */
+      var pagou = true;
+      // Só estas duas nascem em atraso, de propósito, para a régua ter o que mostrar.
       if(o.nome.indexOf('Mauá') >= 0 && m === 0) pagou = false;
       if(o.nome.indexOf('Esperança') >= 0 && m <= 3) pagou = false;
       D.faturas.push({
