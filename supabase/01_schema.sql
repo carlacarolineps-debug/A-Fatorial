@@ -73,6 +73,14 @@ create table if not exists public.access (
 -- único já existir, ela é trocada pela versão barata (por índice).
 alter table public.access replica identity full;
 
+-- evento_em: a data do evento da plataforma que produziu este estado.
+-- Sem ela, um evento atrasado derruba quem já foi liberado depois. O
+-- caso real: a aluna gera um boleto, desiste e paga no cartão; chega
+-- "Efetivado" e ela entra; três dias depois o boleto abandonado expira e
+-- a plataforma dispara "Expirado" para o mesmo e-mail. Só acrescenta
+-- coluna, então rodar por cima de um banco com dados é seguro.
+alter table public.access add column if not exists evento_em timestamptz;
+
 -- O único tem que ser sobre a COLUNA, não sobre lower(email). Índice de
 -- expressão não casa com "on conflict (email)", e o webhook grava assim:
 -- todo upsert morreria com "no unique or exclusion constraint matching",
@@ -179,7 +187,15 @@ grant  update (email, display_name, full_name, avatar_url, atualizado_em)
 -- e-mail de todas, veria todas as provas, apagaria fotos e suspenderia
 -- contas. Escalada de privilégio, e em uma chamada só.
 revoke insert on public.profiles from authenticated;
-grant  insert (user_id, email, display_name, full_name, avatar_url)
+-- atualizado_em ENTRA NA LISTA, e a falta dela custava caro. O upsert do
+-- PostgREST é INSERT ... ON CONFLICT DO UPDATE, e o Postgres exige o
+-- privilégio de INSERT em TODAS as colunas citadas, mesmo quando o que
+-- roda no fim é o UPDATE. Como os três upserts do perfil mandam
+-- atualizado_em, salvar o nome e trocar a foto eram recusados pelo banco,
+-- sempre, e o app dizia "guardei aqui, mas não consegui sincronizar
+-- agora": a aluna culpava a internet dela para sempre.
+-- A trava que importa continua de pé: is_mentor segue fora das duas listas.
+grant  insert (user_id, email, display_name, full_name, avatar_url, atualizado_em)
   on public.profiles to authenticated;
 
 -- ---------------------------------------------------------------------

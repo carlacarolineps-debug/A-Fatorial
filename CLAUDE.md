@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 1108.02.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 1108.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,99 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### A auditoria adversarial achou a automação quebrada (1108.03)
+A Carla ligou a automação da TMB, rodou um teste de integração e pediu:
+"olhe tudo e vê se está correto, preciso que nao tenho erro e nao tenha
+nunhuma falha, esteja totalmente seguro". Rodei uma auditoria de 12
+agentes em seis frentes (banco, entrada, TMB, e-mail, concorrência,
+cliente), cada achado passando por um cético que tentava derrubá-lo.
+**37 achados sobreviveram, 4 críticos.** Conferi os críticos no código
+antes de mexer, e os quatro eram reais.
+
+**1. A VENDA NUNCA MANDAVA A SENHA, E A MESA DIZIA QUE SIM.** Três
+leitores independentes acharam o mesmo defeito, e a cadeia é esta:
+`gravarAcesso` chamava `acharOuCriarUsuario`, que criava a conta com
+`createUser({email, email_confirm:true})`, **sem senha e sem metadata**.
+Logo depois `mandarSenha` chamava a `liberar-aluna` com `so_se_nova:true`.
+Lá dentro, `achar()` lia o metadata vazio: `senha_temporaria !== true`,
+ou seja `undefined !== true`, que dá **verdadeiro**. A conta recém-criada
+era classificada como "já tem senha própria", e o atalho saía antes de
+sortear a senha e antes de mandar o e-mail.
+
+Resultado: conta existindo, e-mail confirmado, **sem senha nenhuma**. A
+compradora não recebia nada e o login recusava para sempre, porque não
+havia senha para acertar. E como a resposta era `ok:true`, o webhook não
+registrava erro: a aba Vendas mostrava **verde**, escrito "acesso liberado
+e senha enviada". A mesa afirmando sucesso com a aluna do lado de fora é
+a pior combinação que existe. O caminho manual funcionava (a mesa chama
+sem `so_se_nova`), então quebrava exatamente o que ela tinha acabado de
+ligar.
+
+O conserto é de responsabilidade, não de remendo: **o webhook parou de
+criar conta**. Criar conta é trabalho de quem sabe pôr senha e mandar
+e-mail, e isso é a `liberar-aluna`. E `achar()` passou a exigir o que é
+observável: só tem senha própria quem **já entrou alguma vez**
+(`last_sign_in_at`). Quem nunca entrou não pode ter escolhido senha, por
+definição.
+
+**2. XSS guardado que executava na sessão da MENTORA.** `moderacao.js`
+punha `alvo_id` (texto livre, escrito por qualquer conta logada) cru
+dentro de `onclick`. Repare que a linha de cima escapava e a de baixo
+não. Mais dois iguais: o contato do cartão de membro (`comunidade.js`) e
+o e-mail da compra no "reenviar a senha" (`admin.js`).
+**E escapar não resolve nenhum dos três**: dentro de um atributo de
+evento o navegador desfaz as entidades ANTES de o JavaScript ler a linha,
+então `&#39;` volta a ser apóstrofo e fecha a string do mesmo jeito. Os
+três viraram despacho por índice. `testes/xss.cjs` dispara os três
+ataques de verdade e confere se o código rodou, com um **controle
+negativo** que monta o padrão antigo e prova que a carga executa: sem
+ele, o teste passaria por a carga ser inócua em vez de por o app se
+defender.
+
+**3. O perfil nunca sincronizava, e a aluna culpava a internet dela.**
+`grant update` tinha `atualizado_em`, `grant insert` não. Como o upsert do
+PostgREST é `INSERT ... ON CONFLICT DO UPDATE`, o Postgres exige o
+privilégio em **todas** as colunas citadas, mesmo quando o que roda é o
+UPDATE. Salvar o nome e trocar a foto eram recusados pelo banco, sempre.
+
+**4. Pendência local sobrescrevendo trabalho mais novo.** `pullState`
+tratava "existe pendência aqui" como prioridade absoluta: a sessão que
+não subiu na terça pelo celular apagava a semana inteira feita no
+computador. Agora quem decide é o relógio, e o perdedor fica guardado em
+`ob:sobra`. `subirPendente` também ignorava a trava `leituraOk`, o que
+desfazia a proteção inteira por outro caminho.
+
+**Mais o que a auditoria pegou e foi corrigido:** o e-mail levava a senha
+no **preheader**, ou seja, na tela de bloqueio do celular (a aluna compra
+às 21h e a senha aparece para quem estiver na mesa); o erro das escritas
+que decidem o acesso era descartado; status desconhecido da TMB
+**rebaixava parcela paga para aberta** e a régua cortava quem estava em
+dia; evento atrasado cortava quem pagou (o boleto abandonado que expira
+depois de a pessoa pagar no cartão); parcela vencida cortava na hora,
+contra a régua escalonada que o próprio banco implementa; sessão que
+morria no meio do uso mostrava "acesso não liberado" para quem pagou; e o
+sorteio da senha tinha viés de módulo (a, b e c saíam 9% mais).
+
+**O e-mail foi reescrito**, como ela pediu: tabela com `bgcolor` em vez de
+div com flex (o Outlook renderiza com o motor do Word), acentuação de
+volta (texto sem acento em e-mail de acesso tem cara de golpe), preheader
+sem segredo, três passos numerados, o endereço de acesso escrito por
+extenso e `replyTo` para a resposta chegar em alguém.
+
+**A logo:** o arquivo que ela mandou não chegou no ambiente de trabalho,
+só a imagem na conversa. Em vez de redesenhar (ela pediu para não
+inventar), ficou pronta a esteira: `tools/logo.py` tira o fundo branco,
+recorta a margem, gera os cinco tamanhos das lojas e o base64 embutido, e
+o `inject.cjs` troca a marca em **todas** as telas de uma vez, porque o
+app desenha a marca por uma função só. Testado ponta a ponta com uma
+imagem de prova, que foi apagada depois.
+
+**Números:** 47 cenários de ataque ao banco (2 novos), 18 tabelas, 3
+rodadas idempotentes nos dois modos, 8 conferências de XSS com controle
+negativo, 50 da auditoria, 46 da entrada, 43 do perfil, 34 da mesa, 0
+erros de JavaScript, 0 travessões, 0 cortes de 320 a 430px, e as escalas
+de 1108.01 intactas.
 
 ### A venda da TMB virando acesso sozinha (1108.02)
 A Carla: "quero saber como vou fazer para o app reconhecer o mesmo email

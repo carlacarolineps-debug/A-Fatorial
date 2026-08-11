@@ -46,76 +46,211 @@ const db = createClient(URL_SB, SERVICE, { auth: { persistSession: false } });
 function senhaTemporaria(): string {
   const letras = "abcdefghjkmnpqrstuvwxyz";
   const nums   = "23456789";
+  /* Rejeição, e não módulo direto. 256 não é múltiplo de 23 (o alfabeto
+     de letras, sem i, l e o): 256 = 11x23 + 3, então os índices 0, 1 e 2
+     recebiam 12 bytes cada e os outros 20 recebiam 11, e as letras a, b e
+     c saíam 9% mais que as demais. A perda de entropia hoje é
+     desprezível, mas a função é reaproveitável, e o dia em que alguém
+     gerar com ela um código de vida longa o viés vai junto sem ninguém
+     lembrar de conferir. Descartar a sobra custa alguns bytes e devolve a
+     distribuição uniforme que um sorteio de senha deve ter. */
   const sorteia = (alfabeto: string, n: number) => {
-    const bytes = new Uint8Array(n);
-    crypto.getRandomValues(bytes);
-    return Array.from(bytes, (b) => alfabeto[b % alfabeto.length]).join("");
+    const teto = 256 - (256 % alfabeto.length);
+    let saida = "";
+    while (saida.length < n) {
+      const bytes = new Uint8Array(n * 2);
+      crypto.getRandomValues(bytes);
+      for (const b of bytes) {
+        if (b >= teto) continue;
+        saida += alfabeto[b % alfabeto.length];
+        if (saida.length === n) break;
+      }
+    }
+    return saida;
   };
   return sorteia(letras, 3) + sorteia(nums, 4) + sorteia(letras, 3);
 }
 
 /* ---------------------------------------------------------------------
-   O e-mail. Vai como texto E como html: cliente de e-mail que recusa
-   html ainda mostra a senha, e é a senha que importa.
+   O E-MAIL QUE A ALUNA RECEBE
+
+   É o primeiro contato do produto com quem acabou de pagar, e é o único
+   passo do caminho que não acontece dentro do app: se ele falhar, a pessoa
+   pagou e não entra. Por isso ele é escrito com mais cuidado do que uma
+   tela.
+
+   Cinco decisões, e o motivo de cada uma:
+
+   1. TABELA, e não div com flex. Não é preguiça nem código antigo: o
+      Outlook desktop renderiza com o motor do Word, que ignora flex, grid
+      e boa parte do CSS moderno. Tabela com atributo bgcolor é o que
+      atravessa todos os clientes de e-mail que existem.
+
+   2. FUNDO ESCURO DECLARADO NO bgcolor, não só no style. É a marca, e sem
+      o atributo o Outlook pinta branco por baixo: o texto claro sumiria.
+      O mesmo vale para a moldura clara de reserva.
+
+   3. ACENTO DE VOLTA. A versão anterior escrevia "voce" e "senha
+      temporaria" sem acento, por medo de encoding. O corpo vai declarado
+      como UTF-8, então o acento chega certo, e texto sem acento num
+      e-mail de cobrança tem cara de golpe: é exatamente o padrão que o
+      brasileiro aprendeu a desconfiar.
+
+   4. PREHEADER. A primeira linha do corpo é o que o celular mostra na
+      lista, ao lado do assunto. Sem ela, aparece "OPERACAO BLINDADA",
+      que não diz nada. Com ela, aparece o que a pessoa precisa saber
+      antes de abrir.
+
+   5. OS TRÊS PASSOS NUMERADOS. Quem recebe isto acabou de pagar e está
+      ansiosa. A pergunta dela é "e agora?". A resposta vai numerada, com
+      o e-mail e a senha no meio, e um aviso de que a senha morre no
+      primeiro uso.
    --------------------------------------------------------------------- */
-/* O endereco vai escrito no e-mail, e nao so a senha. A conta e amarrada
-   ao e-mail da compra: quem tenta entrar com outro endereco bate na
-   parede de acesso nao liberado sem entender por que, e essa e a causa
-   numero um de mensagem para o suporte. Dizer qual e o endereco resolve
-   antes de acontecer. */
 function escapar(s: string): string {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+const OURO = "#d9a53a";
+const OURO_CLARO = "#f0cd7e";
+const CARBONO = "#0b0a0c";
+const CARTAO = "#141317";
+const TEXTO = "#e8e6e1";
+const TEXTO_2 = "#b9b6ad";
+
 function corpoHtml(email: string, senha: string, primeiraVez: boolean): string {
   const titulo = primeiraVez ? "O seu acesso está liberado" : "A sua senha temporária";
-  return `
-<div style="font-family:Arial,Helvetica,sans-serif;background:#0b0a0c;padding:30px 20px">
-  <div style="max-width:460px;margin:0 auto;background:#141317;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:30px 26px;color:#e8e6e1">
-    <p style="color:#c8a24a;font-size:11px;letter-spacing:5px;margin:0 0 3px">OPERACAO</p>
-    <h1 style="font-size:25px;letter-spacing:3px;margin:0 0 22px;color:#efe9de;font-weight:700">BLINDADA</h1>
-    <p style="font-size:17px;color:#efe9de;margin:0 0 14px;font-weight:600">${titulo}</p>
-    <p style="font-size:14.5px;line-height:1.6;margin:0 0 20px;color:#b9b6ad">
-      Entre no aplicativo com os dois dados abaixo. Assim que entrar, o app
-      pede para voce criar a sua propria senha.
-    </p>
-    <div style="background:#0b0a0c;border:1px solid rgba(233,184,76,.3);border-radius:14px;padding:18px;text-align:center;margin:0 0 20px">
-      <p style="font-size:11px;letter-spacing:2px;color:#9a8f78;margin:0 0 8px">O SEU E-MAIL DE ACESSO</p>
-      <p style="font-size:17px;font-weight:bold;color:#f0cd7e;margin:0 0 18px;word-break:break-all">${escapar(email)}</p>
-      <p style="font-size:11px;letter-spacing:2px;color:#9a8f78;margin:0 0 8px">SUA SENHA TEMPORARIA</p>
-      <p style="font-size:30px;letter-spacing:4px;font-weight:bold;color:#f0cd7e;margin:0;font-family:monospace">${senha}</p>
-    </div>
-    <p style="font-size:13px;line-height:1.6;color:#b9b6ad;margin:0 0 18px">
-      E este endereco mesmo, o da sua inscricao. O app so reconhece ele.
-    </p>
-    ${APP_URL ? `<p style="text-align:center;margin:0 0 20px">
-      <a href="${APP_URL}" style="display:inline-block;background:#d9a53a;color:#20180a;text-decoration:none;font-weight:bold;font-size:15px;padding:13px 30px;border-radius:999px">Abrir o aplicativo</a>
-    </p>` : ""}
-    <p style="font-size:13px;line-height:1.6;color:#9a8f78;margin:0 0 6px">
-      Esta senha e temporaria e serve so para a primeira entrada. Se nao foi voce quem
-      se inscreveu, ignore este e-mail.
-    </p>
-    <p style="font-size:13px;line-height:1.6;color:#9a8f78;margin:0">
-      Duvida? Responda este e-mail.
-    </p>
-  </div>
-</div>`;
+  /* O PREHEADER NUNCA LEVA A SENHA.
+     Ele é o texto que o celular mostra na TELA DE BLOQUEIO, sem ninguém
+     desbloquear nada, e que o computador destravado mostra na lista da
+     caixa de entrada. A aluna compra às 21h com o celular em cima da mesa
+     do restaurante: com a senha aqui, qualquer pessoa que passe os olhos
+     na tela leva o e-mail e a senha inteiros. A senha é o único dado
+     deste e-mail que exige o aparelho na mão de quem comprou, e por isso
+     ela só existe dentro do corpo. */
+  const preheader = primeiraVez
+    ? "A sua conta está pronta. Abra para ver o seu acesso e criar a sua senha."
+    : "Geramos uma senha nova para você. Abra para ver e entrar.";
+  const e = escapar(email);
+
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<title>${escapar(titulo)}</title>
+</head>
+<body style="margin:0;padding:0;background:${CARBONO};">
+<!-- o que aparece na lista do celular, ao lado do assunto -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;height:0;width:0">
+  ${escapar(preheader)}
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${CARBONO}" style="background:${CARBONO};margin:0;padding:0">
+ <tr><td align="center" style="padding:28px 16px">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;width:100%">
+
+   <!-- marca -->
+   <tr><td align="center" style="padding:0 0 22px">
+     <div style="font-family:Georgia,'Times New Roman',serif;color:${OURO};font-size:11px;letter-spacing:5px;margin:0 0 4px">OPERAÇÃO</div>
+     <div style="font-family:Georgia,'Times New Roman',serif;color:#efe9de;font-size:26px;letter-spacing:4px;font-weight:bold;line-height:1.1">BLINDADA</div>
+   </td></tr>
+
+   <!-- cartão -->
+   <tr><td bgcolor="${CARTAO}" style="background:${CARTAO};border-radius:18px;padding:28px 24px">
+
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:bold;color:#efe9de;margin:0 0 8px">${escapar(titulo)}</div>
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:${TEXTO_2};margin:0 0 22px">
+       ${primeiraVez
+         ? "A sua inscrição foi confirmada e a sua conta já está pronta. São três passos, e leva menos de um minuto."
+         : "Geramos uma senha nova para você entrar. São três passos, e leva menos de um minuto."}
+     </div>
+
+     <!-- passo 1 -->
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:2px;color:${OURO};margin:0 0 8px">PASSO 1: ABRA O APLICATIVO</div>
+     ${APP_URL ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px">
+       <tr><td bgcolor="${OURO}" style="background:${OURO};border-radius:999px">
+         <a href="${escapar(APP_URL)}" style="display:block;padding:14px 30px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#20180a;text-decoration:none;line-height:1.2">Abrir a Operação Blindada</a>
+       </td></tr></table>
+       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8b8574;margin:0 0 22px">
+         Se o botão não funcionar, copie este endereço:<br>
+         <span style="color:${TEXTO_2};word-break:break-all">${escapar(APP_URL)}</span>
+       </div>`
+       : `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${TEXTO_2};margin:0 0 22px">Abra o aplicativo da Operação Blindada.</div>`}
+
+     <!-- passo 2 -->
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:2px;color:${OURO};margin:0 0 8px">PASSO 2: ENTRE COM ESTES DOIS DADOS</div>
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${CARBONO}" style="background:${CARBONO};border-radius:14px;margin:0 0 10px">
+      <tr><td style="padding:18px 16px" align="center">
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;color:#8b8574;margin:0 0 6px">O SEU E-MAIL</div>
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:${OURO_CLARO};word-break:break-all;margin:0 0 18px">${e}</div>
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;color:#8b8574;margin:0 0 6px">A SUA SENHA TEMPORÁRIA</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:28px;font-weight:bold;color:${OURO_CLARO};letter-spacing:3px;line-height:1.2">${senha}</div>
+      </td></tr>
+     </table>
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:${TEXTO_2};margin:0 0 22px">
+       É este endereço mesmo, o da sua inscrição. O aplicativo não reconhece outro.
+     </div>
+
+     <!-- passo 3 -->
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:2px;color:${OURO};margin:0 0 8px">PASSO 3: CRIE A SUA SENHA</div>
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:${TEXTO_2};margin:0 0 4px">
+       Assim que você entrar, o aplicativo pede uma senha sua. A senha acima
+       deixa de valer nesse momento: ela serve só para esta primeira entrada.
+     </div>
+
+   </td></tr>
+
+   <!-- pé -->
+   <tr><td style="padding:22px 8px 0">
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.7;color:#8b8574">
+       Ficou com dúvida? Responda este e-mail, que ele chega em mim.
+     </div>
+     <div style="font-family:Georgia,'Times New Roman',serif;font-size:15px;color:${TEXTO};margin:14px 0 0">Carla Caroline</div>
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#6f6a61;margin:16px 0 0;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+       Você recebeu este e-mail porque a sua inscrição na mentoria Operação
+       Blindada foi confirmada. Se não foi você quem se inscreveu, ignore esta
+       mensagem: sem a senha acima ninguém entra na conta.
+     </div>
+   </td></tr>
+
+  </table>
+ </td></tr>
+</table>
+</body>
+</html>`;
 }
 
-function corpoTexto(email: string, senha: string): string {
-  return `OPERACAO BLINDADA
+function corpoTexto(email: string, senha: string, primeiraVez: boolean): string {
+  return `OPERAÇÃO BLINDADA
+${primeiraVez ? "O seu acesso está liberado" : "A sua senha temporária"}
 
-Entre no aplicativo com os dois dados abaixo.
-Assim que entrar, o app pede para voce criar a sua propria senha.
+${primeiraVez
+  ? "A sua inscrição foi confirmada e a sua conta já está pronta."
+  : "Geramos uma senha nova para você entrar."}
+São três passos, e leva menos de um minuto.
 
-O SEU E-MAIL DE ACESSO: ${email}
-SUA SENHA TEMPORARIA: ${senha}
+PASSO 1: ABRA O APLICATIVO
+${APP_URL || "Abra o aplicativo da Operação Blindada."}
 
-E este endereco mesmo, o da sua inscricao. O app so reconhece ele.
-${APP_URL ? `\nAbra o aplicativo: ${APP_URL}\n` : ""}
-Esta senha e temporaria e serve so para a primeira entrada.
-Se nao foi voce quem se inscreveu, ignore este e-mail.`;
+PASSO 2: ENTRE COM ESTES DOIS DADOS
+O seu e-mail: ${email}
+A sua senha temporária: ${senha}
+
+É este endereço mesmo, o da sua inscrição. O aplicativo não reconhece outro.
+
+PASSO 3: CRIE A SUA SENHA
+Assim que você entrar, o aplicativo pede uma senha sua. A senha acima deixa
+de valer nesse momento: ela serve só para esta primeira entrada.
+
+Ficou com dúvida? Responda este e-mail, que ele chega em mim.
+Carla Caroline
+
+Você recebeu este e-mail porque a sua inscrição na mentoria Operação Blindada
+foi confirmada. Se não foi você quem se inscreveu, ignore esta mensagem: sem a
+senha acima ninguém entra na conta.`;
 }
 
 async function mandarEmail(para: string, senha: string, primeiraVez: boolean) {
@@ -130,11 +265,37 @@ async function mandarEmail(para: string, senha: string, primeiraVez: boolean) {
   });
   try {
     await cliente.send({
-      from: `Operacao Blindada <${GMAIL}>`,
+      /* o nome do remetente é o da mentoria, e não o endereço cru: na lista
+         do celular aparece "Operação Blindada", que é o que ela reconhece */
+      from: `Operação Blindada <${GMAIL}>`,
       to: para,
-      subject: primeiraVez ? "O seu acesso a Operacao Blindada esta liberado" : "A sua senha temporaria",
-      content: corpoTexto(para, senha),
+      /* Responder tem que chegar em alguém. Sem replyTo, a resposta vai para
+         a caixa de onde o robô mandou, e o e-mail convida a responder. */
+      replyTo: GMAIL,
+      subject: primeiraVez
+        ? "O seu acesso à Operação Blindada está liberado"
+        : "A sua nova senha temporária",
+      content: corpoTexto(para, senha, primeiraVez),
       html: corpoHtml(para, senha, primeiraVez),
+      /* Auto-Submitted diz ao servidor do outro lado que isto é automático:
+         evita resposta automática de férias voltando em laço.
+         X-Auto-Response-Suppress faz o mesmo do lado da Microsoft.
+
+         DOIS CABEÇALHOS QUE NÃO ESTÃO AQUI, DE PROPÓSITO:
+
+         Precedence: bulk marca a mensagem como mala direta. Isto é o
+         oposto: transacional, um destinatário, disparado por uma compra.
+         Marcar como bulk empurra o e-mail para a aba de promoções, que é
+         justamente onde a senha não pode cair.
+
+         List-Unsubscribe não se aplica. Ele existe para quem manda em
+         massa, e não há do que a compradora se descadastrar: este é o
+         e-mail que entrega o acesso que ela pagou. Um botão de sair da
+         lista aqui seria um botão de perder o próprio acesso. */
+      headers: {
+        "Auto-Submitted": "auto-generated",
+        "X-Auto-Response-Suppress": "OOF, AutoReply",
+      },
     });
   } finally {
     try { await cliente.close(); } catch { /* fechar não pode derrubar o resto */ }
@@ -144,42 +305,78 @@ async function mandarEmail(para: string, senha: string, primeiraVez: boolean) {
 /* ---------------------------------------------------------------------
    Quem é a conta hoje: existe? já tem senha escolhida por ela?
    --------------------------------------------------------------------- */
-async function achar(email: string): Promise<{ id: string | null; jaTemSenhaPropria: boolean }> {
+async function achar(email: string): Promise<
+  { id: string | null; jaTemSenhaPropria: boolean; jaRecebeuSenha: boolean }
+> {
   const { data } = await db.rpc("user_id_por_email", { p_email: email });
-  if (!data) return { id: null, jaTemSenhaPropria: false };
+  if (!data) return { id: null, jaTemSenhaPropria: false, jaRecebeuSenha: false };
   const id = data as string;
   const { data: u } = await db.auth.admin.getUserById(id);
-  /* a marca só existe enquanto a senha é a que veio por e-mail. Conta
-     antiga, de antes desta versão, não tem marca nenhuma: tratar como
-     senha própria é o certo, senão a régua de cobrança resetaria a senha
-     de quem já usa o app. */
   const meta = (u?.user?.user_metadata ?? {}) as Record<string, unknown>;
-  return { id, jaTemSenhaPropria: meta.senha_temporaria !== true };
+  const jaEntrou = !!u?.user?.last_sign_in_at;
+
+  /* DUAS CONDIÇÕES, E NÃO UMA. A versão anterior perguntava só pela
+     marca: "não tem senha_temporaria ligada, logo já escolheu a senha
+     dela". Esse raciocínio tem um buraco enorme, e ele engoliu todas as
+     vendas automáticas: uma conta recém-criada também não tem a marca,
+     porque não tem metadata nenhum. undefined !== true dá verdadeiro, e a
+     conta sem senha alguma era tratada como conta com senha própria.
+
+     Agora vale o que é observável: só tem senha própria quem JÁ ENTROU
+     alguma vez. Quem nunca entrou não pode ter escolhido senha, por
+     definição. A marca continua valendo para o caso normal (entrou uma
+     vez com a temporária e ainda não trocou). */
+  const jaTemSenhaPropria = jaEntrou && meta.senha_temporaria !== true;
+
+  /* E uma terceira pergunta, para não mandar dois e-mails. Vendas e
+     Financeiro chegam quase juntos e os dois liberam acesso: sem isto, a
+     aluna recebia duas senhas diferentes com minutos de diferença e só a
+     segunda funcionava, o que é pior do que não receber nada. Se a senha
+     temporária foi enviada há pouco e ainda não foi usada, ela continua
+     valendo e não se manda outra. */
+  const em = Number(meta.senha_em ?? 0);
+  const recente = em > 0 && (Date.now() - em) < 24 * 3600 * 1000;
+  const jaRecebeuSenha = !jaEntrou && meta.senha_temporaria === true && recente;
+
+  return { id, jaTemSenhaPropria, jaRecebeuSenha };
 }
 
-/* Cria ou troca a senha, e sempre deixa a marca de temporária ligada. */
+/* Cria ou troca a senha, e sempre deixa a marca de temporária ligada.
+
+   A marca vai com CARIMBO DE HORA (senha_em). Sem ele não dá para
+   responder duas perguntas que aparecem em produção: "esta senha foi
+   mandada agora ou há três meses?" e "quem recebeu a senha e nunca
+   entrou?". É o carimbo que impede o segundo e-mail quando Vendas e
+   Financeiro chegam juntos.
+
+   Todas as escritas conferem o erro. Uma troca de senha que falha em
+   silêncio, seguida de um e-mail que sai, entrega para a aluna uma senha
+   que não existe na conta dela. */
 async function prepararConta(email: string, senha: string, id: string | null): Promise<{ id: string | null; nova: boolean }> {
+  const marca = { senha_temporaria: true, senha_em: Date.now() };
   if (id) {
-    await db.auth.admin.updateUserById(id, {
+    const { error } = await db.auth.admin.updateUserById(id, {
       password: senha,
       email_confirm: true,
-      user_metadata: { senha_temporaria: true },
+      user_metadata: marca,
     });
+    if (error) throw new Error("nao consegui trocar a senha: " + error.message);
     return { id, nova: false };
   }
   const { data: novo, error } = await db.auth.admin.createUser({
     email,
     password: senha,
     email_confirm: true,                       // sem isto ela precisaria confirmar antes de entrar
-    user_metadata: { senha_temporaria: true },
+    user_metadata: marca,
   });
   if (error) {
     /* corrida: alguém criou entre a busca e a criação */
     const { data: denovo } = await db.rpc("user_id_por_email", { p_email: email });
     if (denovo) {
-      await db.auth.admin.updateUserById(denovo as string, {
-        password: senha, user_metadata: { senha_temporaria: true },
+      const { error: e2 } = await db.auth.admin.updateUserById(denovo as string, {
+        password: senha, user_metadata: marca,
       });
+      if (e2) throw new Error("nao consegui trocar a senha: " + e2.message);
       return { id: denovo as string, nova: false };
     }
     throw new Error("nao consegui criar a conta: " + error.message);
@@ -213,6 +410,16 @@ export async function liberar(emailBruto: string, motivo: string, soSeNova = fal
   if (soSeNova && antes.id && antes.jaTemSenhaPropria) {
     await ativarAcesso(email, antes.id);
     return { ok: true, email, acao: "acesso reativado, a senha dela continua valendo" };
+  }
+  /* Vendas e Financeiro chegam quase juntos, e os dois liberam acesso.
+     Sem esta segunda trava a aluna recebia dois e-mails com senhas
+     diferentes em minutos, e só a segunda funcionava: pior do que não
+     receber nada, porque ela tenta a primeira e conclui que o app está
+     quebrado. Se a senha temporária saiu há menos de 24h e ainda não foi
+     usada, ela continua valendo. */
+  if (soSeNova && antes.id && antes.jaRecebeuSenha) {
+    await ativarAcesso(email, antes.id);
+    return { ok: true, email, acao: "acesso confirmado, a senha temporaria enviada ha pouco continua valendo" };
   }
 
   const senha = senhaTemporaria();

@@ -197,6 +197,28 @@ select case when count(*)=0 then 'PASSOU: lista vazia' else 'FALHOU: leu '||coun
 select case when coalesce(public.resumo_admin(),'{}'::jsonb) = '{}'::jsonb
             then 'PASSOU: sem numeros' else 'FALHOU: '||public.resumo_admin()::text end;
 
+\echo '--- 27a. o upsert do perfil com atualizado_em passa (era recusado)'
+-- O upsert do PostgREST e INSERT ... ON CONFLICT DO UPDATE, e o Postgres
+-- exige privilegio de INSERT em TODAS as colunas citadas, mesmo quando o
+-- que roda no fim e o UPDATE. Faltava atualizado_em no grant, entao salvar
+-- o nome e trocar a foto eram recusados para sempre, e o app culpava a
+-- internet da aluna.
+do $$ begin
+  insert into public.profiles (user_id, email, display_name, full_name, avatar_url, atualizado_em)
+  values (auth.uid(), 'ana@x.com', 'Ana', 'Ana Silva', 'https://x/y.png', now())
+  on conflict (user_id) do update
+     set display_name = excluded.display_name, atualizado_em = excluded.atualizado_em;
+  raise notice 'PASSOU: salvar nome e foto funciona';
+exception when others then raise notice 'FALHOU: o banco recusou (%)', SQLERRM; end $$;
+
+\echo '--- 27d. e is_mentor continua fora do alcance dela'
+do $$ begin
+  insert into public.profiles (user_id, email, is_mentor)
+  values (auth.uid(), 'ana@x.com', true)
+  on conflict (user_id) do update set is_mentor = true;
+  raise notice 'FALHOU: aluna virou mentora';
+exception when others then raise notice 'PASSOU: recusado (%)', SQLERRM; end $$;
+
 \echo '--- 27b. aluna tenta ler o que a TMB mandou: volta vazio'
 -- o payload da TMB carrega nome, e-mail e valor de quem comprou. A tabela
 -- nao tem policy nenhuma; a funcao da mesa e security definer, entao quem

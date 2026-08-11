@@ -24,6 +24,10 @@ window.__SB = {
   statusAcesso: null,    // finge uma resposta ruim do servidor: 429, 503, 401...
   lidasAcesso: 0,        // quantas vezes o app perguntou pelo acesso
   publicados: [],      // o que a mesa da mentoria publicou
+  /* listas por tabela, para o teste montar a tela de verdade. Sem isto
+     toda consulta de lista voltava vazia, e um teste que nao monta a tela
+     nao prova nada: ele passa por ausencia, nao por defesa. */
+  tabelas: {},         // {denuncias:[...], membros:[...], galeria:[...]}
   onAuth: null
 };
 (function(){
@@ -60,10 +64,19 @@ window.__SB = {
       single:function(){ return api.maybeSingle(); },
       then:function(f,r){ // consultas sem maybeSingle
         if(window.__SB.falharRede) return Promise.reject(new Error('Failed to fetch')).then(f,r);
-        return resp([]).then(f,r);
+        var lista = (window.__SB.tabelas && window.__SB.tabelas[tabela]) || [];
+        return resp(lista).then(f,r);
       },
       insert:function(v){ window.__SB.publicados.push({t:tabela, v:v}); return resp(v); },
-      update:function(v){ return resp(v); },
+      /* update tem que ser encadeavel: o app faz .update(...).eq(...), e
+         um dube que devolve a resposta direto quebra a cadeia e polui o
+         teste com um erro que nao existe no app de verdade */
+      update:function(v){
+        window.__SB.publicados.push({t:tabela, up:v});
+        var enc = { eq:function(){ return enc; }, in:function(){ return enc; },
+                    then:function(f,r){ return resp(v).then(f,r); } };
+        return enc;
+      },
       delete:function(){ return resp(null); },
       upsert:function(v){
         if(window.__SB.falharRede) return Promise.reject(new Error('Failed to fetch'));

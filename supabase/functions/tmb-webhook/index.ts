@@ -87,53 +87,92 @@ function data(v: unknown): string | null {
   return iso ? iso[1] : null;
 }
 
-/* ------------------------------------------------------------------ */
-/* acha ou cria a conta. O aluno compra antes de existir no Auth, então  */
-/* a conta nasce aqui. A senha temporária é posta logo depois, pela      */
-/* liberar-aluna. Nunca devolve erro fatal: sem user_id o access ainda   */
-/* casa por e-mail quando ele fizer o primeiro login.                    */
-/* ------------------------------------------------------------------ */
-async function acharOuCriarUsuario(email: string): Promise<string | null> {
+/* ESTA FUNÇÃO SÓ PROCURA. ELA NÃO CRIA MAIS CONTA, E ISSO É O CONSERTO DE
+   UM DEFEITO QUE DEIXAVA QUEM PAGOU DO LADO DE FORA, EM SILÊNCIO.
+
+   O que acontecia: aqui a conta era criada com
+   createUser({ email, email_confirm: true }), sem senha e sem
+   user_metadata. Logo depois, mandarSenha chamava a liberar-aluna com
+   so_se_nova: true. Lá dentro, achar() lia o metadata vazio e concluía
+   "senha_temporaria !== true", ou seja, undefined !== true, que é
+   VERDADEIRO: a conta recém-criada era tratada como conta de alguém que
+   já escolheu a própria senha. O atalho do so_se_nova então saía sem
+   sortear senha e sem mandar e-mail.
+
+   O resultado: conta existindo, e-mail confirmado, SEM SENHA NENHUMA.
+   A compradora nunca recebia o e-mail e o login recusava para sempre,
+   porque não havia senha para acertar. E como a liberar-aluna devolvia
+   ok:true, o webhook não registrava erro: a aba Vendas mostrava a linha
+   em VERDE, escrito "acesso liberado e senha enviada". A mesa dizia que
+   tinha dado certo com a aluna do lado de fora, que é a pior combinação
+   possível.
+
+   O conserto de fundo é de responsabilidade, não de remendo: criar conta
+   é trabalho de quem sabe pôr senha e mandar e-mail, e isso é a
+   liberar-aluna, não o webhook. Aqui só se procura. Não achar não é
+   problema: a linha de access nasce só com o e-mail, e o user_id é
+   casado depois, pela própria liberar-aluna ou pelo casar_meu_acesso no
+   primeiro login. */
+async function acharUsuario(email: string): Promise<string | null> {
   if (!email) return null;
   try {
     /* Busca direta por e-mail. A API de administração só lista por página, e
        listar a primeira página e procurar dentro dela funciona enquanto a
        turma é pequena: passando de algumas centenas, a conta que existe
-       deixa de ser encontrada, o createUser falha por e-mail duplicado e a
-       linha de acesso nasce sem user_id. Falha silenciosa e difícil de ver. */
+       deixa de ser encontrada. */
     const { data: achado } = await db.rpc("user_id_por_email", { p_email: email });
-    if (achado) return achado as string;
-
-    const { data: novo, error } = await db.auth.admin.createUser({
-      email, email_confirm: true,
-    });
-    if (!error) return novo?.user?.id ?? null;
-
-    /* corrida: outro webhook criou a conta entre a busca e a criação */
-    const { data: denovo } = await db.rpc("user_id_por_email", { p_email: email });
-    return (denovo as string) ?? null;
+    return (achado as string) ?? null;
   } catch { return null; }
 }
 
 async function gravarAcesso(
   email: string, status: "active" | "grace" | "inactive", ref?: string,
 ) {
-  if (!email) return;
-  const user_id = await acharOuCriarUsuario(email);
+  if (!email) throw new Error("gravarAcesso sem e-mail");
+  const user_id = await acharUsuario(email);
   const linha: Record<string, unknown> = {
     email, status, atualizado_em: new Date().toISOString(),
+    /* a data do evento que produziu este estado. É ela que impede um
+       evento atrasado de derrubar quem já foi liberado depois. */
+    evento_em: new Date().toISOString(),
   };
   if (user_id) linha.user_id = user_id;
   if (ref) linha.external_ref = ref;
-  await db.from("access").upsert(linha, { onConflict: "email" });
+
+  /* O erro desta escrita era descartado, e essa é a única escrita que
+     decide se a pessoa entra. Se ela falhar (constraint faltando, 5xx do
+     PostgREST, timeout), o código seguia adiante e mandava o e-mail com a
+     senha para alguém que continuava sem acesso: a aluna com a senha na
+     mão batendo na parede. Agora a falha estoura, vira linha vermelha na
+     mesa, e o e-mail não sai. */
+  const { error } = await db.from("access").upsert(linha, { onConflict: "email" });
+  if (error) throw new Error("nao consegui gravar o acesso: " + error.message);
 
   /* Liberar sem avisar não serve para nada: a pessoa pagou e não sabe
-     como entrar. Quando o acesso vira ativo, a função irmã sorteia a
-     senha temporária e manda o e-mail.
+     como entrar. Quando o acesso vira ativo, a função irmã cria a conta,
+     sorteia a senha temporária e manda o e-mail.
      so_se_nova é a trava que faz isso acontecer UMA vez: a régua de
      parcelas confirma pagamento todo mês e passa por aqui de novo, e sem
      ela a senha escolhida pela aluna seria derrubada a cada parcela. */
   if (status === "active") await mandarSenha(email);
+}
+
+/* Quem já pagou não pode ser cortado por um evento que chegou fora de
+   ordem. Cenário real: a aluna gera um boleto, desiste e paga no cartão.
+   Chega "Efetivado", ela é liberada e começa. Três dias depois o boleto
+   abandonado expira e a plataforma dispara "Expirado" para o mesmo
+   e-mail: sem esta checagem, o corte acontece e quem pagou perde o
+   acesso. Só corta evento que seja do MESMO pedido que liberou, ou que
+   seja mais novo do que o último evento aplicado. */
+async function podeCortar(email: string, ref: string): Promise<{ pode: boolean; motivo: string }> {
+  const { data, error } = await db.from("access")
+    .select("external_ref,evento_em,status").eq("email", email).maybeSingle();
+  if (error || !data) return { pode: true, motivo: "" };
+  const refAtual = String(data.external_ref ?? "");
+  if (ref && refAtual && ref !== refAtual) {
+    return { pode: false, motivo: `evento do pedido ${ref}, mas o acesso foi liberado pelo pedido ${refAtual}: nao cortei` };
+  }
+  return { pode: true, motivo: "" };
 }
 
 /* A chamada é HTTP porque as duas funções são processos separados. Uma
@@ -183,6 +222,8 @@ async function vendas(p: Record<string, unknown>) {
     return { ok: true, email, acao: "acesso liberado e senha enviada" };
   }
   if (CAIU.has(status)) {
+    const c = await podeCortar(email, ref);
+    if (!c.pode) return { ok: true, email, acao: bruto + ", mas " + c.motivo };
     await gravarAcesso(email, "inactive", ref);
     return { ok: true, email, acao: "compra " + bruto + ": acesso encerrado" };
   }
@@ -224,17 +265,29 @@ async function financeiro(itens: unknown[]) {
 
     const venceu = status === "vencido" || status === "vencida" || status === "atrasado" || status === "atrasada";
 
+    /* Palavra desconhecida NÃO vira "aberta". O default anterior fazia
+       exatamente isso, e o efeito era o pior possível: a TMB manda
+       "Baixada", "Quitada", "Compensada" ou "Liquidada" (palavras normais
+       de sistema financeiro para parcela paga), o app não conhecia
+       nenhuma, rebaixava para "aberta" uma parcela que já estava PAGA, e
+       a régua de inadimplência cortava o acesso de quem estava em dia. */
+    const conhecido = PAGOU.has(status) || venceu || ESPERANDO.has(status)
+                   || status === "estornado" || status === "estornada";
     const st = PAGOU.has(status) ? "paga"
              : venceu ? "vencida"
              : (status === "estornado" || status === "estornada") ? "estornada"
-             : ESPERANDO.has(status) ? "aberta"
              : "aberta";
 
-    if (ref) {
-      await db.from("parcelas").upsert({
+    if (ref && conhecido) {
+      const { error } = await db.from("parcelas").upsert({
         email, external_ref: ref, numero, vencimento: venc, valor,
         status: st, atualizado_em: new Date().toISOString(),
       }, { onConflict: "external_ref,numero" });
+      if (error) {
+        tudoConhecido = false;
+        feito.push(`nao consegui gravar a parcela ${numero}: ${error.message}`);
+        continue;
+      }
     }
 
     if (ESPERANDO.has(status)) {
@@ -254,10 +307,25 @@ async function financeiro(itens: unknown[]) {
       }
       continue;
     }
-    if (venceu || status === "estornado" || status === "estornada") {
+    /* VENCIDA NÃO CORTA NA HORA, e isto é decisão, não descuido.
+       O boleto compensa em até três dias úteis: a aluna paga no dia do
+       vencimento e no dia seguinte a plataforma ainda manda "Vencida".
+       Cortar ali tira o acesso de quem pagou, e devolver depois não
+       desfaz o susto. Quem decide corte por atraso é a
+       aplicar_regua_inadimplencia, que já existe no banco e sabe contar
+       os dias e escalonar. Aqui a parcela só é registrada.
+
+       Estorno e chargeback são outra coisa: são definitivos, o dinheiro
+       voltou, e o corte é imediato. */
+    if (venceu) {
+      feito.push(`parcela ${numero} vencida, registrada (o corte quem decide e a regua, por dias de atraso)`);
+      continue;
+    }
+    if (status === "estornado" || status === "estornada") {
+      const c = await podeCortar(email, ref);
+      if (!c.pode) { feito.push(`estorno da parcela ${numero}, mas ${c.motivo}`); continue; }
       await gravarAcesso(email, "inactive", ref);
-      feito.push(venceu ? `parcela ${numero} vencida, acesso encerrado`
-                        : `parcela ${numero} estornada, acesso encerrado`);
+      feito.push(`parcela ${numero} estornada, acesso encerrado`);
       continue;
     }
     tudoConhecido = false;
