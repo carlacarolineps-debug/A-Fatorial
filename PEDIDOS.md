@@ -126,6 +126,9 @@ Cada linha tem commit. `git log` conta a história completa.
 - Quadro de rolagem eliminado, título sem o "Cinco"
 - Zero travessões, e a palavra "ritual" fora
 - A foto dela: retrato, selo da mentoria e avatar no sistema
+- A capa não repete mais a área do cliente: no lugar do painel entrou a
+  comparação "Relatório ou execução", que prova a frase ao lado
+- O laudo da leitura saiu: cobria conteúdo e não respondia nada
 
 **Página da Carla**
 - Terceiro lado do arquivo, com a paleta do Instagram: preto, cinza,

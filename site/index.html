@@ -464,9 +464,6 @@ i,em{font-style:italic}
    calculadora e as duas marcas. */
 /* nível 1 do regulador: o desfoque some de todas as superfícies */
 html[data-q="1"] .af-vidro,html[data-q="0"] .af-vidro,
-html[data-q="1"] #laudo-vivo,html[data-q="0"] #laudo-vivo{
-  -webkit-backdrop-filter:none;backdrop-filter:none;
-  background:linear-gradient(180deg,rgba(20,24,38,.86),rgba(11,13,20,.92))}
 html[data-q="0"] #reticula{display:none}
 .af-vidro.leve{-webkit-backdrop-filter:none;backdrop-filter:none;
   background:linear-gradient(180deg,rgba(20,24,38,.82),rgba(11,13,20,.88))}
@@ -505,48 +502,6 @@ html[data-q="0"] #reticula{display:none}
 #reticula{position:fixed;inset:0;width:100%;height:100%;z-index:0;
   pointer-events:none;display:block}
 
-/* ══════════════════════════════════════════════════════════════════════
-   O LAUDO DA PRÓPRIA PÁGINA
-   ──────────────────────────────────────────────────────────────────────
-   O canto inferior traz um painel que audita a leitura em curso: em que
-   etapa você está, e o fatorial se multiplicando a cada seção
-   atravessada · 1, 2, 6, 24, 120…
-
-   Não é enfeite. A empresa vende execução auditável e diz "somos o
-   primeiro cliente do nosso próprio método"; aqui a página roda o
-   método nela mesma, à vista. E o nome da marca deixa de ser uma
-   metáfora explicada em texto: quem rola vê o produto multiplicar.
-   ══════════════════════════════════════════════════════════════════════ */
-#laudo-vivo{position:fixed;right:1.2rem;bottom:5.4rem;z-index:65;
-  width:16.5rem;padding:.85rem .95rem;border-radius:var(--r-3);
-  background:var(--vidro-2);-webkit-backdrop-filter:var(--desfoque);backdrop-filter:var(--desfoque);
-  border:1px solid var(--vidro-borda);box-shadow:var(--alta-luz),0 24px 50px -26px #000;
-  opacity:0;transform:translateY(14px) scale(.97);pointer-events:none;
-  transition:opacity var(--med),transform var(--med) var(--curva)}
-#laudo-vivo.ver{opacity:1;transform:none}
-#laudo-vivo .lv-h{display:flex;align-items:center;gap:.45rem;
-  font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--creme-3);margin-bottom:.6rem}
-#laudo-vivo .lv-h i{width:5px;height:5px;border-radius:50%;background:var(--ciano);
-  box-shadow:0 0 0 3px rgba(95,227,216,.16);animation:pulsa 2.4s infinite}
-#laudo-vivo .lv-f{display:flex;align-items:baseline;gap:.55rem;
-  font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1}
-#laudo-vivo .lv-f b{font-size:2.1rem;flex:none;font-weight:500;letter-spacing:-.03em;
-  background:var(--metal-vivo);background-size:260% 100%;
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:correLuz 9s linear infinite}
-#laudo-vivo .lv-f span{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--ciano);line-height:1.4;min-width:0}
-#laudo-vivo .lv-e{margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--fio);
-  font-size:.72rem;line-height:1.35;color:var(--creme-2)}
-#laudo-vivo .lv-e b{color:var(--ciano);font-weight:600}
-#laudo-vivo .lv-b{margin-top:.55rem;height:2px;background:rgba(228,232,248,.1);
-  border-radius:2px;overflow:hidden}
-#laudo-vivo .lv-b i{display:block;height:100%;width:0;border-radius:2px;
-  background:linear-gradient(90deg,var(--ciano),var(--ouro));
-  box-shadow:0 0 10px rgba(95,227,216,.5);transition:width .5s var(--curva)}
-@media(max-width:900px){#laudo-vivo{display:none}}
-@media(prefers-reduced-motion:reduce){#laudo-vivo .lv-f b{animation:none}}
 
 /* ══════════════════════════════════════════════════════════════════════
    A LUZ NO METAL
@@ -851,12 +806,6 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
   .capa>*{animation:none}
 }
 
-/* ═══ §1 · A CAPA ═══
-   Manchete em toda a medida, fio, e só então a prova ao lado da
-   definição. O contrário · manchete espremida numa coluna com um
-   cartão flutuando no vazio ao lado, é o que deixava o topo oco. */
-.capa{min-height:min(92vh,54rem);display:flex;flex-direction:column;justify-content:center;
-  padding-top:var(--e-9);padding-bottom:var(--e-8);position:relative;z-index:1}
 .capa-cab{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;
   padding-bottom:.9rem;border-bottom:1px solid var(--fio)}
 .capa-cab .ref{margin-left:auto}
@@ -886,83 +835,60 @@ h2.tit{max-width:19ch;margin-bottom:.9rem}
 }
 @media(max-width:520px){.capa-num{grid-template-columns:repeat(2,auto);gap:1.4rem 2rem}}
 
-/* o painel: folha de leitura, não cartão flutuante */
-.painel{border-radius:var(--r-4);overflow:hidden}
-.painel-h{display:flex;align-items:center;gap:.55rem;padding:.7rem .95rem;
+/* ═══ RELATÓRIO OU EXECUÇÃO ═══
+   A capa tinha a área do cliente, que já é uma seção inteira mais
+   abaixo. Repetir a mesma tela duas vezes na mesma página não convence
+   ninguém duas vezes: só ocupa o lugar do argumento.
+
+   O que fica aqui é a frase que está ao lado, provada: "não entregamos
+   relatório, executamos". Duas colunas, as mesmas quatro perguntas, e a
+   diferença aparece sem precisar de adjetivo. */
+.comp{border-radius:var(--r-4);overflow:hidden}
+.comp-h{display:flex;align-items:center;gap:.55rem;padding:.7rem .95rem;
   border-bottom:1px solid var(--fio);background:var(--breu-2);
   font-family:var(--mono);font-size:var(--t-11);letter-spacing:.1em;text-transform:uppercase}
-.painel-h .pt{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;
-  box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 18%,transparent);animation:pulsa 2.6s infinite}
-@keyframes pulsa{0%,100%{opacity:1}50%{opacity:.35}}
-.painel-h b{font-weight:600;letter-spacing:.1em;color:var(--creme)}
-.painel-h .ao{margin-left:auto;color:var(--creme-3)}
-.painel-kpi{display:grid;grid-template-columns:repeat(3,1fr)}
-.painel-kpi>div{padding:.95rem;border-right:1px solid var(--fio);border-bottom:1px solid var(--fio)}
-.painel-kpi>div:last-child{border-right:none}
-.painel-kpi .v{font-family:var(--mono);font-weight:500;font-size:var(--t-25);line-height:1;
-  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.painel-kpi .l{font-family:var(--mono);font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--creme-3);margin-top:.4rem;line-height:1.3}
-.painel-lin{display:flex;align-items:center;gap:.6rem;padding:.62rem .95rem;
-  border-bottom:1px solid var(--fio);font-size:var(--t-13)}
-.painel-lin .et{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--creme-2)}
-.painel-lin .dn{font-family:var(--mono);font-size:var(--t-11);color:var(--creme-3);white-space:nowrap}
-.painel-pe{padding:.8rem .95rem;background:var(--breu-2);font-size:var(--t-12);
+.comp-h b{font-weight:600;color:var(--creme);letter-spacing:.1em}
+.comp-h .ao{margin-left:auto;color:var(--creme-3)}
+
+/* o cabeçalho das duas colunas */
+.comp-top{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--fio)}
+.comp-top>div{padding:.75rem .95rem;font-family:var(--mono);font-size:var(--t-11);
+  letter-spacing:.09em;text-transform:uppercase;color:var(--creme-3)}
+.comp-top>div+div{border-left:1px solid var(--fio);color:var(--ouro);
+  background:color-mix(in srgb,var(--ouro) 5%,transparent)}
+
+/* cada pergunta, com a resposta dos dois lados */
+.comp-q{border-bottom:1px solid var(--fio)}
+.comp-q .p{padding:.6rem .95rem .2rem;font-family:var(--mono);font-size:.72rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--creme-3)}
+.comp-r{display:grid;grid-template-columns:1fr 1fr}
+.comp-r>div{padding:.2rem .95rem .7rem;font-size:var(--t-13);line-height:1.45}
+.comp-r>div:first-child{color:var(--creme-3)}
+.comp-r>div+div{border-left:1px solid var(--fio);color:var(--creme);
+  background:color-mix(in srgb,var(--ouro) 5%,transparent)}
+.comp-r b{color:var(--creme);font-weight:600}
+/* o risco sobre o que a outra ponta entrega, sem precisar dizer "ruim" */
+.comp-r .risco{text-decoration:line-through;text-decoration-color:var(--erro);
+  text-decoration-thickness:1px;opacity:.75}
+
+.comp-pe{padding:.8rem .95rem;background:var(--breu-2);font-size:var(--t-12);
   line-height:1.55;color:var(--creme-2)}
-.painel-pe b{color:var(--creme)}
+.comp-pe b{color:var(--creme)}
 
-/* ═══ O PAINEL É A ÁREA DO CLIENTE, e não o quadro da gestão ═══
-   Antes ele mostrava "94% no prazo · 21 etapas com dono · 0 desvios",
-   que são números de quem TOCA a operação, não de quem contrata. Quem
-   contrata quer saber três coisas: em que etapa estamos, o que está
-   esperando por mim, e onde ficam os meus documentos. É a mesma tela
-   que o sistema entrega, encolhida. */
-.painel-quem{display:flex;align-items:center;gap:.6rem;padding:.85rem .95rem;
-  border-bottom:1px solid var(--fio)}
-.painel-quem .av{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;
-  background:var(--metal);color:#241c07;font:600 var(--t-12)/1 var(--grot)}
-.painel-quem .nm{flex:1;min-width:0}
-.painel-quem .nm b{display:block;font:600 var(--t-15)/1.25 var(--grot);color:var(--creme);
-  letter-spacing:-.01em;text-transform:none}
-.painel-quem .nm span{display:block;font-family:var(--mono);font-size:var(--t-11);
-  color:var(--creme-3);margin-top:.15rem}
-
-/* a jornada, em pontos, igual à esteira do sistema */
-.painel-jor{display:flex;align-items:center;padding:.75rem .95rem;gap:.18rem;
-  border-bottom:1px solid var(--fio)}
-.painel-jor i{width:7px;height:7px;border-radius:50%;background:var(--fio-forte);flex:none}
-.painel-jor i.ok{background:var(--ouro)}
-.painel-jor i.aqui{background:var(--ouro-alta);width:11px;height:11px;
-  box-shadow:0 0 0 3px color-mix(in srgb,var(--ouro) 22%,transparent)}
-.painel-jor u{flex:1;height:1px;background:var(--fio-forte);text-decoration:none}
-.painel-jor u.ok{background:var(--ouro-fio-forte)}
-.painel-jor .etq{margin-left:auto;padding-left:.6rem;font-family:var(--mono);
-  font-size:var(--t-11);color:var(--ouro);white-space:nowrap}
-
-/* a linha de documento, com o estado do lado do cliente */
-.painel-lin .qd{font-family:var(--mono);font-size:var(--t-11);color:var(--creme-3);white-space:nowrap}
-.painel-lin.voce{background:color-mix(in srgb,var(--espera) 7%,transparent)}
-.painel-lin.voce .et{color:var(--creme)}
-
-/* a barra das parcelas, que é o que todo cliente procura */
-.painel-pg{display:flex;align-items:center;gap:.6rem;padding:.7rem .95rem;
-  border-bottom:1px solid var(--fio);font-size:var(--t-12);color:var(--creme-3)}
-.painel-pg .bar{flex:1;height:5px;border-radius:3px;background:var(--fio-forte);overflow:hidden}
-.painel-pg .bar i{display:block;height:100%;background:var(--ok);border-radius:3px}
-.painel-pg b{color:var(--creme-2);font-family:var(--mono);font-size:var(--t-11);white-space:nowrap}
-
-/* No celular o painel fica estreito e o nome do documento era o primeiro
-   a ser cortado, justamente o que a pessoa precisa ler. Então o nome
-   passa a quebrar em duas linhas e a coluna do meio sai: "recebido" e
-   "em produção" são contexto, o nome é o assunto. */
 @media(max-width:760px){
-  .painel-lin{flex-wrap:wrap;gap:.35rem .6rem;padding:.7rem .8rem}
-  .painel-lin .et{flex:1 1 100%;white-space:normal;overflow:visible;text-overflow:clip;
-    line-height:1.35;color:var(--creme)}
-  .painel-lin .qd{order:2}
-  .painel-lin .af-tag{order:3;margin-left:auto}
-  .painel-quem,.painel-jor,.painel-pg,.painel-pe,.painel-kpi>div{padding-left:.8rem;padding-right:.8rem}
-  .painel-jor .etq{font-size:.72rem}
+  /* no celular a comparação lado a lado fica ilegível: cada resposta
+     ganha a linha inteira, com o rótulo de quem entrega antes dela */
+  .comp-top{display:none}
+  .comp-r{grid-template-columns:1fr}
+  .comp-r>div{padding:.3rem .8rem}
+  .comp-r>div+div{border-left:none;border-top:1px solid var(--fio);
+    padding-top:.5rem;margin-top:.35rem}
+  .comp-r>div::before{display:block;font-family:var(--mono);font-size:.66rem;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--creme-3);margin-bottom:.15rem}
+  .comp-r>div:first-child::before{content:'Consultoria comum'}
+  .comp-r>div+div::before{content:'A! Fatorial';color:var(--ouro)}
+  .comp-q .p{padding:.6rem .8rem .1rem}
+  .comp-h,.comp-pe{padding-left:.8rem;padding-right:.8rem}
 }
 
 /* ═══ FAIXA DAS QUATRO PERGUNTAS ═══
@@ -1726,7 +1652,7 @@ body.na-carla #ao-topo:hover{color:#fff;border-color:#ff3d9a}
 body.na-carla #grupo{display:none}
 body.na-carla #carla{display:block}
 /* o laudo e o botão do grupo são do grupo: somem do lado dela */
-body.na-carla #laudo-vivo,body.na-carla #zap{display:none}
+body.na-carla #zap{display:none}
 #zap-cc{display:none}
 body.na-carla #zap-cc{display:flex}
 
@@ -1949,14 +1875,6 @@ body.na-carla #zap-cc{display:flex}
 <!-- o esqueleto do documento: fios de coluna correndo atrás de tudo -->
 <canvas id="reticula" aria-hidden="true"></canvas>
 <div class="af-grade" id="grade" aria-hidden="true"></div>
-<!-- a página auditando a própria leitura -->
-<aside id="laudo-vivo" aria-hidden="true">
-  <div class="lv-h"><i></i>Laudo desta leitura</div>
-  <div class="lv-f"><b>1!</b><span>= 1<br>caminhos possíveis</span></div>
-  <div class="lv-e">Etapa <b>01</b></div>
-  <div class="lv-b"><i></i></div>
-</aside>
-
 <div id="grupo">
 <header id="topo">
   <div class="af-med nav">
@@ -2005,36 +1923,47 @@ body.na-carla #zap-cc{display:flex}
       </div>
     </div>
 
-    <div class="painel af-vidro ouro af-peca rev">
-      <div class="painel-h"><span class="pt" aria-hidden="true"></span><b>Área do cliente</b><span class="ao">o que você vê</span></div>
+    <div class="comp af-vidro ouro af-peca rev">
+      <div class="comp-h"><b>Relatório ou execução</b><span class="ao">a diferença inteira</span></div>
 
-      <div class="painel-quem">
-        <span class="av" aria-hidden="true">RS</span>
-        <span class="nm"><b>Ótica UltraVisão</b><span>Regina Salles · desde 12 de maio</span></span>
+      <div class="comp-top"><div>A consultoria comum</div><div>A! Fatorial</div></div>
+
+      <div class="comp-q">
+        <div class="p">O que você recebe</div>
+        <div class="comp-r">
+          <div><span class="risco">Um relatório em PDF</span> com o que fazer</div>
+          <div><b>O trabalho feito</b>, dentro de um sistema que você acompanha</div>
+        </div>
       </div>
 
-      <div class="painel-jor" aria-label="Etapa 6 de 14 da esteira comercial">
-        <i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="ok"></i><u class="ok"></u><i class="aqui"></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i><u></u><i></i>
-        <span class="etq">etapa 6 de 14</span>
+      <div class="comp-q">
+        <div class="p">Quem executa</div>
+        <div class="comp-r">
+          <div>Você e a sua equipe, <span class="risco">depois</span></div>
+          <div><b>A gente</b>, com dono e prazo em cada etapa</div>
+        </div>
       </div>
 
-      <div class="painel-kpi">
-        <div><div class="v af-num" data-conta="6">0</div><div class="l">Etapa atual</div></div>
-        <div><div class="v af-num at" data-conta="1">0</div><div class="l">Aguardando você</div></div>
-        <div><div class="v af-num ok" data-conta="7">0</div><div class="l">Documentos no portal</div></div>
+      <div class="comp-q">
+        <div class="p">Como você acompanha</div>
+        <div class="comp-r">
+          <div>Reunião de status, <span class="risco">quando marcam</span></div>
+          <div><b>Painel aberto</b>, na hora que você quiser</div>
+        </div>
       </div>
 
-      <div class="painel-lin voce"><span class="et">Mapa de gargalos por área</span><span class="qd">é com você</span><span class="af-tag esp">◐ aprovar</span></div>
-      <div class="painel-lin"><span class="et">Diagnóstico dos 9 pontos</span><span class="qd">recebido</span><span class="af-tag ok">✓ aprovado</span></div>
-      <div class="painel-lin"><span class="et">Contrato de prestação</span><span class="qd">D4Sign</span><span class="af-tag ok">✓ assinado</span></div>
-      <div class="painel-lin"><span class="et">Plano de ação priorizado</span><span class="qd">em produção</span><span class="af-tag at">chega em 3 dias</span></div>
+      <div class="comp-q">
+        <div class="p">Quando termina</div>
+        <div class="comp-r">
+          <div>Na entrega do <span class="risco">documento</span></div>
+          <div>Quando o <b>número muda</b> e a rotina anda sem você</div>
+        </div>
+      </div>
 
-      <div class="painel-pg"><span>Pagamentos</span>
-        <span class="bar"><i style="width:66%"></i></span><b>2 de 3 pagas</b></div>
-
-      <div class="painel-pe">É esta a tela que você abre, do seu lado. <b>Você aprova cada entrega, vê onde o
-        trabalho está e guarda todo documento num lugar só</b>, sem depender de e-mail nem de quem lembrou de mandar.</div>
+      <div class="comp-pe">Consultoria que entrega relatório transfere o problema de volta para você. <b>Nós
+        entramos na operação, executamos com a sua equipe e saímos quando ela roda sozinha.</b></div>
     </div>
+
   </div>
 </section>
 
@@ -3775,58 +3704,7 @@ window.AF_CEU={tinta:[212,175,94], forca:1};
   },{passive:true});
 })();
 
-/* ═══════════════════════════════════════════════════════════════════
-   O LAUDO DA PRÓPRIA PÁGINA
-   A empresa vende execução auditável e diz que é o primeiro cliente do
-   próprio método. Então a página audita a si mesma enquanto é lida: a
-   etapa em curso e o fatorial multiplicando a cada seção atravessada.
-   Quem rola vê o produto multiplicar · o nome da marca deixa de ser
-   metáfora e vira experiência.
-   ═══════════════════════════════════════════════════════════════════ */
-(function(){
-  var lv=$('laudo-vivo'); if(!lv) return;
-  var secs=[].slice.call(document.querySelectorAll('main section[id], main .sec'));
-  if(!secs.length) return;
-  var nomes=secs.map(function(s){
-    var r=s.querySelector('.rail span'), o=s.querySelector('.olho');
-    return (r?r.textContent:(o?o.textContent:'')).trim() || 'Capa';
-  });
-  var vB=lv.querySelector('.lv-f b'), vS=lv.querySelector('.lv-f span'),
-      vE=lv.querySelector('.lv-e'), vP=lv.querySelector('.lv-b i');
-  var ultimo=-1;
-  function fat(n){ var r=1; for(var i=2;i<=n;i++) r*=i; return r; }
-  /* 14! passa de 87 bilhões e estoura qualquer painel. O grande passa a
-     ser o OPERADOR · que é o nome da marca, e o valor vai embaixo, em
-     escala curta. Fica mais legível e diz melhor o que está havendo. */
-  function curto(n){
-    if(n<1e3)  return n.toLocaleString('pt-BR');
-    if(n<1e6)  return (n/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
-    if(n<1e9)  return (n/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+' milhões';
-    if(n<1e12) return (n/1e9).toLocaleString('pt-BR',{maximumFractionDigits:1})+' bilhões';
-    return (n/1e12).toLocaleString('pt-BR',{maximumFractionDigits:1})+' trilhões';
-  }
-  function medir(){
-    var meio=window.innerHeight*.45, at=0;
-    for(var i=0;i<secs.length;i++){
-      var c=secs[i].getBoundingClientRect();
-      if(c.top<=meio) at=i+1;
-    }
-    lv.classList.toggle('ver', window.scrollY>360);
-    if(at===ultimo) return;
-    ultimo=at;
-    var n=Math.max(1,at);
-    vB.textContent=n+'!';
-    vS.innerHTML='= '+curto(fat(n))+'<br>caminhos possíveis';
-    vE.innerHTML='Etapa <b>'+String(n).padStart(2,'0')+'</b> de '+secs.length+
-                 ' · '+ (nomes[Math.min(n,secs.length)-1]||'');
-    vP.style.width=Math.round(n/secs.length*100)+'%';
-  }
-  var rodando=false;
-  window.addEventListener('scroll',function(){
-    if(!rodando){ rodando=true; requestAnimationFrame(function(){ medir(); rodando=false; }); }
-  },{passive:true});
-  medir();
-})();
+
 
 /* ═══════════════════════════════════════════════════════════════════
    O REGULADOR DE QUALIDADE

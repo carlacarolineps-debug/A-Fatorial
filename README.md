@@ -1885,3 +1885,19 @@ entrevistar, disc, fit cultural, faça vários e inclua indicadores"*.
      perfil e o escopo de cada época, porque a pessoa que se candidatou
      para o administrativo há oito meses pode estar se candidatando para
      consultoria hoje, e isso diz mais do que a nota.
+
+237. **A capa parou de repetir a área do cliente.** Ela tinha um painel
+     que era, em miniatura, a mesma tela que a seção "Área do cliente"
+     mostra inteira mais abaixo. Mostrar duas vezes a mesma coisa na mesma
+     página não convence duas vezes: só gasta o lugar mais valioso do
+     site. No lugar dele entrou a comparação "Relatório ou execução", que
+     prova a frase que está ao lado: quatro perguntas, a resposta da
+     consultoria comum riscada de um lado e a nossa do outro. No celular
+     as duas colunas viram linhas, com o rótulo de quem entrega antes de
+     cada resposta, porque comparação lado a lado em 390px não se lê.
+
+238. **O laudo da leitura saiu.** O quadrinho fixo que auditava a própria
+     rolagem ("Etapa 01 · 1! = 1 caminhos possíveis") cobria conteúdo, não
+     respondia pergunta nenhuma de quem visita e competia com o botão do
+     WhatsApp. Foram embora o markup, o CSS, o JavaScript e as três regras
+     soltas que ainda o citavam.
