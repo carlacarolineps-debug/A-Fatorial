@@ -1901,3 +1901,20 @@ entrevistar, disc, fit cultural, faça vários e inclua indicadores"*.
      respondia pergunta nenhuma de quem visita e competia com o botão do
      WhatsApp. Foram embora o markup, o CSS, o JavaScript e as três regras
      soltas que ainda o citavam.
+
+239. **O painel da capa prometia o que ela não entrega.** A linha "quem
+     executa" respondia "A gente", e a Carla cortou na hora: *"não dê a
+     entender que eu executo as coisas pela pessoa, eu dependo da execução
+     dela para ter resultado, se ela não fizer não adianta nada."* Está
+     certo, e é mais do que uma questão de texto: prometer execução no
+     lugar do cliente vende errado, entrega frustração e ainda expõe ela.
+     Agora a linha responde **"A sua equipe" dos dois lados**, e o que fica
+     riscado é "sozinha, meses depois". A repetição é o argumento: em
+     ambos os casos são eles que põem a mão; a diferença é estar sozinho
+     ou com alguém dentro puxando etapa por etapa. Junto foram os outros
+     três pontos da capa que diziam a mesma coisa: "o trabalho feito"
+     virou "o processo montado e rodando", "executamos dentro de um
+     sistema" virou "implantamos junto com a sua equipe", e o rodapé do
+     painel passou a dizer com todas as letras que quem executa é a
+     equipe do cliente, e que o trabalho da A! é fazer com que ela
+     consiga, e cobrar até a rotina andar sozinha.
