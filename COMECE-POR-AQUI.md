@@ -3,7 +3,7 @@
 Escrito para ser seguido sem entender nada de programação. Cada passo diz
 exatamente onde clicar e o que tem que aparecer na tela quando dá certo.
 
-**Sobraram 5 passos.** Uns 30 minutos no total.
+**Sobraram 6 passos.** Uns 36 minutos no total.
 
 Os passos 1 a 4 fazem o app funcionar. O **passo 5** é o que faz a venda
 na TMB virar acesso sozinha, sem você liberar ninguém na mão.
@@ -376,6 +376,55 @@ Quer dizer que a TMB usa uma palavra diferente da esperada para dizer
 "pagou". **Ninguém foi liberado e ninguém foi cortado**, de propósito:
 liberar no escuro daria o produto para quem não pagou. Me mande a palavra
 exata que aparece na linha e eu acrescento na lista.
+
+---
+
+# PASSO 6: trazer quem comprou ANTES (6 minutos)
+
+O webhook do passo 5 avisa das vendas **daqui para a frente**. Quem
+comprou antes dele existir está sem acesso e sem e-mail neste momento.
+
+A TMB tem uma API que responde "quem comprou", e eu liguei o app nela. A
+função pergunta, compara com quem tem acesso aqui, e mostra quem falta.
+**Ela nao muda nada ate voce mandar.**
+
+## 6.1 Pegue o token na TMB
+
+1. Portal do Produtor da TMB
+2. **Integracoes, depois TMB API**
+3. Gere o **token de acesso** e copie
+4. Anote tambem o **endereco da API** e o **ID do produto**, se aparecer
+
+## 6.2 Cadastre no Supabase
+
+https://supabase.com/dashboard/project/okoylfnniukzwoxevyow/settings/functions
+
+Em **Edge Function Secrets**, tres vezes **Add new secret**:
+
+| Name | Value |
+|---|---|
+| `TMB_API_TOKEN` | o token |
+| `TMB_API_BASE` | o endereco da API |
+| `TMB_PRODUTO_ID` | o ID do produto (so se existir) |
+
+## 6.3 Publique a funcao
+
+**Edge Functions, depois Create function**, nome `tmb-importar`, cole o
+arquivo `supabase/functions/tmb-importar/index.ts`, **Deploy**.
+
+## 6.4 Confira, e so entao libere
+
+No app: **Mais, A sua mesa, Vendas, Ver quem esta faltando**.
+
+Aparece quantos pedidos a TMB devolveu, quem ja tem acesso e a lista de
+quem comprou e ainda nao entrou. **Nada foi mudado.**
+
+Se a lista estiver certa, toque em **Liberar as N e mandar a senha**. Cada
+uma recebe o e-mail. Quem ja usa o app nao recebe nada e nao perde a senha
+dela.
+
+**Repita uma vez por semana.** E como se descobre o webhook que se perdeu
+no caminho, e leva 10 segundos.
 
 ---
 

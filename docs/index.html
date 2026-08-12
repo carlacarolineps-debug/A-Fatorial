@@ -5618,6 +5618,24 @@ window.OB = (function () {
     },
     /* o que a TMB mandou. Devolve só o resumo: o payload cru da compra
        nunca sai do servidor, e a função no banco é quem garante isso */
+    /* A CONFERÊNCIA COM A TMB.
+       Pergunta à plataforma quem comprou e compara com quem tem acesso
+       aqui. Serve para importar a turma que comprou ANTES de os webhooks
+       existirem, e para achar o evento que se perdeu no caminho.
+
+       aplicar=false é o padrão e é intencional: em modo de conferência
+       nada é escrito e nenhum e-mail sai. Numa operação em lote que
+       dispara e-mail para gente de verdade, ver antes de fazer não é
+       zelo excessivo, é a única ordem possível: e-mail não se desfaz. */
+    importarTMB: function (aplicar) {
+      if (PREVIEW || !sb || !isMentorFlag) return Promise.resolve({ ok: false, erro: "so com login da mentoria" });
+      if (!sb.functions || !sb.functions.invoke) return Promise.resolve({ ok: false, erro: "esta versao nao alcanca a funcao" });
+      return sb.functions.invoke("tmb-importar", { body: { aplicar: aplicar === true } })
+        .then(function (r) {
+          if (r.error) return { ok: false, erro: (r.error && r.error.message) || "nao consegui falar com a TMB" };
+          return r.data || { ok: false, erro: "resposta vazia" };
+        }, function (e) { return { ok: false, erro: String((e && e.message) || e) }; });
+    },
     webhooks: function (limite) {
       if (PREVIEW || !sb || !isMentorFlag) return Promise.resolve([]);
       return sb.rpc("webhooks_admin", { p_limite: limite || 40 })
@@ -23236,9 +23254,91 @@ function adEncerrarOk(email){
 function adVendas(box){
   box.innerHTML = `
   <p class="muted tiny" style="margin:0 0 14px">Tudo que a TMB mandou para o app, do mais novo para o mais antigo. É aqui que se descobre se uma venda virou acesso.</p>
-  <div style="margin:0 0 16px"><button class="btn ghost sm" onclick="adVendasCarregar()">Atualizar</button></div>
+
+  <div class="ad-card" style="margin:0 0 18px">
+    <p class="eyebrow">Conferir com a TMB</p>
+    <h2 class="sec" style="margin:4px 0 6px">Quem comprou e ainda não entrou</h2>
+    <p class="tiny muted" style="margin:0 0 12px">O webhook avisa das vendas <b>daqui para a frente</b>. Isto pergunta à TMB quem já comprou, inclusive antes de você ligar a automação, e compara com quem tem acesso aqui.</p>
+    <p class="tiny muted" style="margin:0 0 12px">O primeiro botão <b>não muda nada e não manda e-mail</b>: ele só mostra o que faria. Só depois de você ver a lista é que aparece o botão de liberar.</p>
+    <div class="btn-row">
+      <button class="btn ghost sm" id="adImpVer" onclick="adImportar(false)">Ver quem está faltando</button>
+    </div>
+    <div id="adImpMsg" class="tiny" style="margin:12px 0 0"></div>
+    <div id="adImpLista" style="margin:12px 0 0"></div>
+  </div>
+
+  <h2 class="sec" style="margin:22px 0 4px">O que a TMB mandou</h2>
+  <div style="margin:10px 0 16px"><button class="btn ghost sm" onclick="adVendasCarregar()">Atualizar</button></div>
   <div id="adVendasLista"><p class="muted tiny">Carregando...</p></div>`;
   adVendasCarregar();
+}
+
+/* a lista da ultima conferencia, para o botao de aplicar saber sobre quem
+   ele esta falando sem o e-mail passar por dentro de um atributo */
+let _adImp = null;
+
+function adImportar(aplicar){
+  const msg = $('#adImpMsg'), lista = $('#adImpLista');
+  if(!msg) return;
+  if(!window.OB || OB.isPreview() || !OB.importarTMB){
+    msg.textContent = 'Isto funciona com o login da mentoria.'; return;
+  }
+  msg.style.color = 'var(--mute)';
+  msg.textContent = aplicar ? 'Liberando e mandando as senhas...' : 'Perguntando para a TMB...';
+  if(lista && !aplicar) lista.innerHTML = '';
+  OB.importarTMB(aplicar).then(r=>{
+    if(!r || r.ok === false){
+      msg.style.color = 'var(--coral)';
+      msg.textContent = (r && r.erro) || 'Não consegui falar com a TMB.';
+      if(/TMB_API/.test(String((r&&r.erro)||''))){
+        msg.textContent += ' Falta cadastrar o token da TMB no Supabase: está no PASSO 6 do COMECE-POR-AQUI.';
+      }
+      return;
+    }
+    _adImp = r;
+    const faltam = (r.liberar_agora||[]).length;
+    if(aplicar){
+      msg.style.color = 'var(--sage)';
+      msg.textContent = `Pronto: ${r.liberados||0} pessoa(s) liberada(s) e com a senha a caminho.`
+        + ((r.erros||[]).length ? ` ${r.erros.length} deram erro, veja a lista abaixo.` : '');
+      if(lista) lista.innerHTML = (r.erros||[]).length
+        ? '<div class="lista">' + r.erros.map(e=>`<div class="linha"><div class="lin-tx"><b style="color:var(--coral)">${escapeHtml(e)}</b></div></div>`).join('') + '</div>'
+        : '';
+      adVendasCarregar();
+      return;
+    }
+    msg.style.color = faltam ? 'var(--amber-bright)' : 'var(--sage)';
+    msg.textContent = faltam
+      ? `${faltam} pessoa(s) compraram e ainda não têm acesso.`
+      : 'Ninguém faltando: todo mundo que comprou já tem acesso.';
+    if(!lista) return;
+    let h = `<p class="tiny muted" style="margin:0 0 10px">A TMB devolveu ${r.pedidos_lidos||0} pedido(s), de ${r.pessoas||0} pessoa(s). ${(r.ja_tem||[]).length} já tem acesso e ${(r.nao_pagaram||[]).length} não constam como pagas.</p>`;
+    if(faltam){
+      h += '<div class="lista">' + r.liberar_agora.map(e=>
+        `<div class="linha"><div class="lin-tx"><b>${escapeHtml(e)}</b><small>comprou, sem acesso no app</small></div></div>`).join('') + '</div>';
+      h += `<div class="btn-row" style="margin-top:14px">
+        <button class="btn primary sm" onclick="adImportarOk()">Liberar as ${faltam} e mandar a senha</button></div>`;
+    }
+    if((r.status_desconhecidos||[]).length){
+      h += `<p class="tiny" style="color:var(--coral);margin:12px 0 0">A TMB usou palavra(s) que o app não conhece: ${escapeHtml(r.status_desconhecidos.join(', '))}. Ninguém foi liberado nem cortado por causa delas. Me mande essa palavra para eu acrescentar.</p>`;
+    }
+    lista.innerHTML = h;
+  });
+}
+
+/* aplicar so acontece por um segundo toque, depois de ela ver a lista */
+function adImportarOk(){
+  const n = ((_adImp && _adImp.liberar_agora) || []).length;
+  if(!n) return;
+  modal(`<p class="eyebrow">Conferir com a TMB</p><h3>Liberar ${n} pessoa${n>1?'s':''} agora?</h3>
+    <div class="lg-box">
+      <p class="tiny" style="margin:0">Cada uma recebe um e-mail com o endereço de acesso e uma senha temporária.
+      Quem já usa o app <b>não</b> recebe nada e não perde a senha dela.</p>
+    </div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn primary" onclick="closeModal();adImportar(true)">Liberar e mandar</button>
+      <button class="btn ghost" onclick="closeModal()">Agora não</button>
+    </div>`);
 }
 
 function adVendasCarregar(){

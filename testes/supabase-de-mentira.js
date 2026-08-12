@@ -176,6 +176,18 @@ window.__SB = {
         }; } },
         functions: { invoke: function(nome, opts){
           window.__SB.invocadas.push({nome:nome, body:(opts&&opts.body)||null});
+          /* a conferencia com a TMB: em modo de ver, nada e escrito */
+          if(nome==='tmb-importar'){
+            if(window.__SB.erroImportar) return resp({ok:false, erro:window.__SB.erroImportar});
+            var aplicar = !!((opts&&opts.body)||{}).aplicar;
+            var faltam = window.__SB.impFaltam || ['antiga1@x.com','antiga2@x.com','antiga3@x.com'];
+            return resp(aplicar
+              ? {ok:true, modo:'aplicado', liberados:faltam.length, erros:[], pedidos_lidos:57, pessoas:41,
+                 liberar_agora:faltam, ja_tem:['ana@x.com'], nao_pagaram:[]}
+              : {ok:true, modo:'conferencia', pedidos_lidos:57, pessoas:41, liberados:0,
+                 liberar_agora:faltam, ja_tem:['ana@x.com','bia@x.com'], nao_pagaram:['desistiu@x.com'],
+                 status_desconhecidos:window.__SB.impDesconhecidos||[], erros:[]});
+          }
           if(window.__SB.erroFuncao) return resp(null,{message:'Function not found'});
           var mail=String(((opts&&opts.body)||{}).email||'').toLowerCase();
           window.__SB.senhas[mail]='temp1234ab';

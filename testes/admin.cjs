@@ -125,6 +125,38 @@ async function entrar(b, mentora){
   const tvz = await pg.evaluate(()=>document.getElementById('adVendasLista').innerText);
   ok('lista vazia explica o que fazer', /ainda n[aã]o chamou/i.test(tvz) && /COMECE-POR-AQUI/.test(tvz), tvz.slice(0,70));
 
+  console.log('\n6c. CONFERIR COM A TMB: ver antes, aplicar depois');
+  await pg.evaluate(()=>adGo('vendas')); await pg.waitForTimeout(900);
+  ok('o painel de conferencia existe', await pg.evaluate(()=>!!document.getElementById('adImpVer')));
+  /* o primeiro toque NAO pode escrever nada nem mandar e-mail */
+  await pg.evaluate(()=>{ window.__SB.invocadas.length=0; adImportar(false); });
+  await pg.waitForTimeout(900);
+  const chamou = await pg.evaluate(()=>window.__SB.invocadas.filter(x=>x.nome==='tmb-importar'));
+  ok('o primeiro toque chama em modo de ver', chamou.length===1 && chamou[0].body.aplicar===false,
+    JSON.stringify(chamou));
+  const ti = await pg.evaluate(()=>document.getElementById('adImpLista').innerText);
+  ok('mostra quem comprou e nao tem acesso', /antiga1@x\.com/.test(ti), ti.split('\n')[0]);
+  ok('e diz quantos pedidos leu', /57/.test(ti));
+  ok('o botao de liberar so aparece depois de ver', /Liberar as 3/.test(ti));
+  /* aplicar exige um segundo toque, com confirmacao */
+  await pg.evaluate(()=>adImportarOk()); await pg.waitForTimeout(500);
+  ok('aplicar pede confirmacao', /Liberar 3 pessoas agora/.test(await pg.evaluate(()=>document.getElementById('modalBox').innerText)));
+  await pg.evaluate(()=>{ closeModal(); adImportar(true); }); await pg.waitForTimeout(900);
+  const ap = await pg.evaluate(()=>window.__SB.invocadas.filter(x=>x.nome==='tmb-importar'));
+  ok('so entao ele aplica', ap.length===2 && ap[1].body.aplicar===true, JSON.stringify(ap.map(x=>x.body)));
+  ok('e avisa o resultado', /3 pessoa\(s\) liberada/.test(await pg.evaluate(()=>document.getElementById('adImpMsg').innerText)));
+  /* palavra desconhecida da TMB tem que aparecer, nao sumir */
+  await pg.evaluate(()=>{ window.__SB.impDesconhecidos=['Em Conferencia']; adImportar(false); });
+  await pg.waitForTimeout(800);
+  ok('palavra desconhecida da TMB fica visivel',
+    /Em Conferencia/.test(await pg.evaluate(()=>document.getElementById('adImpLista').innerText)));
+  /* falta do token: mensagem que ensina, nao erro cru */
+  await pg.evaluate(()=>{ window.__SB.erroImportar='falta o segredo TMB_API_TOKEN'; adImportar(false); });
+  await pg.waitForTimeout(800);
+  ok('sem o token, a mesa ensina o que fazer',
+    /COMECE-POR-AQUI/.test(await pg.evaluate(()=>document.getElementById('adImpMsg').innerText)));
+  await pg.evaluate(()=>{ window.__SB.erroImportar=null; window.__SB.impDesconhecidos=[]; });
+
   console.log('\n7. A mesa nao aparece para aluna nem no mapa da Home');
   await pg.close();
   pg=await entrar(b,false);

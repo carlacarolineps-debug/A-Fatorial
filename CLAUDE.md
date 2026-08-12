@@ -47,6 +47,50 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### A API da TMB traz quem comprou antes (1108.05)
+A Carla: "quero que me de os passos a passos todos que faltam nao so
+esses e tambem acabei de ver que tem uma API da TMB".
+
+**O que a API resolve e o webhook nao.** O webhook e push: avisa da venda
+que acontece de agora em diante. Quem comprou ANTES de ele ser cadastrado
+estava sem acesso e sem e-mail, e a unica saida era liberar uma por uma
+na mesa. A API e pull: pergunta a TMB quem comprou.
+
+Documentacao lida (`info.tmbeducacao.com.br`, Portal do Produtor): a TMB
+e "Tem Mais no Boleto", tem token gerado e revogavel pelo produtor,
+`GET api/pedidos` com `produto_id`, `pageNumber` e `pageSize`, e
+`Authorization: Bearer`. A pagina em si e bloqueada pelo proxy deste
+ambiente, entao o endereco base ficou como segredo que ela preenche, em
+vez de eu chutar um valor e entregar um caminho que falha calado.
+
+**`tmb-importar`, e a decisao que governa o desenho dela: ela NASCE EM
+MODO DE CONFERENCIA.** Sem `aplicar: true` nao escreve nada e nao manda
+e-mail nenhum, so devolve o que faria. Numa operacao em lote que dispara
+e-mail para gente de verdade, ver antes de fazer nao e zelo excessivo: e
+a unica ordem possivel, porque e-mail nao se desfaz. Na mesa isso virou
+dois toques: "Ver quem esta faltando" mostra a lista, e so entao aparece
+"Liberar as N e mandar a senha", com confirmacao.
+
+**Tres cuidados que o codigo tem:** `so_se_nova` continua valendo, entao
+importar a turma inteira NAO derruba a senha de quem ja usa o app; os
+campos sao procurados por nome em varias grafias e um nivel abaixo
+(`dados`, `cliente`), porque a API de listagem nao devolve
+necessariamente o formato do webhook; e as listas PAGOU e CAIU sao as
+MESMAS do `tmb-webhook`, para as duas pontas nunca discordarem sobre o
+que e "pagou".
+
+**Palavra desconhecida continua sendo alarme, nao silencio:** ela sobe
+para a tela em vermelho, sem liberar e sem cortar ninguem.
+
+**`O-QUE-FALTA.md`**, que ela pediu: a lista mestre de tudo, em quatro
+blocos (app funcionando, venda virando acesso, lojas, melhorias), cada
+item com tempo, marca de TRAVA/ESPERA/PODE ESPERAR, e a ordem que eu
+faria no lugar dela. O relogio de tudo e o teste de 14 dias do Google.
+
+**Numeros:** 10 conferencias novas da conferencia com a TMB (44 na mesa),
+41 das lojas, 50 da auditoria, 8 de XSS com controle negativo, 47 de
+ataque ao banco, 3 funcoes compilando limpo, 0 falhas, 0 travessoes.
+
 ### Pronto para as duas lojas, com as regras na mão (1108.04)
 A Carla: "deixe o app pronto para entrar na app store e play store para
 que eles não recusem, e se precisar mudar algo muito grande me mande para
