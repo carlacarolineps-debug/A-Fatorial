@@ -1,195 +1,265 @@
-# Subir nas lojas, explicado para quem nunca fez
+# Subir nas lojas: o que falta você fazer
 
-Escrito assumindo que você nunca publicou um aplicativo. Sem jargão. Onde
-tiver termo técnico, ele vem explicado na hora.
-
----
-
-## Primeiro: entenda o que você tem nas mãos
-
-Um aplicativo, hoje, é uma dessas duas coisas:
-
-**Um site que se comporta como app.** Você já tem isso. Abre em tela cheia,
-tem ícone na tela do celular, funciona sem internet. Não passa por loja
-nenhuma, não paga taxa e você publica quando quiser. É o `TESTAR-NO-CELULAR.md`.
-
-**Um pacote instalado pela loja.** É o mesmo app por dentro, embrulhado num
-programa que o celular reconhece. Ganha: aparecer na busca da loja, mandar
-notificação, Face ID. Custa: taxas, revisão humana e tempo.
-
-O segundo não é melhor que o primeiro em qualidade. É melhor em alcance. Vale
-saber disso para não achar que o app "não está pronto" enquanto a loja não
-aprova: ele está pronto, e já pode ser usado pela turma inteira.
+Escrito para ser seguido sem entender nada de programação. Cada passo diz
+onde clicar, o que aparece quando dá certo, e o que fazer quando dá errado.
 
 ---
 
-## O caminho, na ordem que economiza tempo
+## O que eu já deixei pronto (não precisa mexer)
 
-O gargalo é o Google: ele exige **14 dias de teste fechado com 12 pessoas**
-antes de deixar publicar. Então esse é o primeiro passo, e ele roda em
-paralelo com todo o resto.
+O aplicativo em si está em conformidade. Isso foi **conferido por teste
+automático**, não por opinião: `testes/lojas.cjs` abre o app e verifica
+item por item das diretrizes. Roda com 0 falhas.
 
-| Quando | O que fazer | Quanto demora |
+| Exigência | Regra | Como está |
 |---|---|---|
-| Hoje | Ligar o site e testar no seu celular | 5 minutos |
-| Hoje | Rodar o SQL, e o app está funcionando de verdade | 15 minutos |
-| Dia 1 | Abrir a conta do Google Play e começar o teste fechado | 2 horas |
-| Dia 1 | Abrir a conta Apple (a aprovação da conta leva dias) | 1 hora |
-| Dia 2 | Gerar o pacote Android e subir para o teste | 2 horas |
-| Dia 3 | Gerar o pacote iPhone e mandar para revisão | 3 horas |
-| Dia 5 | A Apple responde | 1 a 3 dias |
-| Dia 15 | O Google libera a publicação | depois dos 14 dias |
+| Nenhum caminho de compra dentro do app | Apple 3.1.1 e 3.1.3 | **0 links externos** nas 16 telas |
+| Denunciar, bloquear, moderar, contato | Apple 1.2 | os quatro existem e funcionam |
+| Regra de convivência antes do primeiro uso | Apple 1.2 | tela travada, sem botão de fechar |
+| Excluir a conta dentro do app | Apple 5.1.1(v) | apaga a conta de verdade, não só esconde |
+| Privacidade e termos dentro do app | Apple 5.1.1 | no Perfil, em Documentos |
+| Página pública de exclusão | Google (obrigatório) | `excluir-conta.html`, no ar |
+| Textos de permissão do iPhone | Apple 2.1 | escritos sozinhos pelo `preparar.sh` |
+| Ícones, capturas, páginas públicas | as duas | prontos em `loja/` |
 
-Ou seja: **a Apple pode estar no ar antes do Google**. Isso surpreende
-quase todo mundo.
-
----
-
-## Passo 1: as contas
-
-### Google Play Console
-<https://play.google.com/console> · **25 dólares, uma vez na vida**
-
-Você vai preencher um formulário dizendo que é uma pessoa física ou uma
-empresa. Se tiver CNPJ, use o CNPJ: contas de empresa não precisam mostrar
-seu endereço pessoal na ficha do app.
-
-### Apple Developer
-<https://developer.apple.com/programs/> · **99 dólares por ano**
-
-A Apple demora de 1 a 5 dias para aprovar a conta, e às vezes liga para
-confirmar quem você é. **Abra essa conta primeiro**, antes de qualquer
-coisa, porque é a espera mais imprevisível.
-
-Se você tem CNPJ, vai precisar de um número D-U-N-S (é um registro gratuito
-de empresa, a Apple explica no formulário e leva alguns dias). Se for como
-pessoa física, não precisa, e o nome que aparece na loja é o seu nome civil.
+**O que eu não posso fazer por você:** criar as contas de desenvolvedor
+(exigem documento e cartão seus), gerar o pacote do iPhone (só sai num
+Mac) e preencher os formulários das lojas.
 
 ---
 
-## Passo 2: gerar os pacotes
+## Uma coisa que você precisa saber antes de começar
 
-Precisa de um computador. Para o iPhone, precisa de um **Mac**: não existe
-caminho legal sem isso. Se você não tem, as opções são pedir emprestado por
-um dia, alugar um Mac na nuvem (MacinCloud, cerca de 30 dólares no mês) ou
-pedir para alguém que tenha.
+O seu app entrega conteúdo de uma mentoria que é **vendida fora dele**. A
+Apple tem uma regra (3.1.1) que diz que desbloquear conteúdo dentro do app
+exige a compra pela Apple, com 15 a 30% para eles. E tem outra (3.1.3) que
+abre exceção para app que só dá acesso a conteúdo já adquirido.
 
-```bash
+O seu app está do lado certo dessa linha, e com folga: ele **não vende
+nada, não mostra preço, não tem link nenhum para fora**. Ainda assim, um
+revisor pode ler pela regra errada e reprovar na primeira volta.
+
+**Isso é normal e não significa que acabou.** Deixei em
+`loja/NOTAS-PARA-A-REVISAO.md` dois textos prontos: o que escrever no
+envio para evitar a confusão, e o que responder se ela acontecer. É
+conversa, e costuma ser resolvida em uma ou duas respostas.
+
+**Minha recomendação: comece pelo Google.** Ele demora mais por causa do
+teste de 14 dias, então quanto antes começar, melhor, e a aprovação lá é
+mais previsível. Faça a Apple em paralelo.
+
+---
+
+## PASSO 1: as duas contas (30 minutos, mais espera)
+
+### Google Play Console: R$ 130, uma vez só
+
+1. Abra https://play.google.com/console/signup
+2. Entre com a conta Google da mentoria
+3. Escolha **Pessoal** (a menos que queira o CNPJ no lugar do seu nome:
+   aí escolha Organização, que pede mais documentos)
+4. Pague os 25 dólares
+5. Confirme a identidade: eles pedem documento com foto. **Leva de 1 a 3
+   dias.**
+
+### Apple Developer: 99 dólares por ano
+
+1. Abra https://developer.apple.com/programs/enroll/
+2. Entre com o seu Apple ID
+3. Escolha **Individual** (mostra o seu nome como vendedor) ou
+   **Organização** (mostra o nome da empresa, mas exige um número D-U-N-S,
+   que leva de 5 a 14 dias para sair)
+4. Pague
+
+**Se você tem pressa, escolha Individual nos dois.** Dá para mudar depois.
+
+---
+
+## PASSO 2: a conta de teste para o revisor (10 minutos)
+
+**Este é o passo que mais reprova app, e é o mais fácil de fazer.** O
+revisor não tem acesso à caixa de e-mail de ninguém: se ele não conseguir
+entrar, ele reprova sem olhar o resto.
+
+1. Crie um e-mail novo e só para isso, por exemplo
+   `revisao.operacaoblindada@gmail.com`
+2. Abra o app, entre com a sua conta de mentora
+3. Vá em **Mais → A sua mesa → Alunas**
+4. Escreva o e-mail da revisão e toque em **Liberar e mandar a senha**
+5. Abra a caixa desse e-mail novo e pegue a senha temporária
+6. **Entre no app com ele e crie uma senha definitiva.** Anote essa senha.
+7. Saia e entre de novo com a senha definitiva, para confirmar que ela
+   funciona e que o app **não pede** para trocar de novo
+
+**O que tem que acontecer:** o app abre direto no Início, sem pedir nada.
+Se ele pedir para criar senha de novo, o passo 6 não pegou: refaça.
+
+**Guarde o e-mail e a senha.** Eles vão nos dois envios.
+
+---
+
+## PASSO 3: gerar os pacotes
+
+Isto roda na **sua máquina**, não aqui. Você precisa do
+[Node.js](https://nodejs.org) instalado.
+
+```
 cd app
-./preparar.sh
+bash preparar.sh
 ```
 
-Esse comando faz tudo: monta o app, instala o que falta, cria os projetos e
-gera os ícones. Depois:
+O script monta tudo, gera os ícones, e no Mac ainda escreve sozinho os
+textos de permissão do iPhone (sem eles o app **fecha** quando a pessoa
+toca em "Colocar uma foto", e a Apple reprova).
 
-- **Android**: `npx cap open android`, e no Android Studio vá em **Build**,
-  **Generate Signed Bundle / APK**, escolha **Android App Bundle**.
-  Ele vai pedir para criar uma **keystore**: é um arquivo de assinatura, a
-  identidade do seu app. **Guarde esse arquivo e a senha dele em dois
-  lugares.** Se você perder, não existe recuperação: o app fica órfão e você
-  precisa publicar outro, do zero, e ninguém atualiza.
-- **iPhone**: `npx cap open ios`, e no Xcode vá em **Product**, **Archive**,
-  depois **Distribute App**.
+### Android (funciona em qualquer computador)
 
----
+```
+npx cap open android
+```
 
-## Passo 3: o que preencher, campo a campo
+No Android Studio: **Build → Generate Signed Bundle / APK → Android App
+Bundle**. Na primeira vez ele pede para criar uma chave de assinatura.
 
-### As duas lojas pedem
+> **Guarde essa chave e a senha dela em dois lugares.** Se você perder,
+> **nunca mais** consegue atualizar o app: teria que publicar outro, do
+> zero, e as pessoas que instalaram não recebem a atualização. É o erro
+> mais caro que existe nessa história.
 
-- **Nome**: Operação Blindada
-- **Descrição curta** (80 caracteres): `A ferramenta da mentoria Operação Blindada: método, plano e acompanhamento.`
-- **Categoria**: Negócios / Business
-- **Classificação etária**: 18+
-- **Política de privacidade**: o endereço do seu site, `/privacidade.html`
-- **Suporte**: `/suporte.html` e gestaogrupoa@gmail.com
-- **Capturas de tela**: já estão em `loja/capturas/`
+Sai um arquivo `.aab`. É ele que você envia.
 
-### A conta de teste para o revisor: sem isso, reprova
+### iPhone (só no Mac, com Xcode)
 
-Este é o campo que mais reprova app de mentoria, e você já está protegida:
-o app tem senha.
+```
+npx cap open ios
+```
 
-1. Crie um e-mail só para isso, por exemplo `revisor@operacaoblindada.com`
-   (ou um Gmail qualquer).
-2. Na sua mesa, aba **Alunas**, libere esse e-mail. Ele recebe a senha
-   temporária na hora.
-3. Entre no app com ele uma vez e **crie uma senha definitiva**.
-4. No formulário da loja, informe esse e-mail e essa senha.
+No Xcode: escolha **Any iOS Device** em cima, depois **Product → Archive**,
+depois **Distribute App → App Store Connect**.
 
-> O revisor entra só com e-mail e senha, sem depender de caixa de e-mail
-> nenhuma. É por isso que a entrada por código de 6 dígitos saiu: ela
-> travava o revisor e é uma das causas mais comuns de reprovação.
-
-Escreva na observação para o revisor, em inglês:
-
-> This app is the working tool of a paid business mentoring program. Access
-> is granted to enrolled clients only; the app does not sell anything and
-> contains no purchase flow. Test account: revisor@... / password: ...
-> Sign in with email and password on the first screen.
-
-### A pergunta da Apple sobre conteúdo pago
-
-Ela vai perguntar se o app dá acesso a conteúdo pago fora da loja. A resposta
-verdadeira, e que enquadra na regra 3.1.3(b):
-
-> The mentoring program is contracted outside the app, and the app neither
-> sells, offers, nor mentions any purchase. It is a companion tool for
-> clients who already contracted the service.
-
-É por isso que a indicação e todo link comercial saíram do app. **Um único
-botão de compra derruba esse enquadramento** e obriga a usar a compra dentro
-do aplicativo, com 30% de comissão.
+**Se você não tem Mac:** dá para alugar um na nuvem (MacinCloud, cerca de
+30 dólares por mês) ou usar o Mac de alguém por uma tarde. Não há outro
+caminho: a Apple só aceita pacote gerado no sistema dela.
 
 ---
 
-## Passo 4: o teste fechado do Google
+## PASSO 4: preencher a Play Store
 
-O Google exige 12 pessoas usando por 14 dias seguidos antes de deixar
-publicar para todo mundo. É chato, mas é simples:
+Em https://play.google.com/console → **Criar app**.
 
-1. Na Play Console, **Testing**, **Closed testing**, crie uma faixa.
-2. Adicione os 12 e-mails (Gmail) das pessoas. Vale usar o seu próprio grupo.
-3. Suba o arquivo AAB.
-4. Mande o link para as 12 pessoas instalarem.
-5. **Elas precisam manter instalado por 14 dias.** Peça para abrirem de vez
-   em quando.
+| Campo | O que pôr |
+|---|---|
+| Nome do app | `Operação Blindada` |
+| Idioma padrão | Português (Brasil) |
+| App ou jogo | App |
+| Gratuito ou pago | **Gratuito** |
 
-Comece por aqui no primeiro dia, porque esse relógio corre sozinho enquanto
-você faz o resto.
+Depois, em **Painel**, ele lista o que falta. Os que importam:
+
+**Segurança de dados**, **Classificação de conteúdo**, **Público-alvo** e
+**Política de privacidade**: as respostas prontas, campo por campo, estão
+em `loja/NOTAS-PARA-A-REVISAO.md`, nas seções 3, 4 e 5. Copie de lá.
+
+**Endereços que ele pede:**
+
+- Política de privacidade:
+  `https://carlacarolineps-debug.github.io/A-Fatorial/privacidade.html`
+- Exclusão de conta:
+  `https://carlacarolineps-debug.github.io/A-Fatorial/excluir-conta.html`
+- Suporte:
+  `https://carlacarolineps-debug.github.io/A-Fatorial/suporte.html`
+
+**Ficha da loja:**
+
+- Ícone: `loja/icones/icone-512.png`
+- Capturas: as que começam com `play-` em `loja/capturas/`
+- Descrição curta (até 80 caracteres):
+  `A ferramenta de trabalho da mentoria Operação Blindada.`
+- Descrição completa: use a de `loja/README.md`
+
+**Acesso ao app:** marque que o app **exige credenciais** e cole o e-mail
+e a senha do PASSO 2.
 
 ---
 
-## O que pode dar errado, e o que fazer
+## PASSO 5: o teste fechado do Google (14 dias)
 
-**"Falta a política de privacidade"**
-O endereço precisa estar no ar e abrir sem login. Confira no navegador
-anônimo.
+Se a sua conta é **Pessoal** e foi criada depois de novembro de 2023, o
+Google exige, antes de deixar publicar:
 
-**"Não conseguimos entrar no app"**
-A conta de teste não estava com o acesso liberado, ou a senha estava errada.
-Confira entrando você mesma com aquele e-mail e aquela senha.
+- **12 pessoas** instaladas no teste fechado
+- durante **14 dias seguidos**
 
-**"O app tem conteúdo gerado por usuários"**
-Eles vão testar quatro coisas, e as quatro já existem: a regra de convivência
-antes do primeiro uso, o botão de denunciar, o de bloquear, e a resposta em
-24 horas. Se perguntarem, responda que o app tem os quatro e diga onde.
+Não tem como pular. Por isso: **faça este passo primeiro de tudo.**
 
-**"Guideline 4.2: minimum functionality"**
-É a reclamação de que o app é "só um site". Responda que o app funciona sem
-internet, guarda o progresso no aparelho, usa Face ID, notificação local e a
-folha de compartilhar do sistema, e mande as capturas de tela.
+1. Play Console → **Teste** → **Teste fechado** → criar uma versão
+2. Suba o `.aab`
+3. Em **Testadores**, crie uma lista com 12 e-mails **do Gmail** de pessoas
+   reais (alunas, amigas, familiares)
+4. Copie o link do teste e mande para elas
+5. **Cada uma precisa instalar e abrir.** Instalar e não abrir não conta.
+6. Depois dos 14 dias, o Play Console libera o botão de produção
 
-**Reprovou**
-Não é o fim: você lê o motivo, corrige e reenvia. A média de apps de primeira
-viagem é de 2 tentativas. A Apple responde em 1 a 3 dias por rodada.
+**Dica:** avise as 12 que elas não podem desinstalar durante os 14 dias.
+
+---
+
+## PASSO 6: preencher a App Store
+
+Em https://appstoreconnect.apple.com → **Meus apps** → **+**
+
+| Campo | O que pôr |
+|---|---|
+| Nome | `Operação Blindada` |
+| Idioma principal | Português (Brasil) |
+| Bundle ID | `com.operacaoblindada.app` |
+| SKU | `operacao-blindada-01` |
+| Preço | **Gratuito** |
+
+**Informações de revisão:** cole o e-mail e a senha do PASSO 2, e cole no
+campo **Notes** o texto inteiro da seção 1 de `loja/NOTAS-PARA-A-REVISAO.md`.
+Esse texto é o que evita a confusão com a regra 3.1.1.
+
+**Privacidade do app:** as respostas estão na seção 7 do mesmo arquivo.
+
+**Capturas:** as que começam com `apple-` em `loja/capturas/`.
+
+---
+
+## Quanto tempo leva
+
+| | Prazo |
+|---|---|
+| Conta Google confirmada | 1 a 3 dias |
+| Conta Apple confirmada | 1 dia (Individual) ou 5 a 14 (Organização) |
+| Teste fechado do Google | **14 dias** |
+| Revisão do Google | 1 a 7 dias |
+| Revisão da Apple | 1 a 3 dias |
+
+**Do zero ao ar: cerca de três semanas**, e quem manda no relógio é o
+teste de 14 dias do Google.
+
+---
+
+## Se der errado
+
+| O que aparece | O que fazer |
+|---|---|
+| "Guideline 3.1.1: apps must use IAP" | Não entre em pânico. Responda com o texto da seção 2 de `NOTAS-PARA-A-REVISAO.md` |
+| "Guideline 2.1: unable to sign in" | A conta de teste falhou. Refaça o PASSO 2 e confirme que ela entra sem pedir troca de senha |
+| "Guideline 1.2: UGC" | Aponte no Resolution Center onde estão o Denunciar, o Bloquear e a regra de convivência |
+| O app fecha ao tocar em "Colocar uma foto" | O passo 5 do `preparar.sh` não rodou. Rode `bash preparar.sh` de novo, no Mac |
+| Google: "Data deletion URL required" | Cole `https://carlacarolineps-debug.github.io/A-Fatorial/excluir-conta.html` |
+| Google: "Target API level" | Abra `android/app/build.gradle` e suba o `targetSdkVersion` para o número que o aviso pedir |
 
 ---
 
 ## Enquanto isso, a turma já pode usar
 
-Não espere as lojas para começar a mentoria. O endereço do site já entrega o
-app completo, e migrar depois não custa nada para as alunas: **a conta é a
-mesma, o progresso é o mesmo**, porque tudo vive no banco, não no aparelho.
-Quem instalar pela loja depois entra com o mesmo e-mail e a mesma senha e
-encontra tudo onde parou.
+Nada disso trava a mentoria. O app já funciona no celular, hoje, pelo
+endereço https://carlacarolineps-debug.github.io/A-Fatorial/ , e instala na
+tela de início sem loja nenhuma. O passo a passo está em
+`TESTAR-NO-CELULAR.md`.
+
+A loja muda duas coisas: as pessoas te acham procurando o nome, e o app
+pode mandar notificação. Não muda o app funcionar.

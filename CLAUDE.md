@@ -33,7 +33,7 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 
 ## Produtos neste repositório
 
-- `Operação Blindada 1108.03.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
+- `Operação Blindada 1108.04.html`: **PRODUTO PRINCIPAL** (unificado). A mentoria
   Operação Blindada (jornada externa: módulos de estratégia, governança, blindagem
   financeira, liderança; diagnóstico, testes profundos, PDCA, plano 30d, gamificação,
   login/sync Supabase) **+** o motor comportamental **A Bússola** integrado como aba
@@ -46,6 +46,49 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
 - `baralho.html`: versão standalone do Método Bússola (identidade obsidiana/ouro),
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
+
+### Pronto para as duas lojas, com as regras na mão (1108.04)
+A Carla: "deixe o app pronto para entrar na app store e play store para
+que eles não recusem, e se precisar mudar algo muito grande me mande para
+confirmar".
+
+**As diretrizes foram lidas, não citadas de memória.** As guidelines da
+Apple e a política de dados do Google saíram das páginas oficiais, e cada
+item conferido leva a regra do lado. Do Google veio a exigência que a
+Apple não tem: **uma página na WEB para pedir exclusão de conta**, que
+funcione para quem já desinstalou. Ela não existia, e é reprovação certa.
+Nasceu `excluir-conta.html`, publicada, dizendo o que é apagado, o que
+sobrevive (o registro fiscal, sem nome e sem e-mail, por 5 anos) e por quê.
+
+**Dois defeitos que fechariam o app na mão do revisor.** O seletor de foto
+e o Face ID exigem textos de permissão no `Info.plist` do iPhone. Sem
+eles o app **fecha sozinho** no toque, e a Apple reprova por 2.1, porque é
+exatamente onde o revisor toca. O `preparar.sh` passou a escrever os
+quatro sozinho, com texto específico (frase genérica também é reprovada).
+
+**O ponto que decide a aprovação na Apple, e a decisão que ficou.** A
+regra 3.1.1 manda usar compra da Apple para desbloquear conteúdo; a 3.1.3
+abre exceção para app que só dá acesso ao que já foi adquirido. O produto
+está do lado certo e com folga, e isso foi **medido**: `testes/lojas.cjs`
+percorre as 16 telas e conta **0 links externos**, além de conferir que a
+parede de acesso pendente não tem caminho de compra. Nenhuma mudança
+grande foi necessária: o comércio já tinha saído em 0508.01. O que faltava
+era o texto que evita a confusão, e ele ficou pronto em
+`loja/NOTAS-PARA-A-REVISAO.md`, junto com a resposta a mandar caso a
+reprovação venha assim mesmo.
+
+**`testes/lojas.cjs`, o teste novo:** 1.2 (denunciar, bloquear, a regra de
+convivência sem botão de fechar, contato publicado), 2.1 (as permissões),
+3.1.1 e 3.1.3 (nenhum caminho de compra), 5.1.1 (privacidade e termos
+dentro do app), 5.1.1(v) (exclusão que apaga a conta de verdade) e a
+exigência do Google. **41 conferências, 0 falhas.**
+
+**O guia foi reescrito** em `SUBIR-NAS-LOJAS.md`, com o passo que mais
+reprova posto em segundo lugar: criar a conta de teste do revisor e
+**entrar com ela uma vez**, para a senha temporária virar definitiva. Sem
+isso o revisor bate na troca de senha obrigatória e reprova sem ver o app.
+E o alerta que vale dinheiro: perder a chave de assinatura do Android
+significa nunca mais atualizar o app.
 
 ### A auditoria adversarial achou a automação quebrada (1108.03)
 A Carla ligou a automação da TMB, rodou um teste de integração e pediu:
