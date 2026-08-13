@@ -783,6 +783,7 @@ select option:checked,select option:hover{background:#EAF5EF!important;color:#0B
       <button class="nav-item" data-view="diagnostico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3 8-8M21 12a9 9 0 11-6.2-8.5"/></svg>Plano de Ação <span class="nav-badge">novo</span></button>
       <button class="nav-item" data-view="empresas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M6 21V7l6-4 6 4v14M10 9h.01M14 9h.01M10 13h.01M14 13h.01M10 17h4"/></svg>Empresas & Diagnóstico</button>
       <div class="nav-group">Método</div>
+      <button class="nav-item" data-view="programa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>Diagnóstico 7 dias <span class="nav-badge">novo</span></button>
       <button class="nav-item" data-view="descoberta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Método da Empresa <span class="nav-badge">segredo</span></button>
       <button class="nav-item" data-view="dna"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3c0 6 16 6 16 12M4 21c0-6 16-6 16-12M8 8h8M8 16h8"/></svg>DNA de Vendas</button>
       <button class="nav-item" data-view="metodo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h12a2 2 0 012 2v14H6a2 2 0 01-2-2zM20 6v14M9 8h6M9 12h4"/></svg>Método Vivo</button>
@@ -818,6 +819,7 @@ select option:checked,select option:hover{background:#EAF5EF!important;color:#0B
     <section class="view" id="view-dashboard"></section>
     <section class="view" id="view-diagnostico"></section>
     <section class="view" id="view-empresas"></section>
+    <section class="view" id="view-programa"></section>
     <section class="view" id="view-descoberta"></section>
     <section class="view" id="view-dna"></section>
     <section class="view" id="view-metodo"></section>
@@ -864,10 +866,10 @@ var FASES=[['Diagnóstico','Raio-X do time: mapear os melhores e os piores e qua
  ['Multiplicação','Cada mestre forma uma onda de multiplicadores, que forma a próxima.'],
  ['Consolidação','Certificação por faixas, premiação e ajuste fino do método.'],
  ['Resultados & autogestão','Relatório final de ROI e entrega do processo autogerenciável.']];
-var VIEW_LBL={portal:['Meu espaço','Portal do Vendedor'],plataforma:['Plataforma','Painel da Dona'],dashboard:['Programa','Central de Comando'],diagnostico:['Programa','Plano de Ação'],empresas:['Programa','Empresas & Diagnóstico'],descoberta:['Método','Método da Empresa'],dna:['Método','DNA de Vendas'],metodo:['Método','Método Vivo'],vendedores:['Método','Vendedores'],jornada:['Execução','Jornada do Programa'],arvore:['Execução','Árvore de Multiplicação'],ranking:['Execução','Ranking & Premiação'],vendas:['Execução','Vendas & Pipeline'],resultados:['Resultados','Resultados & ROI'],relatorio:['Resultados','Relatório Final'],depoimentos:['Resultados','Depoimentos & Feedback'],usuarios:['Administração','Usuários & Acessos'],permissoes:['Administração','Permissões'],auditoria:['Administração','Rastreabilidade']};
+var VIEW_LBL={portal:['Meu espaço','Portal do Vendedor'],plataforma:['Plataforma','Painel da Dona'],dashboard:['Programa','Central de Comando'],diagnostico:['Programa','Plano de Ação'],empresas:['Programa','Empresas & Diagnóstico'],programa:['Método','Diagnóstico de 7 dias'],descoberta:['Método','Método da Empresa'],dna:['Método','DNA de Vendas'],metodo:['Método','Método Vivo'],vendedores:['Método','Vendedores'],jornada:['Execução','Jornada do Programa'],arvore:['Execução','Árvore de Multiplicação'],ranking:['Execução','Ranking & Premiação'],vendas:['Execução','Vendas & Pipeline'],resultados:['Resultados','Resultados & ROI'],relatorio:['Resultados','Relatório Final'],depoimentos:['Resultados','Depoimentos & Feedback'],usuarios:['Administração','Usuários & Acessos'],permissoes:['Administração','Permissões'],auditoria:['Administração','Rastreabilidade']};
 var ALL_VIEWS=Object.keys(VIEW_LBL);
 var ADMIN_LOCK=['plataforma','usuarios','permissoes','auditoria'];
-var DEFAULT_PERM={admin:ALL_VIEWS.filter(function(v){return v!=='portal';}),cliente:['dashboard','diagnostico','descoberta','dna','metodo','vendedores','jornada','arvore','ranking','resultados','relatorio','depoimentos'],vendedor:['portal','metodo','ranking','depoimentos']};
+var DEFAULT_PERM={admin:ALL_VIEWS.filter(function(v){return v!=='portal';}),cliente:['dashboard','diagnostico','programa','descoberta','dna','metodo','vendedores','jornada','arvore','ranking','resultados','relatorio','depoimentos'],vendedor:['portal','metodo','ranking','depoimentos']};
 
 function getUsers(){ return load(K.users,[]); }
 function setUsers(a){ save(K.users,a); }
@@ -883,7 +885,7 @@ function activeEmp(){ var id=activeId(); var e=getEmp(); return e.filter(functio
 function empVend(eid){ return getVend().filter(function(v){return v.empresaId===eid;}); }
 
 var currentUser=null;
-function allowedViews(u){ if(!u)return []; if(u.perfil==='admin') return ALL_VIEWS.filter(function(v){return v!=='portal';}); if(u.perfil==='funcionario') return ['dashboard','diagnostico','empresas','descoberta','dna','metodo','vendedores','jornada','arvore','ranking','vendas','resultados','relatorio','depoimentos']; return (getPerm()[u.perfil]||[]).slice(); }
+function allowedViews(u){ if(!u)return []; if(u.perfil==='admin') return ALL_VIEWS.filter(function(v){return v!=='portal';}); if(u.perfil==='funcionario') return ['dashboard','diagnostico','empresas','programa','descoberta','dna','metodo','vendedores','jornada','arvore','ranking','vendas','resultados','relatorio','depoimentos']; return (getPerm()[u.perfil]||[]).slice(); }
 function audit(acao,alvo){ var a=load(K.audit,[]); var u=currentUser||{nome:'Sistema',perfil:'-'}; a.unshift({ts:Date.now(),nome:u.nome,perfil:u.perfil,acao:acao,alvo:alvo||''}); if(a.length>800)a.length=800; save(K.audit,a); }
 
 /* toast */
@@ -1698,7 +1700,7 @@ RENDER.vendedores=function(host){ var e=activeEmp();
  h+='<div class="grid g-4">'+belt('Aprendiz',cnt.aprendiz,'rgba(16,32,26,.05)','#5C6B63','<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0116 0v1"/>')+belt('Praticante',cnt.praticante,'var(--info-bg)','var(--info)','<path d="M12 2l2 5 5 .5-4 3.5 1.5 5L12 18l-4.5 3 1.5-5-4-3.5 5-.5z"/>')+belt('Multiplicador',cnt.multiplicador,'var(--brand-ghost)','var(--brand)','<path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.4 5.7 21 8 13.9 2 9.4h7.6z"/>')+belt('Mestre',cnt.mestre,'var(--brand-grad)','#FFFFFF','<path d="M5 16L3 5l5.5 4L12 4l3.5 5L21 5l-2 11zM5 20h14"/>')+'</div>';
  if(!vs.length){ h+=emptyState(iconSvg('<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>'),'Nenhum vendedor cadastrado','Cadastre os vendedores · inclua os melhores (mestres) e os que precisam evoluir. Depois registre as vendas de cada um.', canEdit()?'<button class="btn gold" data-act="vend-new">Cadastrar vendedor</button>':''); host.innerHTML=h; return; }
  h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Time comercial</h3></div><span class="hint">números vêm das vendas registradas</span></div><table class="tbl"><thead><tr><th>Vendedor</th><th>Faixa</th><th>Onda</th><th>Conv.</th><th>Ticket</th><th>Vendas/mês</th><th>Pontos</th>'+(canEdit()?'<th></th>':'')+'</tr></thead><tbody>';
- R.forEach(function(v){ h+='<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av-init" style="width:32px;height:32px;font-size:12px">'+initials(v.nome)+'</div><div><b>'+esc(v.nome)+'</b></div></div></td><td><span class="tag mute">'+(FAIXA_LBL[v.faixa]||'-')+'</span></td><td class="mono">'+(v.onda!=null?v.onda:'-')+'</td><td class="mono">'+v.conversao+'%</td><td class="mono">'+moneyS(v.ticket)+'</td><td class="mono">'+v.vendasMes+'</td><td class="mono"><b>'+num(v.pontos)+'</b></td><td>'+((vmapQ[v.id]&&vmapQ[v.id].praticas&&vmapQ[v.id].praticas.length)?'<span class="tag good">respondido</span>':'<button class="btn sm gold" data-act="quiz-run" data-id="'+v.id+'">Aplicar</button>')+'</td>'+(canEdit()?'<td style="text-align:right;white-space:nowrap"><button class="act-btn" data-act="venda-new" data-vend="'+v.id+'" title="Registrar venda">'+iconSvg('<path d="M12 5v14M5 12h14"/>')+'</button> <button class="act-btn" data-act="vend-edit" data-id="'+v.id+'" title="Editar">'+iconSvg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>')+'</button> <button class="act-btn danger" data-act="vend-del" data-id="'+v.id+'" title="Excluir">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button></td>':'')+'</tr>'; });
+ R.forEach(function(v){ h+='<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av-init" style="width:32px;height:32px;font-size:12px">'+initials(v.nome)+'</div><div><b>'+esc(v.nome)+'</b></div></div></td><td><span class="tag mute">'+(FAIXA_LBL[v.faixa]||'-')+'</span></td><td class="mono">'+(v.onda!=null?v.onda:'-')+'</td><td class="mono">'+v.conversao+'%</td><td class="mono">'+moneyS(v.ticket)+'</td><td class="mono">'+v.vendasMes+'</td><td class="mono"><b>'+num(v.pontos)+'</b></td><td>'+(function(){var vv=vmapQ[v.id]||{};var fe=diasFeitos(vv);var px=null;for(var dd=1;dd<=7;dd++){if(!respostasDe(vv)[dd]){px=dd;break;}}return fe>=7?'<span class="tag good">7/7</span>':'<button class="btn sm gold" data-act="tz-run" data-id="'+v.id+'" data-dia="'+px+'">'+fe+'/7 · dia '+px+'</button>';})()+'</td>'+(canEdit()?'<td style="text-align:right;white-space:nowrap"><button class="act-btn" data-act="venda-new" data-vend="'+v.id+'" title="Registrar venda">'+iconSvg('<path d="M12 5v14M5 12h14"/>')+'</button> <button class="act-btn" data-act="vend-edit" data-id="'+v.id+'" title="Editar">'+iconSvg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>')+'</button> <button class="act-btn danger" data-act="vend-del" data-id="'+v.id+'" title="Excluir">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button></td>':'')+'</tr>'; });
  h+='</tbody></table></div>'; host.innerHTML=h;
 };
 RENDER.ranking=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=secH('Ranking & Premiação','')+emptyState(iconSvg('<path d="M6 5h12v4a6 6 0 01-12 0z"/>'),'Selecione uma empresa','Escolha uma empresa para ver o ranking.',''); return; }
@@ -1720,7 +1722,7 @@ RENDER.portal=function(host){ var e=activeEmp(); var vend=null; if(e&&currentUse
  var st=vstat(vend); var R=rankList(empVend(e.id)); var pos=R.map(function(v){return v.id;}).indexOf(vend.id)+1; var g=getGamif();
  var meta=e.metaConversao||30; var convPct=Math.min(100,Math.round((st.conversao||0)/meta*100));
  var h='<div class="hero rise"><div class="hero-l"><span class="hero-eyebrow"><span class="amark"></span> Meu Portal · '+esc(e.nome)+'</span><h2>Bom te ver, '+esc(vend.nome.split(" ")[0])+'.</h2><div style="display:flex;align-items:center;gap:9px;margin:2px 0 22px"><span class="tag info">Faixa '+(FAIXA_LBL[vend.faixa]||"-")+'</span><span class="tag gold">#'+pos+' no ranking</span></div><div style="display:flex;gap:34px;flex-wrap:wrap"><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1"><span class="count" data-to="'+st.pontos+'">0</span></div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Meus pontos</div></div><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1"><span class="count" data-to="'+st.vendasMes+'">0</span></div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Vendas no mês</div></div><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1">'+moneyS(st.receita)+'</div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Receita gerada</div></div></div><div style="margin-top:22px"><button class="btn gold" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar minha venda</button></div></div><div class="hero-r"><div style="text-align:center"><div style="font-family:var(--f-display);font-size:14px;color:var(--brand);margin-bottom:2px">Conversão vs. meta</div><div id="xpGauge" style="display:flex;justify-content:center"></div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">meta '+meta+'%</div></div></div></div>';
- if(!(vend.praticas&&vend.praticas.length)){ h+='<div class="card pad" style="margin-top:18px;background:linear-gradient(135deg,#EAF6EF,#F7FBF9);border-color:var(--line)"><div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap"><div style="width:46px;height:46px;border-radius:14px;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></div><div style="flex:1;min-width:220px"><b style="font-family:var(--f-display);font-size:16px;color:var(--ink);display:block">Ajude a construir o método da casa</b><span style="font-size:13px;color:var(--ink-2)">São 14 situações do dia a dia. Leva 3 minutos e não tem resposta certa.</span></div><button class="btn gold" data-act="quiz-me">Responder agora</button></div></div>'; }
+ if(diasFeitos(vend)<7){ h+='<div class="card pad" style="margin-top:18px;background:linear-gradient(135deg,#EAF6EF,#F7FBF9);border-color:var(--line)"><div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap"><div style="width:46px;height:46px;border-radius:14px;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></div><div style="flex:1;min-width:220px"><b style="font-family:var(--f-display);font-size:16px;color:var(--ink);display:block">Ajude a construir o método da casa</b><span style="font-size:13px;color:var(--ink-2)">Programa de 7 dias, um tema por dia. Cada dia leva poucos minutos e não tem resposta certa.</span></div><button class="btn gold" data-act="quiz-me">Responder agora</button></div></div>'; }
  h+='<div class="grid g-2" style="margin-top:18px;grid-template-columns:1.15fr .85fr"><div class="card pad"><div class="card-h"><div class="ct"><h3>Minhas missões</h3></div><span class="tag gold">XP em jogo</span></div>';
  g.missoes.forEach(function(m){ var cur=metricVal(st,m.metric),pr=m.alvo?Math.min(100,Math.round(cur/m.alvo*100)):0,done=m.alvo&&cur>=m.alvo; h+='<div class="mission'+(done?' done':'')+'"><div class="mck">'+(done?'✓':'')+'</div><div class="mb"><b>'+esc(m.titulo)+' <span style="color:var(--ink-3);font-weight:500">('+cur+'/'+m.alvo+')</span></b><div class="mmeter"><i data-w="'+pr+'"></i></div></div><span class="xp">+'+m.xp+' XP</span></div>'; });
  h+='</div><div class="card pad"><div class="card-h"><div class="ct"><h3>Minha posição</h3></div><span class="hint">ranking do time</span></div><div class="rows">';
@@ -1889,6 +1891,7 @@ function onbSteps(){ var emps=getEmp(),vends=getVend(),negs=getNeg(),users=getUs
   {t:'Registre as primeiras vendas',d:'É o que dá vida ao ranking e aos resultados.',done:negs.length>0,goto:'vendas',btn:'Registrar'},
   {t:'Monte o método de vendas',d:'Comece com um modelo pronto do segmento.',done:emps.some(function(e){return (e.metodo||[]).length;}),goto:'metodo',btn:'Abrir'},
   {t:'Convide o cliente e os vendedores',d:'Cada um enxerga só o que precisa.',done:users.length>1,goto:'usuarios',btn:'Convidar'},
+  {t:'Aplique o diagnóstico de 7 dias',d:'Dois testes por dia revelam como o time vende.',done:getVend().some(function(v){return diasFeitos(v)>0;}),goto:'programa',btn:'Começar'},
   {t:'Revele o método da empresa',d:'O sistema descobre o que faz seu time vender.',done:getEmp().some(function(e){return descobrirMetodo(e).ok;}),goto:'descoberta',btn:'Revelar'},
   {t:'Veja seu Plano de Ação',d:'O sistema diz o que fazer primeiro e quanto vale.',done:load('am_saw_plan',false),goto:'diagnostico',btn:'Abrir'}
  ]; }
@@ -1914,6 +1917,7 @@ var HELP={
  vendedores:{t:'Vendedores',w:'O time de vendas da empresa em foco, com faixa e competências.',h:'Clique em "Novo vendedor". Os números (conversão, ticket, pontos) vêm sozinhos das vendas.'},
  vendas:{t:'Vendas & Pipeline',w:'Onde você lança cada venda. É isso que alimenta o ranking e os resultados.',h:'Clique em "Registrar venda", escolha o vendedor, o valor e a situação (ganha/perdida).'},
  metodo:{t:'Método Vivo',w:'O passo a passo de vendas da empresa e as respostas para as objeções mais comuns.',h:'Clique em "Carregar modelo" para começar com um playbook do segmento e ajuste ao seu jeito.'},
+ programa:{t:'Diagnóstico de 7 dias',w:'Um programa de uma semana: cada dia tem um tema (sondagem, objeções, benefícios, objetivos, experiência, cultura) com duas partes, um teste de situações e um formulário aberto.',h:'Aplique dois testes por dia com cada vendedor. No fim da tabela, o sistema cruza as respostas e mostra as palavras que quem mais vende usa.'},
  descoberta:{t:'Método da Empresa',w:'É o segredo do negócio: o passo a passo de vendas construído a partir do que o seu próprio time faz quando vende bem. Ninguém copia, porque nasce da sua operação.',h:'Peça para o time responder o diagnóstico de cenários (3 minutos cada). Com pelo menos 4 pessoas o método aparece sozinho, com o quanto vale em dinheiro e quem precisa mudar o quê. Depois clique em Publicar para o time.'},
  dna:{t:'DNA de Vendas',w:'Compara os melhores e os piores vendedores para mostrar o que replicar e o que corrigir.',h:'Cadastre vendedores avaliando as competências (estrelas) para o gráfico aparecer.'},
  ranking:{t:'Ranking & Premiação',w:'A classificação do time, atualizada a cada venda, com os prêmios.',h:'Em "Regras & prêmios" você define quanto vale cada venda e o que o time ganha.'},
@@ -2068,10 +2072,10 @@ RENDER.descoberta=function(host){
  var h='<div class="sec-lock"><div class="lk"><div class="lkic">'+icoLock()+'</div><div><div class="conf">Documento confidencial</div><h2>O Método '+esc(e.nome)+'</h2></div><div class="badge">Propriedade da empresa</div></div><p>Este método não veio de fora: ele foi construído a partir do que o seu próprio time faz quando vende bem. O sistema observa o desempenho real e transforma em um passo a passo que pode ser ensinado para todo mundo.</p>'
   +(d.ok?'<div class="conf-meter"><div class="cm"><i style="width:'+d.conf+'%"></i></div><span>Base de análise: '+d.n+' vendedores observados</span></div>':'')+'</div>';
  if(!d.ok){
-  h+=emptyState(icoLock(),'Ainda não dá para revelar o método','Para descobrir o que realmente funciona na '+esc(e.nome)+', pelo menos 4 pessoas do time precisam responder o diagnóstico de cenários. São 14 perguntas rápidas sobre o dia a dia, sem resposta certa ou errada.', canEdit()?'<button class="btn gold" data-act="goto" data-goto="vendedores">Aplicar diagnóstico</button>':'');
+  h+=emptyState(icoLock(),'Ainda não dá para revelar o método','Para descobrir o que realmente funciona na '+esc(e.nome)+', pelo menos 4 pessoas do time precisam começar o diagnóstico de 7 dias. Cada dia tem um tema e leva poucos minutos.', canEdit()?'<button class="btn gold" data-act="goto" data-goto="programa">Abrir o programa de 7 dias</button>':'');
   h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Como o método é descoberto</h3></div></div><ul class="dot-list"><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">1</span><div>Cada vendedor responde um <b>teste de situações do dia a dia</b> (3 minutos, sem resposta certa).</div></li><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">2</span><div>O sistema cruza essas informações com os <b>resultados reais</b> de cada um.</div></li><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">3</span><div>O que aparece em quem vende bem e falta em quem vende pouco <b>vira o método da empresa</b>.</div></li></ul></div>';
   var pend=empVend(e.id).filter(function(v){return !(v.praticas&&v.praticas.length);});
-  if(pend.length&&canEdit()){ h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Quem ainda não respondeu</h3></div><span class="hint">'+pend.length+' pendente(s)</span></div>'+pend.slice(0,8).map(function(v){return '<div class="qz-pend"><div class="qi">'+initials(v.nome)+'</div><div style="flex:1"><b style="font-size:13.5px;color:var(--ink)">'+esc(v.nome)+'</b><div style="font-size:12px;color:var(--ink-3)">3 minutos, 14 situações do dia a dia</div></div><button class="btn sm gold" data-act="quiz-run" data-id="'+v.id+'">Aplicar</button></div>';}).join('')+'</div>'; }
+  if(pend.length&&canEdit()){ h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Quem ainda não respondeu</h3></div><span class="hint">'+pend.length+' pendente(s)</span></div>'+pend.slice(0,8).map(function(v){return '<div class="qz-pend"><div class="qi">'+initials(v.nome)+'</div><div style="flex:1"><b style="font-size:13.5px;color:var(--ink)">'+esc(v.nome)+'</b><div style="font-size:12px;color:var(--ink-3)">3 minutos, 14 situações do dia a dia</div></div><button class="btn sm gold" data-act="tz-run" data-id="'+v.id+'" data-dia="1">Começar dia 1</button></div>';}).join('')+'</div>'; }
   host.innerHTML=h; return; }
  var act=canEdit()?'<button class="btn gold" data-act="publicar-metodo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Publicar para o time</button>':'';
  h+=secH('O passo a passo que gera resultado',d.decisivas.length+' práticas decisivas identificadas no seu time',act);
@@ -2238,10 +2242,199 @@ function qzFinish(){ var st=qzState; var prat={};
 document.addEventListener('click',function(ev){
  var o=ev.target.closest('[data-qz]'); if(o){ qzAnswer(+o.dataset.qz); return; }
  var t=ev.target.closest('[data-act]'); if(!t)return; var a=t.dataset.act;
- if(a==='quiz-run'){ abrirQuiz(t.dataset.id); }
+ if(a==='quiz-run'){ abrirTeste(t.dataset.id,1); }
  else if(a==='quiz-close'){ closeModal(); reRender(); }
  else if(a==='quiz-ver'){ closeModal(); go('descoberta'); }
- else if(a==='quiz-me'){ if(currentUser&&currentUser.vendedorId)abrirQuiz(currentUser.vendedorId); }
+ else if(a==='quiz-me'){ if(currentUser&&currentUser.vendedorId){ var mv=getVend().filter(function(x){return x.id===currentUser.vendedorId;})[0]; var pd=1; if(mv){ for(var d=1;d<=7;d++){ if(!respostasDe(mv)[d]){pd=d;break;} } } abrirTeste(currentUser.vendedorId,pd); } }
+});
+/* ============ PROGRAMA DE 7 DIAS ============ */
+function O(t,m){ return {t:t,m:m||[]}; }
+var TESTES=[
+ {d:1,tema:'Rotina e primeiro contato',desc:'Como você começa e conduz o atendimento',obj:null,dis:[
+  'Descreva, passo a passo, como foi o seu último atendimento do começo ao fim.',
+  'O que você faz nos primeiros 30 segundos com um cliente novo? Escreva como se estivesse falando com ele.',
+  'Qual parte do seu dia mais gera venda? Por quê?']},
+ {d:2,tema:'Sondagem e descoberta',desc:'As perguntas que revelam a necessidade real',obj:[
+  {ctx:'Antes da proposta',q:'Quantas perguntas você costuma fazer antes de falar de preço?',o:[O('Nenhuma, já apresento',['n5']),O('Uma ou duas',[]),O('De três a cinco',['p6']),O('Mais de cinco',['p6','p9'])]},
+  {ctx:'Abertura',q:'Qual pergunta você quase sempre faz no início?',o:[O('O que você está procurando?',[]),O('Para que você vai usar?',['p6']),O('Quanto pretende investir?',['p7']),O('Quem mais usa ou decide isso?',['p8'])]},
+  {ctx:'Orçamento',q:'Como você descobre quanto o cliente pode investir?',o:[O('Pergunto direto',['p7']),O('Dou uma faixa e observo a reação',['p7']),O('Espero ele falar',[]),O('Não costumo perguntar',[])]},
+  {ctx:'Decisão',q:'Como você descobre quem decide a compra?',o:[O('Pergunto direto',['p8']),O('Percebo durante a conversa',['p8']),O('Assumo que é quem está falando comigo',[]),O('Não costumo verificar',[])]},
+  {ctx:'Escuta',q:'Quando o cliente conta a necessidade dele, você...',o:[O('Anoto com as palavras dele',['p9']),O('Repito para confirmar se entendi',['p9']),O('Guardo na memória',[]),O('Já vou respondendo',['n1'])]},
+  {ctx:'Histórico',q:'Você pergunta sobre a experiência anterior dele com esse tipo de compra?',o:[O('Sempre',['p6']),O('Quase sempre',['p6']),O('Às vezes',[]),O('Raramente',[])]},
+  {ctx:'Prazo',q:'Você pergunta qual a urgência ou o prazo do cliente?',o:[O('Sempre',['p6']),O('Quando parece demorado',[]),O('Raramente',[]),O('Só se ele falar',[])]},
+  {ctx:'Confirmação',q:'Antes de apresentar a proposta você confirma o que entendeu?',o:[O('Sempre resumo o que ele disse',['p9']),O('Às vezes',[]),O('Vou direto para a proposta',[]),O('Depende do cliente',[])]}],
+  dis:['Escreva as 3 perguntas que você mais usa para entender o cliente.',
+       'Qual pergunta já fez um cliente mudar de ideia na sua frente? Escreva ela como você fala.',
+       'Como você percebe que o cliente está pronto para receber a proposta?']},
+ {d:3,tema:'Objeções',desc:'O que você faz quando ouve um não',obj:[
+  {ctx:'"Está caro"',q:'Qual é a sua primeira reação?',o:[O('Ofereço desconto',['n3']),O('Pergunto com o que está comparando',['p15']),O('Mostro o retorno que ele terá',['p11']),O('Apresento uma opção menor',['p13'])]},
+  {ctx:'"Vou pensar"',q:'O que você responde?',o:[O('Tudo bem, fico à disposição',['n4']),O('Pergunto o que exatamente quer pensar',['p15']),O('Combino um dia para retornar',['p19']),O('Ofereço uma condição para decidir hoje',['p18'])]},
+  {ctx:'"Já tenho fornecedor"',q:'Como você segue?',o:[O('Agradeço e encerro',[]),O('Pergunto o que ele gosta no atual',['p15']),O('Mostro no que somos diferentes',['p12']),O('Peço para ser a segunda opção',['p19'])]},
+  {ctx:'"Não é o momento"',q:'Sua resposta mais comum:',o:[O('Deixo para depois',['n4']),O('Pergunto o que precisa acontecer para ser o momento',['p15']),O('Mostro o custo de esperar',['p11']),O('Marco uma data futura',['p19'])]},
+  {ctx:'"Preciso falar com outra pessoa"',q:'Você...',o:[O('Espero ele retornar',['n4']),O('Proponho conversar com os dois juntos',['p8']),O('Mando material para ele apresentar',[]),O('Pergunto quais serão as dúvidas dela',['p8'])]},
+  {ctx:'Desconto',q:'Quando o cliente pede desconto, você...',o:[O('Concedo para não perder',['n3']),O('Troco desconto por algo (prazo, volume)',['p13']),O('Explico por que o valor é esse',['p10']),O('Ofereço outra opção de pacote',['p13'])]},
+  {ctx:'Concorrência',q:'O cliente cita um concorrente mais barato. Você...',o:[O('Cubro o preço',['n3']),O('Mostro a diferença do que está incluso',['p10']),O('Falo mal do concorrente',[]),O('Pergunto o que ele achou da outra proposta',['p15'])]},
+  {ctx:'Silêncio',q:'O cliente some depois da proposta. O que você faz?',o:[O('Espero ele voltar',['n4']),O('Ligo no dia seguinte',['p19']),O('Mando algo novo e útil',['p20']),O('Mando lembrete da proposta',[])]}],
+  dis:['Escreva, com as suas palavras, o que você responde quando o cliente diz que está caro.',
+       'Qual objeção você mais escuta? Escreva a resposta que costuma funcionar.',
+       'Conte uma venda que você virou depois de um não.']},
+ {d:4,tema:'Benefícios e características',desc:'Como você apresenta o que vende',obj:[
+  {ctx:'Apresentação',q:'O que você fala primeiro sobre o produto?',o:[O('O preço e as condições',[]),O('O que ele resolve na vida do cliente',['p10']),O('As características técnicas',[]),O('O que outros clientes conseguiram',['p12'])]},
+  {ctx:'Prova',q:'Você usa números para provar o ganho?',o:[O('Sempre, faço simulação',['p11']),O('Quando o cliente pede',[]),O('Raramente',[]),O('Não uso números',[])]},
+  {ctx:'Prova social',q:'Você mostra casos de outros clientes?',o:[O('Sempre, tenho exemplos prontos',['p12']),O('Quando lembro',[]),O('Só se perguntarem',[]),O('Não costumo',[])]},
+  {ctx:'Demonstração',q:'Você mostra o produto funcionando ou uma amostra?',o:[O('Sempre que possível',['p12']),O('Quando o cliente pede',[]),O('Raramente',[]),O('Não se aplica ao que vendo',[])]},
+  {ctx:'Comparação',q:'Você compara com a situação atual do cliente?',o:[O('Sempre mostro o antes e depois',['p11']),O('Às vezes',[]),O('Raramente',[]),O('Prefiro não comparar',[])]},
+  {ctx:'Personalização',q:'Sua apresentação muda de cliente para cliente?',o:[O('Sempre, monto para cada um',['p9']),O('Mudo alguns pontos',[]),O('Uso quase sempre a mesma',[]),O('Uso sempre a mesma',[])]},
+  {ctx:'Garantias',q:'Você fala de garantia, prazo ou segurança da compra?',o:[O('Sempre, tiro o medo do cliente',['p12']),O('Quando ele demonstra receio',[]),O('Raramente',[]),O('Não costumo',[])]},
+  {ctx:'Opções',q:'Você apresenta quantas opções?',o:[O('Uma única, a ideal',[]),O('Duas ou três para ele escolher',['p13']),O('Todas as disponíveis',[]),O('Depende do cliente',[])]}],
+  dis:['Explique o que você vende para alguém que nunca ouviu falar, com as suas palavras.',
+       'Qual benefício mais convence os seus clientes? Por que você acha que funciona?',
+       'Qual característica você mais destaca e para que tipo de cliente?']},
+ {d:5,tema:'Objetivos do cliente',desc:'Conectar a venda ao que o cliente quer de verdade',obj:[
+  {ctx:'Objetivo final',q:'Você pergunta o que o cliente quer alcançar com a compra?',o:[O('Sempre, é a base da conversa',['p6']),O('Quase sempre',['p6']),O('Às vezes',[]),O('Raramente',[])]},
+  {ctx:'Custo de não agir',q:'Você mostra o que acontece se ele não resolver isso?',o:[O('Sempre, com números',['p11']),O('Falo por cima',[]),O('Raramente',[]),O('Prefiro não assustar',[])]},
+  {ctx:'Quantificar',q:'Você calcula o ganho do cliente na frente dele?',o:[O('Sim, faço a conta junto',['p11']),O('Levo pronto',['p11']),O('Falo por estimativa',[]),O('Não calculo',[])]},
+  {ctx:'Conexão',q:'Na proposta, você retoma o objetivo que ele falou?',o:[O('Sempre, com as palavras dele',['p9']),O('Às vezes',[]),O('Raramente',[]),O('Foco no produto',[])]},
+  {ctx:'Urgência',q:'Como você cria urgência?',o:[O('Mostro o que ele perde esperando',['p18']),O('Uso prazo ou condição limitada',['p18']),O('Não crio urgência',[]),O('Depende do cliente',[])]},
+  {ctx:'Acompanhamento',q:'Depois da venda você verifica se ele atingiu o objetivo?',o:[O('Sempre acompanho',['p22']),O('Às vezes',[]),O('Raramente',[]),O('Não faço isso',[])]},
+  {ctx:'Ajuste',q:'Você muda a oferta conforme o objetivo dele?',o:[O('Sempre monto sob medida',['p13']),O('Ajusto alguns pontos',[]),O('Ofereço o padrão',[]),O('Não é possível ajustar',[])]},
+  {ctx:'Expectativa',q:'Você alinha o que ele pode esperar de resultado?',o:[O('Sempre, deixo claro',['p12']),O('Quando ele pergunta',[]),O('Raramente',[]),O('Prefiro não prometer',[])]}],
+  dis:['O que os seus melhores clientes queriam de verdade quando procuraram vocês?',
+       'Como você mostra que o que vende leva o cliente até esse objetivo?',
+       'Escreva uma frase que você usa para o cliente decidir mais rápido, sem pressionar.']},
+ {d:6,tema:'Experiência e relacionamento',desc:'O que acontece depois que o cliente compra',obj:[
+  {ctx:'Pós-venda',q:'Depois da venda você entra em contato?',o:[O('Sempre, acompanho a entrega',['p22']),O('Quando dá tempo',[]),O('Só se der problema',[]),O('Não é comigo',[])]},
+  {ctx:'Indicação',q:'Você pede indicação?',o:[O('Sempre, faz parte do processo',['p23']),O('Quando o cliente elogia',['p23']),O('Raramente',[]),O('Tenho vergonha de pedir',[])]},
+  {ctx:'Recompra',q:'Você avisa o cliente quando é hora de comprar de novo?',o:[O('Sim, tenho controle das datas',['p22']),O('Quando lembro',[]),O('Raramente',[]),O('Não se aplica',[])]},
+  {ctx:'Problema',q:'O cliente reclama de algo. Você...',o:[O('Assumo e resolvo pessoalmente',['p22']),O('Encaminho para o setor certo',[]),O('Explico que não foi culpa nossa',[]),O('Evito o contato',[])]},
+  {ctx:'Contato',q:'Você fala com clientes antigos fora de vender algo?',o:[O('Sim, mantenho relacionamento',['p22']),O('Em datas especiais',[]),O('Raramente',[]),O('Só quando tem oferta',[])]},
+  {ctx:'Tempo de resposta',q:'Quanto tempo você leva para responder um cliente?',o:[O('Minutos',['p19']),O('Poucas horas',[]),O('No mesmo dia',[]),O('Quando consigo',[])]},
+  {ctx:'Registro',q:'Você guarda o histórico do cliente?',o:[O('Sim, no sistema da empresa',['p21']),O('No meu celular',[]),O('Na memória',[]),O('Não guardo',[])]},
+  {ctx:'Personalização',q:'Você lembra detalhes pessoais dos clientes?',o:[O('Sim, anoto e uso na conversa',['p9']),O('Lembro dos principais',[]),O('Raramente',[]),O('Não costumo',[])]}],
+  dis:['Como você mantém contato com quem já comprou? Descreva a sua rotina.',
+       'Descreva o melhor atendimento que você já fez e por que foi bom.',
+       'Como você pede indicação? Escreva as palavras que usa.']},
+ {d:7,tema:'Cultura de vendas',desc:'Como o time trabalha e o que ajuda ou atrapalha',obj:[
+  {ctx:'Metas',q:'Você sabe exatamente qual é a sua meta do mês?',o:[O('Sim, acompanho todo dia',['p21']),O('Sei o número geral',[]),O('Mais ou menos',[]),O('Não tenho meta clara',[])]},
+  {ctx:'Acompanhamento',q:'Com que frequência você conversa com o gestor sobre resultado?',o:[O('Toda semana',['p21']),O('Uma vez por mês',[]),O('Quando o resultado cai',[]),O('Quase nunca',[])]},
+  {ctx:'Treino',q:'O time treina ou faz reunião de vendas?',o:[O('Toda semana',['p21']),O('De vez em quando',[]),O('Raramente',[]),O('Nunca',[])]},
+  {ctx:'Troca',q:'Quando você descobre algo que funciona, você...',o:[O('Compartilho com o time',['p12']),O('Falo com quem é próximo',[]),O('Guardo para mim',[]),O('Não penso nisso',[])]},
+  {ctx:'Discurso',q:'O time fala a mesma coisa para o cliente?',o:[O('Sim, temos um padrão',['p10']),O('Mais ou menos',[]),O('Cada um fala do seu jeito',[]),O('Não sei dizer',[])]},
+  {ctx:'Reconhecimento',q:'Quem vende bem é reconhecido?',o:[O('Sim, de forma clara',['p18']),O('Às vezes',[]),O('Raramente',[]),O('Não existe reconhecimento',[])]},
+  {ctx:'Ferramentas',q:'Você usa o sistema da empresa no dia a dia?',o:[O('Sim, registro tudo',['p21']),O('Registro o principal',[]),O('Só quando cobram',[]),O('Não uso',[])]},
+  {ctx:'Novatos',q:'Como entra alguém novo no time?',o:[O('Tem um passo a passo definido',['p21']),O('Acompanha um veterano',['p12']),O('Aprende na prática sozinho',[]),O('Não sei',[])]}],
+  dis:['O que a empresa faz hoje que mais te ajuda a vender?',
+       'O que mais atrapalha as suas vendas hoje?',
+       'Se você fosse ensinar alguém que chegou hoje, qual seria o seu primeiro conselho?']}
+];
+function testeDia(d){ var t=TESTES.filter(function(x){return x.d===d;})[0]; if(t&&t.d===1&&!t.obj)t.obj=QUIZ; return t; }
+function respostasDe(v){ return (v&&v.testes)||{}; }
+function diasFeitos(v){ return Object.keys(respostasDe(v)).length; }
+function praticasDeTestes(v){ var set={}; var R=respostasDe(v);
+ Object.keys(R).forEach(function(d){ var t=testeDia(+d); if(!t||!t.obj)return; (R[d].obj||[]).forEach(function(a){ var q=t.obj[a.q]; if(!q)return; var op=q.o[a.o]; if(op)(op.m||[]).forEach(function(id){set[id]=1;}); }); });
+ return Object.keys(set); }
+/* ===== runner dos 7 dias (parte A objetiva + parte B dissertativa) ===== */
+var tzState=null;
+function abrirTeste(vid,dia){ var v=getVend().filter(function(x){return x.id===vid;})[0]; if(!v){toast('Vendedor não encontrado');return;}
+ var t=testeDia(dia); if(!t){toast('Teste não encontrado');return;}
+ tzState={vid:vid,nome:v.nome,dia:dia,t:t,i:0,obj:[],dis:{},fase:(t.obj&&t.obj.length)?'obj':'dis'};
+ byId('modal').classList.add('on','quiz'); modalSaveFn=null;
+ byId('modalTitle').textContent='Dia '+dia+': '+t.tema;
+ byId('modalSub').textContent=v.nome+'. Responda pensando no seu dia a dia, não existe resposta certa.';
+ tzRender(); }
+function tzRender(){ var st=tzState; if(!st)return; var body=byId('modalBody');
+ if(st.fase==='obj'){
+  if(st.i>=st.t.obj.length){ st.fase='dis'; st.i=0; return tzRender(); }
+  var q=st.t.obj[st.i]; var ord=qzOrder(st.vid+'d'+st.dia,st.i,q.o.length); var tot=st.t.obj.length+1;
+  var pct=Math.round(st.i/tot*100); var L=['A','B','C','D','E'];
+  var h='<div class="qz-anim"><div class="qz-top"><span class="qn">Parte 1 · '+(st.i+1)+' de '+st.t.obj.length+'</span><div class="qz-bar"><i style="width:'+pct+'%"></i></div></div>'
+   +'<div class="qz-ctx"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>'+esc(q.ctx)+'</div>'
+   +'<h3 class="qz-q">'+esc(q.q)+'</h3><p class="qz-sub">Escolha o que mais parece com o que você faz de verdade.</p><div class="qz-opts">';
+  ord.forEach(function(oi,pos){ h+='<button class="qz-opt" data-tz="'+oi+'"><span class="ql">'+L[pos]+'</span><span>'+esc(q.o[oi].t)+'</span></button>'; });
+  body.innerHTML=h+'</div></div>'; return;
+ }
+ if(st.fase==='dis'){
+  var tot2=(st.t.obj?st.t.obj.length:0)+1; var pct2=Math.round(((st.t.obj?st.t.obj.length:0)/tot2)*100);
+  var h2='<div class="qz-anim"><div class="qz-top"><span class="qn">Parte 2 · com as suas palavras</span><div class="qz-bar"><i style="width:'+pct2+'%"></i></div></div>'
+   +'<div class="qz-ctx"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>'+esc(st.t.tema)+'</div>'
+   +'<h3 class="qz-q">Agora escreva do seu jeito</h3><p class="qz-sub">Sem preocupação com português. Escreva como você fala com o cliente.</p>';
+  st.t.dis.forEach(function(q,i){ h2+='<div class="fld full" style="margin-bottom:14px"><label>'+esc(q)+'</label><textarea id="tzd'+i+'" rows="3" placeholder="Escreva aqui...">'+esc(st.dis[i]||'')+'</textarea></div>'; });
+  h2+='<button class="btn gold" data-act="tz-fim" style="width:100%;justify-content:center;padding:14px;margin-top:6px">Concluir o dia '+st.dia+'</button></div>';
+  body.innerHTML=h2; return;
+ }
+}
+function tzAnswer(oi){ var st=tzState; if(!st)return; st.obj.push({q:st.i,o:oi}); st.i++; tzRender(); }
+function tzFim(){ var st=tzState; if(!st)return;
+ st.t.dis.forEach(function(q,i){ var el=byId('tzd'+i); if(el)st.dis[i]=el.value.trim(); });
+ var list=getVend(); var v=list.filter(function(x){return x.id===st.vid;})[0];
+ if(v){ v.testes=v.testes||{}; v.testes[st.dia]={obj:st.obj,dis:st.dis,em:Date.now()}; v.praticas=praticasDeTestes(v); setVend(list); }
+ audit('concluiu o dia '+st.dia+' do diagnóstico',st.nome+' · '+st.t.tema);
+ var feitos=diasFeitos(v); var prox=null; for(var d=1;d<=7;d++){ if(!v.testes[d]){prox=d;break;} }
+ var e=activeEmp(); var dsc=e?descobrirMetodo(e):{ok:false,n:0};
+ byId('modalBody').innerHTML='<div class="qz-done qz-anim"><div class="dc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg></div>'
+  +'<h3>Dia '+st.dia+' concluído!</h3><p>'+esc(st.nome.split(' ')[0])+' completou <b>'+feitos+' de 7 dias</b>. '+(prox?'O próximo é o dia '+prox+': '+esc(testeDia(prox).tema)+'.':'Todos os dias foram concluídos.')+'</p>'
+  +'<div class="qz-badge">'+(dsc.ok?'O método da empresa já pode ser revelado':'Faltam '+Math.max(0,4-(dsc.n||0))+' pessoa(s) para revelar o método')+'</div>'
+  +'<div class="qz-cta"><button class="btn" data-act="quiz-close">Fechar</button>'+(prox?'<button class="btn gold" data-act="tz-prox" data-id="'+st.vid+'" data-dia="'+prox+'">Fazer o dia '+prox+' agora</button>':'')+'</div></div>';
+ tzState=null;
+}
+/* ===== cruzamento das respostas dissertativas ===== */
+var STOP={'que':1,'para':1,'com':1,'uma':1,'the':1,'dos':1,'das':1,'por':1,'como':1,'mais':1,'não':1,'nao':1,'ele':1,'ela':1,'isso':1,'sobre':1,'quando':1,'você':1,'voce':1,'meu':1,'minha':1,'seu':1,'sua':1,'tem':1,'faz':1,'fazer':1,'muito':1,'depois':1,'antes':1,'sempre':1,'todo':1,'toda':1,'pra':1,'está':1,'esta':1,'estou':1,'sou':1,'era':1,'foi':1,'ser':1,'the':1,'dele':1,'dela':1,'nos':1,'aos':1,'até':1,'ate':1,'mas':1,'porque':1,'entao':1,'então':1,'aqui':1,'agora':1,'bem':1,'vai':1,'vou':1,'ver':1,'sem':1,'num':1,'uns':1,'lhe':1};
+function palavrasChave(txts,n){ var c={}; txts.join(' ').toLowerCase().replace(/[.,;:!?()"']/g,' ').split(/\s+/).forEach(function(w){ if(w.length<4||STOP[w]||/^\d+$/.test(w))return; c[w]=(c[w]||0)+1; });
+ return Object.keys(c).sort(function(a,b){return c[b]-c[a];}).slice(0,n||8).map(function(w){return {w:w,n:c[w]};}); }
+function cruzarDissertativas(e){
+ var vs=empVend(e.id).filter(function(v){return Object.keys(respostasDe(v)).length;});
+ if(vs.length<2)return null;
+ var R=rankList(empVend(e.id)); var mp={}; R.forEach(function(x){mp[x.id]=x.pontos;});
+ var ord=vs.slice().sort(function(a,b){return (mp[b.id]||0)-(mp[a.id]||0);});
+ var n=Math.max(1,Math.round(ord.length/3)); var tops=ord.slice(0,n), rest=ord.slice(n);
+ var out=[];
+ TESTES.forEach(function(t){ t.dis.forEach(function(pergunta,qi){
+  function colher(grp){ return grp.map(function(v){ var r=respostasDe(v)[t.d]; var txt=r&&r.dis?(r.dis[qi]||''):''; return {nome:v.nome,txt:txt}; }).filter(function(x){return x.txt&&x.txt.length>3;}); }
+  var a=colher(tops), b=colher(rest);
+  if(a.length) out.push({dia:t.d,tema:t.tema,pergunta:pergunta,tops:a,rest:b,chaves:palavrasChave(a.map(function(x){return x.txt;}),7)});
+ }); });
+ return {out:out,nTops:tops.length,nRest:rest.length};
+}
+/* ===== painel do programa de 7 dias ===== */
+RENDER.programa=function(host){
+ var e=activeEmp(); if(!e){ host.innerHTML=selEmpMsg('Diagnóstico de 7 dias'); return; }
+ var vs=empVend(e.id);
+ var h=secH('Diagnóstico de 7 dias','Um tema por dia, duas partes por dia. No fim o método da empresa se monta sozinho');
+ if(!vs.length){ host.innerHTML=h+emptyState(iconSvg('<path d="M9 11l3 3 8-8M21 12a9 9 0 11-6.2-8.5"/>'),'Cadastre o time primeiro','O diagnóstico é respondido por cada vendedor. Cadastre as pessoas para liberar os 7 dias.', canEdit()?'<button class="btn gold" data-act="vend-new">Cadastrar vendedor</button>':''); return; }
+ var totalPos=vs.length*7, feitos=vs.reduce(function(a,v){return a+diasFeitos(v);},0);
+ var pctP=totalPos?Math.round(feitos/totalPos*100):0;
+ h+='<div class="card pad" style="margin-bottom:18px;background:linear-gradient(135deg,#EAF6EF,#F7FBF9)"><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:1;min-width:240px"><b style="font-family:var(--f-display);font-size:17px;color:var(--ink);display:block">Progresso do time</b><span style="font-size:13px;color:var(--ink-2)">'+feitos+' de '+totalPos+' testes concluídos ('+vs.length+' pessoas x 7 dias)</span><div class="onb-prog" style="margin-top:12px"><i style="width:'+pctP+'%"></i></div></div><div style="text-align:right"><div style="font-family:var(--f-display);font-size:30px;color:var(--brand)">'+pctP+'%</div></div></div></div>';
+ h+='<div class="grid g-3">';
+ TESTES.forEach(function(t){ var ok=vs.filter(function(v){return respostasDe(v)[t.d];}).length; var p=vs.length?Math.round(ok/vs.length*100):0;
+  h+='<div class="card pad"><div style="display:flex;align-items:center;gap:11px;margin-bottom:10px"><div style="width:38px;height:38px;border-radius:12px;background:'+(p===100?'var(--brand-grad)':'var(--brand-soft)')+';color:'+(p===100?'#fff':'var(--brand)')+';display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700">'+t.d+'</div><div style="flex:1;min-width:0"><b style="font-size:14.5px;color:var(--ink);font-family:var(--f-display)">'+esc(t.tema)+'</b><div style="font-size:11.5px;color:var(--ink-3)">'+esc(t.desc)+'</div></div></div>'
+   +'<div class="meter"><i data-w="'+p+'"></i></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span style="font-size:12px;color:var(--ink-3)">'+ok+' de '+vs.length+' responderam</span>'+((t.obj&&t.obj.length)||t.d===1?'<span class="tag mute">'+((testeDia(t.d).obj||[]).length)+' situações + '+t.dis.length+' abertas</span>':'')+'</div></div>'; });
+ h+='</div>';
+ h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Quem está em qual dia</h3></div><span class="hint">clique para aplicar o próximo</span></div><table class="tbl"><thead><tr><th>Vendedor</th><th>Progresso</th><th>Dias</th><th style="text-align:right">Próximo</th></tr></thead><tbody>';
+ vs.forEach(function(v){ var fe=diasFeitos(v); var prox=null; for(var d=1;d<=7;d++){ if(!respostasDe(v)[d]){prox=d;break;} }
+  var pills=''; for(var d=1;d<=7;d++){ pills+='<span class="tag '+(respostasDe(v)[d]?'good':'mute')+'" style="padding:3px 7px;font-size:10px">'+d+'</span> '; }
+  h+='<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av-init" style="width:32px;height:32px;font-size:12px">'+initials(v.nome)+'</div><b>'+esc(v.nome)+'</b></div></td><td class="mono">'+fe+'/7</td><td><div class="pill-row">'+pills+'</div></td><td style="text-align:right">'+(prox?(canEdit()?'<button class="btn sm gold" data-act="tz-run" data-id="'+v.id+'" data-dia="'+prox+'">Dia '+prox+'</button>':'Dia '+prox):'<span class="tag good">completo</span>')+'</td></tr>'; });
+ h+='</tbody></table></div>';
+ // cruzamento
+ var cz=cruzarDissertativas(e);
+ if(cz&&cz.out.length){
+  h+=secH('As palavras que funcionam','O que quem mais vende escreve, comparado com o restante do time');
+  cz.out.slice(0,6).forEach(function(x){
+   h+='<div class="card pad" style="margin-bottom:12px"><div style="font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);font-weight:800">Dia '+x.dia+' · '+esc(x.tema)+'</div><b style="display:block;font-family:var(--f-display);font-size:16px;color:var(--ink);margin:6px 0 12px">'+esc(x.pergunta)+'</b>';
+   if(x.chaves.length) h+='<div class="pill-row" style="margin-bottom:14px">'+x.chaves.map(function(k){return '<span class="tag gold">'+esc(k.w)+' ('+k.n+')</span>';}).join('')+'</div>';
+   h+='<div class="grid g-2" style="gap:14px"><div><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:8px">Quem mais vende</div>'
+    +x.tops.slice(0,3).map(function(r){return '<div class="rp-quote" style="background:#F1F9F4;border-left:3px solid var(--brand);color:var(--ink-2);font-size:13px;margin-bottom:8px">"'+esc(r.txt)+'"</div>';}).join('')+'</div>'
+    +'<div><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:800;margin-bottom:8px">Restante do time</div>'
+    +(x.rest.length?x.rest.slice(0,3).map(function(r){return '<div class="rp-quote" style="background:#F6F7F6;border-left:3px solid #C7D2CB;color:var(--ink-3);font-size:13px;margin-bottom:8px">"'+esc(r.txt)+'"</div>';}).join(''):'<div style="font-size:12.5px;color:var(--ink-4)">Sem respostas ainda.</div>')+'</div></div></div>';
+  });
+ }
+ host.innerHTML=h;
+};
+document.addEventListener('click',function(ev){
+ var o=ev.target.closest('[data-tz]'); if(o){ tzAnswer(+o.dataset.tz); return; }
+ var t=ev.target.closest('[data-act]'); if(!t)return; var a=t.dataset.act;
+ if(a==='tz-run'){ abrirTeste(t.dataset.id,+t.dataset.dia); }
+ else if(a==='tz-fim'){ tzFim(); }
+ else if(a==='tz-prox'){ abrirTeste(t.dataset.id,+t.dataset.dia); }
 });
 /* ============ WIRING ============ */
 byId('nav').addEventListener('click',function(e){ var b=e.target.closest('.nav-item'); if(b){ currentView=b.dataset.view; go(b.dataset.view); } });
@@ -2257,7 +2450,7 @@ byId('login').addEventListener('click',function(e){ var b=e.target.closest('[dat
  if(a==='setup')createAdmin(); else if(a==='login')doLogin(); else if(a==='showreset')byId('authPanel').innerHTML=resetHtml(); else if(a==='reset')doReset(); else if(a==='backlogin')renderAuth(); else if(a==='wipe')wipeAll(); });
 byId('login').addEventListener('keydown',function(e){ if(e.key==='Enter'){ var b=byId('authPanel').querySelector('.lg-enter'); if(b)b.click(); } });
 
-var APP_VERSION='Multiplicadora 2107.06';
+var APP_VERSION='Multiplicadora 2107.07';
 function boot(){ var vs=byId('verStamp'); if(vs)vs.textContent=APP_VERSION; var vl=byId('verStampLg'); if(vl)vl.textContent=APP_VERSION;
   setupSite();
   setTimeout(function(){ var s=byId('splash'); if(s)s.classList.add('done'); },RM?0:1350);
