@@ -608,6 +608,34 @@ select option:checked,select option:hover{background:#EAF5EF!important;color:#0B
 .conf-meter span{font-size:12px;color:rgba(255,255,255,.8);}
 .prat-group{margin-bottom:16px;}
 .prat-group .pg{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:8px;}
+
+/* ===== Quiz de cenarios ===== */
+#modal.quiz .modal-card{max-width:760px;}
+#modal.quiz .modal-f{display:none;}
+.qz-top{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.qz-top .qn{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:800;white-space:nowrap;}
+.qz-bar{flex:1;height:7px;border-radius:5px;background:#E7EFE9;overflow:hidden;}
+.qz-bar i{display:block;height:100%;background:var(--brand-grad);border-radius:5px;transition:width .45s cubic-bezier(.2,.7,.2,1);}
+.qz-ctx{display:inline-flex;align-items:center;gap:8px;background:var(--brand-ghost);color:var(--brand);font-size:11.5px;font-weight:700;padding:6px 13px;border-radius:var(--pill);margin-bottom:14px;}
+.qz-q{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.3;color:var(--ink);margin:0 0 6px;text-wrap:balance;}
+.qz-sub{font-size:13.5px;color:var(--ink-3);margin:0 0 22px;}
+.qz-opts{display:flex;flex-direction:column;gap:11px;}
+.qz-opt{display:flex;align-items:center;gap:14px;padding:17px 19px;border:1.5px solid var(--line-soft);border-radius:15px;background:#fff;cursor:pointer;transition:transform .14s,border-color .14s,box-shadow .14s;text-align:left;font-family:inherit;width:100%;}
+.qz-opt:hover{border-color:var(--brand);transform:translateX(4px);box-shadow:var(--sh);}
+.qz-opt .ql{width:32px;height:32px;border-radius:10px;background:#F1F6F3;color:var(--ink-3);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;transition:.14s;}
+.qz-opt:hover .ql{background:var(--brand);color:#fff;}
+.qz-opt span{font-size:14.5px;color:var(--ink);line-height:1.45;}
+.qz-anim{animation:qzIn .32s cubic-bezier(.2,.7,.2,1);}
+@keyframes qzIn{from{opacity:0;transform:translateX(22px);}to{opacity:1;transform:none;}}
+.qz-done{text-align:center;padding:26px 10px;}
+.qz-done .dc{width:76px;height:76px;border-radius:24px;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 14px 30px -12px rgba(11,132,87,.6);}
+.qz-done .dc svg{width:38px;height:38px;}
+.qz-done h3{font-family:var(--f-display);font-weight:600;font-size:24px;color:var(--ink);margin:0 0 10px;}
+.qz-done p{font-size:14px;color:var(--ink-2);line-height:1.6;max-width:46ch;margin:0 auto 22px;}
+.qz-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.qz-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);color:#8A6A18;font-size:12.5px;font-weight:700;padding:8px 15px;border-radius:var(--pill);margin-bottom:18px;}
+.qz-pend{display:flex;align-items:center;gap:13px;padding:16px 18px;border:1px dashed var(--line);border-radius:15px;background:#F6FBF8;margin-bottom:12px;}
+.qz-pend .qi{width:38px;height:38px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 </style>
 <div id="splash">
   <div class="splash-mark amark" style="width:96px;height:96px;border-radius:24px;font-size:52px;"></div>
@@ -1010,7 +1038,7 @@ function renderView(v){ var host=byId('view-'+v); if(!host)return; if(v==='diagn
 /* ============ MODAL ============ */
 var modalSaveFn=null;
 function openModal(title,sub,body,onSave){ byId('modalTitle').textContent=title; byId('modalSub').textContent=sub||''; byId('modalBody').innerHTML=body; modalSaveFn=onSave; byId('modal').classList.add('on'); }
-function closeModal(){ if(byId('modal').classList.contains('wizard')){ try{readStep(wizIdx);}catch(e){} wizSaveDraft(); } byId('modal').classList.remove('on','wizard'); modalSaveFn=null; }
+function closeModal(){ if(byId('modal').classList.contains('wizard')){ try{readStep(wizIdx);}catch(e){} wizSaveDraft(); } byId('modal').classList.remove('on','wizard','quiz'); modalSaveFn=null; }
 function fldVal(id){ var e=byId(id); return e?e.value.trim():''; }
 function fldNum(id){ var e=byId(id); return e?(parseFloat(e.value)||0):0; }
 
@@ -1111,7 +1139,7 @@ RENDER.vendedores=function(host){
    +belt('Mestre',cnt.mestre,'var(--brand-grad)','#FFFFFF','<path d="M5 16L3 5l5.5 4L12 4l3.5 5L21 5l-2 11zM5 20h14"/>')
    +'</div>';
   if(!vs.length){ h+=emptyState(iconSvg('<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8"/>'),'Nenhum vendedor cadastrado','Cadastre os vendedores desta empresa. Inclua os melhores (mestres) e os que precisam evoluir.', canEdit()?'<button class="btn gold" data-act="vend-new">Cadastrar vendedor</button>':''); host.innerHTML=h; return; }
-  h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Time comercial</h3></div><span class="hint">clique para editar</span></div><table class="tbl"><thead><tr><th>Vendedor</th><th>Faixa</th><th>Onda</th><th>Conv.</th><th>Ticket</th><th>Follow</th><th>Pontos</th>'+(canEdit()?'<th></th>':'')+'</tr></thead><tbody>';
+  h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Time comercial</h3></div><span class="hint">clique para editar</span></div><table class="tbl"><thead><tr><th>Vendedor</th><th>Faixa</th><th>Onda</th><th>Conv.</th><th>Ticket</th><th>Follow</th><th>Pontos</th><th>Diagnóstico</th>'+(canEdit()?'<th></th>':'')+'</tr></thead><tbody>';
   vs.slice().sort(function(a,b){return (+b.pontos||0)-(+a.pontos||0);}).forEach(function(v){
     h+='<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av-init" style="width:32px;height:32px;font-size:12px">'+initials(v.nome)+'</div><div><b>'+esc(v.nome)+'</b><div class="tmono">'+esc(v.email||'')+'</div></div></div></td>'
      +'<td><span class="tag mute">'+(FAIXA_LBL[v.faixa]||'-')+'</span></td><td class="mono">'+(v.onda!=null?v.onda:'-')+'</td><td class="mono">'+(v.conversao||0)+'%</td><td class="mono">'+moneyS(v.ticket||0)+'</td><td class="mono">'+(v.followup||0)+'%</td><td class="mono"><b>'+num(v.pontos||0)+'</b></td>'
@@ -1652,14 +1680,14 @@ RENDER.dashboard=function(host){ var emps=getEmp(); var _onb=(canEdit()&&!onbHid
 };
 RENDER.vendedores=function(host){ var e=activeEmp();
  if(!e){ host.innerHTML=secH('Vendedores','')+emptyState(iconSvg('<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8"/>'),'Selecione uma empresa','Cadastre ou selecione uma empresa para gerenciar os vendedores.', canEdit()?'<button class="btn gold" data-act="goto" data-goto="empresas">Ir para Empresas</button>':''); return; }
- var vs=empVend(e.id); var R=rankList(vs);
+ var vs=empVend(e.id); var R=rankList(vs); var vmapQ={}; vs.forEach(function(x){vmapQ[x.id]=x;});
  var act=canEdit()?'<button class="btn" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar venda</button><button class="btn gold" data-act="vend-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Novo vendedor</button>':'';
  var h=secH('Vendedores · '+esc(e.nome),vs.length+' cadastrados',act);
  var cnt={aprendiz:0,praticante:0,multiplicador:0,mestre:0}; vs.forEach(function(v){if(cnt[v.faixa]!=null)cnt[v.faixa]++;});
  h+='<div class="grid g-4">'+belt('Aprendiz',cnt.aprendiz,'rgba(16,32,26,.05)','#5C6B63','<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0116 0v1"/>')+belt('Praticante',cnt.praticante,'var(--info-bg)','var(--info)','<path d="M12 2l2 5 5 .5-4 3.5 1.5 5L12 18l-4.5 3 1.5-5-4-3.5 5-.5z"/>')+belt('Multiplicador',cnt.multiplicador,'var(--brand-ghost)','var(--brand)','<path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.4 5.7 21 8 13.9 2 9.4h7.6z"/>')+belt('Mestre',cnt.mestre,'var(--brand-grad)','#FFFFFF','<path d="M5 16L3 5l5.5 4L12 4l3.5 5L21 5l-2 11zM5 20h14"/>')+'</div>';
  if(!vs.length){ h+=emptyState(iconSvg('<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>'),'Nenhum vendedor cadastrado','Cadastre os vendedores · inclua os melhores (mestres) e os que precisam evoluir. Depois registre as vendas de cada um.', canEdit()?'<button class="btn gold" data-act="vend-new">Cadastrar vendedor</button>':''); host.innerHTML=h; return; }
  h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Time comercial</h3></div><span class="hint">números vêm das vendas registradas</span></div><table class="tbl"><thead><tr><th>Vendedor</th><th>Faixa</th><th>Onda</th><th>Conv.</th><th>Ticket</th><th>Vendas/mês</th><th>Pontos</th>'+(canEdit()?'<th></th>':'')+'</tr></thead><tbody>';
- R.forEach(function(v){ h+='<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av-init" style="width:32px;height:32px;font-size:12px">'+initials(v.nome)+'</div><div><b>'+esc(v.nome)+'</b></div></div></td><td><span class="tag mute">'+(FAIXA_LBL[v.faixa]||'-')+'</span></td><td class="mono">'+(v.onda!=null?v.onda:'-')+'</td><td class="mono">'+v.conversao+'%</td><td class="mono">'+moneyS(v.ticket)+'</td><td class="mono">'+v.vendasMes+'</td><td class="mono"><b>'+num(v.pontos)+'</b></td>'+(canEdit()?'<td style="text-align:right;white-space:nowrap"><button class="act-btn" data-act="venda-new" data-vend="'+v.id+'" title="Registrar venda">'+iconSvg('<path d="M12 5v14M5 12h14"/>')+'</button> <button class="act-btn" data-act="vend-edit" data-id="'+v.id+'" title="Editar">'+iconSvg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>')+'</button> <button class="act-btn danger" data-act="vend-del" data-id="'+v.id+'" title="Excluir">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button></td>':'')+'</tr>'; });
+ R.forEach(function(v){ h+='<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="av-init" style="width:32px;height:32px;font-size:12px">'+initials(v.nome)+'</div><div><b>'+esc(v.nome)+'</b></div></div></td><td><span class="tag mute">'+(FAIXA_LBL[v.faixa]||'-')+'</span></td><td class="mono">'+(v.onda!=null?v.onda:'-')+'</td><td class="mono">'+v.conversao+'%</td><td class="mono">'+moneyS(v.ticket)+'</td><td class="mono">'+v.vendasMes+'</td><td class="mono"><b>'+num(v.pontos)+'</b></td><td>'+((vmapQ[v.id]&&vmapQ[v.id].praticas&&vmapQ[v.id].praticas.length)?'<span class="tag good">respondido</span>':'<button class="btn sm gold" data-act="quiz-run" data-id="'+v.id+'">Aplicar</button>')+'</td>'+(canEdit()?'<td style="text-align:right;white-space:nowrap"><button class="act-btn" data-act="venda-new" data-vend="'+v.id+'" title="Registrar venda">'+iconSvg('<path d="M12 5v14M5 12h14"/>')+'</button> <button class="act-btn" data-act="vend-edit" data-id="'+v.id+'" title="Editar">'+iconSvg('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>')+'</button> <button class="act-btn danger" data-act="vend-del" data-id="'+v.id+'" title="Excluir">'+iconSvg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>')+'</button></td>':'')+'</tr>'; });
  h+='</tbody></table></div>'; host.innerHTML=h;
 };
 RENDER.ranking=function(host){ var e=activeEmp(); if(!e){ host.innerHTML=secH('Ranking & Premiação','')+emptyState(iconSvg('<path d="M6 5h12v4a6 6 0 01-12 0z"/>'),'Selecione uma empresa','Escolha uma empresa para ver o ranking.',''); return; }
@@ -1681,6 +1709,7 @@ RENDER.portal=function(host){ var e=activeEmp(); var vend=null; if(e&&currentUse
  var st=vstat(vend); var R=rankList(empVend(e.id)); var pos=R.map(function(v){return v.id;}).indexOf(vend.id)+1; var g=getGamif();
  var meta=e.metaConversao||30; var convPct=Math.min(100,Math.round((st.conversao||0)/meta*100));
  var h='<div class="hero rise"><div class="hero-l"><span class="hero-eyebrow"><span class="amark"></span> Meu Portal · '+esc(e.nome)+'</span><h2>Bom te ver, '+esc(vend.nome.split(" ")[0])+'.</h2><div style="display:flex;align-items:center;gap:9px;margin:2px 0 22px"><span class="tag info">Faixa '+(FAIXA_LBL[vend.faixa]||"-")+'</span><span class="tag gold">#'+pos+' no ranking</span></div><div style="display:flex;gap:34px;flex-wrap:wrap"><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1"><span class="count" data-to="'+st.pontos+'">0</span></div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Meus pontos</div></div><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1"><span class="count" data-to="'+st.vendasMes+'">0</span></div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Vendas no mês</div></div><div><div style="font-family:var(--f-display);font-size:30px;color:var(--ink);line-height:1">'+moneyS(st.receita)+'</div><div style="font-size:11px;color:var(--ink-3);margin-top:4px">Receita gerada</div></div></div><div style="margin-top:22px"><button class="btn gold" data-act="venda-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Registrar minha venda</button></div></div><div class="hero-r"><div style="text-align:center"><div style="font-family:var(--f-display);font-size:14px;color:var(--brand);margin-bottom:2px">Conversão vs. meta</div><div id="xpGauge" style="display:flex;justify-content:center"></div><div style="font-size:11px;color:var(--ink-3);margin-top:2px">meta '+meta+'%</div></div></div></div>';
+ if(!(vend.praticas&&vend.praticas.length)){ h+='<div class="card pad" style="margin-top:18px;background:linear-gradient(135deg,#EAF6EF,#F7FBF9);border-color:var(--line)"><div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap"><div style="width:46px;height:46px;border-radius:14px;background:var(--brand-grad);color:#fff;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></div><div style="flex:1;min-width:220px"><b style="font-family:var(--f-display);font-size:16px;color:var(--ink);display:block">Ajude a construir o método da casa</b><span style="font-size:13px;color:var(--ink-2)">São 14 situações do dia a dia. Leva 3 minutos e não tem resposta certa.</span></div><button class="btn gold" data-act="quiz-me">Responder agora</button></div></div>'; }
  h+='<div class="grid g-2" style="margin-top:18px;grid-template-columns:1.15fr .85fr"><div class="card pad"><div class="card-h"><div class="ct"><h3>Minhas missões</h3></div><span class="tag gold">XP em jogo</span></div>';
  g.missoes.forEach(function(m){ var cur=metricVal(st,m.metric),pr=m.alvo?Math.min(100,Math.round(cur/m.alvo*100)):0,done=m.alvo&&cur>=m.alvo; h+='<div class="mission'+(done?' done':'')+'"><div class="mck">'+(done?'✓':'')+'</div><div class="mb"><b>'+esc(m.titulo)+' <span style="color:var(--ink-3);font-weight:500">('+cur+'/'+m.alvo+')</span></b><div class="mmeter"><i data-w="'+pr+'"></i></div></div><span class="xp">+'+m.xp+' XP</span></div>'; });
  h+='</div><div class="card pad"><div class="card-h"><div class="ct"><h3>Minha posição</h3></div><span class="hint">ranking do time</span></div><div class="rows">';
@@ -1874,7 +1903,7 @@ var HELP={
  vendedores:{t:'Vendedores',w:'O time de vendas da empresa em foco, com faixa e competências.',h:'Clique em "Novo vendedor". Os números (conversão, ticket, pontos) vêm sozinhos das vendas.'},
  vendas:{t:'Vendas & Pipeline',w:'Onde você lança cada venda. É isso que alimenta o ranking e os resultados.',h:'Clique em "Registrar venda", escolha o vendedor, o valor e a situação (ganha/perdida).'},
  metodo:{t:'Método Vivo',w:'O passo a passo de vendas da empresa e as respostas para as objeções mais comuns.',h:'Clique em "Carregar modelo" para começar com um playbook do segmento e ajuste ao seu jeito.'},
- descoberta:{t:'Método da Empresa',w:'É o segredo do negócio: o passo a passo de vendas construído a partir do que o seu próprio time faz quando vende bem. Ninguém copia, porque nasce da sua operação.',h:'Cadastre os vendedores marcando como cada um trabalha. Com pelo menos 4 pessoas o método aparece sozinho, com o quanto vale em dinheiro e quem precisa mudar o quê. Depois clique em Publicar para o time.'},
+ descoberta:{t:'Método da Empresa',w:'É o segredo do negócio: o passo a passo de vendas construído a partir do que o seu próprio time faz quando vende bem. Ninguém copia, porque nasce da sua operação.',h:'Peça para o time responder o diagnóstico de cenários (3 minutos cada). Com pelo menos 4 pessoas o método aparece sozinho, com o quanto vale em dinheiro e quem precisa mudar o quê. Depois clique em Publicar para o time.'},
  dna:{t:'DNA de Vendas',w:'Compara os melhores e os piores vendedores para mostrar o que replicar e o que corrigir.',h:'Cadastre vendedores avaliando as competências (estrelas) para o gráfico aparecer.'},
  ranking:{t:'Ranking & Premiação',w:'A classificação do time, atualizada a cada venda, com os prêmios.',h:'Em "Regras & prêmios" você define quanto vale cada venda e o que o time ganha.'},
  resultados:{t:'Resultados & ROI',w:'O antes e depois do método e o retorno do programa para a empresa.',h:'Preencha o diagnóstico da empresa e registre vendas para os números aparecerem.'},
@@ -2028,8 +2057,10 @@ RENDER.descoberta=function(host){
  var h='<div class="sec-lock"><div class="lk"><div class="lkic">'+icoLock()+'</div><div><div class="conf">Documento confidencial</div><h2>O Método '+esc(e.nome)+'</h2></div><div class="badge">Propriedade da empresa</div></div><p>Este método não veio de fora: ele foi construído a partir do que o seu próprio time faz quando vende bem. O sistema observa o desempenho real e transforma em um passo a passo que pode ser ensinado para todo mundo.</p>'
   +(d.ok?'<div class="conf-meter"><div class="cm"><i style="width:'+d.conf+'%"></i></div><span>Base de análise: '+d.n+' vendedores observados</span></div>':'')+'</div>';
  if(!d.ok){
-  h+=emptyState(icoLock(),'Ainda não dá para revelar o método','Para descobrir o que realmente funciona na '+esc(e.nome)+', o sistema precisa observar pelo menos 4 vendedores. Ao cadastrar cada um, marque como ele vende no dia a dia; o resto é automático.', canEdit()?'<button class="btn gold" data-act="vend-new">Cadastrar vendedor</button> <button class="btn" data-act="goto" data-goto="vendedores">Ver o time</button>':'');
-  h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Como o método é descoberto</h3></div></div><ul class="dot-list"><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">1</span><div>Você marca <b>como cada vendedor trabalha</b> (leva 30 segundos por pessoa).</div></li><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">2</span><div>O sistema cruza essas informações com os <b>resultados reais</b> de cada um.</div></li><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">3</span><div>O que aparece em quem vende bem e falta em quem vende pouco <b>vira o método da empresa</b>.</div></li></ul></div>';
+  h+=emptyState(icoLock(),'Ainda não dá para revelar o método','Para descobrir o que realmente funciona na '+esc(e.nome)+', pelo menos 4 pessoas do time precisam responder o diagnóstico de cenários. São 14 perguntas rápidas sobre o dia a dia, sem resposta certa ou errada.', canEdit()?'<button class="btn gold" data-act="goto" data-goto="vendedores">Aplicar diagnóstico</button>':'');
+  h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Como o método é descoberto</h3></div></div><ul class="dot-list"><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">1</span><div>Cada vendedor responde um <b>teste de situações do dia a dia</b> (3 minutos, sem resposta certa).</div></li><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">2</span><div>O sistema cruza essas informações com os <b>resultados reais</b> de cada um.</div></li><li><span class="dl-ic" style="background:var(--brand-ghost);color:var(--brand)">3</span><div>O que aparece em quem vende bem e falta em quem vende pouco <b>vira o método da empresa</b>.</div></li></ul></div>';
+  var pend=empVend(e.id).filter(function(v){return !(v.praticas&&v.praticas.length);});
+  if(pend.length&&canEdit()){ h+='<div class="card pad" style="margin-top:18px"><div class="card-h"><div class="ct"><h3>Quem ainda não respondeu</h3></div><span class="hint">'+pend.length+' pendente(s)</span></div>'+pend.slice(0,8).map(function(v){return '<div class="qz-pend"><div class="qi">'+initials(v.nome)+'</div><div style="flex:1"><b style="font-size:13.5px;color:var(--ink)">'+esc(v.nome)+'</b><div style="font-size:12px;color:var(--ink-3)">3 minutos, 14 situações do dia a dia</div></div><button class="btn sm gold" data-act="quiz-run" data-id="'+v.id+'">Aplicar</button></div>';}).join('')+'</div>'; }
   host.innerHTML=h; return; }
  var act=canEdit()?'<button class="btn gold" data-act="publicar-metodo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Publicar para o time</button>':'';
  h+=secH('O passo a passo que gera resultado',d.decisivas.length+' práticas decisivas identificadas no seu time',act);
@@ -2086,6 +2117,121 @@ function publicarMetodo(){ var e=activeEmp(); if(!e)return; var d=descobrirMetod
  setEmp(list); audit('publicou o método da empresa',e.nome+' ('+ee.metodo.length+' passos)'); toast('Método publicado para o time'); go('metodo');
 }
 document.addEventListener('click',function(ev){ var t=ev.target.closest('[data-act="publicar-metodo"]'); if(t)publicarMetodo(); });
+/* ============ QUIZ DE CENARIOS (diagnostico disfarcado) ============ */
+var QUIZ=[
+ {ctx:'Chegou um cliente novo',q:'Um contato novo acaba de chegar. Qual é o seu primeiro movimento?',o:[
+  {t:'Ligo na hora e já apresento a oferta',m:['n5']},
+  {t:'Dou uma olhada em quem é o cliente antes de falar',m:['p2']},
+  {t:'Mando a mensagem padrão de apresentação',m:[]},
+  {t:'Espero ele mandar mais informação',m:[]}]},
+ {ctx:'Primeiros minutos',q:'Nos dois primeiros minutos de conversa, o que você mais faz?',o:[
+  {t:'Explico as vantagens do que vendo',m:['n1']},
+  {t:'Pergunto sobre a situação dele',m:['p6']},
+  {t:'Já falo de valores para não perder tempo',m:['n5']},
+  {t:'Puxo um assunto pessoal para criar clima',m:['p5','p4']}]},
+ {ctx:'Ele perguntou o preço',q:'Logo no começo o cliente pergunta quanto custa. Você...',o:[
+  {t:'Falo o preço na hora',m:['n5']},
+  {t:'Dou uma faixa e volto a perguntar do que ele precisa',m:['p10']},
+  {t:'Explico o que está incluso antes de dizer o número',m:['p10']},
+  {t:'Desconverso e sigo apresentando',m:[]}]},
+ {ctx:'Antes da proposta',q:'Antes de montar a proposta, o que você geralmente já sabe?',o:[
+  {t:'Só o que ele quer comprar',m:[]},
+  {t:'Quanto ele pode investir',m:['p7']},
+  {t:'Quem mais decide junto com ele',m:['p8']},
+  {t:'As duas coisas: quanto pode gastar e quem decide',m:['p7','p8']}]},
+ {ctx:'Hora de apresentar',q:'O que pesa mais no seu argumento de venda?',o:[
+  {t:'A condição de pagamento e o preço',m:[]},
+  {t:'Os números do ganho que ele vai ter',m:['p11']},
+  {t:'Histórias de outros clientes parecidos',m:['p12']},
+  {t:'As características do produto',m:[]}]},
+ {ctx:'"Está caro"',q:'O cliente diz que está caro. Qual é a sua reação mais comum?',o:[
+  {t:'Ofereço um desconto',m:['n3']},
+  {t:'Pergunto com o que ele está comparando',m:['p15']},
+  {t:'Reforço o valor e o retorno que ele terá',m:['p10','p11']},
+  {t:'Apresento uma opção mais em conta',m:['p13']}]},
+ {ctx:'"Vou pensar"',q:'O cliente diz que vai pensar. O que costuma acontecer depois?',o:[
+  {t:'Deixo ele me procurar quando decidir',m:['n4']},
+  {t:'Combino dia e hora para retornar',m:['p19']},
+  {t:'Mando uma mensagem alguns dias depois',m:[]},
+  {t:'Pergunto o que exatamente ele quer pensar',m:['p15']}]},
+ {ctx:'O retorno',q:'Quando você volta a falar com esse cliente, você leva...',o:[
+  {t:'Um "e aí, já decidiu?"',m:['n4']},
+  {t:'Alguma novidade: um caso, uma simulação, uma condição',m:['p20']},
+  {t:'A mesma proposta, reforçando os pontos',m:[]},
+  {t:'Depende do cliente e do dia',m:[]}]},
+ {ctx:'Fechamento',q:'Na hora de fechar, o que você normalmente faz?',o:[
+  {t:'Espero o cliente dizer que quer',m:[]},
+  {t:'Pergunto direto se podemos fechar',m:['p16']},
+  {t:'Ofereço duas opções de como seguir',m:['p17']},
+  {t:'Coloco um prazo ou condição que termina',m:['p18']}]},
+ {ctx:'Sua semana',q:'Na semana passada, quantos clientes novos você foi atrás por conta própria?',o:[
+  {t:'Nenhum, atendi quem chegou',m:[]},
+  {t:'De 1 a 3',m:[]},
+  {t:'De 4 a 10',m:['p1']},
+  {t:'Mais de 10',m:['p1','p3']}]},
+ {ctx:'Sua rotina',q:'Como você começa o seu dia de trabalho?',o:[
+  {t:'Vendo as mensagens que chegaram',m:[]},
+  {t:'Olhando quem eu preciso retornar hoje',m:['p19']},
+  {t:'Procurando clientes novos',m:['p1']},
+  {t:'Depende do dia',m:[]}]},
+ {ctx:'Registro',q:'Onde ficam as informações dos seus atendimentos?',o:[
+  {t:'Na minha cabeça e em anotações soltas',m:[]},
+  {t:'No meu celular ou agenda pessoal',m:[]},
+  {t:'No sistema da empresa, sempre',m:['p21']},
+  {t:'No sistema, quando dá tempo',m:[]}]},
+ {ctx:'Escutando o cliente',q:'Quando o cliente conta um problema dele, você...',o:[
+  {t:'Já sei qual produto resolve e explico',m:['n1']},
+  {t:'Anoto com as mesmas palavras que ele usou',m:['p9']},
+  {t:'Faço mais perguntas para entender melhor',m:['p6']},
+  {t:'Mostro como já resolvi isso para outro cliente',m:['p12']}]},
+ {ctx:'Depois da venda',q:'Fechou a venda. E depois?',o:[
+  {t:'Parto para o próximo cliente',m:[]},
+  {t:'Acompanho a entrega e como ele ficou',m:['p22']},
+  {t:'Peço indicação de outras pessoas',m:['p23']},
+  {t:'Acompanho e depois peço indicação',m:['p22','p23']}]}
+];
+var qzState=null;
+function qzSeed(str,i){ var h=7; str=String(str)+':'+i; for(var k=0;k<str.length;k++)h=(h*31+str.charCodeAt(k))>>>0; return h; }
+function qzOrder(vid,i,len){ var idx=[],h=qzSeed(vid,i); for(var k=0;k<len;k++)idx.push(k);
+ for(var k=len-1;k>0;k--){ h=(h*1103515245+12345)>>>0; var j=h%(k+1); var t=idx[k]; idx[k]=idx[j]; idx[j]=t; } return idx; }
+function abrirQuiz(vid){ var v=getVend().filter(function(x){return x.id===vid;})[0]; if(!v){toast('Vendedor não encontrado');return;}
+ qzState={vid:vid,nome:v.nome,i:0,resp:[]}; byId('modal').classList.add('on','quiz'); modalSaveFn=null;
+ byId('modalTitle').textContent='Diagnóstico de '+v.nome.split(' ')[0]; byId('modalSub').textContent='Responda pensando no seu dia a dia. Não existe resposta certa.';
+ qzRender(); }
+function qzRender(){ var st=qzState; if(!st)return; var body=byId('modalBody');
+ if(st.i>=QUIZ.length){ qzFinish(); return; }
+ var q=QUIZ[st.i]; var ord=qzOrder(st.vid,st.i,q.o.length); var pct=Math.round(st.i/QUIZ.length*100);
+ var letras=['A','B','C','D','E'];
+ var h='<div class="qz-anim"><div class="qz-top"><span class="qn">'+(st.i+1)+' de '+QUIZ.length+'</span><div class="qz-bar"><i style="width:'+pct+'%"></i></div></div>'
+  +'<div class="qz-ctx"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>'+esc(q.ctx)+'</div>'
+  +'<h3 class="qz-q">'+esc(q.q)+'</h3><p class="qz-sub">Escolha o que mais parece com o que você faz de verdade.</p><div class="qz-opts">';
+ ord.forEach(function(oi,pos){ h+='<button class="qz-opt" data-qz="'+oi+'"><span class="ql">'+letras[pos]+'</span><span>'+esc(q.o[oi].t)+'</span></button>'; });
+ h+='</div></div>'; body.innerHTML=h;
+}
+function qzAnswer(oi){ var st=qzState; if(!st)return; st.resp.push({q:st.i,o:oi}); st.i++; qzRender(); }
+function qzFinish(){ var st=qzState; var prat={};
+ st.resp.forEach(function(r){ var q=QUIZ[r.q]; if(!q)return; (q.o[r.o].m||[]).forEach(function(id){ prat[id]=1; }); });
+ var lista=Object.keys(prat);
+ var list=getVend(); var v=list.filter(function(x){return x.id===st.vid;})[0];
+ if(v){ v.praticas=lista; v.quizEm=Date.now(); v.quizResp=st.resp; setVend(list); }
+ audit('aplicou o diagnóstico de cenários',st.nome);
+ var e=activeEmp(); var d=e?descobrirMetodo(e):{ok:false,n:0};
+ var faltam=Math.max(0,4-(d.n||0));
+ var body=byId('modalBody');
+ body.innerHTML='<div class="qz-done qz-anim"><div class="dc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg></div>'
+  +'<h3>Prontinho, obrigado!</h3><p>As respostas de '+esc(st.nome.split(' ')[0])+' foram guardadas. Quanto mais gente responde, mais preciso fica o método da casa.</p>'
+  +(d.ok?'<div class="qz-badge"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>O método da empresa já pode ser revelado</div>':'<div class="qz-badge">Faltam '+faltam+' pessoa(s) para revelar o método</div>')
+  +'<div class="qz-cta"><button class="btn" data-act="quiz-close">Fechar</button>'+(d.ok?'<button class="btn gold" data-act="quiz-ver">Ver o método da empresa</button>':'')+'</div></div>';
+ qzState=null;
+}
+document.addEventListener('click',function(ev){
+ var o=ev.target.closest('[data-qz]'); if(o){ qzAnswer(+o.dataset.qz); return; }
+ var t=ev.target.closest('[data-act]'); if(!t)return; var a=t.dataset.act;
+ if(a==='quiz-run'){ abrirQuiz(t.dataset.id); }
+ else if(a==='quiz-close'){ closeModal(); reRender(); }
+ else if(a==='quiz-ver'){ closeModal(); go('descoberta'); }
+ else if(a==='quiz-me'){ if(currentUser&&currentUser.vendedorId)abrirQuiz(currentUser.vendedorId); }
+});
 /* ============ WIRING ============ */
 byId('nav').addEventListener('click',function(e){ var b=e.target.closest('.nav-item'); if(b){ currentView=b.dataset.view; go(b.dataset.view); } });
 var origGo=go; go=function(v){ currentView=v; origGo(v); };
@@ -2100,7 +2246,7 @@ byId('login').addEventListener('click',function(e){ var b=e.target.closest('[dat
  if(a==='setup')createAdmin(); else if(a==='login')doLogin(); else if(a==='showreset')byId('authPanel').innerHTML=resetHtml(); else if(a==='reset')doReset(); else if(a==='backlogin')renderAuth(); else if(a==='wipe')wipeAll(); });
 byId('login').addEventListener('keydown',function(e){ if(e.key==='Enter'){ var b=byId('authPanel').querySelector('.lg-enter'); if(b)b.click(); } });
 
-var APP_VERSION='Multiplicadora 2107.05';
+var APP_VERSION='Multiplicadora 2107.06';
 function boot(){ var vs=byId('verStamp'); if(vs)vs.textContent=APP_VERSION; var vl=byId('verStampLg'); if(vl)vl.textContent=APP_VERSION;
   setupSite();
   setTimeout(function(){ var s=byId('splash'); if(s)s.classList.add('done'); },RM?0:1350);
