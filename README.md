@@ -1918,3 +1918,26 @@ entrevistar, disc, fit cultural, faça vários e inclua indicadores"*.
      painel passou a dizer com todas as letras que quem executa é a
      equipe do cliente, e que o trabalho da A! é fazer com que ela
      consiga, e cobrar até a rotina andar sozinha.
+
+240. **A COF tem 23 incisos, e o sistema dizia 16.** Achado ao montar o
+     pacote de franquia que ela pediu para imprimir. A conta de 16 é da lei
+     velha, a 8.955/94, que tinha 15 incisos. A Lei 13.966/2019 pede **23**,
+     e a numeração inteira andou junto: o que era o inciso XIII (marca no
+     INPI) virou XIV, o XII (suporte) virou XIII, o X (território) virou XI
+     e o V (perfil do franqueado) virou VI. O sistema errava isso em dez
+     lugares, e um deles era **a cláusula 2ª do contrato de formatação**,
+     que ia assinada para o cliente citando a base legal errada. Os quatro
+     incisos que a lei de 2019 acrescentou e que não existiam no acervo são
+     XIX (cotas mínimas de compra), XX (conselho de franqueados), XXI
+     (limitação à concorrência durante a vigência) e XXII (prazo e
+     condições de renovação), mais o XXIII, da oferta a órgão público, que
+     é a hipótese nova que a lei passou a admitir. Documento que cita
+     inciso errado é documento que o advogado do candidato usa contra a
+     rede.
+
+241. **O pacote de franquia para imprimir.** Um documento só, no padrão
+     visual do sistema, com a proposta, o orçamento aberto linha a linha, o
+     formulário dos 31 documentos com três estados para marcar a caneta
+     (tem, parcial, não tem), a conferência dos 23 incisos da COF e o
+     diagnóstico dos 10 pilares. Sai em 15 páginas A4 com o fundo escuro
+     preservado na impressão. Vive em `documentos/`.
