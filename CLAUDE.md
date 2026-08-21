@@ -47,6 +47,74 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### "Ainda ta morto": o passe de desenho que faltava (2108.03)
+A Carla olhou o tema claro pronto: "ainda ta morto, parece que fiquei com
+preguica de fazer". Ela estava certa, e o diagnóstico é de composição, não
+de cor. **O passe anterior foi de engenharia, não de desenho:** um sistema
+de tema medido, com contraste perfeito em 16 telas, entregando uma tela
+bege com cartão branco. Contraste bom não é a mesma coisa que ter vida.
+
+**1. Não havia profundidade, e essa é a causa principal.** Papel `#f4efe6`
+contra cartão branco dá **1,10:1**. Num celular, na rua, isso é invisível:
+doze cartões viram um bloco bege só. O papel desceu um degrau (`#eee6d8`)
+e as sombras dobraram, porque num tema claro é a **sombra** que faz o
+cartão existir, e as minhas estavam em 6% de opacidade, educadas demais
+para papel quente.
+
+**2. Metade dos blocos AFUNDAVA, e o motivo é o passe anterior.** `--sup`
+é o degradê que pinta cartão, ferramenta, bloco do mapa, recado e evento:
+quinze famílias saem dele. No escuro ele é um véu de LUZ, então levanta.
+Parametrizado, no claro ele virou véu de TINTA, ou seja passou a deixar
+cada bloco um tico **mais escuro** que o papel. Foi daí que veio o bege
+sobre bege. No claro ele é branco, que é o que "mais alto" quer dizer
+quando a luz vem de cima.
+
+**3. Não havia cor, só bege e ouro.** A água de área estava em 6% de
+opacidade, ou seja não estava lá. Agora a cor tem trabalho: **cada uma das
+13 áreas do mapa carrega a família dela**, e as linhas de sugestão do
+mentor pintam o ícone com a cor do destino. A pessoa reconhece para onde
+vai antes de ler, e a mesma cor a espera do outro lado. Cor que informa,
+não cor que enfeita.
+
+**4. Não havia contraste de escala.** Tudo entre 13,5 e 20px, com um 23px
+solitário: o olho não tinha onde pousar. A saudação virou display (ela é a
+única linha que chama a pessoa pelo nome) e o tempo da sessão virou número
+grande, porque "20 minutos" é o dado que decide se ela começa hoje.
+**Dois degraus novos, 34 e 44, escolhidos e não sobrados de um `clamp`:**
+`clamp` com `vw` devolve um número diferente em cada largura, e escala que
+muda sozinha não é escala. São 10 tamanhos agora, de propósito.
+
+**5. O herói do dia era a coisa mais morta da tela**, sendo a primeira
+decisão do dia. A cor do pilar já chegava nele (`--pc`) e não era usada
+para nada. Agora o cabeçalho é uma banda na cor do pilar e o corpo é
+branco.
+
+**O movimento que existia era invisível.** O app já tinha transição de
+tela e barra que cresce, mas nada disso aparece numa tela parada. O brilho
+que atravessa o botão principal acontece **em repouso**, chama o olho para
+a única ação que importa, e para depois de três passadas para não virar
+pisca-pisca. Some inteiro para quem pediu menos movimento.
+
+**Dois defeitos meus que a medição pegou.** O medalhão do pilar saiu com
+letra branca, por reflexo: as três cores de pilar são claras, e o medidor
+devolveu **2,28:1**. Com tinta escura os três passam com folga (10,56 no
+ouro, 7,43 no azul, 9,30 no jade). E o wordmark virou uma barra preta,
+porque o atalho `background:` reseta o `background-clip`, então o degradê
+pintou a caixa inteira com o texto transparente por cima.
+
+**Um defeito de teste que quase me fez medir o app errado.** O servidor de
+teste escolhia o arquivo "mais novo" pela data do arquivo, e restaurar uma
+versão antiga do git dá a ela data nova. Pior: o nome é `DDMM`, então
+`2407` parece maior que `2108` quando julho vem **antes** de agosto. Agora
+ele lê mês, dia e versão, nessa ordem.
+
+**Números:** 0 falhas de contraste nas 16 telas nos dois temas, conferidas
+no pixel; 24 medições da porta; 27 do diagnóstico em cada tema; 50 da
+auditoria, 46 da entrada, 43 do perfil, 44 da mesa, 41 das lojas, 8 de
+XSS; 0 erros de JavaScript, 0 travessões, 0 cortes de 320 a 430px nos dois
+temas, 5 raios, 10 tamanhos, 6 espaçamentos e 0 alvos abaixo de 44x44 em
+503.
+
 ### O app ganhou tema claro, e ganhou um sistema de tema (2108.02)
 A Carla: "quero tema claro, quero cor, quero cards, quero movimento, quero
 algo realmente moderno e atraente, visualmente bonito e agradavel... pense
