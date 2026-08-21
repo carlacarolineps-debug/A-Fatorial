@@ -20,6 +20,7 @@ const E={name:'Carla Caroline',xp:2400,level:5,createdAt:Date.now()-40*864e5,
     await c.addInitScript(`window.__SB.acesso={status:'active',user_id:'u',email:'a@x.com'};
       window.__SB.sessao={user:{id:'u',email:'carla@afatorial.com',user_metadata:{}}};
       localStorage.setItem('ob:dono','u');
+      localStorage.setItem('ob:tema', ${JSON.stringify(process.argv[3]||'escuro')});
       localStorage.setItem('operacaoblindada:state:v1', ${JSON.stringify(JSON.stringify(E))});`);
     const p=await c.newPage();
     await p.goto(U); await p.waitForTimeout(2400);

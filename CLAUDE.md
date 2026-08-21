@@ -47,6 +47,103 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### O app ganhou tema claro, e ganhou um sistema de tema (2108.02)
+A Carla: "quero tema claro, quero cor, quero cards, quero movimento, quero
+algo realmente moderno e atraente, visualmente bonito e agradavel... pense
+mais que eu, faca alem do que eu pedi".
+
+**O que eu fiz além: não pintei o app de claro, dei um sistema de tema a
+ele.** Repintar 4.000 linhas de CSS na mão resolveria hoje e apodreceria
+na semana seguinte, porque toda regra nova voltaria a nascer só do tema
+escuro. O que existe agora são dois temas de verdade, mais **automático**,
+que segue o aparelho e troca sozinho ao anoitecer.
+
+**A medição veio antes: 2.054 usos de token contra 850 literais de cor.**
+E os literais quase todos diziam a mesma coisa. Os brancos, 90 deles,
+estavam em opacidade 0,10 ou menos: isso não é branco, é **véu de
+elevação**. O ouro aparecia 101 vezes, o halo quente 94. Quatro ideias,
+não 850 cores. Viraram quatro triplas em variável (`--c-veu`, `--c-fio`,
+`--c-ouro`, `--c-halo`), com o alfa ficando onde estava, porque é o alfa
+que carrega a intenção de cada lugar. **318 literais trocados por script**,
+e trocar de tema virou trocar quatro linhas.
+
+**O claro não é o escuro invertido, e essa é a decisão que governa tudo.**
+Num tema escuro a elevação é feita de LUZ: um véu branco no topo do cartão
+finge que existe uma lâmpada em cima. Num tema claro a luz já está em
+tudo, e o que separa uma camada da outra é SOMBRA. Inverter a cor sem
+inverter esse modelo entrega aquele claro sujo, de cinza sobre cinza, que
+é o motivo de a maioria dos temas claros ser feia. Aqui o papel é quente
+(`#f4efe6`, porque branco puro cansa), o cartão é branco de verdade, e o
+brilho quente do escuro virou sombra quente.
+
+**O ouro faz dois trabalhos opostos, e foi aí que quase tudo quebrou.**
+Como texto ele precisa escurecer sobre papel; como preenchimento precisa
+continuar ouro, porque quem contrasta ali é a letra escura em cima dele.
+Escurecer os dois deixaria 20 botões com letra preta sobre mostarda. As
+exceções são **geradas** por `tools/tema-preenchimento.py` a partir das
+próprias regras do app, e não escritas à mão: são 20 espalhadas por três
+arquivos, e uma esquecida é um botão ilegível que só aparece depois, no
+aparelho de alguém.
+
+**Um defeito que eu mesmo criei e o teste pegou.** A primeira versão do
+gerador lia regra por regra, e devolveu fundo de ouro para `.gtab.on`, que
+uma regra posterior já tinha transformado em aba de texto com fio embaixo:
+resultado, ouro escuro sobre ouro, 2,58:1. O gerador passou a ler a
+**cascata**, e não a regra: vale o último fundo declarado, que é o que o
+navegador obedece.
+
+**Os dez naipes precisavam existir nos dois temas sem mudar os dados.** As
+cores dos naipes moram em `BNAIPES` e chegam por `style="--sc:#2fb889"`.
+Sobre papel, a mais clara delas dá 2,4:1. Escurecer no arquivo de dados
+estragaria o tema escuro, então a cor é misturada com a tinta na hora de
+virar TEXTO, e só texto: fio, brilho e borda continuam com a cor cheia,
+que é o que dá identidade ao naipe. **48% foi medido, não escolhido**: é a
+mistura em que os dez passam de 4,5:1, incluindo o verde-limão dos
+Resultados, que é o pior caso.
+
+**Cor escrita dentro do JavaScript não tem como um tema corrigir**, porque
+`style="color:..."` ganha de qualquer regra. Os pontos que faziam isso (a
+carta do dia, os três pilares, duas linhas da porta) passaram a dizer QUAL
+é a cor, e o CSS decide COMO ela vira texto.
+
+**A porta estava fora de tudo.** A tela de entrada tem CSS próprio de
+propósito: ela precisa aparecer certa mesmo que o resto falhe em carregar.
+O preço é que ela ficou de fora de todo passe de conserto, e a medição no
+pixel achou o que ninguém tinha visto: **7 textos abaixo do contraste no
+claro, 1 no escuro** (o rodapé, em 3,68:1, ali desde sempre), e os links
+com **28px e 15px de região de toque**, contra os 44 que a Apple pede.
+Nesta tela errar o toque quer dizer não entrar no app. Tudo corrigido, com
+o claro morando dentro do próprio motor, não no CSS do app.
+
+**A conta de contraste passou a ler o pixel, e não o CSS.** Toda conta
+feita a partir de `background-color` mente quando o fundo é gradiente: ela
+reprova botão de ouro (que devolve transparente) e reprova número dentro
+de anel (que devolve a parada mais escura do degradê), com a tela
+perfeita. Não havia decodificador de PNG neste ambiente, então
+`testes/pixel.cjs` traz um mínimo: agora toda reprovação é fotografada com
+os glifos apagados e conferida na cor que de fato foi pintada. Foi assim
+que os **60 casos "a conferir a olho" de 1108.01 viraram número**.
+
+**A cor que ela pediu ficou sendo orientação, e não enfeite.** O app já
+marcava a área em `body[data-area]`; no claro a página inteira recebe uma
+água da cor da área, coisa que no escuro seria sujeira. A pessoa passa a
+saber onde está pela cor da página.
+
+**O seletor mostra amostra, não nome.** Ler "claro" e "escuro" obriga a
+experimentar; ver o pedacinho de papel com o fio de ouro em cima responde
+antes do toque. A do automático é partida ao meio, que é literalmente o
+que ela faz. A escolha mora no aparelho, e não na conta, porque precisa
+ser lida **antes da primeira pintura**: tema que chega junto com o resto
+pisca preto na cara de quem escolheu claro. Isso também quer dizer que
+quem usa o celular no claro e o computador no escuro tem os dois.
+
+**Números:** 0 falhas de contraste nas 16 telas **nos dois temas**,
+conferidas no pixel; 24 medições da porta, 0 falhas; 27 do diagnóstico em
+cada tema; 50 da auditoria, 46 da entrada, 43 do perfil, 44 da mesa, 41
+das lojas, 8 de XSS; 0 erros de JavaScript, 0 travessões, 0 cortes de 320
+a 430px nos dois temas, e as escalas de 1108.01 intactas (5 raios, 8
+tamanhos, 6 espaçamentos, 0 alvos abaixo de 44x44 em 503).
+
 ### O diagnóstico parou de aceitar resposta no automático (2108.01)
 A Carla: "como a pessoa vai se ver aqui? o preguicoso vai abrir uma unica
 vez de tanta coisa de uma vez so, ela acaba respondendo muitas coisas sem

@@ -113,3 +113,33 @@ O que ele mede, e por que cada item está aí:
 O teste responde de verdade: ele clica nas opções, deixa a pausa disparar e
 sai dela pelo caminho de quem segue mesmo assim. Teste que fabrica o estado
 final por dentro aprova o que vai quebrar na mão de quem usa.
+
+
+---
+
+# O tema (`tema.cjs`, `porta.cjs`, `pixel.cjs`)
+
+`tema.cjs ambos` roda as 16 telas nos dois temas e procura duas famílias
+de defeito: texto que não se lê, e superfície que ficou do tema errado (no
+claro, um bloco mais escuro que o papel quase sempre é um literal de tema
+escuro que sobreviveu).
+
+`porta.cjs` faz o mesmo com a tela de entrada, que tem CSS próprio e por
+isso ficou de fora de todos os passes de conserto até 2108.02.
+
+**`pixel.cjs` é o que faz os dois valerem alguma coisa.** Toda conta de
+contraste tirada de `background-color` mente quando o fundo é gradiente:
+ela reprova botão de ouro (que devolve transparente) e reprova número
+dentro de anel (que devolve a parada mais escura do degradê), com a tela
+perfeita. Aqui, toda reprovação é fotografada com os glifos apagados e
+conferida na cor que de fato foi pintada. Não havia decodificador de PNG
+neste ambiente, então tem um mínimo escrito ali: assinatura, cabeçalho,
+IDAT inflado e um byte de filtro por linha.
+
+Rodar assim:
+
+    node tema.cjs ambos
+    node porta.cjs
+    node diagnostico.cjs claro
+    node diagnostico.cjs escuro
+    node cortes.cjs 320 claro

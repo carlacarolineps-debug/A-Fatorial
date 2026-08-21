@@ -28,6 +28,7 @@ function T(nome, cond, detalhe){
   await c.addInitScript(`window.__SB.acesso={status:'active',user_id:'u',email:'a@x.com'};
     window.__SB.sessao={user:{id:'u',email:'carla@afatorial.com',user_metadata:{}}};
     localStorage.setItem('ob:dono','u');
+    localStorage.setItem('ob:tema', ${JSON.stringify(process.argv[2]||'escuro')});
     localStorage.setItem('operacaoblindada:state:v1', ${JSON.stringify(JSON.stringify(E))});`);
   const p=await c.newPage();
   const erros=[];
@@ -122,13 +123,26 @@ function T(nome, cond, detalhe){
   T('ordenadas da mais fraca para a mais forte',
      vals.every((v,i)=>i===0||v>=vals[i-1]), vals.join(' < '));
 
+  /* A rampa vive em token, entao ela muda de sentido com o tema: sobre
+     carbono clareia, sobre papel escurece. O teste confere a REGRA, e nao
+     um valor fixo, senao ele so provaria o tema em que foi escrito. */
   const cores=await p.$$eval('.dg2-fill', els=>els.map(e=>getComputedStyle(e).backgroundColor));
+  const lum=c=>{const m=c.match(/[\d.]+/g).map(Number);
+    const f=x=>{x/=255;return x<=0.04045?x/12.92:Math.pow((x+0.055)/1.055,2.4)};
+    return 0.2126*f(m[0])+0.7152*f(m[1])+0.0722*f(m[2]);};
+  const claro = await p.evaluate(()=>document.documentElement.getAttribute('data-tema')==='claro');
+  const foco = await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--dg-foco').trim());
   T('a mais fraca sai da rampa e vira coral (ênfase)',
-     cores[0]==='rgb(224, 138, 114)', cores[0]);
-  T('as outras quatro são a mesma cor em intensidades diferentes',
-     new Set(cores.slice(1)).size>=2 && cores.slice(1).every(c=>{
-       const m=c.match(/\d+/g); return +m[0]>+m[1] && +m[1]>+m[2];   // ouro: R>G>B
-     }), cores.slice(1).join(' | '));
+     lum(cores[0])!==lum(cores[1]) && cores[0].match(/\d+/g)[0]/1 > cores[0].match(/\d+/g)[2]/1 &&
+     Math.abs(lum(cores[0])-lum(cores[1]))>0.005, cores[0]+' (token --dg-foco: '+foco+')');
+  const resto=cores.slice(1).map(lum);
+  T('as outras quatro são a mesma cor, com a intensidade seguindo a nota',
+     cores.slice(1).every(c=>{const m=c.match(/\d+/g); return +m[0]>+m[1] && +m[1]>+m[2];}),
+     cores.slice(1).join(' | '));
+  T(claro ? 'no claro a rampa ESCURECE conforme a nota sobe'
+          : 'no escuro a rampa CLAREIA conforme a nota sobe',
+     resto.every((v,i)=>i===0 || (claro ? v<=resto[i-1]+1e-6 : v>=resto[i-1]-1e-6)),
+     resto.map(v=>v.toFixed(3)).join(' -> '));
   T('a mais fraca leva a etiqueta de por onde começar',
      (await p.locator('.dg2-b.foco .dg2-tag').innerText()).toLowerCase().includes('comece'));
 
