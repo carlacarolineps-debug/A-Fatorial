@@ -47,6 +47,86 @@ regras sem mexer na indentação do código). Rode-o se algum travessão voltar.
   agora absorvida no produto unificado acima. Mantida como referência.
 - `index.html`: Sistema de Gestão A! Fatorial (plataforma, tema gamer/neon).
 
+### O diagnóstico parou de aceitar resposta no automático (2108.01)
+A Carla: "como a pessoa vai se ver aqui? o preguicoso vai abrir uma unica
+vez de tanta coisa de uma vez so, ela acaba respondendo muitas coisas sem
+conciencia, o teste nao é preciso, pode ocorrer muitas falhas e com isso,
+dar um resultado que nao condiz com a realidade"; e, três vezes, sobre a
+tela: "esta muito feio e amador", "foco total no visual, preciso de algo
+moderno, sexy, atrativo".
+
+**A escala mudou de assunto, e é isso que conserta a precisão.** Ela era
+de concordância ("discordo totalmente" a "concordo totalmente"), que mede
+opinião sobre si mesmo, e opinião sobre si mesmo é justamente o que a
+pessoa erra. Agora é escala de evidência (**Nunca fiz isso**, **Já pensei,
+mas não fiz**, **Faço às vezes, sem regra**, **Faço quase sempre**, **Faço
+sempre, e está escrito**): cada degrau descreve um comportamento
+observável, então responder exige lembrar de um fato, não escolher um
+humor. Isso tem nome na literatura de avaliação, **BARS**, e é a técnica
+que reduz viés de julgamento em cerca de 28%.
+
+**O avanço automático saiu, e no lugar entrou o eco.** Antes o toque
+selecionava e a tela pulava sozinha em 240ms: o dedo batia numa coluna
+fixa e 19 frases viravam 19 batidas no mesmo lugar. Agora a tela fica, e
+a resposta volta **escrita por extenso**, em ouro, com o botão de seguir
+grudado nela. Ler "Faço às vezes, sem regra" com o próprio nome é o que
+transforma o toque em decisão.
+
+**O app percebe quando a resposta entra no automático, e interrompe.**
+Três sinais, os mesmos que a psicometria usa para achar resposta
+desatenta: **fila** (cinco iguais seguidas), **pressa** (resposta em menos
+de 1,5 segundo, que é menos do que leva para ler a frase) e
+**contradição** (duas frases que medem a mesma coisa recebendo notas
+opostas: "Estratégia escrita" contra "Processos documentados", achadas
+pelo nome da dimensão para que mexer na ordem da lista não quebre a
+checagem em silêncio). Quando dispara, a pergunta some e entra uma tela de
+conversa, não um alerta vermelho: ninguém gosta de ser acusado de
+desatenção, então as duas saídas têm o mesmo peso ("Voltar e rever" e
+"Está certo, seguir").
+
+**O resultado passou a dizer o quanto ele vale.** A confiança começa em
+100% e desce **por evidência, nunca por suspeita vaga**: cada desconto
+leva o fato do lado ("4 de 19 respondidas em menos de 1,5 segundo"). Ter
+sido avisada e voltado conta a favor, e não contra. Abaixo de 65% a tela
+oferece refazer, porque trabalhar em cima de um número torto é pior do que
+gastar três minutos de novo.
+
+**Um defeito que fazia a medição inteira ser código morto.** `qzConcluir`
+chamava `qzFechar(true)` **antes** de `qzMedicao()`, e `qzFechar` zera o
+`QZ` que a medição lê: a confiança voltava `null` sempre. A tela teria
+ficado prometendo uma leitura que nunca apareceria. Achado pelo teste
+novo, corrigido tirando a medição antes de fechar.
+
+**O radar saiu do resultado, e a razão é de forma, não de gosto.** O
+trabalho daquele dado é comparar cinco magnitudes e achar a mais fraca, e
+para isso a **barra ordenada** é a forma certa: o olho compara comprimento
+com precisão e ângulo não. O radar continua vivo onde comparar **duas**
+formas é o assunto (evolução e os dez naipes da Bússola).
+
+**A cor foi calculada, não escolhida.** Cinco cores diferentes seriam
+paleta categórica, e o validador reprovou o conjunto: o par coral/ouro
+fica com 3,5 de distância para quem tem deuteranopia, ou seja a pessoa não
+distingue. O que ficou é **uma cor só em cinco intensidades**
+(`#8d723a` a `#efdcb0`), com claridade OKLab sempre crescente (0,566 a
+0,899) e todo passo acima de 3:1 contra o trilho, mais o mais fraco em
+**coral**, que é ênfase e carrega a etiqueta "Comece por aqui". A leitura
+vira "onde eu estou" e "por onde eu começo", em uma olhada.
+
+**E as barras ganharam eixo.** Sem as guias de 1 a 5 dentro do trilho
+aquilo é barra de progresso, e barra de progresso não se compara: vê-se
+"cheio" e "menos cheio" sem saber de quanto. Com as guias, mais os números
+embaixo e a linha que ensina a escala, o comprimento vira medida. O número
+herói ganhou aurora atrás: sem ela a nota boia no preto e a tela abre sem
+centro de gravidade.
+
+**Números:** 26 conferências novas do diagnóstico (abertura, escala, eco,
+pausa, resultado, contraste com as paradas do gradiente lidas uma a uma,
+alvos e largura), 50 da auditoria, 46 da entrada, 43 do perfil, 44 da
+mesa, 41 das lojas, 8 de XSS, 0 falhas, 0 erros de JavaScript, 0
+travessões, e as escalas de 1108.01 intactas (5 raios, 8 tamanhos, 6
+espaçamentos, 0 alvos abaixo de 44x44, 0 falhas de contraste em fundo
+sólido).
+
 ### A API da TMB traz quem comprou antes (1108.05)
 A Carla: "quero que me de os passos a passos todos que faltam nao so
 esses e tambem acabei de ver que tem uma API da TMB".

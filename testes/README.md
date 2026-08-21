@@ -88,3 +88,28 @@ a rolagem e o tamanho. Os números da versão 0508.06:
 
 Vale rodar de novo depois de qualquer mudança grande: número que piora sem
 ninguém perceber é como o app fica lento com o tempo.
+
+
+---
+
+# O diagnóstico (`diagnostico.cjs`)
+
+Abre as telas de verdade, uma por uma, e confere o que o desenho promete.
+26 conferências, e cinco retratos em `z_diag-*.png`.
+
+O que ele mede, e por que cada item está aí:
+
+| Conferência | O defeito que ela pega |
+|---|---|
+| a escala é de evidência | voltar para "concordo totalmente" mede opinião, e opinião sobre si mesmo é o que a pessoa erra |
+| a tela NÃO pula sozinha | o avanço automático transformava 19 frases em 19 batidas na mesma coluna |
+| o eco traz a resposta por extenso | selecionar sem ler o que foi selecionado não é decidir |
+| o app interrompe no automático | cinco iguais seguidas, ou resposta em menos de 1,5 segundo |
+| a medição chega inteira ao resultado | foi assim que apareceu o `qzFechar` zerando o `QZ` antes de medir |
+| barras ordenadas, sem radar | ângulo não se compara, comprimento sim |
+| a mais fraca em coral, com etiqueta | é a resposta para "por onde eu começo" |
+| contraste com o gradiente lido parada a parada | a `background-color` de um botão de ouro é transparente, e a conta ingênua reprova o que está certo |
+
+O teste responde de verdade: ele clica nas opções, deixa a pausa disparar e
+sai dela pelo caminho de quem segue mesmo assim. Teste que fabrica o estado
+final por dentro aprova o que vai quebrar na mão de quem usa.
