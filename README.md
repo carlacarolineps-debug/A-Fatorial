@@ -1941,3 +1941,35 @@ entrevistar, disc, fit cultural, faça vários e inclua indicadores"*.
      (tem, parcial, não tem), a conferência dos 23 incisos da COF e o
      diagnóstico dos 10 pilares. Sai em 15 páginas A4 com o fundo escuro
      preservado na impressão. Vive em `documentos/`.
+
+242. **A proposta e o checklist viraram documentos separados.** Pedido
+     dela: são dois públicos e dois momentos. A proposta é o que ela
+     entrega para vender; o checklist é o que o cliente preenche e
+     devolve. Juntos um atrapalhava o outro, porque ninguém imprime dez
+     cópias de uma proposta só para ter dez checklists. Os dois saem de
+     `documentos/montar.py`, e não de dois HTML escritos à mão: os 31
+     documentos, os 23 incisos e os 10 pilares aparecem nos dois lugares,
+     e duplicar isso à mão é exatamente como o sistema acabou dizendo "16
+     itens" da COF em dez lugares e errando em todos.
+
+243. **O desenho estava com sotaque de página gerada.** A leitura dela foi
+     "letras enormes, não parece profissional, parece ChatGPT", e estava
+     certa: a primeira versão levou o desenho da tela para o papel, com
+     cartão de canto arredondado e sombra, caixa pastel colorida a cada
+     dois parágrafos, título de 20px e corpo de 10,5pt. Documento impresso
+     de consultoria tem outro vocabulário: corpo de 8,6pt, entrelinha
+     curta, hierarquia por peso e caixa alta espaçada em vez de tamanho,
+     fio de cabelo no lugar de moldura, tabela no lugar de lista solta, e
+     o dourado como fio de um ponto só. O checklist virou tabela de
+     auditoria, com as colunas Tem, Parcial e Não tem. A proposta caiu de
+     15 páginas para **2**, e o checklist para **6**.
+
+244. **Três defeitos de impressão, e o pior era invisível na tela.** A
+     página A4 tem 794px de largura em CSS, abaixo do ponto de quebra de
+     celular: o `@media(max-width:820px)` estava valendo no papel, e a
+     impressão herdava o desenho de tela estreita, com as faixas de
+     resultado empilhadas. Faltava o `screen and`. Os outros dois eram
+     páginas quase vazias: o rodapé e o bloco de assinatura iam sozinhos
+     para a folha seguinte, empurrados pelo `margin-top` de tela somado ao
+     `break-inside:avoid`. Existe agora uma prova que abre os dois PDFs e
+     acusa qualquer página com menos de 1,2% de tinta.
