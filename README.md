@@ -225,3 +225,57 @@ moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem perm
 - **Usuários / acessos**: `ADMIN_USER`, `normalizaUsuarios`, `salvarUsuarios`,
   `renderUsuarios`, `usuarioSalvar`, `colaboradorNovo` (persistência em
   `localStorage` chave `af_usuarios`; em produção, isso vai para o backend).
+
+---
+
+# Ideia Que Vende — landing page (`ideia-que-vende.html`)
+
+Página única, sem build, autocontida (fontes, logo e ícones embutidos no
+próprio arquivo). Abra `ideia-que-vende.html` no navegador ou publique o
+arquivo direto — não há dependência externa nem requisição a terceiros.
+
+## Identidade
+
+- Preto `#08080a` + branco quente `#f6f4ef` + laranja da marca `#ff8309`
+  (amostrado do logotipo original). As seções alternam fundo preto e branco.
+- Tipografia: **Sora** (títulos), **Inter** (texto), **JetBrains Mono**
+  (rótulos, numerais e etiquetas) — as três embutidas em base64.
+- Monograma **ID** refeito em SVG vetorial (`<symbol id="mark">`), usado no topo,
+  no CTA final e no favicon. O logotipo completo aparece no rodapé.
+
+## Componentes integrados
+
+- **Hero com shader WebGL2** (`#shader`, `#shader2`): nebulosa procedural
+  recolorida para o laranja da marca, com interação por ponteiro, pausa quando
+  sai da tela ou a aba fica oculta, `devicePixelRatio` limitado e fallback em
+  gradiente CSS (`.hero-fallback` + classe `html.no-gl`) quando não há WebGL.
+- **Moving dot card** (`.outer`/`.dot`/`.card`/`.ray`/`.line`): o ponto percorre
+  a borda (`@keyframes moveDot`) e os números sobem com `requestAnimationFrame`
+  disparado por `IntersectionObserver`. Os valores são estruturais do método
+  (6 etapas, 8 entregas, 4 fases, 3 planos) — não são métricas de resultado.
+
+## Onde configurar
+
+No topo do `<script>` existe o objeto **`CONFIG`**:
+
+| Campo | Para que serve |
+|-------|----------------|
+| `whatsapp` | número com DDI+DDD, só dígitos (ex.: `5511999999999`). Vazio = o link abre o WhatsApp sem contato definido. |
+| `email`, `instagram`, `linkedin`, `youtube` | links do rodapé. Vazio = o item vira texto, sem link quebrado. |
+| `checkouts.start/pro/premium` | URLs de checkout TMB. Vazio = abre o modal que leva à qualificação. |
+| `formEndpoint` | URL opcional que recebe a aplicação por `POST` (JSON). Vazio = só o handoff no WhatsApp. |
+
+## Formulário de qualificação
+
+Mantém a pontuação original (`scoreLead` / `recommendedPlan`) e acrescenta
+máscara de telefone, validação campo a campo, barra de progresso do
+preenchimento e mensagem de retorno com a indicação inicial de plano. O envio
+não representa aprovação — o texto da página deixa isso explícito.
+
+## Acessibilidade e desempenho
+
+- `prefers-reduced-motion` desliga animações, revelações e o shader.
+- Navegação por teclado com *skip link*, `:focus-visible` e menu com `aria-expanded`.
+- Sem imagens pesadas: o hero antigo era um print de 163 KB com áreas clicáveis
+  invisíveis — foi substituído por HTML real (melhor para SEO, leitor de tela e
+  responsividade). Há `JSON-LD` de `Organization`, `Service` e `FAQPage`.
