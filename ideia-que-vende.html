@@ -122,7 +122,12 @@ html{scrollbar-color:#2f2f38 #111114;scrollbar-width:thin}
   box-decoration-break:clone;-webkit-box-decoration-break:clone;
   transition:background-size .9s var(--ease) .15s;
 }
-.dark .hl,.dark-2 .hl,.result .hl,.final .hl{color:var(--o);background-image:linear-gradient(transparent 54%,rgba(255,131,9,.22) 54%)}
+.dark .hl,.dark-2 .hl,.result .hl,.final .hl{color:var(--o);background-image:none;position:relative}
+.dark .hl::after,.dark-2 .hl::after,.result .hl::after,.final .hl::after{
+  content:"";position:absolute;left:0;right:0;bottom:-.02em;height:5px;border-radius:3px;background:var(--o);opacity:.34;
+  transform:scaleX(0);transform-origin:0 50%;transition:transform .9s var(--ease) .2s;
+}
+.in .hl::after,.no-anim .hl::after{transform:scaleX(1)}
 .in .hl,.no-anim .hl{background-size:100% 100%}
 
 /* cabeçalho de seção: grade editorial assimétrica */
@@ -154,6 +159,24 @@ html{scrollbar-color:#2f2f38 #111114;scrollbar-width:thin}
 .btn-ink:hover{border-color:var(--ink);background:var(--ink);color:var(--white)}
 .btn-full{width:100%}
 .btn-sm{padding:11px 18px;font-size:12.5px}
+.btn-xl{
+  padding:21px 30px;font-size:clamp(15px,1.5vw,17px);width:100%;
+  box-shadow:0 18px 44px -16px rgba(255,131,9,.85);
+  animation:ctaPulse 3s var(--ease) infinite;
+}
+.btn-xl>*{position:relative;z-index:2}
+.btn-xl svg{width:19px;height:19px}
+.btn-xl::after{
+  content:"";position:absolute;top:-20%;bottom:-20%;width:42%;left:-60%;z-index:1;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:skewX(-18deg);animation:ctaShine 3s var(--ease) infinite;
+}
+@keyframes ctaPulse{
+  0%{box-shadow:0 0 0 0 rgba(255,131,9,.5),0 18px 44px -16px rgba(255,131,9,.85)}
+  70%{box-shadow:0 0 0 20px rgba(255,131,9,0),0 18px 44px -16px rgba(255,131,9,.85)}
+  100%{box-shadow:0 0 0 0 rgba(255,131,9,0),0 18px 44px -16px rgba(255,131,9,.85)}
+}
+@keyframes ctaShine{0%{left:-60%}52%,100%{left:135%}}
 
 /* ---------- topo / navegação ---------- */
 .progress{position:fixed;top:0;left:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:var(--o-grad);z-index:120}
@@ -234,15 +257,6 @@ html.no-gl .hero-veil{
 .hero h1 .l2{display:block;color:transparent;background:var(--o-grad);-webkit-background-clip:text;background-clip:text}
 .hero .lead{max-width:50ch;color:#c3c3cb;font-size:clamp(15.5px,1.4vw,19px)}
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.hero-badge{
-  display:inline-flex;align-items:center;gap:10px;margin-bottom:26px;
-  padding:8px 16px 8px 10px;border:1px solid var(--line-d);border-radius:999px;
-  background:rgba(255,255,255,.035);backdrop-filter:blur(6px);
-  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#cfcfd6;
-}
-.hero-badge .dotpulse{width:7px;height:7px;border-radius:50%;background:var(--o);position:relative;flex:none}
-.hero-badge .dotpulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--o);opacity:.5;animation:pulse 2.4s var(--ease) infinite}
-@keyframes pulse{0%{transform:scale(.6);opacity:.7}70%{transform:scale(1.5);opacity:0}100%{opacity:0}}
 .hero-meta{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:30px;padding-top:22px;border-top:1px solid var(--line-d2)}
 .hero-meta span{display:inline-flex;align-items:center;gap:9px;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#83838d}
 .hero-meta svg{width:13px;height:13px;color:var(--o)}
@@ -382,15 +396,35 @@ html.no-gl .hero-veil{
 .pstep p{font-size:14px;color:var(--muted);line-height:1.6}
 
 /* ---------- público ---------- */
-.aud{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.acard{
-  border:1px solid var(--line-d);border-radius:var(--r-lg);padding:26px 14px 22px;text-align:center;
-  background:linear-gradient(180deg,rgba(255,255,255,.028),transparent);
-  transition:border-color .3s,transform .35s var(--ease),background-color .3s;
+.aud{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line-d);border:1px solid var(--line-d);border-radius:var(--r-lg);overflow:hidden;
 }
-.acard:hover{border-color:var(--o-35);transform:translateY(-4px);background:var(--o-05)}
-.acard svg{width:26px;height:26px;color:var(--o);margin:0 auto 14px}
-.acard b{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.acard{
+  background:var(--black);padding:30px 26px 32px;position:relative;
+  transition:background-color .4s var(--ease);
+}
+.acard::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--o-grad);
+  transform:scaleY(0);transform-origin:50% 0;transition:transform .45s var(--ease);
+}
+.acard:hover{background:#101014}
+.acard:hover::before{transform:scaleY(1)}
+.acard .n{position:absolute;top:24px;right:24px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;color:#55555f}
+.acard .ic{width:28px;height:28px;color:var(--o);margin-bottom:20px;transition:transform .45s var(--ease)}
+.acard:hover .ic{transform:translateY(-3px)}
+.acard b{display:block;font-family:var(--f-display);font-size:17px;font-weight:700;letter-spacing:-.025em;margin-bottom:8px}
+.acard p{font-size:13.5px;line-height:1.55;color:#8d8d97;max-width:30ch}
+.filtro{
+  margin-top:clamp(20px,2.6vw,30px);border:1px solid var(--line-d);border-radius:var(--r-lg);
+  padding:clamp(20px,2.4vw,28px);display:grid;grid-template-columns:auto 1fr;gap:clamp(16px,3vw,34px);align-items:center;
+  background:linear-gradient(115deg,rgba(255,131,9,.06),transparent 60%);
+}
+.filtro .t{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--o);white-space:nowrap}
+.filtro .t svg{width:15px;height:15px}
+.filtro ul{display:flex;flex-wrap:wrap;gap:10px 30px}
+.filtro li{display:flex;gap:10px;align-items:center;font-size:14px;color:#9a9aa4}
+.filtro li svg{width:15px;height:15px;color:#5c5c66;flex:none}
 
 /* ---------- resultado ---------- */
 .result{background:var(--black);color:#fff;position:relative;overflow:clip}
@@ -402,55 +436,27 @@ html.no-gl .hero-veil{
 .check-row span{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9c9ca6}
 .check-row svg{width:14px;height:14px;color:var(--o)}
 
-/* ---------- qualificação / formulário ---------- */
-.qual{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:clamp(18px,2.4vw,30px);align-items:start}
-.qual-side{
-  background:var(--black);color:#fff;border-radius:var(--r-lg);padding:clamp(28px,3.4vw,44px);
-  position:sticky;top:98px;overflow:hidden;
+/* ---------- aplicação (Typeform) ---------- */
+.apply{background:var(--black);color:#fff;position:relative;overflow:clip}
+.apply::before{content:"";position:absolute;inset:0;background:radial-gradient(52% 56% at 88% 26%,rgba(255,131,9,.16),transparent 62%),radial-gradient(46% 48% at 6% 88%,rgba(255,131,9,.09),transparent 64%)}
+.apply .wrap{position:relative;z-index:2}
+.apply-grid{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(30px,5vw,72px);align-items:center}
+.apply h2{font-size:clamp(29px,3.8vw,50px);letter-spacing:-.04em;line-height:1.02}
+.steps{display:grid;margin-top:30px}
+.steps div{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding:15px 0;border-top:1px solid var(--line-d2);font-size:14.5px;color:#c2c2cb}
+.steps span{font-family:var(--f-mono);font-size:11px;color:var(--o);letter-spacing:.08em}
+.apply-card{
+  border:1px solid rgba(255,131,9,.26);border-radius:18px;padding:clamp(26px,3vw,40px);text-align:center;
+  background:linear-gradient(168deg,#15151b,#09090c 66%);
+  box-shadow:0 46px 90px -56px rgba(255,131,9,.75);
 }
-.qual-side::after{content:"";position:absolute;width:340px;height:340px;border-radius:50%;right:-140px;bottom:-160px;background:radial-gradient(circle,rgba(255,131,9,.22),transparent 66%);filter:blur(6px)}
-.qual-side h2{font-size:clamp(25px,2.6vw,34px);letter-spacing:-.035em;margin-bottom:16px;position:relative;z-index:2}
-.qual-side p{position:relative;z-index:2;font-size:14.5px;line-height:1.65;color:#b0b0ba}
-.qual-list{display:grid;gap:0;margin-top:28px;position:relative;z-index:2}
-.qual-list div{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--line-d2);font-size:13.5px;color:#d0d0d8;align-items:center}
-.qual-list span{font-family:var(--f-mono);font-size:11px;color:var(--o)}
-.qual-form{background:var(--white);border:1px solid var(--line-l);border-radius:var(--r-lg);padding:clamp(24px,3vw,38px)}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.field{display:flex;flex-direction:column;gap:8px;min-width:0}
-.field.full{grid-column:1/-1}
-.field label{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:6px;align-items:baseline}
-.field label i{color:var(--o);font-style:normal}
-.field input,.field select,.field textarea{
-  width:100%;border:1px solid var(--line-l);border-radius:8px;padding:13px 14px;background:var(--paper-2);
-  font-size:15px;transition:border-color .2s,box-shadow .2s,background-color .2s;
-}
-.field textarea{min-height:108px;resize:vertical;line-height:1.55}
-.field select{appearance:none;cursor:pointer;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%2374747e' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
-.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--o);box-shadow:0 0 0 3px var(--o-18);background:#fff}
-.field .err{font-size:11.5px;color:#c8321f;display:none;font-family:var(--f-mono);letter-spacing:.03em}
-.field.invalid input,.field.invalid select,.field.invalid textarea{border-color:#e0563f;background:#fff8f6}
-.field.invalid .err{display:block}
-.field .hint{font-size:11px;color:var(--muted)}
-.formbar{display:flex;align-items:center;gap:14px;margin:6px 0 20px}
-.formbar .track{flex:1;height:3px;background:var(--line-l);border-radius:999px;overflow:hidden}
-.formbar .fill{height:100%;width:0;background:var(--o-grad);border-radius:999px;transition:width .5s var(--ease)}
-.formbar .pct{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:.08em;min-width:74px;text-align:right}
-.note{
-  background:#fff6ea;border:1px solid #ffdcb0;color:#7c4a12;border-radius:8px;
-  padding:13px 15px;font-size:12.5px;line-height:1.55;margin:22px 0 16px;display:flex;gap:11px;
-}
-.note svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--o-dp)}
-.consent{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:18px;cursor:pointer}
-.consent input{width:17px;height:17px;flex:none;margin-top:1px;accent-color:var(--o)}
-.qres{display:none;margin-top:22px;border-radius:var(--r-lg);padding:26px;background:var(--black);color:#fff;position:relative;overflow:hidden}
-.qres.show{display:block;animation:rise .55s var(--ease)}
-.qres::after{content:"";position:absolute;width:260px;height:260px;right:-120px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(255,131,9,.25),transparent 68%)}
-.qres .tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--o)}
-.qres h3{font-size:23px;margin:10px 0 10px;letter-spacing:-.03em;position:relative;z-index:2}
-.qres p{font-size:13.5px;line-height:1.6;color:#b5b5be;position:relative;z-index:2}
-.qres .plan-out{display:inline-flex;align-items:center;gap:9px;margin-top:16px;padding:9px 15px;border:1px solid var(--o-35);border-radius:999px;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--o);position:relative;z-index:2}
+.apply-card .mk{width:52px;color:var(--o);margin:0 auto 20px}
+.apply-card h3{font-size:clamp(21px,2.2vw,27px);letter-spacing:-.03em;margin-bottom:12px}
+.apply-card p{font-size:14.5px;line-height:1.6;color:#a9a9b3;max-width:34ch;margin:0 auto 28px}
+.apply-card .meta{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 20px;margin-top:20px}
+.apply-card .meta span{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#82828c}
+.apply-card .meta svg{width:14px;height:14px;color:var(--o)}
+.apply-card .disc{font-size:12px;line-height:1.55;color:#83838d;margin-top:22px;max-width:38ch;margin-inline:auto}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 /* ---------- planos ---------- */
@@ -542,18 +548,20 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
 
 /* ---------- responsivo ---------- */
 @media (max-width:1080px){
+  .head{grid-template-columns:1fr;gap:22px;align-items:start}
   .nav-links,.nav-cta{display:none}
   .burger{display:block}
   .pgrid{grid-template-columns:repeat(2,1fr)}
   .trail{grid-template-columns:repeat(3,1fr);row-gap:38px}
   .trail::before{display:none}
   .dots{grid-template-columns:repeat(2,1fr)}
-  .aud{grid-template-columns:repeat(3,1fr)}
+  .aud{grid-template-columns:repeat(2,1fr)}
+  .filtro{grid-template-columns:1fr;gap:14px}
   .proc{grid-template-columns:repeat(2,1fr);row-gap:32px}
-  .qual{grid-template-columns:1fr}
-  .qual-side{position:static}
+  .apply-grid{grid-template-columns:1fr}
   .plans{grid-template-columns:1fr;max-width:520px;margin-inline:auto}
   .result-grid,.hero-grid{grid-template-columns:1fr}
+  .apply-card{max-width:520px;margin-inline:auto}
   .hero-mark{display:none}
   .fgrid2{grid-template-columns:1fr 1fr}
   .deliv{grid-template-columns:1fr}
@@ -570,8 +578,10 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
   .trail{grid-template-columns:repeat(2,1fr)}
   .split{grid-template-columns:1fr}
   .proc{grid-template-columns:1fr}
-  .aud{grid-template-columns:repeat(2,1fr)}
-  .fgrid,.fgrid2{grid-template-columns:1fr}
+  .aud{grid-template-columns:1fr}
+  .acard p{max-width:100%}
+  .filtro ul{gap:10px 0;flex-direction:column}
+  .fgrid2{grid-template-columns:1fr}
   .dots{grid-template-columns:1fr;max-width:340px;margin-inline:auto}
   .copy{flex-direction:column;gap:8px}
   .faq summary{padding-right:36px}
@@ -668,20 +678,19 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
   <div class="hero-in">
     <div class="hero-grid">
       <div>
-        <span class="hero-badge rv"><i class="dotpulse"></i>Aplicação com análise de aderência</span>
-        <h1 class="rv rv-d1">Sua experiência<br>já vale muito.<span class="l2">Falta virar produto.</span></h1>
-        <p class="lead rv rv-d2">Estruturamos posicionamento, método próprio, arquitetura de oferta e direção comercial — para que aquilo que você já sabe fazer vire uma <strong style="color:#fff;font-weight:600">mentoria, consultoria ou treinamento</strong> pronto para ser apresentado ao mercado.</p>
-        <div class="hero-actions rv rv-d3">
+        <h1 class="rv">Sua experiência<br>já vale muito.<span class="l2">Falta virar produto.</span></h1>
+        <p class="lead rv rv-d1">Transformamos o que você já sabe fazer em uma <strong style="color:#fff;font-weight:600">mentoria, consultoria ou treinamento</strong> com método, preço e posicionamento definidos.</p>
+        <div class="hero-actions rv rv-d2">
           <a href="#qualificacao" class="btn btn-o">Quero estruturar minha ideia<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
           <a href="#metodo" class="btn btn-line">Ver o método<svg aria-hidden="true"><use href="#i-play"/></svg></a>
         </div>
-        <div class="hero-meta rv rv-d4">
+        <div class="hero-meta rv rv-d3">
           <span><svg aria-hidden="true"><use href="#i-route"/></svg>6 etapas de estruturação</span>
           <span><svg aria-hidden="true"><use href="#i-tag"/></svg>Projeto fechado, não hora</span>
           <span><svg aria-hidden="true"><use href="#i-lock"/></svg>A venda continua sua</span>
         </div>
       </div>
-      <svg class="hero-mark rv rv-d5" viewBox="0 0 171 139" aria-hidden="true"><use href="#mark"/></svg>
+      <svg class="hero-mark rv rv-d4" viewBox="0 0 171 139" aria-hidden="true"><use href="#mark"/></svg>
     </div>
   </div>
   <div class="scrollcue" aria-hidden="true"><i></i>role</div>
@@ -700,13 +709,13 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
         <p class="kicker">O problema</p>
         <h2 class="h-lg">Sua ideia não precisa de mais conhecimento.<br><span class="hl">Precisa de estrutura.</span></h2>
       </div>
-      <p class="lead">A maioria dos especialistas não trava por falta de capacidade. Trava porque sabe fazer, mas ainda não transformou o que sabe em uma solução clara, desejável e comercializável.</p>
+      <p class="lead">Quem trava raramente trava por falta de capacidade. Trava porque sabe fazer — mas ainda não transformou isso em algo que o mercado entenda e compre.</p>
     </div>
     <div class="pgrid">
-      <article class="pcard rv"><span class="n">01</span><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg><h3>Você sabe muito.</h3><p>Mas o conhecimento ainda está espalhado em experiência, arquivos e ideias soltas.</p></article>
-      <article class="pcard rv rv-d1"><span class="n">02</span><svg class="ic" aria-hidden="true"><use href="#i-case"/></svg><h3>Você tem experiência.</h3><p>Mas ainda não organizou sua entrega em uma proposta fácil de entender e de comprar.</p></article>
-      <article class="pcard rv rv-d2"><span class="n">03</span><svg class="ic" aria-hidden="true"><use href="#i-award"/></svg><h3>Você tem resultado.</h3><p>Mas precisa transformar aquilo que já funciona em uma solução replicável, sem depender de improviso.</p></article>
-      <article class="pcard rv rv-d3"><span class="n">04</span><svg class="ic" aria-hidden="true"><use href="#i-spark"/></svg><h3>Você tem uma ideia.</h3><p>Agora precisa definir produto, posicionamento, método e caminho comercial.</p></article>
+      <article class="pcard rv"><span class="n">01</span><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg><h3>Você sabe muito.</h3><p>Mas está tudo espalhado em experiência, arquivos e ideias soltas.</p></article>
+      <article class="pcard rv rv-d1"><span class="n">02</span><svg class="ic" aria-hidden="true"><use href="#i-case"/></svg><h3>Você tem experiência.</h3><p>Mas a entrega ainda não virou uma proposta fácil de entender.</p></article>
+      <article class="pcard rv rv-d2"><span class="n">03</span><svg class="ic" aria-hidden="true"><use href="#i-award"/></svg><h3>Você tem resultado.</h3><p>Mas o que funciona ainda depende de improviso a cada cliente.</p></article>
+      <article class="pcard rv rv-d3"><span class="n">04</span><svg class="ic" aria-hidden="true"><use href="#i-spark"/></svg><h3>Você tem uma ideia.</h3><p>Falta definir produto, posicionamento, método e caminho comercial.</p></article>
     </div>
   </div>
 </section>
@@ -720,7 +729,7 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
         <h2 class="h-lg">Um caminho claro para transformar ideias em <span class="hl">resultados.</span></h2>
       </div>
       <div>
-        <p class="lead">Estruturamos estratégia, posicionamento e oferta para que sua experiência deixe de ser apenas conhecimento e passe a ocupar o formato de um produto.</p>
+        <p class="lead">Seis etapas para tirar a sua experiência do campo das ideias e colocá-la no formato de produto.</p>
         <a href="#qualificacao" class="btn btn-line" style="margin-top:22px">Quero ser avaliado<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
     </div>
@@ -797,16 +806,16 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
         <p class="kicker">O que você recebe</p>
         <h2 class="h-lg">Oito entregas para estruturar, posicionar e <span class="hl">apresentar sua ideia.</span></h2>
       </div>
-      <p class="lead">Cada entrega existe para eliminar uma dúvida concreta: o que é o produto, para quem, por que ele funciona, quanto custa e como você apresenta isso ao mercado.</p>
+      <p class="lead">Cada entrega responde uma pergunta: o que é, para quem, por que funciona, quanto custa e como apresentar.</p>
     </div>
     <div class="deliv">
-      <article class="ditem rv"><span class="n">01</span><div><h3>Diagnóstico estratégico</h3><p>Entendimento aprofundado da ideia, da experiência, do contexto e das oportunidades reais.</p></div></article>
+      <article class="ditem rv"><span class="n">01</span><div><h3>Diagnóstico estratégico</h3><p>Leitura da ideia, da experiência e das oportunidades reais.</p></div></article>
       <article class="ditem rv rv-d1"><span class="n">02</span><div><h3>Posicionamento</h3><p>Definição clara de nicho, público, promessa e diferenciais.</p></div></article>
       <article class="ditem rv rv-d1"><span class="n">03</span><div><h3>Método próprio</h3><p>Criação da lógica de transformação que sustenta a sua solução.</p></div></article>
       <article class="ditem rv rv-d2"><span class="n">04</span><div><h3>Jornada do cliente</h3><p>Mapeamento da experiência antes, durante e depois da entrega.</p></div></article>
       <article class="ditem rv rv-d2"><span class="n">05</span><div><h3>Precificação</h3><p>Estratégia de preço coerente com valor, posicionamento e formato.</p></div></article>
-      <article class="ditem rv rv-d3"><span class="n">06</span><div><h3>Materiais</h3><p>Templates, roteiros e materiais personalizados para operar o produto.</p></div></article>
-      <article class="ditem rv rv-d3"><span class="n">07</span><div><h3>Estratégia comercial</h3><p>Plano de comunicação e posicionamento para apresentar a oferta ao mercado.</p></div></article>
+      <article class="ditem rv rv-d3"><span class="n">06</span><div><h3>Materiais</h3><p>Templates e roteiros personalizados para operar o produto.</p></div></article>
+      <article class="ditem rv rv-d3"><span class="n">07</span><div><h3>Estratégia comercial</h3><p>Plano de comunicação para apresentar a oferta ao mercado.</p></div></article>
       <article class="ditem rv rv-d4"><span class="n">08</span><div><h3>Plano de execução</h3><p>Sequência prática para colocar o produto em funcionamento.</p></div></article>
     </div>
   </div>
@@ -862,19 +871,60 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
 <!-- ============ PARA QUEM É ============ -->
 <section class="band dark" id="para-quem">
   <div class="wrap">
-    <div class="head head--center rv">
-      <div style="text-align:center">
-        <p class="kicker" style="justify-content:center">Para quem é</p>
-        <h2 class="h-lg" style="max-width:20ch">Para especialistas que querem transformar experiência em <span class="hl">resultado.</span></h2>
+    <div class="head rv">
+      <div>
+        <p class="kicker">Para quem é</p>
+        <h2 class="h-lg">Para quem já entrega valor e quer transformar isso em <span class="hl">produto.</span></h2>
       </div>
+      <p class="lead">Seis perfis diferentes, um ponto em comum: experiência real que ainda não virou uma oferta clara.</p>
     </div>
+
     <div class="aud">
-      <div class="acard rv"><svg aria-hidden="true"><use href="#i-case"/></svg><b>Empresários</b></div>
-      <div class="acard rv rv-d1"><svg aria-hidden="true"><use href="#i-compass"/></svg><b>Mentores</b></div>
-      <div class="acard rv rv-d2"><svg aria-hidden="true"><use href="#i-chart"/></svg><b>Consultores</b></div>
-      <div class="acard rv rv-d3"><svg aria-hidden="true"><use href="#i-award"/></svg><b>Especialistas</b></div>
-      <div class="acard rv rv-d4"><svg aria-hidden="true"><use href="#i-users"/></svg><b>Líderes e gestores</b></div>
-      <div class="acard rv rv-d5"><svg aria-hidden="true"><use href="#i-user"/></svg><b>Profissionais liberais</b></div>
+      <article class="acard rv">
+        <span class="n">01</span>
+        <svg class="ic" aria-hidden="true"><use href="#i-case"/></svg>
+        <b>Empresários</b>
+        <p>Querem criar uma nova frente de receita a partir do que a empresa já domina.</p>
+      </article>
+      <article class="acard rv rv-d1">
+        <span class="n">02</span>
+        <svg class="ic" aria-hidden="true"><use href="#i-compass"/></svg>
+        <b>Mentores</b>
+        <p>Já orientam pessoas, mas ainda sem um método próprio documentado.</p>
+      </article>
+      <article class="acard rv rv-d2">
+        <span class="n">03</span>
+        <svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg>
+        <b>Consultores</b>
+        <p>Entregam resultado, mas montam a proposta do zero a cada cliente.</p>
+      </article>
+      <article class="acard rv rv-d1">
+        <span class="n">04</span>
+        <svg class="ic" aria-hidden="true"><use href="#i-award"/></svg>
+        <b>Especialistas</b>
+        <p>Têm autoridade técnica e querem transformar isso em uma oferta vendável.</p>
+      </article>
+      <article class="acard rv rv-d2">
+        <span class="n">05</span>
+        <svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>
+        <b>Líderes e gestores</b>
+        <p>Querem sair da carreira executiva com um ativo próprio nas mãos.</p>
+      </article>
+      <article class="acard rv rv-d3">
+        <span class="n">06</span>
+        <svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>
+        <b>Profissionais liberais</b>
+        <p>Querem escalar sem depender de mais horas na agenda.</p>
+      </article>
+    </div>
+
+    <div class="filtro rv rv-d2">
+      <p class="t"><svg aria-hidden="true"><use href="#i-info"/></svg>Não é para quem</p>
+      <ul>
+        <li><svg aria-hidden="true"><use href="#i-dash"/></svg>Procura fórmula pronta</li>
+        <li><svg aria-hidden="true"><use href="#i-dash"/></svg>Quer terceirizar a própria venda</li>
+        <li><svg aria-hidden="true"><use href="#i-dash"/></svg>Não tem tempo para implementar</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -886,12 +936,12 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
       <div class="rv">
         <p class="kicker">O resultado</p>
         <h2>Você deixa de ter uma ideia.<br><span class="o">E passa a ter um produto.</span></h2>
-        <p class="lead" style="margin-top:24px">Não é sobre criar mais conteúdo. É sobre transformar aquilo que você já sabe em uma solução com posicionamento, método, estrutura e uma proposta que faça sentido para o mercado.</p>
+        <p class="lead" style="margin-top:24px">Não é sobre criar mais conteúdo. É sobre dar forma ao que você já sabe: posicionamento, método, estrutura e uma proposta que o mercado entende.</p>
       </div>
       <div class="rv rv-d2">
         <p class="kicker">Pronto para começar?</p>
         <h3 class="h-md" style="margin-bottom:16px">Comece pela análise de aderência.</h3>
-        <p class="lead">Você responde algumas perguntas estratégicas. A partir disso, avaliamos se existe aderência entre o seu momento, sua ideia e o tipo de projeto que conseguimos estruturar.</p>
+        <p class="lead">Poucas perguntas estratégicas. A partir delas avaliamos se existe aderência entre o seu momento e o tipo de projeto que estruturamos.</p>
         <div class="hero-actions">
           <a href="#qualificacao" class="btn btn-o">Preencher qualificação<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
           <a href="#planos" class="btn btn-line">Ver planos</a>
@@ -906,63 +956,34 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
   </div>
 </section>
 
-<!-- ============ QUALIFICAÇÃO ============ -->
-<section class="band paper" id="qualificacao">
+<!-- ============ APLICAÇÃO (Typeform) ============ -->
+<section class="band apply" id="qualificacao">
   <div class="wrap">
-    <div class="head head--center rv">
-      <div style="text-align:center">
-        <p class="kicker" style="justify-content:center">Aplicação estratégica</p>
-        <h2 class="h-lg" style="max-width:26ch">Antes de contratar, precisamos entender sua ideia.</h2>
-        <p class="lead" style="margin-top:18px;max-width:70ch">O preenchimento funciona como uma pré-qualificação: ele nos ajuda a identificar contexto, estágio, potencial e necessidades do projeto. Enviar a aplicação não significa aprovação automática.</p>
-      </div>
-    </div>
-
-    <div class="qual">
-      <aside class="qual-side rv">
-        <p class="kicker" style="color:var(--o)">Não se compra por hora</p>
-        <h2>Você está estruturando um ativo intelectual.</h2>
-        <p>O projeto é pensado para transformar experiência em uma solução com posicionamento, método, estrutura e proposta comercial. A implementação e a comercialização do produto permanecem sob sua responsabilidade.</p>
-        <div class="qual-list">
-          <div><span>01</span> Clareza sobre o que está sendo construído</div>
-          <div><span>02</span> Estrutura compatível com seu posicionamento</div>
-          <div><span>03</span> Critério para a escolha do formato</div>
-          <div><span>04</span> Direção para a apresentação ao mercado</div>
+    <div class="apply-grid">
+      <div class="rv">
+        <p class="kicker">Aplicação</p>
+        <h2>Antes de contratar, precisamos entender a sua ideia.</h2>
+        <p class="lead" style="margin-top:20px">A aplicação é uma pré-qualificação. Ela mostra o seu contexto, o estágio da ideia e o que o projeto realmente precisa.</p>
+        <div class="steps">
+          <div><span>01</span> Você responde a aplicação — leva poucos minutos</div>
+          <div><span>02</span> Analisamos contexto, estágio e potencial do projeto</div>
+          <div><span>03</span> Retornamos com a leitura do seu caso e o formato indicado</div>
         </div>
-      </aside>
+      </div>
 
-      <div class="qual-form rv rv-d1">
-        <form id="leadForm" novalidate>
-          <div class="formbar">
-            <div class="track"><div class="fill" id="formFill"></div></div>
-            <span class="pct mono" id="formPct">0% preenchido</span>
-          </div>
-          <div class="fgrid">
-            <div class="field"><label for="name">Nome completo <i>*</i></label><input id="name" name="name" required autocomplete="name" placeholder="Seu nome"><span class="err">Informe seu nome completo.</span></div>
-            <div class="field"><label for="email">E-mail <i>*</i></label><input id="email" name="email" type="email" required autocomplete="email" placeholder="voce@empresa.com"><span class="err">Informe um e-mail válido.</span></div>
-            <div class="field"><label for="whatsapp">WhatsApp <i>*</i></label><input id="whatsapp" name="whatsapp" required inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000"><span class="err">Informe um WhatsApp com DDD.</span></div>
-            <div class="field"><label for="role">Atuação profissional <i>*</i></label><select id="role" name="role" required><option value="">Selecione</option><option>Empresário</option><option>Mentor</option><option>Consultor</option><option>Especialista</option><option>Líder ou gestor</option><option>Profissional liberal</option><option>Outro</option></select><span class="err">Selecione uma opção.</span></div>
-            <div class="field full"><label for="idea">O que você quer transformar em produto? <i>*</i></label><textarea id="idea" name="idea" required placeholder="Explique em poucas linhas o que você sabe fazer e o que imagina transformar em mentoria, consultoria ou treinamento."></textarea><span class="hint">Quanto mais concreto, melhor conseguimos avaliar a aderência.</span><span class="err">Conte um pouco sobre a sua ideia.</span></div>
-            <div class="field"><label for="stage">Em que estágio sua ideia está? <i>*</i></label><select id="stage" name="stage" required><option value="">Selecione</option><option value="1">Ainda é uma ideia</option><option value="2">Já tenho conteúdo ou método inicial</option><option value="3">Já entrego informalmente</option><option value="4">Já vendo e quero estruturar</option><option value="5">Já tenho produto e quero reposicionar</option></select><span class="err">Selecione uma opção.</span></div>
-            <div class="field"><label for="market">Você já atende clientes nesse tema? <i>*</i></label><select id="market" name="market" required><option value="">Selecione</option><option value="1">Ainda não</option><option value="2">Alguns clientes</option><option value="3">Sim, com frequência</option><option value="4">Sim, é uma frente consolidada</option></select><span class="err">Selecione uma opção.</span></div>
-            <div class="field"><label for="revenue">Faixa de faturamento mensal <i>*</i></label><select id="revenue" name="revenue" required><option value="">Selecione</option><option value="1">Até R$ 10 mil</option><option value="2">R$ 10 mil a R$ 30 mil</option><option value="3">R$ 30 mil a R$ 80 mil</option><option value="4">R$ 80 mil a R$ 200 mil</option><option value="5">Acima de R$ 200 mil</option><option value="0">Prefiro não informar</option></select><span class="err">Selecione uma opção.</span></div>
-            <div class="field"><label for="goal">Seu principal objetivo <i>*</i></label><select id="goal" name="goal" required><option value="">Selecione</option><option value="1">Organizar o que já sei</option><option value="2">Criar uma nova oferta</option><option value="3">Transformar experiência em produto</option><option value="4">Reposicionar uma oferta existente</option><option value="5">Criar uma nova frente de receita</option></select><span class="err">Selecione uma opção.</span></div>
-            <div class="field"><label for="investment">Investimento que considera possível <i>*</i></label><select id="investment" name="investment" required><option value="">Selecione</option><option value="1">Até R$ 8.790</option><option value="2">R$ 8.790 a R$ 19.620</option><option value="3">R$ 19.620 a R$ 28.490</option><option value="4">Acima de R$ 28.490</option><option value="0">Ainda não sei</option></select><span class="err">Selecione uma opção.</span></div>
-            <div class="field full"><label for="timing">Por que você quer estruturar isso agora? <i>*</i></label><textarea id="timing" name="timing" required placeholder="O que mudou, qual oportunidade apareceu ou qual decisão você precisa tomar?"></textarea><span class="err">Conte o que motiva esse movimento agora.</span></div>
-            <div class="field full"><label for="planInterest">Você já tem preferência de plano?</label><select id="planInterest" name="planInterest"><option value="">Ainda não sei</option><option value="start">START</option><option value="pro">PRO</option><option value="premium">PREMIUM</option></select></div>
-          </div>
-
-          <div class="note"><svg aria-hidden="true"><use href="#i-info"/></svg><span><b>Critério de entrada:</b> avaliamos aderência ao tipo de projeto, maturidade da ideia, disponibilidade para implementar e compatibilidade de investimento. O processo não é uma compra automática.</span></div>
-          <label class="consent"><input type="checkbox" id="consent" required> <span>Autorizo o uso dos dados enviados para contato sobre a análise desta aplicação e eventual continuidade do projeto.</span></label>
-          <button class="btn btn-o btn-full" type="submit" id="submitBtn">Enviar para análise<svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
-
-          <div id="qualifyResult" class="qres" role="status" aria-live="polite">
-            <span class="tag">Aplicação recebida</span>
-            <h3 id="resultTitle">Seu projeto entrou em análise.</h3>
-            <p id="resultText"></p>
-            <span class="plan-out" id="planOut" hidden></span>
-            <a id="whatsLink" class="btn btn-o" href="#" target="_blank" rel="noopener" style="margin-top:18px">Continuar no WhatsApp<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
-          </div>
-        </form>
+      <div class="apply-card rv rv-d2">
+        <svg class="mk" viewBox="0 0 171 139" aria-hidden="true"><use href="#mark"/></svg>
+        <h3>Análise de aderência</h3>
+        <p>Responda a aplicação e descubra se o seu projeto tem aderência com o método.</p>
+        <a class="btn btn-o btn-xl" data-typeform href="#" target="_blank" rel="noopener">
+          <span>Fazer minha aplicação</span><svg aria-hidden="true"><use href="#i-arrow"/></svg>
+        </a>
+        <div class="meta">
+          <span><svg aria-hidden="true"><use href="#i-clock"/></svg>Poucos minutos</span>
+          <span><svg aria-hidden="true"><use href="#i-lock"/></svg>Dados protegidos</span>
+          <span><svg aria-hidden="true"><use href="#i-shield"/></svg>Sem compromisso</span>
+        </div>
+        <p class="disc">Enviar a aplicação não significa aprovação. Avaliamos cada projeto antes de qualquer proposta.</p>
       </div>
     </div>
   </div>
@@ -975,16 +996,16 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
       <div style="text-align:center">
         <p class="kicker" style="justify-content:center">Investimento</p>
         <h2 class="h-lg" style="max-width:20ch">Três níveis de estrutura para estágios diferentes de projeto.</h2>
-        <p class="lead" style="margin-top:18px;max-width:66ch">Os valores são transparentes. A contratação, porém, depende da análise de aderência. Você escolhe o nível que faz sentido, nós avaliamos o contexto e definimos o formato adequado.</p>
+        <p class="lead" style="margin-top:18px;max-width:60ch">Os valores são transparentes. A contratação depende da análise de aderência: você indica o nível, nós avaliamos o contexto.</p>
       </div>
     </div>
 
     <div class="plans">
       <article class="plan rv" id="start">
         <h3>Start</h3>
-        <p class="sub">Para quem precisa tirar a ideia do campo mental e construir a primeira estrutura.</p>
+        <p class="sub">Para tirar a ideia da cabeça e montar a primeira estrutura.</p>
         <div class="price">R$ 8.790<em>à vista</em></div>
-        <p class="inst">Até 12x via PIX ou boleto pela TMB, conforme condições do checkout.</p>
+        <p class="inst">Até 12x no PIX ou boleto, via TMB.</p>
         <ul>
           <li><svg aria-hidden="true"><use href="#i-check"/></svg>Diagnóstico estratégico</li>
           <li><svg aria-hidden="true"><use href="#i-check"/></svg>Posicionamento da solução</li>
@@ -995,16 +1016,16 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
         </ul>
         <div class="foot">
           <button class="btn btn-ink btn-full" data-plan="start">Solicitar análise</button>
-          <p class="qual-note">Indicado quando existe experiência real, mas o produto ainda precisa ser organizado e definido.</p>
+          <p class="qual-note">Quando existe experiência real, mas o produto ainda precisa ser definido.</p>
         </div>
       </article>
 
       <article class="plan feat rv rv-d1" id="pro">
         <span class="badge">Mais procurado</span>
         <h3>Pro</h3>
-        <p class="sub">Para quem quer transformar expertise em uma oferta consistente e comercializável.</p>
+        <p class="sub">Para transformar expertise em uma oferta pronta para vender.</p>
         <div class="price">R$ 19.620<em>à vista</em></div>
-        <p class="inst">Até 12x via PIX ou boleto pela TMB, conforme condições do checkout.</p>
+        <p class="inst">Até 12x no PIX ou boleto, via TMB.</p>
         <ul>
           <li><svg aria-hidden="true"><use href="#i-check"/></svg>Tudo do START</li>
           <li><svg aria-hidden="true"><use href="#i-check"/></svg>Método próprio estruturado</li>
@@ -1016,15 +1037,15 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
         </ul>
         <div class="foot">
           <button class="btn btn-o btn-full" data-plan="pro">Solicitar análise<svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
-          <p class="qual-note">Indicado quando existe experiência comprovada e intenção real de colocar uma nova oferta em circulação.</p>
+          <p class="qual-note">Quando existe experiência comprovada e intenção real de colocar a oferta na rua.</p>
         </div>
       </article>
 
       <article class="plan rv rv-d2" id="premium">
         <h3>Premium</h3>
-        <p class="sub">Para projetos que exigem estrutura mais completa de produto, posicionamento e estratégia.</p>
+        <p class="sub">Para projetos que pedem estrutura ampla de produto e estratégia.</p>
         <div class="price">R$ 28.490<em>à vista</em></div>
-        <p class="inst">Até 12x via PIX ou boleto pela TMB, conforme condições do checkout.</p>
+        <p class="inst">Até 12x no PIX ou boleto, via TMB.</p>
         <ul>
           <li><svg aria-hidden="true"><use href="#i-check"/></svg>Tudo do PRO</li>
           <li><svg aria-hidden="true"><use href="#i-check"/></svg>Arquitetura avançada da oferta</li>
@@ -1036,7 +1057,7 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
         </ul>
         <div class="foot">
           <button class="btn btn-ink btn-full" data-plan="premium">Solicitar análise</button>
-          <p class="qual-note">Indicado para projetos com maior potencial de expansão e necessidade de estrutura estratégica mais ampla.</p>
+          <p class="qual-note">Quando o projeto tem potencial de expansão e pede estrutura mais ampla.</p>
         </div>
       </article>
     </div>
@@ -1045,7 +1066,7 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
       <span>PIX</span><span>Boleto</span><span>Até 12x</span><span>TMB</span><span>Valores em BRL</span>
     </div>
     <p class="small rv" style="text-align:center;margin:18px auto 0;max-width:74ch">
-      <b>Importante:</b> o projeto não é terceirização da venda. Você continua responsável pela comercialização da sua solução. O trabalho é estruturar a oferta para que ela tenha clareza, posicionamento e direção.
+      <b>Importante:</b> não terceirizamos a sua venda. Estruturamos a oferta — a comercialização continua com você.
     </p>
   </div>
 </section>
@@ -1095,7 +1116,7 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
       </div>
       <div>
         <h4>Navegação</h4>
-        <a href="#metodo">O método</a><br><a href="#entregas">Entregas</a><br><a href="#para-quem">Para quem é</a><br><a href="#planos">Planos</a><br><a href="#qualificacao">Qualificação</a><br><a href="#duvidas">Dúvidas</a>
+        <a href="#metodo">O método</a><br><a href="#entregas">Entregas</a><br><a href="#para-quem">Para quem é</a><br><a href="#planos">Planos</a><br><a href="#qualificacao">Aplicação</a><br><a href="#duvidas">Dúvidas</a>
       </div>
       <div>
         <h4>Contato</h4>
@@ -1118,8 +1139,8 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
     <button class="x" id="closeModal" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
     <p class="kicker">Próximo passo</p>
     <h3 id="modalTitle">Plano selecionado</h3>
-    <p id="modalText">Antes do pagamento, o projeto passa pela análise de aderência. Preencha a aplicação e nós indicamos o nível de estrutura adequado ao seu momento.</p>
-    <a href="#qualificacao" class="btn btn-o btn-full" id="modalGo">Ir para a qualificação<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    <p id="modalText">Antes do pagamento, o projeto passa pela análise de aderência. Responda a aplicação e nós indicamos o nível adequado ao seu momento.</p>
+    <a href="#" class="btn btn-o btn-full" id="modalGo" data-typeform target="_blank" rel="noopener">Fazer minha aplicação<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
   </div>
 </div>
 
@@ -1128,16 +1149,16 @@ footer .lockup{display:block;width:176px;aspect-ratio:509/357;background:url("da
    CONFIGURAÇÃO — edite apenas este bloco
    ============================================================ */
 const CONFIG = {
+  // Link da aplicação (Typeform). É para onde vão todos os botões de aplicação.
+  typeform: "https://form.typeform.com/to/m70jOwFd",
   // Somente números, com DDI+DDD. Ex.: "5511999999999". Vazio = WhatsApp abre sem contato definido.
   whatsapp: "",
   email: "",
   instagram: "",
   linkedin: "",
   youtube: "",
-  // Links de checkout TMB (quando existirem). Vazio = abre o modal de qualificação.
-  checkouts: { start: "", pro: "", premium: "" },
-  // Endpoint opcional (POST JSON) para receber as aplicações. Vazio = apenas handoff no WhatsApp.
-  formEndpoint: ""
+  // Links de checkout TMB (quando existirem). Vazio = abre o modal que leva à aplicação.
+  checkouts: { start: "", pro: "", premium: "" }
 };
 
 (function () {
@@ -1149,6 +1170,7 @@ const CONFIG = {
   /* ---------- ano + links configuráveis ---------- */
   $("#year").textContent = new Date().getFullYear();
   const waBase = CONFIG.whatsapp ? "https://wa.me/" + CONFIG.whatsapp : "https://wa.me/";
+  $$("[data-typeform]").forEach(a => { if (CONFIG.typeform) a.href = CONFIG.typeform; });
   $$("[data-cfg]").forEach(a => {
     const k = a.dataset.cfg;
     const map = {
@@ -1431,145 +1453,16 @@ void main(){gl_Position=position;}`;
   $$("[data-plan]").forEach(btn => {
     btn.addEventListener("click", () => {
       const plan = btn.dataset.plan;
-      const sel = $("#planInterest");
-      if (sel) { sel.value = plan; sel.dispatchEvent(new Event("change", { bubbles: true })); }
       const url = CONFIG.checkouts[plan];
       if (url) { window.open(url, "_blank", "noopener"); return; }
+      if (CONFIG.typeform) {
+        const sep = CONFIG.typeform.indexOf("?") >= 0 ? "&" : "?";
+        $("#modalGo").href = CONFIG.typeform + sep + "plano=" + plan;
+      }
       openModal(plan);
     });
   });
 
-  /* ============================================================
-     6. FORMULÁRIO DE QUALIFICAÇÃO
-     ============================================================ */
-  const form = $("#leadForm");
-  const phone = $("#whatsapp");
-  const fill = $("#formFill"), pct = $("#formPct");
-
-  phone.addEventListener("input", () => {
-    let v = phone.value.replace(/\D/g, "").slice(0, 11);
-    if (v.length > 6) v = v.replace(/^(\d{2})(\d{4,5})(\d{0,4}).*$/, "($1) $2-$3");
-    else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5}).*$/, "($1) $2");
-    else if (v.length > 0) v = v.replace(/^(\d*)/, "($1");
-    phone.value = v;
-  });
-
-  const fields = $$(".field").filter(f => $("[required]", f));
-  function fieldOK(f) {
-    const el = $("input,select,textarea", f);
-    if (!el) return true;
-    const v = (el.value || "").trim();
-    if (!v) return false;
-    if (el.type === "email") return /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v);
-    if (el.id === "whatsapp") return v.replace(/\D/g, "").length >= 10;
-    if (el.tagName === "TEXTAREA") return v.length >= 12;
-    return true;
-  }
-  function updateProgress() {
-    const done = fields.filter(fieldOK).length;
-    const p = Math.round((done / fields.length) * 100);
-    fill.style.width = p + "%";
-    pct.textContent = p + "% preenchido";
-  }
-  form.addEventListener("input", updateProgress);
-  form.addEventListener("change", updateProgress);
-  fields.forEach(f => {
-    const el = $("input,select,textarea", f);
-    el && el.addEventListener("blur", () => f.classList.toggle("invalid", !fieldOK(f)));
-    el && el.addEventListener("input", () => { if (f.classList.contains("invalid") && fieldOK(f)) f.classList.remove("invalid"); });
-  });
-  updateProgress();
-
-  function scoreLead(d) {
-    let s = 0;
-    s += Number(d.stage || 0) * 4;
-    s += Number(d.market || 0) * 4;
-    s += Number(d.revenue || 0) * 3;
-    s += Number(d.goal || 0) * 2;
-    s += Number(d.investment || 0) * 4;
-    if ((d.idea || "").trim().length >= 120) s += 4;
-    if ((d.timing || "").trim().length >= 80) s += 3;
-    return s;
-  }
-  function recommendedPlan(d, s) {
-    if (d.planInterest === "premium") return "PREMIUM";
-    if (d.planInterest === "pro") return "PRO";
-    if (d.planInterest === "start") return "START";
-    if (s >= 42) return "PREMIUM";
-    if (s >= 28) return "PRO";
-    return "START";
-  }
-
-  form.addEventListener("submit", async e => {
-    e.preventDefault();
-    let firstBad = null;
-    fields.forEach(f => {
-      const ok = fieldOK(f);
-      f.classList.toggle("invalid", !ok);
-      if (!ok && !firstBad) firstBad = f;
-    });
-    const consent = $("#consent");
-    if (!consent.checked) {
-      consent.focus();
-      if (!firstBad) { consent.closest(".consent").animate(
-        [{ transform: "translateX(0)" }, { transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "translateX(0)" }],
-        { duration: 320 }); return; }
-    }
-    if (firstBad) {
-      firstBad.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
-      const el = $("input,select,textarea", firstBad); el && el.focus({ preventScroll: true });
-      return;
-    }
-
-    const data = Object.fromEntries(new FormData(form).entries());
-    const score = scoreLead(data);
-    const plan = recommendedPlan(data, score);
-
-    let band, message;
-    if (score >= 42) {
-      band = "Perfil com alto potencial de estruturação";
-      message = "Seu cadastro demonstra sinais de maturidade, intenção e potencial de projeto. A aplicação seguirá para análise de aderência. Isso não representa aprovação automática: a continuidade depende da avaliação estratégica do projeto.";
-    } else if (score >= 28) {
-      band = "Perfil com aderência em avaliação";
-      message = "Seu cadastro apresenta elementos relevantes para estruturar uma solução. A aplicação seguirá para análise de aderência. A confirmação do escopo depende da análise do projeto e do seu momento.";
-    } else {
-      band = "Perfil em fase de diagnóstico";
-      message = "Sua aplicação foi recebida. Antes de definir um escopo, precisamos analisar a maturidade da ideia, o contexto e a disponibilidade para implementação. A equipe fará a avaliação de aderência antes de qualquer proposta.";
-    }
-
-    const btn = $("#submitBtn");
-    btn.disabled = true; btn.style.opacity = ".7";
-    const original = btn.innerHTML;
-    btn.textContent = "Enviando…";
-
-    if (CONFIG.formEndpoint) {
-      try {
-        await fetch(CONFIG.formEndpoint, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(Object.assign({}, data, { score, plan, origem: "landing-ideia-que-vende" }))
-        });
-      } catch (err) { console.warn("Falha ao enviar para o endpoint:", err); }
-    }
-
-    $("#resultTitle").textContent = band;
-    $("#resultText").textContent = message;
-    const out = $("#planOut");
-    out.hidden = false;
-    out.textContent = "Indicação inicial: plano " + plan;
-
-    const waText = encodeURIComponent(
-      "Olá! Enviei minha aplicação para o Ideia Que Vende.\n\n" +
-      "Nome: " + (data.name || "") + "\n" +
-      "Atuação: " + (data.role || "") + "\n" +
-      "Indicação inicial: plano " + plan + "\n\n" +
-      "Quero continuar a análise do meu projeto."
-    );
-    $("#whatsLink").href = waBase + "?text=" + waText;
-
-    $("#qualifyResult").classList.add("show");
-    $("#qualifyResult").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
-    btn.disabled = false; btn.style.opacity = ""; btn.innerHTML = original;
-  });
 })();
 </script>
 

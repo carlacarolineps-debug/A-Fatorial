@@ -260,17 +260,22 @@ No topo do `<script>` existe o objeto **`CONFIG`**:
 
 | Campo | Para que serve |
 |-------|----------------|
+| `typeform` | link da aplicação. Todo botão marcado com `data-typeform` aponta para ele. |
 | `whatsapp` | número com DDI+DDD, só dígitos (ex.: `5511999999999`). Vazio = o link abre o WhatsApp sem contato definido. |
 | `email`, `instagram`, `linkedin`, `youtube` | links do rodapé. Vazio = o item vira texto, sem link quebrado. |
-| `checkouts.start/pro/premium` | URLs de checkout TMB. Vazio = abre o modal que leva à qualificação. |
-| `formEndpoint` | URL opcional que recebe a aplicação por `POST` (JSON). Vazio = só o handoff no WhatsApp. |
+| `checkouts.start/pro/premium` | URLs de checkout TMB. Vazio = abre o modal que leva à aplicação. |
 
-## Formulário de qualificação
+## Aplicação (Typeform)
 
-Mantém a pontuação original (`scoreLead` / `recommendedPlan`) e acrescenta
-máscara de telefone, validação campo a campo, barra de progresso do
-preenchimento e mensagem de retorno com a indicação inicial de plano. O envio
-não representa aprovação — o texto da página deixa isso explícito.
+A seção `#qualificacao` explica o processo em três passos e concentra a
+conversão em **um único botão** (`.btn-xl`), com brilho pulsante e reflexo
+animado — ambos desligados por `prefers-reduced-motion`. O botão abre o
+Typeform em nova aba.
+
+Os botões dos planos, quando não há checkout configurado, abrem o modal e
+acrescentam `?plano=start|pro|premium` ao link do Typeform. Se você criar um
+**campo oculto** chamado `plano` no Typeform, ele recebe essa informação
+automaticamente; sem o campo oculto, o parâmetro é simplesmente ignorado.
 
 ## Acessibilidade e desempenho
 
