@@ -1,128 +1,201 @@
-# Publicar na Cloudflare
+# Publicar o site
 
-Tudo num domínio só, num projeto só:
+A landing e o sistema sobem juntos, num projeto só, num domínio só.
+Não existe passo de build: o site é HTML pronto.
 
+    seudominio.com.br/           landing (pública)
+    seudominio.com.br/sistema/   sistema (atrás de login)
+    seudominio.com.br/typeform   recebe as respostas do Typeform
+    seudominio.com.br/leads      devolve os leads para a mesa
+
+---
+
+## Antes de começar: apague o Worker de teste
+
+Você criou um Worker chamado **orgulho-névoa-d805** (`proud-haze-d805`).
+Ele é o "Hello World" que a Cloudflare cria sozinha e não serve para nada
+aqui. Pior: quando um Worker é ligado a um repositório, o nome dele no
+painel **precisa ser igual** ao nome que está no `wrangler.toml`
+(`ideia-que-vende`). Nomes diferentes = build falha.
+
+1. **Workers & Pages** → clique em **orgulho-névoa-d805**
+2. **Settings** → role até o fim → **Delete** → confirme digitando o nome
+
+---
+
+## 1. Ligar o repositório
+
+1. **Workers & Pages** → botão **Criar aplicativo** (Create application)
+2. Na caixa **Importar um repositório** (Import a repository) →
+   **Começar** (Get started)
+3. Escolha a conta do GitHub e autorize a Cloudflare a ver o repositório
+   `A-Fatorial` (se ele não aparecer, clique em *Add account* /
+   *Configure* e libere o repositório na tela do GitHub)
+4. Selecione **A-Fatorial**
+5. Na tela de configuração:
+
+   | Campo                     | O que colocar                       |
+   |---------------------------|-------------------------------------|
+   | Nome do Worker            | `ideia-que-vende`                   |
+   | Branch de produção        | `claude/animated-shader-hero-thcafz`|
+   | Comando de build          | **deixe vazio**                     |
+   | Comando de deploy         | `npx wrangler deploy`               |
+   | Diretório raiz            | `/`                                 |
+
+   > Comando de build vazio é de propósito. O site já é HTML pronto,
+   > não há nada para compilar.
+
+6. **Save and Deploy**
+
+Ao final aparece um endereço `ideia-que-vende.gestaogrupoa.workers.dev`.
+Abra: a landing tem que carregar. Esse é o teste de que subiu.
+
+---
+
+## 2. Ligar o banco (D1)
+
+O banco `ideia-que-vende` já existe e as tabelas já estão criadas. Falta
+só ligar ao Worker.
+
+1. **Workers & Pages** → **ideia-que-vende** → **Settings**
+2. **Bindings** → **Add** → **D1 database**
+3. Variable name: `DB` · D1 database: `ideia-que-vende`
+4. **Deploy**
+
+> O `wrangler.toml` já traz esse binding, então ele costuma aparecer
+> sozinho. Se já estiver lá, não faça nada.
+
+---
+
+## 3. Colocar o domínio
+
+1. Ainda em **Settings** → **Domains & Routes** → **Add** → **Custom domain**
+2. Digite o domínio (ex.: `ideiaquevende.com.br`) → **Add domain**
+
+O domínio precisa estar na sua conta Cloudflare. Se ainda não estiver:
+**Websites** → **Add a site**, e troque os nameservers no registrador
+(Registro.br, GoDaddy, onde o domínio foi comprado). Isso leva de minutos
+a algumas horas para propagar.
+
+### Depois que o domínio funcionar, desligue o endereço de teste
+
+O `.workers.dev` serve o `/sistema/` para qualquer um que souber o
+endereço, e o Access (passo 5) protege só o domínio de verdade.
+
+**Settings** → **Domains & Routes** → na linha `workers.dev` →
+**Disable** (ou o "..." → Remove)
+
+---
+
+## 4. Guardar o segredo do Typeform
+
+1. Abra o Typeform → seu formulário → **Connect** → **Webhooks** →
+   **Add a webhook**
+2. Endpoint: `https://seudominio.com.br/typeform`
+3. Ligue **Secret** e escreva uma senha longa e aleatória. **Copie.**
+4. **Save** e depois **Test webhook** (guarde para o passo 6)
+
+Agora no Cloudflare:
+
+5. **ideia-que-vende** → **Settings** → **Variables and Secrets** → **Add**
+6. Type: **Secret** (não "Text") · Name: `TYPEFORM_WEBHOOK_SECRET` ·
+   Value: a senha que você copiou
+7. **Deploy**
+
+> Tem que ser tipo **Secret**. Como "Text" ele fica legível no painel.
+
+---
+
+## 5. Trancar o /sistema com o Cloudflare Access
+
+Isso põe uma tela de login na frente do sistema sem escrever uma linha de
+código de autenticação.
+
+1. No menu da esquerda: **Zero Trust** (abre em outra aba)
+2. Se for a primeira vez, ele pede para escolher um **team name**. Escolha
+   (ex.: `grupoa`) e pegue o plano **Free**, que cobre até 50 pessoas.
+3. **Access** → **Applications** → **Add an application** → **Self-hosted**
+4. Preencha:
+
+   | Campo             | Valor                    |
+   |-------------------|--------------------------|
+   | Application name  | Sistema                  |
+   | Subdomain         | *(vazio)*                |
+   | Domain            | `seudominio.com.br`      |
+   | Path              | `sistema`                |
+
+5. **Next** → crie uma policy:
+
+   | Campo    | Valor                                  |
+   |----------|----------------------------------------|
+   | Name     | Equipe                                 |
+   | Action   | Allow                                  |
+   | Include  | **Emails** → liste os e-mails da equipe|
+
+6. **Next** → **Add application**
+
+Repita o mesmo para a rota de dados, senão o `/leads` fica aberto:
+
+7. **Add an application** → **Self-hosted** → name `Leads`,
+   domain `seudominio.com.br`, path `leads`, mesma policy.
+
+### Pegue os dois valores que faltam
+
+Ainda em **Access** → **Applications** → clique em **Sistema** → aba
+**Overview**. Copie:
+
+- o **team domain** (algo como `grupoa.cloudflareaccess.com`)
+- a **Application Audience (AUD) Tag** (um hexadecimal comprido)
+
+Me mande os dois. Eles entram no `wrangler.toml` e destrancam o `/leads`.
+Enquanto estiverem vazios, o `/leads` responde:
+
+    {"erro":"falta configurar no Worker: TEAM_DOMAIN, ACCESS_AUD"}
+
+Isso é de propósito: sem eles não dá para conferir quem está entrando, e
+deixar passar seria pior que fechar.
+
+> Por que o AUD também: o mesmo Zero Trust assina o crachá de **todas** as
+> aplicações da conta, e você tem outro projeto nela. Sem conferir o AUD,
+> quem tem acesso a qualquer outra aplicação do time leria os leads daqui.
+
+---
+
+## 6. Conferir que o Typeform chegou
+
+No Typeform, **Connect** → **Webhooks** → **View deliveries**. A entrega
+de teste tem que aparecer com **200**.
+
+Se der 401, o segredo do painel não é o mesmo do Typeform. Refaça o
+passo 4.
+
+Para ver o que chegou no banco, aqui no chat eu consulto direto. Ou pelo
+painel: **Storage & Databases** → **D1** → **ideia-que-vende** →
+**Console**:
+
+```sql
+select criado_em, nome, email, whatsapp, plano from leads order by id desc;
 ```
-ideiaquevende.com.br/            landing, pública
-ideiaquevende.com.br/sistema/    sistema, atrás do Cloudflare Access
-ideiaquevende.com.br/typeform    recebe o webhook (só quem assina passa)
-ideiaquevende.com.br/leads       lê os leads (só quem passou pelo Access)
-```
 
-## Como o repositório está organizado
+---
 
-| Pasta | O que é |
-|-------|---------|
-| `public/` | o site. É isso que o Pages publica |
-| `public/index.html` | a landing |
-| `public/sistema/index.html` | o sistema de gestão |
-| `functions/` | vira `/typeform` e `/leads` no mesmo domínio |
-| `schema.sql` | registro do que já foi aplicado no banco |
-| `wrangler.toml` | amarra tudo |
+## O que falta depois disso
 
-As duas rotas são **Pages Functions**: sobem junto com o site, no mesmo
-deploy. Não existe Worker separado nem rota para configurar.
+- Trocar o domínio de exemplo dentro do `public/index.html` (4 lugares:
+  `canonical`, `og:url`, `og:image`, `twitter:image`). Um comando resolve:
 
-## O que já está pronto
+  ```sh
+  sed -i 's|ideiaquevende\.com\.br|SEUDOMINIO.com.br|g' public/index.html
+  ```
 
-- Banco D1 `ideia-que-vende` criado, com as tabelas `leads` e `webhook_log`
-  e os índices. O `database_id` já está no `wrangler.toml`.
-- As duas rotas escritas e testadas.
-- A landing com o link "Entrar no sistema" apontando para `/sistema/`.
+  O `robots.txt` e o `sitemap.xml` **não** precisam: são montados na hora,
+  a partir do domínio que o visitante pediu.
 
-## O que falta, e só você pode fazer
+- Uma tela de leads dentro do sistema, lendo `/leads`. Ainda não existe.
 
-**1. Criar o projeto no Pages**
+---
 
-Workers & Pages → Create → Pages → conecte este repositório.
+## Como isso é publicado dali em diante
 
-- Build command: deixe vazio (não há build)
-- Build output directory: `public`
-
-**2. Ligar o banco ao projeto**
-
-Settings → Bindings → D1 database binding:
-- Variable name: `DB`
-- Database: `ideia-que-vende`
-
-Sem isso as rotas sobem, mas quebram ao tocar no banco.
-
-**3. Pôr o segredo**
-
-Settings → Variables and Secrets → Add:
-- Nome: `TYPEFORM_WEBHOOK_SECRET`
-- Tipo: **Secret** (não "Text", senão fica visível)
-- Valor: uma senha longa e aleatória, inventada por você
-
-A mesma senha vai no Typeform, no passo 5.
-
-**4. Domínio**
-
-Custom domains → adicione `ideiaquevende.com.br`.
-
-Depois troque `https://ideiaquevende.com.br/` pelo domínio real em quatro
-lugares do `public/index.html` (`canonical`, `og:url`, `og:image`,
-`twitter:image` — há um comentário marcando) e em `public/robots.txt` e
-`public/sitemap.xml`.
-
-**5. Ligar o Typeform**
-
-No formulário: Connect → Webhooks → Add a webhook.
-
-- Endpoint: `https://ideiaquevende.com.br/typeform`
-- Secret: a mesma senha do passo 3
-
-Mande um teste pelo painel do próprio Typeform. Deve responder `{"ok":true}`.
-Se der 401, a senha está diferente entre os dois lados.
-
-**6. A parede de login**
-
-Zero Trust → Access → Applications → Add an application → Self-hosted.
-
-Uma aplicação para `ideiaquevende.com.br/sistema` e outra para
-`ideiaquevende.com.br/leads`, ambas com a regra dos e-mails de quem pode
-entrar.
-
-Pegue o seu subdomínio do Zero Trust (algo como `grupoa.cloudflareaccess.com`),
-ponha em `TEAM_DOMAIN` no `wrangler.toml` e publique de novo. **Sem isso a
-rota `/leads` recusa todo mundo**, por segurança.
-
-## Conferindo depois de publicar
-
-```bash
-# tem que responder 401: sem assinatura, ninguém entra
-curl -i -X POST https://ideiaquevende.com.br/typeform -d '{}'
-
-# o que chegou, inclusive o que falhou
-npx wrangler d1 execute ideia-que-vende --remote \
-  --command="select recebido_em, processado, erro from webhook_log order by id desc limit 10"
-
-# os leads
-npx wrangler d1 execute ideia-que-vende --remote \
-  --command="select criado_em, nome, email, plano, status from leads order by id desc limit 20"
-```
-
-## Como as rotas se comportam
-
-- **Conferem a assinatura sobre o corpo cru.** Mudou um byte depois de
-  assinado, não passa. Testado.
-- **Gravam o payload cru antes de processar.** Quando der problema em
-  produção, esse log é a única coisa que vai existir para explicar.
-- **Não duplicam.** O Typeform reenvia quando não recebe 200; o `token` da
-  resposta é único, então reenvio atualiza em vez de criar outro lead.
-- **Respondem 200 quando entenderam o payload**, mesmo se falharem depois.
-  Erro nosso não é motivo para o Typeform ficar reenviando. Fica no log.
-- **Não leem por posição.** Cada resposta é casada com a pergunta pelo id do
-  campo. Mudou o formulário, o campo novo entra em `respostas` sem quebrar.
-- **`/leads` confere o JWT do Access contra as chaves públicas do time.** O
-  cabeçalho sozinho não basta: mandar ele na mão devolve 401.
-
-## O que ainda falta no sistema
-
-O sistema guarda tudo em `localStorage`, no navegador de quem abriu, naquele
-aparelho. Ele ainda não lê a rota `/leads` — essa é a próxima etapa.
-
-Vale saber que isso vale para o sistema inteiro: hoje duas pessoas que abrem
-o sistema veem dados diferentes, porque cada uma tem o seu próprio
-armazenamento local. Pôr o Access na frente resolve *quem entra*, não faz os
-dados serem compartilhados.
+Todo `git push` na branch `claude/animated-shader-hero-thcafz` refaz o
+deploy sozinho. Para acompanhar: **ideia-que-vende** → **Deployments**.

@@ -1,11 +1,28 @@
-# Cloudflare Pages: o site e as duas rotas sobem juntos, num projeto só.
+# Um Worker só serve o site inteiro e as rotas de dados.
 #
-# public/     é o que vira o site
-# functions/  vira /typeform e /leads no mesmo domínio, sem configurar rota
+# public/  vira o site (landing em /, sistema em /sistema/)
+# src/     vira /typeform, /leads, /robots.txt e /sitemap.xml
+#
+# Não existe passo de build: o site é HTML pronto. O deploy só sobe os
+# arquivos e o script.
 
 name = "ideia-que-vende"
+main = "src/index.js"
 compatibility_date = "2026-08-01"
-pages_build_output_dir = "public"
+
+# URL de versao (<versao>-ideia-que-vende.workers.dev) fica desligada: ela
+# serviria /sistema/ para qualquer um que adivinhasse o endereco, e o
+# Access so protege o dominio de verdade.
+preview_urls = false
+
+[assets]
+directory = "public"
+binding = "ASSETS"
+
+# O Worker só é chamado nestes caminhos. Todo o resto (a landing, o
+# sistema, a imagem de compartilhamento) sai direto do cache da borda,
+# sem executar código e sem contar requisição de Worker.
+run_worker_first = ["/typeform", "/leads", "/robots.txt", "/sitemap.xml"]
 
 # O banco já existe e as tabelas já foram criadas.
 [[d1_databases]]
@@ -13,11 +30,22 @@ binding = "DB"
 database_name = "ideia-que-vende"
 database_id = "9e6ad2f3-7bf5-42dc-acdf-20282227edff"
 
+[observability]
+enabled = true
+
 # O segredo do webhook NÃO vai aqui: este arquivo é versionado no git.
-# Defina no painel do Pages, em Settings > Variables and Secrets, como
-# secret, com o nome TYPEFORM_WEBHOOK_SECRET.
+# Defina no painel do Worker, em Settings > Variables and Secrets, como
+# tipo Secret, com o nome TYPEFORM_WEBHOOK_SECRET.
 #
-# TEAM_DOMAIN é o subdomínio do Zero Trust (ex.: grupoa.cloudflareaccess.com).
-# Sem segredo, pode ficar aqui.
+# Os dois campos abaixo saem da MESMA tela: Zero Trust > Access >
+# Applications > (a aplicacao do /sistema) > Overview.
+#
+#   TEAM_DOMAIN  o subdominio do time      ex.: grupoa.cloudflareaccess.com
+#   ACCESS_AUD   "Application Audience (AUD) Tag", aquele hexadecimal longo
+#
+# Nenhum dos dois e segredo: o AUD identifica a aplicacao, nao autoriza
+# ninguem. Enquanto estiverem vazios, /leads responde 503 dizendo qual
+# falta, em vez de deixar passar.
 [vars]
 TEAM_DOMAIN = ""
+ACCESS_AUD = ""

@@ -3,10 +3,12 @@
 Aplicação de página única (um arquivo, sem build, JavaScript puro).
 Abra `public/sistema/index.html` no navegador para usar.
 
-> **Onde ficam as coisas.** O repositório foi organizado para publicar na
-> Cloudflare Pages: `public/` é o site (a landing em `public/index.html` e o
-> sistema em `public/sistema/index.html`) e `functions/` são as duas rotas de
-> servidor. O passo a passo da publicação está em [`DEPLOY.md`](DEPLOY.md).
+> **Onde ficam as coisas.** O repositório publica num Worker da Cloudflare:
+> `public/` é o site (a landing em `public/index.html` e o sistema em
+> `public/sistema/index.html`, servidos como arquivo estático) e `src/` são as
+> rotas de servidor (`/typeform`, `/leads`, `/robots.txt`, `/sitemap.xml`).
+> Não há passo de build. O passo a passo da publicação, com onde clicar no
+> painel, está em [`DEPLOY.md`](DEPLOY.md).
 
 ## Acessos (tela de login)
 
@@ -333,7 +335,10 @@ automaticamente; sem o campo oculto, o parâmetro é simplesmente ignorado.
 
 1. Troque `https://ideiaquevende.com.br/` pelo domínio real nas tags do topo do
    arquivo (há um comentário marcando o lugar). São quatro ocorrências:
-   `canonical`, `og:url`, `og:image` e `twitter:image`.
+   `canonical`, `og:url`, `og:image` e `twitter:image`. Um comando resolve:
+   `sed -i 's|ideiaquevende\.com\.br|SEUDOMINIO.com.br|g' public/index.html`.
+   O `robots.txt` e o `sitemap.xml` não entram nessa conta: são montados na
+   hora pelo Worker, a partir do domínio que o visitante pediu.
 2. Suba o `og-image.png` na mesma pasta do HTML. É a imagem que aparece quando
    alguém compartilha o link no WhatsApp, Instagram ou LinkedIn.
 3. Preencha o que faltar no bloco `CONFIG`: WhatsApp, e-mail, LinkedIn, YouTube
@@ -348,7 +353,8 @@ automaticamente; sem o campo oculto, o parâmetro é simplesmente ignorado.
   usam `--o-ink` (#b84f00, 4,6:1) e o laranja cheio fica nos traços e ícones,
   que são elementos gráficos.
 - `prefers-reduced-motion` desliga animações, revelações e o shader.
-- Navegação por teclado com *skip link*, `:focus-visible` e menu com `aria-expanded`.
+- Navegação por teclado com `:focus-visible` e menu com `aria-expanded`. O
+  landmark `<main id="conteudo">` dá o mesmo atalho para leitor de tela.
 - Sem imagens pesadas: o hero antigo era um print de 163 KB com áreas clicáveis
   invisíveis — foi substituído por HTML real (melhor para SEO, leitor de tela e
   responsividade). Há `JSON-LD` de `Organization`, `Service` e `FAQPage`.

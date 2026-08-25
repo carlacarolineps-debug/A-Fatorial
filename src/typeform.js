@@ -9,9 +9,9 @@
 // Responder 200 sempre que o payload foi entendido é proposital: o
 // Typeform reenvia quando recebe erro, e reenvio sem necessidade é ruído.
 // Erro real fica no log.
-import { json, assinaturaConfere, lerResposta } from "./_lib.js";
+import { json, assinaturaConfere, lerResposta } from "./lib.js";
 
-export async function onRequestPost({ request, env }) {
+export async function receberTypeform(request, env) {
   const corpoCru = await request.text();
 
   const assinado = await assinaturaConfere(
@@ -54,7 +54,3 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false });
   }
 }
-
-// qualquer outro método não interessa
-export const onRequest = ({ request }) =>
-  request.method === "POST" ? undefined : json({ erro: "método" }, 405);
