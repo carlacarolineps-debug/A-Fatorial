@@ -324,6 +324,17 @@ acrescentam `?plano=start|pro|premium` ao link do Typeform. Se você criar um
 **campo oculto** chamado `plano` no Typeform, ele recebe essa informação
 automaticamente; sem o campo oculto, o parâmetro é simplesmente ignorado.
 
+## Antes de publicar
+
+1. Troque `https://ideiaquevende.com.br/` pelo domínio real nas tags do topo do
+   arquivo (há um comentário marcando o lugar). São quatro ocorrências:
+   `canonical`, `og:url`, `og:image` e `twitter:image`.
+2. Suba o `og-image.png` na mesma pasta do HTML. É a imagem que aparece quando
+   alguém compartilha o link no WhatsApp, Instagram ou LinkedIn.
+3. Preencha o que faltar no bloco `CONFIG`: WhatsApp, e-mail, LinkedIn, YouTube
+   e os checkouts. O que ficar vazio continua aparecendo como texto, sem virar
+   link quebrado.
+
 ## Acessibilidade e desempenho
 
 - Todo texto passa no mínimo WCAG AA de contraste, verificado por auditoria que
