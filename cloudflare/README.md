@@ -29,18 +29,12 @@ a Cloudflare resolve as quatro peças em um lugar.
 
 ## Passo a passo
 
-**1. Banco**
+**1. Banco — já feito**
 
-```bash
-cd cloudflare
-npx wrangler d1 create ideia-que-vende
-```
-
-Copie o `database_id` que ele imprime e cole no `wrangler.toml`. Depois:
-
-```bash
-npx wrangler d1 execute ideia-que-vende --remote --file=schema.sql
-```
+O banco `ideia-que-vende` já existe na conta de vocês, com as tabelas
+`leads` e `webhook_log` criadas e o `database_id` já preenchido no
+`wrangler.toml`. O `schema.sql` fica aqui como registro do que foi
+aplicado; não precisa rodar de novo.
 
 **2. Segredo do webhook**
 
