@@ -302,6 +302,11 @@ automaticamente; sem o campo oculto, o parâmetro é simplesmente ignorado.
 
 ## Acessibilidade e desempenho
 
+- Todo texto passa no mínimo WCAG AA de contraste, verificado por auditoria que
+  percorre o DOM e calcula a razão de cada texto contra o fundo efetivo.
+  Em fundo claro o laranja cheio da marca dá só 2,2:1, então textos pequenos
+  usam `--o-ink` (#b84f00, 4,6:1) e o laranja cheio fica nos traços e ícones,
+  que são elementos gráficos.
 - `prefers-reduced-motion` desliga animações, revelações e o shader.
 - Navegação por teclado com *skip link*, `:focus-visible` e menu com `aria-expanded`.
 - Sem imagens pesadas: o hero antigo era um print de 163 KB com áreas clicáveis
