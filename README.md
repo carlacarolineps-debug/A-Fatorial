@@ -259,9 +259,9 @@ arquivo direto — não há dependência externa nem requisição a terceiros.
   continua por cima e nenhum botão precisou de wrapper interno. Três acabamentos:
   pérola laranja (ação principal), escura (secundária no preto) e clara
   (secundária no branco). A estrelinha `✧ → ✦` do original ficou no botão da
-  aplicação, junto do reflexo `.gleam`.
+  chamada principal, junto do reflexo `.gleam`.
 - **Shine border** (`.shine`): anel animado por `mask-composite: exclude` sobre
-  um gradiente radial de 300%. Está no cartão da aplicação e no plano PRO;
+  um gradiente radial de 300%. Está no cartão de `#sua-ideia` e no plano PRO;
   ajuste por elemento com `--shine-w` e `--shine-d`.
 - **Título em degradê** (`.grad`): o texto desvanece da base, como no demo do
   Shine Border. As cores vêm de `--g1`/`--g2` por tipo de seção, com valor
@@ -272,7 +272,7 @@ arquivo direto — não há dependência externa nem requisição a terceiros.
 | Detalhe | Onde | Observação |
 |---------|------|------------|
 | Luz que segue o cursor (`.spot`) | cartões de problema, público e planos | só com `hover:hover` e `pointer:fine`; atualiza `--mx`/`--my` em `requestAnimationFrame` |
-| Barra fixa de aplicação (`.dock`) | telas ≤1080px | aparece depois do hero, some dentro da seção de aplicação e no rodapé; alterna `aria-hidden` e `tabindex` |
+| Barra fixa de chamada (`.dock`) | telas ≤1080px | aparece depois do hero, some dentro da seção `#sua-ideia` e no rodapé; alterna `aria-hidden` e `tabindex` |
 | Parallax do hero | conteúdo do hero | desliga em `prefers-reduced-motion` |
 | Linha da trilha do método | `#metodo` | desenhada da esquerda para a direita quando a seção entra |
 | Grão global | `body::after` | camada fixa em `mix-blend-mode: overlay` a 3% |
@@ -283,17 +283,20 @@ No topo do `<script>` existe o objeto **`CONFIG`**:
 
 | Campo | Para que serve |
 |-------|----------------|
-| `typeform` | link da aplicação. Todo botão marcado com `data-typeform` aponta para ele. |
+| `typeform` | link do formulário. Todo botão marcado com `data-typeform` aponta para ele. |
 | `whatsapp` | número com DDI+DDD, só dígitos (ex.: `5511999999999`). Vazio = o link abre o WhatsApp sem contato definido. |
 | `email`, `instagram`, `linkedin`, `youtube` | links do rodapé. Vazio = o item vira texto, sem link quebrado. |
-| `checkouts.start/pro/premium` | URLs de checkout TMB. Vazio = abre o modal que leva à aplicação. |
+| `checkouts.start/pro/premium` | URLs de checkout TMB. Vazio = abre o modal que leva ao Typeform. |
 
-## Aplicação (Typeform)
+## Conte a sua ideia (Typeform)
 
-A seção `#qualificacao` explica o processo em três passos e concentra a
+A seção `#sua-ideia` explica o processo em três passos e concentra a
 conversão em **um único botão** (`.btn-xl`), com brilho pulsante e reflexo
-animado — ambos desligados por `prefers-reduced-motion`. O botão abre o
+animado, ambos desligados por `prefers-reduced-motion`. O botão abre o
 Typeform em nova aba.
+
+A linguagem da seção evita jargão ("aderência", "qualificação") e não diz que
+o próximo passo é preencher um formulário: o convite é "conte a sua ideia".
 
 Os botões dos planos, quando não há checkout configurado, abrem o modal e
 acrescentam `?plano=start|pro|premium` ao link do Typeform. Se você criar um
