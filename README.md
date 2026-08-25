@@ -253,6 +253,29 @@ arquivo direto — não há dependência externa nem requisição a terceiros.
   a borda (`@keyframes moveDot`) e os números sobem com `requestAnimationFrame`
   disparado por `IntersectionObserver`. Os valores são estruturais do método
   (6 etapas, 8 entregas, 4 fases, 3 planos) — não são métricas de resultado.
+- **Pearl button** (`.btn` + `.btn-o`/`.btn-line`/`.btn-ink`/`.btn-xl`): as duas
+  camadas de brilho do componente original ficam em `::before`/`::after` com
+  `z-index:-1` — como o botão já isola o contexto de empilhamento, o rótulo
+  continua por cima e nenhum botão precisou de wrapper interno. Três acabamentos:
+  pérola laranja (ação principal), escura (secundária no preto) e clara
+  (secundária no branco). A estrelinha `✧ → ✦` do original ficou no botão da
+  aplicação, junto do reflexo `.gleam`.
+- **Shine border** (`.shine`): anel animado por `mask-composite: exclude` sobre
+  um gradiente radial de 300%. Está no cartão da aplicação e no plano PRO;
+  ajuste por elemento com `--shine-w` e `--shine-d`.
+- **Título em degradê** (`.grad`): o texto desvanece da base, como no demo do
+  Shine Border. As cores vêm de `--g1`/`--g2` por tipo de seção, com valor
+  padrão embutido para nunca sumir se uma seção não definir os tokens.
+
+## Detalhes de interação
+
+| Detalhe | Onde | Observação |
+|---------|------|------------|
+| Luz que segue o cursor (`.spot`) | cartões de problema, público e planos | só com `hover:hover` e `pointer:fine`; atualiza `--mx`/`--my` em `requestAnimationFrame` |
+| Barra fixa de aplicação (`.dock`) | telas ≤1080px | aparece depois do hero, some dentro da seção de aplicação e no rodapé; alterna `aria-hidden` e `tabindex` |
+| Parallax do hero | conteúdo do hero | desliga em `prefers-reduced-motion` |
+| Linha da trilha do método | `#metodo` | desenhada da esquerda para a direita quando a seção entra |
+| Grão global | `body::after` | camada fixa em `mix-blend-mode: overlay` a 3% |
 
 ## Onde configurar
 
