@@ -238,14 +238,17 @@ arquivo direto — não há dependência externa nem requisição a terceiros.
 
 - Preto `#08080a` + branco quente `#f6f4ef` + laranja da marca `#ff8309`
   (amostrado do logotipo original). As seções alternam fundo preto e branco.
-- Tipografia: **Sora** (títulos), **Inter** (texto), **JetBrains Mono**
-  (rótulos, numerais e etiquetas) — as três embutidas em base64.
+- Tipografia: **Sora** nos títulos e **Inter** em todo o resto, texto corrido e
+  rótulos, as duas embutidas em base64. Os rótulos usam o token `--f-label`,
+  com peso 500/600 para segurarem presença nos tamanhos pequenos.
 - Monograma **ID** refeito em SVG vetorial (`<symbol id="mark">`), usado no CTA
   final, no hero e no favicon.
 - **Logotipo horizontal** reconstruído a partir da arte original (as três
   palavras recortadas, normalizadas para a mesma altura de maiúscula e
-  recompostas em uma linha, com as réguas acima e abaixo do "QUE"). Entra uma
-  única vez no arquivo, como o token `--logo-h`, e é usado no topo e no rodapé.
+  recompostas em uma linha, com as réguas acima e abaixo do "QUE"). O miolo do
+  "A" vinha branco na arte embutida no HTML antigo e foi repintado de laranja,
+  como no logotipo oficial. Entra uma única vez no arquivo, como o token
+  `--logo-h`, e aparece no topo (ao lado do monograma) e no rodapé.
 
 ## Mobile
 
