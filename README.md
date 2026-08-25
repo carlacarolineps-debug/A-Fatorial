@@ -240,8 +240,26 @@ arquivo direto — não há dependência externa nem requisição a terceiros.
   (amostrado do logotipo original). As seções alternam fundo preto e branco.
 - Tipografia: **Sora** (títulos), **Inter** (texto), **JetBrains Mono**
   (rótulos, numerais e etiquetas) — as três embutidas em base64.
-- Monograma **ID** refeito em SVG vetorial (`<symbol id="mark">`), usado no topo,
-  no CTA final e no favicon. O logotipo completo aparece no rodapé.
+- Monograma **ID** refeito em SVG vetorial (`<symbol id="mark">`), usado no CTA
+  final, no hero e no favicon.
+- **Logotipo horizontal** reconstruído a partir da arte original (as três
+  palavras recortadas, normalizadas para a mesma altura de maiúscula e
+  recompostas em uma linha, com as réguas acima e abaixo do "QUE"). Entra uma
+  única vez no arquivo, como o token `--logo-h`, e é usado no topo e no rodapé.
+
+## Mobile
+
+Auditado em 360, 390 e 430px com verificação automática de área de toque
+(mínimo 44px), tamanho de texto, estouro de caixa e margem lateral:
+
+- links do rodapé viraram listas com 44px de altura de toque; marca, menu
+  sanduíche, "voltar ao topo" e o link do FAQ ganharam área suficiente
+- nenhum texto corrido abaixo de 13px; rótulos em versalete ficam em 11px+
+- o rótulo do botão principal quebrava em duas linhas abaixo de 560px: a
+  estrelinha decorativa sai e o espaçamento diminui, mantendo uma linha só
+- `-webkit-tap-highlight-color` na cor da marca no lugar do azul padrão
+- celular deitado tem regra própria: o hero deixa de ocupar a tela inteira e a
+  barra fixa some
 
 ## Componentes integrados
 
