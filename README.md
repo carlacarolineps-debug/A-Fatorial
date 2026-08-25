@@ -1,7 +1,12 @@
 # A! Fatorial — Sistema de Gestão (Arquitetura de Lucro)
 
-Aplicação de página única (um arquivo `index.html`, sem build, JavaScript puro).
-Abra o arquivo no navegador para usar.
+Aplicação de página única (um arquivo, sem build, JavaScript puro).
+Abra `public/sistema/index.html` no navegador para usar.
+
+> **Onde ficam as coisas.** O repositório foi organizado para publicar na
+> Cloudflare Pages: `public/` é o site (a landing em `public/index.html` e o
+> sistema em `public/sistema/index.html`) e `functions/` são as duas rotas de
+> servidor. O passo a passo da publicação está em [`DEPLOY.md`](DEPLOY.md).
 
 ## Acessos (tela de login)
 
