@@ -70,7 +70,13 @@ só ligar ao Worker.
 ## 3. Colocar o domínio
 
 1. Ainda em **Settings** → **Domains & Routes** → **Add** → **Custom domain**
-2. Digite o domínio (ex.: `ideiaquevende.com.br`) → **Add domain**
+2. Digite `ideiaquevende.com.br` → **Add domain**
+3. Repita com `www.ideiaquevende.com.br`, senão quem digitar o "www" na
+   frente não chega ao site.
+
+Confira nessa mesma tela que o domínio está no Worker **ideia-que-vende**.
+Se ele tiver sido ligado ao Worker de teste, o endereço abre a página
+"Hello World" no lugar da landing.
 
 O domínio precisa estar na sua conta Cloudflare. Se ainda não estiver:
 **Websites** → **Add a site**, e troque os nameservers no registrador
@@ -181,17 +187,14 @@ select criado_em, nome, email, whatsapp, plano from leads order by id desc;
 
 ## O que falta depois disso
 
-- Trocar o domínio de exemplo dentro do `public/index.html` (4 lugares:
-  `canonical`, `og:url`, `og:image`, `twitter:image`). Um comando resolve:
-
-  ```sh
-  sed -i 's|ideiaquevende\.com\.br|SEUDOMINIO.com.br|g' public/index.html
-  ```
-
-  O `robots.txt` e o `sitemap.xml` **não** precisam: são montados na hora,
-  a partir do domínio que o visitante pediu.
-
 - Uma tela de leads dentro do sistema, lendo `/leads`. Ainda não existe.
+
+> **O domínio já está certo no código.** O endereço que estava escrito como
+> exemplo, `ideiaquevende.com.br`, é o domínio de verdade. As quatro tags do
+> topo do `public/index.html` (`canonical`, `og:url`, `og:image`,
+> `twitter:image`) não precisam de troca nenhuma. O `robots.txt` e o
+> `sitemap.xml` também não: são montados na hora, a partir do domínio que o
+> visitante pediu.
 
 ---
 

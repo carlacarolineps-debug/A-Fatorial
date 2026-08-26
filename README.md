@@ -333,11 +333,9 @@ automaticamente; sem o campo oculto, o parâmetro é simplesmente ignorado.
 
 ## Antes de publicar
 
-1. Troque `https://ideiaquevende.com.br/` pelo domínio real nas tags do topo do
-   arquivo (há um comentário marcando o lugar). São quatro ocorrências:
-   `canonical`, `og:url`, `og:image` e `twitter:image`. Um comando resolve:
-   `sed -i 's|ideiaquevende\.com\.br|SEUDOMINIO.com.br|g' public/index.html`.
-   O `robots.txt` e o `sitemap.xml` não entram nessa conta: são montados na
+1. O domínio nas tags do topo do arquivo (`canonical`, `og:url`, `og:image` e
+   `twitter:image`) já é o de verdade: `ideiaquevende.com.br`. Nada a trocar.
+   O `robots.txt` e o `sitemap.xml` nem aparecem nessa conta: são montados na
    hora pelo Worker, a partir do domínio que o visitante pediu.
 2. Suba o `og-image.png` na mesma pasta do HTML. É a imagem que aparece quando
    alguém compartilha o link no WhatsApp, Instagram ou LinkedIn.
