@@ -78,10 +78,51 @@ Confira nessa mesma tela que o domínio está no Worker **ideia-que-vende**.
 Se ele tiver sido ligado ao Worker de teste, o endereço abre a página
 "Hello World" no lugar da landing.
 
-O domínio precisa estar na sua conta Cloudflare. Se ainda não estiver:
-**Websites** → **Add a site**, e troque os nameservers no registrador
-(Registro.br, GoDaddy, onde o domínio foi comprado). Isso leva de minutos
-a algumas horas para propagar.
+### Apontar o Registro.br para a Cloudflare
+
+O domínio já está na conta Cloudflare, mas só passa a valer quando o
+Registro.br apontar para os servidores dela.
+
+**Antes de qualquer clique, confira o que mais usa esse domínio hoje.**
+No momento em que os nameservers mudam, a Cloudflare passa a ser a única
+resposta para `ideiaquevende.com.br`. Tudo que não estiver na lista de DNS
+dela some no mesmo segundo: e-mail, site antigo, subdomínio, sistema de
+terceiro. Hoje a lista tem `MX` nulo e `v=spf1 -all`, que significam
+"este domínio não recebe e-mail". Se existe e-mail nesse domínio (KingHost
+ou qualquer outro), ele para. Copie os registros do provedor atual para a
+Cloudflare **antes** de trocar.
+
+**1. Pegue os dois nameservers.** Cloudflare → o domínio → **DNS** →
+**Records**, role até o fim: bloco **Cloudflare nameservers**, com dois
+endereços no formato `nome.ns.cloudflare.com`. São sorteados por conta, os
+seus são diferentes dos de qualquer outra pessoa.
+
+**2. Desligue o DNSSEC no Registro.br, se estiver ligado.** No painel do
+domínio, seção **DNSSEC**. Se houver registro DS, remova e salve. Trocar
+os nameservers com DNSSEC apontando para o provedor antigo não deixa o
+domínio lento: derruba ele por completo, e o erro não explica o motivo.
+
+**3. Troque os servidores.**
+
+1. Entre em `registro.br` (CPF/CNPJ e senha, ou conta gov.br)
+2. Painel → clique em **ideiaquevende.com.br**
+3. Seção **Servidores DNS** → **Alterar** / ícone de edição
+4. Escolha usar servidores DNS **próprios**, não o DNS do Registro.br
+5. Apague os que estiverem lá e ponha os dois da Cloudflare, um em cada
+   campo. Deixe os campos de IP **vazios**.
+6. Salvar
+
+O Registro.br testa se os servidores respondem pelo domínio antes de
+aceitar. Como a zona já existe na Cloudflare, passa. Se der "servidor DNS
+não responde", espere uns minutos e salve de novo.
+
+**4. Espere.** O `.br` publica em lotes: costuma valer em algumas horas,
+com prazo formal de 24h. Na Cloudflare o domínio sai de *Pending
+Nameserver Update* e vira **Active**, e chega um e-mail avisando.
+
+**5. Depois de Active.** Ligue **SSL/TLS** → **Edge Certificates** →
+**Always Use HTTPS**. Abra `https://ideiaquevende.com.br`: tem que
+aparecer a landing.
 
 ### Depois que o domínio funcionar, desligue o endereço de teste
 
