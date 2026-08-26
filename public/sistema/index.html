@@ -4054,7 +4054,7 @@ body.apresentacao #apr-banner{display:block;}
         // Muda o andamento no servidor. A tela muda na hora e volta atrás se
         // o servidor recusar: esperar a resposta para só então mexer deixa a
         // lista com cara de travada.
-        async function leadsMudar(id, mudanca, aoTerminar){
+        async function leadsMudar(id, mudanca){
           let lead=LEADS.itens.find(l=>l.id===id); if(!lead) return false;
           let antes={status:lead.status, observacoes:lead.observacoes};
           Object.assign(lead, mudanca);
@@ -4070,7 +4070,7 @@ body.apresentacao #apr-banner{display:block;}
             });
             let corpo=await ldLerJson(r);
             if(corpo===null) motivo='Seu login expirou. Recarregue a página.';
-            else if(r.ok&&corpo.ok){ deuCerto=true; Object.assign(lead, corpo.lead||{}); }
+            else if(r.ok&&corpo.ok){ deuCerto=true; Object.assign(lead, corpo.lead||{}); LEADS.aviso=null; }
             else motivo=corpo.erro||('erro '+r.status);
           }catch(e){
             motivo='Não consegui falar com o servidor.';
@@ -4082,7 +4082,6 @@ body.apresentacao #apr-banner{display:block;}
           }
           delete LEADS.salvando[id];
           leadsRender();
-          if(typeof aoTerminar==='function') aoTerminar(deuCerto);
           return deuCerto;
         }
 
