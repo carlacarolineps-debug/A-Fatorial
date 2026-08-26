@@ -209,6 +209,26 @@ t("leads configurado: PATCH sem login  401", r.status === 401, JSON.stringify(j)
 r = await fetch(`${BA}/leads`, { method: "GET", headers: { "cf-access-jwt-assertion": "token.forjado.aqui" } });
 t("leads configurado: JWT forjado  401", r.status === 401, `status=${r.status}`);
 
+// ---------- /eu: quem entrou ----------
+r = await fetch(`${B}/eu`);
+j = await r.json();
+t("eu: sem TEAM_DOMAIN/AUD  503 explicando", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
+
+r = await fetch(`${B}/eu`, { method: "POST" });
+t("eu: POST  405", r.status === 405, `status=${r.status}`);
+
+r = await fetch(`${BA}/eu`);
+j = await r.json();
+t("eu configurado: sem login  401", r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
+
+r = await fetch(`${BA}/eu`, { headers: { "cf-access-jwt-assertion": "token.forjado.aqui" } });
+t("eu configurado: JWT forjado  401", r.status === 401, `status=${r.status}`);
+
+// o /eu nao pode virar um jeito de descobrir a lista de quem tem acesso
+r = await fetch(`${BA}/eu`);
+const corpoEu = await r.text();
+t("eu: não vaza nada além do erro quando barra", corpoEu.length < 120, `${corpoEu.length} bytes`);
+
 // ---------- o que o PATCH aceita mudar (função pura, sem servidor) ----------
 const p1 = lerPedido({ id: 7, status: "contatado" });
 t("patch: status válido vira SQL", !p1.erro && p1.id === 7 && p1.valores[0] === "contatado", JSON.stringify(p1.valores));

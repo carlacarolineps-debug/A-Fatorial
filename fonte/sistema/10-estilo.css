@@ -1,0 +1,241 @@
+/* ====================================================================
+   Sistema Ideia Que Vende  ·  linguagem visual
+
+   Os tokens sao os mesmos da landing, copiados de public/index.html.
+   Se a marca mudar la, muda aqui: e a mesma empresa e a pessoa acabou
+   de vir de uma pagina para a outra.
+   ==================================================================== */
+:root{
+  /* superficies */
+  --preto:#08080a; --preto-2:#0d0d10; --preto-3:#141418; --preto-4:#1b1b21;
+  --papel:#f6f4ef; --branco:#fff;
+  /* marca */
+  --o:#ff8309; --o-lt:#ffa53d; --o-dp:#e56600;
+  --o-05:rgba(255,131,9,.05); --o-10:rgba(255,131,9,.10);
+  --o-18:rgba(255,131,9,.18); --o-35:rgba(255,131,9,.35);
+  /* tinta sobre escuro */
+  --tinta:#f2efe8; --tinta-2:#b9b9c2; --tinta-3:#8d8d97; --tinta-4:#5f5f69;
+  /* linhas */
+  --linha:rgba(255,255,255,.10); --linha-2:rgba(255,255,255,.055);
+  /* sinais */
+  --ok:#4ac97e; --ok-bg:rgba(74,201,126,.12);
+  --atencao:#ffc14d; --atencao-bg:rgba(255,193,77,.12);
+  --alerta:#ff6b5a; --alerta-bg:rgba(255,107,90,.12);
+  --info:#7ab8ff; --info-bg:rgba(122,184,255,.12);
+  /* tipografia */
+  --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --texto:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  /* medidas */
+  --r:14px; --r-sm:10px; --r-lg:20px;
+  --lateral:262px;
+  --sombra:0 18px 50px -30px #000;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--preto); color:var(--tinta);
+  font-family:var(--texto); font-size:14px; line-height:1.55;
+  -webkit-font-smoothing:antialiased; min-height:100dvh;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+a{color:var(--o);text-decoration:none}
+a:hover{text-decoration:underline}
+[hidden]{display:none !important}
+
+/* ---------------------------------------------------------- moldura */
+.app{display:grid;grid-template-columns:var(--lateral) 1fr;min-height:100dvh}
+.app.sozinho{grid-template-columns:1fr}          /* cliente: sem barra lateral */
+
+.lateral{
+  background:var(--preto-2); border-right:1px solid var(--linha);
+  display:flex; flex-direction:column; position:sticky; top:0; height:100dvh;
+}
+.lateral-marca{display:flex;align-items:center;gap:11px;padding:22px 20px 20px}
+.lateral-marca svg{width:26px;height:22px;fill:var(--o);flex:none}
+.lateral-marca b{
+  font-family:var(--display); font-weight:800; font-size:12.5px;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--branco); display:block;
+}
+.lateral-marca span{font-size:10px;color:var(--tinta-4);letter-spacing:.06em}
+
+.menu{padding:6px 12px 18px;overflow-y:auto;flex:1}
+.menu-grupo{
+  font-size:9.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--tinta-4); font-weight:600; margin:18px 12px 8px;
+}
+.menu-grupo:first-child{margin-top:2px}
+.menu-item{
+  display:flex; align-items:center; gap:11px; width:100%; background:none;
+  border:none; color:var(--tinta-2); padding:10px 12px; border-radius:var(--r-sm);
+  cursor:pointer; font-size:13.5px; text-align:left; transition:.16s;
+}
+.menu-item:hover{background:rgba(255,255,255,.05);color:var(--branco)}
+.menu-item .ic{width:17px;text-align:center;opacity:.75;font-size:14px;flex:none}
+.menu-item.on{background:var(--o-10);color:var(--o-lt);font-weight:600}
+.menu-item.on .ic{opacity:1}
+.menu-item .conta{
+  margin-left:auto; font-size:10.5px; font-weight:700; min-width:20px; height:20px;
+  border-radius:6px; display:grid; place-items:center; padding:0 6px;
+  background:var(--o); color:#1a1004;
+}
+.menu-item.on .conta{background:var(--o-lt)}
+
+.topo{
+  display:flex; align-items:center; gap:16px; padding:18px 30px;
+  border-bottom:1px solid var(--linha); position:sticky; top:0; z-index:5;
+  background:rgba(8,8,10,.86); backdrop-filter:blur(10px);
+}
+.topo h1{font-family:var(--display);font-weight:300;font-size:20px;color:var(--branco);line-height:1.2}
+.topo h1 b{font-weight:700;color:var(--o)}
+.topo .sub{font-size:11.5px;color:var(--tinta-4);margin-top:3px}
+.topo .quem{margin-left:auto;text-align:right;line-height:1.35}
+.topo .quem b{display:block;font-size:12.5px;color:var(--branco)}
+.topo .quem span{font-size:10.5px;color:var(--tinta-4);text-transform:uppercase;letter-spacing:.08em}
+
+.rolo{padding:26px 30px 70px;max-width:1240px}
+
+/* ---------------------------------------------------------- telas */
+.tela{display:none}
+.tela.on{display:block}
+
+/* ---------------------------------------------------------- blocos */
+.abertura{
+  border:1px solid var(--linha); border-radius:var(--r-lg); padding:26px 28px;
+  background:linear-gradient(135deg,var(--preto-2) 0%,var(--preto-3) 60%,#1c1a1f 100%);
+  position:relative; overflow:hidden; margin-bottom:22px;
+}
+.abertura::after{
+  content:""; position:absolute; top:-60%; right:-4%; width:380px; height:380px;
+  background:radial-gradient(circle,var(--o-18),transparent 62%); pointer-events:none;
+}
+.abertura h2{
+  font-family:var(--display); font-weight:300; font-size:clamp(19px,2.4vw,26px);
+  color:var(--branco); line-height:1.2; position:relative; z-index:1;
+}
+.abertura h2 b{font-weight:700;color:var(--o)}
+.abertura p{color:var(--tinta-3);font-size:13.5px;margin-top:9px;max-width:70ch;position:relative;z-index:1}
+
+.selo{
+  display:inline-flex; align-items:center; gap:7px; border:1px solid var(--o-35);
+  background:var(--o-10); color:var(--o); font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; padding:5px 12px;
+  border-radius:30px; position:relative; z-index:1;
+}
+
+.cartao{
+  background:var(--preto-2); border:1px solid var(--linha); border-radius:var(--r);
+  padding:22px 24px; margin-bottom:18px; box-shadow:var(--sombra);
+}
+.cartao-t{
+  font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--tinta-3); margin-bottom:16px; display:flex; align-items:center; gap:11px;
+}
+
+.numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;margin-bottom:20px}
+.numero{background:var(--preto-2);border:1px solid var(--linha);border-radius:var(--r);padding:18px 20px}
+.numero .v{font-family:var(--display);font-size:27px;font-weight:300;line-height:1;color:var(--branco)}
+.numero .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--tinta-3);font-weight:600;margin-top:9px}
+.numero .obs{font-size:11px;color:var(--tinta-4);margin-top:6px}
+.numero.puxa{border-color:var(--o-35);border-left:3px solid var(--o)}
+.numero.puxa .v{color:var(--o)}
+
+/* ---------------------------------------------------------- tabela */
+.rolo-h{overflow-x:auto}
+table.lista{width:100%;border-collapse:separate;border-spacing:0}
+table.lista th{
+  padding:11px 13px; text-align:left; font-size:9.5px; text-transform:uppercase;
+  letter-spacing:.12em; color:var(--tinta-4); font-weight:700;
+  border-bottom:1px solid var(--linha); white-space:nowrap;
+}
+table.lista td{padding:13px;border-bottom:1px solid var(--linha-2);vertical-align:middle}
+table.lista tbody tr:hover{background:rgba(255,255,255,.022)}
+table.lista .vazio{text-align:center;color:var(--tinta-4);padding:34px 20px;line-height:1.7}
+
+/* ---------------------------------------------------------- etiquetas */
+.eti{
+  display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700;
+  padding:4px 10px; border-radius:20px; white-space:nowrap; letter-spacing:.02em;
+}
+.eti-ok{background:var(--ok-bg);color:var(--ok)}
+.eti-atencao{background:var(--atencao-bg);color:var(--atencao)}
+.eti-alerta{background:var(--alerta-bg);color:var(--alerta)}
+.eti-info{background:var(--info-bg);color:var(--info)}
+.eti-marca{background:var(--o-10);color:var(--o)}
+.eti-neutra{background:rgba(255,255,255,.06);color:var(--tinta-3)}
+
+/* ---------------------------------------------------------- controles */
+.bt{
+  display:inline-flex; align-items:center; gap:8px; border:1px solid transparent;
+  border-radius:var(--r-sm); padding:10px 17px; font-size:13px; font-weight:600;
+  cursor:pointer; transition:.16s; background:none;
+}
+.bt-marca{background:var(--o);color:#1a1004;border-color:var(--o)}
+.bt-marca:hover{background:var(--o-lt);border-color:var(--o-lt)}
+.bt-linha{border-color:var(--linha);color:var(--tinta-2)}
+.bt-linha:hover{border-color:var(--o);color:var(--o)}
+.bt-sm{padding:7px 12px;font-size:12px}
+.bt:disabled{opacity:.42;cursor:not-allowed}
+
+.campo{
+  width:100%; background:var(--preto-3); border:1px solid var(--linha);
+  border-radius:var(--r-sm); padding:10px 12px; font-size:13px; outline:none; transition:.16s;
+}
+.campo:focus{border-color:var(--o);box-shadow:0 0 0 3px var(--o-10)}
+textarea.campo{resize:vertical;min-height:88px;line-height:1.6}
+select.campo{cursor:pointer}
+.campo-sm{padding:7px 10px;font-size:12px}
+.rotulo{
+  display:block; font-size:9.5px; text-transform:uppercase; letter-spacing:.12em;
+  color:var(--tinta-4); font-weight:700; margin-bottom:6px;
+}
+.dica{font-size:11.5px;color:var(--tinta-4);line-height:1.6}
+
+/* ---------------------------------------------------------- avisos */
+.aviso{border-radius:var(--r-sm);padding:14px 16px;margin-bottom:16px;border:1px solid;border-left-width:3px}
+.aviso b{display:block;font-size:13px;margin-bottom:5px}
+.aviso p{font-size:12.5px;color:var(--tinta-3);line-height:1.6}
+.aviso-alerta{background:var(--alerta-bg);border-color:var(--alerta)}
+.aviso-alerta b{color:var(--alerta)}
+.aviso-atencao{background:var(--atencao-bg);border-color:var(--atencao)}
+.aviso-atencao b{color:var(--atencao)}
+.aviso-info{background:var(--info-bg);border-color:var(--info)}
+.aviso-info b{color:var(--info)}
+.aviso-ok{background:var(--ok-bg);border-color:var(--ok)}
+.aviso-ok b{color:var(--ok)}
+
+/* ---------------------------------------------------------- entrada */
+.porta{min-height:100dvh;display:grid;place-items:center;padding:28px;background:var(--preto)}
+.porta-caixa{width:100%;max-width:430px}
+.porta-marca{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:26px}
+.porta-marca svg{width:30px;height:25px;fill:var(--o)}
+.porta-marca b{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--branco)}
+.porta h1{font-family:var(--display);font-weight:300;font-size:26px;color:var(--branco);text-align:center;line-height:1.25}
+.porta h1 b{font-weight:700;color:var(--o)}
+.porta > .porta-caixa > p{text-align:center;color:var(--tinta-3);font-size:13.5px;margin:12px 0 24px}
+.papel{
+  display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+  background:var(--preto-2); border:1px solid var(--linha); border-radius:var(--r);
+  padding:16px 18px; margin-bottom:11px; cursor:pointer; transition:.16s; color:inherit;
+}
+.papel:hover{border-color:var(--o);background:var(--preto-3)}
+.papel .ic{
+  width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex:none;
+  background:var(--o-10);color:var(--o);font-size:17px;
+}
+.papel b{display:block;font-size:14px;color:var(--branco)}
+.papel span{font-size:12px;color:var(--tinta-3)}
+
+/* ---------------------------------------------------------- celular */
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .lateral{
+    position:fixed; inset:0 auto 0 0; width:var(--lateral); z-index:40;
+    transform:translateX(-100%); transition:transform .22s;
+  }
+  .lateral.aberta{transform:none}
+  .topo{padding:14px 18px}
+  .rolo{padding:20px 18px 60px}
+  .veu{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30}
+}
+@media (min-width:901px){ .so-celular{display:none !important} }

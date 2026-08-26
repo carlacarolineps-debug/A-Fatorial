@@ -6,6 +6,7 @@
 import { json } from "./lib.js";
 import { receberTypeform } from "./typeform.js";
 import { listarLeads, atualizarLead } from "./leads.js";
+import { quemSouEu } from "./eu.js";
 import { robots, sitemap } from "./seo.js";
 
 export default {
@@ -23,6 +24,11 @@ export default {
         // a mesa anota o andamento pelo próprio sistema
         if (request.method === "PATCH") return atualizarLead(request, env);
         return json({ erro: "método" }, 405);
+
+      case "/eu":
+        return request.method === "GET"
+          ? quemSouEu(request, env)
+          : json({ erro: "método" }, 405);
 
       case "/robots.txt":  return robots(url);
       case "/sitemap.xml": return sitemap(url);

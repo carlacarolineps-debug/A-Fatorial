@@ -122,19 +122,23 @@ async function chavesDoAccess(teamDomain) {
 const daBase64Url = (v) =>
   Uint8Array.from(atob(v.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
 
-export async function accessLiberou(req, teamDomain, aud) {
-  if (!teamDomain || !aud) return false;
+/* Devolve as informacoes do token quando ele passa nas QUATRO conferencias,
+   e null quando nao passa. O `accessLiberou` abaixo e so o sim ou nao disto:
+   quem precisa saber QUEM entrou (a rota /eu) usa esta, e quem so precisa
+   saber SE pode entrar usa a outra. Uma conferencia so, em um lugar so. */
+export async function accessQuem(req, teamDomain, aud) {
+  if (!teamDomain || !aud) return null;
 
   const token = req.headers.get("cf-access-jwt-assertion");
-  if (!token) return false;
+  if (!token) return null;
 
   const [cab, corpo, assin] = token.split(".");
-  if (!cab || !corpo || !assin) return false;
+  if (!cab || !corpo || !assin) return null;
 
   try {
     const { kid } = JSON.parse(new TextDecoder().decode(daBase64Url(cab)));
     const jwk = (await chavesDoAccess(teamDomain)).find((k) => k.kid === kid);
-    if (!jwk) return false;
+    if (!jwk) return null;
 
     const chave = await crypto.subtle.importKey(
       "jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"],
@@ -143,20 +147,26 @@ export async function accessLiberou(req, teamDomain, aud) {
       "RSASSA-PKCS1-v1_5", chave, daBase64Url(assin),
       new TextEncoder().encode(`${cab}.${corpo}`),
     );
-    if (!assinaturaOk) return false;
+    if (!assinaturaOk) return null;
 
     const dados = JSON.parse(new TextDecoder().decode(daBase64Url(corpo)));
 
-    if (dados.iss !== `https://${teamDomain}`) return false;
+    if (dados.iss !== `https://${teamDomain}`) return null;
     // o aud vem como lista quando a aplicação tem mais de uma etiqueta
     const plateia = Array.isArray(dados.aud) ? dados.aud : [dados.aud];
-    if (!plateia.includes(aud)) return false;
+    if (!plateia.includes(aud)) return null;
 
     // assinatura boa não basta: token vencido também tem assinatura boa
-    return typeof dados.exp === "number" && dados.exp * 1000 > Date.now();
+    if (!(typeof dados.exp === "number" && dados.exp * 1000 > Date.now())) return null;
+
+    return dados;
   } catch {
     // token torto (base64 quebrado, JSON inválido) é tentativa, não erro
     // do servidor: nega e pronto.
-    return false;
+    return null;
   }
+}
+
+export async function accessLiberou(req, teamDomain, aud) {
+  return (await accessQuem(req, teamDomain, aud)) !== null;
 }
