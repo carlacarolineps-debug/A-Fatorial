@@ -10,16 +10,14 @@ Não existe passo de build: o site é HTML pronto.
 
 ---
 
-## Antes de começar: apague o Worker de teste
+## Sobre o nome do Worker
 
-Você criou um Worker chamado **orgulho-névoa-d805** (`proud-haze-d805`).
-Ele é o "Hello World" que a Cloudflare cria sozinha e não serve para nada
-aqui. Pior: quando um Worker é ligado a um repositório, o nome dele no
-painel **precisa ser igual** ao nome que está no `wrangler.toml`
-(`ideia-que-vende`). Nomes diferentes = build falha.
+O Worker se chama **a-fatorial** no painel, batizado pelo nome do
+repositório. O `wrangler.toml` usa o mesmo nome, e os dois **têm que
+continuar iguais**: nome diferente faz o build falhar ou, pior, um
+`wrangler deploy` cria um segundo Worker sem o domínio.
 
-1. **Workers & Pages** → clique em **orgulho-névoa-d805**
-2. **Settings** → role até o fim → **Delete** → confirme digitando o nome
+Se um dia renomear no painel, mude o `name` no `wrangler.toml` junto.
 
 ---
 
@@ -36,7 +34,7 @@ painel **precisa ser igual** ao nome que está no `wrangler.toml`
 
    | Campo                     | O que colocar                       |
    |---------------------------|-------------------------------------|
-   | Nome do Worker            | `ideia-que-vende`                   |
+   | Nome do Worker            | `a-fatorial`                        |
    | Branch de produção        | `claude/animated-shader-hero-thcafz`|
    | Comando de build          | **deixe vazio**                     |
    | Comando de deploy         | `npx wrangler deploy`               |
@@ -47,7 +45,7 @@ painel **precisa ser igual** ao nome que está no `wrangler.toml`
 
 6. **Save and Deploy**
 
-Ao final aparece um endereço `ideia-que-vende.gestaogrupoa.workers.dev`.
+Ao final aparece um endereço `a-fatorial.gestaogrupoa.workers.dev`.
 Abra: a landing tem que carregar. Esse é o teste de que subiu.
 
 ---
@@ -57,7 +55,7 @@ Abra: a landing tem que carregar. Esse é o teste de que subiu.
 O banco `ideia-que-vende` já existe e as tabelas já estão criadas. Falta
 só ligar ao Worker.
 
-1. **Workers & Pages** → **ideia-que-vende** → **Settings**
+1. **Workers & Pages** → **a-fatorial** → **Settings**
 2. **Bindings** → **Add** → **D1 database**
 3. Variable name: `DB` · D1 database: `ideia-que-vende`
 4. **Deploy**
@@ -74,9 +72,7 @@ só ligar ao Worker.
 3. Repita com `www.ideiaquevende.com.br`, senão quem digitar o "www" na
    frente não chega ao site.
 
-Confira nessa mesma tela que o domínio está no Worker **ideia-que-vende**.
-Se ele tiver sido ligado ao Worker de teste, o endereço abre a página
-"Hello World" no lugar da landing.
+Confira nessa mesma tela que o domínio está no Worker **a-fatorial**.
 
 ### Apontar o Registro.br para a Cloudflare
 
@@ -144,7 +140,7 @@ endereço, e o Access (passo 5) protege só o domínio de verdade.
 
 Agora no Cloudflare:
 
-5. **ideia-que-vende** → **Settings** → **Variables and Secrets** → **Add**
+5. **a-fatorial** → **Settings** → **Variables and Secrets** → **Add**
 6. Type: **Secret** (não "Text") · Name: `TYPEFORM_WEBHOOK_SECRET` ·
    Value: a senha que você copiou
 7. **Deploy**
@@ -242,4 +238,4 @@ select criado_em, nome, email, whatsapp, plano from leads order by id desc;
 ## Como isso é publicado dali em diante
 
 Todo `git push` na branch `claude/animated-shader-hero-thcafz` refaz o
-deploy sozinho. Para acompanhar: **ideia-que-vende** → **Deployments**.
+deploy sozinho. Para acompanhar: **a-fatorial** → **Deployments**.
