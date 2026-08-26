@@ -5,7 +5,7 @@
 // wrangler.toml. Menos código no caminho da página = página mais rápida.
 import { json } from "./lib.js";
 import { receberTypeform } from "./typeform.js";
-import { listarLeads } from "./leads.js";
+import { listarLeads, atualizarLead } from "./leads.js";
 import { robots, sitemap } from "./seo.js";
 
 export default {
@@ -19,9 +19,10 @@ export default {
           : json({ erro: "método" }, 405);
 
       case "/leads":
-        return request.method === "GET"
-          ? listarLeads(request, env)
-          : json({ erro: "método" }, 405);
+        if (request.method === "GET") return listarLeads(request, env);
+        // a mesa anota o andamento pelo próprio sistema
+        if (request.method === "PATCH") return atualizarLead(request, env);
+        return json({ erro: "método" }, 405);
 
       case "/robots.txt":  return robots(url);
       case "/sitemap.xml": return sitemap(url);

@@ -15,13 +15,21 @@ Abra `public/sistema/index.html` no navegador para usar.
 | Perfil | Entra vendo | Pode acessar (padrão) |
 |--------|-------------|------------------------|
 | **Admin / Gestão** | Gestão à vista | Todas as telas |
-| **Colaborador** | Portal do colaborador | Portal do colaborador, **Esteira comercial** e **Propostas e rastreio** |
+| **Colaborador** | Portal do colaborador | Portal do colaborador, **Leads da landing**, **Esteira comercial** e **Propostas e rastreio** |
 | **Cliente** | Portal do cliente | Portal do cliente |
 
 Todos os perfis usam **o mesmo visual** (tema escuro "gamer" neon) e a **mesma
 moldura** (menu lateral + topo) — cada um enxerga apenas os itens que tem permissão.
 
 ## Novidades desta versão
+
+0. **Leads da landing** (tela nova) — quem preenche o formulário da landing
+   aparece dentro do sistema, com o que respondeu e o plano que clicou. É a
+   única tela que fala com o servidor: os leads chegam do Typeform, ficam no
+   banco D1 e são lidos pela rota `/leads`, atrás do Cloudflare Access. Dá
+   para marcar o andamento (novo, contatado, qualificado, proposta, ganho,
+   perdido) e deixar uma anotação, e isso vale para a equipe inteira, não só
+   para o navegador de quem anotou.
 
 1. **Mesmo visual para todos os acessos** — o tema escuro/neon do portal do
    colaborador passou a valer para o ecossistema inteiro (admin, colaborador e

@@ -1222,6 +1222,7 @@ body.apresentacao #apr-banner{display:block;}
     <div class="nav-group">Operação interna</div>
     <button class="nav-item" onclick="go('dono')" id="n-dono"><span class="ic">★</span> Visão do dono</button>
     <button class="nav-item on" onclick="go('dash')" id="n-dash"><span class="ic">◳</span> Gestão à vista</button>
+    <button class="nav-item" onclick="go('leads')" id="n-leads"><span class="ic">✉</span> Leads da landing</button>
     <button class="nav-item" onclick="go('funil')" id="n-funil"><span class="ic">◎</span> Esteira comercial <span class="step-n">1-14</span></button>
     <button class="nav-item" onclick="go('propostas')" id="n-propostas"><span class="ic">✦</span> Propostas e rastreio</button>
     <button class="nav-item" onclick="go('financeiro')" id="n-financeiro"><span class="ic">❖</span> Fluxo de caixa e DRE</button>
@@ -1333,6 +1334,48 @@ body.apresentacao #apr-banner{display:block;}
       </div>
     </section>
     <!-- ============ FUNIL (esteira 1-10) ============ -->
+    <!-- ============ LEADS · aplicações recebidas da landing ============ -->
+    <section class="view" id="v-leads">
+      <div class="in-hero">
+        <span class="in-hero-badge">✉ Entrada de leads</span>
+        <h2>Quem preencheu a aplicação <b>chega aqui</b>.</h2>
+        <p>Cada resposta do formulário da landing cai nesta mesa, com o que a pessoa escreveu e o plano que ela clicou. Daqui você atende, anota o andamento e leva para a esteira comercial.</p>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi hot"><div class="v" id="ld-k-espera">0</div><div class="l">Esperando contato</div></div>
+        <div class="kpi"><div class="v" id="ld-k-total">0</div><div class="l">Aplicações recebidas</div></div>
+        <div class="kpi"><div class="v" id="ld-k-semana">0</div><div class="l">Nos últimos 7 dias</div></div>
+        <div class="kpi"><div class="v" id="ld-k-plano">0</div><div class="l">Já escolheram plano</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span>Aplicações recebidas</span>
+          <span id="ld-selo"></span>
+          <button class="btn btn-ghost btn-sm" id="ld-btn-atualizar" style="margin-left:auto;text-transform:none;letter-spacing:0;"
+                  onclick="leadsCarregar()">↻ Atualizar</button>
+        </div>
+
+        <div id="ld-aviso"></div>
+
+        <div id="ld-ferramentas" style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px;">
+          <input class="inp-sm" id="ld-busca" placeholder="Buscar por nome, e-mail ou WhatsApp"
+                 style="flex:1;min-width:220px;" oninput="leadsRender()">
+          <select class="inp-sm" id="ld-filtro" onchange="leadsRender()"></select>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr>
+              <th>Quando</th><th>Quem</th><th>Contato</th><th>Plano</th><th>Andamento</th><th></th>
+            </tr></thead>
+            <tbody id="ld-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <section class="view" id="v-funil">
 
       <div class="in-hero">
@@ -2288,26 +2331,56 @@ body.apresentacao #apr-banner{display:block;}
         // Mapa de acesso padrão por papel. O colaborador já nasce com acesso à
         // Esteira comercial e a Propostas e rastreio dentro da própria plataforma.
         const PERMISSOES_DEFAULT={
-          admin:      ['dono','dash','funil','propostas','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
-          colaborador:['colaborador','funil','propostas'],
+          admin:      ['dono','dash','leads','funil','propostas','financeiro','fin360','futuro','plano','portal','colaborador','rh','catalogo','equipe'],
+          colaborador:['colaborador','leads','funil','propostas'],
           cliente:    ['portal']
         };
         // Configuração de acesso editável em "Equipe e acessos" e persistida no navegador.
         let PERMISSOES=JSON.parse(JSON.stringify(PERMISSOES_DEFAULT));
         // Escopo de dados do colaborador no comercial: 'todos' (vê tudo) | 'proprios' (só os dele).
         let COL_ESCOPO_COMERCIAL='todos';
+        // Telas que este navegador já conhece. Existe por um motivo prático:
+        // as permissões ficam salvas no navegador, e foram escritas quando a
+        // tela nova ainda não existia. Sem esta lista, toda tela lançada daqui
+        // em diante nasceria invisível para quem já usava o sistema, o próprio
+        // admin incluído.
+        let TELAS_VISTAS=[];
+        // Telas que passaram a existir depois da última versão publicada. Só
+        // valem para o navegador que ainda não tem TELAS_VISTAS guardada; a
+        // partir daí a própria lista salva resolve sozinha.
+        const TELAS_NOVAS=['leads'];
         // === BACKEND === no app real isto vem do servidor, não do navegador.
         try{
           let _sp=JSON.parse(localStorage.getItem('af_permissoes')||'null');
           if(_sp&&_sp.perm) PERMISSOES=_sp.perm;
           if(_sp&&_sp.escopo) COL_ESCOPO_COMERCIAL=_sp.escopo;
-        }catch(e){}
+          TELAS_VISTAS = (_sp&&Array.isArray(_sp.vistas)) ? _sp.vistas
+            : (_sp&&_sp.perm) ? PERMISSOES_DEFAULT.admin.filter(t=>TELAS_NOVAS.indexOf(t)<0)
+            : PERMISSOES_DEFAULT.admin.slice();
+        }catch(e){ TELAS_VISTAS=PERMISSOES_DEFAULT.admin.slice(); }
+        // Tela nunca apresentada entra com o acesso padrão, UMA vez só. Depois
+        // disso, tirar o acesso em "Equipe e acessos" vale e não volta sozinho
+        // na próxima abertura.
+        let _apresentou=false;
+        PERMISSOES_DEFAULT.admin.forEach(function(tela){
+          if(TELAS_VISTAS.indexOf(tela)>=0) return;
+          Object.keys(PERMISSOES_DEFAULT).forEach(function(papel){
+            if(PERMISSOES_DEFAULT[papel].indexOf(tela)<0) return;
+            if(!PERMISSOES[papel]) PERMISSOES[papel]=[];
+            if(PERMISSOES[papel].indexOf(tela)<0) PERMISSOES[papel].push(tela);
+          });
+          TELAS_VISTAS.push(tela);
+          _apresentou=true;
+        });
         // admin nunca pode perder o acesso a "Equipe e acessos" (senão tranca o configurador)
         if(!PERMISSOES.admin) PERMISSOES.admin=PERMISSOES_DEFAULT.admin.slice();
         if(!PERMISSOES.admin.includes('equipe')) PERMISSOES.admin.push('equipe');
         function salvarPermissoes(){
-          try{ localStorage.setItem('af_permissoes', JSON.stringify({perm:PERMISSOES, escopo:COL_ESCOPO_COMERCIAL})); }catch(e){}
+          try{ localStorage.setItem('af_permissoes', JSON.stringify({perm:PERMISSOES, escopo:COL_ESCOPO_COMERCIAL, vistas:TELAS_VISTAS})); }catch(e){}
         }
+        // grava a apresentação na hora: sem isto a tela nova voltaria a cada
+        // abertura, e desmarcar o acesso nunca pegaria
+        if(_apresentou) salvarPermissoes();
         const AUTH={
           user:null,            // { papel, id, nome, rl, av }
           // === BACKEND === substituir por POST /api/login (retorna usuário + token)
@@ -2635,6 +2708,7 @@ body.apresentacao #apr-banner{display:block;}
         /* ===== NAVEGAÇÃO ===== */
         const TITLES={
           dash:['Gestão <b>à vista</b>','Ecossistema estratégico'],
+          leads:['Leads da <b>landing</b>','Quem preencheu a aplicação e ainda não virou negócio'],
           funil:['Esteira <b>comercial</b>','Do cadastro à prova real — 14 etapas conectadas'],
           propostas:['Propostas e <b>rastreio</b>','Inteligência comercial'],
           onboarding:['Onboarding e <b>kickoff</b>','Etapa 11 — início estruturado'],
@@ -2674,6 +2748,7 @@ body.apresentacao #apr-banner{display:block;}
           if(v==='rh') renderRH();
           if(v==='catalogo'){ renderCatTabela(); if(typeof renderOportunidades==='function') renderOportunidades(); }
           if(v==='dash') renderDash();
+          if(v==='leads' && typeof leadsAoEntrar==='function') leadsAoEntrar();
           if(v==='fin360' && typeof finRender==='function') finRender();
           if(v==='plano' && typeof planoRender==='function') planoRender();
           if(v==='dono' && typeof renderDono==='function') renderDono();
@@ -3865,6 +3940,301 @@ body.apresentacao #apr-banner{display:block;}
           </div>`;
         }
         function colMetaSet(v){ let u=AUTH.user; if(!u||u.papel!=='colaborador')return; let c=DB.colaboradores.find(x=>x.id===u.id); if(!c)return; c.metaVendas=parseMoney(v)||0; if(typeof salvarUsuarios==='function')salvarUsuarios(); renderColMeta(); }
+        /* ===================================================================
+           LEADS · aplicações recebidas da landing
+
+           Esta é a ÚNICA tela do sistema que fala com o servidor. Todo o
+           resto vive em localStorage, por navegador. Os leads não podem
+           viver assim: eles chegam do Typeform, caem no banco D1 e são
+           lidos pela rota /leads, atrás do Cloudflare Access. Se ficassem
+           no navegador, cada pessoa da equipe veria uma lista diferente.
+
+           Consequência prática: esta tela tem estados que nenhuma outra
+           tem. Pode estar carregando, pode não achar o servidor, pode
+           esbarrar em login vencido e pode encontrar o Worker ainda sem
+           configuração. Cada um desses casos tem uma explicação escrita,
+           porque quem lê é quem precisa resolver.
+           =================================================================== */
+
+        const LEADS_STATUS=[
+          {k:'novo',        l:'Novo',             p:'pill-warn'},
+          {k:'contatado',   l:'Contatado',        p:'pill-info'},
+          {k:'qualificado', l:'Qualificado',      p:'pill-info'},
+          {k:'proposta',    l:'Proposta enviada', p:'pill-info'},
+          {k:'ganho',       l:'Ganho',            p:'pill-ok'},
+          {k:'perdido',     l:'Perdido',          p:'pill-mute'}
+        ];
+        // 'ocioso' | 'carregando' | 'ok' | 'erro'
+        let LEADS={itens:[], estado:'ocioso', aviso:null, abertos:{}, salvando:{}};
+
+        // O conteúdo de um lead foi digitado por um desconhecido na internet.
+        // É o único dado do sistema que vem de fora, então tudo que sai dele
+        // passa por aqui antes de virar HTML.
+        function ldEsc(v){
+          return String(v==null?'':v)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        // O banco grava "2026-08-26 01:12:33" em UTC, sem fuso escrito.
+        function ldData(s){
+          if(!s) return null;
+          let t=String(s).trim().replace(' ','T');
+          if(!/[zZ]|[+-]\d{2}:?\d{2}$/.test(t)) t+='Z';
+          let d=new Date(t);
+          return isNaN(d.getTime())?null:d;
+        }
+        function ldQuando(s){
+          let d=ldData(s); if(!d) return {data:'sem data', desde:''};
+          let dias=Math.floor((Date.now()-d.getTime())/86400000);
+          let desde = dias<=0 ? 'hoje' : dias===1 ? 'ontem' : 'há '+dias+' dias';
+          return {
+            data: d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+
+                  d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+            desde
+          };
+        }
+        function ldStatus(k){ return LEADS_STATUS.find(s=>s.k===k)||{k:k,l:k||'novo',p:'pill-mute'}; }
+        function ldSoDigitos(v){ return String(v||'').replace(/\D/g,''); }
+
+        /* ---------- conversa com o servidor ---------- */
+
+        // A resposta nem sempre é JSON: quando o login do Access vence, o
+        // que volta é a página de login em HTML. Ler isso como JSON estoura,
+        // e o estouro seria mostrado como "erro desconhecido" para quem só
+        // precisava recarregar a página.
+        async function ldLerJson(r){
+          try{ return await r.json(); }catch(e){ return null; }
+        }
+
+        async function leadsCarregar(){
+          LEADS.estado='carregando'; LEADS.aviso=null; leadsRender();
+          let r;
+          try{
+            r=await fetch('/leads',{headers:{'accept':'application/json'},cache:'no-store'});
+          }catch(e){
+            LEADS.estado='erro';
+            LEADS.aviso={tom:'bad', titulo:'Não consegui falar com o servidor.',
+              texto:'Se você abriu este arquivo direto do computador, os leads não aparecem: eles só existem no endereço publicado, em ideiaquevende.com.br/sistema/. Se você já está nele, foi a rede que falhou, tente atualizar.'};
+            leadsRender(); return;
+          }
+
+          let corpo=await ldLerJson(r);
+
+          if(corpo===null){
+            LEADS.estado='erro';
+            LEADS.aviso={tom:'warn', titulo:'Seu login expirou.',
+              texto:'O servidor respondeu com a tela de login em vez dos dados. Recarregue a página para entrar de novo.'};
+            leadsRender(); return;
+          }
+          if(r.status===503){
+            LEADS.estado='erro';
+            LEADS.aviso={tom:'warn', titulo:'O servidor ainda não está configurado para entregar os leads.',
+              texto:'Ele respondeu: "'+ldEsc(corpo.erro||'')+'". Isso é de propósito: enquanto o login protegido não estiver ligado, a rota se fecha em vez de deixar passar. Quem configura resolve no painel da Cloudflare.'};
+            leadsRender(); return;
+          }
+          if(r.status===401){
+            LEADS.estado='erro';
+            LEADS.aviso={tom:'warn', titulo:'Você não está autenticado.',
+              texto:'Recarregue a página e entre pelo login protegido para ver os leads.'};
+            leadsRender(); return;
+          }
+          if(!r.ok||!corpo.ok){
+            LEADS.estado='erro';
+            LEADS.aviso={tom:'bad', titulo:'O servidor recusou o pedido.',
+              texto:'Código '+r.status+'. '+ldEsc(corpo.erro||'Sem explicação.')};
+            leadsRender(); return;
+          }
+
+          LEADS.itens=Array.isArray(corpo.leads)?corpo.leads:[];
+          LEADS.estado='ok';
+          leadsRender();
+        }
+
+        // Muda o andamento no servidor. A tela muda na hora e volta atrás se
+        // o servidor recusar: esperar a resposta para só então mexer deixa a
+        // lista com cara de travada.
+        async function leadsMudar(id, mudanca, aoTerminar){
+          let lead=LEADS.itens.find(l=>l.id===id); if(!lead) return false;
+          let antes={status:lead.status, observacoes:lead.observacoes};
+          Object.assign(lead, mudanca);
+          LEADS.salvando[id]=true;
+          leadsRender();
+
+          let deuCerto=false, motivo='';
+          try{
+            let r=await fetch('/leads',{
+              method:'PATCH',
+              headers:{'content-type':'application/json'},
+              body:JSON.stringify(Object.assign({id:id}, mudanca))
+            });
+            let corpo=await ldLerJson(r);
+            if(corpo===null) motivo='Seu login expirou. Recarregue a página.';
+            else if(r.ok&&corpo.ok){ deuCerto=true; Object.assign(lead, corpo.lead||{}); }
+            else motivo=corpo.erro||('erro '+r.status);
+          }catch(e){
+            motivo='Não consegui falar com o servidor.';
+          }
+
+          if(!deuCerto){
+            Object.assign(lead, antes);
+            LEADS.aviso={tom:'bad', titulo:'A anotação não foi salva.', texto:ldEsc(motivo)};
+          }
+          delete LEADS.salvando[id];
+          leadsRender();
+          if(typeof aoTerminar==='function') aoTerminar(deuCerto);
+          return deuCerto;
+        }
+
+        function leadsMudarStatus(id, valor){ leadsMudar(id, {status:valor}); }
+        function leadsSalvarObs(id){
+          let campo=document.getElementById('ld-obs-'+id); if(!campo) return;
+          leadsMudar(id, {observacoes:campo.value});
+        }
+        function leadsAlternar(id){
+          if(LEADS.abertos[id]) delete LEADS.abertos[id]; else LEADS.abertos[id]=true;
+          leadsRender();
+        }
+
+        /* ---------- desenho ---------- */
+
+        function ldAvisoHtml(a){
+          if(!a) return '';
+          let cor = a.tom==='bad' ? 'var(--bad)' : a.tom==='warn' ? 'var(--warn)' : 'var(--info)';
+          let fundo = a.tom==='bad' ? 'var(--bad-bg)' : a.tom==='warn' ? 'var(--warn-bg)' : 'var(--info-bg)';
+          return '<div style="background:'+fundo+';border:1px solid '+cor+';border-left:3px solid '+cor+
+                 ';border-radius:10px;padding:14px 16px;margin:0 0 16px;">'+
+                 '<b style="color:'+cor+';font-size:13px;">'+a.titulo+'</b>'+
+                 '<div style="font-size:12.5px;color:var(--ink-soft);margin-top:6px;line-height:1.55;">'+a.texto+'</div></div>';
+        }
+
+        function ldVazio(texto){
+          return '<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:34px;">'+texto+'</td></tr>';
+        }
+
+        function ldLinhaDetalhe(l){
+          let campos=Object.entries(l.respostas||{});
+          let respostas = campos.length
+            ? campos.map(function(par){
+                return '<div style="margin-bottom:10px;">'+
+                  '<div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-faint);font-weight:600;">'+ldEsc(par[0])+'</div>'+
+                  '<div style="font-size:13px;color:var(--ink);margin-top:2px;">'+ldEsc(par[1])+'</div></div>';
+              }).join('')
+            : '<div style="font-size:12.5px;color:var(--ink-faint);">Esta resposta chegou sem campos preenchidos.</div>';
+
+          let salvando=!!LEADS.salvando[l.id];
+          return '<tr id="ld-det-'+l.id+'"><td colspan="6" style="background:var(--panel-soft);padding:22px 18px;">'+
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px;">'+
+              '<div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;">O que a pessoa respondeu</div>'+respostas+'</div>'+
+              '<div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);font-weight:600;margin-bottom:12px;">Anotação da mesa</div>'+
+                '<textarea class="inp" id="ld-obs-'+l.id+'" placeholder="O que ficou combinado, o que descobriu, quando retomar."'+
+                  ' style="min-height:110px;">'+ldEsc(l.observacoes||'')+'</textarea>'+
+                '<button class="btn btn-gold btn-sm" style="margin-top:10px;" onclick="leadsSalvarObs('+l.id+')"'+(salvando?' disabled':'')+'>'+
+                  (salvando?'Salvando...':'Salvar anotação')+'</button>'+
+                '<div class="hint" style="margin-top:10px;line-height:1.5;">Origem: '+ldEsc(l.origem||'landing')+
+                  '. Última mudança: '+ldQuando(l.atualizado_em||l.criado_em).data+'.</div>'+
+              '</div>'+
+            '</div></td></tr>';
+        }
+
+        function ldLinha(l){
+          let q=ldQuando(l.criado_em);
+          let st=ldStatus(l.status);
+          let salvando=!!LEADS.salvando[l.id];
+          let aberto=!!LEADS.abertos[l.id];
+
+          let contatos=[];
+          if(l.email) contatos.push('<a href="mailto:'+ldEsc(l.email)+'" style="color:var(--gold-deep);text-decoration:none;">'+ldEsc(l.email)+'</a>');
+          if(l.whatsapp) contatos.push('<a href="https://wa.me/'+ldSoDigitos(l.whatsapp)+'" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:none;">'+ldEsc(l.whatsapp)+'</a>');
+          let contato = contatos.length ? contatos.join('<br>') : '<span style="color:var(--ink-faint);">sem contato</span>';
+
+          let opcoes=LEADS_STATUS.map(function(s){
+            return '<option value="'+s.k+'"'+(s.k===st.k?' selected':'')+'>'+s.l+'</option>';
+          }).join('');
+
+          return '<tr>'+
+            '<td><div style="font-size:12.5px;">'+q.data+'</div><div class="hint">'+q.desde+'</div></td>'+
+            '<td>'+(l.nome
+              ? '<div style="font-weight:600;">'+ldEsc(l.nome)+'</div>'
+              : '<div style="color:var(--ink-faint);">sem nome</div>')+'</td>'+
+            '<td style="font-size:12.5px;line-height:1.7;">'+contato+'</td>'+
+            '<td>'+(l.plano
+              ? '<span class="pill pill-info">'+ldEsc(l.plano)+'</span>'
+              : '<span style="color:var(--ink-faint);font-size:12.5px;">não escolheu</span>')+'</td>'+
+            '<td><select class="inp-sm" style="min-width:140px;" onchange="leadsMudarStatus('+l.id+', this.value)"'+
+              (salvando?' disabled':'')+'>'+opcoes+'</select></td>'+
+            '<td style="text-align:right;"><button class="btn btn-ghost btn-sm" onclick="leadsAlternar('+l.id+')">'+
+              (aberto?'Fechar':'Ver respostas')+'</button></td>'+
+          '</tr>'+(aberto?ldLinhaDetalhe(l):'');
+        }
+
+        function leadsRender(){
+          let tbody=document.getElementById('ld-tbody'); if(!tbody) return;
+
+          // filtro de andamento: montado uma vez, com a contagem de cada estado
+          let filtro=document.getElementById('ld-filtro');
+          let escolhido=filtro?filtro.value:'';
+          if(filtro){
+            let conta=function(k){ return LEADS.itens.filter(function(l){ return (l.status||'novo')===k; }).length; };
+            filtro.innerHTML='<option value="">Todos os andamentos ('+LEADS.itens.length+')</option>'+
+              LEADS_STATUS.map(function(s){ return '<option value="'+s.k+'">'+s.l+' ('+conta(s.k)+')</option>'; }).join('');
+            filtro.value=escolhido;
+          }
+
+          let busca=(document.getElementById('ld-busca')||{}).value||'';
+          busca=busca.trim().toLowerCase();
+          let lista=LEADS.itens.filter(function(l){
+            if(escolhido && (l.status||'novo')!==escolhido) return false;
+            if(!busca) return true;
+            return [l.nome,l.email,l.whatsapp,l.plano].join(' ').toLowerCase().indexOf(busca)>=0;
+          });
+
+          // KPIs olham a lista inteira, não a filtrada: eles são o retrato da
+          // mesa, e não do filtro que a pessoa está usando agora
+          let seteDias=Date.now()-7*86400000;
+          let kpi=function(id,v){ let e=document.getElementById(id); if(e) e.textContent=v; };
+          kpi('ld-k-total', LEADS.itens.length);
+          kpi('ld-k-espera', LEADS.itens.filter(function(l){ return (l.status||'novo')==='novo'; }).length);
+          kpi('ld-k-semana', LEADS.itens.filter(function(l){ let d=ldData(l.criado_em); return d && d.getTime()>=seteDias; }).length);
+          kpi('ld-k-plano', LEADS.itens.filter(function(l){ return !!l.plano; }).length);
+
+          let selo=document.getElementById('ld-selo');
+          if(selo){
+            selo.innerHTML =
+              LEADS.estado==='carregando' ? '<span class="pill pill-info">buscando...</span>' :
+              LEADS.estado==='ok'         ? '<span class="pill pill-ok">no ar</span>' :
+              LEADS.estado==='erro'       ? '<span class="pill pill-bad">sem dados</span>' : '';
+          }
+          let btn=document.getElementById('ld-btn-atualizar');
+          if(btn) btn.disabled=(LEADS.estado==='carregando');
+
+          let aviso=document.getElementById('ld-aviso');
+          if(aviso) aviso.innerHTML=ldAvisoHtml(LEADS.aviso);
+
+          let ferramentas=document.getElementById('ld-ferramentas');
+          if(ferramentas) ferramentas.style.display=LEADS.itens.length?'flex':'none';
+
+          if(LEADS.estado==='carregando' && !LEADS.itens.length){
+            tbody.innerHTML=ldVazio('Buscando as aplicações...'); return;
+          }
+          if(!LEADS.itens.length){
+            tbody.innerHTML=ldVazio(LEADS.estado==='erro'
+              ? 'Nada para mostrar enquanto o aviso acima não for resolvido.'
+              : 'Nenhuma aplicação ainda. Assim que alguém preencher o formulário da landing, ela aparece aqui.');
+            return;
+          }
+          if(!lista.length){ tbody.innerHTML=ldVazio('Nenhuma aplicação com esse filtro.'); return; }
+
+          tbody.innerHTML=lista.map(ldLinha).join('');
+        }
+
+        // Buscar de novo a cada visita seria pedir ao servidor o que já está
+        // na tela. A primeira visita carrega; depois, o botão Atualizar manda.
+        function leadsAoEntrar(){
+          leadsRender();
+          if(LEADS.estado==='ocioso') leadsCarregar();
+        }
+
         function renderPropostas(){
           let tb=document.getElementById('p-tbody'); if(!tb)return;
           if(typeof renderColMeta==='function') renderColMeta();
@@ -3888,7 +4258,7 @@ body.apresentacao #apr-banner{display:block;}
 
         /* ===== CONFIGURADOR DE PERMISSÕES (Equipe e acessos) ===== */
         const PERM_TELAS=[
-          {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},{k:'futuro',l:'Simulador de futuro'},
+          {k:'dono',l:'Visão do dono'},{k:'dash',l:'Gestão à vista'},{k:'leads',l:'Leads da landing'},{k:'funil',l:'Esteira comercial'},{k:'propostas',l:'Propostas e rastreio'},{k:'futuro',l:'Simulador de futuro'},
           {k:'financeiro',l:'Fluxo de caixa e DRE'},{k:'fin360',l:'Centro Financeiro 360'},{k:'plano',l:'Planejamento estratégico'},{k:'portal',l:'Portal do cliente'},{k:'colaborador',l:'Portal do colaborador'},
           {k:'rh',l:'Gestão de RH'},{k:'catalogo',l:'Catálogo de serviços'},{k:'equipe',l:'Equipe e acessos'}
         ];

@@ -12,31 +12,75 @@ import http from "node:http";
 //   - o /leads fecha sozinho enquanto TEAM_DOMAIN e ACCESS_AUD faltarem
 //   - o /sistema/ sai com noindex e no-store
 //   - o endereço de teste (.workers.dev) não é indexável
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { setTimeout as espera } from "node:timers/promises";
+import { lerPedido } from "./src/leads.js";
 
-const servidor = spawn("npx", ["wrangler", "dev", "--port", "8787", "--local"], {
-  stdio: ["ignore", "pipe", "pipe"],
-});
-process.on("exit", () => servidor.kill());
-process.on("SIGINT", () => { servidor.kill(); process.exit(1); });
+const SEGREDO = "segredo-de-teste";
 
-await new Promise((res, rej) => {
-  const prazo = setTimeout(() => rej(new Error("wrangler dev não subiu em 90s")), 90_000);
-  servidor.stdout.on("data", (c) => {
+// O banco local nasce vazio num clone novo. Sem as tabelas, o /typeform
+// estoura antes de chegar no que o teste quer medir, então o schema é
+// aplicado aqui e não na mão de quem clonou.
+const criarTabelas = spawnSync(
+  "npx",
+  ["wrangler", "d1", "execute", "ideia-que-vende", "--local", "--file=schema.sql"],
+  { stdio: "ignore" },
+);
+if (criarTabelas.status !== 0) {
+  console.error("não consegui criar as tabelas no banco local");
+  process.exit(1);
+}
+
+// O segredo entra por --var, não por .dev.vars: assim o teste não depende
+// de arquivo nenhum e não pisa no .dev.vars de quem tem o segredo de
+// verdade guardado ali.
+const servidor = spawn(
+  "npx",
+  ["wrangler", "dev", "--port", "8787", "--local", "--inspector-port", "9229",
+   "--var", `TYPEFORM_WEBHOOK_SECRET:${SEGREDO}`],
+  { stdio: ["ignore", "pipe", "pipe"], detached: true },
+);
+
+// "npx" cria um neto, e matar só o filho deixava o wrangler vivo segurando
+// a porta 8787: a rodada seguinte não subia. detached faz do filho o líder
+// do grupo, e o sinal negativo derruba o grupo inteiro.
+const derrubar = () => { try { process.kill(-servidor.pid, "SIGKILL"); } catch {} };
+process.on("exit", derrubar);
+process.on("SIGINT", () => { derrubar(); process.exit(1); });
+
+// Um segundo Worker, igual ao primeiro mas COM o Access configurado. Ele
+// existe para provar a outra metade da porta: sem as variáveis o /leads
+// responde 503, e com elas preenchidas ele passa a exigir login de
+// verdade em vez de abrir. Sem este servidor, o 401 nunca é exercitado.
+const servidorAccess = spawn(
+  "npx",
+  ["wrangler", "dev", "--port", "8788", "--local", "--inspector-port", "9230",
+   // banco próprio: os dois wrangler rodando juntos não podem disputar o
+   // mesmo diretório de estado local
+   "--persist-to", ".wrangler/estado-access",
+   "--var", "TEAM_DOMAIN:teste.invalid", "--var", "ACCESS_AUD:aud-de-teste"],
+  { stdio: ["ignore", "pipe", "pipe"], detached: true },
+);
+const derrubarAccess = () => { try { process.kill(-servidorAccess.pid, "SIGKILL"); } catch {} };
+process.on("exit", derrubarAccess);
+
+const pronto = (proc, nome) => new Promise((res, rej) => {
+  const prazo = setTimeout(() => rej(new Error(`${nome} não subiu em 90s`)), 90_000);
+  proc.stdout.on("data", (c) => {
     if (String(c).includes("Ready on")) { clearTimeout(prazo); res(); }
   });
 });
+await Promise.all([pronto(servidor, "wrangler dev"), pronto(servidorAccess, "wrangler dev (access)")]);
 await espera(500);
 
 const B = "http://localhost:8787";
+const BA = "http://localhost:8788";   // mesmo Worker, com TEAM_DOMAIN e ACCESS_AUD preenchidos
 let ok = 0, bad = 0;
 const t = (nome, cond, extra = "") => {
   (cond ? ok++ : bad++);
   console.log(`${cond ? "PASS" : "FALHOU"}  ${nome}${extra ? "   " + extra : ""}`);
 };
 
-const SEGREDO = "segredo-de-teste";
 const payload = JSON.stringify({
   event_id: "01H", event_type: "form_response",
   form_response: {
@@ -140,9 +184,44 @@ r = await fetch(`${B}/leads`);
 j = await r.json();
 t("leads: sem TEAM_DOMAIN/AUD  503 explicando", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
 
+r = await fetch(`${B}/leads`, { method: "PATCH", body: JSON.stringify({ id: 1, status: "contatado" }) });
+j = await r.json();
+t("leads: PATCH sem TEAM_DOMAIN/AUD  503 explicando", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
+
 r = await fetch(`${B}/leads`, { method: "POST" });
 t("leads: POST  405", r.status === 405, `status=${r.status}`);
 
+r = await fetch(`${B}/leads`, { method: "DELETE" });
+t("leads: DELETE  405", r.status === 405, `status=${r.status}`);
+
+// ---------- /leads com o Access configurado: exige login, não abre ----------
+r = await fetch(`${BA}/leads`);
+j = await r.json();
+t("leads configurado: GET sem login  401", r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
+
+r = await fetch(`${BA}/leads`, { method: "PATCH", body: JSON.stringify({ id: 1, status: "ganho" }) });
+j = await r.json();
+t("leads configurado: PATCH sem login  401", r.status === 401, JSON.stringify(j));
+
+r = await fetch(`${BA}/leads`, { method: "GET", headers: { "cf-access-jwt-assertion": "token.forjado.aqui" } });
+t("leads configurado: JWT forjado  401", r.status === 401, `status=${r.status}`);
+
+// ---------- o que o PATCH aceita mudar (função pura, sem servidor) ----------
+const p1 = lerPedido({ id: 7, status: "contatado" });
+t("patch: status válido vira SQL", !p1.erro && p1.id === 7 && p1.valores[0] === "contatado", JSON.stringify(p1.valores));
+t("patch: sempre carimba atualizado_em", p1.campos.some((c) => c.startsWith("atualizado_em")));
+
+t("patch: status inventado é recusado", !!lerPedido({ id: 7, status: "vendido" }).erro);
+t("patch: id zero é recusado", !!lerPedido({ id: 0, status: "novo" }).erro);
+t("patch: id de texto é recusado", !!lerPedido({ id: "1; drop table leads", status: "novo" }).erro);
+t("patch: corpo sem nada para mudar é recusado", !!lerPedido({ id: 7 }).erro);
+t("patch: nome e e-mail não se editam pela mesa",
+  !!lerPedido({ id: 7, nome: "Outra Pessoa", email: "outro@x.com" }).erro);
+
+const p2 = lerPedido({ id: 7, observacoes: "x".repeat(5000) });
+t("patch: observação muito longa é cortada", p2.valores[0].length === 2000, `${p2.valores[0].length} caracteres`);
+
 console.log(`\n${ok} passaram, ${bad} falharam`);
-servidor.kill();
+derrubar();
+derrubarAccess();
 process.exit(bad ? 1 : 0);

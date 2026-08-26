@@ -53,8 +53,20 @@ Duas pessoas abrindo o sistema veem coisas diferentes.
 
 É por isso que o Typeform não entrega direto nele. As respostas caem no
 banco D1, pela rota `/typeform`, e a rota `/leads` devolve para quem
-estiver autenticado. A tela que lê `/leads` dentro do sistema ainda não
-existe.
+estiver autenticado.
+
+**A tela "Leads da landing" é a exceção.** É a única do sistema que fala
+com o servidor: lê o `/leads` e escreve o andamento de volta pelo
+`PATCH /leads`. Por isso ela tem estados que nenhuma outra tem
+(carregando, sem servidor, login vencido, Worker sem configuração) e é o
+único lugar onde entra texto escrito por desconhecido, o que explica o
+`ldEsc()` antes de qualquer coisa virar HTML.
+
+Tela nova não pode nascer invisível: as permissões ficam salvas no
+navegador e foram escritas antes de ela existir. Quem resolve isso é a
+lista `TELAS_VISTAS`, guardada junto das permissões. Ao criar uma tela,
+acrescente a chave em `PERMISSOES_DEFAULT`, em `PERM_TELAS` e em
+`TELAS_NOVAS`.
 
 ## Testes
 
@@ -62,10 +74,15 @@ existe.
 npm test
 ```
 
-Sobe o wrangler local, bate nas rotas por HTTP e derruba o servidor. São
-28 verificações, entre elas que corpo adulterado depois de assinar é
-recusado e que reenvio do Typeform atualiza o lead em vez de duplicar.
-Roda no banco local; não encosta em produção.
+Sobe dois wrangler locais, bate nas rotas por HTTP e derruba os dois. São
+41 verificações, entre elas que corpo adulterado depois de assinar é
+recusado, que reenvio do Typeform atualiza o lead em vez de duplicar e que
+o `/leads` com `TEAM_DOMAIN` e `ACCESS_AUD` preenchidos passa a exigir
+login em vez de abrir. O segundo servidor existe só para essa última
+parte. Roda no banco local; não encosta em produção.
+
+Não precisa de preparo: o schema é aplicado no banco local e o segredo de
+teste entra por `--var`. Clone novo roda direto.
 
 Antes de qualquer push que mexa em `src/` ou `wrangler.toml`, rode.
 

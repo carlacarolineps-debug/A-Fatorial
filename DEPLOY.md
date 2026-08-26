@@ -6,7 +6,7 @@ Não existe passo de build: o site é HTML pronto.
     ideiaquevende.com.br/           landing (pública)
     ideiaquevende.com.br/sistema/   sistema (atrás de login)
     ideiaquevende.com.br/typeform   recebe as respostas do Typeform
-    ideiaquevende.com.br/leads      devolve os leads para a mesa
+    ideiaquevende.com.br/leads      devolve os leads para a mesa (e anota o andamento)
 
 ---
 
@@ -24,7 +24,10 @@ a passo completo.
   `webhook_log`. Zerado: nenhuma resposta chegou ainda.
 - Domínio `ideiaquevende.com.br` na conta Cloudflare, nameservers já
   trocados no Registro.br, **aguardando propagação**.
-- `npm test` passa nos 28 testes.
+- Tela **Leads da landing** feita dentro do sistema: lê o `/leads`, mostra
+  o que a pessoa respondeu e deixa marcar o andamento e anotar. Conferida
+  num navegador de verdade, inclusive nos estados de erro.
+- `npm test` passa nas 41 verificações, e num clone novo, sem preparo.
 
 **Falta, em ordem:**
 
@@ -35,9 +38,10 @@ a passo completo.
 4. Guardar o `TYPEFORM_WEBHOOK_SECRET` e criar o webhook no Typeform.
 5. Criar as duas aplicações do Access (`sistema` e `leads`).
 6. Preencher `TEAM_DOMAIN` e `ACCESS_AUD` no `wrangler.toml`.
-7. Fazer a tela de leads dentro do sistema. Ainda não existe: hoje o dado
-   chega e fica guardado, mas só se lê pelo painel do D1 ou pela rota
-   `/leads`.
+
+Os sete passos viraram seis: a tela de leads já está feita. Enquanto o
+passo 6 não estiver pronto, ela abre e explica na tela que o servidor
+ainda não está configurado, em vez de aparecer vazia sem motivo.
 
 **Teste rápido do que já funciona.** Abra `https://ideiaquevende.com.br/leads`.
 Resposta esperada enquanto o passo 6 não estiver feito:
