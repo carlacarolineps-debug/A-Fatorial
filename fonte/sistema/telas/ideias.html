@@ -1,0 +1,62 @@
+<!-- =====================================================================
+     Ideias que chegaram
+
+     A unica tela do sistema que fala com o servidor. Todo o resto vive em
+     localStorage, por navegador. As aplicacoes nao podem viver assim: elas
+     chegam do Typeform, caem no D1 e voltam pela rota /leads, atras do
+     login protegido. Se morassem no navegador, cada pessoa da mesa veria
+     uma fila diferente da fila de quem esta sentado ao lado.
+
+     Dai os quatro estados que nenhuma outra tela tem, e que estao escritos
+     por extenso no arquivo ao lado: carregando, sem servidor, login
+     vencido e Worker sem configuracao.
+     ===================================================================== -->
+<section class="tela" id="tela-ideias">
+
+  <div class="abertura">
+    <span class="selo">Primeiro passo</span>
+    <h2 id="ideias-frase" style="margin-top:14px">Buscando as aplicações no <b>servidor</b>.</h2>
+    <p id="ideias-frase-obs">A landing promete retornar com a leitura do caso. Esta fila é essa promessa contada em dias.</p>
+  </div>
+
+  <!-- Os numeros olham a lista inteira, e nao o filtro que a pessoa esta
+       usando agora: eles sao o retrato da mesa. -->
+  <div class="numeros" id="ideias-numeros" hidden></div>
+
+  <div id="ideias-aviso"></div>
+
+  <div class="cartao">
+    <div class="cartao-t">
+      <span>Quem contou a ideia</span>
+      <span id="ideias-estado"></span>
+      <span id="ideias-carimbo" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tinta-4)"></span>
+      <button class="bt bt-linha bt-sm" id="ideias-bt-buscar" onclick="ideiasCarregar()">Buscar de novo</button>
+    </div>
+
+    <div id="ideias-ferramentas" hidden style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <input class="campo campo-sm" id="ideias-busca" style="flex:1;min-width:230px"
+             placeholder="Procurar por nome, contato ou pelo que a pessoa escreveu"
+             oninput="ideiasBuscar(this.value)">
+      <select class="campo campo-sm" id="ideias-filtro" style="min-width:210px;flex:none"
+              onchange="ideiasFiltrar(this.value)"></select>
+    </div>
+
+    <div class="rolo-h">
+      <table class="lista">
+        <thead>
+          <tr>
+            <th>Espera</th>
+            <th>Quem contou</th>
+            <th>Contato</th>
+            <th>Nível clicado</th>
+            <th>Origem</th>
+            <th>Andamento</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="ideias-corpo"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
