@@ -114,7 +114,10 @@ t("GET /  _headers aplicado (frame)", r.headers.get("x-frame-options") === "SAME
 r = await fetch(`${B}/sistema/`);
 html = await r.text();
 t("GET /sistema/  200", r.status === 200, `status=${r.status}`);
-t("GET /sistema/  é o sistema", html.length > 500000, `${html.length} bytes`);
+t("GET /sistema/  é a área do Ideia Que Vende", /Ideia Que\s*<?\/?\w*>?\s*Vende/.test(html) || html.includes("Ideia Que"), `${html.length} bytes`);
+// a area restrita nao pode servir o sistema de outro negocio: ele ja esteve
+// aqui e foi publicado por engano no dominio
+t("GET /sistema/  não é o sistema de outro negócio", !/fatorial/i.test(html));
 t("GET /sistema/  noindex", (r.headers.get("x-robots-tag") || "").includes("noindex"), r.headers.get("x-robots-tag") || "(ausente)");
 t("GET /sistema/  no-store", (r.headers.get("cache-control") || "").includes("no-store"), r.headers.get("cache-control") || "(ausente)");
 
