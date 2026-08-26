@@ -3,10 +3,51 @@
 A landing e o sistema sobem juntos, num projeto só, num domínio só.
 Não existe passo de build: o site é HTML pronto.
 
-    seudominio.com.br/           landing (pública)
-    seudominio.com.br/sistema/   sistema (atrás de login)
-    seudominio.com.br/typeform   recebe as respostas do Typeform
-    seudominio.com.br/leads      devolve os leads para a mesa
+    ideiaquevende.com.br/           landing (pública)
+    ideiaquevende.com.br/sistema/   sistema (atrás de login)
+    ideiaquevende.com.br/typeform   recebe as respostas do Typeform
+    ideiaquevende.com.br/leads      devolve os leads para a mesa
+
+---
+
+## Onde estamos (26/08/2026)
+
+Este bloco é o resumo para quem chegar agora. O resto do arquivo é o passo
+a passo completo.
+
+**Pronto e verificado:**
+
+- Worker **`a-fatorial`** publicado na conta, servindo o código deste
+  repositório. Conferido lendo o script publicado, não por suposição.
+- Worker de teste `proud-haze-d805` apagado.
+- Banco D1 **`ideia-que-vende`** criado, com as tabelas `leads` e
+  `webhook_log`. Zerado: nenhuma resposta chegou ainda.
+- Domínio `ideiaquevende.com.br` na conta Cloudflare, nameservers já
+  trocados no Registro.br, **aguardando propagação**.
+- `npm test` passa nos 28 testes.
+
+**Falta, em ordem:**
+
+1. Esperar a zona virar **Active** na Cloudflare.
+2. Conferir que o domínio está no Worker `a-fatorial`
+   (*Settings → Domains & Routes*) e acrescentar o `www`.
+3. Desligar o endereço `.workers.dev` depois que o domínio abrir.
+4. Guardar o `TYPEFORM_WEBHOOK_SECRET` e criar o webhook no Typeform.
+5. Criar as duas aplicações do Access (`sistema` e `leads`).
+6. Preencher `TEAM_DOMAIN` e `ACCESS_AUD` no `wrangler.toml`.
+7. Fazer a tela de leads dentro do sistema. Ainda não existe: hoje o dado
+   chega e fica guardado, mas só se lê pelo painel do D1 ou pela rota
+   `/leads`.
+
+**Teste rápido do que já funciona.** Abra `https://ideiaquevende.com.br/leads`.
+Resposta esperada enquanto o passo 6 não estiver feito:
+
+```json
+{"erro":"falta configurar no Worker: TEAM_DOMAIN, ACCESS_AUD"}
+```
+
+Ver isso significa que domínio, Worker e código estão de pé. Se pedir
+login antes, o Access também já está.
 
 ---
 
