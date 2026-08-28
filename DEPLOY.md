@@ -29,22 +29,36 @@ a passo completo.
   ainda zerado: nenhuma resposta chegou.
 - `npm test` passa nas 47 verificações, num clone novo, sem preparo.
 
-**Pronto, mas ainda não publicado:**
+**No ar, e este é o ponto importante de hoje:**
 
-- O sistema de gestão próprio, **nove telas**, feito a partir do método da
-  landing. Conferido num navegador de verdade, 34 verificações.
-- Ele **não entra no ar antes do Cloudflare Access**. Sem login, qualquer
-  um com o endereço entra, e foi assim que o sistema do outro negócio
-  ficou exposto em 26/08. Enquanto isso, o `/sistema/` mostra uma página
-  dizendo que a área está sendo preparada.
+- **O sistema de gestão está publicado** em `/sistema/`, nove telas, feito
+  a partir do método da landing. A Carla pediu que subisse antes do Access,
+  sabendo do que vem abaixo.
+- Quem entra **escolhe o próprio nome** na porta e digita a senha dela. A
+  senha nunca é guardada em texto puro: fica como SHA-256 de
+  `senha + ':' + id`, e quem cadastra outra pessoa não escolhe a senha
+  dela, ela escolhe na primeira entrada.
+- Três papéis, e cada um vê o que é dele: **gestor** (as nove telas),
+  **colaborador** (sem dinheiro e sem A casa) e **cliente** (uma tela só,
+  e sem barra lateral).
+- Conferido num navegador de verdade: 33 verificações das telas e 28 do
+  login.
+
+**O que ainda não protege, e precisa ficar claro:**
+
+- **Sem o Cloudflare Access, o endereço não tem porta.** A senha de dentro
+  diz ao sistema quem é você e o que você enxerga; ela não impede ninguém
+  de chegar até a tela de login. A própria porta escreve isso enquanto o
+  Access não existir. Até lá, evite guardar ali o que não pode vazar.
+- Foi assim que o sistema do outro negócio ficou exposto em 26/08.
 
 **Falta, em ordem:**
 
-1. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
-2. Ligar o Typeform: campo oculto, webhook e segredo (seção 4).
-3. Criar as duas aplicações do Access e preencher `TEAM_DOMAIN` e
-   `ACCESS_AUD` (seção 5).
-4. Publicar o sistema, depois do passo 3.
+1. **Criar o Cloudflare Access** e preencher `TEAM_DOMAIN` e `ACCESS_AUD`
+   (seção 5). É o passo que fecha a porta, e é o mais urgente.
+2. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
+3. Ligar o Typeform: campo oculto, webhook e segredo (seção 4). A
+   automação está em rascunho, com o gatilho desligado.
 
 ---
 

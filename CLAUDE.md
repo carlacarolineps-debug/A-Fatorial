@@ -1,16 +1,26 @@
-# Ideia Que Vende / A! Fatorial
+# Ideia Que Vende
 
-Dois sites num projeto só, publicados como um Worker da Cloudflare.
+Dois sites num projeto só, publicados como um Worker da Cloudflare no
+domínio `ideiaquevende.com.br`.
 
-    public/index.html          landing pública       (~310 KB, gerado)
-    public/sistema/index.html  sistema de gestão     (~720 KB, escrito à mão)
+    public/index.html          landing pública      (~310 KB, gerada)
+    public/sistema/index.html  sistema de gestão    (~485 KB, gerado)
     src/                       rotas do servidor
     fonte/                     de onde a landing é gerada
+    fonte/sistema/             de onde o sistema é gerado
+
+O repositório se chama `A-Fatorial` por herança: até 26 de agosto ele
+serviu o sistema de gestão de outro negócio, o A! Fatorial, neste mesmo
+endereço `/sistema/`. Aquele sistema não existe mais aqui. O que sobrou
+dele são as chaves `af_` que podem estar vivas no navegador de quem
+abriu naquela época, e que este sistema nunca lê nem apaga sozinho.
 
 **Estado da publicação: leia o `DEPLOY.md`.** Ele começa com um bloco
 "Onde estamos" com o que já funciona, o que falta e em que ordem.
 
-Branch de trabalho: `claude/animated-shader-hero-thcafz`
+Branch de trabalho: `claude/animated-shader-hero-thcafz`. É esse o
+Production branch configurado em Settings → Builds, e é dele que a
+Cloudflare publica. Push em outro branch não chega no domínio.
 
 ## Regras que valem sempre
 
@@ -24,6 +34,15 @@ apareça em texto nenhum da landing. Use vírgula, dois-pontos ou ponto.
 **Escreva em português.** Comentários no código, mensagens de commit e
 documentação. O código deste repositório é lido por quem toca o negócio,
 não só por quem programa.
+
+**Nada de linguagem de programador na tela.** Nome de variável de
+ambiente, rota HTTP, caminho de arquivo do repositório e linha de shell
+são para quem publica, e ficam nos comentários. Quem abre o sistema é a
+Carla e a equipe dela.
+
+**Aviso que aparece sempre não é aviso.** É parágrafo com borda colorida.
+Se o texto vale para todo estado da tela, ele é uma linha em `.dica`, ou
+não existe.
 
 ## A landing não se edita direto
 
@@ -43,30 +62,58 @@ seguinte.
 O `fonte/mklogo.py` reconstrói o logotipo horizontal a partir da arte
 original. Só é necessário se a marca mudar.
 
-## O sistema é diferente
+## O sistema também é gerado
 
-`public/sistema/index.html` é um arquivo único de verdade, escrito à mão,
-sem build. Toda a informação vive em `localStorage` (`af_fin`,
-`af_usuarios`, `af_permissoes`, `af_plano`, `af_brand`…) e não há nenhuma
-chamada de rede. Consequência prática: **os dados são por navegador**.
-Duas pessoas abrindo o sistema veem coisas diferentes.
+`public/sistema/index.html` sai de `fonte/sistema/`, com um build só dele:
 
-É por isso que o Typeform não entrega direto nele. As respostas caem no
-banco D1, pela rota `/typeform`, e a rota `/leads` devolve para quem
-estiver autenticado.
+```sh
+cd fonte/sistema && python3 build.py
+```
 
-**A tela "Leads da landing" é a exceção.** É a única do sistema que fala
-com o servidor: lê o `/leads` e escreve o andamento de volta pelo
-`PATCH /leads`. Por isso ela tem estados que nenhuma outra tem
-(carregando, sem servidor, login vencido, Worker sem configuração) e é o
-único lugar onde entra texto escrito por desconhecido, o que explica o
-`ldEsc()` antes de qualquer coisa virar HTML.
+A ordem é `00-cabeca.html`, `10-estilo.css`, `20-moldura.html`, as nove
+telas de `telas/`, `30-base.js` e `90-fim.js`. Os 35 ícones e a marca são
+extraídos do `page.tpl.html` da landing na hora do build: os dois produtos
+usam o mesmo desenho para a mesma coisa, e não há um segundo conjunto para
+manter em dia. Regra em `fonte/sistema/CONTRATO.md`.
+
+### As nove telas e os três papéis
+
+`semana`, `ideias`, `leitura`, `projetos`, `entrega`, `roteiros`,
+`dinheiro`, `cliente`, `casa`. Cada uma é um par `telas/<chave>.html` mais
+`telas/<chave>.js`, e registra o próprio desenho em `DESENHO[<chave>]`.
+
+Os papéis são `gestor`, `colaborador` e `cliente`. Quem entra escolhe o
+próprio nome na porta e digita a senha dela; a senha nunca é guardada em
+texto puro, e sim como SHA-256 de `senha + ':' + id`. Quando o Cloudflare
+Access estiver ligado, a rota `/eu` diz qual e-mail ele autenticou, e quem
+já provou quem é na porta da rua não prova de novo na porta da sala.
 
 Tela nova não pode nascer invisível: as permissões ficam salvas no
-navegador e foram escritas antes de ela existir. Quem resolve isso é a
-lista `TELAS_VISTAS`, guardada junto das permissões. Ao criar uma tela,
+navegador e foram escritas antes de ela existir. Ao criar uma tela,
 acrescente a chave em `PERMISSOES_DEFAULT`, em `PERM_TELAS` e em
 `TELAS_NOVAS`.
+
+### Onde a informação mora
+
+Tudo em `localStorage`, com o prefixo `iqv_` (`iqv_projetos`,
+`iqv_usuarios`, `iqv_permissoes`, `iqv_metodo`, `iqv_sessao`…).
+Consequência prática: **os dados são por navegador**. Duas pessoas
+abrindo o sistema veem coisas diferentes.
+
+Nunca use o prefixo `af_`, nem para ler. É do outro negócio, na mesma
+origem. "A casa" oferece apagar essas chaves, com confirmação escrita, e
+esse é o único lugar que encosta nelas.
+
+É por isso que o Typeform não entrega direto no navegador. As respostas
+caem no banco D1 pela rota `/typeform`, e a rota `/leads` devolve para
+quem estiver autenticado.
+
+**"Ideias que chegaram" é a exceção.** É a única tela que fala com o
+servidor: lê o `/leads` e escreve o andamento de volta pelo
+`PATCH /leads`. Por isso ela tem estados que nenhuma outra tem
+(carregando, sem servidor, login vencido, servidor sem configuração) e é
+o único lugar onde entra texto escrito por desconhecido, o que explica o
+`esc()` antes de qualquer coisa virar HTML.
 
 ## Testes
 
@@ -75,7 +122,7 @@ npm test
 ```
 
 Sobe dois wrangler locais, bate nas rotas por HTTP e derruba os dois. São
-41 verificações, entre elas que corpo adulterado depois de assinar é
+47 verificações, entre elas que corpo adulterado depois de assinar é
 recusado, que reenvio do Typeform atualiza o lead em vez de duplicar e que
 o `/leads` com `TEAM_DOMAIN` e `ACCESS_AUD` preenchidos passa a exigir
 login em vez de abrir. O segundo servidor existe só para essa última
@@ -86,11 +133,25 @@ teste entra por `--var`. Clone novo roda direto.
 
 Antes de qualquer push que mexa em `src/` ou `wrangler.toml`, rode.
 
+As telas têm verificação própria, num navegador de verdade. Com um
+`npx wrangler dev` de pé na porta 8787:
+
+```sh
+node fonte/sistema/verifica.mjs        # 33: as nove telas, os três papéis
+node fonte/sistema/verifica-login.mjs  # 28: a porta, do primeiro dia em diante
+```
+
 ## Cuidados no que já está de pé
 
-- O nome em `wrangler.toml` (`a-fatorial`) tem que continuar igual ao do
-  Worker no painel. Diferente, o build falha ou nasce um segundo Worker
+- O nome em `wrangler.toml` (`ideia-que-vende`) tem que continuar igual ao
+  do Worker no painel. Diferente, o build falha ou nasce um segundo Worker
   sem domínio.
+- Em Settings → Builds, o **Production branch** tem que ser o branch de
+  trabalho acima, e "Builds for non-production branches" fica desmarcado.
+  Um dia inteiro se perdeu com isso apontando para `main`, que só tem um
+  README: cada push publicava, e o domínio nunca mudava.
 - `TYPEFORM_WEBHOOK_SECRET` é secret do painel, nunca do repositório.
-- `TEAM_DOMAIN` e `ACCESS_AUD` vazios fazem `/leads` responder 503 de
-  propósito. Não "conserte" isso deixando passar.
+- `TEAM_DOMAIN` e `ACCESS_AUD` vão no `wrangler.toml`, não no painel: as
+  variáveis de texto do painel são sobrescritas a cada deploy.
+- `TEAM_DOMAIN` e `ACCESS_AUD` vazios fazem `/leads` e `/eu` responderem
+  503 de propósito. Não "conserte" isso deixando passar.
