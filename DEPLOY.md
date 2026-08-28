@@ -55,6 +55,39 @@ login antes, o Access também já está.
 
 ---
 
+## A armadilha que custou um dia inteiro
+
+Em 28/08 o dominio passou a mostrar coisa errada, e a causa nao estava no
+codigo nem no dominio: estava em **Settings > Builds**, do Worker.
+
+Dois campos, os dois errados:
+
+**Production branch** estava em `main`. So que a `main` deste repositorio
+tem dois arquivos: um README e o `index.html` do sistema do A! Fatorial,
+outro negocio. Todo o Ideia Que Vende (landing, sistema, `src/`,
+`wrangler.toml`) vive na branch de trabalho. A Cloudflare estava tentando
+publicar do lugar onde o projeto nao esta.
+
+**"Builds for non-production branches"** estava marcado. Este repositorio
+tem 21 branches, de conversas diferentes. Com essa caixa ligada, qualquer
+push em qualquer uma delas dispara build. Era a mistura, com nome e
+sobrenome: trabalho de outra conversa chegando neste dominio.
+
+O conserto, nessa mesma tela:
+
+    Production branch                    claude/animated-shader-hero-thcafz
+    Builds for non-production branches   DESMARCADO
+
+A segunda linha e a que garante a separacao: nenhuma outra conversa
+consegue tocar neste dominio, por mais branches que aparecam.
+
+**Como saber se voce caiu nisto de novo.** O dominio mostra algo que voce
+nao reconhece, e o codigo publicado nao bate com o ultimo commit da branch
+de trabalho. Antes de mexer em qualquer outra coisa, abra Settings > Builds
+e confira esses dois campos.
+
+---
+
 ## Sobre o nome do Worker
 
 O Worker se chama **a-fatorial** no painel, batizado pelo nome do
