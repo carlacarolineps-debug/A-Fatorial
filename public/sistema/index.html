@@ -160,6 +160,11 @@ body[data-mesa="papel"]{
 /* ---------------------------------------------------------- moldura */
 .app{display:grid;grid-template-columns:var(--lateral) 1fr;min-height:100dvh}
 .app.sozinho{grid-template-columns:1fr}
+/* min-width:0 na coluna do conteudo. Sem isto o minimo automatico do grid
+   deixa uma linha larga (as oito entregas, uma tabela comprida) esticar a
+   coluna inteira: em vez de rolar dentro do .rolo-h, ela estourava a
+   direita da tela e o que passava do fim ficava cortado sem aviso. */
+.app>div{min-width:0}
 
 .lateral{
   background:var(--preto); border-right:1px solid var(--linha);
@@ -2061,7 +2066,7 @@ function semanaBlocoAtrasadas(d) {
       '<div class="dica">' + esc(dias) + '</div></td>');
   }).join('');
   return semanaCartaoBloco('Atrasadas', d.atrasadas.length, 'eti-alerta',
-    'Prazo vencido e a entrega ainda não voltou aprovada pelo cliente. É o único bloco em que a data já passou, e por isso ele vem antes de todos. A coluna da bola diz o que fazer com cada linha: com a gente é sentar e escrever, com o cliente é cobrar.',
+    'Prazo vencido e a entrega ainda não voltou aprovada pelo cliente.',
     semanaTabela(cols, linhas));
 }
 
@@ -2088,7 +2093,7 @@ function semanaBlocoDevolutivas(d) {
       '</tr>';
   }).join('');
   return semanaCartaoBloco('Devolutiva pendente', d.devolutivas.length, 'eti-alerta',
-    'Veredito assinado e retorno ainda não enviado, recusa incluída. A landing promete retornar com a leitura do caso, e é aqui que essa promessa vira relógio: o contador anda desde a assinatura, não desde a aplicação. O nome de quem escreveu mora na aplicação, no servidor, e por isso esta lista mostra o número dela. Este bloco não entra no filtro de pessoa: enquanto a devolutiva não sai, ela é promessa da casa.',
+    'Veredito assinado e retorno ainda não enviado, recusa incluída. O relógio anda desde a assinatura, e este bloco aparece para todo mundo.',
     semanaTabela(cols, linhas));
 }
 
@@ -2104,7 +2109,7 @@ function semanaBlocoVence(d) {
       '<div class="dica">' + esc(quanto) + '</div></td>');
   });
   return semanaCartaoBloco('Vence esta semana', d.vence.length, 'eti-info',
-    'De hoje até domingo, agrupado pelo dia em que cada uma vence. O que já está com o cliente e o que já está pronto para enviar não repetem aqui, aparecem nos blocos de baixo: a mesma linha em dois lugares faz alguém trabalhar duas vezes no que já resolveu.',
+    'De hoje até domingo, agrupado pelo dia em que vence.',
     semanaTabela(cols, linhas));
 }
 
@@ -2117,7 +2122,7 @@ function semanaBlocoEsperando(d) {
       '<td onclick="event.stopPropagation()">' + semanaCaixaTexto(id, semanaTextoCobranca(it.f, it.e, it.dias), 'Texto pronto') + '</td>');
   }).join('');
   return semanaCartaoBloco('Esperando o cliente há mais de ' + SEMANA_ESPERA + ' dias', d.esperando.length, 'eti-atencao',
-    'Aqui você não escreve nada, você cobra. O texto já vem montado com o que está parado, desde quando, e a data do produto pronto continua de pé, que são as três coisas que ninguém escreve às oito da manhã. Ajuste o que quiser antes de copiar.',
+    'O texto já vem montado. Ajuste o que quiser antes de copiar.',
     semanaTabela(cols, linhas));
 }
 
@@ -2134,7 +2139,7 @@ function semanaBlocoProntas(d) {
         semanaArg(it.f.p.id) + ',' + semanaArg(it.e.k) + ')">Abrir para enviar</button></td>');
   }).join('');
   return semanaCartaoBloco('Pronto para enviar', d.prontas.length, 'eti-ok',
-    'Definição de pronto inteira marcada e a entrega ainda não foi para validação. Trabalho feito que ninguém viu não conta como entrega, não move a fase e não aparece na tela do cliente. O envio é na Mesa da entrega, que é o único caminho para a entrega existir do lado de lá.',
+    'Definição de pronto inteira marcada e a entrega ainda não foi para validação. O envio é na Mesa da entrega.',
     semanaTabela(cols, linhas));
 }
 
@@ -2153,12 +2158,11 @@ function semanaBlocoColher(d) {
       '<td><button class="bt bt-linha bt-sm" onclick="semanaVerCliente(' + semanaArg(p.id) + ')">Ver o que ele vê</button></td>' +
       '</tr>';
   }).join('');
-  const rodape = '<p class="dica" style="margin-top:14px">As três respostas preenchidas tiram o projeto desta lista. ' +
-    'Enquanto uma delas estiver em branco a linha volta na semana que vem, porque pergunta feita pela metade não vira indicação.' +
+  const rodape = '<p class="dica" style="margin-top:14px">As três respostas preenchidas tiram o projeto desta lista.' +
     (d.indicaram ? ' ' + d.indicaram + (d.indicaram === 1 ? ' pessoa já disse' : ' pessoas já disseram') +
       ' que indicaria alguém: a aplicação que chegar com origem indicação aparece em Ideias que chegaram.' : '') + '</p>';
   return semanaCartaoBloco('Colher em ' + SEMANA_COLHEITA + ' dias', d.colher.length, 'eti-marca',
-    'Produto pronto há mais de ' + SEMANA_COLHEITA + ' dias, com as oito entregas do escopo aprovadas. As três perguntas já estão escritas, e a terceira é a que paga a conta: é dela que sai a próxima aplicação com origem indicação, que chega sabendo o que a casa faz e custa nada para atrair.',
+    'Produto pronto há mais de ' + SEMANA_COLHEITA + ' dias, com as oito entregas do escopo aprovadas.',
     semanaTabela(cols, linhas) + rodape);
 }
 
@@ -2321,13 +2325,12 @@ function semanaRecados(d) {
   let html = '';
   if (SEMANA.recado) html += aviso(SEMANA.recado.tom, esc(SEMANA.recado.titulo), esc(SEMANA.recado.texto));
   if (d.alvo.semFicha) {
-    html += aviso('info', 'Nenhuma pessoa deste sistema está com o seu e-mail.',
-      'A semana separa o que é seu pelo responsável de cada entrega, e sem uma pessoa com o e-mail ' + esc(EU.email || 'que você usou para entrar') +
-      ' não dá para saber quais são as suas. Por enquanto você está vendo a casa inteira. Quem cria pessoa e escreve o e-mail é a gestão, em A casa.');
+    html += aviso('info', 'Nenhuma pessoa deste sistema está com o e-mail ' + esc(EU.email || 'que você usou para entrar') + '.',
+      'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em "A casa".');
   }
   if (d.orfas) {
     html += aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
-      'Entrega sem responsável não entra na semana de ninguém, e some sem avisar até o prazo vencer. Abra Projetos em estruturação e diga de quem é cada uma.');
+      'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.');
   }
   return html;
 }
@@ -2548,9 +2551,9 @@ async function ideiasCarregar() {
   } catch (e) {
     // Sem servidor: arquivo aberto direto do computador, ou rede fora.
     ideiasParar('alerta', 'Não consegui falar com o servidor.',
-      'As aplicações moram no banco, e não neste navegador, então sem servidor não há o que mostrar. ' +
+      'As aplicações moram no servidor, não neste navegador. ' +
       'Se você abriu este arquivo direto do computador, entre pelo endereço publicado, em ideiaquevende.com.br/sistema/. ' +
-      'Se já estava nele, foi a rede que caiu: espere um instante e peça para buscar de novo.');
+      'Se já estava nele, foi a rede que caiu: peça para buscar de novo.');
     return;
   }
 
@@ -4036,8 +4039,8 @@ function leituraHtmlMotivos() {
     tabela('Por estágio', 'Estágio', conta(ESTAGIOS, 'estagio')) +
     motivos +
     '<div class="cartao">' + aviso('info', 'Perfil que recusa muito não é perfil ruim.',
-      'É perfil que a landing está atraindo e o método não atende, e isso se corrige no texto da landing, em fonte/page.tpl.html, não aqui dentro. ' +
-      'Esta conta olha só as leituras assinadas neste navegador: leitura assinada em outra máquina não entra, porque o que atravessa é o carimbo, e ele não é somado aqui.') + '</div>';
+      'É perfil que a landing atrai e o método não atende, e isso se corrige na landing. ' +
+      'Esta conta olha só as leituras assinadas neste navegador.') + '</div>';
 }
 
 /* --------------------------------------------- a ficha, montada inteira */
@@ -4052,17 +4055,16 @@ function leituraHtmlImportar(lead) {
   if (local && local.assinadaEm) return '';
   return aviso('info', 'Esta aplicação já tem parecer assinado, e não foi neste navegador.',
       'Assinado em ' + esc(dataCurta(parecer.data)) + ' por ' + esc(parecer.campos.por || 'sem nome') +
-      ', com veredito ' + esc(parecer.campos.veredito || 'sem veredito') + '. O que veio no carimbo é isso, e só isso: o resto da leitura ficou no navegador de quem escreveu.') +
+      ', com veredito ' + esc(parecer.campos.veredito || 'sem veredito') + '. O resto da leitura ficou no navegador de quem escreveu.') +
     '<button class="bt bt-linha bt-sm" onclick="leituraTrazerCarimbo()" style="margin-bottom:18px">Trazer o parecer para este navegador</button>';
 }
 
 function leituraHtmlNenhuma() {
   if (!LEITURA_LEADS.length) return '';
   if (leituraTodas().length) {
-    return '<div class="cartao"><p class="dica">Escolha uma linha da fila para abrir a ficha. À esquerda aparece o que a pessoa escreveu, à direita a leitura, e embaixo o veredito e a devolutiva.</p></div>';
+    return '<div class="cartao"><p class="dica">Escolha uma linha da fila para abrir a ficha.</p></div>';
   }
-  return '<div class="cartao"><p class="dica">Nenhuma leitura começou. Escolha uma aplicação em Ideias que chegaram e abra aqui: perfil, estágio, o que falta das oito entregas e o nível indicado. ' +
-    'Enquanto ninguém assinar um veredito, nada nesta tela conta como resposta dada à pessoa, e ela continua esperando do outro lado.</p></div>';
+  return '<div class="cartao"><p class="dica">Nenhuma leitura começou. Escolha uma aplicação em Ideias que chegaram.</p></div>';
 }
 
 function leituraHtmlFicha() {
@@ -4883,7 +4885,7 @@ function projetosHtmlFaixa(fichas) {
       '</button>';
   });
   html += '</div>';
-  html += '<p class="dica" style="margin:-8px 0 20px">Cada projeto está na fase que as aprovações do cliente sustentam, e não na que alguém marcou. ' +
+  html += '<p class="dica" style="margin:-8px 0 20px">' +
     (PROJETOS.fase ? 'Você está vendo só a Fase 0' + PROJETOS.fase + '. <button class="bt bt-linha bt-sm" onclick="projetosFiltrarFase(0)">Ver as quatro</button>'
                    : 'Clique numa fase para ver só ela.') + '</p>';
   return html;
@@ -4924,7 +4926,7 @@ function projetosHtmlCarga(fichas) {
   if (orfaos.length) {
     corpo += '<tr><td><b style="color:var(--atencao)">Sem responsável</b></td>' +
       '<td>' + orfaos.length + '</td><td>' + orfaos.reduce(function (s, f) { return s + f.escopo.filter(function (e) { return e.estado !== 'aprovada'; }).length; }, 0) + '</td>' +
-      '<td>0</td><td>0</td><td class="dica">Projeto sem responsável não aparece na semana de ninguém. O responsável se define em Leitura do caso, ao abrir o projeto.</td></tr>';
+      '<td>0</td><td>0</td><td class="dica">Não aparece na semana de ninguém. Defina em Leitura do caso.</td></tr>';
   }
   if (!corpo) {
     corpo = vazio('Ninguém está cadastrado em A casa ainda, então não há carga para somar. Cadastre a equipe em A casa para saber de quem é cada entrega.', 6);
@@ -4935,7 +4937,7 @@ function projetosHtmlCarga(fichas) {
     '<div class="rolo-h"><table class="lista"><thead><tr>' +
     '<th>Pessoa</th><th>Projetos</th><th>Entregas abertas</th><th>Atrasadas</th><th>Com o cliente</th><th>A leitura disso</th>' +
     '</tr></thead><tbody>' + corpo + '</tbody></table></div>' +
-    '<p class="dica" style="margin-top:12px">Olhe esta linha antes de assinar o próximo veredito em Leitura do caso. Assinar é fácil, e é aqui que aparece quem vai escrever.</p></div>';
+    '</div>';
 }
 
 function projetosHtmlFerramentas(quantos, total) {
@@ -5091,7 +5093,8 @@ function projetosHtmlCartao(f) {
       ? '<span class="eti eti-ok">Produto pronto, entregue em ' + esc(dataCurta(f.entregueEm)) + '</span>'
       : '<span class="eti ' + eti + '">' + (b.lado === 'cliente' ? 'Com o cliente ' : 'Com a gente ') + esc(projetosHtmlTempo(b.dias)) + '</span>') + ' ' +
     '<h3 style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--claro);margin-top:11px">' + esc(p.cliente || p.rotulo || 'sem nome') + '</h3>' +
-    '<div class="dica">' + esc(p.rotulo || '') + (p.rotulo ? '. ' : '') + 'Começou em ' + esc(dataCurta(p.inicio)) + '.' +
+    '<div class="dica">' + esc(p.rotulo || '') + (p.rotulo ? '. ' : '') +
+      (data(p.inicio) ? 'Começou em ' + esc(dataCurta(p.inicio)) + '.' : 'Sem data de início.') +
     (b.divergente && !f.tudoAprovado ? ' O cartão guardado dizia que a bola estava com ' + (b.lado === 'cliente' ? 'a gente' : 'o cliente') + ', mas quem manda é o estado das oito entregas.' : '') +
     '</div></div>' +
     '<div style="text-align:right">' +
@@ -6345,8 +6348,8 @@ function entregaHtmlRoteiro(alvo) {
         '</label>';
       }).join('')
     : aviso('atencao', 'Este contrato nasceu sem definição de pronto.',
-        'A entrega foi copiada de Roteiros e níveis no dia em que o projeto começou, e naquele dia ' + esc(nomeEntrega(e.k)) +
-        ' ainda não tinha itens escritos. Sem eles a mesa não tem o que cobrar, e ninguém consegue dizer se a entrega está pronta ou só parece pronta.') +
+        'No dia em que o projeto começou, ' + esc(nomeEntrega(e.k)) +
+        ' ainda não tinha itens escritos. Sem eles a mesa não tem o que cobrar.') +
       (EU.pode('roteiros') ? '<button class="bt bt-linha bt-sm" onclick="irPara(\'roteiros\')">Escrever a definição de pronto</button>' : '');
 
   // A diferenca entre o roteiro de hoje e o que este contrato copiou nao e
@@ -6531,7 +6534,7 @@ function entregaHtmlLinks(alvo) {
     '<div class="cartao-t"><span>Links desta entrega</span></div>' +
     (linhas || '<p class="dica" style="margin-bottom:12px">Nenhum link ainda. É por aqui que o cliente chega ao documento.</p>') +
     '<button class="bt bt-linha bt-sm" onclick="entregaLinkAcrescentar()">Acrescentar link</button>' +
-    '<p class="dica" style="margin-top:12px">O sistema guarda endereço, nunca arquivo: nada aqui dentro serve de cofre, e arquivo grande derruba o armazenamento do navegador. O mesmo link aparece na tela do cliente depois do envio, então nome de pasta interna aparece do lado dele também.</p>' +
+    '<p class="dica" style="margin-top:12px">Endereço, nunca arquivo. Depois do envio o mesmo link aparece na tela do cliente, nome de pasta incluído.</p>' +
     '</div>';
 }
 
@@ -6622,15 +6625,15 @@ function entregaHtmlEnvio(alvo) {
 
   const aprovada = e.estado === 'aprovada'
     ? aviso('ok', 'Aprovada pelo cliente em ' + esc(dataCurta(e.aprovadaEm)) + '.',
-        'O que você mudar aqui a partir de agora não está aprovado e não chega até ele: o que ele vê continua sendo a versão ' +
-        e.versoes.length + '. Mudança que precise valer para o cliente pede um novo envio.')
+        'O que ele vê continua sendo a versão ' + e.versoes.length +
+        '. Mudança que precise valer para ele pede um novo envio.')
     : '';
 
   return '<div class="cartao">' +
     '<div class="cartao-t"><span>Enviar para validação</span></div>' +
     aprovada +
-    '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">Este é o único caminho para a entrega aparecer do lado do cliente. O envio faz três coisas de uma vez: congela a versão ' +
-      (e.versoes.length + 1) + ', passa a bola para ele e publica o retrato que a tela Meu projeto mostra. Ninguém precisa lembrar de publicar nada.</p>' +
+    '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">O envio congela a versão ' +
+      (e.versoes.length + 1) + ', passa a bola para o cliente e publica na tela dele, tudo de uma vez.</p>' +
     '<button class="bt bt-marca" onclick="entregaPedirEnvio()">' +
       (e.versoes.length ? 'Enviar a versão ' + (e.versoes.length + 1) : 'Enviar para validação') + '</button>' +
     (falta.total ? '<p class="dica" style="margin-top:10px">' + falta.total +
@@ -6649,14 +6652,13 @@ function entregaHtmlForaDoContrato(alvo) {
 
   return '<div class="cartao">' +
     aviso('atencao', esc(e.nome) + ' não entra no contrato deste projeto.',
-      'O nível contratado foi ' + esc(contratado ? contratado.nome : 'nenhum') +
-      ', e o escopo foi congelado no dia em que o projeto nasceu, de propósito: é o combinado daquele contrato, e não uma consulta feita na hora de desenhar a tela. ' +
+      'O nível contratado foi ' + esc(contratado ? contratado.nome : 'nenhum') + '. ' +
       (menor ? 'Esta entrega faz parte do ' + esc(menor.nome) + '.' : 'Nenhum nível de hoje inclui esta entrega.')) +
     (diferenca !== null && diferenca > 0
       ? '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">A diferença entre ' + esc(contratado.nome) + ' e ' + esc(menor.nome) + ' é ' + esc(moeda(diferenca)) +
-        '. O cliente vê esta entrega apagada na tela dele, com o nome e a etiqueta do nível que a inclui, e é assim que a subida de nível no meio do caminho aparece sem ninguém precisar vender nada.</p>'
+        '. Na tela dele esta entrega aparece apagada, com a etiqueta do nível que a inclui.</p>'
       : '') +
-    '<p class="dica" style="margin-bottom:14px">Escrever aqui faria o cliente receber como pronta uma parte que ele não comprou. Se o caso mudou e ele precisa disto, a troca de nível se resolve na leitura do caso, antes.</p>' +
+    '<p class="dica" style="margin-bottom:14px">A troca de nível se resolve na leitura do caso, antes.</p>' +
     (EU.pode('leitura') ? '<button class="bt bt-linha" onclick="irPara(\'leitura\')">Abrir a leitura do caso</button> ' : '') +
     (EU.pode('cliente') ? '<button class="bt bt-linha" onclick="irPara(\'cliente\')">Ver como o cliente vê</button>' : '') +
     '</div>';
@@ -6671,9 +6673,8 @@ function entregaHtmlVazio() {
   const dito = '<div class="cartao">' +
     '<div class="cartao-t"><span>A mesa está livre</span></div>' +
     '<p style="font-size:13.5px;color:var(--tx-2);max-width:74ch;line-height:1.7">' +
-      'Nenhuma entrega aberta. Escolha um projeto em Projetos em estruturação e clique em uma das oito. ' +
-      'Se as oito estiverem apagadas, o projeto nasceu sem escopo: volte à leitura do caso e diga qual nível foi contratado, ' +
-      'porque é o nível que define o que entra neste projeto.' +
+      'Escolha um projeto em Projetos em estruturação e clique em uma das oito. ' +
+      'Se as oito estiverem apagadas, o projeto nasceu sem escopo: diga o nível contratado na leitura do caso.' +
     '</p>' +
     (projetos.length
       ? '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px">' +
@@ -7388,7 +7389,8 @@ DESENHO.cliente = function () {
           String(f.n).padStart(2, '0') + '</div>' +
         '<b style="display:block;font-size:14px;color:var(--claro);margin-top:4px">' + esc(f.nome) + '</b>' +
         '<p class="dica" style="margin-top:5px">' + esc(f.resumo) + '</p>' +
-        (agora ? '<div class="eti eti-marca" style="margin-top:10px">etapa: ' + esc(nomeEtapa(projeto.etapa)) + '</div>' : '') +
+        (agora && nomeEtapa(projeto.etapa) !== '?'
+          ? '<div class="eti eti-marca" style="margin-top:10px">etapa: ' + esc(nomeEtapa(projeto.etapa)) + '</div>' : '') +
       '</div>';
     }).join('') + '</div>');
 

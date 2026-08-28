@@ -1106,8 +1106,8 @@ function entregaHtmlRoteiro(alvo) {
         '</label>';
       }).join('')
     : aviso('atencao', 'Este contrato nasceu sem definição de pronto.',
-        'A entrega foi copiada de Roteiros e níveis no dia em que o projeto começou, e naquele dia ' + esc(nomeEntrega(e.k)) +
-        ' ainda não tinha itens escritos. Sem eles a mesa não tem o que cobrar, e ninguém consegue dizer se a entrega está pronta ou só parece pronta.') +
+        'No dia em que o projeto começou, ' + esc(nomeEntrega(e.k)) +
+        ' ainda não tinha itens escritos. Sem eles a mesa não tem o que cobrar.') +
       (EU.pode('roteiros') ? '<button class="bt bt-linha bt-sm" onclick="irPara(\'roteiros\')">Escrever a definição de pronto</button>' : '');
 
   // A diferenca entre o roteiro de hoje e o que este contrato copiou nao e
@@ -1292,7 +1292,7 @@ function entregaHtmlLinks(alvo) {
     '<div class="cartao-t"><span>Links desta entrega</span></div>' +
     (linhas || '<p class="dica" style="margin-bottom:12px">Nenhum link ainda. É por aqui que o cliente chega ao documento.</p>') +
     '<button class="bt bt-linha bt-sm" onclick="entregaLinkAcrescentar()">Acrescentar link</button>' +
-    '<p class="dica" style="margin-top:12px">O sistema guarda endereço, nunca arquivo: nada aqui dentro serve de cofre, e arquivo grande derruba o armazenamento do navegador. O mesmo link aparece na tela do cliente depois do envio, então nome de pasta interna aparece do lado dele também.</p>' +
+    '<p class="dica" style="margin-top:12px">Endereço, nunca arquivo. Depois do envio o mesmo link aparece na tela do cliente, nome de pasta incluído.</p>' +
     '</div>';
 }
 
@@ -1383,15 +1383,15 @@ function entregaHtmlEnvio(alvo) {
 
   const aprovada = e.estado === 'aprovada'
     ? aviso('ok', 'Aprovada pelo cliente em ' + esc(dataCurta(e.aprovadaEm)) + '.',
-        'O que você mudar aqui a partir de agora não está aprovado e não chega até ele: o que ele vê continua sendo a versão ' +
-        e.versoes.length + '. Mudança que precise valer para o cliente pede um novo envio.')
+        'O que ele vê continua sendo a versão ' + e.versoes.length +
+        '. Mudança que precise valer para ele pede um novo envio.')
     : '';
 
   return '<div class="cartao">' +
     '<div class="cartao-t"><span>Enviar para validação</span></div>' +
     aprovada +
-    '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">Este é o único caminho para a entrega aparecer do lado do cliente. O envio faz três coisas de uma vez: congela a versão ' +
-      (e.versoes.length + 1) + ', passa a bola para ele e publica o retrato que a tela Meu projeto mostra. Ninguém precisa lembrar de publicar nada.</p>' +
+    '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">O envio congela a versão ' +
+      (e.versoes.length + 1) + ', passa a bola para o cliente e publica na tela dele, tudo de uma vez.</p>' +
     '<button class="bt bt-marca" onclick="entregaPedirEnvio()">' +
       (e.versoes.length ? 'Enviar a versão ' + (e.versoes.length + 1) : 'Enviar para validação') + '</button>' +
     (falta.total ? '<p class="dica" style="margin-top:10px">' + falta.total +
@@ -1410,14 +1410,13 @@ function entregaHtmlForaDoContrato(alvo) {
 
   return '<div class="cartao">' +
     aviso('atencao', esc(e.nome) + ' não entra no contrato deste projeto.',
-      'O nível contratado foi ' + esc(contratado ? contratado.nome : 'nenhum') +
-      ', e o escopo foi congelado no dia em que o projeto nasceu, de propósito: é o combinado daquele contrato, e não uma consulta feita na hora de desenhar a tela. ' +
+      'O nível contratado foi ' + esc(contratado ? contratado.nome : 'nenhum') + '. ' +
       (menor ? 'Esta entrega faz parte do ' + esc(menor.nome) + '.' : 'Nenhum nível de hoje inclui esta entrega.')) +
     (diferenca !== null && diferenca > 0
       ? '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">A diferença entre ' + esc(contratado.nome) + ' e ' + esc(menor.nome) + ' é ' + esc(moeda(diferenca)) +
-        '. O cliente vê esta entrega apagada na tela dele, com o nome e a etiqueta do nível que a inclui, e é assim que a subida de nível no meio do caminho aparece sem ninguém precisar vender nada.</p>'
+        '. Na tela dele esta entrega aparece apagada, com a etiqueta do nível que a inclui.</p>'
       : '') +
-    '<p class="dica" style="margin-bottom:14px">Escrever aqui faria o cliente receber como pronta uma parte que ele não comprou. Se o caso mudou e ele precisa disto, a troca de nível se resolve na leitura do caso, antes.</p>' +
+    '<p class="dica" style="margin-bottom:14px">A troca de nível se resolve na leitura do caso, antes.</p>' +
     (EU.pode('leitura') ? '<button class="bt bt-linha" onclick="irPara(\'leitura\')">Abrir a leitura do caso</button> ' : '') +
     (EU.pode('cliente') ? '<button class="bt bt-linha" onclick="irPara(\'cliente\')">Ver como o cliente vê</button>' : '') +
     '</div>';
@@ -1432,9 +1431,8 @@ function entregaHtmlVazio() {
   const dito = '<div class="cartao">' +
     '<div class="cartao-t"><span>A mesa está livre</span></div>' +
     '<p style="font-size:13.5px;color:var(--tx-2);max-width:74ch;line-height:1.7">' +
-      'Nenhuma entrega aberta. Escolha um projeto em Projetos em estruturação e clique em uma das oito. ' +
-      'Se as oito estiverem apagadas, o projeto nasceu sem escopo: volte à leitura do caso e diga qual nível foi contratado, ' +
-      'porque é o nível que define o que entra neste projeto.' +
+      'Escolha um projeto em Projetos em estruturação e clique em uma das oito. ' +
+      'Se as oito estiverem apagadas, o projeto nasceu sem escopo: diga o nível contratado na leitura do caso.' +
     '</p>' +
     (projetos.length
       ? '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px">' +

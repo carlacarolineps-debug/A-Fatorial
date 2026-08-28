@@ -1002,8 +1002,8 @@ function leituraHtmlMotivos() {
     tabela('Por estágio', 'Estágio', conta(ESTAGIOS, 'estagio')) +
     motivos +
     '<div class="cartao">' + aviso('info', 'Perfil que recusa muito não é perfil ruim.',
-      'É perfil que a landing está atraindo e o método não atende, e isso se corrige no texto da landing, em fonte/page.tpl.html, não aqui dentro. ' +
-      'Esta conta olha só as leituras assinadas neste navegador: leitura assinada em outra máquina não entra, porque o que atravessa é o carimbo, e ele não é somado aqui.') + '</div>';
+      'É perfil que a landing atrai e o método não atende, e isso se corrige na landing. ' +
+      'Esta conta olha só as leituras assinadas neste navegador.') + '</div>';
 }
 
 /* --------------------------------------------- a ficha, montada inteira */
@@ -1018,17 +1018,16 @@ function leituraHtmlImportar(lead) {
   if (local && local.assinadaEm) return '';
   return aviso('info', 'Esta aplicação já tem parecer assinado, e não foi neste navegador.',
       'Assinado em ' + esc(dataCurta(parecer.data)) + ' por ' + esc(parecer.campos.por || 'sem nome') +
-      ', com veredito ' + esc(parecer.campos.veredito || 'sem veredito') + '. O que veio no carimbo é isso, e só isso: o resto da leitura ficou no navegador de quem escreveu.') +
+      ', com veredito ' + esc(parecer.campos.veredito || 'sem veredito') + '. O resto da leitura ficou no navegador de quem escreveu.') +
     '<button class="bt bt-linha bt-sm" onclick="leituraTrazerCarimbo()" style="margin-bottom:18px">Trazer o parecer para este navegador</button>';
 }
 
 function leituraHtmlNenhuma() {
   if (!LEITURA_LEADS.length) return '';
   if (leituraTodas().length) {
-    return '<div class="cartao"><p class="dica">Escolha uma linha da fila para abrir a ficha. À esquerda aparece o que a pessoa escreveu, à direita a leitura, e embaixo o veredito e a devolutiva.</p></div>';
+    return '<div class="cartao"><p class="dica">Escolha uma linha da fila para abrir a ficha.</p></div>';
   }
-  return '<div class="cartao"><p class="dica">Nenhuma leitura começou. Escolha uma aplicação em Ideias que chegaram e abra aqui: perfil, estágio, o que falta das oito entregas e o nível indicado. ' +
-    'Enquanto ninguém assinar um veredito, nada nesta tela conta como resposta dada à pessoa, e ela continua esperando do outro lado.</p></div>';
+  return '<div class="cartao"><p class="dica">Nenhuma leitura começou. Escolha uma aplicação em Ideias que chegaram.</p></div>';
 }
 
 function leituraHtmlFicha() {

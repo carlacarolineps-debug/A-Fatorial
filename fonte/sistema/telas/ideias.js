@@ -146,9 +146,9 @@ async function ideiasCarregar() {
   } catch (e) {
     // Sem servidor: arquivo aberto direto do computador, ou rede fora.
     ideiasParar('alerta', 'Não consegui falar com o servidor.',
-      'As aplicações moram no banco, e não neste navegador, então sem servidor não há o que mostrar. ' +
+      'As aplicações moram no servidor, não neste navegador. ' +
       'Se você abriu este arquivo direto do computador, entre pelo endereço publicado, em ideiaquevende.com.br/sistema/. ' +
-      'Se já estava nele, foi a rede que caiu: espere um instante e peça para buscar de novo.');
+      'Se já estava nele, foi a rede que caiu: peça para buscar de novo.');
     return;
   }
 

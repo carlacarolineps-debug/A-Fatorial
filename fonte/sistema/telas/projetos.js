@@ -443,7 +443,7 @@ function projetosHtmlFaixa(fichas) {
       '</button>';
   });
   html += '</div>';
-  html += '<p class="dica" style="margin:-8px 0 20px">Cada projeto está na fase que as aprovações do cliente sustentam, e não na que alguém marcou. ' +
+  html += '<p class="dica" style="margin:-8px 0 20px">' +
     (PROJETOS.fase ? 'Você está vendo só a Fase 0' + PROJETOS.fase + '. <button class="bt bt-linha bt-sm" onclick="projetosFiltrarFase(0)">Ver as quatro</button>'
                    : 'Clique numa fase para ver só ela.') + '</p>';
   return html;
@@ -484,7 +484,7 @@ function projetosHtmlCarga(fichas) {
   if (orfaos.length) {
     corpo += '<tr><td><b style="color:var(--atencao)">Sem responsável</b></td>' +
       '<td>' + orfaos.length + '</td><td>' + orfaos.reduce(function (s, f) { return s + f.escopo.filter(function (e) { return e.estado !== 'aprovada'; }).length; }, 0) + '</td>' +
-      '<td>0</td><td>0</td><td class="dica">Projeto sem responsável não aparece na semana de ninguém. O responsável se define em Leitura do caso, ao abrir o projeto.</td></tr>';
+      '<td>0</td><td>0</td><td class="dica">Não aparece na semana de ninguém. Defina em Leitura do caso.</td></tr>';
   }
   if (!corpo) {
     corpo = vazio('Ninguém está cadastrado em A casa ainda, então não há carga para somar. Cadastre a equipe em A casa para saber de quem é cada entrega.', 6);
@@ -495,7 +495,7 @@ function projetosHtmlCarga(fichas) {
     '<div class="rolo-h"><table class="lista"><thead><tr>' +
     '<th>Pessoa</th><th>Projetos</th><th>Entregas abertas</th><th>Atrasadas</th><th>Com o cliente</th><th>A leitura disso</th>' +
     '</tr></thead><tbody>' + corpo + '</tbody></table></div>' +
-    '<p class="dica" style="margin-top:12px">Olhe esta linha antes de assinar o próximo veredito em Leitura do caso. Assinar é fácil, e é aqui que aparece quem vai escrever.</p></div>';
+    '</div>';
 }
 
 function projetosHtmlFerramentas(quantos, total) {
@@ -651,7 +651,8 @@ function projetosHtmlCartao(f) {
       ? '<span class="eti eti-ok">Produto pronto, entregue em ' + esc(dataCurta(f.entregueEm)) + '</span>'
       : '<span class="eti ' + eti + '">' + (b.lado === 'cliente' ? 'Com o cliente ' : 'Com a gente ') + esc(projetosHtmlTempo(b.dias)) + '</span>') + ' ' +
     '<h3 style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--claro);margin-top:11px">' + esc(p.cliente || p.rotulo || 'sem nome') + '</h3>' +
-    '<div class="dica">' + esc(p.rotulo || '') + (p.rotulo ? '. ' : '') + 'Começou em ' + esc(dataCurta(p.inicio)) + '.' +
+    '<div class="dica">' + esc(p.rotulo || '') + (p.rotulo ? '. ' : '') +
+      (data(p.inicio) ? 'Começou em ' + esc(dataCurta(p.inicio)) + '.' : 'Sem data de início.') +
     (b.divergente && !f.tudoAprovado ? ' O cartão guardado dizia que a bola estava com ' + (b.lado === 'cliente' ? 'a gente' : 'o cliente') + ', mas quem manda é o estado das oito entregas.' : '') +
     '</div></div>' +
     '<div style="text-align:right">' +

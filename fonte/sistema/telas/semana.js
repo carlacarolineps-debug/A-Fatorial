@@ -524,7 +524,7 @@ function semanaBlocoAtrasadas(d) {
       '<div class="dica">' + esc(dias) + '</div></td>');
   }).join('');
   return semanaCartaoBloco('Atrasadas', d.atrasadas.length, 'eti-alerta',
-    'Prazo vencido e a entrega ainda não voltou aprovada pelo cliente. É o único bloco em que a data já passou, e por isso ele vem antes de todos. A coluna da bola diz o que fazer com cada linha: com a gente é sentar e escrever, com o cliente é cobrar.',
+    'Prazo vencido e a entrega ainda não voltou aprovada pelo cliente.',
     semanaTabela(cols, linhas));
 }
 
@@ -551,7 +551,7 @@ function semanaBlocoDevolutivas(d) {
       '</tr>';
   }).join('');
   return semanaCartaoBloco('Devolutiva pendente', d.devolutivas.length, 'eti-alerta',
-    'Veredito assinado e retorno ainda não enviado, recusa incluída. A landing promete retornar com a leitura do caso, e é aqui que essa promessa vira relógio: o contador anda desde a assinatura, não desde a aplicação. O nome de quem escreveu mora na aplicação, no servidor, e por isso esta lista mostra o número dela. Este bloco não entra no filtro de pessoa: enquanto a devolutiva não sai, ela é promessa da casa.',
+    'Veredito assinado e retorno ainda não enviado, recusa incluída. O relógio anda desde a assinatura, e este bloco aparece para todo mundo.',
     semanaTabela(cols, linhas));
 }
 
@@ -567,7 +567,7 @@ function semanaBlocoVence(d) {
       '<div class="dica">' + esc(quanto) + '</div></td>');
   });
   return semanaCartaoBloco('Vence esta semana', d.vence.length, 'eti-info',
-    'De hoje até domingo, agrupado pelo dia em que cada uma vence. O que já está com o cliente e o que já está pronto para enviar não repetem aqui, aparecem nos blocos de baixo: a mesma linha em dois lugares faz alguém trabalhar duas vezes no que já resolveu.',
+    'De hoje até domingo, agrupado pelo dia em que vence.',
     semanaTabela(cols, linhas));
 }
 
@@ -580,7 +580,7 @@ function semanaBlocoEsperando(d) {
       '<td onclick="event.stopPropagation()">' + semanaCaixaTexto(id, semanaTextoCobranca(it.f, it.e, it.dias), 'Texto pronto') + '</td>');
   }).join('');
   return semanaCartaoBloco('Esperando o cliente há mais de ' + SEMANA_ESPERA + ' dias', d.esperando.length, 'eti-atencao',
-    'Aqui você não escreve nada, você cobra. O texto já vem montado com o que está parado, desde quando, e a data do produto pronto continua de pé, que são as três coisas que ninguém escreve às oito da manhã. Ajuste o que quiser antes de copiar.',
+    'O texto já vem montado. Ajuste o que quiser antes de copiar.',
     semanaTabela(cols, linhas));
 }
 
@@ -597,7 +597,7 @@ function semanaBlocoProntas(d) {
         semanaArg(it.f.p.id) + ',' + semanaArg(it.e.k) + ')">Abrir para enviar</button></td>');
   }).join('');
   return semanaCartaoBloco('Pronto para enviar', d.prontas.length, 'eti-ok',
-    'Definição de pronto inteira marcada e a entrega ainda não foi para validação. Trabalho feito que ninguém viu não conta como entrega, não move a fase e não aparece na tela do cliente. O envio é na Mesa da entrega, que é o único caminho para a entrega existir do lado de lá.',
+    'Definição de pronto inteira marcada e a entrega ainda não foi para validação. O envio é na Mesa da entrega.',
     semanaTabela(cols, linhas));
 }
 
@@ -616,12 +616,11 @@ function semanaBlocoColher(d) {
       '<td><button class="bt bt-linha bt-sm" onclick="semanaVerCliente(' + semanaArg(p.id) + ')">Ver o que ele vê</button></td>' +
       '</tr>';
   }).join('');
-  const rodape = '<p class="dica" style="margin-top:14px">As três respostas preenchidas tiram o projeto desta lista. ' +
-    'Enquanto uma delas estiver em branco a linha volta na semana que vem, porque pergunta feita pela metade não vira indicação.' +
+  const rodape = '<p class="dica" style="margin-top:14px">As três respostas preenchidas tiram o projeto desta lista.' +
     (d.indicaram ? ' ' + d.indicaram + (d.indicaram === 1 ? ' pessoa já disse' : ' pessoas já disseram') +
       ' que indicaria alguém: a aplicação que chegar com origem indicação aparece em Ideias que chegaram.' : '') + '</p>';
   return semanaCartaoBloco('Colher em ' + SEMANA_COLHEITA + ' dias', d.colher.length, 'eti-marca',
-    'Produto pronto há mais de ' + SEMANA_COLHEITA + ' dias, com as oito entregas do escopo aprovadas. As três perguntas já estão escritas, e a terceira é a que paga a conta: é dela que sai a próxima aplicação com origem indicação, que chega sabendo o que a casa faz e custa nada para atrair.',
+    'Produto pronto há mais de ' + SEMANA_COLHEITA + ' dias, com as oito entregas do escopo aprovadas.',
     semanaTabela(cols, linhas) + rodape);
 }
 
@@ -784,13 +783,12 @@ function semanaRecados(d) {
   let html = '';
   if (SEMANA.recado) html += aviso(SEMANA.recado.tom, esc(SEMANA.recado.titulo), esc(SEMANA.recado.texto));
   if (d.alvo.semFicha) {
-    html += aviso('info', 'Nenhuma pessoa deste sistema está com o seu e-mail.',
-      'A semana separa o que é seu pelo responsável de cada entrega, e sem uma pessoa com o e-mail ' + esc(EU.email || 'que você usou para entrar') +
-      ' não dá para saber quais são as suas. Por enquanto você está vendo a casa inteira. Quem cria pessoa e escreve o e-mail é a gestão, em A casa.');
+    html += aviso('info', 'Nenhuma pessoa deste sistema está com o e-mail ' + esc(EU.email || 'que você usou para entrar') + '.',
+      'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em "A casa".');
   }
   if (d.orfas) {
     html += aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
-      'Entrega sem responsável não entra na semana de ninguém, e some sem avisar até o prazo vencer. Abra Projetos em estruturação e diga de quem é cada uma.');
+      'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.');
   }
   return html;
 }

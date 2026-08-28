@@ -151,7 +151,8 @@ DESENHO.cliente = function () {
           String(f.n).padStart(2, '0') + '</div>' +
         '<b style="display:block;font-size:14px;color:var(--claro);margin-top:4px">' + esc(f.nome) + '</b>' +
         '<p class="dica" style="margin-top:5px">' + esc(f.resumo) + '</p>' +
-        (agora ? '<div class="eti eti-marca" style="margin-top:10px">etapa: ' + esc(nomeEtapa(projeto.etapa)) + '</div>' : '') +
+        (agora && nomeEtapa(projeto.etapa) !== '?'
+          ? '<div class="eti eti-marca" style="margin-top:10px">etapa: ' + esc(nomeEtapa(projeto.etapa)) + '</div>' : '') +
       '</div>';
     }).join('') + '</div>');
 
