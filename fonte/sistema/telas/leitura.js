@@ -176,7 +176,9 @@ function leituraClicado(lead) {
 
 function leituraDivergente(l, lead) {
   const clicado = leituraClicado(lead);
-  return !!(clicado && l.nivelIndicado && l.nivelIndicado !== clicado);
+  // nivel indicado que a tela Roteiros apagou nao conta como divergencia:
+  // pediria justificativa para uma diferenca que ninguem consegue ler
+  return !!(clicado && l.nivelIndicado && l.nivelIndicado !== clicado && leituraNivel(l.nivelIndicado));
 }
 
 // A sugestao olha so cobertura: o menor nivel cujo escopo cobre tudo que o
@@ -205,6 +207,14 @@ function leituraForaDoNivel(l) {
 function leituraTemProjeto(leadId) {
   const id = Number(leadId);
   return (iqvLer(CHAVES.projetos, []) || []).find(function (p) { return Number(p.leadId) === id; }) || null;
+}
+
+// "ha 0 dias" ninguem fala. A tela conta o tempo do jeito que a mesa conta.
+function leituraDias(n) {
+  if (n === null || n === undefined) return 'sem data';
+  if (n <= 0) return 'hoje';
+  if (n === 1) return 'ontem';
+  return 'há ' + n + ' dias';
 }
 
 function leituraPrimeiroNome(nome) {
@@ -353,7 +363,7 @@ async function leituraBuscar() {
   leituraPintar();
 }
 
-function leituraAtualizar() { LEITURA_JA_BUSCOU = false; leituraBuscar(); }
+function leituraAtualizar() { LEITURA_JA_BUSCOU = false; return leituraBuscar(); }
 
 // O mesmo estrago explicado do mesmo jeito nos tres lugares que gravam.
 function leituraRecadoDeRede(r) {
@@ -409,7 +419,10 @@ function leituraHtmlRede() {
 
 function leituraHtmlRecado() {
   if (!LEITURA_RECADO) return '';
-  return aviso(LEITURA_RECADO.tom, esc(LEITURA_RECADO.titulo), LEITURA_RECADO.texto);
+  // o recado ja chega pronto de quem o escreveu, e o pedaco que veio de
+  // fora ja passou por esc() la: escapar de novo aqui mostraria &amp; na
+  // tela no lugar do nome do cliente
+  return aviso(LEITURA_RECADO.tom, LEITURA_RECADO.titulo, LEITURA_RECADO.texto);
 }
 
 function leituraHtmlAbas() {
@@ -427,13 +440,13 @@ function leituraHtmlNumeros() {
   const r = leituraResumo();
   const n = [];
   n.push({ v: r.esperando, l: 'Aplicações sem leitura',
-    obs: r.esperaMaisAntiga === null ? 'Nenhuma esperando agora.' : 'A mais antiga espera há ' + r.esperaMaisAntiga + ' dias.' });
+    obs: r.esperaMaisAntiga === null ? 'Nenhuma esperando agora.' : 'A mais antiga chegou ' + leituraDias(r.esperaMaisAntiga) + '.' });
   n.push({ v: r.preparando, l: 'Preparadas, sem assinatura',
     obs: EU.papel === 'equipe' ? 'Esperando a sua assinatura.' : 'Só a equipe assina.' });
   n.push({ v: r.semDevolutiva, l: 'Assinadas, sem devolutiva', puxa: r.semDevolutiva > 0,
     obs: 'Continuam na fila de Minha semana.' });
   n.push({ v: r.aguardando, l: 'Esperando a resposta da pessoa',
-    obs: r.envioMaisAntigo === null ? 'Nenhuma devolutiva enviada ainda.' : 'A mais antiga saiu há ' + r.envioMaisAntigo + ' dias.' });
+    obs: r.envioMaisAntigo === null ? 'Nenhuma devolutiva enviada ainda.' : 'A mais antiga saiu ' + leituraDias(r.envioMaisAntigo) + '.' });
 
   return '<div class="numeros">' + n.map(function (x) {
     return '<div class="numero' + (x.puxa ? ' puxa' : '') + '">' +
@@ -642,3 +655,745 @@ function leituraHtmlLeitura(lead) {
     perfilEstagio + entregas + dicaSugestao + ladoALado + divergencia + alertaEscopo + dono +
     '</div>';
 }
+
+/* ------------------------------------------------------- o veredito */
+
+function leituraHtmlCarimbo(lead) {
+  const l = leituraGarantir(lead.id);
+  if (!l.veredito) {
+    return '<p class="dica">Escolha uma das três portas acima para ver o carimbo que vai para o servidor.</p>';
+  }
+  const linha = leituraMontarCarimbo(l);
+  const nova = leituraObsNova(lead.observacoes, linha);
+  const sobra = LEITURA_LIMITE_OBS - nova.texto.length;
+  const corte = nova.cortou
+    ? aviso('atencao', nova.cortou === 1 ? 'Um carimbo antigo sai para este caber.' : nova.cortou + ' carimbos antigos saem para este caber.',
+        'O campo de observações do servidor guarda 2000 caracteres, e o mais antigo sai inteiro em vez de sair pela metade. O que sair não volta.')
+    : '';
+  return '<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.7;' +
+      'background:var(--preto-3);border:1px solid var(--linha);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre">' +
+      esc(linha) + '</div>' +
+    '<p class="dica" style="margin-top:8px">Esta linha vai para o topo do campo de observações, no servidor. São ' + linha.length +
+      ' caracteres dos 2000 do campo, e sobram ' + Math.max(0, sobra) + ' para os próximos. É a única parte desta tela que sobrevive à troca de navegador.</p>' + corte;
+}
+
+function leituraHtmlServidor(lead) {
+  const carimbos = leituraCarimbos(lead.observacoes);
+  const bruto = String(lead.observacoes || '').trim();
+  if (!bruto) {
+    return '<p class="dica">O campo de observações desta aplicação está vazio no servidor. Nada foi assinado ainda, nem aqui nem em outra máquina.</p>';
+  }
+  return '<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.7;' +
+      'background:var(--preto-3);border:1px solid var(--linha);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre-wrap">' +
+      esc(bruto) + '</div>' +
+    '<p class="dica" style="margin-top:8px">' + carimbos.length + (carimbos.length === 1 ? ' carimbo, ' : ' carimbos, ') + bruto.length +
+      ' dos 2000 caracteres. Atualizado ' + esc(dataLonga(lead.atualizado_em)) + '.</p>';
+}
+
+function leituraHtmlVeredito(lead) {
+  const l = leituraGarantir(lead.id);
+  const assinada = !!l.assinadaEm;
+  const revendo = Number(LEITURA_REVENDO) === Number(lead.id);
+  const travada = assinada && !revendo;
+  const equipe = EU.papel === 'equipe';
+
+  let portas = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
+    LEITURA_VEREDITOS.map(function (v) {
+      const escolhida = l.veredito === v.k;
+      return '<button class="bt ' + (escolhida ? 'bt-marca' : 'bt-linha') + '"' + (travada ? ' disabled' : '') +
+        ' onclick="leituraCampo(\'veredito\', \'' + v.k + '\')">' + esc(v.nome) + '</button>';
+    }).join('') + '</div>';
+
+  const escolhido = porChave(LEITURA_VEREDITOS, l.veredito);
+  let detalhe = '';
+  if (escolhido) {
+    detalhe = '<p class="dica" style="margin-bottom:14px">' + esc(escolhido.resumo) +
+      ' O andamento no servidor passa a ser ' + esc((porChave(ANDAMENTOS, escolhido.status) || {}).nome || escolhido.status) + '.' +
+      (escolhido.k === 'esperar'
+        ? ' A lista de andamento do servidor tem seis portas e nenhuma se chama esperar: fica em leitura, e o que precisa acontecer antes vai escrito no carimbo.'
+        : '') + '</p>';
+  }
+
+  if (l.veredito === 'esperar') {
+    detalhe += '<span class="rotulo">O que precisa acontecer antes</span>' +
+      '<textarea class="campo" style="min-height:70px"' + (travada ? ' disabled' : '') +
+        ' onchange="leituraTexto(\'motivo\', this.value)"' +
+        ' placeholder="Uma frase. Exemplo: precisa atender mais três clientes antes de ter método para documentar.">' +
+        esc(l.motivo || '') + '</textarea>' +
+      '<p class="dica" style="margin:6px 0 14px">Os primeiros 90 caracteres entram no carimbo. Escreva a condição, não o histórico.</p>';
+  }
+  if (l.veredito === 'fora') {
+    detalhe += '<span class="rotulo">Motivo, de lista fechada</span>' +
+      '<select class="campo campo-sm"' + (travada ? ' disabled' : '') + ' onchange="leituraCampo(\'motivo\', this.value)" style="margin-bottom:6px">' +
+        '<option value="">escolha o motivo</option>' +
+        LEITURA_MOTIVOS.map(function (m) {
+          return '<option value="' + esc(m.k) + '"' + (l.motivo === m.k ? ' selected' : '') + '>' + esc(m.nome) + '</option>';
+        }).join('') + '</select>' +
+      '<p class="dica" style="margin-bottom:14px">A lista é fechada porque a aba Motivos soma isto. Campo livre não soma, e a conta que ensina o que corrigir na landing nunca fecharia.</p>';
+  }
+
+  let acao = '';
+  if (travada) {
+    acao = aviso('ok', 'Parecer assinado por ' + esc(l.assinadaPor || 'sem nome') + ', ' + esc(dataLonga(l.assinadaEm)) + '.',
+        'O carimbo já está no servidor e não se apaga. Se a leitura mudou, assine de novo: entra um carimbo novo por cima e o anterior continua lá, na ordem.') +
+      (equipe
+        ? '<button class="bt bt-linha" onclick="leituraRever(' + Number(lead.id) + ')">Rever e assinar de novo</button>'
+        : '<p class="dica">Quem assina é a equipe.</p>');
+  } else if (!equipe) {
+    acao = aviso('info', 'Você prepara, quem assina é a equipe.',
+      'Tudo que você escreveu já está guardado neste navegador e aparece para a equipe como preparada. A assinatura é o que muda o andamento no servidor e libera a devolutiva.');
+  } else {
+    acao = '<button class="bt bt-marca" onclick="leituraAssinar()"' + (LEITURA_GRAVANDO ? ' disabled' : '') + '>' +
+      (LEITURA_GRAVANDO ? 'Gravando no servidor' : 'Assinar o parecer') + '</button>' +
+      '<p class="dica" style="margin-top:8px">Assinar muda o andamento no servidor e carimba a linha acima em observações. Depois disso, a leitura só sai da fila de Minha semana quando a devolutiva for enviada, recusa incluída.</p>';
+  }
+
+  return '<div class="cartao">' +
+    '<div class="cartao-t">O veredito, em três portas</div>' +
+    portas + detalhe +
+    '<div style="margin:16px 0"><span class="rotulo">O carimbo que vai para o servidor</span>' +
+      '<div id="leitura-carimbo">' + leituraHtmlCarimbo(lead) + '</div></div>' +
+    acao +
+    '<div style="margin-top:18px;border-top:1px solid var(--linha);padding-top:16px">' +
+      '<span class="rotulo">O que já está gravado no servidor</span>' + leituraHtmlServidor(lead) + '</div>' +
+    '</div>';
+}
+
+/* ------------------------------------------------------ a devolutiva */
+
+// Os tres modelos saem da propria leitura: nivel, valor, entregas
+// marcadas e justificativa. Modelo que nao usa o que foi lido obriga a
+// pessoa a reescrever tudo, e ai ninguem usa modelo nenhum.
+function leituraModelo(qual) {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const l = leituraGarantir(lead.id);
+  const nome = leituraPrimeiroNome(lead.nome);
+  const nivel = leituraNivel(l.nivelIndicado);
+  const pede = (l.precisa || []).map(nomeEntrega);
+  const clicado = leituraClicado(lead);
+  let t = '';
+
+  if (qual === 'seguir') {
+    t = 'Oi ' + nome + ', lemos o seu caso com calma.\n\n' +
+      (nivel
+        ? 'Pelo que você contou, o caminho é o nível ' + nivel.nome + ', ' + moeda(nivel.valor) + '.'
+        : 'Pelo que você contou, o seu projeto cabe no método.') +
+      (pede.length ? ' O que ele estrutura primeiro no seu projeto é: ' + pede.join(', ') + '.' : '') + '\n\n' +
+      (leituraDivergente(l, lead)
+        ? 'Você indicou o nível ' + leituraNomeNivel(clicado) + ' e a nossa leitura indica ' + (nivel ? nivel.nome : 'outro') + '. ' +
+          (l.justificativa ? l.justificativa : 'O motivo é o escopo que o seu caso pede.') + '\n\n'
+        : '') +
+      'A avaliação existe para isso: em vez de vender o pacote que você clicou, olhamos o seu momento antes. Se fizer sentido, eu te mando o próximo passo e a condição de pagamento, em até 12x no PIX ou boleto.';
+  } else if (qual === 'esperar') {
+    t = 'Oi ' + nome + ', lemos o seu caso com calma.\n\n' +
+      'Você tem o que é preciso para estruturar, e ainda não é a hora. ' +
+      (l.motivo ? l.motivo : 'Falta uma coisa acontecer antes.') + '\n\n' +
+      'Preferimos falar isso agora a começar um projeto que ia travar no meio. Quando isso estiver de pé, me chama que a gente retoma daqui, sem começar do zero.';
+  } else {
+    const m = porChave(LEITURA_MOTIVOS, l.motivo);
+    t = 'Oi ' + nome + ', lemos o seu caso com calma e vou ser direta com você.\n\n' +
+      (m ? m.frase : 'O seu projeto está fora do que o método faz hoje.') + '\n\n' +
+      'Preferimos dizer isso agora a vender uma estruturação que não ia resolver o seu problema. Se o seu momento mudar, a porta continua aberta.';
+  }
+
+  l.devolutiva.texto = t;
+  leituraSalvar(l);
+  leituraPintar();
+}
+
+function leituraHtmlDevolutiva(lead) {
+  const l = leituraGarantir(lead.id);
+  const assinada = !!l.assinadaEm;
+  const enviada = !!(l.devolutiva && l.devolutiva.enviadaEm);
+
+  const modelos = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
+    [['seguir', 'Modelo: cabe no método'], ['esperar', 'Modelo: ainda não é a hora'], ['fora', 'Modelo: não é para o método']]
+      .map(function (m) {
+        return '<button class="bt bt-sm ' + (l.veredito === m[0] ? 'bt-marca' : 'bt-linha') + '"' + (enviada ? ' disabled' : '') +
+          ' onclick="leituraModelo(\'' + m[0] + '\')">' + esc(m[1]) + '</button>';
+      }).join('') + '</div>';
+
+  const canal = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">' +
+    '<div><span class="rotulo">Canal</span><select class="campo campo-sm"' + (enviada ? ' disabled' : '') +
+      ' onchange="leituraCampo(\'canal\', this.value)">' +
+      LEITURA_CANAIS.map(function (c) {
+        return '<option value="' + esc(c.k) + '"' + (l.devolutiva.canal === c.k ? ' selected' : '') + '>' + esc(c.nome) + '</option>';
+      }).join('') + '</select>' +
+      '<p class="dica" style="margin-top:6px">' +
+      (l.devolutiva.canal === 'whatsapp'
+        ? (lead.whatsapp ? esc(lead.whatsapp) : 'Esta pessoa não deixou WhatsApp.')
+        : (lead.email ? esc(lead.email) : 'Esta pessoa não deixou e-mail.')) + '</p></div>' +
+    '<div><span class="rotulo">Quem envia</span>' +
+      '<div style="padding:7px 0;font-size:13px;color:var(--branco)">' + esc(enviada ? (l.devolutiva.enviadaPor || 'sem nome') : leituraQuemSou()) + '</div>' +
+      '<p class="dica">O envio é feito por fora, no canal escolhido. Aqui se registra que saiu.</p></div>' +
+    '</div>';
+
+  let acao;
+  if (enviada) {
+    acao = aviso('ok', 'Devolutiva enviada por ' + esc(l.devolutiva.enviadaPor || 'sem nome') + ', ' + esc(dataLonga(l.devolutiva.enviadaEm)) + '.',
+      'Esta leitura saiu da fila de Minha semana. O carimbo do retorno está no servidor, então quem abrir de outra máquina também vê que a pessoa já teve resposta.');
+  } else if (!assinada) {
+    acao = aviso('info', 'A devolutiva sai depois do veredito assinado.',
+      'Você pode escrever e guardar o texto agora. O registro do envio só abre depois da assinatura, para nenhuma resposta sair sem parecer por trás.');
+  } else {
+    acao = '<button class="bt bt-marca" onclick="leituraRegistrarEnvio()"' + (LEITURA_GRAVANDO ? ' disabled' : '') + '>' +
+      (LEITURA_GRAVANDO ? 'Gravando no servidor' : 'Registrar que a devolutiva saiu') + '</button>' +
+      '<p class="dica" style="margin-top:8px">Assinado ' + esc(haQuanto(l.assinadaEm)) +
+      ' e a pessoa ainda não teve resposta. Enquanto este botão não for usado, esta leitura continua na fila de Minha semana.</p>';
+  }
+
+  return '<div class="cartao">' +
+    '<div class="cartao-t">A devolutiva' + (enviada ? '<span style="margin-left:auto"><span class="eti eti-ok">Enviada</span></span>' : '') + '</div>' +
+    modelos +
+    '<textarea class="campo" style="min-height:200px"' + (enviada ? ' disabled' : '') +
+      ' onchange="leituraTexto(\'devolutiva\', this.value)"' +
+      ' placeholder="O texto que a pessoa vai ler. Comece por um dos modelos e ajuste para o caso dela.">' +
+      esc(l.devolutiva.texto || '') + '</textarea>' +
+    canal + acao +
+    '</div>';
+}
+
+/* --------------------------------------------------- abrir o projeto */
+
+function leituraHtmlProjeto(lead) {
+  const l = leituraGarantir(lead.id);
+  const projeto = leituraTemProjeto(lead.id);
+
+  if (projeto) {
+    return '<div class="cartao">' +
+      '<div class="cartao-t">O projeto</div>' +
+      aviso('ok', 'Projeto aberto, com o rótulo ' + esc(projeto.rotulo || 'sem rótulo') + '.',
+        'Nível contratado ' + esc(leituraNomeNivel(projeto.nivelContratado) || projeto.nivelContratado) + ', ' + esc(moeda(projeto.valor)) +
+        ', produto pronto prometido para ' + esc(dataCurta(projeto.produtoProntoEm)) + '. As oito entregas nasceram com o escopo congelado e o checklist copiado do roteiro daquele dia.') +
+      '<button class="bt bt-linha" onclick="irPara(\'projetos\')">Ver em Projetos em estruturação</button>' +
+      '</div>';
+  }
+
+  if (l.veredito !== 'seguir' || !l.assinadaEm) {
+    return '';
+  }
+
+  if (!l.devolutiva.enviadaEm) {
+    return '<div class="cartao">' +
+      '<div class="cartao-t">O projeto</div>' +
+      '<p class="dica">Projeto nasce de um aceite, e aceite vem depois da devolutiva. Registre o envio acima, e quando a pessoa responder que sim, o botão de abrir projeto aparece aqui.</p>' +
+      '</div>';
+  }
+
+  if (EU.papel !== 'equipe') {
+    return '<div class="cartao">' +
+      '<div class="cartao-t">O projeto</div>' +
+      aviso('info', 'Quem abre o projeto é a equipe.',
+        'Aqui entram valor contratado e data prometida, pelo mesmo motivo de quem assina o parecer. Avise a equipe que a pessoa aceitou.') +
+      '</div>';
+  }
+
+  if (!LEITURA_ABRIR_PROJETO) {
+    return '<div class="cartao">' +
+      '<div class="cartao-t">O projeto</div>' +
+      '<p class="dica" style="margin-bottom:14px">Devolutiva enviada ' + esc(haQuanto(l.devolutiva.enviadaEm)) +
+        '. Quando a pessoa responder que aceita, o projeto nasce daqui, e de nenhum outro lugar.</p>' +
+      '<button class="bt bt-marca" onclick="leituraFormProjeto(true)">A pessoa aceitou, abrir projeto</button>' +
+      '</div>';
+  }
+
+  const niveis = leituraNiveis();
+  const pessoas = (iqvLer(CHAVES.usuarios, []) || []).filter(function (u) { return u.ativo !== false && u.papel !== 'cliente'; });
+  const prazo = new Date();
+  prazo.setDate(prazo.getDate() + 90);
+
+  const semPessoa = pessoas.length ? '' :
+    '<p class="dica" style="margin-top:6px">Ninguém está cadastrado em A casa ainda. Sem responsável, este projeto não aparece na semana de ninguém.</p>';
+
+  return '<div class="cartao">' +
+    '<div class="cartao-t">Abrir o projeto</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:16px">' +
+      '<div><span class="rotulo">Nível de fato contratado</span>' +
+        '<select class="campo campo-sm" id="leitura-contratado">' +
+        niveis.map(function (n) {
+          return '<option value="' + esc(n.k) + '"' + (n.k === l.nivelIndicado ? ' selected' : '') + '>' +
+            esc(n.nome) + ', ' + esc(moeda(n.valor)) + '</option>';
+        }).join('') + '</select>' +
+        '<p class="dica" style="margin-top:6px">Pode ser diferente do indicado. O que vale para o escopo e para o dinheiro é este.</p></div>' +
+      '<div><span class="rotulo">Responsável</span>' +
+        '<select class="campo campo-sm" id="leitura-responsavel">' +
+        '<option value="">ainda não defini</option>' +
+        pessoas.map(function (u) {
+          return '<option value="' + esc(u.id) + '">' + esc(u.nome || u.email) + '</option>';
+        }).join('') + '</select>' + semPessoa + '</div>' +
+      '<div><span class="rotulo">Produto pronto em, obrigatório</span>' +
+        '<input type="date" class="campo campo-sm" id="leitura-pronto" value="' + esc(prazo.toISOString().slice(0, 10)) + '">' +
+        '<p class="dica" style="margin-top:6px">É a promessa de prazo, e é ela que o cliente vê na tela dele.</p></div>' +
+      '<div><span class="rotulo">Condição de pagamento</span>' +
+        '<div style="display:flex;gap:8px">' +
+          '<select class="campo campo-sm" id="leitura-parcelas">' +
+          LEITURA_PARCELAS.map(function (n) {
+            return '<option value="' + n + '"' + (n === 1 ? ' selected' : '') + '>' + (n === 1 ? 'à vista' : n + 'x') + '</option>';
+          }).join('') + '</select>' +
+          '<select class="campo campo-sm" id="leitura-forma">' +
+          LEITURA_FORMAS.map(function (f) { return '<option value="' + esc(f.k) + '">' + esc(f.nome) + '</option>'; }).join('') +
+          '</select>' +
+        '</div>' +
+        '<p class="dica" style="margin-top:6px">As parcelas nascem com data e valor, e a baixa de cada uma é manual em Contratado e recebido.</p></div>' +
+    '</div>' +
+    '<button class="bt bt-marca" onclick="leituraCriarProjeto()"' + (LEITURA_GRAVANDO ? ' disabled' : '') + '>' +
+      (LEITURA_GRAVANDO ? 'Gravando no servidor' : 'Abrir projeto') + '</button> ' +
+    '<button class="bt bt-linha" onclick="leituraFormProjeto(false)">Cancelar</button>' +
+    '<p class="dica" style="margin-top:10px">Abrir o projeto congela o escopo do nível contratado nas oito entregas e copia o checklist dos roteiros de hoje. Editar o roteiro depois não mexe mais neste projeto, que é o que faz o combinado de um contrato não mudar no meio.</p>' +
+    '</div>';
+}
+
+/* ---------------------------------------------------- a aba Motivos */
+
+function leituraHtmlMotivos() {
+  const todas = leituraTodas().filter(function (l) { return !!l.assinadaEm; });
+  const recusas = todas.filter(function (l) { return l.veredito === 'fora'; });
+
+  if (!recusas.length) {
+    return '<div class="cartao"><div class="cartao-t">Motivos das recusas</div>' +
+      '<p class="dica">Nenhuma recusa assinada ainda. Esta aba soma as leituras que terminaram em não é para o método, por perfil e por estágio, e é o que mostra quem a landing está atraindo sem que o método atenda. Ela se enche sozinha conforme os vereditos forem assinados na aba Ficha da aplicação.</p></div>';
+  }
+
+  const conta = function (lista, campo) {
+    return lista.map(function (item) {
+      const doGrupo = todas.filter(function (l) { return l[campo] === item.k; });
+      const fora = doGrupo.filter(function (l) { return l.veredito === 'fora'; });
+      return { nome: item.nome, total: doGrupo.length, fora: fora.length };
+    }).filter(function (x) { return x.total > 0; })
+      .sort(function (a, b) { return b.fora - a.fora; });
+  };
+
+  const tabela = function (titulo, cabeca, linhas) {
+    return '<div class="cartao"><div class="cartao-t">' + esc(titulo) + '</div>' +
+      '<div class="rolo-h"><table class="lista"><thead><tr><th>' + esc(cabeca) +
+      '</th><th>Leituras assinadas</th><th>Não seguimos</th><th>A leitura disso</th></tr></thead><tbody>' +
+      linhas.map(function (x) {
+        const parte = x.total ? Math.round((x.fora / x.total) * 100) : 0;
+        const frase = x.fora === 0 ? 'Nenhuma recusa.'
+          : x.fora === x.total ? 'Todas as ' + x.total + ' foram recusadas.'
+          : x.fora + ' de cada ' + x.total + ' não seguiram.';
+        return '<tr><td><b style="color:var(--branco)">' + esc(x.nome) + '</b></td>' +
+          '<td>' + x.total + '</td>' +
+          '<td style="color:' + (parte >= 50 ? 'var(--alerta)' : 'var(--tinta-2)') + '">' + x.fora + '</td>' +
+          '<td class="dica">' + esc(frase) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+  };
+
+  const porMotivo = LEITURA_MOTIVOS.map(function (m) {
+    return { nome: m.nome, quantas: recusas.filter(function (l) { return l.motivo === m.k; }).length };
+  }).filter(function (x) { return x.quantas > 0; }).sort(function (a, b) { return b.quantas - a.quantas; });
+
+  const cabecalho = '<div class="numeros">' +
+    '<div class="numero"><div class="v">' + todas.length + '</div><div class="l">Leituras assinadas</div>' +
+      '<div class="obs">Desde o primeiro parecer deste navegador.</div></div>' +
+    '<div class="numero puxa"><div class="v">' + recusas.length + '</div><div class="l">Não seguimos</div>' +
+      '<div class="obs">' + Math.round((recusas.length / todas.length) * 100) + ' de cada 100 aplicações lidas.</div></div>' +
+    '</div>';
+
+  const motivos = '<div class="cartao"><div class="cartao-t">Por motivo</div>' +
+    '<div class="rolo-h"><table class="lista"><thead><tr><th>Motivo</th><th>Quantas</th></tr></thead><tbody>' +
+    porMotivo.map(function (x) {
+      return '<tr><td>' + esc(x.nome) + '</td><td><b style="color:var(--branco)">' + x.quantas + '</b></td></tr>';
+    }).join('') + '</tbody></table></div></div>';
+
+  return cabecalho +
+    tabela('Por perfil', 'Perfil', conta(PERFIS, 'perfil')) +
+    tabela('Por estágio', 'Estágio', conta(ESTAGIOS, 'estagio')) +
+    motivos +
+    '<div class="cartao">' + aviso('info', 'Perfil que recusa muito não é perfil ruim.',
+      'É perfil que a landing está atraindo e o método não atende, e isso se corrige no texto da landing, em fonte/page.tpl.html, não aqui dentro. ' +
+      'Esta conta olha só as leituras assinadas neste navegador: leitura assinada em outra máquina não entra, porque o que atravessa é o carimbo, e ele não é somado aqui.') + '</div>';
+}
+
+/* --------------------------------------------- a ficha, montada inteira */
+
+// Parecer assinado em outra maquina chega so como carimbo. Nao da para
+// fingir que a leitura inteira voltou, e nao da para ignorar: o certo e
+// dizer o que sobrou e trazer isso de volta a pedido.
+function leituraHtmlImportar(lead) {
+  const parecer = leituraCarimbos(lead.observacoes).filter(function (c) { return c.tipo === 'PARECER'; })[0];
+  if (!parecer) return '';
+  const local = leituraDa(lead.id);
+  if (local && local.assinadaEm) return '';
+  return aviso('info', 'Esta aplicação já tem parecer assinado, e não foi neste navegador.',
+      'Assinado em ' + esc(dataCurta(parecer.data)) + ' por ' + esc(parecer.campos.por || 'sem nome') +
+      ', com veredito ' + esc(parecer.campos.veredito || 'sem veredito') + '. O que veio no carimbo é isso, e só isso: o resto da leitura ficou no navegador de quem escreveu.') +
+    '<button class="bt bt-linha bt-sm" onclick="leituraTrazerCarimbo()" style="margin-bottom:18px">Trazer o parecer para este navegador</button>';
+}
+
+function leituraHtmlNenhuma() {
+  if (!LEITURA_LEADS.length) return '';
+  if (leituraTodas().length) {
+    return '<div class="cartao"><p class="dica">Escolha uma linha da fila para abrir a ficha. À esquerda aparece o que a pessoa escreveu, à direita a leitura, e embaixo o veredito e a devolutiva.</p></div>';
+  }
+  return '<div class="cartao"><p class="dica">Nenhuma leitura começou. Escolha uma aplicação em Ideias que chegaram e abra aqui: perfil, estágio, o que falta das oito entregas e o nível indicado. ' +
+    'Enquanto ninguém assinar um veredito, nada nesta tela conta como resposta dada à pessoa, e ela continua esperando do outro lado.</p></div>';
+}
+
+function leituraHtmlFicha() {
+  if (LEITURA_ESTADO !== 'ok') return '';
+  const cabeca = leituraHtmlNumeros() + leituraHtmlFila();
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return cabeca + leituraHtmlNenhuma();
+
+  const topo = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">' +
+    '<b style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--branco)">Ficha de ' + esc(lead.nome || 'sem nome') + '</b>' +
+    '<button class="bt bt-linha bt-sm" style="margin-left:auto" onclick="leituraFechar()">Fechar a ficha</button></div>';
+
+  return cabeca + topo + leituraHtmlImportar(lead) + leituraHtmlAplicacao(lead) +
+    leituraHtmlVeredito(lead) + leituraHtmlDevolutiva(lead) + leituraHtmlProjeto(lead);
+}
+
+/* ---------------------------------------------------------------------
+   7. O que os botoes fazem.
+   --------------------------------------------------------------------- */
+
+function leituraIrAba(k) { LEITURA_ABA = k; LEITURA_RECADO = null; leituraPintar(); }
+
+// Porta de entrada desta tela, e tambem o que a tela Ideias que chegaram
+// chama no botao "Abrir leitura do caso".
+function leituraAbrir(id) {
+  LEITURA_ALVO = Number(id);
+  LEITURA_ABA = 'ficha';
+  LEITURA_ABRIR_PROJETO = false;
+  LEITURA_REVENDO = null;
+  LEITURA_RECADO = null;
+  if (TELA_ATUAL !== 'leitura') { irPara('leitura'); return; }
+  leituraPintar();
+}
+
+function leituraFechar() {
+  LEITURA_ALVO = null;
+  LEITURA_ABRIR_PROJETO = false;
+  LEITURA_REVENDO = null;
+  leituraPintar();
+}
+
+function leituraRever(id) { LEITURA_REVENDO = Number(id); LEITURA_RECADO = null; leituraPintar(); }
+
+function leituraCampo(campo, valor) {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const l = leituraGarantir(lead.id);
+  if (campo === 'canal') l.devolutiva.canal = valor;
+  else if (campo === 'veredito') {
+    // motivo quer dizer coisas diferentes em cada porta: chave de lista
+    // fechada na recusa, condicao escrita em esperar. Carregar um para o
+    // outro carimbaria bobagem no servidor.
+    if (l.veredito !== valor) l.motivo = '';
+    l.veredito = valor;
+  } else l[campo] = valor;
+  leituraSalvar(l);
+  leituraPintar();
+}
+
+// Campo de texto grava sem redesenhar a tela: quem ainda esta escrevendo
+// ao lado perderia o cursor no meio da frase.
+function leituraTexto(campo, valor) {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const l = leituraGarantir(lead.id);
+  if (campo === 'devolutiva') l.devolutiva.texto = valor;
+  else l[campo] = valor;
+  leituraSalvar(l);
+  escrever('leitura-carimbo', leituraHtmlCarimbo(lead));
+}
+
+function leituraMarcarEntrega(k, marcado) {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const l = leituraGarantir(lead.id);
+  const tem = l.precisa.indexOf(k);
+  if (marcado && tem < 0) l.precisa.push(k);
+  if (!marcado && tem >= 0) l.precisa.splice(tem, 1);
+  // o nivel indicado sobe sozinho quando o caso passa a pedir entrega que
+  // ele nao cobre, e nunca desce: tirar escopo do que ja foi indicado e
+  // decisao comercial, e essa ninguem toma por clique em caixinha.
+  if (l.precisa.length && (!l.nivelIndicado || leituraForaDoNivel(l).length)) {
+    l.nivelIndicado = leituraSugerido(l.precisa);
+  }
+  leituraSalvar(l);
+  leituraPintar();
+}
+
+function leituraAplicarResposta(dado) {
+  const lead = leituraLead(dado && dado.id);
+  if (!lead) return;
+  lead.status = dado.status;
+  lead.observacoes = dado.observacoes;
+  lead.atualizado_em = dado.atualizado_em;
+}
+
+// O que impede uma assinatura, em ordem de quem pergunta primeiro.
+function leituraFalta(l, lead) {
+  if (!l.perfil) return 'Escolha o perfil entre os seis da landing. Ele vai no carimbo e é o que a aba Motivos soma depois.';
+  if (!l.estagio) return 'Escolha o estágio do projeto. Sem ele, a conta de quem a landing atrai e o método não atende fica pela metade.';
+  if (!l.veredito) return 'Escolha uma das três portas do veredito.';
+  if (l.veredito === 'seguir' && !(l.precisa || []).length) return 'Marque o que este caso pede das oito entregas. Cabe no método sem nenhuma entrega marcada não é uma leitura, é um sim solto.';
+  if (l.veredito === 'seguir' && !l.nivelIndicado) return 'Indique o nível. É o valor dele que vai para a devolutiva e para o contrato.';
+  if (leituraDivergente(l, lead) && !String(l.justificativa || '').trim()) return 'Escreva a justificativa. O nível indicado é diferente do que a pessoa clicou, e essa diferença é a conversa comercial inteira.';
+  if (l.veredito === 'esperar' && !String(l.motivo || '').trim()) return 'Escreva o que precisa acontecer antes. Sem isso, a pessoa recebe um talvez e não sabe o que fazer com ele.';
+  if (l.veredito === 'fora' && !l.motivo) return 'Escolha o motivo da recusa na lista.';
+  return null;
+}
+
+async function leituraAssinar() {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const l = leituraGarantir(lead.id);
+
+  if (EU.papel !== 'equipe') {
+    LEITURA_RECADO = { tom: 'info', titulo: 'Quem assina é a equipe.',
+      texto: 'A leitura que você preparou já está guardada e aparece para a equipe como preparada.' };
+    leituraPintar(); return;
+  }
+  const falta = leituraFalta(l, lead);
+  if (falta) {
+    LEITURA_RECADO = { tom: 'atencao', titulo: 'Falta uma coisa antes de assinar', texto: esc(falta) };
+    leituraPintar(); return;
+  }
+
+  const porta = porChave(LEITURA_VEREDITOS, l.veredito);
+  const nova = leituraObsNova(lead.observacoes, leituraMontarCarimbo(l));
+
+  LEITURA_GRAVANDO = true; LEITURA_RECADO = null; leituraPintar();
+  const r = await leituraPedir('PATCH', { id: Number(lead.id), status: porta.status, observacoes: nova.texto });
+  LEITURA_GRAVANDO = false;
+
+  if (r.estado !== 'ok') { LEITURA_RECADO = leituraRecadoDeRede(r); leituraPintar(); return; }
+
+  leituraAplicarResposta(r.dados.lead);
+  if (!l.preparadaPor) l.preparadaPor = leituraQuemSou();
+  l.assinadaPor = leituraQuemSou();
+  l.assinadaEm = new Date().toISOString();
+  leituraSalvar(l);
+  LEITURA_REVENDO = null;
+  LEITURA_RECADO = { tom: 'ok', titulo: 'Parecer assinado e carimbado no servidor.',
+    texto: 'O andamento agora é ' + esc((porChave(ANDAMENTOS, porta.status) || {}).nome || porta.status) +
+      '. A pessoa ainda não sabe de nada: quem conta é a devolutiva, e até ela sair esta leitura continua na fila de Minha semana.' };
+  leituraPintar();
+}
+
+async function leituraRegistrarEnvio() {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const l = leituraGarantir(lead.id);
+
+  if (!l.assinadaEm) {
+    LEITURA_RECADO = { tom: 'atencao', titulo: 'O parecer ainda não foi assinado.',
+      texto: 'Nenhuma resposta sai daqui sem veredito assinado por trás. Peça a assinatura da equipe primeiro.' };
+    leituraPintar(); return;
+  }
+  if (!String(l.devolutiva.texto || '').trim()) {
+    LEITURA_RECADO = { tom: 'atencao', titulo: 'Escreva o texto da devolutiva.',
+      texto: 'Comece por um dos três modelos, que já saem preenchidos com o nível, o valor e as entregas desta leitura, e ajuste para o caso da pessoa.' };
+    leituraPintar(); return;
+  }
+
+  const linha = 'RETORNO ' + hoje() + ' | canal: ' + leituraLimpo(l.devolutiva.canal, 20) + ' | por: ' + leituraLimpo(leituraQuemSou(), 40);
+  const nova = leituraObsNova(lead.observacoes, linha);
+  const corpo = { id: Number(lead.id), observacoes: nova.texto };
+  // recusa continua em Nao seguimos agora. O retorno saiu, e dizer que uma
+  // recusa virou "retorno enviado" apagaria o desfecho no servidor.
+  if (l.veredito !== 'fora') corpo.status = 'proposta';
+
+  LEITURA_GRAVANDO = true; LEITURA_RECADO = null; leituraPintar();
+  const r = await leituraPedir('PATCH', corpo);
+  LEITURA_GRAVANDO = false;
+
+  if (r.estado !== 'ok') { LEITURA_RECADO = leituraRecadoDeRede(r); leituraPintar(); return; }
+
+  leituraAplicarResposta(r.dados.lead);
+  l.devolutiva.enviadaPor = leituraQuemSou();
+  l.devolutiva.enviadaEm = new Date().toISOString();
+  leituraSalvar(l);
+  LEITURA_RECADO = { tom: 'ok', titulo: 'Devolutiva registrada.',
+    texto: l.veredito === 'seguir'
+      ? 'Esta leitura saiu da fila de Minha semana e passou a esperar a resposta da pessoa. Quando ela aceitar, o projeto nasce aqui embaixo.'
+      : 'Esta leitura saiu da fila de Minha semana. A pessoa teve resposta, que é o que a landing promete.' };
+  leituraPintar();
+}
+
+function leituraFormProjeto(abrir) { LEITURA_ABRIR_PROJETO = !!abrir; LEITURA_RECADO = null; leituraPintar(); }
+
+function leituraTrazerCarimbo() {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const carimbos = leituraCarimbos(lead.observacoes);
+  const parecer = carimbos.filter(function (c) { return c.tipo === 'PARECER'; })[0];
+  if (!parecer) return;
+  const retorno = carimbos.filter(function (c) { return c.tipo === 'RETORNO'; })[0];
+  const l = leituraGarantir(lead.id);
+  const c = parecer.campos;
+
+  if (porChave(PERFIS, c.perfil)) l.perfil = c.perfil;
+  if (porChave(LEITURA_VEREDITOS, c.veredito)) l.veredito = c.veredito;
+  if (c.nivel && leituraNivel(c.nivel)) l.nivelIndicado = c.nivel;
+  if (c.motivo && porChave(LEITURA_MOTIVOS, c.motivo)) l.motivo = c.motivo;
+  else if (c.falta) l.motivo = c.falta;
+  l.preparadaPor = l.preparadaPor || c.por || '';
+  l.assinadaPor = c.por || 'outro navegador';
+  // o carimbo guarda o dia, nao a hora: meio-dia e o que da para dizer sem inventar
+  l.assinadaEm = parecer.data + 'T12:00:00Z';
+  if (retorno) {
+    if (porChave(LEITURA_CANAIS, retorno.campos.canal)) l.devolutiva.canal = retorno.campos.canal;
+    l.devolutiva.enviadaPor = retorno.campos.por || '';
+    l.devolutiva.enviadaEm = retorno.data + 'T12:00:00Z';
+  }
+  leituraSalvar(l);
+  LEITURA_RECADO = { tom: 'ok', titulo: 'Parecer trazido do servidor.',
+    texto: 'Voltou o que cabe em uma linha: perfil, veredito, nível e quem assinou. O estágio, as entregas que o caso pede e o texto da devolutiva ficaram no navegador de quem escreveu, e não têm como voltar.' };
+  leituraPintar();
+}
+
+/* ------------------------------------------- o projeto nasce daqui */
+
+function leituraDia(d) {
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + mes + '-' + dia;
+}
+
+// O checklist e copiado no dia em que o projeto nasce. Editar o roteiro
+// depois nao mexe em projeto aberto, e e isso que faz o combinado de um
+// contrato nao mudar no meio do caminho.
+function leituraChecklist(k) {
+  const m = iqvLer(CHAVES.metodo, null);
+  const r = m && m.roteiros && m.roteiros[k];
+  const itens = (r && Array.isArray(r.checklist)) ? r.checklist : [];
+  return itens.map(function (t) { return { texto: String(t), feito: false }; });
+}
+
+function leituraParcelasNovas(valor, n, forma) {
+  const base = Math.floor(valor / n);
+  const primeira = new Date();
+  primeira.setDate(primeira.getDate() + 5);
+  // dia 29, 30 e 31 nao existem em todo mes, e vencimento que pula de mes
+  // sozinho vira cobranca no dia errado. O mais tarde que serve para todos
+  // os meses e o 28.
+  const dia = Math.min(primeira.getDate(), 28);
+  const lista = [];
+  for (let i = 0; i < n; i++) {
+    const d = new Date(primeira.getFullYear(), primeira.getMonth() + i, dia);
+    lista.push({
+      n: i + 1, vencimento: leituraDia(d),
+      valor: (i === n - 1) ? valor - base * (n - 1) : base,
+      forma: forma, pagoEm: null,
+    });
+  }
+  return lista;
+}
+
+async function leituraCriarProjeto() {
+  const lead = leituraLead(LEITURA_ALVO);
+  if (!lead) return;
+  const l = leituraGarantir(lead.id);
+
+  if (EU.papel !== 'equipe') {
+    LEITURA_RECADO = { tom: 'info', titulo: 'Quem abre o projeto é a equipe.', texto: 'Aqui entram valor contratado e data prometida.' };
+    leituraPintar(); return;
+  }
+  if (leituraTemProjeto(lead.id)) {
+    LEITURA_RECADO = { tom: 'atencao', titulo: 'Esta aplicação já virou projeto.', texto: 'Ele está em Projetos em estruturação, e abrir de novo criaria dois projetos para o mesmo cliente.' };
+    leituraPintar(); return;
+  }
+
+  const campo = function (id) { const e = porId(id); return e ? e.value : ''; };
+  const nivel = leituraNivel(campo('leitura-contratado') || l.nivelIndicado);
+  const responsavelId = campo('leitura-responsavel');
+  const pronto = campo('leitura-pronto');
+  const quantas = Number(campo('leitura-parcelas')) || 1;
+  const forma = campo('leitura-forma') || 'pix';
+
+  if (!nivel) {
+    LEITURA_RECADO = { tom: 'atencao', titulo: 'Escolha o nível contratado.', texto: 'É dele que saem o valor e o escopo das oito entregas.' };
+    leituraPintar(); return;
+  }
+  if (!pronto) {
+    LEITURA_RECADO = { tom: 'atencao', titulo: 'A data do produto pronto é obrigatória.',
+      texto: 'Ela é a promessa de prazo, é o que o cliente vê na tela dele e é dela que sai o atraso em Minha semana. Projeto sem essa data nasce sem combinado.' };
+    leituraPintar(); return;
+  }
+
+  const linha = 'PROJETO ' + hoje() + ' | nivel: ' + nivel.k + ' | pronto: ' + pronto + ' | por: ' + leituraLimpo(leituraQuemSou(), 40);
+  const nova = leituraObsNova(lead.observacoes, linha);
+
+  LEITURA_GRAVANDO = true; LEITURA_RECADO = null; leituraPintar();
+  const r = await leituraPedir('PATCH', { id: Number(lead.id), status: 'ganho', observacoes: nova.texto });
+  LEITURA_GRAVANDO = false;
+
+  if (r.estado !== 'ok') { LEITURA_RECADO = leituraRecadoDeRede(r); leituraPintar(); return; }
+  leituraAplicarResposta(r.dados.lead);
+
+  const agora = new Date();
+  const id = 'p' + Date.now().toString(36);
+  const projeto = {
+    id: id, leadId: Number(lead.id),
+    // primeiro nome e mes, o unico dado repetido de proposito: e assim que
+    // a equipe chama o projeto em voz alta
+    rotulo: leituraPrimeiroNome(lead.nome) + ', ' + LEITURA_MESES[agora.getMonth()] + '/' + String(agora.getFullYear()).slice(2),
+    cliente: lead.nome || '', email: lead.email || '', whatsapp: lead.whatsapp || '',
+    perfil: l.perfil, nivelClicado: leituraClicado(lead), nivelContratado: nivel.k, valor: nivel.valor,
+    responsavelId: responsavelId, inicio: hoje(), produtoProntoEm: pronto,
+    fase: 1, etapa: 1,
+    bola: { lado: 'casa', desde: hoje() },
+    entregas: ENTREGAS.map(function (e) {
+      return {
+        k: e.k,
+        // congelado aqui dentro: e o escopo daquele contrato, e nao uma
+        // consulta ao nivel feita na hora de desenhar a tela
+        noEscopo: nivel.escopo.indexOf(e.k) >= 0,
+        estado: 'nao_comecou', responsavelId: responsavelId, prazo: null,
+        checklist: leituraChecklist(e.k), campos: {}, links: [],
+        enviadaEm: null, aprovadaEm: null,
+      };
+    }),
+  };
+
+  const projetos = iqvLer(CHAVES.projetos, []) || [];
+  projetos.push(projeto);
+  if (!iqvGravar(CHAVES.projetos, projetos)) {
+    LEITURA_RECADO = { tom: 'alerta', titulo: 'O andamento foi para ganho, mas o projeto não coube neste navegador.',
+      texto: 'O servidor já registrou o aceite e o armazenamento local recusou a gravação. Abra a tela A casa para ver o espaço ocupado e tente de novo, antes de escrever qualquer entrega.' };
+    leituraPintar(); return;
+  }
+
+  const recebimentos = iqvLer(CHAVES.recebimentos, []) || [];
+  recebimentos.push({ projetoId: id, parcelas: leituraParcelasNovas(nivel.valor, quantas, forma) });
+  const gravouDinheiro = iqvGravar(CHAVES.recebimentos, recebimentos);
+
+  LEITURA_ABRIR_PROJETO = false;
+  LEITURA_RECADO = { tom: 'ok', titulo: 'Projeto aberto, com o rótulo ' + esc(projeto.rotulo) + '.',
+    texto: 'As oito entregas nasceram com o escopo do ' + esc(nivel.nome) + ' congelado e o checklist copiado dos roteiros de hoje. ' +
+      (gravouDinheiro ? quantas + ' parcelas já esperam baixa em Contratado e recebido.' : 'As parcelas não couberam no armazenamento e precisam ser lançadas à mão.') };
+  leituraPintar();
+}
+
+/* ---------------------------------------------------------------------
+   8. O desenho, que reescreve a tela inteira a partir do que esta
+   guardado. Nada aqui depende do que ja estava na tela.
+   --------------------------------------------------------------------- */
+function leituraPintar() {
+  // aplicacao que sumiu da lista depois de um Atualizar nao pode deixar
+  // meia ficha aberta na tela
+  if (LEITURA_ALVO !== null && LEITURA_ESTADO === 'ok' && !leituraLead(LEITURA_ALVO)) LEITURA_ALVO = null;
+
+  escrever('leitura-rede', leituraHtmlRede());
+  escrever('leitura-recado', leituraHtmlRecado());
+  escrever('leitura-abas', leituraHtmlAbas());
+  escrever('leitura-corpo', LEITURA_ABA === 'motivos' ? leituraHtmlMotivos() : leituraHtmlFicha());
+
+  // o numero no menu e o trabalho parado nesta tela: preparada esperando
+  // assinatura, e assinada esperando devolutiva
+  const r = leituraResumo();
+  contador('leitura', r.preparando + r.semDevolutiva);
+}
+
+DESENHO.leitura = function () {
+  leituraPintar();
+  // busca uma vez ao entrar. Depois so no botao Atualizar: lista que se
+  // renova sozinha no meio de uma leitura troca a ficha embaixo de quem
+  // esta escrevendo.
+  if (!LEITURA_JA_BUSCOU && !LEITURA_BUSCANDO) leituraBuscar();
+};
