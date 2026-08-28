@@ -588,7 +588,7 @@ select.campo{cursor:pointer}
     <div id="casaAvisoAccess"></div>
     <div class="rolo-h">
       <table class="lista">
-        <thead><tr><th>Nome</th><th>E-mail que entra pelo Access</th><th>Papel</th><th></th></tr></thead>
+        <thead><tr><th>Nome</th><th>E-mail</th><th>Senha</th><th>Papel</th><th></th></tr></thead>
         <tbody id="casaPessoas"></tbody>
       </table>
     </div>
@@ -898,13 +898,13 @@ const GRUPOS = ['A mesa', 'Meu trabalho', 'O método', 'O cliente', 'A casa'];
    acesso padrao uma vez so. Depois disso, desmarcar em "A casa" vale.
    --------------------------------------------------------------------- */
 const PERMISSOES_DEFAULT = {
-  equipe:      ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
+  gestor:      ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
   colaborador: ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'cliente'],
   cliente:     ['cliente'],
 };
 
 const PAPEIS = [
-  { k: 'equipe',      nome: 'Equipe',      ic: '✦', resumo: 'Vê tudo, assina veredito e lança recebimento.' },
+  { k: 'gestor',      nome: 'Gestor',      ic: '✦', resumo: 'Vê tudo, assina veredito e lança recebimento.' },
   { k: 'colaborador', nome: 'Colaborador', ic: '✎', resumo: 'Prepara leitura e escreve as entregas dos projetos dele.' },
   { k: 'cliente',     nome: 'Cliente',     ic: '◐', resumo: 'Acompanha o próprio projeto.' },
 ];
@@ -918,7 +918,7 @@ const TELAS_NOVAS = [];
 (function carregarPermissoes() {
   const salvo = iqvLer(CHAVES.permissoes, null);
   if (salvo && salvo.perm) PERMISSOES = salvo.perm;
-  const todas = PERMISSOES_DEFAULT.equipe.slice();
+  const todas = PERMISSOES_DEFAULT.gestor.slice();
   TELAS_VISTAS = (salvo && Array.isArray(salvo.vistas)) ? salvo.vistas
     : salvo ? todas.filter(function (t) { return TELAS_NOVAS.indexOf(t) < 0; })
     : todas.slice();
@@ -935,9 +935,9 @@ const TELAS_NOVAS = [];
     apresentou = true;
   });
 
-  // a Equipe nunca pode perder "A casa": e onde os acessos se configuram
-  if (!PERMISSOES.equipe) PERMISSOES.equipe = PERMISSOES_DEFAULT.equipe.slice();
-  if (PERMISSOES.equipe.indexOf('casa') < 0) PERMISSOES.equipe.push('casa');
+  // o gestor nunca pode perder "A casa": e onde os acessos se configuram
+  if (!PERMISSOES.gestor) PERMISSOES.gestor = PERMISSOES_DEFAULT.gestor.slice();
+  if (PERMISSOES.gestor.indexOf('casa') < 0) PERMISSOES.gestor.push('casa');
 
   if (apresentou) salvarPermissoes();
 })();
@@ -949,28 +949,87 @@ function salvarPermissoes() {
 /* ---------------------------------------------------------------------
    6. Quem e a pessoa.
 
-   Quem autentica e o Cloudflare Access, e quem diz o e-mail autenticado e
-   a rota /eu do servidor, porque uma pagina estatica nao enxerga os
-   proprios cabecalhos. O papel vem de iqv_usuarios, casando por e-mail.
+   Sao duas portas, e elas se somam em vez de competir:
 
-   Duas consequencias que "A casa" escreve por extenso: tirar alguem de
-   iqv_usuarios NAO tira o acesso dela (isso e no painel do Access), e o
-   Access nao sabe o que e Equipe ou Colaborador, essa parte e do sistema.
+   O CLOUDFLARE ACCESS decide quem chega ate aqui. Ele e quem protege o
+   endereco, e a rota /eu do servidor diz qual e-mail ele autenticou (uma
+   pagina estatica nao enxerga os proprios cabecalhos).
+
+   O LOGIN DAQUI decide QUEM da casa esta usando, e o que essa pessoa ve.
+   Cada pessoa tem o proprio cadastro e a propria senha. Enquanto o Access
+   nao existir, e esta porta que separa os papeis, e a tela diz isso com
+   todas as letras: ela identifica, nao protege. Depois do Access, quem ja
+   entrou pelo e-mail nem ve tela de senha.
+
+   Duas consequencias que "A casa" escreve por extenso: tirar alguem da
+   lista NAO tira o acesso dela ao endereco (isso e no painel do Access), e
+   o Access nao sabe o que e Gestor ou Colaborador, essa parte e do sistema.
    --------------------------------------------------------------------- */
 const EU = {
+  id: null,
   email: null,
   nome: null,
   papel: null,
-  // 'access' quando o servidor identificou, 'provisorio' quando o Access
-  // ainda nao esta ligado e a pessoa escolheu o papel na mao
+  // 'access'  o servidor autenticou pelo Cloudflare Access
+  // 'senha'   a pessoa entrou pelo login deste sistema
   origem: null,
   pode: function (tela) {
     if (!this.papel) return false;
     return (PERMISSOES[this.papel] || []).indexOf(tela) >= 0;
   },
+  ehGestor: function () { return this.papel === 'gestor'; },
 };
 
-function usuarios() { return iqvLer(CHAVES.usuarios, []); }
+/* ---------------------------------------------------------------------
+   Senha.
+
+   Guardar senha em texto puro num arquivo que qualquer um baixa seria
+   pior que nao ter senha: as pessoas repetem senha entre servicos, e a
+   daqui viraria a de outro lugar. O que fica guardado e o resumo
+   SHA-256 de senha + id, entao duas pessoas com a mesma senha guardam
+   coisas diferentes e ninguem le a senha de ninguem abrindo o arquivo.
+
+   Isto NAO transforma o sistema em cofre. Quem baixa o HTML enxerga a
+   lista de pessoas e pode tentar senha a vontade, sem ninguem barrando.
+   Quem protege o endereco e o Cloudflare Access. Esta senha separa
+   pessoas, e a porta diz isso por escrito.
+   --------------------------------------------------------------------- */
+async function resumoSenha(senha, id) {
+  const bytes = new TextEncoder().encode(String(senha) + ':' + String(id));
+  const digestao = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digestao))
+    .map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+// Comparacao de tempo constante: === vaza o tamanho do acerto por timing.
+function resumoIgual(a, b) {
+  const x = String(a || ''), y = String(b || '');
+  let dif = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    dif |= (x.charCodeAt(i) || 0) ^ (y.charCodeAt(i) || 0);
+  }
+  return dif === 0;
+}
+
+/* ---------------------------------------------------------------------
+   A sessao. Fica no navegador para nao pedir senha a cada aba, e sai no
+   "Sair". Guarda so o id: papel e nome vem da lista, entao mudar o papel
+   de alguem vale na proxima tela que ela abrir, e nao so no proximo login.
+   --------------------------------------------------------------------- */
+const CHAVE_SESSAO = 'iqv_sessao';
+
+function sessaoGuardar(id) { iqvGravar(CHAVE_SESSAO, { pessoaId: id }); }
+function sessaoLer() { return iqvLer(CHAVE_SESSAO, null); }
+function sessaoApagar() { try { localStorage.removeItem(CHAVE_SESSAO); } catch (e) {} }
+
+function pessoas() { return iqvLer(CHAVES.usuarios, []); }
+function gravarPessoas(lista) { return iqvGravar(CHAVES.usuarios, lista); }
+function acharPessoaPorId(id) {
+  return pessoas().find(function (p) { return p.id === id; }) || null;
+}
+
+// mantido porque as telas ja chamam assim
+function usuarios() { return pessoas(); }
 
 function acharUsuario(email) {
   const alvo = String(email || '').trim().toLowerCase();
@@ -1053,9 +1112,12 @@ function alternarMenu() {
 }
 
 function sair() {
-  // O Access e quem guarda a sessao de verdade. Sair daqui volta para a
-  // porta; encerrar o Access e no /cdn-cgi/access/logout.
-  EU.email = null; EU.papel = null; EU.origem = null;
+  // Sair daqui fecha a sessao DESTE sistema. O Cloudflare Access continua
+  // com voce logado no endereco: encerrar aquilo e em /cdn-cgi/access/logout,
+  // e a porta diz isso para ninguem achar que saiu e nao ter saido.
+  sessaoApagar();
+  EU.id = null; EU.email = null; EU.nome = null; EU.papel = null; EU.origem = null;
+  PORTA_ESCOLHIDA = null;
   porId('app').hidden = true;
   porId('porta').hidden = false;
   abrirPorta();
@@ -1746,7 +1808,7 @@ function semanaTrocarPessoa(v) { SEMANA.pessoa = String(v || 'eu'); SEMANA.recad
 function semanaLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   SEMANA.recado = { tom: 'atencao', titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a Equipe, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
   DESENHO.semana();
   window.scrollTo(0, 0);
   return false;
@@ -1827,7 +1889,7 @@ function semanaColher(projetoId, campo, valor) {
 function semanaSeletor(d) {
   // O seletor de pessoa é da Equipe. Colaborador vê a própria semana, e
   // trocar de pessoa ali seria enxergar a mesa de quem não é dele.
-  if (EU.papel !== 'equipe') return '';
+  if (EU.papel !== 'gestor') return '';
   const pessoas = semanaPessoas();
   const opcoes = [{ k: 'eu', nome: 'Você' }]
     .concat(pessoas.filter(function (u) { return String(u.id) !== String(semanaMeuId()); })
@@ -1852,7 +1914,7 @@ function semanaRecados(d) {
   if (d.alvo.semFicha) {
     html += aviso('info', 'Nenhuma pessoa deste sistema está com o seu e-mail.',
       'A semana separa o que é seu pelo responsável de cada entrega, e sem uma pessoa com o e-mail ' + esc(EU.email || 'que você usou para entrar') +
-      ' não dá para saber quais são as suas. Por enquanto você está vendo a casa inteira. Quem cria pessoa e escreve o e-mail é a Equipe, em A casa.');
+      ' não dá para saber quais são as suas. Por enquanto você está vendo a casa inteira. Quem cria pessoa e escreve o e-mail é a gestão, em A casa.');
   }
   if (d.orfas) {
     html += aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
@@ -2721,7 +2783,7 @@ function leituraSalvar(l) {
   return true;
 }
 
-// Os niveis com o valor que a Equipe editou em Roteiros e niveis. Nivel
+// Os niveis com o valor que a gestao editou em Roteiros e niveis. Nivel
 // salvo por la pode ter vindo sem escopo, e sem escopo a conta de
 // cobertura mentiria dizendo que o nivel nao cobre nada.
 function leituraNiveis() {
@@ -3018,7 +3080,7 @@ function leituraHtmlNumeros() {
   n.push({ v: r.esperando, l: 'Aplicações sem leitura',
     obs: r.esperaMaisAntiga === null ? 'Nenhuma esperando agora.' : 'A mais antiga chegou ' + leituraDias(r.esperaMaisAntiga) + '.' });
   n.push({ v: r.preparando, l: 'Preparadas, sem assinatura',
-    obs: EU.papel === 'equipe' ? 'Esperando a sua assinatura.' : 'Só a equipe assina.' });
+    obs: EU.papel === 'gestor' ? 'Esperando a sua assinatura.' : 'Só a gestão assina.' });
   n.push({ v: r.semDevolutiva, l: 'Assinadas, sem devolutiva', puxa: r.semDevolutiva > 0,
     obs: 'Continuam na fila de Minha semana.' });
   n.push({ v: r.aguardando, l: 'Esperando a resposta da pessoa',
@@ -3224,7 +3286,7 @@ function leituraHtmlLeitura(lead) {
   const dono = '<p class="dica" style="margin-top:16px;border-top:1px solid var(--linha);padding-top:12px">' +
     (l.assinadaEm
       ? 'Preparada por ' + esc(l.preparadaPor || 'sem nome') + ' e assinada por ' + esc(l.assinadaPor || 'sem nome') + ', ' + esc(dataLonga(l.assinadaEm)) + '.'
-      : 'Sendo preparada por ' + esc(l.preparadaPor || leituraQuemSou()) + '. Só a equipe assina.') + '</p>';
+      : 'Sendo preparada por ' + esc(l.preparadaPor || leituraQuemSou()) + '. Só a gestão assina.') + '</p>';
 
   return '<div class="cartao" style="margin:0">' +
     '<div class="cartao-t">A leitura' + (travada ? '<span style="margin-left:auto"><span class="eti eti-ok">Assinada</span></span>' : '') + '</div>' +
@@ -3271,7 +3333,7 @@ function leituraHtmlVeredito(lead) {
   const assinada = !!l.assinadaEm;
   const revendo = Number(LEITURA_REVENDO) === Number(lead.id);
   const travada = assinada && !revendo;
-  const equipe = EU.papel === 'equipe';
+  const equipe = EU.papel === 'gestor';
 
   let portas = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
     LEITURA_VEREDITOS.map(function (v) {
@@ -3457,7 +3519,7 @@ function leituraHtmlProjeto(lead) {
       '</div>';
   }
 
-  if (EU.papel !== 'equipe') {
+  if (EU.papel !== 'gestor') {
     return '<div class="cartao">' +
       '<div class="cartao-t">O projeto</div>' +
       aviso('info', 'Quem abre o projeto é a equipe.',
@@ -3719,7 +3781,7 @@ async function leituraAssinar() {
   if (!lead) return;
   const l = leituraGarantir(lead.id);
 
-  if (EU.papel !== 'equipe') {
+  if (EU.papel !== 'gestor') {
     LEITURA_RECADO = { tom: 'info', titulo: 'Quem assina é a equipe.',
       texto: 'A leitura que você preparou já está guardada e aparece para a equipe como preparada.' };
     leituraPintar(); return;
@@ -3866,7 +3928,7 @@ async function leituraCriarProjeto() {
   if (!lead) return;
   const l = leituraGarantir(lead.id);
 
-  if (EU.papel !== 'equipe') {
+  if (EU.papel !== 'gestor') {
     LEITURA_RECADO = { tom: 'info', titulo: 'Quem abre o projeto é a equipe.', texto: 'Aqui entram valor contratado e data prometida.' };
     leituraPintar(); return;
   }
@@ -4297,13 +4359,13 @@ function projetosNomeFase(n) { return 'Fase 0' + n + ', ' + nomeFase(n); }
 /* ---------------------------------------------------------------------
    Quem vê o quê.
 
-   A Equipe vê todos e filtra por pessoa. O colaborador vê os projetos em
+   O gestor vê todos e filtra por pessoa. O colaborador vê os projetos em
    que é responsável, ou todos, conforme o escopo configurado em A casa,
    que fica guardado junto das permissões. Ele não amplia o próprio escopo
    daqui: se pudesse, o escopo não seria escopo.
    --------------------------------------------------------------------- */
 function projetosVeTudo() {
-  if (EU.papel === 'equipe') return true;
+  if (EU.papel === 'gestor') return true;
   const cfg = iqvLer(CHAVES.permissoes, null);
   return !!(cfg && cfg.escopo && cfg.escopo.colaboradorVeTudo);
 }
@@ -4347,7 +4409,7 @@ function projetosVerComoCliente(id) {
 function projetosLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   PROJETOS.recado = { titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a Equipe, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
   DESENHO.projetos();
   window.scrollTo(0, 0);
   return false;
@@ -4482,7 +4544,7 @@ function projetosHtmlFerramentas(quantos, total) {
   };
 
   let pessoa = '';
-  if (EU.papel === 'equipe') {
+  if (EU.papel === 'gestor') {
     const pessoas = projetosPessoas();
     pessoa = '<select class="campo campo-sm" style="flex:0 1 220px;width:auto" onchange="projetosFiltrarPessoa(this.value)">' +
       '<option value="todos"' + (PROJETOS.pessoa === 'todos' ? ' selected' : '') + '>Toda a equipe</option>' +
@@ -4739,20 +4801,20 @@ DESENHO.projetos = function () {
     escrever('projetos-ferramentas', '');
     escrever('projetos-corpo', meuId
       ? projetosHtmlNada('Nenhum projeto com você como responsável.',
-          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a Equipe, em A casa.')
+          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a gestão, em A casa.')
       : projetosHtmlNada('Não sei quais projetos são seus.',
-          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em A casa. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a Equipe cadastrar o seu e-mail em A casa.'));
+          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em A casa. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a gestão cadastrar o seu e-mail em A casa.'));
     return;
   }
 
   escrever('projetos-faixa', projetosHtmlFaixa(fichas));
-  escrever('projetos-carga', EU.papel === 'equipe' ? projetosHtmlCarga(fichas) : '');
+  escrever('projetos-carga', EU.papel === 'gestor' ? projetosHtmlCarga(fichas) : '');
 
   let vistas = fichas;
   if (PROJETOS.fase) vistas = vistas.filter(function (f) { return f.fase === PROJETOS.fase; });
-  if (EU.papel === 'equipe' && PROJETOS.pessoa === 'sem') {
+  if (EU.papel === 'gestor' && PROJETOS.pessoa === 'sem') {
     vistas = vistas.filter(function (f) { return !f.p.responsavelId || !projetosNomePessoa(f.p.responsavelId); });
-  } else if (EU.papel === 'equipe' && PROJETOS.pessoa !== 'todos') {
+  } else if (EU.papel === 'gestor' && PROJETOS.pessoa !== 'todos') {
     vistas = vistas.filter(function (f) { return String(f.p.responsavelId) === String(PROJETOS.pessoa); });
   }
   if (PROJETOS.mostrar === 'parados') vistas = vistas.filter(function (f) { return f.bola.dias > PROJETOS_PARADO; });
@@ -6323,7 +6385,7 @@ function roteirosGravar(metodo) {
 
 // Quem edita e a Equipe. O colaborador le, porque precisa saber o que
 // entregar, mas preco e escopo nao sao decisao dele.
-function roteirosPodeEditar() { return EU.papel === 'equipe'; }
+function roteirosPodeEditar() { return EU.papel === 'gestor'; }
 
 /* ------------------------------------------------------------------ */
 
@@ -7011,24 +7073,45 @@ function casaGravarUsuarios(lista) {
   return false;
 }
 
-function casaPodeEditar() { return EU.papel === 'equipe'; }
+function casaPodeEditar() { return EU.papel === 'gestor'; }
 
 function casaLinhaPessoa(u, editavel) {
-  const souEu = EU.email && String(u.email || '').toLowerCase() === String(EU.email).toLowerCase();
+  const souEu = EU.id === u.id;
   return '<tr>' +
     '<td><b>' + esc(u.nome || 'sem nome') + '</b>' +
       (souEu ? ' <span class="eti eti-marca">você</span>' : '') + '</td>' +
     '<td style="font-size:12.5px;color:var(--tinta-2)">' + esc(u.email || '') + '</td>' +
-    '<td>' + (editavel
+    '<td>' + (u.senha
+      ? '<span class="eti eti-ok">senha criada</span>'
+      : '<span class="eti eti-atencao">escolhe na 1a entrada</span>') + '</td>' +
+    '<td>' + (editavel && !souEu
       ? '<select class="campo campo-sm" onchange="casaMudarPapel(\'' + esc(u.id) + '\', this.value)">' +
         PAPEIS.map(function (p) {
           return '<option value="' + p.k + '"' + (p.k === u.papel ? ' selected' : '') + '>' + esc(p.nome) + '</option>';
         }).join('') + '</select>'
       : '<span class="eti eti-neutra">' + esc((porChave(PAPEIS, u.papel) || {}).nome || u.papel) + '</span>') + '</td>' +
-    '<td style="text-align:right">' + (editavel && !souEu
-      ? '<button class="bt bt-linha bt-sm" onclick="casaRemover(\'' + esc(u.id) + '\')">Tirar da lista</button>'
+    '<td style="text-align:right;white-space:nowrap">' + (editavel
+      ? (u.senha ? '<button class="bt bt-linha bt-sm" onclick="casaZerarSenha(\'' + esc(u.id) + '\')">Zerar senha</button> ' : '') +
+        (souEu ? '' : '<button class="bt bt-linha bt-sm" onclick="casaRemover(\'' + esc(u.id) + '\')">Tirar</button>')
       : '') + '</td>' +
   '</tr>';
+}
+
+// Esquecer senha acontece. Sem isto, a pessoa fica de fora e a unica saida
+// seria apagar o cadastro dela, o que levaria junto o vinculo com os
+// projetos onde ela e responsavel.
+function casaZerarSenha(id) {
+  const lista = casaUsuarios();
+  const u = lista.find(function (x) { return x.id === id; });
+  if (!u) return;
+  const certeza = window.prompt(
+    'Zerar a senha de ' + (u.nome || u.email) + '.\n\n' +
+    'Na próxima entrada, essa pessoa escolhe uma senha nova. Você não fica sabendo qual é, ' +
+    'e ninguém consegue entrar no lugar dela antes disso, porque a lista mostra que a senha está zerada.\n\n' +
+    'Escreva ZERAR para continuar:');
+  if (String(certeza || '').trim().toUpperCase() !== 'ZERAR') return;
+  delete u.senha;
+  casaGravarUsuarios(lista);
 }
 
 function casaMudarPapel(id, papel) {
@@ -7077,8 +7160,8 @@ function casaAdicionar() {
 function casaAlternarTela(papel, tela) {
   if (!PERMISSOES[papel]) PERMISSOES[papel] = [];
   const i = PERMISSOES[papel].indexOf(tela);
-  // A Equipe nao pode se trancar para fora do configurador.
-  if (i >= 0 && papel === 'equipe' && tela === 'casa') return;
+  // O gestor nao pode se trancar para fora do configurador.
+  if (i >= 0 && papel === 'gestor' && tela === 'casa') return;
   if (i >= 0) PERMISSOES[papel].splice(i, 1); else PERMISSOES[papel].push(tela);
   salvarPermissoes();
   DESENHO.casa();
@@ -7124,15 +7207,17 @@ DESENHO.casa = function () {
 
   // 1. pessoas
   escrever('casaAvisoAccess', aviso('info',
-    'Quem abre e fecha a porta é o Cloudflare Access, não esta lista.',
-    'Tirar alguém daqui não tira o acesso dela ao endereço: ela continua entrando e passa a ver um aviso, sem tela nenhuma. ' +
-    'O desligamento de verdade é remover a pessoa da aplicação "sistema" no painel da Cloudflare. ' +
-    'E o Access não sabe o que é Equipe, Colaborador ou Cliente: essa parte é do sistema, e é decidida aqui.'));
+    'São duas portas, e elas fazem coisas diferentes.',
+    'Esta lista decide QUEM é cada pessoa aqui dentro e o que ela enxerga. Quem cadastra não escolhe a senha: ' +
+    'a pessoa escolhe a dela na primeira entrada, e se esquecer, você zera aqui e ela escolhe outra. ' +
+    'Já o Cloudflare Access decide quem chega até o endereço, e é ele que protege de verdade. ' +
+    'Por isso tirar alguém desta lista não tira o acesso dela ao site: isso se faz no painel da Cloudflare. ' +
+    'E o Access não sabe o que é Gestor, Colaborador ou Cliente: essa parte é daqui.'));
 
   escrever('casaPessoas', lista.length
     ? lista.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
     : vazio('Só existe você aqui. Cadastre quem vai usar antes de distribuir o endereço: ' +
-            'quem passa pelo Access e não está nesta lista entra sem tela nenhuma e vê um aviso pedindo para falar com você.', 4));
+            'quem passa pelo Access e não está nesta lista entra sem tela nenhuma e vê um aviso pedindo para falar com você.', 5));
 
   escrever('casaNova', editavel
     ? '<input class="campo campo-sm" id="casaNome" placeholder="Nome" style="flex:1;min-width:150px">' +
@@ -7152,7 +7237,7 @@ DESENHO.casa = function () {
         '<p class="dica" style="margin:4px 0 12px">' + esc(p.resumo) + '</p>' +
         TELAS.map(function (t) {
           const marcada = (PERMISSOES[p.k] || []).indexOf(t.k) >= 0;
-          const travada = (p.k === 'equipe' && t.k === 'casa');
+          const travada = (p.k === 'gestor' && t.k === 'casa');
           return '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;color:' +
             (marcada ? 'var(--tinta)' : 'var(--tinta-4)') + '">' +
             '<input type="checkbox"' + (marcada ? ' checked' : '') +
@@ -7216,16 +7301,23 @@ DESENHO.casa = function () {
 /* =====================================================================
    A entrada.
 
-   A pagina nao enxerga os proprios cabecalhos, entao quem diz o e-mail
-   autenticado pelo Cloudflare Access e a rota /eu do servidor. Tres
-   respostas possiveis, e cada uma leva a uma porta diferente:
+   Tres caminhos, nesta ordem:
 
-     200  o Access identificou. O papel vem de iqv_usuarios, por e-mail.
-     503  o Access ainda nao foi ligado no Worker. Nao ha o que conferir,
-          e fingir um login aqui nao protegeria nada: a porta diz isso e
-          deixa escolher o papel para navegar, avisando que e provisorio.
-     401  passou pelo Access mas o token nao vale, ou nao ha token.
+   1. SESSAO ABERTA. A pessoa ja entrou neste navegador. Entra direto.
+
+   2. CLOUDFLARE ACCESS. A rota /eu diz qual e-mail o Access autenticou.
+      Se esse e-mail estiver cadastrado, entra sem senha: quem ja provou
+      quem e na porta da rua nao prova de novo na porta da sala.
+
+   3. LOGIN DAQUI. Sem Access, ou com um e-mail que nao esta na lista, a
+      pessoa escolhe quem e e digita a senha dela.
+
+   E no primeiro dia, quando nao existe ninguem cadastrado, a porta pede
+   para criar o primeiro gestor. Sistema que abre vazio e deixa entrar sem
+   dizer quem voce e nao tem como separar papel nenhum depois.
    ===================================================================== */
+
+let PORTA_ESCOLHIDA = null;   // id da pessoa selecionada na lista
 
 async function lerEu() {
   try {
@@ -7238,91 +7330,219 @@ async function lerEu() {
   }
 }
 
-function entrar(papel, email, nome, origem) {
-  EU.papel = papel;
-  EU.email = email || null;
-  EU.nome = nome || (email ? String(email).split('@')[0] : 'Visitante');
-  EU.origem = origem;
-
-  porId('porta').hidden = true;
-  porId('app').hidden = false;
-  document.getElementById('app').classList.toggle('sozinho', papel === 'cliente');
-
-  const p = porChave(PAPEIS, papel);
-  texto('quem-nome', EU.nome);
-  texto('quem-papel', p ? p.nome : papel);
-
-  montarMenu();
-  irPara((PERMISSOES[papel] || ['cliente'])[0]);
-}
-
-function escolherPapelProvisorio(papel) { entrar(papel, null, null, 'provisorio'); }
-
 function pintarPorta(titulo, texto_, corpo) {
   escrever('porta-titulo', titulo);
   texto('porta-texto', texto_);
   escrever('porta-corpo', corpo);
 }
 
-function botoesDePapel() {
-  return PAPEIS.map(function (p) {
-    return '<button class="papel" onclick="escolherPapelProvisorio(\'' + p.k + '\')">' +
-           '<span class="ic">' + p.ic + '</span>' +
-           '<span><b>' + esc(p.nome) + '</b><span>' + esc(p.resumo) + '</span></span></button>';
-  }).join('');
+function entrar(pessoa, origem) {
+  EU.id = pessoa.id;
+  EU.papel = pessoa.papel;
+  EU.email = pessoa.email || null;
+  EU.nome = pessoa.nome || (pessoa.email ? String(pessoa.email).split('@')[0] : 'sem nome');
+  EU.origem = origem;
+
+  if (origem === 'senha') sessaoGuardar(pessoa.id);
+
+  porId('porta').hidden = true;
+  porId('app').hidden = false;
+  porId('app').classList.toggle('sozinho', pessoa.papel === 'cliente');
+
+  const p = porChave(PAPEIS, pessoa.papel);
+  texto('quem-nome', EU.nome);
+  texto('quem-papel', p ? p.nome : pessoa.papel);
+
+  montarMenu();
+  irPara((PERMISSOES[pessoa.papel] || ['cliente'])[0]);
 }
+
+/* ---------------------------------------------------------------- primeiro dia */
+
+async function portaCriarPrimeiro() {
+  const nome = String((porId('portaNome') || {}).value || '').trim();
+  const email = String((porId('portaEmail') || {}).value || '').trim().toLowerCase();
+  const senha = String((porId('portaSenha') || {}).value || '');
+  const repete = String((porId('portaSenha2') || {}).value || '');
+
+  const erro = !nome ? 'Escreva o seu nome.'
+    : (!email || email.indexOf('@') < 0) ? 'Escreva um e-mail válido.'
+    : senha.length < 6 ? 'A senha precisa de pelo menos 6 caracteres.'
+    : senha !== repete ? 'As duas senhas não são iguais.'
+    : null;
+  if (erro) { escrever('portaErro', aviso('alerta', erro, 'Corrija e tente de novo.')); return; }
+
+  const id = 'p' + String(email).replace(/[^a-z0-9]/g, '').slice(0, 12) + '-' + email.length;
+  const pessoa = {
+    id: id, nome: nome, email: email, papel: 'gestor', ativo: true,
+    senha: await resumoSenha(senha, id),
+  };
+  if (!gravarPessoas([pessoa])) {
+    escrever('portaErro', aviso('alerta', 'Não consegui gravar no navegador.',
+      'O armazenamento pode estar cheio ou bloqueado. Sem gravar, o cadastro se perde ao fechar a aba.'));
+    return;
+  }
+  entrar(pessoa, 'senha');
+}
+
+function portaTelaPrimeiro(avisoTopo) {
+  pintarPorta(
+    'Ninguém usa este sistema <b>ainda</b>',
+    'Crie o seu acesso de gestor. Depois você cadastra o resto da equipe por dentro.',
+    (avisoTopo || '') +
+    '<div id="portaErro"></div>' +
+    '<label class="rotulo">Seu nome</label>' +
+    '<input class="campo" id="portaNome" autocomplete="name" placeholder="Como você aparece para a equipe">' +
+    '<label class="rotulo" style="margin-top:14px">Seu e-mail</label>' +
+    '<input class="campo" id="portaEmail" type="email" autocomplete="email" placeholder="o mesmo do login protegido, quando ele existir">' +
+    '<label class="rotulo" style="margin-top:14px">Senha</label>' +
+    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos 6 caracteres">' +
+    '<label class="rotulo" style="margin-top:14px">Repita a senha</label>' +
+    '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password">' +
+    '<button class="bt bt-marca" style="width:100%;justify-content:center;margin-top:18px" ' +
+      'onclick="portaCriarPrimeiro()">Criar meu acesso</button>' +
+    '<p class="dica" style="margin-top:16px;line-height:1.6">O e-mail importa: quando o login protegido da Cloudflare ' +
+      'estiver ligado, é por ele que o sistema vai reconhecer você, sem pedir senha de novo.</p>');
+
+  const campo = porId('portaNome');
+  if (campo) campo.focus();
+}
+
+/* ---------------------------------------------------------------- login */
+
+function portaEscolher(id) {
+  PORTA_ESCOLHIDA = id;
+  portaTelaLogin();
+  const campo = porId('portaSenhaLogin');
+  if (campo) campo.focus();
+}
+
+function portaVoltar() { PORTA_ESCOLHIDA = null; portaTelaLogin(); }
+
+async function portaConferir() {
+  const pessoa = acharPessoaPorId(PORTA_ESCOLHIDA);
+  if (!pessoa) { portaVoltar(); return; }
+  const senha = String((porId('portaSenhaLogin') || {}).value || '');
+
+  // Pessoa cadastrada por outra pessoa ainda nao tem senha: a primeira
+  // entrada dela e onde ela escolhe. Melhor que senha provisoria mandada
+  // por WhatsApp, que ninguem troca depois.
+  if (!pessoa.senha) {
+    if (senha.length < 6) {
+      escrever('portaErro', aviso('info', 'Esta é a sua primeira entrada.',
+        'Escolha uma senha de pelo menos 6 caracteres. Ela fica só neste navegador.'));
+      return;
+    }
+    pessoa.senha = await resumoSenha(senha, pessoa.id);
+    const lista = pessoas().map(function (x) { return x.id === pessoa.id ? pessoa : x; });
+    if (!gravarPessoas(lista)) {
+      escrever('portaErro', aviso('alerta', 'Não consegui gravar a senha.', 'Tente de novo.'));
+      return;
+    }
+    entrar(pessoa, 'senha');
+    return;
+  }
+
+  const resumo = await resumoSenha(senha, pessoa.id);
+  if (!resumoIgual(resumo, pessoa.senha)) {
+    escrever('portaErro', aviso('alerta', 'Senha errada.',
+      'Se você esqueceu, quem tem acesso de gestor redefine a sua senha em "A casa".'));
+    const campo = porId('portaSenhaLogin');
+    if (campo) { campo.value = ''; campo.focus(); }
+    return;
+  }
+  entrar(pessoa, 'senha');
+}
+
+function portaTelaLogin(avisoTopo) {
+  const lista = pessoas().filter(function (p) { return p.ativo !== false; });
+
+  if (!lista.length) { portaTelaPrimeiro(avisoTopo); return; }
+
+  if (!PORTA_ESCOLHIDA) {
+    pintarPorta('Quem está <b>entrando</b>?', 'Escolha o seu nome na lista.',
+      (avisoTopo || '') +
+      lista.map(function (p) {
+        const papel = porChave(PAPEIS, p.papel) || { nome: p.papel, ic: '·' };
+        return '<button class="papel" onclick="portaEscolher(\'' + esc(p.id) + '\')">' +
+          '<span class="ic">' + esc(papel.ic) + '</span>' +
+          '<span><b>' + esc(p.nome || p.email) + '</b>' +
+          '<span>' + esc(papel.nome) + (p.senha ? '' : ', primeira entrada') + '</span></span></button>';
+      }).join('') +
+      '<p class="dica" style="margin-top:16px;line-height:1.6">Não está na lista? Quem tem acesso de gestor ' +
+      'cadastra você em "A casa".</p>');
+    return;
+  }
+
+  const pessoa = acharPessoaPorId(PORTA_ESCOLHIDA);
+  if (!pessoa) { PORTA_ESCOLHIDA = null; portaTelaLogin(); return; }
+  const papel = porChave(PAPEIS, pessoa.papel) || { nome: pessoa.papel };
+
+  pintarPorta(
+    esc(String(pessoa.nome || pessoa.email).split(' ')[0]) + ', sua <b>senha</b>',
+    papel.nome + (pessoa.email ? ', ' + pessoa.email : ''),
+    '<div id="portaErro"></div>' +
+    '<input class="campo" id="portaSenhaLogin" type="password" autocomplete="current-password" ' +
+      'placeholder="' + (pessoa.senha ? 'sua senha' : 'escolha uma senha, é a sua primeira entrada') + '" ' +
+      'onkeydown="if(event.key===\'Enter\')portaConferir()">' +
+    '<button class="bt bt-marca" style="width:100%;justify-content:center;margin-top:14px" ' +
+      'onclick="portaConferir()">Entrar</button>' +
+    '<button class="bt bt-linha" style="width:100%;justify-content:center;margin-top:8px" ' +
+      'onclick="portaVoltar()">Não sou eu</button>');
+}
+
+/* ---------------------------------------------------------------- abertura */
 
 async function abrirPorta() {
   pintarPorta('Entrando no <b>sistema</b>', 'Conferindo o seu acesso.', '');
 
+  // 1. sessao ja aberta neste navegador
+  const sessao = sessaoLer();
+  if (sessao && sessao.pessoaId) {
+    const pessoa = acharPessoaPorId(sessao.pessoaId);
+    if (pessoa && pessoa.ativo !== false) { entrar(pessoa, 'senha'); return; }
+    sessaoApagar();
+  }
+
+  // 2. o Cloudflare Access ja disse quem e
   const r = await lerEu();
 
-  // Servidor identificou a pessoa.
   if (r.status === 200 && r.corpo && r.corpo.email) {
-    const u = acharUsuario(r.corpo.email);
-    if (u && u.papel) { entrar(u.papel, r.corpo.email, u.nome, 'access'); return; }
+    const alvo = String(r.corpo.email).toLowerCase();
+    const pessoa = pessoas().find(function (p) {
+      return String(p.email || '').toLowerCase() === alvo && p.ativo !== false;
+    });
+    if (pessoa) { entrar(pessoa, 'access'); return; }
 
-    // E-mail que passa no Access mas nao esta na lista NAO vira equipe por
+    // E-mail que passou no Access mas nao esta na lista NAO vira gestor por
     // descuido, e nao cai numa tela qualquer.
+    if (!pessoas().length) { portaTelaPrimeiro(); return; }
     pintarPorta(
       'Seu acesso ainda não foi <b>liberado</b>',
-      'Você entrou pelo login protegido, mas ainda não tem papel definido aqui dentro.',
+      'Você entrou pelo login protegido, mas ainda não tem cadastro aqui dentro.',
       aviso('info', esc(r.corpo.email),
-        'Peça para quem cuida do sistema abrir a tela "A casa" e definir o seu papel. ' +
-        'Passar pelo login não define sozinho o que você pode ver: essa parte é do sistema, não do Access.'));
+        'Peça para quem tem acesso de gestor abrir a tela "A casa" e cadastrar esse e-mail. ' +
+        'Passar pelo login não define sozinho o que você pode ver: essa parte é do sistema.'));
     return;
   }
 
-  // O Access ainda nao esta ligado no Worker.
+  // 3. login daqui
   if (r.status === 503) {
-    pintarPorta(
-      'O login protegido ainda não está <b>ligado</b>',
-      'Escolha o perfil para navegar. Isso é provisório e não protege nada.',
-      aviso('atencao', 'Enquanto o Cloudflare Access não estiver configurado, esta área fica aberta.',
-        'Qualquer pessoa com o endereço entra e escolhe um perfil, inclusive Equipe. ' +
-        'Não guarde informação de cliente aqui até o passo do Access estar feito: o caminho está no DEPLOY.md.') +
-      botoesDePapel());
+    portaTelaLogin(aviso('atencao', 'O login protegido da Cloudflare ainda não está ligado.',
+      'A senha abaixo diz ao sistema quem é você e o que você enxerga. Ela não protege o endereço: ' +
+      'quem souber a URL chega até esta tela. Enquanto o Access não existir, evite guardar aqui o que não pode vazar.'));
     return;
   }
 
-  // Sem servidor: arquivo aberto direto do computador, ou rede fora.
   if (r.status === 0) {
-    pintarPorta(
-      'Não consegui falar com o <b>servidor</b>',
-      'O sistema precisa do endereço publicado para saber quem é você.',
-      aviso('alerta', 'Se você abriu este arquivo direto do computador, ele não funciona assim.',
-        'Abra pelo endereço do site, em ideiaquevende.com.br/sistema/. ' +
-        'Se já estava nele, foi a rede que falhou: atualize a página.') +
-      botoesDePapel());
+    portaTelaLogin(aviso('alerta', 'Não consegui falar com o servidor.',
+      'Se você abriu este arquivo direto do computador, ele não funciona assim: use o endereço publicado. ' +
+      'Dá para entrar mesmo assim, mas as aplicações da landing não vão carregar.'));
     return;
   }
 
-  // 401 e o resto.
-  pintarPorta(
-    'Seu login <b>venceu</b>',
-    'O servidor não reconheceu a sua sessão.',
-    aviso('atencao', 'Recarregue a página para entrar de novo.',
-      'Se continuar aparecendo, saia do login protegido em /cdn-cgi/access/logout e entre outra vez.'));
+  portaTelaLogin(aviso('atencao', 'Seu login protegido venceu.',
+    'Recarregue a página para entrar pela Cloudflare de novo, ou entre por aqui.'));
 }
 
 abrirPorta();

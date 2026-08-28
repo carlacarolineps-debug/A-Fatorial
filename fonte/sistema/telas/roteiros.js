@@ -60,7 +60,7 @@ function roteirosGravar(metodo) {
 
 // Quem edita e a Equipe. O colaborador le, porque precisa saber o que
 // entregar, mas preco e escopo nao sao decisao dele.
-function roteirosPodeEditar() { return EU.papel === 'equipe'; }
+function roteirosPodeEditar() { return EU.papel === 'gestor'; }
 
 /* ------------------------------------------------------------------ */
 

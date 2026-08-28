@@ -1,16 +1,23 @@
 /* =====================================================================
    A entrada.
 
-   A pagina nao enxerga os proprios cabecalhos, entao quem diz o e-mail
-   autenticado pelo Cloudflare Access e a rota /eu do servidor. Tres
-   respostas possiveis, e cada uma leva a uma porta diferente:
+   Tres caminhos, nesta ordem:
 
-     200  o Access identificou. O papel vem de iqv_usuarios, por e-mail.
-     503  o Access ainda nao foi ligado no Worker. Nao ha o que conferir,
-          e fingir um login aqui nao protegeria nada: a porta diz isso e
-          deixa escolher o papel para navegar, avisando que e provisorio.
-     401  passou pelo Access mas o token nao vale, ou nao ha token.
+   1. SESSAO ABERTA. A pessoa ja entrou neste navegador. Entra direto.
+
+   2. CLOUDFLARE ACCESS. A rota /eu diz qual e-mail o Access autenticou.
+      Se esse e-mail estiver cadastrado, entra sem senha: quem ja provou
+      quem e na porta da rua nao prova de novo na porta da sala.
+
+   3. LOGIN DAQUI. Sem Access, ou com um e-mail que nao esta na lista, a
+      pessoa escolhe quem e e digita a senha dela.
+
+   E no primeiro dia, quando nao existe ninguem cadastrado, a porta pede
+   para criar o primeiro gestor. Sistema que abre vazio e deixa entrar sem
+   dizer quem voce e nao tem como separar papel nenhum depois.
    ===================================================================== */
+
+let PORTA_ESCOLHIDA = null;   // id da pessoa selecionada na lista
 
 async function lerEu() {
   try {
@@ -23,91 +30,219 @@ async function lerEu() {
   }
 }
 
-function entrar(papel, email, nome, origem) {
-  EU.papel = papel;
-  EU.email = email || null;
-  EU.nome = nome || (email ? String(email).split('@')[0] : 'Visitante');
-  EU.origem = origem;
-
-  porId('porta').hidden = true;
-  porId('app').hidden = false;
-  document.getElementById('app').classList.toggle('sozinho', papel === 'cliente');
-
-  const p = porChave(PAPEIS, papel);
-  texto('quem-nome', EU.nome);
-  texto('quem-papel', p ? p.nome : papel);
-
-  montarMenu();
-  irPara((PERMISSOES[papel] || ['cliente'])[0]);
-}
-
-function escolherPapelProvisorio(papel) { entrar(papel, null, null, 'provisorio'); }
-
 function pintarPorta(titulo, texto_, corpo) {
   escrever('porta-titulo', titulo);
   texto('porta-texto', texto_);
   escrever('porta-corpo', corpo);
 }
 
-function botoesDePapel() {
-  return PAPEIS.map(function (p) {
-    return '<button class="papel" onclick="escolherPapelProvisorio(\'' + p.k + '\')">' +
-           '<span class="ic">' + p.ic + '</span>' +
-           '<span><b>' + esc(p.nome) + '</b><span>' + esc(p.resumo) + '</span></span></button>';
-  }).join('');
+function entrar(pessoa, origem) {
+  EU.id = pessoa.id;
+  EU.papel = pessoa.papel;
+  EU.email = pessoa.email || null;
+  EU.nome = pessoa.nome || (pessoa.email ? String(pessoa.email).split('@')[0] : 'sem nome');
+  EU.origem = origem;
+
+  if (origem === 'senha') sessaoGuardar(pessoa.id);
+
+  porId('porta').hidden = true;
+  porId('app').hidden = false;
+  porId('app').classList.toggle('sozinho', pessoa.papel === 'cliente');
+
+  const p = porChave(PAPEIS, pessoa.papel);
+  texto('quem-nome', EU.nome);
+  texto('quem-papel', p ? p.nome : pessoa.papel);
+
+  montarMenu();
+  irPara((PERMISSOES[pessoa.papel] || ['cliente'])[0]);
 }
+
+/* ---------------------------------------------------------------- primeiro dia */
+
+async function portaCriarPrimeiro() {
+  const nome = String((porId('portaNome') || {}).value || '').trim();
+  const email = String((porId('portaEmail') || {}).value || '').trim().toLowerCase();
+  const senha = String((porId('portaSenha') || {}).value || '');
+  const repete = String((porId('portaSenha2') || {}).value || '');
+
+  const erro = !nome ? 'Escreva o seu nome.'
+    : (!email || email.indexOf('@') < 0) ? 'Escreva um e-mail válido.'
+    : senha.length < 6 ? 'A senha precisa de pelo menos 6 caracteres.'
+    : senha !== repete ? 'As duas senhas não são iguais.'
+    : null;
+  if (erro) { escrever('portaErro', aviso('alerta', erro, 'Corrija e tente de novo.')); return; }
+
+  const id = 'p' + String(email).replace(/[^a-z0-9]/g, '').slice(0, 12) + '-' + email.length;
+  const pessoa = {
+    id: id, nome: nome, email: email, papel: 'gestor', ativo: true,
+    senha: await resumoSenha(senha, id),
+  };
+  if (!gravarPessoas([pessoa])) {
+    escrever('portaErro', aviso('alerta', 'Não consegui gravar no navegador.',
+      'O armazenamento pode estar cheio ou bloqueado. Sem gravar, o cadastro se perde ao fechar a aba.'));
+    return;
+  }
+  entrar(pessoa, 'senha');
+}
+
+function portaTelaPrimeiro(avisoTopo) {
+  pintarPorta(
+    'Ninguém usa este sistema <b>ainda</b>',
+    'Crie o seu acesso de gestor. Depois você cadastra o resto da equipe por dentro.',
+    (avisoTopo || '') +
+    '<div id="portaErro"></div>' +
+    '<label class="rotulo">Seu nome</label>' +
+    '<input class="campo" id="portaNome" autocomplete="name" placeholder="Como você aparece para a equipe">' +
+    '<label class="rotulo" style="margin-top:14px">Seu e-mail</label>' +
+    '<input class="campo" id="portaEmail" type="email" autocomplete="email" placeholder="o mesmo do login protegido, quando ele existir">' +
+    '<label class="rotulo" style="margin-top:14px">Senha</label>' +
+    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos 6 caracteres">' +
+    '<label class="rotulo" style="margin-top:14px">Repita a senha</label>' +
+    '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password">' +
+    '<button class="bt bt-marca" style="width:100%;justify-content:center;margin-top:18px" ' +
+      'onclick="portaCriarPrimeiro()">Criar meu acesso</button>' +
+    '<p class="dica" style="margin-top:16px;line-height:1.6">O e-mail importa: quando o login protegido da Cloudflare ' +
+      'estiver ligado, é por ele que o sistema vai reconhecer você, sem pedir senha de novo.</p>');
+
+  const campo = porId('portaNome');
+  if (campo) campo.focus();
+}
+
+/* ---------------------------------------------------------------- login */
+
+function portaEscolher(id) {
+  PORTA_ESCOLHIDA = id;
+  portaTelaLogin();
+  const campo = porId('portaSenhaLogin');
+  if (campo) campo.focus();
+}
+
+function portaVoltar() { PORTA_ESCOLHIDA = null; portaTelaLogin(); }
+
+async function portaConferir() {
+  const pessoa = acharPessoaPorId(PORTA_ESCOLHIDA);
+  if (!pessoa) { portaVoltar(); return; }
+  const senha = String((porId('portaSenhaLogin') || {}).value || '');
+
+  // Pessoa cadastrada por outra pessoa ainda nao tem senha: a primeira
+  // entrada dela e onde ela escolhe. Melhor que senha provisoria mandada
+  // por WhatsApp, que ninguem troca depois.
+  if (!pessoa.senha) {
+    if (senha.length < 6) {
+      escrever('portaErro', aviso('info', 'Esta é a sua primeira entrada.',
+        'Escolha uma senha de pelo menos 6 caracteres. Ela fica só neste navegador.'));
+      return;
+    }
+    pessoa.senha = await resumoSenha(senha, pessoa.id);
+    const lista = pessoas().map(function (x) { return x.id === pessoa.id ? pessoa : x; });
+    if (!gravarPessoas(lista)) {
+      escrever('portaErro', aviso('alerta', 'Não consegui gravar a senha.', 'Tente de novo.'));
+      return;
+    }
+    entrar(pessoa, 'senha');
+    return;
+  }
+
+  const resumo = await resumoSenha(senha, pessoa.id);
+  if (!resumoIgual(resumo, pessoa.senha)) {
+    escrever('portaErro', aviso('alerta', 'Senha errada.',
+      'Se você esqueceu, quem tem acesso de gestor redefine a sua senha em "A casa".'));
+    const campo = porId('portaSenhaLogin');
+    if (campo) { campo.value = ''; campo.focus(); }
+    return;
+  }
+  entrar(pessoa, 'senha');
+}
+
+function portaTelaLogin(avisoTopo) {
+  const lista = pessoas().filter(function (p) { return p.ativo !== false; });
+
+  if (!lista.length) { portaTelaPrimeiro(avisoTopo); return; }
+
+  if (!PORTA_ESCOLHIDA) {
+    pintarPorta('Quem está <b>entrando</b>?', 'Escolha o seu nome na lista.',
+      (avisoTopo || '') +
+      lista.map(function (p) {
+        const papel = porChave(PAPEIS, p.papel) || { nome: p.papel, ic: '·' };
+        return '<button class="papel" onclick="portaEscolher(\'' + esc(p.id) + '\')">' +
+          '<span class="ic">' + esc(papel.ic) + '</span>' +
+          '<span><b>' + esc(p.nome || p.email) + '</b>' +
+          '<span>' + esc(papel.nome) + (p.senha ? '' : ', primeira entrada') + '</span></span></button>';
+      }).join('') +
+      '<p class="dica" style="margin-top:16px;line-height:1.6">Não está na lista? Quem tem acesso de gestor ' +
+      'cadastra você em "A casa".</p>');
+    return;
+  }
+
+  const pessoa = acharPessoaPorId(PORTA_ESCOLHIDA);
+  if (!pessoa) { PORTA_ESCOLHIDA = null; portaTelaLogin(); return; }
+  const papel = porChave(PAPEIS, pessoa.papel) || { nome: pessoa.papel };
+
+  pintarPorta(
+    esc(String(pessoa.nome || pessoa.email).split(' ')[0]) + ', sua <b>senha</b>',
+    papel.nome + (pessoa.email ? ', ' + pessoa.email : ''),
+    '<div id="portaErro"></div>' +
+    '<input class="campo" id="portaSenhaLogin" type="password" autocomplete="current-password" ' +
+      'placeholder="' + (pessoa.senha ? 'sua senha' : 'escolha uma senha, é a sua primeira entrada') + '" ' +
+      'onkeydown="if(event.key===\'Enter\')portaConferir()">' +
+    '<button class="bt bt-marca" style="width:100%;justify-content:center;margin-top:14px" ' +
+      'onclick="portaConferir()">Entrar</button>' +
+    '<button class="bt bt-linha" style="width:100%;justify-content:center;margin-top:8px" ' +
+      'onclick="portaVoltar()">Não sou eu</button>');
+}
+
+/* ---------------------------------------------------------------- abertura */
 
 async function abrirPorta() {
   pintarPorta('Entrando no <b>sistema</b>', 'Conferindo o seu acesso.', '');
 
+  // 1. sessao ja aberta neste navegador
+  const sessao = sessaoLer();
+  if (sessao && sessao.pessoaId) {
+    const pessoa = acharPessoaPorId(sessao.pessoaId);
+    if (pessoa && pessoa.ativo !== false) { entrar(pessoa, 'senha'); return; }
+    sessaoApagar();
+  }
+
+  // 2. o Cloudflare Access ja disse quem e
   const r = await lerEu();
 
-  // Servidor identificou a pessoa.
   if (r.status === 200 && r.corpo && r.corpo.email) {
-    const u = acharUsuario(r.corpo.email);
-    if (u && u.papel) { entrar(u.papel, r.corpo.email, u.nome, 'access'); return; }
+    const alvo = String(r.corpo.email).toLowerCase();
+    const pessoa = pessoas().find(function (p) {
+      return String(p.email || '').toLowerCase() === alvo && p.ativo !== false;
+    });
+    if (pessoa) { entrar(pessoa, 'access'); return; }
 
-    // E-mail que passa no Access mas nao esta na lista NAO vira equipe por
+    // E-mail que passou no Access mas nao esta na lista NAO vira gestor por
     // descuido, e nao cai numa tela qualquer.
+    if (!pessoas().length) { portaTelaPrimeiro(); return; }
     pintarPorta(
       'Seu acesso ainda não foi <b>liberado</b>',
-      'Você entrou pelo login protegido, mas ainda não tem papel definido aqui dentro.',
+      'Você entrou pelo login protegido, mas ainda não tem cadastro aqui dentro.',
       aviso('info', esc(r.corpo.email),
-        'Peça para quem cuida do sistema abrir a tela "A casa" e definir o seu papel. ' +
-        'Passar pelo login não define sozinho o que você pode ver: essa parte é do sistema, não do Access.'));
+        'Peça para quem tem acesso de gestor abrir a tela "A casa" e cadastrar esse e-mail. ' +
+        'Passar pelo login não define sozinho o que você pode ver: essa parte é do sistema.'));
     return;
   }
 
-  // O Access ainda nao esta ligado no Worker.
+  // 3. login daqui
   if (r.status === 503) {
-    pintarPorta(
-      'O login protegido ainda não está <b>ligado</b>',
-      'Escolha o perfil para navegar. Isso é provisório e não protege nada.',
-      aviso('atencao', 'Enquanto o Cloudflare Access não estiver configurado, esta área fica aberta.',
-        'Qualquer pessoa com o endereço entra e escolhe um perfil, inclusive Equipe. ' +
-        'Não guarde informação de cliente aqui até o passo do Access estar feito: o caminho está no DEPLOY.md.') +
-      botoesDePapel());
+    portaTelaLogin(aviso('atencao', 'O login protegido da Cloudflare ainda não está ligado.',
+      'A senha abaixo diz ao sistema quem é você e o que você enxerga. Ela não protege o endereço: ' +
+      'quem souber a URL chega até esta tela. Enquanto o Access não existir, evite guardar aqui o que não pode vazar.'));
     return;
   }
 
-  // Sem servidor: arquivo aberto direto do computador, ou rede fora.
   if (r.status === 0) {
-    pintarPorta(
-      'Não consegui falar com o <b>servidor</b>',
-      'O sistema precisa do endereço publicado para saber quem é você.',
-      aviso('alerta', 'Se você abriu este arquivo direto do computador, ele não funciona assim.',
-        'Abra pelo endereço do site, em ideiaquevende.com.br/sistema/. ' +
-        'Se já estava nele, foi a rede que falhou: atualize a página.') +
-      botoesDePapel());
+    portaTelaLogin(aviso('alerta', 'Não consegui falar com o servidor.',
+      'Se você abriu este arquivo direto do computador, ele não funciona assim: use o endereço publicado. ' +
+      'Dá para entrar mesmo assim, mas as aplicações da landing não vão carregar.'));
     return;
   }
 
-  // 401 e o resto.
-  pintarPorta(
-    'Seu login <b>venceu</b>',
-    'O servidor não reconheceu a sua sessão.',
-    aviso('atencao', 'Recarregue a página para entrar de novo.',
-      'Se continuar aparecendo, saia do login protegido em /cdn-cgi/access/logout e entre outra vez.'));
+  portaTelaLogin(aviso('atencao', 'Seu login protegido venceu.',
+    'Recarregue a página para entrar pela Cloudflare de novo, ou entre por aqui.'));
 }
 
 abrirPorta();

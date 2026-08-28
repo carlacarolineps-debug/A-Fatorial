@@ -321,13 +321,13 @@ function projetosNomeFase(n) { return 'Fase 0' + n + ', ' + nomeFase(n); }
 /* ---------------------------------------------------------------------
    Quem vê o quê.
 
-   A Equipe vê todos e filtra por pessoa. O colaborador vê os projetos em
+   O gestor vê todos e filtra por pessoa. O colaborador vê os projetos em
    que é responsável, ou todos, conforme o escopo configurado em A casa,
    que fica guardado junto das permissões. Ele não amplia o próprio escopo
    daqui: se pudesse, o escopo não seria escopo.
    --------------------------------------------------------------------- */
 function projetosVeTudo() {
-  if (EU.papel === 'equipe') return true;
+  if (EU.papel === 'gestor') return true;
   const cfg = iqvLer(CHAVES.permissoes, null);
   return !!(cfg && cfg.escopo && cfg.escopo.colaboradorVeTudo);
 }
@@ -371,7 +371,7 @@ function projetosVerComoCliente(id) {
 function projetosLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   PROJETOS.recado = { titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a Equipe, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
   DESENHO.projetos();
   window.scrollTo(0, 0);
   return false;
@@ -506,7 +506,7 @@ function projetosHtmlFerramentas(quantos, total) {
   };
 
   let pessoa = '';
-  if (EU.papel === 'equipe') {
+  if (EU.papel === 'gestor') {
     const pessoas = projetosPessoas();
     pessoa = '<select class="campo campo-sm" style="flex:0 1 220px;width:auto" onchange="projetosFiltrarPessoa(this.value)">' +
       '<option value="todos"' + (PROJETOS.pessoa === 'todos' ? ' selected' : '') + '>Toda a equipe</option>' +
@@ -763,20 +763,20 @@ DESENHO.projetos = function () {
     escrever('projetos-ferramentas', '');
     escrever('projetos-corpo', meuId
       ? projetosHtmlNada('Nenhum projeto com você como responsável.',
-          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a Equipe, em A casa.')
+          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a gestão, em A casa.')
       : projetosHtmlNada('Não sei quais projetos são seus.',
-          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em A casa. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a Equipe cadastrar o seu e-mail em A casa.'));
+          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em A casa. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a gestão cadastrar o seu e-mail em A casa.'));
     return;
   }
 
   escrever('projetos-faixa', projetosHtmlFaixa(fichas));
-  escrever('projetos-carga', EU.papel === 'equipe' ? projetosHtmlCarga(fichas) : '');
+  escrever('projetos-carga', EU.papel === 'gestor' ? projetosHtmlCarga(fichas) : '');
 
   let vistas = fichas;
   if (PROJETOS.fase) vistas = vistas.filter(function (f) { return f.fase === PROJETOS.fase; });
-  if (EU.papel === 'equipe' && PROJETOS.pessoa === 'sem') {
+  if (EU.papel === 'gestor' && PROJETOS.pessoa === 'sem') {
     vistas = vistas.filter(function (f) { return !f.p.responsavelId || !projetosNomePessoa(f.p.responsavelId); });
-  } else if (EU.papel === 'equipe' && PROJETOS.pessoa !== 'todos') {
+  } else if (EU.papel === 'gestor' && PROJETOS.pessoa !== 'todos') {
     vistas = vistas.filter(function (f) { return String(f.p.responsavelId) === String(PROJETOS.pessoa); });
   }
   if (PROJETOS.mostrar === 'parados') vistas = vistas.filter(function (f) { return f.bola.dias > PROJETOS_PARADO; });

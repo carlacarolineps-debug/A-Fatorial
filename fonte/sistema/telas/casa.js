@@ -15,24 +15,45 @@ function casaGravarUsuarios(lista) {
   return false;
 }
 
-function casaPodeEditar() { return EU.papel === 'equipe'; }
+function casaPodeEditar() { return EU.papel === 'gestor'; }
 
 function casaLinhaPessoa(u, editavel) {
-  const souEu = EU.email && String(u.email || '').toLowerCase() === String(EU.email).toLowerCase();
+  const souEu = EU.id === u.id;
   return '<tr>' +
     '<td><b>' + esc(u.nome || 'sem nome') + '</b>' +
       (souEu ? ' <span class="eti eti-marca">você</span>' : '') + '</td>' +
     '<td style="font-size:12.5px;color:var(--tinta-2)">' + esc(u.email || '') + '</td>' +
-    '<td>' + (editavel
+    '<td>' + (u.senha
+      ? '<span class="eti eti-ok">senha criada</span>'
+      : '<span class="eti eti-atencao">escolhe na 1a entrada</span>') + '</td>' +
+    '<td>' + (editavel && !souEu
       ? '<select class="campo campo-sm" onchange="casaMudarPapel(\'' + esc(u.id) + '\', this.value)">' +
         PAPEIS.map(function (p) {
           return '<option value="' + p.k + '"' + (p.k === u.papel ? ' selected' : '') + '>' + esc(p.nome) + '</option>';
         }).join('') + '</select>'
       : '<span class="eti eti-neutra">' + esc((porChave(PAPEIS, u.papel) || {}).nome || u.papel) + '</span>') + '</td>' +
-    '<td style="text-align:right">' + (editavel && !souEu
-      ? '<button class="bt bt-linha bt-sm" onclick="casaRemover(\'' + esc(u.id) + '\')">Tirar da lista</button>'
+    '<td style="text-align:right;white-space:nowrap">' + (editavel
+      ? (u.senha ? '<button class="bt bt-linha bt-sm" onclick="casaZerarSenha(\'' + esc(u.id) + '\')">Zerar senha</button> ' : '') +
+        (souEu ? '' : '<button class="bt bt-linha bt-sm" onclick="casaRemover(\'' + esc(u.id) + '\')">Tirar</button>')
       : '') + '</td>' +
   '</tr>';
+}
+
+// Esquecer senha acontece. Sem isto, a pessoa fica de fora e a unica saida
+// seria apagar o cadastro dela, o que levaria junto o vinculo com os
+// projetos onde ela e responsavel.
+function casaZerarSenha(id) {
+  const lista = casaUsuarios();
+  const u = lista.find(function (x) { return x.id === id; });
+  if (!u) return;
+  const certeza = window.prompt(
+    'Zerar a senha de ' + (u.nome || u.email) + '.\n\n' +
+    'Na próxima entrada, essa pessoa escolhe uma senha nova. Você não fica sabendo qual é, ' +
+    'e ninguém consegue entrar no lugar dela antes disso, porque a lista mostra que a senha está zerada.\n\n' +
+    'Escreva ZERAR para continuar:');
+  if (String(certeza || '').trim().toUpperCase() !== 'ZERAR') return;
+  delete u.senha;
+  casaGravarUsuarios(lista);
 }
 
 function casaMudarPapel(id, papel) {
@@ -81,8 +102,8 @@ function casaAdicionar() {
 function casaAlternarTela(papel, tela) {
   if (!PERMISSOES[papel]) PERMISSOES[papel] = [];
   const i = PERMISSOES[papel].indexOf(tela);
-  // A Equipe nao pode se trancar para fora do configurador.
-  if (i >= 0 && papel === 'equipe' && tela === 'casa') return;
+  // O gestor nao pode se trancar para fora do configurador.
+  if (i >= 0 && papel === 'gestor' && tela === 'casa') return;
   if (i >= 0) PERMISSOES[papel].splice(i, 1); else PERMISSOES[papel].push(tela);
   salvarPermissoes();
   DESENHO.casa();
@@ -128,15 +149,17 @@ DESENHO.casa = function () {
 
   // 1. pessoas
   escrever('casaAvisoAccess', aviso('info',
-    'Quem abre e fecha a porta é o Cloudflare Access, não esta lista.',
-    'Tirar alguém daqui não tira o acesso dela ao endereço: ela continua entrando e passa a ver um aviso, sem tela nenhuma. ' +
-    'O desligamento de verdade é remover a pessoa da aplicação "sistema" no painel da Cloudflare. ' +
-    'E o Access não sabe o que é Equipe, Colaborador ou Cliente: essa parte é do sistema, e é decidida aqui.'));
+    'São duas portas, e elas fazem coisas diferentes.',
+    'Esta lista decide QUEM é cada pessoa aqui dentro e o que ela enxerga. Quem cadastra não escolhe a senha: ' +
+    'a pessoa escolhe a dela na primeira entrada, e se esquecer, você zera aqui e ela escolhe outra. ' +
+    'Já o Cloudflare Access decide quem chega até o endereço, e é ele que protege de verdade. ' +
+    'Por isso tirar alguém desta lista não tira o acesso dela ao site: isso se faz no painel da Cloudflare. ' +
+    'E o Access não sabe o que é Gestor, Colaborador ou Cliente: essa parte é daqui.'));
 
   escrever('casaPessoas', lista.length
     ? lista.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
     : vazio('Só existe você aqui. Cadastre quem vai usar antes de distribuir o endereço: ' +
-            'quem passa pelo Access e não está nesta lista entra sem tela nenhuma e vê um aviso pedindo para falar com você.', 4));
+            'quem passa pelo Access e não está nesta lista entra sem tela nenhuma e vê um aviso pedindo para falar com você.', 5));
 
   escrever('casaNova', editavel
     ? '<input class="campo campo-sm" id="casaNome" placeholder="Nome" style="flex:1;min-width:150px">' +
@@ -156,7 +179,7 @@ DESENHO.casa = function () {
         '<p class="dica" style="margin:4px 0 12px">' + esc(p.resumo) + '</p>' +
         TELAS.map(function (t) {
           const marcada = (PERMISSOES[p.k] || []).indexOf(t.k) >= 0;
-          const travada = (p.k === 'equipe' && t.k === 'casa');
+          const travada = (p.k === 'gestor' && t.k === 'casa');
           return '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;color:' +
             (marcada ? 'var(--tinta)' : 'var(--tinta-4)') + '">' +
             '<input type="checkbox"' + (marcada ? ' checked' : '') +

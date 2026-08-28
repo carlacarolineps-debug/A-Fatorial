@@ -684,7 +684,7 @@ function semanaTrocarPessoa(v) { SEMANA.pessoa = String(v || 'eu'); SEMANA.recad
 function semanaLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   SEMANA.recado = { tom: 'atencao', titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a Equipe, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
   DESENHO.semana();
   window.scrollTo(0, 0);
   return false;
@@ -765,7 +765,7 @@ function semanaColher(projetoId, campo, valor) {
 function semanaSeletor(d) {
   // O seletor de pessoa é da Equipe. Colaborador vê a própria semana, e
   // trocar de pessoa ali seria enxergar a mesa de quem não é dele.
-  if (EU.papel !== 'equipe') return '';
+  if (EU.papel !== 'gestor') return '';
   const pessoas = semanaPessoas();
   const opcoes = [{ k: 'eu', nome: 'Você' }]
     .concat(pessoas.filter(function (u) { return String(u.id) !== String(semanaMeuId()); })
@@ -790,7 +790,7 @@ function semanaRecados(d) {
   if (d.alvo.semFicha) {
     html += aviso('info', 'Nenhuma pessoa deste sistema está com o seu e-mail.',
       'A semana separa o que é seu pelo responsável de cada entrega, e sem uma pessoa com o e-mail ' + esc(EU.email || 'que você usou para entrar') +
-      ' não dá para saber quais são as suas. Por enquanto você está vendo a casa inteira. Quem cria pessoa e escreve o e-mail é a Equipe, em A casa.');
+      ' não dá para saber quais são as suas. Por enquanto você está vendo a casa inteira. Quem cria pessoa e escreve o e-mail é a gestão, em A casa.');
   }
   if (d.orfas) {
     html += aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',

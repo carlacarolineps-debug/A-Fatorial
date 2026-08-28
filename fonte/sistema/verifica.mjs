@@ -1,10 +1,3 @@
-// Confere o sistema num navegador de verdade: as nove telas, os tres
-// papeis, e a regra de nunca encostar nas chaves do outro negocio.
-//
-// Precisa do site rodando em localhost:8787 (npx wrangler dev) e do
-// playwright instalado. Nao entra no npm test porque depende de navegador,
-// e o npm test roda em clone novo sem preparo nenhum.
-//
 // Abre o sistema novo num navegador e passa por todas as telas, com os
 // tres papeis. O Access nao esta ligado, entao a porta oferece a escolha
 // provisoria de papel, e e por ela que entramos.
@@ -32,17 +25,28 @@ await pg.goto(`${B}/sistema/`, { waitUntil: "networkidle" });
 
 // 1. A porta, com o Access desligado
 const porta = await pg.textContent("#porta");
-t("a porta diz que o login protegido não está ligado", /não está ligado/.test(porta));
-t("a porta avisa que a área está aberta", /qualquer pessoa com o endereço/i.test(porta));
-t("a porta oferece os três papéis", (await pg.locator(".papel").count()) === 3);
+t("a porta avisa que o login protegido não está ligado", /não está ligado/.test(porta));
+t("a porta diz que a senha identifica mas não protege", /não protege o endereço/.test(porta));
 await pg.screenshot({ path: `${S}/sis-0-porta.png` });
 
-// 2. Entrar como equipe e passar por todas as telas
-await pg.evaluate(() => escolherPapelProvisorio("equipe"));
-await pg.waitForTimeout(400);
+// 2. Semear as tres pessoas e entrar como gestor
+await pg.evaluate(async () => {
+  const fazer = async (id, nome, email, papel, senha) => ({
+    id, nome, email, papel, ativo: true, senha: await resumoSenha(senha, id),
+  });
+  const lista = [
+    await fazer("pg", "Carla Caroline", "carla@iqv.com.br", "gestor", "segredo123"),
+    await fazer("pc", "Beatriz", "bia@iqv.com.br", "colaborador", "segredo123"),
+    await fazer("pk", "Marina Alves", "marina@cliente.com", "cliente", "segredo123"),
+  ];
+  gravarPessoas(lista);
+  sessaoGuardar("pg");
+});
+await pg.reload({ waitUntil: "networkidle" });
+await pg.waitForTimeout(700);
 
 const telas = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x) => x.k));
-t("a equipe enxerga as nove telas", telas.length === 9, telas.join(", "));
+t("o gestor enxerga as nove telas", telas.length === 9, telas.join(", "));
 
 for (const k of telas) {
   const antes = erros.length;
@@ -78,19 +82,17 @@ for (const k of telas) {
 }
 
 // 4. Colaborador ve menos, cliente ve uma so
-await pg.evaluate(() => { sair(); });
-await pg.waitForTimeout(500);
-await pg.evaluate(() => escolherPapelProvisorio("colaborador"));
-await pg.waitForTimeout(400);
+await pg.evaluate(() => { sessaoGuardar("pc"); });
+await pg.reload({ waitUntil: "networkidle" });
+await pg.waitForTimeout(700);
 const doColab = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x) => x.k));
 t("colaborador não vê o dinheiro", !doColab.includes("dinheiro"), doColab.join(", "));
 t("colaborador não vê A casa", !doColab.includes("casa"));
 t("colaborador vê a mesa e as entregas", doColab.includes("ideias") && doColab.includes("entrega"));
 
-await pg.evaluate(() => { sair(); });
-await pg.waitForTimeout(500);
-await pg.evaluate(() => escolherPapelProvisorio("cliente"));
-await pg.waitForTimeout(400);
+await pg.evaluate(() => { sessaoGuardar("pk"); });
+await pg.reload({ waitUntil: "networkidle" });
+await pg.waitForTimeout(700);
 const doCliente = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x) => x.k));
 t("cliente vê uma tela só, o próprio projeto", doCliente.length === 1 && doCliente[0] === "cliente", doCliente.join(", "));
 t("cliente entra sem barra lateral", await pg.evaluate(() => document.getElementById("app").classList.contains("sozinho")));
@@ -111,17 +113,20 @@ t("citar o nome dele é permitido: A casa precisa explicar as chaves af_",
 
 // 6. Comportamento, e nao texto: com uma chave af_ plantada no navegador,
 // o sistema nao pode LER o valor dela em tela nenhuma.
+// planta o residuo e volta para o gestor ANTES de instrumentar, porque a
+// recarga apagaria o espiao junto com o resto da pagina
 await pg.evaluate(() => {
   localStorage.setItem("af_usuarios", JSON.stringify([{ nome: "Equipe do outro negocio" }]));
   localStorage.setItem("af_fin", JSON.stringify({ saldo: 999999 }));
+  sessaoGuardar("pg");
+});
+await pg.reload({ waitUntil: "networkidle" });
+await pg.waitForTimeout(700);
+await pg.evaluate(() => {
   window.__lidas = [];
   const original = Storage.prototype.getItem;
   Storage.prototype.getItem = function (k) { window.__lidas.push(k); return original.call(this, k); };
 });
-await pg.evaluate(() => { sair(); });
-await pg.waitForTimeout(400);
-await pg.evaluate(() => escolherPapelProvisorio("equipe"));
-await pg.waitForTimeout(400);
 for (const k of ["semana", "ideias", "leitura", "projetos", "entrega", "roteiros", "dinheiro", "cliente", "casa"]) {
   await pg.evaluate((kk) => irPara(kk), k);
   await pg.waitForTimeout(180);

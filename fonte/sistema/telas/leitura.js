@@ -145,7 +145,7 @@ function leituraSalvar(l) {
   return true;
 }
 
-// Os niveis com o valor que a Equipe editou em Roteiros e niveis. Nivel
+// Os niveis com o valor que a gestao editou em Roteiros e niveis. Nivel
 // salvo por la pode ter vindo sem escopo, e sem escopo a conta de
 // cobertura mentiria dizendo que o nivel nao cobre nada.
 function leituraNiveis() {
@@ -442,7 +442,7 @@ function leituraHtmlNumeros() {
   n.push({ v: r.esperando, l: 'Aplicações sem leitura',
     obs: r.esperaMaisAntiga === null ? 'Nenhuma esperando agora.' : 'A mais antiga chegou ' + leituraDias(r.esperaMaisAntiga) + '.' });
   n.push({ v: r.preparando, l: 'Preparadas, sem assinatura',
-    obs: EU.papel === 'equipe' ? 'Esperando a sua assinatura.' : 'Só a equipe assina.' });
+    obs: EU.papel === 'gestor' ? 'Esperando a sua assinatura.' : 'Só a gestão assina.' });
   n.push({ v: r.semDevolutiva, l: 'Assinadas, sem devolutiva', puxa: r.semDevolutiva > 0,
     obs: 'Continuam na fila de Minha semana.' });
   n.push({ v: r.aguardando, l: 'Esperando a resposta da pessoa',
@@ -648,7 +648,7 @@ function leituraHtmlLeitura(lead) {
   const dono = '<p class="dica" style="margin-top:16px;border-top:1px solid var(--linha);padding-top:12px">' +
     (l.assinadaEm
       ? 'Preparada por ' + esc(l.preparadaPor || 'sem nome') + ' e assinada por ' + esc(l.assinadaPor || 'sem nome') + ', ' + esc(dataLonga(l.assinadaEm)) + '.'
-      : 'Sendo preparada por ' + esc(l.preparadaPor || leituraQuemSou()) + '. Só a equipe assina.') + '</p>';
+      : 'Sendo preparada por ' + esc(l.preparadaPor || leituraQuemSou()) + '. Só a gestão assina.') + '</p>';
 
   return '<div class="cartao" style="margin:0">' +
     '<div class="cartao-t">A leitura' + (travada ? '<span style="margin-left:auto"><span class="eti eti-ok">Assinada</span></span>' : '') + '</div>' +
@@ -695,7 +695,7 @@ function leituraHtmlVeredito(lead) {
   const assinada = !!l.assinadaEm;
   const revendo = Number(LEITURA_REVENDO) === Number(lead.id);
   const travada = assinada && !revendo;
-  const equipe = EU.papel === 'equipe';
+  const equipe = EU.papel === 'gestor';
 
   let portas = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
     LEITURA_VEREDITOS.map(function (v) {
@@ -881,7 +881,7 @@ function leituraHtmlProjeto(lead) {
       '</div>';
   }
 
-  if (EU.papel !== 'equipe') {
+  if (EU.papel !== 'gestor') {
     return '<div class="cartao">' +
       '<div class="cartao-t">O projeto</div>' +
       aviso('info', 'Quem abre o projeto é a equipe.',
@@ -1143,7 +1143,7 @@ async function leituraAssinar() {
   if (!lead) return;
   const l = leituraGarantir(lead.id);
 
-  if (EU.papel !== 'equipe') {
+  if (EU.papel !== 'gestor') {
     LEITURA_RECADO = { tom: 'info', titulo: 'Quem assina é a equipe.',
       texto: 'A leitura que você preparou já está guardada e aparece para a equipe como preparada.' };
     leituraPintar(); return;
@@ -1290,7 +1290,7 @@ async function leituraCriarProjeto() {
   if (!lead) return;
   const l = leituraGarantir(lead.id);
 
-  if (EU.papel !== 'equipe') {
+  if (EU.papel !== 'gestor') {
     LEITURA_RECADO = { tom: 'info', titulo: 'Quem abre o projeto é a equipe.', texto: 'Aqui entram valor contratado e data prometida.' };
     leituraPintar(); return;
   }

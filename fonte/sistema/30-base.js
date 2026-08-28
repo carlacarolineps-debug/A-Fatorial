@@ -276,13 +276,13 @@ const GRUPOS = ['A mesa', 'Meu trabalho', 'O método', 'O cliente', 'A casa'];
    acesso padrao uma vez so. Depois disso, desmarcar em "A casa" vale.
    --------------------------------------------------------------------- */
 const PERMISSOES_DEFAULT = {
-  equipe:      ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
+  gestor:      ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
   colaborador: ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'cliente'],
   cliente:     ['cliente'],
 };
 
 const PAPEIS = [
-  { k: 'equipe',      nome: 'Equipe',      ic: '✦', resumo: 'Vê tudo, assina veredito e lança recebimento.' },
+  { k: 'gestor',      nome: 'Gestor',      ic: '✦', resumo: 'Vê tudo, assina veredito e lança recebimento.' },
   { k: 'colaborador', nome: 'Colaborador', ic: '✎', resumo: 'Prepara leitura e escreve as entregas dos projetos dele.' },
   { k: 'cliente',     nome: 'Cliente',     ic: '◐', resumo: 'Acompanha o próprio projeto.' },
 ];
@@ -296,7 +296,7 @@ const TELAS_NOVAS = [];
 (function carregarPermissoes() {
   const salvo = iqvLer(CHAVES.permissoes, null);
   if (salvo && salvo.perm) PERMISSOES = salvo.perm;
-  const todas = PERMISSOES_DEFAULT.equipe.slice();
+  const todas = PERMISSOES_DEFAULT.gestor.slice();
   TELAS_VISTAS = (salvo && Array.isArray(salvo.vistas)) ? salvo.vistas
     : salvo ? todas.filter(function (t) { return TELAS_NOVAS.indexOf(t) < 0; })
     : todas.slice();
@@ -313,9 +313,9 @@ const TELAS_NOVAS = [];
     apresentou = true;
   });
 
-  // a Equipe nunca pode perder "A casa": e onde os acessos se configuram
-  if (!PERMISSOES.equipe) PERMISSOES.equipe = PERMISSOES_DEFAULT.equipe.slice();
-  if (PERMISSOES.equipe.indexOf('casa') < 0) PERMISSOES.equipe.push('casa');
+  // o gestor nunca pode perder "A casa": e onde os acessos se configuram
+  if (!PERMISSOES.gestor) PERMISSOES.gestor = PERMISSOES_DEFAULT.gestor.slice();
+  if (PERMISSOES.gestor.indexOf('casa') < 0) PERMISSOES.gestor.push('casa');
 
   if (apresentou) salvarPermissoes();
 })();
@@ -327,28 +327,87 @@ function salvarPermissoes() {
 /* ---------------------------------------------------------------------
    6. Quem e a pessoa.
 
-   Quem autentica e o Cloudflare Access, e quem diz o e-mail autenticado e
-   a rota /eu do servidor, porque uma pagina estatica nao enxerga os
-   proprios cabecalhos. O papel vem de iqv_usuarios, casando por e-mail.
+   Sao duas portas, e elas se somam em vez de competir:
 
-   Duas consequencias que "A casa" escreve por extenso: tirar alguem de
-   iqv_usuarios NAO tira o acesso dela (isso e no painel do Access), e o
-   Access nao sabe o que e Equipe ou Colaborador, essa parte e do sistema.
+   O CLOUDFLARE ACCESS decide quem chega ate aqui. Ele e quem protege o
+   endereco, e a rota /eu do servidor diz qual e-mail ele autenticou (uma
+   pagina estatica nao enxerga os proprios cabecalhos).
+
+   O LOGIN DAQUI decide QUEM da casa esta usando, e o que essa pessoa ve.
+   Cada pessoa tem o proprio cadastro e a propria senha. Enquanto o Access
+   nao existir, e esta porta que separa os papeis, e a tela diz isso com
+   todas as letras: ela identifica, nao protege. Depois do Access, quem ja
+   entrou pelo e-mail nem ve tela de senha.
+
+   Duas consequencias que "A casa" escreve por extenso: tirar alguem da
+   lista NAO tira o acesso dela ao endereco (isso e no painel do Access), e
+   o Access nao sabe o que e Gestor ou Colaborador, essa parte e do sistema.
    --------------------------------------------------------------------- */
 const EU = {
+  id: null,
   email: null,
   nome: null,
   papel: null,
-  // 'access' quando o servidor identificou, 'provisorio' quando o Access
-  // ainda nao esta ligado e a pessoa escolheu o papel na mao
+  // 'access'  o servidor autenticou pelo Cloudflare Access
+  // 'senha'   a pessoa entrou pelo login deste sistema
   origem: null,
   pode: function (tela) {
     if (!this.papel) return false;
     return (PERMISSOES[this.papel] || []).indexOf(tela) >= 0;
   },
+  ehGestor: function () { return this.papel === 'gestor'; },
 };
 
-function usuarios() { return iqvLer(CHAVES.usuarios, []); }
+/* ---------------------------------------------------------------------
+   Senha.
+
+   Guardar senha em texto puro num arquivo que qualquer um baixa seria
+   pior que nao ter senha: as pessoas repetem senha entre servicos, e a
+   daqui viraria a de outro lugar. O que fica guardado e o resumo
+   SHA-256 de senha + id, entao duas pessoas com a mesma senha guardam
+   coisas diferentes e ninguem le a senha de ninguem abrindo o arquivo.
+
+   Isto NAO transforma o sistema em cofre. Quem baixa o HTML enxerga a
+   lista de pessoas e pode tentar senha a vontade, sem ninguem barrando.
+   Quem protege o endereco e o Cloudflare Access. Esta senha separa
+   pessoas, e a porta diz isso por escrito.
+   --------------------------------------------------------------------- */
+async function resumoSenha(senha, id) {
+  const bytes = new TextEncoder().encode(String(senha) + ':' + String(id));
+  const digestao = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digestao))
+    .map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+// Comparacao de tempo constante: === vaza o tamanho do acerto por timing.
+function resumoIgual(a, b) {
+  const x = String(a || ''), y = String(b || '');
+  let dif = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    dif |= (x.charCodeAt(i) || 0) ^ (y.charCodeAt(i) || 0);
+  }
+  return dif === 0;
+}
+
+/* ---------------------------------------------------------------------
+   A sessao. Fica no navegador para nao pedir senha a cada aba, e sai no
+   "Sair". Guarda so o id: papel e nome vem da lista, entao mudar o papel
+   de alguem vale na proxima tela que ela abrir, e nao so no proximo login.
+   --------------------------------------------------------------------- */
+const CHAVE_SESSAO = 'iqv_sessao';
+
+function sessaoGuardar(id) { iqvGravar(CHAVE_SESSAO, { pessoaId: id }); }
+function sessaoLer() { return iqvLer(CHAVE_SESSAO, null); }
+function sessaoApagar() { try { localStorage.removeItem(CHAVE_SESSAO); } catch (e) {} }
+
+function pessoas() { return iqvLer(CHAVES.usuarios, []); }
+function gravarPessoas(lista) { return iqvGravar(CHAVES.usuarios, lista); }
+function acharPessoaPorId(id) {
+  return pessoas().find(function (p) { return p.id === id; }) || null;
+}
+
+// mantido porque as telas ja chamam assim
+function usuarios() { return pessoas(); }
 
 function acharUsuario(email) {
   const alvo = String(email || '').trim().toLowerCase();
@@ -431,9 +490,12 @@ function alternarMenu() {
 }
 
 function sair() {
-  // O Access e quem guarda a sessao de verdade. Sair daqui volta para a
-  // porta; encerrar o Access e no /cdn-cgi/access/logout.
-  EU.email = null; EU.papel = null; EU.origem = null;
+  // Sair daqui fecha a sessao DESTE sistema. O Cloudflare Access continua
+  // com voce logado no endereco: encerrar aquilo e em /cdn-cgi/access/logout,
+  // e a porta diz isso para ninguem achar que saiu e nao ter saido.
+  sessaoApagar();
+  EU.id = null; EU.email = null; EU.nome = null; EU.papel = null; EU.origem = null;
+  PORTA_ESCOLHIDA = null;
   porId('app').hidden = true;
   porId('porta').hidden = false;
   abrirPorta();

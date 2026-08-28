@@ -51,8 +51,14 @@ Peças: `esc()`, `data()`, `dataCurta()`, `dataLonga()`, `diasDesde()`,
 Armazenamento: `iqvLer(chave, padrao)`, `iqvGravar(chave, valor)`,
 `CHAVES.*`, `iqvOcupacao()`.
 
-Quem é a pessoa: `EU.papel`, `EU.email`, `EU.nome`, `EU.origem`,
-`EU.pode(tela)`.
+Quem é a pessoa: `EU.id`, `EU.papel`, `EU.email`, `EU.nome`,
+`EU.origem`, `EU.pode(tela)`, `EU.ehGestor()`.
+
+Os papéis são `'gestor'`, `'colaborador'` e `'cliente'`.
+
+Pessoas e sessão: `pessoas()`, `gravarPessoas(lista)`,
+`acharPessoaPorId(id)`, `resumoSenha(senha, id)`, `resumoIgual(a, b)`,
+`sessaoGuardar(id)`, `sessaoLer()`, `sessaoApagar()`.
 
 Classes de CSS: `.abertura`, `.selo`, `.cartao`, `.cartao-t`,
 `.numeros`, `.numero`, `.numero.puxa`, `table.lista`, `.eti` com
@@ -134,11 +140,23 @@ daquele contrato, e não uma consulta ao nível feita na hora de desenhar.
 ### `iqv_usuarios`
 
 ```js
-{ id:'u1', nome:'Carla Caroline', email:'carla@...', papel:'equipe', ativo:true }
+{ id:'u1', nome:'Carla Caroline', email:'carla@...', papel:'gestor',
+  ativo:true, senha:'<resumo sha-256 de senha + id>' }
 ```
 
-O `papel` é `'equipe'`, `'colaborador'` ou `'cliente'`. Quem entra é
-decidido pelo Cloudflare Access, pelo e-mail; o papel é daqui.
+O `papel` é `'gestor'`, `'colaborador'` ou `'cliente'`.
+
+**São duas portas, e elas fazem coisas diferentes.** O Cloudflare Access
+decide quem chega até o endereço, e é ele que protege. Esta lista decide
+quem é a pessoa aqui dentro e o que ela enxerga.
+
+A senha nunca é guardada em texto: fica o resumo SHA-256 de senha mais id,
+então duas pessoas com a mesma senha guardam coisas diferentes. Isso não
+faz do sistema um cofre, e a porta diz isso por escrito: quem baixa o HTML
+vê a lista de pessoas e pode tentar senha à vontade.
+
+Quem cadastra **não escolhe a senha de ninguém**: a pessoa escolhe a dela
+na primeira entrada. Esquecer é normal, e o gestor zera em "A casa".
 
 ## As aplicações, que vêm do servidor
 
