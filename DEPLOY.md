@@ -259,58 +259,101 @@ que descobrisse o endereço encheria a sua mesa de lead falso.
 
 ---
 
-## 5. Trancar o /sistema com o Cloudflare Access
+## 5. Trancar o sistema com o Cloudflare Access
 
 Isso põe uma tela de login na frente do sistema sem escrever uma linha de
 código de autenticação.
 
-1. No menu da esquerda: **Zero Trust** (abre em outra aba)
-2. Se for a primeira vez, ele pede para escolher um **team name**. Escolha
-   (ex.: `grupoa`) e pegue o plano **Free**, que cobre até 50 pessoas.
-3. **Access** → **Applications** → **Add an application** → **Self-hosted**
-4. Preencha:
+**UMA aplicação só, com três caminhos dentro dela.** Isso não é detalhe de
+gosto: cada aplicação do Access tem uma etiqueta própria, o AUD, e o
+Worker confere **um** AUD. Se `/sistema` e `/leads` estiverem em
+aplicações separadas, o login funciona, o sistema abre, e as rotas de
+dados respondem 401 para sempre, sem explicação óbvia na tela.
 
-   | Campo             | Valor                    |
-   |-------------------|--------------------------|
-   | Application name  | Sistema                  |
-   | Subdomain         | *(vazio)*                |
-   | Domain            | `seudominio.com.br`      |
-   | Path              | `sistema`                |
+### 5a. Criar o time, se ainda não existir
 
-5. **Next** → crie uma policy:
+1. No menu da esquerda do painel: **Zero Trust** (abre em outra aba)
+2. Na primeira vez ele pede um **team name**. Escolha (por exemplo
+   `grupoa`) e pegue o plano **Free**, que cobre até 50 pessoas.
 
-   | Campo    | Valor                                  |
-   |----------|----------------------------------------|
-   | Name     | Equipe                                 |
-   | Action   | Allow                                  |
-   | Include  | **Emails** → liste os e-mails da equipe|
+O nome que você escolher vira o endereço do time,
+`<nome>.cloudflareaccess.com`, e é um dos dois valores que eu preciso no
+fim.
+
+### 5b. A aplicação
+
+1. **Access** → **Applications** → **Add an application** → **Self-hosted**
+2. **Application name:** `Ideia Que Vende`
+3. No endereço público, preencha:
+
+   | Subdomain | Domain                 | Path      |
+   |-----------|------------------------|-----------|
+   | *(vazio)* | `ideiaquevende.com.br` | `sistema` |
+
+4. Procure **Add public hostname** (ou "Add domain", conforme a versão da
+   tela) e acrescente **mais dois**, no mesmo formato:
+
+   | Subdomain | Domain                 | Path    |
+   |-----------|------------------------|---------|
+   | *(vazio)* | `ideiaquevende.com.br` | `leads` |
+   | *(vazio)* | `ideiaquevende.com.br` | `eu`    |
+
+   O `/leads` traz as aplicações do Typeform e o `/eu` diz quem entrou.
+   Os dois são chamados pelo próprio sistema, por dentro. Se ficarem de
+   fora, o sistema abre e não consegue ler nada.
+
+   **Não inclua `/typeform`.** Essa rota é o Typeform batendo na porta, e
+   ele não tem como fazer login: ela se protege sozinha pela assinatura
+   com o segredo. Se cair dentro do Access, o lead para de chegar.
+
+5. **Next**, e crie a política:
+
+   | Campo   | Valor                                    |
+   |---------|------------------------------------------|
+   | Name    | `Equipe`                                 |
+   | Action  | `Allow`                                  |
+   | Include | **Emails** e a lista de e-mails da equipe |
+
+   Comece só com o seu e-mail. Acrescentar gente depois é uma linha nessa
+   mesma política.
 
 6. **Next** → **Add application**
 
-Repita o mesmo para a rota de dados, senão o `/leads` fica aberto:
+### 5c. Os dois valores que eu preciso
 
-7. **Add an application** → **Self-hosted** → name `Leads`,
-   domain `seudominio.com.br`, path `leads`, mesma policy.
-
-### Pegue os dois valores que faltam
-
-Ainda em **Access** → **Applications** → clique em **Sistema** → aba
+**Access** → **Applications** → clique em **Ideia Que Vende** → aba
 **Overview**. Copie:
 
-- o **team domain** (algo como `grupoa.cloudflareaccess.com`)
-- a **Application Audience (AUD) Tag** (um hexadecimal comprido)
+- o **team domain**, algo como `grupoa.cloudflareaccess.com`
+- a **Application Audience (AUD) Tag**, um hexadecimal comprido
 
-Me mande os dois. Eles entram no `wrangler.toml` e destrancam o `/leads`.
-Enquanto estiverem vazios, o `/leads` responde:
+**Me mande os dois aqui.** Eles entram no `wrangler.toml`, e não no
+painel: as variáveis de texto do painel são sobrescritas pelo arquivo a
+cada publicação, então preencher lá some sozinho no dia seguinte.
+
+Nenhum dos dois é segredo: o AUD identifica a aplicação, não autoriza
+ninguém.
+
+Enquanto estiverem vazios, as rotas respondem:
 
     {"erro":"falta configurar no Worker: TEAM_DOMAIN, ACCESS_AUD"}
 
-Isso é de propósito: sem eles não dá para conferir quem está entrando, e
+Isso é de propósito. Sem eles não dá para conferir quem está entrando, e
 deixar passar seria pior que fechar.
 
-> Por que o AUD também: o mesmo Zero Trust assina o crachá de **todas** as
-> aplicações da conta, e você tem outro projeto nela. Sem conferir o AUD,
-> quem tem acesso a qualquer outra aplicação do time leria os leads daqui.
+> **Por que conferir o AUD, e não só a assinatura.** O mesmo Zero Trust
+> assina o crachá de **todas** as aplicações da conta, e existe outro
+> projeto nela. Sem conferir o AUD, quem tem acesso a qualquer outra
+> aplicação do time leria os leads daqui.
+
+### 5d. Conferir que pegou
+
+Abra `https://ideiaquevende.com.br/sistema/` numa janela anônima. Tem que
+aparecer a tela de login do Cloudflare, e não o sistema.
+
+Depois que eu preencher os dois valores e publicar, a porta do sistema
+para de oferecer a escolha de perfil e passa a reconhecer você pelo
+e-mail do login.
 
 ---
 
