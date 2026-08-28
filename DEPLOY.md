@@ -10,48 +10,41 @@ Não existe passo de build: o site é HTML pronto.
 
 ---
 
-## Onde estamos (26/08/2026)
+## Onde estamos (28/08/2026)
 
 Este bloco é o resumo para quem chegar agora. O resto do arquivo é o passo
 a passo completo.
 
-**Pronto e verificado:**
+**No ar e conferido:**
 
-- Worker **`a-fatorial`** publicado na conta, servindo o código deste
-  repositório. Conferido lendo o script publicado, não por suposição.
-- Worker de teste `proud-haze-d805` apagado.
-- Banco D1 **`ideia-que-vende`** criado, com as tabelas `leads` e
-  `webhook_log`. Zerado: nenhuma resposta chegou ainda.
-- Domínio `ideiaquevende.com.br` na conta Cloudflare, nameservers já
-  trocados no Registro.br, **aguardando propagação**.
-- Tela **Leads da landing** feita dentro do sistema: lê o `/leads`, mostra
-  o que a pessoa respondeu e deixa marcar o andamento e anotar. Conferida
-  num navegador de verdade, inclusive nos estados de erro.
-- `npm test` passa nas 41 verificações, e num clone novo, sem preparo.
+- Worker **`ideia-que-vende`** publicado, com o domínio
+  `ideiaquevende.com.br` ligado nele e o banco D1 conectado (binding `DB`).
+- **A landing está no ar**, com o botão "Entrar no sistema" no rodapé.
+- A branch de publicação foi corrigida hoje: estava apontando para a `main`,
+  que só tem o sistema de outro negócio. Leia a seção seguinte, é a
+  armadilha que custou um dia.
+- **"Builds for non-production branches" desmarcado**, então nenhuma outra
+  conversa consegue publicar neste domínio.
+- Banco D1 **`ideia-que-vende`** com as tabelas `leads` e `webhook_log`,
+  ainda zerado: nenhuma resposta chegou.
+- `npm test` passa nas 47 verificações, num clone novo, sem preparo.
+
+**Pronto, mas ainda não publicado:**
+
+- O sistema de gestão próprio, **nove telas**, feito a partir do método da
+  landing. Conferido num navegador de verdade, 34 verificações.
+- Ele **não entra no ar antes do Cloudflare Access**. Sem login, qualquer
+  um com o endereço entra, e foi assim que o sistema do outro negócio
+  ficou exposto em 26/08. Enquanto isso, o `/sistema/` mostra uma página
+  dizendo que a área está sendo preparada.
 
 **Falta, em ordem:**
 
-1. Esperar a zona virar **Active** na Cloudflare.
-2. Conferir que o domínio está no Worker `a-fatorial`
-   (*Settings → Domains & Routes*) e acrescentar o `www`.
-3. Desligar o endereço `.workers.dev` depois que o domínio abrir.
-4. Guardar o `TYPEFORM_WEBHOOK_SECRET` e criar o webhook no Typeform.
-5. Criar as duas aplicações do Access (`sistema` e `leads`).
-6. Preencher `TEAM_DOMAIN` e `ACCESS_AUD` no `wrangler.toml`.
-
-Os sete passos viraram seis: a tela de leads já está feita. Enquanto o
-passo 6 não estiver pronto, ela abre e explica na tela que o servidor
-ainda não está configurado, em vez de aparecer vazia sem motivo.
-
-**Teste rápido do que já funciona.** Abra `https://ideiaquevende.com.br/leads`.
-Resposta esperada enquanto o passo 6 não estiver feito:
-
-```json
-{"erro":"falta configurar no Worker: TEAM_DOMAIN, ACCESS_AUD"}
-```
-
-Ver isso significa que domínio, Worker e código estão de pé. Se pedir
-login antes, o Access também já está.
+1. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
+2. Ligar o Typeform: campo oculto, webhook e segredo (seção 4).
+3. Criar as duas aplicações do Access e preencher `TEAM_DOMAIN` e
+   `ACCESS_AUD` (seção 5).
+4. Publicar o sistema, depois do passo 3.
 
 ---
 
@@ -90,7 +83,14 @@ e confira esses dois campos.
 
 ## Sobre o nome do Worker
 
-O Worker se chama **a-fatorial** no painel, batizado pelo nome do
+O Worker se chamava **a-fatorial**, batizado automaticamente pelo nome do
+repositório, que é de outro negócio. Foi renomeado para **ideia-que-vende**
+em 26/08, e o `wrangler.toml` mudou junto no mesmo push: nome diferente
+entre painel e código faz o build falhar.
+
+O texto abaixo continua valendo para o nome de hoje.
+
+O Worker se chama **ideia-que-vende** no painel, batizado pelo nome do
 repositório. O `wrangler.toml` usa o mesmo nome, e os dois **têm que
 continuar iguais**: nome diferente faz o build falhar ou, pior, um
 `wrangler deploy` cria um segundo Worker sem o domínio.
@@ -112,7 +112,7 @@ Se um dia renomear no painel, mude o `name` no `wrangler.toml` junto.
 
    | Campo                     | O que colocar                       |
    |---------------------------|-------------------------------------|
-   | Nome do Worker            | `a-fatorial`                        |
+   | Nome do Worker            | `ideia-que-vende`                   |
    | Branch de produção        | `claude/animated-shader-hero-thcafz`|
    | Comando de build          | **deixe vazio**                     |
    | Comando de deploy         | `npx wrangler deploy`               |
@@ -123,7 +123,7 @@ Se um dia renomear no painel, mude o `name` no `wrangler.toml` junto.
 
 6. **Save and Deploy**
 
-Ao final aparece um endereço `a-fatorial.gestaogrupoa.workers.dev`.
+Ao final aparece um endereço `ideia-que-vende.gestaogrupoa.workers.dev`.
 Abra: a landing tem que carregar. Esse é o teste de que subiu.
 
 ---
@@ -133,7 +133,7 @@ Abra: a landing tem que carregar. Esse é o teste de que subiu.
 O banco `ideia-que-vende` já existe e as tabelas já estão criadas. Falta
 só ligar ao Worker.
 
-1. **Workers & Pages** → **a-fatorial** → **Settings**
+1. **Workers & Pages** → **ideia-que-vende** → **Settings**
 2. **Bindings** → **Add** → **D1 database**
 3. Variable name: `DB` · D1 database: `ideia-que-vende`
 4. **Deploy**
@@ -150,7 +150,7 @@ só ligar ao Worker.
 3. Repita com `www.ideiaquevende.com.br`, senão quem digitar o "www" na
    frente não chega ao site.
 
-Confira nessa mesma tela que o domínio está no Worker **a-fatorial**.
+Confira nessa mesma tela que o domínio está no Worker **ideia-que-vende**.
 
 ### Apontar o Registro.br para a Cloudflare
 
@@ -208,22 +208,54 @@ endereço, e o Access (passo 5) protege só o domínio de verdade.
 
 ---
 
-## 4. Guardar o segredo do Typeform
+## 4. Ligar o Typeform
 
-1. Abra o Typeform → seu formulário → **Connect** → **Webhooks** →
-   **Add a webhook**
-2. Endpoint: `https://seudominio.com.br/typeform`
-3. Ligue **Secret** e escreva uma senha longa e aleatória. **Copie.**
-4. **Save** e depois **Test webhook** (guarde para o passo 6)
+O formulário é o `m70jOwFd`, o mesmo que está escrito na landing. São
+três partes, e a primeira é a que costuma ser esquecida.
 
-Agora no Cloudflare:
+### 4a. O campo oculto do plano
 
-5. **a-fatorial** → **Settings** → **Variables and Secrets** → **Add**
-6. Type: **Secret** (não "Text") · Name: `TYPEFORM_WEBHOOK_SECRET` ·
-   Value: a senha que você copiou
-7. **Deploy**
+Quando alguém clica em "Solicitar análise" num dos três planos, a landing
+abre o Typeform com `?plano=start`, `?plano=pro` ou `?plano=premium` no
+endereço. Esse valor só chega até o sistema se o formulário tiver um
+campo oculto com esse nome exato.
 
-> Tem que ser tipo **Secret**. Como "Text" ele fica legível no painel.
+1. Abra o formulário no Typeform
+2. **Settings** (ou o ícone de engrenagem) → **Hidden fields**
+3. Acrescente um campo chamado **`plano`**, tudo minúsculo, sem acento
+4. Salve e publique o formulário
+
+Sem isso, tudo continua funcionando: o lead chega, o nome chega, o e-mail
+chega. Só a coluna "plano" fica sempre vazia, e ninguém entende por quê.
+É por isso que este passo vem primeiro.
+
+### 4b. O webhook
+
+1. **Connect** → **Webhooks** → **Add a webhook**
+2. Endpoint:
+
+       https://ideiaquevende.com.br/typeform
+
+3. Ligue **Secret** e escreva uma senha longa e aleatória. **Copie agora**,
+   ela não aparece de novo.
+4. **Save**, e depois **Test webhook**
+
+### 4c. O mesmo segredo no Worker
+
+1. **Workers & Pages** → **ideia-que-vende** → **Settings** →
+   **Variables and Secrets** → **Add**
+2. Type: **Secret**, e não "Text"
+3. Name: `TYPEFORM_WEBHOOK_SECRET`
+4. Value: a mesma senha do passo 4b, sem espaço sobrando
+5. **Deploy**
+
+> Precisa ser do tipo **Secret**. Como "Text" ele fica legível para quem
+> abrir o painel.
+
+O servidor confere a assinatura sobre o corpo CRU da mensagem. Se o
+segredo dos dois lados não for idêntico, byte a byte, a resposta é 401 e
+o lead não entra. Isso é de propósito: sem essa conferência, qualquer um
+que descobrisse o endereço encheria a sua mesa de lead falso.
 
 ---
 
@@ -287,8 +319,18 @@ deixar passar seria pior que fechar.
 No Typeform, **Connect** → **Webhooks** → **View deliveries**. A entrega
 de teste tem que aparecer com **200**.
 
-Se der 401, o segredo do painel não é o mesmo do Typeform. Refaça o
-passo 4.
+O que cada resposta quer dizer:
+
+| Resposta | O que aconteceu | O que fazer |
+|---|---|---|
+| **200** | Chegou e foi gravado | Nada, está funcionando |
+| **401** | O segredo dos dois lados não bate | Refaça o passo 4c, atenção a espaço sobrando |
+| **405** | O Typeform mandou por GET | Confira o endereço do webhook |
+| **404** | O endereço está errado | Tem que ser `/typeform`, sem barra no fim |
+
+Depois de uma resposta de teste real, confira se o plano chegou. Se a
+coluna `plano` vier vazia mesmo tendo clicado num plano na landing, o
+campo oculto do passo 4a não foi criado.
 
 Para ver o que chegou no banco, aqui no chat eu consulto direto. Ou pelo
 painel: **Storage & Databases** → **D1** → **ideia-que-vende** →
@@ -316,4 +358,4 @@ select criado_em, nome, email, whatsapp, plano from leads order by id desc;
 ## Como isso é publicado dali em diante
 
 Todo `git push` na branch `claude/animated-shader-hero-thcafz` refaz o
-deploy sozinho. Para acompanhar: **a-fatorial** → **Deployments**.
+deploy sozinho. Para acompanhar: **ideia-que-vende** → **Deployments**.
