@@ -96,3 +96,8 @@ with open(SAIDA, 'w', encoding='utf-8') as f:
 tamanho = os.path.getsize(SAIDA)
 print('public/sistema/index.html: %d bytes | %.1f kb | %d telas'
       % (tamanho, tamanho / 1024, len(TELAS)))
+print()
+print('ATENCAO: isto acabou de sobrescrever a pagina de espera.')
+print('O sistema so deve ser publicado DEPOIS que o Cloudflare Access')
+print('estiver criado. Sem ele, qualquer um com o endereco entra.')
+print('Para desfazer sem publicar:  git checkout -- public/sistema/index.html')
