@@ -136,7 +136,7 @@ t("nunca lê o conteúdo de uma chave do outro negócio", leuAf.length === 0, le
 const aindaLa = await pg.evaluate(() => localStorage.getItem("af_fin") !== null);
 t("e nunca apaga sozinho: o resíduo continua lá", aindaLa);
 const casaTexto = await pg.textContent("#tela-casa");
-t("mas A casa avisa que o resíduo existe", /ainda guarda 2 chave/.test(casaTexto), casaTexto.slice(0, 0));
+t("mas A casa avisa que o resíduo existe", /guarda 2 chave/.test(casaTexto));
 
 t("nenhum erro de JavaScript em todo o caminho", erros.length === 0, erros.slice(0, 4).join(" | "));
 

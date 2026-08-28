@@ -349,7 +349,10 @@ function entregaRoteiroDeHoje(k) {
   const m = iqvLer(CHAVES.metodo, null);
   const r = m && m.roteiros ? m.roteiros[k] : null;
   return {
-    checklist: (r && Array.isArray(r.checklist)) ? r.checklist : [],
+    // definicaoPronto e o nome que Roteiros e niveis grava; checklist e a
+    // queda para o que foi gravado antes desta correcao
+    checklist: (r && Array.isArray(r.definicaoPronto)) ? r.definicaoPronto
+             : (r && Array.isArray(r.checklist)) ? r.checklist : [],
     comoFazer: (r && r.comoFazer) ? String(r.comoFazer) : '',
   };
 }
@@ -479,8 +482,8 @@ function entregaBuscarAplicacao() {
 function entregaFato(rot, valor, obs) {
   return '<div>' +
     '<span class="rotulo">' + rot + '</span>' +
-    '<div style="font-size:13.5px;color:var(--tinta);line-height:1.4">' + valor + '</div>' +
-    (obs ? '<div style="font-size:11px;color:var(--tinta-4);margin-top:4px">' + obs + '</div>' : '') +
+    '<div style="font-size:13.5px;color:var(--tx);line-height:1.4">' + valor + '</div>' +
+    (obs ? '<div style="font-size:11px;color:var(--tx-4);margin-top:4px">' + obs + '</div>' : '') +
     '</div>';
 }
 
@@ -537,7 +540,7 @@ function entregaHtmlLido(k, campos) {
     if (!v) return '';
     return '<div style="margin-bottom:12px">' +
       '<span class="rotulo">' + esc(c.rot) + '</span>' +
-      '<div style="font-size:13px;color:var(--tinta-2)">' + v + '</div></div>';
+      '<div style="font-size:13px;color:var(--tx-2)">' + v + '</div></div>';
   }).filter(function (x) { return x; });
   return linhas.join('');
 }
@@ -574,7 +577,7 @@ function entregaHtmlSub(c, i, s, item) {
 function entregaHtmlLista(c, campos) {
   const itens = Array.isArray(campos[c.k]) ? campos[c.k] : [];
   const linhas = itens.map(function (item, i) {
-    return '<div style="border:1px solid var(--linha);border-radius:var(--r-sm);padding:12px;margin-bottom:10px">' +
+    return '<div style="border:1px solid var(--fio);border-radius:var(--r-sm);padding:12px;margin-bottom:10px">' +
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
         '<span class="rotulo" style="margin:0">' + esc(c.item) + ' ' + (i + 1) + '</span>' +
         '<button class="bt bt-linha bt-sm" style="margin-left:auto;padding:4px 9px" ' +
@@ -632,7 +635,7 @@ function entregaHtmlFrasePreco(campos) {
   const forma = String(campos.forma || 'pix_boleto');
   const nomeForma = forma === 'pix' ? 'no PIX' : forma === 'boleto' ? 'no boleto' : 'no PIX ou boleto';
   const parte = n > 1 ? ', ou ' + n + 'x de ' + moeda(Math.round(preco / n)) + ' ' + nomeForma : ' ' + nomeForma;
-  return '<div style="font-size:14px;color:var(--tinta)">' + esc(moeda(preco)) + ' à vista' + esc(parte) + '.</div>' +
+  return '<div style="font-size:14px;color:var(--tx)">' + esc(moeda(preco)) + ' à vista' + esc(parte) + '.</div>' +
     '<p class="dica" style="margin-top:5px">É assim que a condição vai escrita no material do cliente. A casa cobra pela TMB, o cliente cobra pelo meio dele.</p>';
 }
 
@@ -963,17 +966,17 @@ function entregaHtmlCabecalho(alvo) {
   const troca = projetos.length > 1
     ? entregaHtmlEscolha('', p.id, projetos.map(function (x) { return { v: x.id, nome: x.rotulo || x.cliente || x.id }; }),
         'entregaTrocarProjeto(this.value)', 'campo-sm')
-    : '<div style="font-size:13px;color:var(--tinta-2)">' + esc(p.rotulo || p.cliente || '') + '</div>';
+    : '<div style="font-size:13px;color:var(--tx-2)">' + esc(p.rotulo || p.cliente || '') + '</div>';
 
   return '<div class="cartao">' +
     '<div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px">' +
       '<div style="flex:1 1 320px">' +
-        '<div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-4);font-weight:700">' +
+        '<div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tx-4);font-weight:700">' +
           'Entrega ' + String(e.n).padStart(2, '0') + ' de 08' +
         '</div>' +
-        '<h2 style="font-family:var(--display);font-weight:300;font-size:24px;color:var(--branco);margin:6px 0 4px">' +
+        '<h2 style="font-family:var(--display);font-weight:300;font-size:24px;color:var(--claro);margin:6px 0 4px">' +
           esc(e.nome) + '</h2>' +
-        '<p style="font-size:13px;color:var(--tinta-3)">' + esc(e.resumo) + '</p>' +
+        '<p style="font-size:13px;color:var(--tx-3)">' + esc(e.resumo) + '</p>' +
       '</div>' +
       '<div style="flex:0 0 auto;display:flex;flex-direction:column;gap:8px;align-items:flex-end">' +
         '<span id="entrega-selo-estado">' + etiqueta(ESTADOS_ENTREGA, e.estado, 'Não começou') + '</span>' +
@@ -983,7 +986,7 @@ function entregaHtmlCabecalho(alvo) {
       '</div>' +
     '</div>' +
 
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:16px;padding-top:16px;border-top:1px solid var(--linha-2)">' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:16px;padding-top:16px;border-top:1px solid var(--fio-2)">' +
       entregaFato('Cliente', esc(p.cliente || 'sem nome'),
         nivel ? esc(nivel.nome) + ', ' + esc(moeda(p.valor)) : 'sem nível contratado') +
       entregaFato('Fase agora', esc(nomeFase(fase)),
@@ -1021,18 +1024,18 @@ function entregaHtmlOito(alvo) {
     const aberta = !!alvo.e && e.k === alvo.e.k;
     const cor = e.estado === 'aprovada' ? 'var(--ok)'
       : e.estado === 'com_cliente' ? 'var(--atencao)'
-      : e.estado === 'escrevendo' ? 'var(--info)' : 'var(--tinta-4)';
-    const fundo = aberta ? 'var(--o-10)' : 'var(--preto-2)';
-    const borda = aberta ? 'var(--o-35)' : 'var(--linha)';
+      : e.estado === 'escrevendo' ? 'var(--info)' : 'var(--tx-4)';
+    const fundo = aberta ? 'var(--o-10)' : 'var(--fundo-2)';
+    const borda = aberta ? 'var(--o-35)' : 'var(--fio)';
     return '<button class="bt" style="flex:0 0 auto;flex-direction:column;align-items:flex-start;gap:4px;' +
         'background:' + fundo + ';border-color:' + borda + ';padding:11px 14px;min-width:158px;' +
         (e.dentro ? '' : 'opacity:.45;') + '" ' +
         'onclick="entregaAbrir(' + entregaArg(p.id) + ',' + entregaArg(e.k) + ')">' +
-      '<span style="font-size:10px;letter-spacing:.12em;color:var(--tinta-4);font-weight:700">' +
+      '<span style="font-size:10px;letter-spacing:.12em;color:var(--tx-4);font-weight:700">' +
         String(e.n).padStart(2, '0') + '</span>' +
-      '<span style="font-size:12.5px;color:' + (aberta ? 'var(--o-lt)' : 'var(--tinta-2)') + ';font-weight:600">' +
+      '<span style="font-size:12.5px;color:' + (aberta ? 'var(--o-lt)' : 'var(--tx-2)') + ';font-weight:600">' +
         esc(e.nome) + '</span>' +
-      '<span style="display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--tinta-4);font-weight:400">' +
+      '<span style="display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--tx-4);font-weight:400">' +
         '<span style="width:7px;height:7px;border-radius:50%;background:' + cor + ';display:inline-block"></span>' +
         esc(e.dentro ? entregaEstadoTexto(e.estado) : 'fora do contrato') +
       '</span>' +
@@ -1041,7 +1044,7 @@ function entregaHtmlOito(alvo) {
 
   return '<div class="cartao">' +
     '<div class="cartao-t"><span>As oito deste projeto</span>' +
-      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tinta-4)">' +
+      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tx-4)">' +
       'A ordem é a da landing: uma sustenta a seguinte.</span></div>' +
     '<div class="rolo-h"><div style="display:flex;gap:10px;padding-bottom:4px">' + botoes + '</div></div>' +
     '</div>';
@@ -1060,15 +1063,15 @@ function entregaHtmlFalta(alvo) {
   }
 
   const itens = falta.itens.length
-    ? '<div style="margin-bottom:14px"><span class="rotulo">Definição de pronto, em aberto</span><ul style="margin:0;padding-left:18px;font-size:13px;color:var(--tinta-2)">' +
+    ? '<div style="margin-bottom:14px"><span class="rotulo">Definição de pronto, em aberto</span><ul style="margin:0;padding-left:18px;font-size:13px;color:var(--tx-2)">' +
         falta.itens.map(function (i) { return '<li style="margin-bottom:4px">' + esc(i.texto) + '</li>'; }).join('') + '</ul></div>'
     : '';
   const campos = falta.campos.length
-    ? '<div><span class="rotulo">Campos essenciais em branco</span><ul style="margin:0;padding-left:18px;font-size:13px;color:var(--tinta-2)">' +
+    ? '<div><span class="rotulo">Campos essenciais em branco</span><ul style="margin:0;padding-left:18px;font-size:13px;color:var(--tx-2)">' +
         falta.campos.map(function (c) { return '<li style="margin-bottom:4px">' + esc(c.rot) + '</li>'; }).join('') + '</ul></div>'
     : '';
 
-  return '<p style="font-size:13px;color:var(--tinta-3);margin-bottom:14px">' +
+  return '<p style="font-size:13px;color:var(--tx-3);margin-bottom:14px">' +
       falta.total + (falta.total === 1 ? ' coisa separa' : ' coisas separam') + ' esta entrega do cliente.</p>' +
     itens + campos;
 }
@@ -1096,10 +1099,10 @@ function entregaHtmlRoteiro(alvo) {
 
   const corpo = e.checklist.length
     ? e.checklist.map(function (item, i) {
-        return '<label style="display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--linha-2);cursor:pointer">' +
+        return '<label style="display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--fio-2);cursor:pointer">' +
           '<input type="checkbox" style="margin-top:3px;accent-color:var(--o)" ' + (item.feito ? 'checked ' : '') +
             'onchange="entregaMarcar(' + i + ', this.checked)">' +
-          '<span style="font-size:13px;color:' + (item.feito ? 'var(--tinta-4)' : 'var(--tinta-2)') + '">' + esc(item.texto) + '</span>' +
+          '<span style="font-size:13px;color:' + (item.feito ? 'var(--tx-4)' : 'var(--tx-2)') + '">' + esc(item.texto) + '</span>' +
         '</label>';
       }).join('')
     : aviso('atencao', 'Este contrato nasceu sem definição de pronto.',
@@ -1118,15 +1121,15 @@ function entregaHtmlRoteiro(alvo) {
   }
 
   const comoFazer = hojeRoteiro.comoFazer
-    ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--linha-2)">' +
+    ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--fio-2)">' +
         '<span class="rotulo">Como fazer, do roteiro de hoje</span>' +
-        '<p style="font-size:13px;color:var(--tinta-2)">' + entregaLinhas(hojeRoteiro.comoFazer) + '</p>' +
+        '<p style="font-size:13px;color:var(--tx-2)">' + entregaLinhas(hojeRoteiro.comoFazer) + '</p>' +
       '</div>'
     : '';
 
   return '<div class="cartao">' +
     '<div class="cartao-t"><span>1. O roteiro deste contrato</span>' +
-      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tinta-4)">' +
+      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tx-4)">' +
       (e.checklist.length ? pronto.feitos + ' de ' + pronto.total + ' marcados' : 'sem itens') + '</span></div>' +
     (e.checklist.length ? entregaBarra(pronto.parte) + '<div style="height:10px"></div>' : '') +
     corpo + diferenca + comoFazer +
@@ -1148,7 +1151,7 @@ function entregaHtmlCampos(alvo) {
 
   return '<div class="cartao">' +
     '<div class="cartao-t"><span>2. ' + esc(e.nome) + ', escrito</span>' +
-      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tinta-4)">' +
+      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tx-4)">' +
       'grava sozinho ao sair do campo</span></div>' +
     daCasa +
     defs.map(function (c) { return entregaHtmlEditor(c, e.campos); }).join('') +
@@ -1173,7 +1176,7 @@ function entregaHtmlRespostas(lead) {
     else if (v && typeof v === 'object') v = JSON.stringify(v);
     return '<div style="margin-bottom:12px">' +
       '<span class="rotulo">' + esc(pergunta) + '</span>' +
-      '<div style="font-size:13px;color:var(--tinta-2)">' + entregaLinhas(v) + '</div></div>';
+      '<div style="font-size:13px;color:var(--tx-2)">' + entregaLinhas(v) + '</div></div>';
   }).join('');
 }
 
@@ -1197,8 +1200,8 @@ function entregaHtmlAplicacao(p) {
       'O servidor respondeu com a página de entrada em vez das aplicações. Recarregue a página para entrar de novo. A entrega que está sendo escrita não se perde: ela é deste navegador.') + botao;
   }
   if (a.estado === 'sem_configuracao') {
-    return aviso('alerta', 'O Worker ainda não tem o login protegido configurado.',
-      'TEAM_DOMAIN e ACCESS_AUD estão vazios, e sem eles o servidor recusa entregar aplicação, de propósito. Enquanto isso não for resolvido, escreva a entrega com a leitura do caso, que é deste navegador. O caminho está no DEPLOY.md.') + botao;
+    return aviso('alerta', 'O login protegido ainda não foi ligado.',
+      'Sem ele o servidor não entrega as aplicações. Escreva a entrega com a leitura do caso, que é deste navegador.') + botao;
   }
   if (a.estado === 'sumiu') {
     return aviso('atencao', 'A aplicação deste projeto não está mais na lista do servidor.',
@@ -1211,7 +1214,7 @@ function entregaHtmlAplicacao(p) {
   }
   return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
       '<span class="rotulo" style="margin:0">O que a pessoa escreveu na aplicação</span>' +
-      '<span style="margin-left:auto;font-size:11px;color:var(--tinta-4)">buscado em ' + esc(dataLonga(a.quando)) + '</span>' +
+      '<span style="margin-left:auto;font-size:11px;color:var(--tx-4)">buscado em ' + esc(dataLonga(a.quando)) + '</span>' +
     '</div>' + entregaHtmlRespostas(a.lead);
 }
 
@@ -1229,7 +1232,7 @@ function entregaHtmlInsumos(alvo) {
           (l.precisa || []).map(function (k) { return esc(nomeEntrega(k)); }).join(', ')) +
       '</div>' +
       (l.justificativa ? '<div style="margin-bottom:16px"><span class="rotulo">Por que o nível indicado divergiu do clicado</span>' +
-        '<div style="font-size:13px;color:var(--tinta-2)">' + entregaLinhas(l.justificativa) + '</div></div>' : '')
+        '<div style="font-size:13px;color:var(--tx-2)">' + entregaLinhas(l.justificativa) + '</div></div>' : '')
     : '<p class="dica" style="margin-bottom:16px">Este projeto não tem leitura do caso guardada neste navegador. A leitura fica no navegador de quem preparou, e só o parecer assinado viaja com a aplicação.</p>';
 
   const fontes = (ENTREGA_ALIMENTA[e.k] || []).map(function (k) {
@@ -1239,17 +1242,17 @@ function entregaHtmlInsumos(alvo) {
     const estado = anterior.estado === 'aprovada'
       ? 'aprovada pelo cliente em ' + esc(dataCurta(anterior.aprovadaEm))
       : entregaEstadoTexto(anterior.estado).toLowerCase() + ', ainda pode mudar';
-    return '<div style="margin-bottom:18px;padding-top:14px;border-top:1px solid var(--linha-2)">' +
+    return '<div style="margin-bottom:18px;padding-top:14px;border-top:1px solid var(--fio-2)">' +
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
         '<span class="rotulo" style="margin:0">' + esc(nomeEntrega(k)) + '</span>' +
-        '<span style="font-size:11px;color:var(--tinta-4)">' + estado + '</span>' +
+        '<span style="font-size:11px;color:var(--tx-4)">' + estado + '</span>' +
       '</div>' +
       (escrito || '<p class="dica">Nada escrito nela ainda. Enquanto isto estiver vazio, esta entrega vai depender do que estiver na aplicação e na leitura.</p>') +
       '</div>';
   }).join('');
 
   return '<div class="cartao-t"><span>3. Insumos</span>' +
-      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tinta-4)">' +
+      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tx-4)">' +
       'o que já foi respondido não se pergunta de novo</span></div>' +
     leitura +
     entregaHtmlAplicacao(p) +
@@ -1307,16 +1310,16 @@ function entregaHtmlVersoes(alvo) {
     const pedido = v.pedido
       ? '<div style="margin-top:10px;padding:12px 14px;border-left:3px solid var(--atencao);background:var(--atencao-bg);border-radius:var(--r-sm)">' +
           '<span class="rotulo" style="color:var(--atencao)">O que o cliente pediu, em ' + esc(dataCurta(v.pedido.em)) + '</span>' +
-          '<div style="font-size:13px;color:var(--tinta-2)">' + entregaLinhas(v.pedido.texto) + '</div></div>'
+          '<div style="font-size:13px;color:var(--tx-2)">' + entregaLinhas(v.pedido.texto) + '</div></div>'
       : '';
     const conteudo = aberta
-      ? '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--linha-2)">' +
+      ? '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fio-2)">' +
           (entregaHtmlLido(e.k, v.campos) || '<p class="dica">Esta versão saiu com os campos em branco.</p>') + '</div>'
       : '';
-    return '<div style="padding:14px 0;border-bottom:1px solid var(--linha-2)">' +
+    return '<div style="padding:14px 0;border-bottom:1px solid var(--fio-2)">' +
       '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
         '<span class="eti eti-neutra">versão ' + v.n + '</span>' +
-        '<span style="font-size:13px;color:var(--tinta-2)">enviada em ' + esc(dataLonga(v.em)) + ' por ' + esc(v.por || 'sem nome') + '</span>' +
+        '<span style="font-size:13px;color:var(--tx-2)">enviada em ' + esc(dataLonga(v.em)) + ' por ' + esc(v.por || 'sem nome') + '</span>' +
         '<button class="bt bt-linha bt-sm" style="margin-left:auto" onclick="entregaVerVersao(' + v.n + ')">' +
           (aberta ? 'Fechar' : 'Ver o que foi enviado') + '</button>' +
       '</div>' + pedido + conteudo +
@@ -1325,7 +1328,7 @@ function entregaHtmlVersoes(alvo) {
 
   return '<div class="cartao">' +
     '<div class="cartao-t"><span>Histórico de versões</span>' +
-      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tinta-4)">' +
+      '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tx-4)">' +
       e.versoes.length + (e.versoes.length === 1 ? ' envio' : ' envios') + '</span></div>' +
     linhas +
     '</div>';
@@ -1348,7 +1351,7 @@ function entregaHtmlEnvio(alvo) {
   if (ENTREGA_RETORNO === 'aprovada') {
     return '<div class="cartao">' +
       '<div class="cartao-t"><span>Confirmar a aprovação do cliente</span></div>' +
-      '<p style="font-size:13px;color:var(--tinta-2);margin-bottom:14px">Isto carimba que o cliente aprovou ' + esc(e.nome) +
+      '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">Isto carimba que o cliente aprovou ' + esc(e.nome) +
         ', e é isso que faz a fase andar. Registre só o que ele disse de verdade: aprovação carimbada sem resposta dele vira fase errada na tela dele e cobrança errada na nossa.</p>' +
       '<button class="bt bt-marca" onclick="entregaRegistrarAprovacao()">O cliente aprovou</button> ' +
       '<button class="bt bt-linha" onclick="entregaCancelarRetorno()">Voltar</button>' +
@@ -1358,7 +1361,7 @@ function entregaHtmlEnvio(alvo) {
   if (e.estado === 'com_cliente') {
     return '<div class="cartao">' +
       '<div class="cartao-t"><span>Está com o cliente</span></div>' +
-      '<p style="font-size:13px;color:var(--tinta-2);margin-bottom:14px">Enviada em ' + esc(dataLonga(e.enviadaEm)) + ', ' + esc(haQuanto(e.enviadaEm)) +
+      '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">Enviada em ' + esc(dataLonga(e.enviadaEm)) + ', ' + esc(haQuanto(e.enviadaEm)) +
         ', na versão ' + e.versoes.length + '. Enquanto ela não voltar, a fase ' + esc(nomeFase(alvo.p.fase || entregaFaseDe(alvo.oito))) +
         ' não termina e o prazo do produto pronto continua correndo do mesmo jeito.</p>' +
       '<button class="bt bt-marca" onclick="entregaAbrirRetorno(\'aprovada\')">Registrar aprovação</button> ' +
@@ -1372,7 +1375,7 @@ function entregaHtmlEnvio(alvo) {
     return '<div class="cartao">' +
       aviso('atencao', 'Falta ' + falta.total + (falta.total === 1 ? ' coisa' : ' coisas') + ' para esta entrega estar pronta.',
         '<ul style="margin:8px 0 0;padding-left:18px">' + itens + campos + '</ul>') +
-      '<p style="font-size:13px;color:var(--tinta-2);margin-bottom:14px">Enviar assim manda o cliente olhar uma entrega incompleta, e a próxima resposta dele vai ser sobre o que falta, não sobre o que foi feito. Se for de propósito, siga.</p>' +
+      '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">Enviar assim manda o cliente olhar uma entrega incompleta, e a próxima resposta dele vai ser sobre o que falta, não sobre o que foi feito. Se for de propósito, siga.</p>' +
       '<button class="bt bt-marca" onclick="entregaEnviar()">Enviar assim mesmo</button> ' +
       '<button class="bt bt-linha" onclick="entregaCancelarEnvio()">Voltar e terminar</button>' +
       '</div>';
@@ -1387,7 +1390,7 @@ function entregaHtmlEnvio(alvo) {
   return '<div class="cartao">' +
     '<div class="cartao-t"><span>Enviar para validação</span></div>' +
     aprovada +
-    '<p style="font-size:13px;color:var(--tinta-2);margin-bottom:14px">Este é o único caminho para a entrega aparecer do lado do cliente. O envio faz três coisas de uma vez: congela a versão ' +
+    '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">Este é o único caminho para a entrega aparecer do lado do cliente. O envio faz três coisas de uma vez: congela a versão ' +
       (e.versoes.length + 1) + ', passa a bola para ele e publica o retrato que a tela Meu projeto mostra. Ninguém precisa lembrar de publicar nada.</p>' +
     '<button class="bt bt-marca" onclick="entregaPedirEnvio()">' +
       (e.versoes.length ? 'Enviar a versão ' + (e.versoes.length + 1) : 'Enviar para validação') + '</button>' +
@@ -1411,7 +1414,7 @@ function entregaHtmlForaDoContrato(alvo) {
       ', e o escopo foi congelado no dia em que o projeto nasceu, de propósito: é o combinado daquele contrato, e não uma consulta feita na hora de desenhar a tela. ' +
       (menor ? 'Esta entrega faz parte do ' + esc(menor.nome) + '.' : 'Nenhum nível de hoje inclui esta entrega.')) +
     (diferenca !== null && diferenca > 0
-      ? '<p style="font-size:13px;color:var(--tinta-2);margin-bottom:14px">A diferença entre ' + esc(contratado.nome) + ' e ' + esc(menor.nome) + ' é ' + esc(moeda(diferenca)) +
+      ? '<p style="font-size:13px;color:var(--tx-2);margin-bottom:14px">A diferença entre ' + esc(contratado.nome) + ' e ' + esc(menor.nome) + ' é ' + esc(moeda(diferenca)) +
         '. O cliente vê esta entrega apagada na tela dele, com o nome e a etiqueta do nível que a inclui, e é assim que a subida de nível no meio do caminho aparece sem ninguém precisar vender nada.</p>'
       : '') +
     '<p class="dica" style="margin-bottom:14px">Escrever aqui faria o cliente receber como pronta uma parte que ele não comprou. Se o caso mudou e ele precisa disto, a troca de nível se resolve na leitura do caso, antes.</p>' +
@@ -1428,7 +1431,7 @@ function entregaHtmlVazio() {
 
   const dito = '<div class="cartao">' +
     '<div class="cartao-t"><span>A mesa está livre</span></div>' +
-    '<p style="font-size:13.5px;color:var(--tinta-2);max-width:74ch;line-height:1.7">' +
+    '<p style="font-size:13.5px;color:var(--tx-2);max-width:74ch;line-height:1.7">' +
       'Nenhuma entrega aberta. Escolha um projeto em Projetos em estruturação e clique em uma das oito. ' +
       'Se as oito estiverem apagadas, o projeto nasceu sem escopo: volte à leitura do caso e diga qual nível foi contratado, ' +
       'porque é o nível que define o que entra neste projeto.' +

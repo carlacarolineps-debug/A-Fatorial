@@ -1,241 +1,611 @@
 /* ====================================================================
-   Sistema Ideia Que Vende  ·  linguagem visual
+   Sistema Ideia Que Vende  ·  o miolo
 
-   Os tokens sao os mesmos da landing, copiados de public/index.html.
-   Se a marca mudar la, muda aqui: e a mesma empresa e a pessoa acabou
-   de vir de uma pagina para a outra.
+   A landing e a capa. Isto e o miolo da mesma revista, e por isso os
+   tokens nao sao "parecidos" com os dela: sao os DELA, valor por valor,
+   copiados de fonte/page.tpl.html, inclusive o canto seco de 4px e o
+   peso 800 apertado dos titulos. Quem sai de uma pagina e entra na outra
+   nao pode sentir que trocou de empresa.
+
+   Este arquivo substitui o 10-estilo.css inteiro. Todo nome de classe
+   que as nove telas ja emitem continua existindo aqui, com valor novo:
+   da para colar e publicar antes de mexer em qualquer tela. As classes
+   novas (.kicker, .manchete, .secao, .tira, .grade-N, .fantasma, .vago,
+   .dialogo, kbd) sao para onde as telas migram depois, uma por vez.
    ==================================================================== */
 :root{
-  /* superficies */
+  /* superficies escuras */
   --preto:#08080a; --preto-2:#0d0d10; --preto-3:#141418; --preto-4:#1b1b21;
-  --papel:#f6f4ef; --branco:#fff;
-  /* marca */
-  --o:#ff8309; --o-lt:#ffa53d; --o-dp:#e56600;
+  /* superficies claras. --papel estava declarado no arquivo antigo e era
+     usado zero vez: e dele que vem o ritmo que falta. */
+  --papel:#f6f4ef; --papel-2:#fffefb; --branco:#fff;
+  /* tinta sobre claro, que nao existia */
+  --ink:#101014; --ink-2:#3a3a42; --ink-3:#5f5f69; --ink-4:#8d8d97;
+  --linha-l:#e5e1d8; --linha-l2:#efece5;
+  /* marca. --o-ink e o laranja legivel em texto pequeno sobre papel:
+     laranja cheio sobre creme da 2,2:1, e a capa ja tinha resolvido. */
+  --o:#ff8309; --o-lt:#ffa53d; --o-dp:#e56600; --o-ink:#b84f00;
   --o-05:rgba(255,131,9,.05); --o-10:rgba(255,131,9,.10);
   --o-18:rgba(255,131,9,.18); --o-35:rgba(255,131,9,.35);
   /* tinta sobre escuro */
   --tinta:#f2efe8; --tinta-2:#b9b9c2; --tinta-3:#8d8d97; --tinta-4:#5f5f69;
-  /* linhas */
   --linha:rgba(255,255,255,.10); --linha-2:rgba(255,255,255,.055);
-  /* sinais */
-  --ok:#4ac97e; --ok-bg:rgba(74,201,126,.12);
-  --atencao:#ffc14d; --atencao-bg:rgba(255,193,77,.12);
-  --alerta:#ff6b5a; --alerta-bg:rgba(255,107,90,.12);
-  --info:#7ab8ff; --info-bg:rgba(122,184,255,.12);
+  /* sinais. O par -p e a versao que aguenta fundo de papel. */
+  --ok:#4ac97e; --atencao:#ffc14d; --alerta:#ff6b5a; --info:#7ab8ff;
+  --ok-p:#1c7a45; --atencao-p:#8a5a00; --alerta-p:#b8362a; --info-p:#215b95;
   /* tipografia */
   --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
   --texto:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  /* medidas */
-  --r:14px; --r-sm:10px; --r-lg:20px;
-  --lateral:262px;
-  --sombra:0 18px 50px -30px #000;
+  /* seis degraus, com salto real de cerca de 1,4 entre eles. Sairam do
+     arquivo: 9,5px, 10px, 10,5px, 11,5px, 13px e 13,5px. Dez tamanhos
+     numa faixa de 4,5px nao sao escala, sao continuum. */
+  --t-manchete:clamp(30px,3.4vw,46px);
+  --t-titulo:clamp(21px,2vw,27px);
+  --t-bloco:17px;
+  --t-corpo:14px;
+  --t-apoio:12.5px;
+  --t-rotulo:11px;
+  /* canto seco: os valores da capa (4 e 10), nao os 14 e 20 do painel */
+  --r:4px; --r-sm:3px; --r-lg:10px;
+  /* uma escala de espaco so. Numero solto em estilo em linha acaba aqui. */
+  --e1:6px; --e2:12px; --e3:20px; --e4:32px; --e5:52px;
+  --lateral:248px; --topo-h:56px;
+  --wrap:1180px; --gut:clamp(18px,3vw,40px);
+  --ease:cubic-bezier(.2,.7,.25,1);
+  --t-controle:.2s; --t-superficie:.4s;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;scrollbar-color:#2f2f38 #111114;scrollbar-width:thin}
 body{
   background:var(--preto); color:var(--tinta);
-  font-family:var(--texto); font-size:14px; line-height:1.55;
+  font-family:var(--texto); font-size:var(--t-corpo); line-height:1.55;
+  font-feature-settings:"cv02","cv03","cv04","ss01";
   -webkit-font-smoothing:antialiased; min-height:100dvh;
 }
 button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
-a{color:var(--o);text-decoration:none}
-a:hover{text-decoration:underline}
+svg{display:block}
 [hidden]{display:none !important}
+
+/* Link deixa de ser laranja: laranja e para acao, nao para navegacao. */
+a{color:var(--tx,var(--tinta));text-decoration:underline;text-underline-offset:3px;
+  text-decoration-thickness:1px;text-decoration-color:var(--fio,var(--linha))}
+a:hover{text-decoration-color:var(--o)}
+
+/* A linha de base de acessibilidade da propria casa, escrita 500 linhas
+   acima no mesmo repositorio e nunca herdada aqui. */
+:focus-visible{outline:2px solid var(--o);outline-offset:3px;border-radius:2px}
+::selection{background:var(--o);color:#0a0a0c}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:#111114}
+::-webkit-scrollbar-thumb{background:#2f2f38;border-radius:8px;border:3px solid #111114}
+::-webkit-scrollbar-thumb:hover{background:var(--o-dp)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+
+/* --------------------------------------------------------- tipografia */
+h1,h2,h3,h4{font-family:var(--display);font-weight:800;letter-spacing:-.035em;line-height:1.05}
+/* O destaque dentro do titulo deixa de ser um terceiro peso no meio da
+   frase e passa a ser cor. */
+h1 b,h2 b,h3 b{color:var(--o-tx,var(--o));font-weight:inherit}
+b,strong{font-weight:600}
+
+/* Um rotulo so. Substitui as nove variacoes de maiuscula que existiam,
+   com .08 / .09 / .12 / .12 / .13 / .14 / .16 / .16 / .2 de tracking. */
+.rotulo,.menu-grupo,table.lista th,.numero .l,.tira .l{
+  font-family:var(--texto); font-size:var(--t-rotulo); font-weight:600;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--tx-4,var(--tinta-4));
+}
+.rotulo{display:block;margin-bottom:var(--e1)}
+/* O kicker da capa, texto puro. E o que o .selo passa a ser. */
+.kicker,.selo{
+  display:block; font-family:var(--texto); font-size:var(--t-rotulo); font-weight:600;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--o-tx,var(--o));
+  margin:0 0 var(--e3); background:none; border:0; border-radius:0; padding:0;
+}
+.dica{font-size:var(--t-apoio);color:var(--tx-4,var(--tinta-4));line-height:1.55}
+.num,.numero .v,.tira .v,.eti,.manchete,table.lista,.menu-item .conta{
+  font-variant-numeric:tabular-nums;
+}
+
+/* Icones. Vem do sprite, que agora carrega os 35 da capa. */
+svg.ic{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ic-14{width:14px;height:14px}
+.ic-20{width:20px;height:20px}
+.ic-34{width:34px;height:34px}
+
+/* ------------------------------------------------------- superficie
+   O ritmo da capa e a alternancia de fundo: e ela que diz onde uma coisa
+   acaba e outra comeca sem precisar de titulo. Aqui o roteador escreve
+   body.dataset.mesa e todos os tokens locais viram junto.
+   Papel onde se escreve (Mesa da entrega, Roteiros, Meu projeto), preto
+   onde se vigia. A lateral e preta SEMPRE: e ela que costura as duas. */
+body{
+  --fundo:var(--preto); --fundo-2:var(--preto-2); --fundo-3:var(--preto-3);
+  --tx:var(--tinta); --tx-2:var(--tinta-2); --tx-3:var(--tinta-3); --tx-4:var(--tinta-4);
+  --fio:var(--linha); --fio-2:var(--linha-2);
+  --o-tx:var(--o); --veu-cor:rgba(8,8,10,.88); --claro:var(--branco);
+  --sinal-ok:var(--ok); --sinal-atencao:var(--atencao);
+  --sinal-alerta:var(--alerta); --sinal-info:var(--info);
+}
+body[data-mesa="papel"]{
+  --fundo:var(--papel); --fundo-2:var(--papel-2); --fundo-3:#fff;
+  --tx:var(--ink); --tx-2:var(--ink-2); --tx-3:var(--ink-3); --tx-4:var(--ink-4);
+  --fio:var(--linha-l); --fio-2:var(--linha-l2);
+  --o-tx:var(--o-ink); --veu-cor:rgba(246,244,239,.90); --claro:var(--ink);
+  --sinal-ok:var(--ok-p); --sinal-atencao:var(--atencao-p);
+  --sinal-alerta:var(--alerta-p); --sinal-info:var(--info-p);
+}
 
 /* ---------------------------------------------------------- moldura */
 .app{display:grid;grid-template-columns:var(--lateral) 1fr;min-height:100dvh}
-.app.sozinho{grid-template-columns:1fr}          /* cliente: sem barra lateral */
+.app.sozinho{grid-template-columns:1fr}
 
 .lateral{
-  background:var(--preto-2); border-right:1px solid var(--linha);
+  background:var(--preto); border-right:1px solid var(--linha);
   display:flex; flex-direction:column; position:sticky; top:0; height:100dvh;
+  /* a lateral nunca inverte, entao ela fixa os proprios tokens */
+  --tx:var(--tinta); --tx-2:var(--tinta-2); --tx-3:var(--tinta-3); --tx-4:var(--tinta-4);
+  --fio:var(--linha); --fio-2:var(--linha-2); --o-tx:var(--o); --claro:var(--branco);
 }
-.lateral-marca{display:flex;align-items:center;gap:11px;padding:22px 20px 20px}
-.lateral-marca svg{width:26px;height:22px;fill:var(--o);flex:none}
+.lateral-marca{display:flex;align-items:center;gap:11px;padding:var(--e3) var(--e3) var(--e2)}
+.lateral-marca svg{width:24px;height:20px;fill:var(--o);stroke:none;flex:none}
 .lateral-marca b{
-  font-family:var(--display); font-weight:800; font-size:12.5px;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--branco); display:block;
+  font-family:var(--display); font-weight:800; font-size:var(--t-rotulo);
+  letter-spacing:.2em; text-transform:uppercase; color:var(--branco); display:block;
 }
-.lateral-marca span{font-size:10px;color:var(--tinta-4);letter-spacing:.06em}
+.lateral-marca span{display:none}   /* texto de capa nao mora na lombada */
 
-.menu{padding:6px 12px 18px;overflow-y:auto;flex:1}
-.menu-grupo{
-  font-size:9.5px; letter-spacing:.16em; text-transform:uppercase;
-  color:var(--tinta-4); font-weight:600; margin:18px 12px 8px;
-}
-.menu-grupo:first-child{margin-top:2px}
+/* O menu vira indice tipografico, com o gesto do .who-row da capa. */
+.menu{padding:0 0 var(--e3);overflow-y:auto;flex:1}
+.menu-grupo{padding:var(--e4) var(--e3) var(--e2) var(--e3);margin:0}
 .menu-item{
-  display:flex; align-items:center; gap:11px; width:100%; background:none;
-  border:none; color:var(--tinta-2); padding:10px 12px; border-radius:var(--r-sm);
-  cursor:pointer; font-size:13.5px; text-align:left; transition:.16s;
+  position:relative; display:flex; align-items:center; gap:11px; width:100%;
+  background:none; border:0; border-top:1px solid var(--linha-2);
+  color:var(--tinta-2); padding:11px var(--e3); cursor:pointer;
+  font-size:13px; text-align:left; overflow:hidden;
+  transition:color var(--t-controle) var(--ease);
 }
-.menu-item:hover{background:rgba(255,255,255,.05);color:var(--branco)}
-.menu-item .ic{width:17px;text-align:center;opacity:.75;font-size:14px;flex:none}
-.menu-item.on{background:var(--o-10);color:var(--o-lt);font-weight:600}
-.menu-item.on .ic{opacity:1}
+.menu-item::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(90deg,var(--o-18),var(--o-05) 58%,transparent 84%);
+  transform:scaleX(0); transform-origin:0 50%;
+  transition:transform var(--t-superficie) var(--ease);
+}
+.menu-item>*{position:relative;z-index:2}
+.menu-item:hover{color:var(--branco)}
+.menu-item:hover::before{transform:scaleX(1)}
+.menu-item .ic{opacity:.55;transition:opacity var(--t-controle)}
+.menu-item:hover .ic{opacity:1}
+/* Aberto: fio de 2px e texto branco. Some o bloco laranja a 10%, que era
+   a maior mancha de cor da tela e so dizia "voce esta aqui". */
+.menu-item.on{color:var(--branco);font-weight:700;background:none;
+  box-shadow:inset 2px 0 0 var(--o)}
+.menu-item.on .ic{opacity:1;color:var(--o)}
+/* Contagem informativa e numero cinza. O crachao laranja acende so com
+   atraso de verdade: seis crachas acesos ao mesmo tempo e o mesmo que
+   nenhum. */
 .menu-item .conta{
-  margin-left:auto; font-size:10.5px; font-weight:700; min-width:20px; height:20px;
-  border-radius:6px; display:grid; place-items:center; padding:0 6px;
-  background:var(--o); color:#1a1004;
+  margin-left:auto; font-size:var(--t-rotulo); font-weight:600; letter-spacing:.04em;
+  color:var(--tinta-4); background:none; min-width:0; height:auto; padding:0;
+  border-radius:0; display:inline-block;
 }
-.menu-item.on .conta{background:var(--o-lt)}
+.menu-item .conta.arde{
+  color:#1a1004; background:var(--o); border-radius:var(--r-sm); padding:1px 6px;
+}
+.menu-item .atalho{
+  margin-left:8px; font-size:10px; color:var(--tinta-4); opacity:0;
+  transition:opacity var(--t-controle);
+}
+.menu-item:hover .atalho,.menu-item:focus-visible .atalho{opacity:1}
 
+/* Quem esta usando e contexto da sessao, nao da tela: mora no pe. */
+.lateral-pe{
+  margin-top:auto; border-top:1px solid var(--linha); padding:var(--e2) var(--e3);
+  display:flex; align-items:center; gap:11px;
+}
+.lateral-pe .iniciais{
+  width:32px; height:32px; flex:none; border-radius:var(--r-sm); display:grid;
+  place-items:center; background:var(--preto-3); border:1px solid var(--linha);
+  font-family:var(--display); font-weight:800; font-size:12px; color:var(--tinta-2);
+}
+.lateral-pe b{display:block;font-size:13px;font-weight:700;color:var(--branco);line-height:1.3}
+.lateral-pe .eti{margin-top:3px}
+.lateral-pe .sair{
+  margin-left:auto; flex:none; width:28px; height:28px; display:grid; place-items:center;
+  border:0; background:none; color:var(--tinta-4); border-radius:var(--r-sm); cursor:pointer;
+  transition:color var(--t-controle),background-color var(--t-controle);
+}
+.lateral-pe .sair:hover{color:var(--o);background:rgba(255,255,255,.06)}
+
+/* Cabeco de revista: 56px, fio embaixo, e nada de manchete. */
 .topo{
-  display:flex; align-items:center; gap:16px; padding:18px 30px;
-  border-bottom:1px solid var(--linha); position:sticky; top:0; z-index:5;
-  background:rgba(8,8,10,.86); backdrop-filter:blur(10px);
+  display:flex; align-items:center; gap:var(--e3); height:var(--topo-h);
+  padding:0 var(--gut); border-bottom:1px solid var(--fio);
+  position:sticky; top:0; z-index:5;
+  background:var(--veu-cor); backdrop-filter:blur(10px); color:var(--tx);
 }
-.topo h1{font-family:var(--display);font-weight:300;font-size:20px;color:var(--branco);line-height:1.2}
-.topo h1 b{font-weight:700;color:var(--o)}
-.topo .sub{font-size:11.5px;color:var(--tinta-4);margin-top:3px}
-.topo .quem{margin-left:auto;text-align:right;line-height:1.35}
-.topo .quem b{display:block;font-size:12.5px;color:var(--branco)}
-.topo .quem span{font-size:10.5px;color:var(--tinta-4);text-transform:uppercase;letter-spacing:.08em}
+.topo h1{
+  font-family:var(--texto); font-size:var(--t-rotulo); font-weight:600;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--o-tx); line-height:1;
+}
+.topo h1 b{color:inherit;font-weight:inherit}
+.topo .sub{
+  font-size:var(--t-apoio); color:var(--tx-4); line-height:1.3;
+  padding-left:var(--e3); border-left:1px solid var(--fio);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+}
+.topo .quem{display:none}          /* subiu para o pe da lateral */
+.topo .agora{margin-left:auto;display:flex;align-items:center;gap:var(--e2);flex:none}
 
-.rolo{padding:26px 30px 70px;max-width:1240px}
+/* A folha. margin-inline:auto e o que faltava: em monitor de 2560px o
+   conteudo ficava encostado a esquerda com mil pixels de preto morto. */
+.rolo{
+  width:min(var(--wrap),100% - var(--gut)*2); margin-inline:auto;
+  padding:0 0 var(--e5); max-width:none; background:none; color:var(--tx);
+}
+.folha,.wrap{width:min(var(--wrap),100% - var(--gut)*2);margin-inline:auto}
+/* o fundo da mesa vive no corpo da pagina, atras da folha */
+body{background:var(--fundo);transition:background-color var(--t-superficie) var(--ease)}
 
-/* ---------------------------------------------------------- telas */
 .tela{display:none}
 .tela.on{display:block}
 
-/* ---------------------------------------------------------- blocos */
-.abertura{
-  border:1px solid var(--linha); border-radius:var(--r-lg); padding:26px 28px;
-  background:linear-gradient(135deg,var(--preto-2) 0%,var(--preto-3) 60%,#1c1a1f 100%);
-  position:relative; overflow:hidden; margin-bottom:22px;
+/* ------------------------------------------------------- a manchete
+   Nao ha mais bloco de abertura com borda, gradiente e o mesmo borrao
+   radial de 380px no mesmo canto das nove telas. Ha rotulo, titulo
+   grande feito do numero de hoje, e UMA linha fina. */
+.abertura,.entrada{
+  border:0; border-radius:0; background:none; box-shadow:none; overflow:visible;
+  padding:clamp(34px,4.4vw,58px) 0 var(--e4); margin:0;
 }
-.abertura::after{
-  content:""; position:absolute; top:-60%; right:-4%; width:380px; height:380px;
-  background:radial-gradient(circle,var(--o-18),transparent 62%); pointer-events:none;
+.abertura::after{content:none}
+.abertura h2,.manchete{
+  font-family:var(--display); font-weight:800; font-size:var(--t-manchete);
+  letter-spacing:-.045em; line-height:1; color:var(--tx);
+  max-width:22ch; text-wrap:balance; font-variant-numeric:tabular-nums;
 }
-.abertura h2{
-  font-family:var(--display); font-weight:300; font-size:clamp(19px,2.4vw,26px);
-  color:var(--branco); line-height:1.2; position:relative; z-index:1;
+/* o numero que e a noticia, e so ele, em laranja */
+.abertura h2 em,.manchete em{font-style:normal;color:var(--o-tx)}
+.abertura p,.linha-fina{
+  margin-top:var(--e3); font-size:15px; line-height:1.6; color:var(--tx-2);
+  max-width:52ch; text-wrap:pretty; font-variant-numeric:tabular-nums;
 }
-.abertura h2 b{font-weight:700;color:var(--o)}
-.abertura p{color:var(--tinta-3);font-size:13.5px;margin-top:9px;max-width:70ch;position:relative;z-index:1}
+.linha-fina b{color:var(--tx);font-weight:600}
 
-.selo{
-  display:inline-flex; align-items:center; gap:7px; border:1px solid var(--o-35);
-  background:var(--o-10); color:var(--o); font-size:10px; font-weight:700;
-  letter-spacing:.14em; text-transform:uppercase; padding:5px 12px;
-  border-radius:30px; position:relative; z-index:1;
+/* A chamada de capa. Faixa laranja cheia sangrando a largura toda, no
+   formato do .ticker da capa. E o UNICO gesto de laranja grande do
+   sistema, e so aparece quando alguma coisa ja venceu. Fica fora do
+   .rolo, colada abaixo do .topo. */
+.chamada{background:var(--o);color:#12100c;border-block:1px solid rgba(0,0,0,.16);padding:11px 0}
+.chamada .wrap{display:flex;align-items:center;gap:14px}
+.chamada svg{width:16px;height:16px;flex:none;stroke-width:1.7}
+.chamada b{
+  font-size:11.5px; font-weight:700; letter-spacing:.22em; text-transform:uppercase;
+  font-variant-numeric:tabular-nums;
 }
+.chamada .bt{margin-left:auto;border-color:rgba(0,0,0,.28);color:#12100c}
+.chamada .bt:hover{background:rgba(0,0,0,.10);border-color:#12100c}
 
-.cartao{
-  background:var(--preto-2); border:1px solid var(--linha); border-radius:var(--r);
-  padding:22px 24px; margin-bottom:18px; box-shadow:var(--sombra);
+/* ------------------------------------------------------------ secao
+   O cartao morre como caixa: fio em cima, ar embaixo, que e como revista
+   separa materia de materia sem desenhar nada. Sem sombra: a mesma
+   sombra em 57 caixas nao eleva nada em relacao a nada, so suja. */
+.cartao,.secao{
+  background:none; border:0; border-top:1px solid var(--fio); border-radius:0;
+  box-shadow:none; padding:var(--e3) 0 0; margin:0 0 var(--e5);
 }
-.cartao-t{
-  font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase;
-  color:var(--tinta-3); margin-bottom:16px; display:flex; align-items:center; gap:11px;
+.cartao-t,.secao-t{
+  display:flex; align-items:baseline; gap:var(--e2); flex-wrap:wrap;
+  margin-bottom:var(--e3);
 }
+.cartao-t,.secao-t h3{
+  font-family:var(--display); font-weight:800; font-size:var(--t-bloco);
+  letter-spacing:-.03em; line-height:1.2; color:var(--tx);
+  text-transform:none;
+}
+.secao-t h3{font-size:var(--t-titulo);letter-spacing:-.035em}
+.secao-t .conta-t{
+  font-size:var(--t-rotulo); font-weight:600; letter-spacing:.16em;
+  color:var(--tx-4); font-variant-numeric:tabular-nums;
+}
+.cartao-t .bt,.secao-t .bt{margin-left:auto}
+/* tres densidades, no lugar do padding 22px 24px universal */
+.secao--leitura{max-width:78ch}
+.secao--leitura p{font-size:15px;line-height:1.65;color:var(--tx-2);margin-bottom:var(--e2)}
+.secao--lista{padding-top:var(--e2)}
+.secao--tira{padding-top:var(--e2);margin-bottom:var(--e4)}
 
-.numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;margin-bottom:20px}
-.numero{background:var(--preto-2);border:1px solid var(--linha);border-radius:var(--r);padding:18px 20px}
-.numero .v{font-family:var(--display);font-size:27px;font-weight:300;line-height:1;color:var(--branco)}
-.numero .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--tinta-3);font-weight:600;margin-top:9px}
-.numero .obs{font-size:11px;color:var(--tinta-4);margin-top:6px}
-.numero.puxa{border-color:var(--o-35);border-left:3px solid var(--o)}
-.numero.puxa .v{color:var(--o)}
+/* Numero sem caixa, separado por fio vertical. Vale para .numeros/.numero,
+   que as telas ja emitem, e para a .tira nova. */
+.numeros,.tira{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+  border-top:1px solid var(--fio); margin-bottom:var(--e4);
+}
+.numero,.tira>div{
+  background:none; border:0; border-right:1px solid var(--fio-2); border-radius:0;
+  padding:var(--e3) var(--e3) var(--e3) 0;
+}
+.numero:last-child,.tira>div:last-child{border-right:0;padding-right:0}
+.numero .v,.tira .v{
+  font-family:var(--display); font-weight:800; font-size:clamp(30px,3.2vw,42px);
+  letter-spacing:-.045em; line-height:1; color:var(--tx);
+}
+.numero .l,.tira .l{margin-top:10px;display:block}
+.numero .obs{display:none}   /* nota de rodape por numero: sai */
+.numero.puxa,.tira .puxa{border-left:0}
+.numero.puxa .v,.tira .puxa .v{color:var(--o-tx)}
+.numero .v.zero,.tira .v.zero{color:var(--tx-4)}
+
+/* Grade declarada. auto-fit sai: numero de coluna e decisao, e havia
+   onze valores de minmax tirados do nada. */
+.grade-2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--e4)}
+.grade-3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--e4)}
+.grade-4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--e3)}
 
 /* ---------------------------------------------------------- tabela */
 .rolo-h{overflow-x:auto}
 table.lista{width:100%;border-collapse:separate;border-spacing:0}
+/* O cabecalho NAO gruda. Toda tabela aqui mora dentro de .rolo-h, que tem
+   overflow-x, e um overflow ancestral vira o porto de rolagem do sticky: o
+   top:56px passava a contar do topo da propria .rolo-h e empurrava o
+   cabecalho para baixo da primeira linha, escondendo-a. As listas desta
+   casa cabem na tela; grudar o cabecalho nao valia o preco. */
 table.lista th{
-  padding:11px 13px; text-align:left; font-size:9.5px; text-transform:uppercase;
-  letter-spacing:.12em; color:var(--tinta-4); font-weight:700;
-  border-bottom:1px solid var(--linha); white-space:nowrap;
+  padding:9px var(--e2) 9px 0; text-align:left; white-space:nowrap;
+  border-bottom:1px solid var(--fio);
 }
-table.lista td{padding:13px;border-bottom:1px solid var(--linha-2);vertical-align:middle}
-table.lista tbody tr:hover{background:rgba(255,255,255,.022)}
-table.lista .vazio{text-align:center;color:var(--tinta-4);padding:34px 20px;line-height:1.7}
+table.lista td{
+  padding:8px var(--e2); padding-left:0; height:40px;
+  border-bottom:1px solid var(--fio-2); vertical-align:middle;
+}
+table.lista th:last-child,table.lista td:last-child{padding-right:0}
+table.lista th.num,table.lista td.num{text-align:right}
+/* O nome da entrega perde o laranja: quando toda linha tem a primeira
+   celula laranja, laranja passa a significar "linha existe". */
+table.lista td b,table.lista .nome{color:var(--claro);font-weight:600}
+table.lista .sob{font-size:var(--t-apoio);color:var(--tx-4);margin-top:2px}
 
-/* ---------------------------------------------------------- etiquetas */
+/* Linha que abre alguma coisa: o varrer do .who-row da capa, no lugar do
+   hover de 2,2% de branco e do title usado como affordance. */
+table.lista tbody tr[tabindex],tr.abre{cursor:pointer;
+  transition:background var(--t-superficie) var(--ease)}
+tr[tabindex] td,tr.abre td{position:relative;z-index:2}
+tr[tabindex] td:first-child::before,tr.abre td:first-child::before{
+  content:""; position:absolute; top:0; bottom:0; left:-10px; width:2px; background:var(--o);
+  transform:scaleY(0); transition:transform .3s var(--ease);
+}
+tr[tabindex]:hover,tr[tabindex]:focus-within,tr.abre:hover,tr.abre:focus-within{
+  background:linear-gradient(90deg,var(--o-10),transparent 64%); outline:none;
+}
+tr[tabindex]:hover td:first-child::before,tr[tabindex]:focus-within td:first-child::before,
+tr.abre:hover td:first-child::before,tr.abre:focus-within td:first-child::before{transform:scaleY(1)}
+tr[tabindex]:hover .nome,tr[tabindex]:hover td b,
+tr[tabindex]:focus-within .nome,tr[tabindex]:focus-within td b{color:var(--o-tx)}
+.seta{width:16px;height:16px;color:var(--o);opacity:0;transform:translateX(-4px);
+  transition:opacity .3s var(--ease),transform .3s var(--ease)}
+tr:hover .seta,tr:focus-within .seta{opacity:1;transform:none}
+/* acao de linha libera o peso visual para o dado */
+.acao{opacity:0;transition:opacity var(--t-controle) var(--ease)}
+tr:hover .acao,tr:focus-within .acao{opacity:1}
+@media (hover:none){.seta,.acao{opacity:1;transform:none}}
+
+/* ------------------------------------------------------------- vago
+   O vazio nunca apaga a estrutura. O cabecalho continua de pe, tres
+   linhas fantasma mostram a FORMA do dado, e a chamada vem por cima.
+   Nada de colspan colapsando a tabela inteira numa celula. */
+.fantasma td{opacity:.28;user-select:none;pointer-events:none}
+.fantasma td::after{content:"";display:block;height:9px;border-radius:2px;
+  background:var(--tx-4);width:var(--w,64%)}
+.vazio,.vago{
+  display:flex; align-items:center; gap:var(--e3); flex-wrap:wrap;
+  padding:var(--e3) 0; text-align:left; color:var(--tx-3);
+  font-size:var(--t-corpo); line-height:1.5; border-bottom:1px solid var(--fio-2);
+}
+.vazio svg,.vago svg{width:34px;height:34px;flex:none;color:var(--o);opacity:.34}
+.vazio b,.vago b{font-family:var(--display);font-weight:800;font-size:var(--t-bloco);
+  letter-spacing:-.03em;color:var(--tx)}
+.vazio .bt,.vago .bt{margin-left:auto}
+
+/* -------------------------------------------------------- etiquetas
+   Canto seco e fio de 2px a esquerda. O balao colorido gritava junto com
+   o laranja da marca, e com quatro cores empilhadas nenhuma valia nada. */
 .eti{
-  display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700;
-  padding:4px 10px; border-radius:20px; white-space:nowrap; letter-spacing:.02em;
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:var(--t-rotulo); font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  padding:3px 8px; border-radius:var(--r-sm); white-space:nowrap;
+  border-left:2px solid currentColor; background:rgba(255,255,255,.06);
 }
-.eti-ok{background:var(--ok-bg);color:var(--ok)}
-.eti-atencao{background:var(--atencao-bg);color:var(--atencao)}
-.eti-alerta{background:var(--alerta-bg);color:var(--alerta)}
-.eti-info{background:var(--info-bg);color:var(--info)}
-.eti-marca{background:var(--o-10);color:var(--o)}
-.eti-neutra{background:rgba(255,255,255,.06);color:var(--tinta-3)}
+.eti svg{width:12px;height:12px}
+.eti-ok{color:var(--sinal-ok)}
+.eti-atencao{color:var(--sinal-atencao)}
+.eti-alerta{color:var(--sinal-alerta)}
+.eti-info{color:var(--sinal-info)}
+.eti-neutra{color:var(--tx-4)}
+.eti-marca{color:var(--o-tx)}
+body[data-mesa="papel"] .eti{background:rgba(16,16,20,.05)}
 
-/* ---------------------------------------------------------- controles */
+/* --------------------------------------------------------- controles */
 .bt{
   display:inline-flex; align-items:center; gap:8px; border:1px solid transparent;
-  border-radius:var(--r-sm); padding:10px 17px; font-size:13px; font-weight:600;
-  cursor:pointer; transition:.16s; background:none;
+  border-radius:var(--r); padding:9px 16px; font-size:13px; font-weight:600;
+  cursor:pointer; background:none; color:var(--tx-2);
+  transition:background-color var(--t-controle) var(--ease),
+             border-color var(--t-controle) var(--ease),
+             color var(--t-controle) var(--ease);
 }
-.bt-marca{background:var(--o);color:#1a1004;border-color:var(--o)}
+.bt svg{width:15px;height:15px;flex:none}
+.bt-marca{background:var(--o);color:#1b1204;border-color:var(--o)}
 .bt-marca:hover{background:var(--o-lt);border-color:var(--o-lt)}
-.bt-linha{border-color:var(--linha);color:var(--tinta-2)}
-.bt-linha:hover{border-color:var(--o);color:var(--o)}
-.bt-sm{padding:7px 12px;font-size:12px}
+.bt-linha{border-color:var(--fio);color:var(--tx-2)}
+.bt-linha:hover{border-color:var(--tx-3);color:var(--tx)}
+/* acao secundaria em revista e link sublinhado, nao um terceiro botao */
+.bt-texto{padding:0;color:var(--tx);text-decoration:underline;text-underline-offset:4px;
+  text-decoration-thickness:1px;text-decoration-color:var(--fio)}
+.bt-texto:hover{text-decoration-color:var(--o)}
+/* Botao de coisa que nao tem volta. Vermelho so aqui, e so no dialogo. */
+.bt-perigo{background:var(--sinal-alerta);border-color:var(--sinal-alerta);color:#1b0505}
+.bt-perigo:hover{filter:brightness(1.12)}
+.bt-sm{padding:6px 11px;font-size:12px}
 .bt:disabled{opacity:.42;cursor:not-allowed}
 
+/* Campo de revista: fio embaixo, sem caixa. So o que recebe texto longo
+   mantem caixa, porque texto longo precisa de limite visivel. */
 .campo{
-  width:100%; background:var(--preto-3); border:1px solid var(--linha);
-  border-radius:var(--r-sm); padding:10px 12px; font-size:13px; outline:none; transition:.16s;
+  width:100%; background:none; border:0; border-bottom:1px solid var(--fio);
+  border-radius:0; padding:9px 0; font-size:var(--t-corpo); color:var(--tx);
+  outline:0; transition:border-color var(--t-controle) var(--ease);
 }
-.campo:focus{border-color:var(--o);box-shadow:0 0 0 3px var(--o-10)}
+.campo:focus{border-color:var(--o);box-shadow:none}
+.campo::placeholder{color:var(--tx-4)}
+textarea.campo,select.campo{
+  border:1px solid var(--fio); border-radius:var(--r-sm); padding:10px 12px;
+  background:var(--fundo-2);
+}
 textarea.campo{resize:vertical;min-height:88px;line-height:1.6}
 select.campo{cursor:pointer}
-.campo-sm{padding:7px 10px;font-size:12px}
-.rotulo{
-  display:block; font-size:9.5px; text-transform:uppercase; letter-spacing:.12em;
-  color:var(--tinta-4); font-weight:700; margin-bottom:6px;
+.campo-sm{font-size:var(--t-apoio);padding:7px 0}
+select.campo-sm,textarea.campo-sm{padding:7px 10px}
+input[type=checkbox]{accent-color:var(--o);width:15px;height:15px}
+
+/* ------------------------------------------------------------- aviso
+   Reservado para o que mudou AGORA. Aviso que aparece em todo desenho
+   nao e aviso, e paragrafo com borda colorida, e em tres dias ninguem
+   le mais nenhum, inclusive o da gravacao que falhou. */
+.aviso{
+  border:0; border-left:2px solid; border-radius:0; background:none;
+  padding:var(--e2) 0 var(--e2) var(--e2); margin-bottom:var(--e3);
 }
-.dica{font-size:11.5px;color:var(--tinta-4);line-height:1.6}
+.aviso b{display:block;font-size:var(--t-corpo);font-weight:700;margin-bottom:3px}
+.aviso p{font-size:var(--t-apoio);color:var(--tx-3);line-height:1.55;max-width:66ch}
+.aviso-alerta{border-color:var(--sinal-alerta)} .aviso-alerta b{color:var(--sinal-alerta)}
+.aviso-atencao{border-color:var(--sinal-atencao)} .aviso-atencao b{color:var(--sinal-atencao)}
+.aviso-info{border-color:var(--sinal-info)} .aviso-info b{color:var(--sinal-info)}
+.aviso-ok{border-color:var(--sinal-ok)} .aviso-ok b{color:var(--sinal-ok)}
 
-/* ---------------------------------------------------------- avisos */
-.aviso{border-radius:var(--r-sm);padding:14px 16px;margin-bottom:16px;border:1px solid;border-left-width:3px}
-.aviso b{display:block;font-size:13px;margin-bottom:5px}
-.aviso p{font-size:12.5px;color:var(--tinta-3);line-height:1.6}
-.aviso-alerta{background:var(--alerta-bg);border-color:var(--alerta)}
-.aviso-alerta b{color:var(--alerta)}
-.aviso-atencao{background:var(--atencao-bg);border-color:var(--atencao)}
-.aviso-atencao b{color:var(--atencao)}
-.aviso-info{background:var(--info-bg);border-color:var(--info)}
-.aviso-info b{color:var(--info)}
-.aviso-ok{background:var(--ok-bg);border-color:var(--ok)}
-.aviso-ok b{color:var(--ok)}
+/* ------------------------------------------------- dialogo e atalhos
+   Substitui os tres window.prompt com ensaio dentro. Caixa cinza do
+   navegador com "escreva TIRAR" e ritual de terminal, nao confirmacao. */
+.veu{position:fixed;inset:0;z-index:50;display:grid;place-items:center;
+  padding:var(--e4);background:rgba(4,4,6,.72)}
+.dialogo{
+  width:min(440px,100%); background:var(--preto-2); border:1px solid var(--linha);
+  border-radius:var(--r-lg); padding:var(--e4); box-shadow:0 24px 60px -20px #000;
+  --tx:var(--tinta); --tx-2:var(--tinta-2); --tx-3:var(--tinta-3); --tx-4:var(--tinta-4);
+  --fio:var(--linha); --o-tx:var(--o); --claro:var(--branco); color:var(--tinta);
+}
+.dialogo h2{font-size:var(--t-bloco);color:var(--branco);margin-bottom:var(--e2)}
+.dialogo p{font-size:var(--t-apoio);color:var(--tinta-2);line-height:1.55}
+.dialogo .fim{display:flex;gap:var(--e2);justify-content:flex-end;margin-top:var(--e4)}
+.atalhos{width:min(520px,100%)}
+.atalhos dl{display:grid;grid-template-columns:auto 1fr;gap:var(--e1) var(--e3);align-items:center}
+.atalhos dd{font-size:var(--t-apoio);color:var(--tinta-2)}
+kbd{
+  display:inline-grid; place-items:center; min-width:19px; height:19px; padding:0 5px;
+  background:var(--preto-4); border:1px solid var(--linha); border-bottom-width:2px;
+  border-radius:var(--r-sm); font-family:var(--texto); font-size:var(--t-rotulo);
+  color:var(--tinta-2);
+}
 
-/* ---------------------------------------------------------- entrada */
-.porta{min-height:100dvh;display:grid;place-items:center;padding:28px;background:var(--preto)}
-.porta-caixa{width:100%;max-width:430px}
-.porta-marca{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:26px}
-.porta-marca svg{width:30px;height:25px;fill:var(--o)}
-.porta-marca b{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--branco)}
-.porta h1{font-family:var(--display);font-weight:300;font-size:26px;color:var(--branco);text-align:center;line-height:1.25}
-.porta h1 b{font-weight:700;color:var(--o)}
-.porta > .porta-caixa > p{text-align:center;color:var(--tinta-3);font-size:13.5px;margin:12px 0 24px}
+/* ----------------------------------------------------------- a porta
+   Capa a esquerda, formulario no papel a direita: o mesmo gesto do
+   .split da capa, que ja poe o claro ao lado do escuro. E a pessoa
+   aprende a gramatica do sistema antes de clicar em qualquer coisa. */
+.porta{
+  min-height:100dvh; display:grid; padding:0; background:var(--preto);
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); place-items:stretch;
+}
+.porta-capa{
+  background:var(--preto); color:var(--branco); position:relative; overflow:hidden;
+  display:flex; flex-direction:column; justify-content:space-between;
+  padding:clamp(28px,4vw,56px);
+}
+.porta-capa::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(54% 58% at 86% 18%,rgba(255,131,9,.20),transparent 62%),
+             radial-gradient(44% 46% at 6% 94%,rgba(255,131,9,.10),transparent 64%);
+}
+.porta-capa>*{position:relative;z-index:2}
+.porta-capa .pe{
+  font-size:var(--t-rotulo); font-weight:600; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--tinta-4);
+}
+.porta-marca{display:flex;align-items:center;gap:12px;justify-content:flex-start;margin:0}
+.porta-marca svg{width:26px;height:22px;fill:var(--o);stroke:none}
+.porta-marca b{font-family:var(--display);font-weight:800;font-size:var(--t-rotulo);
+  letter-spacing:.2em;text-transform:uppercase;color:var(--branco)}
+/* A mesma frase da capa, no mesmo peso. Quem clicou no botao da landing
+   chega aqui e reconhece a casa antes de ler qualquer campo. */
+.porta-frase{
+  font-family:var(--display); font-weight:800; line-height:1.02;
+  font-size:clamp(30px,3.4vw,48px); letter-spacing:-.04em; color:var(--branco);
+}
+.porta-frase span{color:var(--o)}
+@media (max-width:820px){
+  .porta{grid-template-columns:1fr}
+  .porta-capa{padding:var(--e4) var(--e3);gap:var(--e3)}
+  .porta-frase,.porta-capa .pe{display:none}
+}
+.porta-caixa{
+  background:var(--papel); color:var(--ink); display:grid; align-content:center;
+  padding:clamp(28px,4vw,56px); max-width:none; width:auto;
+  --fundo-2:var(--papel-2); --fundo-3:#fff;
+  --tx:var(--ink); --tx-2:var(--ink-2); --tx-3:var(--ink-3); --tx-4:var(--ink-4);
+  --fio:var(--linha-l); --fio-2:var(--linha-l2); --o-tx:var(--o-ink); --claro:var(--ink);
+  --sinal-ok:var(--ok-p); --sinal-atencao:var(--atencao-p);
+  --sinal-alerta:var(--alerta-p); --sinal-info:var(--info-p);
+}
+.porta-caixa>*{width:100%;max-width:380px;margin-inline:auto}
+.porta h1{
+  font-family:var(--display); font-weight:800; font-size:clamp(26px,2.6vw,34px);
+  letter-spacing:-.04em; color:var(--ink); text-align:left; line-height:1.05;
+}
+.porta h1 b{color:var(--o-ink);font-weight:inherit}
+.porta > .porta-caixa > p{text-align:left;color:var(--ink-3);font-size:var(--t-apoio);
+  margin:var(--e1) 0 var(--e4)}
+.porta .bt-marca{width:100%;justify-content:center;margin-top:var(--e3)}
+
+/* Escolher quem entra vira indice, nao cartao com quadrado laranja. E a
+   mesma linha do menu e da tabela: na terceira vez ja esta aprendida. */
 .papel{
   display:flex; align-items:center; gap:14px; width:100%; text-align:left;
-  background:var(--preto-2); border:1px solid var(--linha); border-radius:var(--r);
-  padding:16px 18px; margin-bottom:11px; cursor:pointer; transition:.16s; color:inherit;
+  color:inherit; background:none; border:0; border-top:1px solid var(--fio);
+  border-radius:0; padding:14px 0; margin:0; cursor:pointer;
+  transition:color var(--t-controle) var(--ease);
 }
-.papel:hover{border-color:var(--o);background:var(--preto-3)}
-.papel .ic{
-  width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex:none;
-  background:var(--o-10);color:var(--o);font-size:17px;
-}
-.papel b{display:block;font-size:14px;color:var(--branco)}
-.papel span{font-size:12px;color:var(--tinta-3)}
+.papel:last-of-type{border-bottom:1px solid var(--fio)}
+.papel .ic{width:20px;height:20px;color:var(--o-tx);flex:none;
+  background:none;border-radius:0;font-size:inherit;display:block}
+.papel b{font-family:var(--display);font-weight:800;font-size:var(--t-bloco);
+  letter-spacing:-.03em;display:block;color:var(--tx)}
+.papel span{font-size:var(--t-apoio);color:var(--tx-4)}
+.papel .seta{margin-left:auto;opacity:.3;transform:none}
+.papel:hover .seta{opacity:1;transform:translateX(4px)}
+.papel:hover b{color:var(--o-tx)}
 
 /* ---------------------------------------------------------- celular */
+@media (max-width:1080px){ .grade-4,.numeros,.tira{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:860px){
+  .porta{grid-template-columns:1fr}
+  .porta-capa{min-height:42vh}
+}
+@media (max-width:760px){
+  .grade-2,.grade-3,.grade-4{grid-template-columns:1fr;gap:var(--e3)}
+}
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
   .lateral{
     position:fixed; inset:0 auto 0 0; width:var(--lateral); z-index:40;
-    transform:translateX(-100%); transition:transform .22s;
+    transform:translateX(-100%); transition:transform .3s var(--ease);
   }
   .lateral.aberta{transform:none}
-  .topo{padding:14px 18px}
-  .rolo{padding:20px 18px 60px}
-  .veu{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30}
+  .topo{padding:0 var(--e3)}
+  .topo .sub{display:none}
+  .rolo,.folha,.wrap{width:calc(100% - var(--e3)*2)}
+  .abertura h2,.manchete{font-size:clamp(27px,7.4vw,38px)}
+  .numeros,.tira{grid-template-columns:1fr}
+  .numero,.tira>div{border-right:0;border-bottom:1px solid var(--fio-2);padding-right:0}
 }
 @media (min-width:901px){ .so-celular{display:none !important} }

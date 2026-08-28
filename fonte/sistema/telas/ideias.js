@@ -162,17 +162,16 @@ async function ideiasCarregar() {
   if (corpo === null) {
     ideiasParar('atencao', 'Seu login venceu.',
       'O servidor devolveu a página de login no lugar das aplicações. Recarregue esta página para entrar de novo. ' +
-      'Se continuar aparecendo, saia do login protegido em /cdn-cgi/access/logout e entre outra vez.');
+      'Se continuar aparecendo, <a href="/cdn-cgi/access/logout">saia do login protegido</a> e entre outra vez.');
     return;
   }
 
   if (r.status === 503) {
     // De proposito: sem TEAM_DOMAIN e ACCESS_AUD nao ha como conferir
     // login nenhum, e deixar passar seria pior que fechar.
-    ideiasParar('atencao', 'O Worker ainda não sabe conferir quem entra.',
-      'Ele respondeu: "' + esc(corpo.erro || 'sem explicação') + '". A rota se fecha enquanto faltar essa configuração, ' +
-      'porque deixar passar abriria as aplicações para qualquer pessoa que soubesse o endereço. ' +
-      'Quem cuida da publicação preenche isso no painel da Cloudflare, e o passo a passo está no DEPLOY.md.');
+    ideiasParar('atencao', 'O login protegido ainda não foi ligado.',
+      'Enquanto ele não existir, a lista fica fechada: abrir agora deixaria as aplicações à vista de ' +
+      'qualquer um que soubesse o endereço.');
     return;
   }
 
@@ -338,7 +337,7 @@ function ideiasOrigemCelula(l) {
   // unico caminho publicado ate hoje.
   const k = String(l.origem || 'landing').trim().toLowerCase();
   const o = porChave(IDEIAS_ORIGENS, k);
-  return '<span style="font-size:12.5px;color:var(--tinta-2)">' + esc(o ? o.nome : l.origem) + '</span>';
+  return '<span style="font-size:12.5px;color:var(--tx-2)">' + esc(o ? o.nome : l.origem) + '</span>';
 }
 
 // A linha embaixo do nome: o que este navegador tem sobre o caso.
@@ -371,7 +370,7 @@ function ideiasRespostasHtml(l) {
     const v = ideiasValor(l.respostas[p]);
     return '<div style="margin-bottom:13px">' +
            '<span class="rotulo">' + esc(p) + '</span>' +
-           (v ? '<div style="font-size:13px;color:var(--tinta);white-space:pre-wrap">' + esc(v) + '</div>'
+           (v ? '<div style="font-size:13px;color:var(--tx);white-space:pre-wrap">' + esc(v) + '</div>'
               : '<div class="dica">não respondeu</div>') +
            '</div>';
   }).join('');
@@ -391,7 +390,7 @@ function ideiasDetalhe(l, apoio) {
   else if (leitura) sob = 'A leitura deste caso já começou.';
   else sob = 'Perfil, estágio, o que o caso pede das oito entregas e o nível indicado ficam lá.';
 
-  return '<tr><td colspan="' + IDEIAS_COLUNAS + '" style="background:var(--preto-3);padding:22px 18px">' +
+  return '<tr><td colspan="' + IDEIAS_COLUNAS + '" style="background:var(--fundo-3);padding:22px 18px">' +
     '<div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:26px">' +
 
       '<div>' +
@@ -436,7 +435,7 @@ function ideiasLinha(l, apoio) {
 
   return '<tr>' +
     '<td>' + ideiasEsperaCelula(l) + '</td>' +
-    '<td><div style="font-weight:600;color:var(--branco)">' + esc(l.nome || 'não disse o nome') + '</div>' +
+    '<td><div style="font-weight:600;color:var(--claro)">' + esc(l.nome || 'não disse o nome') + '</div>' +
       ideiasSituacaoLocal(l, apoio) + '</td>' +
     '<td>' + ideiasContatoCelula(l) + '</td>' +
     '<td>' + ideiasNivelCelula(l) + '</td>' +
@@ -604,13 +603,10 @@ function ideiasDesenhar() {
       return;
     }
     if (IDEIAS.estado === 'erro') {
-      corpo.innerHTML = vazio('Nada aparece aqui enquanto o aviso acima não for resolvido. ' +
-        'A lista vem do servidor, então não há cópia neste navegador para mostrar no lugar.', IDEIAS_COLUNAS);
+      corpo.innerHTML = vazio('A lista vem do servidor, e ele não respondeu.', IDEIAS_COLUNAS);
       return;
     }
-    corpo.innerHTML = vazio('Nenhuma aplicação chegou ainda. A caixa está de pé: o formulário da landing grava ' +
-      'direto aqui e a primeira resposta aparece nesta tela sem ninguém atualizar nada. Se você esperava ver alguém, ' +
-      'o webhook do Typeform é o primeiro lugar a conferir, e o passo a passo está no DEPLOY.md.', IDEIAS_COLUNAS);
+    corpo.innerHTML = vazio('Nenhuma aplicação ainda. O formulário da landing grava direto aqui.', IDEIAS_COLUNAS);
     return;
   }
 

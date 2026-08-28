@@ -230,6 +230,70 @@ function aviso(tom, titulo, texto) {
   return '<div class="aviso aviso-' + tom + '"><b>' + titulo + '</b><p>' + texto + '</p></div>';
 }
 
+// Um icone do conjunto da marca. O mesmo desenho da landing, no mesmo
+// traco: quem sai de uma pagina e entra na outra nao sente que trocou de
+// empresa. `extra` aceita ic-14, ic-20 ou ic-34 para os tamanhos.
+function ic(nome, extra) {
+  return '<svg class="ic' + (extra ? ' ' + extra : '') + '" aria-hidden="true">' +
+         '<use href="#' + esc(nome) + '"/></svg>';
+}
+
+/* -------------------------------------------------------------------
+   Perguntar antes de uma coisa que nao tem volta.
+
+   O window.prompt do navegador pedia para escrever TIRAR, ZERAR ou
+   APAGAR num campo cinza que nao e do sistema, com quatro paragrafos de
+   ensaio dentro. Ritual de terminal, nao confirmacao: quem esta com
+   pressa digita a palavra sem ler, e quem le nao entende por que o
+   sistema esta pedindo isso.
+
+   Aqui e uma caixa da propria casa, com o foco no botao ao abrir,
+   Escape para fechar e o foco de volta em quem chamou. Devolve uma
+   promessa que vale true so se a pessoa clicar no botao vermelho.
+   ------------------------------------------------------------------- */
+function perguntar(p) {
+  return new Promise(function (resolve) {
+    const origem = document.activeElement;
+    const veu = document.createElement('div');
+    veu.className = 'veu';
+    veu.id = 'veu-dialogo';
+    veu.innerHTML =
+      '<div class="dialogo" role="dialog" aria-modal="true" aria-labelledby="dlg-t">' +
+        '<h2 id="dlg-t">' + esc(p.titulo) + '</h2>' +
+        '<p>' + esc(p.texto) + '</p>' +
+        (p.detalhe ? '<p class="dica" style="margin-top:10px">' + esc(p.detalhe) + '</p>' : '') +
+        '<div class="fim">' +
+          '<button class="bt bt-linha" id="dlg-nao">Cancelar</button>' +
+          '<button class="bt bt-perigo" id="dlg-sim">' + esc(p.confirmar) + '</button>' +
+        '</div>' +
+      '</div>';
+
+    function fechar(resposta) {
+      document.removeEventListener('keydown', tecla, true);
+      veu.remove();
+      if (origem && origem.focus) origem.focus();
+      resolve(resposta);
+    }
+    function tecla(e) {
+      if (e.key === 'Escape') { e.preventDefault(); fechar(false); return; }
+      // O foco nao escapa da caixa enquanto ela esta aberta.
+      if (e.key === 'Tab') {
+        const alvos = [porId('dlg-nao'), porId('dlg-sim')];
+        const i = alvos.indexOf(document.activeElement);
+        e.preventDefault();
+        alvos[(i + (e.shiftKey ? -1 : 1) + alvos.length) % alvos.length].focus();
+      }
+    }
+
+    document.body.appendChild(veu);
+    veu.onclick = function (e) { if (e.target === veu) fechar(false); };
+    porId('dlg-nao').onclick = function () { fechar(false); };
+    porId('dlg-sim').onclick = function () { fechar(true); };
+    document.addEventListener('keydown', tecla, true);
+    porId('dlg-sim').focus();
+  });
+}
+
 function porId(id) { return document.getElementById(id); }
 
 function escrever(id, html) { const e = porId(id); if (e) e.innerHTML = html; }
@@ -245,23 +309,23 @@ function texto(id, v) { const e = porId(id); if (e) e.textContent = v; }
 const DESENHO = {};
 
 const TELAS = [
-  { k: 'semana',   nome: 'Minha semana',           ic: '◷', grupo: 'Meu trabalho',
+  { k: 'semana',   nome: 'Minha semana',           ic: 'i-clock', grupo: 'Meu trabalho',
     titulo: ['Minha <b>semana</b>', 'O que vence, o que atrasou e quem está esperando'] },
-  { k: 'ideias',   nome: 'Ideias que chegaram',    ic: '✧', grupo: 'A mesa',
+  { k: 'ideias',   nome: 'Ideias que chegaram',    ic: 'i-spark', grupo: 'A mesa',
     titulo: ['Ideias que <b>chegaram</b>', 'Quem contou a ideia e ainda não teve resposta nossa'] },
-  { k: 'leitura',  nome: 'Leitura do caso',        ic: '✦', grupo: 'A mesa',
-    titulo: ['Leitura do <b>caso</b>', 'Cabe no método, em que nível, e o que a pessoa recebe de volta'] },
-  { k: 'projetos', nome: 'Projetos em estruturação',ic: '◈', grupo: 'Meu trabalho',
+  { k: 'leitura',  nome: 'Leitura do caso',        ic: 'i-search', grupo: 'A mesa',
+    titulo: ['Leitura do <b>caso</b>', 'Cabe no método, em que nível, e o que a pessoa recebe de volta'], mesa: 'papel' },
+  { k: 'projetos', nome: 'Projetos em estruturação',ic: 'i-layers', grupo: 'Meu trabalho',
     titulo: ['Projetos em <b>estruturação</b>', 'Em que fase está cada projeto e de quem é a bola'] },
-  { k: 'entrega',  nome: 'Mesa da entrega',        ic: '✎', grupo: 'Meu trabalho',
-    titulo: ['Mesa da <b>entrega</b>', 'Onde a entrega é escrita'] },
-  { k: 'roteiros', nome: 'Roteiros e níveis',      ic: '▤', grupo: 'O método',
+  { k: 'entrega',  nome: 'Mesa da entrega',        ic: 'i-doc', grupo: 'Meu trabalho',
+    titulo: ['Mesa da <b>entrega</b>', 'Onde a entrega é escrita'], mesa: 'papel' },
+  { k: 'roteiros', nome: 'Roteiros e níveis',      ic: 'i-route', grupo: 'O método',
     titulo: ['Roteiros e <b>níveis</b>', 'Para a entrega não depender de improviso a cada cliente'] },
-  { k: 'dinheiro', nome: 'Contratado e recebido',  ic: '◧', grupo: 'A casa',
+  { k: 'dinheiro', nome: 'Contratado e recebido',  ic: 'i-chart', grupo: 'A casa',
     titulo: ['Contratado e <b>recebido</b>', 'Quanto foi vendido e quanto entrou de fato'] },
-  { k: 'cliente',  nome: 'Meu projeto',            ic: '◐', grupo: 'O cliente',
+  { k: 'cliente',  nome: 'Meu projeto',            ic: 'i-case', grupo: 'O cliente',
     titulo: ['Meu <b>projeto</b>', 'O que o cliente vê do próprio projeto'] },
-  { k: 'casa',     nome: 'A casa',                 ic: '⌂', grupo: 'A casa',
+  { k: 'casa',     nome: 'A casa',                 ic: 'i-shield', grupo: 'A casa',
     titulo: ['A <b>casa</b>', 'Quem entra, o que cada um enxerga, e onde o dado pode se perder'] },
 ];
 
@@ -282,9 +346,9 @@ const PERMISSOES_DEFAULT = {
 };
 
 const PAPEIS = [
-  { k: 'gestor',      nome: 'Gestor',      ic: '✦', resumo: 'Vê tudo, assina veredito e lança recebimento.' },
-  { k: 'colaborador', nome: 'Colaborador', ic: '✎', resumo: 'Prepara leitura e escreve as entregas dos projetos dele.' },
-  { k: 'cliente',     nome: 'Cliente',     ic: '◐', resumo: 'Acompanha o próprio projeto.' },
+  { k: 'gestor',      nome: 'Gestor',      ic: 'i-award', resumo: 'Vê tudo, assina veredito e lança recebimento.' },
+  { k: 'colaborador', nome: 'Colaborador', ic: 'i-mic', resumo: 'Prepara leitura e escreve as entregas dos projetos dele.' },
+  { k: 'cliente',     nome: 'Cliente',     ic: 'i-user', resumo: 'Acompanha o próprio projeto.' },
 ];
 
 let PERMISSOES = JSON.parse(JSON.stringify(PERMISSOES_DEFAULT));
@@ -438,6 +502,9 @@ function irPara(chave) {
 
   const t = TELAS.find(function (x) { return x.k === chave; });
   if (t) { escrever('topo-titulo', t.titulo[0]); texto('topo-sub', t.titulo[1]); }
+  // A superficie da tela. Escrever e ler texto longo acontece no papel.
+  if (t && t.mesa) document.body.dataset.mesa = t.mesa;
+  else delete document.body.dataset.mesa;
 
   const lateral = porId('lateral');
   if (lateral) lateral.classList.remove('aberta');
@@ -457,7 +524,7 @@ function montarMenu() {
     html += '<div class="menu-grupo">' + esc(g) + '</div>';
     doGrupo.forEach(function (t) {
       html += '<button class="menu-item" id="menu-' + t.k + '" onclick="irPara(\'' + t.k + '\')">' +
-              '<span class="ic">' + t.ic + '</span>' + esc(t.nome) +
+              ic(t.ic) + esc(t.nome) +
               '<span class="conta" id="conta-' + t.k + '" hidden></span></button>';
     });
   });

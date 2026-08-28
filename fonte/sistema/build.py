@@ -59,6 +59,17 @@ fontes_css = "\n".join(faces)
 svg = ler('../mark_geo.svg')
 mark_paths = ''.join(re.findall(r'<path[^>]*/>', svg))
 
+# ---------------------------------------------------------------- icones
+# Os mesmos 35 simbolos desenhados da landing. Antes o sistema usava glifo
+# solto do teclado, que muda de desenho conforme o sistema operacional de
+# quem abre, nao alinha com a linha de texto e nao aceita traco. Eles ja
+# estao desenhados no page.tpl.html e sao da mesma marca: copiar e mais
+# barato e mais honesto que redesenhar.
+landing = ler('../page.tpl.html')
+simbolos = ''.join(re.findall(r'<symbol[^>]*\bid="i-[a-z-]+"[^>]*>.*?</symbol>', landing, re.S))
+if not simbolos:
+    raise SystemExit('nao achei os simbolos i-* no page.tpl.html')
+
 INK  = (3.0, 2.0, 167.0, 137.0)
 SIDE, FILL, OPT = 220.0, 0.64, 0.6
 iw, ih = INK[2] - INK[0], INK[3] - INK[1]
@@ -79,6 +90,7 @@ saida = (ler('00-cabeca.html')
          .replace('/*__FONTES__*/', fontes_css)
          .replace('__FAVICON__', fav_uri)
          .replace('__MARK_PATHS__', mark_paths)
+         .replace('<!--__ICONES__-->', simbolos)
          + ler('10-estilo.css')
          + '\n</style>\n</head>\n<body>\n'
          + ler('20-moldura.html')

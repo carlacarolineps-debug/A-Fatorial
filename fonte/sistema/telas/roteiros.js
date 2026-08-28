@@ -23,13 +23,14 @@ const ROTEIROS_PERGUNTA = {
   execucao:       'O que ela faz na segunda-feira de manhã.',
 };
 
-// O roteiro comeca com uma linha so em cada entrega, de proposito: e um
-// lembrete de que falta escrever, e nao um modelo pronto que ninguem le.
+// O roteiro nasce VAZIO. A frase de lembrete vive no placeholder do campo,
+// e nao no dado: gravada, ela seria copiada para dentro de cada projeto e
+// viraria um item de conferencia que ninguem consegue cumprir.
 function roteirosPadrao() {
   const roteiros = {};
   ENTREGAS.forEach(function (e) {
     roteiros[e.k] = {
-      definicaoPronto: ['Escreva aqui o que precisa estar feito para esta entrega contar como pronta.'],
+      definicaoPronto: [],
       perguntas: [],
       comoFazer: '',
       modelo: '',
@@ -69,9 +70,9 @@ function roteirosCartaoNivel(nivel, editavel) {
   const fora = ENTREGAS.filter(function (e) { return (nivel.escopo || []).indexOf(e.k) < 0; });
 
   return '' +
-    '<div style="border:1px solid var(--linha);border-radius:var(--r);padding:20px;background:var(--preto-3)">' +
+    '<div style="border:1px solid var(--fio);border-radius:var(--r);padding:20px;background:var(--fundo-3)">' +
       '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">' +
-        '<b style="font-family:var(--display);font-size:17px;color:var(--branco)">' + esc(nivel.nome) + '</b>' +
+        '<b style="font-family:var(--display);font-size:17px;color:var(--claro)">' + esc(nivel.nome) + '</b>' +
         '<span class="eti eti-marca">' + esc(moeda(nivel.valor)) + '</span>' +
       '</div>' +
       '<p class="dica" style="margin:8px 0 14px">' + esc(nivel.resumo) + '</p>' +
@@ -92,10 +93,10 @@ function roteirosCartaoNivel(nivel, editavel) {
             ? '<input type="checkbox" ' + (dentro ? 'checked ' : '') +
               'onchange="roteirosAlternarEscopo(\'' + nivel.k + '\',\'' + e.k + '\')" ' +
               'style="accent-color:var(--o);margin-right:8px">'
-            : '<span style="color:' + (dentro ? 'var(--o)' : 'var(--tinta-4)') + ';margin-right:8px">' +
+            : '<span style="color:' + (dentro ? 'var(--o)' : 'var(--tx-4)') + ';margin-right:8px">' +
               (dentro ? '✓' : '·') + '</span>';
           return '<label style="display:flex;align-items:center;font-size:12.5px;color:' +
-                 (dentro ? 'var(--tinta)' : 'var(--tinta-4)') + ';cursor:' + (editavel ? 'pointer' : 'default') + '">' +
+                 (dentro ? 'var(--tx)' : 'var(--tx-4)') + ';cursor:' + (editavel ? 'pointer' : 'default') + '">' +
                  marca + esc(e.nome) + '</label>';
         }).join('') +
       '</div>' +
@@ -109,21 +110,21 @@ function roteirosCartaoNivel(nivel, editavel) {
 
 function roteirosCartaoEntrega(entrega, roteiro, editavel) {
   const pronto = (roteiro.definicaoPronto || []).filter(function (x) { return String(x).trim(); });
-  const escrita = pronto.length > 0 && !/Escreva aqui/.test(pronto[0]);
+  const escrita = pronto.length > 0;
 
   return '' +
-    '<div style="border:1px solid var(--linha);border-radius:var(--r);padding:20px;margin-bottom:14px;background:var(--preto-3)">' +
+    '<div style="border:1px solid var(--fio);border-radius:var(--r);padding:20px;margin-bottom:14px;background:var(--fundo-3)">' +
       '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">' +
         '<span style="font-family:var(--display);font-size:12px;color:var(--o);font-weight:700">' +
           String(entrega.n).padStart(2, '0') + '</span>' +
-        '<b style="font-size:15px;color:var(--branco)">' + esc(entrega.nome) + '</b>' +
+        '<b style="font-size:15px;color:var(--claro)">' + esc(entrega.nome) + '</b>' +
         '<span class="eti eti-neutra">' + esc(nomeFase(entrega.fase)) + '</span>' +
         (escrita ? '' : '<span class="eti eti-atencao">sem definição de pronto</span>') +
       '</div>' +
       '<p class="dica" style="margin-bottom:16px">' + esc(entrega.resumo) + '</p>' +
 
       '<div class="rotulo">A pergunta que ela responde</div>' +
-      '<p style="font-size:13.5px;color:var(--tinta-2);margin-bottom:16px">' +
+      '<p style="font-size:13.5px;color:var(--tx-2);margin-bottom:16px">' +
         esc(ROTEIROS_PERGUNTA[entrega.k] || '') + '</p>' +
 
       '<div class="rotulo">Definição de pronto</div>' +
@@ -131,7 +132,7 @@ function roteirosCartaoEntrega(entrega, roteiro, editavel) {
         ? '<textarea class="campo" id="roteirosPronto-' + entrega.k + '" ' +
           'placeholder="Uma linha por item. É isto que vira checklist na Mesa da entrega.">' +
           esc(pronto.join('\n')) + '</textarea>'
-        : '<ul style="margin:0 0 4px 18px;font-size:13px;color:var(--tinta-2);line-height:1.8">' +
+        : '<ul style="margin:0 0 4px 18px;font-size:13px;color:var(--tx-2);line-height:1.8">' +
           pronto.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>') +
 
       '<div class="rotulo" style="margin-top:16px">Perguntas a fazer ao cliente</div>' +
@@ -139,17 +140,17 @@ function roteirosCartaoEntrega(entrega, roteiro, editavel) {
         ? '<textarea class="campo" id="roteirosPerguntas-' + entrega.k + '" ' +
           'placeholder="Uma por linha. Aparecem na Mesa da entrega, para não perguntar de novo o que já foi respondido.">' +
           esc((roteiro.perguntas || []).join('\n')) + '</textarea>'
-        : '<ul style="margin:0 0 4px 18px;font-size:13px;color:var(--tinta-2);line-height:1.8">' +
+        : '<ul style="margin:0 0 4px 18px;font-size:13px;color:var(--tx-2);line-height:1.8">' +
           (roteiro.perguntas || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') +
-          (!(roteiro.perguntas || []).length ? '<li style="color:var(--tinta-4)">nenhuma escrita ainda</li>' : '') +
+          (!(roteiro.perguntas || []).length ? '<li style="color:var(--tx-4)">nenhuma escrita ainda</li>' : '') +
           '</ul>') +
 
       '<div class="rotulo" style="margin-top:16px">Como fazer</div>' +
       (editavel
         ? '<textarea class="campo" id="roteirosComo-' + entrega.k + '" ' +
           'placeholder="O jeito da casa de conduzir esta entrega.">' + esc(roteiro.comoFazer || '') + '</textarea>'
-        : '<p style="font-size:13px;color:var(--tinta-2);white-space:pre-wrap">' +
-          (roteiro.comoFazer ? esc(roteiro.comoFazer) : '<span style="color:var(--tinta-4)">nada escrito ainda</span>') +
+        : '<p style="font-size:13px;color:var(--tx-2);white-space:pre-wrap">' +
+          (roteiro.comoFazer ? esc(roteiro.comoFazer) : '<span style="color:var(--tx-4)">nada escrito ainda</span>') +
           '</p>') +
 
       '<div class="rotulo" style="margin-top:16px">Modelo de material</div>' +
@@ -217,7 +218,7 @@ function roteirosSalvarEntrega(k) {
 function roteirosPintarSelos(metodo) {
   const escritas = ENTREGAS.filter(function (e) {
     const p = (metodo.roteiros[e.k] || {}).definicaoPronto || [];
-    return p.length && !/Escreva aqui/.test(p[0]);
+    return p.length > 0;
   }).length;
 
   escrever('roteirosSeloProntas', escritas === ENTREGAS.length
@@ -231,13 +232,25 @@ DESENHO.roteiros = function () {
   const metodo = roteirosLer();
   const editavel = roteirosPodeEditar();
 
-  // O mesmo preco vive em dois lugares, e essa e a armadilha desta tela.
-  escrever('roteirosAviso', aviso('atencao',
-    'O preço também está escrito na landing.',
-    'Mudar o valor aqui e não republicar a landing faz a devolutiva sair com um número diferente do que a pessoa leu antes de aplicar. ' +
-    'A landing se mexe em fonte/page.tpl.html, seguido de "cd fonte && python3 build.py".') +
+  // O mesmo preco vive em dois lugares: aqui e na landing publicada, cujos
+  // valores estao em NIVEIS_DEFAULT. Enquanto os dois batem nao ha o que
+  // avisar. Quando divergem, a devolutiva sai com um numero diferente do
+  // que a pessoa leu antes de aplicar, e ai o aviso aparece. Republicar a
+  // landing e editar fonte/page.tpl.html e rodar "cd fonte && python3
+  // build.py", que e trabalho de quem mexe no repositorio, nao de quem
+  // esta olhando esta tela.
+  const fora = metodo.niveis.filter(function (n) {
+    const p = porChave(NIVEIS_DEFAULT, n.k);
+    return p && Number(p.valor) !== Number(n.valor);
+  });
+  escrever('roteirosAviso',
+    (fora.length ? aviso('atencao',
+      fora.length === 1 ? 'A landing ainda mostra outro preço.' : 'A landing ainda mostra outros preços.',
+      fora.map(function (n) {
+        return n.nome + ': aqui ' + moeda(n.valor) + ', na landing ' + moeda(porChave(NIVEIS_DEFAULT, n.k).valor);
+      }).join('. ') + '.') : '') +
     (editavel ? '' : aviso('info', 'Você está vendo em leitura.',
-      'Preço e escopo são decisão da Equipe. Peça a mudança para quem tem esse acesso.')));
+      'Preço e escopo são decisão da gestão. Peça a mudança para quem tem esse acesso.')));
 
   escrever('roteirosSeloNiveis', editavel
     ? '<span class="eti eti-marca">você pode editar</span>'
@@ -251,10 +264,10 @@ DESENHO.roteiros = function () {
   escrever('roteirosEtapas',
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">' +
     ETAPAS.map(function (e) {
-      return '<div style="border:1px solid var(--linha);border-radius:var(--r-sm);padding:14px 16px">' +
+      return '<div style="border:1px solid var(--fio);border-radius:var(--r-sm);padding:14px 16px">' +
         '<div style="font-family:var(--display);font-size:11px;color:var(--o);font-weight:700">' +
           String(e.n).padStart(2, '0') + '</div>' +
-        '<b style="display:block;font-size:14px;color:var(--branco);margin-top:4px">' + esc(e.nome) + '</b>' +
+        '<b style="display:block;font-size:14px;color:var(--claro);margin-top:4px">' + esc(e.nome) + '</b>' +
         '<p class="dica" style="margin-top:5px">' + esc(e.resumo) + '</p></div>';
     }).join('') + '</div>');
 

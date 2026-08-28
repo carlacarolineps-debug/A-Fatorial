@@ -122,7 +122,7 @@ DESENHO.cliente = function () {
         '<div class="cartao-t" style="color:var(--atencao)">O que depende de você</div>' +
         esperandoEle.map(function (e) {
           const dias = diasDesde(e.enviadaEm);
-          return '<div style="display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--linha-2)">' +
+          return '<div style="display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--fio-2)">' +
             '<div><b>' + esc(nomeEntrega(e.k)) + '</b>' +
               '<div class="dica">enviada em ' + esc(dataCurta(e.enviadaEm)) +
               (dias !== null && dias > 0 ? ', esperando há ' + dias + ' dias' : '') + '</div></div>' +
@@ -144,12 +144,12 @@ DESENHO.cliente = function () {
     FASES.map(function (f) {
       const passou = f.n < Number(projeto.fase);
       const agora = f.n === Number(projeto.fase);
-      const cor = agora ? 'var(--o)' : passou ? 'var(--ok)' : 'var(--linha)';
+      const cor = agora ? 'var(--o)' : passou ? 'var(--ok)' : 'var(--fio)';
       return '<div style="border:1px solid ' + cor + ';border-top:3px solid ' + cor +
         ';border-radius:var(--r-sm);padding:14px 16px;opacity:' + (agora || passou ? '1' : '.55') + '">' +
         '<div style="font-family:var(--display);font-size:11px;color:' + cor + ';font-weight:700">Fase ' +
           String(f.n).padStart(2, '0') + '</div>' +
-        '<b style="display:block;font-size:14px;color:var(--branco);margin-top:4px">' + esc(f.nome) + '</b>' +
+        '<b style="display:block;font-size:14px;color:var(--claro);margin-top:4px">' + esc(f.nome) + '</b>' +
         '<p class="dica" style="margin-top:5px">' + esc(f.resumo) + '</p>' +
         (agora ? '<div class="eti eti-marca" style="margin-top:10px">etapa: ' + esc(nomeEtapa(projeto.etapa)) + '</div>' : '') +
       '</div>';
@@ -169,8 +169,8 @@ DESENHO.cliente = function () {
         const ondeEntra = clienteNiveis().find(function (n) { return (n.escopo || []).indexOf(def.k) >= 0; });
         const diferenca = ondeEntra && nivel ? (Number(ondeEntra.valor) || 0) - (Number(nivel.valor) || 0) : 0;
         return '<div style="display:flex;justify-content:space-between;gap:14px;align-items:center;' +
-          'padding:14px 0;border-bottom:1px solid var(--linha-2);opacity:.55">' +
-          '<div><b style="color:var(--tinta-3)">' + esc(def.nome) + '</b>' +
+          'padding:14px 0;border-bottom:1px solid var(--fio-2);opacity:.55">' +
+          '<div><b style="color:var(--tx-3)">' + esc(def.nome) + '</b>' +
             '<div class="dica">' + esc(def.resumo) + '</div></div>' +
           '<div style="text-align:right;white-space:nowrap">' +
             (ondeEntra ? '<span class="eti eti-neutra">faz parte do ' + esc(ondeEntra.nome) + '</span>' : '') +
@@ -180,7 +180,7 @@ DESENHO.cliente = function () {
       }
 
       return '<div style="display:flex;justify-content:space-between;gap:14px;align-items:center;' +
-        'padding:14px 0;border-bottom:1px solid var(--linha-2)">' +
+        'padding:14px 0;border-bottom:1px solid var(--fio-2)">' +
         '<div><b>' + esc(def.nome) + '</b>' +
           '<div class="dica">' + esc(def.resumo) + '</div></div>' +
         '<div style="text-align:right;white-space:nowrap">' +
@@ -197,10 +197,10 @@ DESENHO.cliente = function () {
       const e = clienteEntrega(projeto, b.k);
       const aceso = e && e.noEscopo && e.estado === 'aprovada';
       const fora = e ? !e.noEscopo : escopo.indexOf(b.k) < 0;
-      return '<div style="border:1px solid ' + (aceso ? 'var(--o-35)' : 'var(--linha)') +
+      return '<div style="border:1px solid ' + (aceso ? 'var(--o-35)' : 'var(--fio)') +
         ';border-radius:var(--r-sm);padding:16px;background:' + (aceso ? 'var(--o-05)' : 'transparent') +
         ';opacity:' + (fora ? '.4' : '1') + '">' +
-        '<b style="display:block;font-size:13.5px;color:' + (aceso ? 'var(--branco)' : 'var(--tinta-3)') + '">' +
+        '<b style="display:block;font-size:13.5px;color:' + (aceso ? 'var(--claro)' : 'var(--tx-3)') + '">' +
           esc(b.bloco) + '</b>' +
         '<div class="dica" style="margin-top:6px">' +
           (aceso ? 'pronto, aprovado por você'

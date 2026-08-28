@@ -459,7 +459,7 @@ function etiquetaEstadoTexto(k) {
 
 function semanaCabecalhoDia(iso, colunas) {
   return '<tr><td colspan="' + colunas + '" style="padding:18px 13px 6px;font-size:10px;' +
-    'letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-4);font-weight:700">' +
+    'letter-spacing:.12em;text-transform:uppercase;color:var(--tx-4);font-weight:700">' +
     esc(semanaDiaRotulo(iso)) + '</td></tr>';
 }
 
@@ -771,16 +771,12 @@ function semanaSeletor(d) {
     .concat(pessoas.filter(function (u) { return String(u.id) !== String(semanaMeuId()); })
       .map(function (u) { return { k: u.id, nome: u.nome || u.email }; }))
     .concat([{ k: 'todas', nome: 'A casa inteira' }]);
-  return '<div class="cartao" style="display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap">' +
-    '<div style="min-width:236px">' +
+  return '<div style="min-width:236px;margin-bottom:20px">' +
       '<label class="rotulo" for="semana-quem">Semana de quem</label>' +
       '<select class="campo campo-sm" id="semana-quem" onchange="semanaTrocarPessoa(this.value)">' +
       opcoes.map(function (o) {
         return '<option value="' + esc(o.k) + '"' + (String(SEMANA.pessoa) === String(o.k) ? ' selected' : '') + '>' + esc(o.nome) + '</option>';
       }).join('') + '</select>' +
-    '</div>' +
-    '<p class="dica" style="flex:1;min-width:260px">A escolha vale para as entregas e para a colheita, que têm responsável. ' +
-    'A devolutiva pendente aparece para todo mundo, porque ela é promessa da casa e não trabalho de uma pessoa.</p>' +
     '</div>';
 }
 
@@ -804,18 +800,15 @@ function semanaEmDia(faltando, d) {
   return '<div class="cartao">' +
     '<div class="cartao-t">O que está em dia</div>' +
     faltando.map(function (t) {
-      return '<div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--linha-2)">' +
+      return '<div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--fio-2)">' +
         '<span class="eti eti-ok">em dia</span><span class="dica">' + esc(t) + '</span></div>';
     }).join('') + '</div>';
 }
 
 function semanaSemProjeto() {
   return '<div class="cartao">' +
-    '<div class="cartao-t">Sua semana ainda não tem de onde nascer</div>' +
-    '<p class="dica" style="max-width:80ch">Sua semana está limpa porque ainda não existe projeto nenhum. ' +
-    'Toda linha desta tela nasce de uma aplicação que passou pela leitura do caso, então comece por Ideias que chegaram. ' +
-    'Se você acabou de ligar o sistema, o caminho é outro: abra Roteiros e níveis e escreva a definição de pronto das oito entregas, ' +
-    'para que os projetos já nasçam com checklist.</p>' +
+    '<div class="cartao-t">Nenhum projeto ainda</div>' +
+    '<p class="dica">Ideias que chegaram enche sozinha quando alguém responde o formulário da landing.</p>' +
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">' +
       '<button class="bt bt-marca bt-sm" onclick="semanaIr(' + semanaArg('ideias') + ', ' + semanaArg('Ideias que chegaram') + ')">Ideias que chegaram</button>' +
       '<button class="bt bt-linha bt-sm" onclick="semanaIr(' + semanaArg('roteiros') + ', ' + semanaArg('Roteiros e níveis') + ')">Roteiros e níveis</button>' +
@@ -859,12 +852,6 @@ DESENHO.semana = function () {
     // inútil: não existe entrega para passar do prazo.
     corpo += semanaSemProjeto();
   } else {
-    if (!corpo) {
-      corpo += aviso('ok', 'Sua semana está limpa.',
-        'Nada venceu, nada vence até domingo e ninguém está parado esperando você. ' +
-        'Se sobrar tempo, o que rende mais é escrever a definição de pronto das entregas que ainda não têm, em Roteiros e níveis: ' +
-        'é ela que faz esta tela saber o que cobrar.');
-    }
     corpo += semanaEmDia(faltando, d);
   }
 

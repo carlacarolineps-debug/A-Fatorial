@@ -373,11 +373,11 @@ function leituraRecadoDeRede(r) {
   }
   if (r.estado === 'login') {
     return { tom: 'atencao', titulo: 'Seu login venceu antes de gravar',
-      texto: 'Nada foi gravado no servidor. Recarregue a página para entrar de novo e repita a ação. Se continuar aparecendo, saia do login protegido em /cdn-cgi/access/logout e entre outra vez.' };
+      texto: 'Nada foi gravado. Recarregue a página para entrar de novo e repita a ação.' };
   }
   if (r.estado === 'sem_configuracao') {
-    return { tom: 'alerta', titulo: 'O Worker ainda não tem o login protegido configurado',
-      texto: 'TEAM_DOMAIN e ACCESS_AUD estão vazios, e por isso o servidor recusa ler e gravar aplicação, de propósito. Enquanto isso não for resolvido, esta tela não tem como registrar andamento nenhum. O passo a passo está no DEPLOY.md.' };
+    return { tom: 'alerta', titulo: 'O login protegido ainda não foi ligado',
+      texto: 'Sem ele o servidor não lê nem grava aplicação, e esta tela não registra andamento.' };
   }
   return { tom: 'alerta', titulo: 'O servidor recusou a gravação',
     texto: 'O que ele respondeu foi: ' + esc(r.mensagem || 'sem explicação') + '. O andamento continua como estava.' };
@@ -475,9 +475,9 @@ function leituraHtmlFila() {
       const clicado = leituraClicado(lead);
       const aberta = Number(lead.id) === Number(LEITURA_ALVO);
       return '<tr onclick="leituraAbrir(' + Number(lead.id) + ')" style="cursor:pointer' + (aberta ? ';background:var(--o-05)' : '') + '">' +
-        '<td style="font-family:var(--display);font-size:19px;font-weight:300;color:' + (dias !== null && dias >= 3 && f.peso <= 3 ? 'var(--alerta)' : 'var(--branco)') + '">' +
-          (dias === null ? '?' : dias) + '<span style="font-size:10px;color:var(--tinta-4)"> dias</span></td>' +
-        '<td><b style="color:var(--branco)">' + esc(lead.nome || 'sem nome') + '</b>' +
+        '<td style="font-family:var(--display);font-size:19px;font-weight:300;color:' + (dias !== null && dias >= 3 && f.peso <= 3 ? 'var(--alerta)' : 'var(--claro)') + '">' +
+          (dias === null ? '?' : dias) + '<span style="font-size:10px;color:var(--tx-4)"> dias</span></td>' +
+        '<td><b style="color:var(--claro)">' + esc(lead.nome || 'sem nome') + '</b>' +
           '<div class="dica">' + esc(lead.email || lead.whatsapp || 'sem contato') + '</div></td>' +
         '<td>' + (clicado ? esc(leituraNomeNivel(clicado)) : '<span class="dica">não clicou nível</span>') + '</td>' +
         '<td>' + esc(lead.origem || 'landing') + '</td>' +
@@ -495,7 +495,7 @@ function leituraHtmlFila() {
 
   return '<div class="cartao">' +
     '<div class="cartao-t">A fila da leitura' +
-      '<span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--tinta-4)">' +
+      '<span style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--tx-4)">' +
       (LEITURA_QUANDO ? 'Retrato de ' + esc(dataLonga(LEITURA_QUANDO)) : '') + '</span>' +
       '<button class="bt bt-linha bt-sm" onclick="leituraAtualizar()">Atualizar</button>' +
     '</div>' +
@@ -538,21 +538,21 @@ function leituraHtmlAplicacao(lead) {
   const nivelClicado = clicado ? leituraNivel(clicado) : null;
 
   const identificacao = '<div style="display:flex;flex-wrap:wrap;gap:10px 22px;margin-bottom:18px">' +
-    '<div><span class="rotulo">Nome</span><b style="color:var(--branco);font-size:15px">' + esc(lead.nome || 'sem nome') + '</b></div>' +
+    '<div><span class="rotulo">Nome</span><b style="color:var(--claro);font-size:15px">' + esc(lead.nome || 'sem nome') + '</b></div>' +
     '<div><span class="rotulo">E-mail</span>' + esc(lead.email || 'não deixou') + '</div>' +
     '<div><span class="rotulo">WhatsApp</span>' + esc(lead.whatsapp || 'não deixou') + '</div>' +
     '<div><span class="rotulo">Origem</span>' + esc(lead.origem || 'landing') + '</div>' +
     '<div><span class="rotulo">Clicou na landing</span>' +
       (nivelClicado ? esc(nivelClicado.nome) + ', ' + esc(moeda(nivelClicado.valor)) : 'nenhum nível') + '</div>' +
     '<div><span class="rotulo">Chegou</span>' + esc(dataLonga(lead.criado_em)) +
-      (dias === null ? '' : ' <span style="color:' + (dias >= 3 ? 'var(--alerta)' : 'var(--tinta-3)') + '">(' + esc(haQuanto(lead.criado_em)) + ')</span>') +
+      (dias === null ? '' : ' <span style="color:' + (dias >= 3 ? 'var(--alerta)' : 'var(--tx-3)') + '">(' + esc(haQuanto(lead.criado_em)) + ')</span>') +
     '</div></div>';
 
   const esquerda = '<div class="cartao" style="margin:0">' +
     '<div class="cartao-t">O que a pessoa escreveu' +
       '<span style="margin-left:auto">' + etiqueta(ANDAMENTOS, lead.status) + '</span></div>' +
     identificacao +
-    '<div style="border-top:1px solid var(--linha);padding-top:16px">' + leituraHtmlRespostas(lead) + '</div>' +
+    '<div style="border-top:1px solid var(--fio);padding-top:16px">' + leituraHtmlRespostas(lead) + '</div>' +
     '<p class="dica" style="margin-top:14px">Nada desta coluna se edita aqui. É o que a pessoa escreveu, e é contra isso que a leitura ao lado vai ser conferida depois.</p>' +
     '</div>';
 
@@ -590,12 +590,12 @@ function leituraHtmlLeitura(lead) {
     ENTREGAS.map(function (e) {
       const marcada = (l.precisa || []).indexOf(e.k) >= 0;
       const descoberta = marcada && fora.indexOf(e.k) >= 0;
-      const borda = descoberta ? 'var(--alerta)' : (marcada ? 'var(--o-35)' : 'var(--linha)');
+      const borda = descoberta ? 'var(--alerta)' : (marcada ? 'var(--o-35)' : 'var(--fio)');
       return '<label style="display:flex;gap:9px;align-items:flex-start;padding:9px 11px;border:1px solid ' + borda +
           ';border-radius:10px;cursor:' + (travada ? 'default' : 'pointer') + '">' +
         '<input type="checkbox"' + (marcada ? ' checked' : '') + trava +
           ' onchange="leituraMarcarEntrega(\'' + e.k + '\', this.checked)" style="margin-top:3px;accent-color:var(--o)">' +
-        '<span><b style="color:' + (marcada ? 'var(--branco)' : 'var(--tinta-2)') + ';font-size:12.5px;display:block">' +
+        '<span><b style="color:' + (marcada ? 'var(--claro)' : 'var(--tx-2)') + ';font-size:12.5px;display:block">' +
           esc(e.nome) + '</b>' +
         '<span class="dica">' + esc(nomeFase(e.fase)) + (descoberta ? ', fora do nível indicado' : '') + '</span></span></label>';
     }).join('') + '</div>';
@@ -610,11 +610,11 @@ function leituraHtmlLeitura(lead) {
   const nivelDoClique = clicado ? leituraNivel(clicado) : null;
 
   const ladoALado = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-    '<div style="border:1px solid var(--linha);border-radius:10px;padding:12px 14px">' +
+    '<div style="border:1px solid var(--fio);border-radius:10px;padding:12px 14px">' +
       '<span class="rotulo">A pessoa clicou</span>' +
       (nivelDoClique
-        ? '<b style="color:var(--branco);font-size:15px">' + esc(nivelDoClique.nome) + '</b><div class="dica">' + esc(moeda(nivelDoClique.valor)) + '</div>'
-        : '<b style="color:var(--tinta-3);font-size:15px">Nenhum</b><div class="dica">Chegou sem escolher nível.</div>') +
+        ? '<b style="color:var(--claro);font-size:15px">' + esc(nivelDoClique.nome) + '</b><div class="dica">' + esc(moeda(nivelDoClique.valor)) + '</div>'
+        : '<b style="color:var(--tx-3);font-size:15px">Nenhum</b><div class="dica">Chegou sem escolher nível.</div>') +
     '</div>' +
     '<div style="border:1px solid var(--o-35);border-radius:10px;padding:12px 14px;background:var(--o-05)">' +
       '<span class="rotulo">A leitura indica</span>' +
@@ -645,7 +645,7 @@ function leituraHtmlLeitura(lead) {
       'Ficam de fora: ' + esc(fora.map(nomeEntrega).join(', ')) + '. Ou o nível sobe, ou essas entregas saem da leitura, ou a devolutiva diz por escrito que elas não entram. Vender assim é combinar uma coisa e entregar outra.');
   }
 
-  const dono = '<p class="dica" style="margin-top:16px;border-top:1px solid var(--linha);padding-top:12px">' +
+  const dono = '<p class="dica" style="margin-top:16px;border-top:1px solid var(--fio);padding-top:12px">' +
     (l.assinadaEm
       ? 'Preparada por ' + esc(l.preparadaPor || 'sem nome') + ' e assinada por ' + esc(l.assinadaPor || 'sem nome') + ', ' + esc(dataLonga(l.assinadaEm)) + '.'
       : 'Sendo preparada por ' + esc(l.preparadaPor || leituraQuemSou()) + '. Só a gestão assina.') + '</p>';
@@ -671,7 +671,7 @@ function leituraHtmlCarimbo(lead) {
         'O campo de observações do servidor guarda 2000 caracteres, e o mais antigo sai inteiro em vez de sair pela metade. O que sair não volta.')
     : '';
   return '<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.7;' +
-      'background:var(--preto-3);border:1px solid var(--linha);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre">' +
+      'background:var(--fundo-3);border:1px solid var(--fio);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre">' +
       esc(linha) + '</div>' +
     '<p class="dica" style="margin-top:8px">Esta linha vai para o topo do campo de observações, no servidor. São ' + linha.length +
       ' caracteres dos 2000 do campo, e sobram ' + Math.max(0, sobra) + ' para os próximos. É a única parte desta tela que sobrevive à troca de navegador.</p>' + corte;
@@ -684,7 +684,7 @@ function leituraHtmlServidor(lead) {
     return '<p class="dica">O campo de observações desta aplicação está vazio no servidor. Nada foi assinado ainda, nem aqui nem em outra máquina.</p>';
   }
   return '<div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.7;' +
-      'background:var(--preto-3);border:1px solid var(--linha);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre-wrap">' +
+      'background:var(--fundo-3);border:1px solid var(--fio);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre-wrap">' +
       esc(bruto) + '</div>' +
     '<p class="dica" style="margin-top:8px">' + carimbos.length + (carimbos.length === 1 ? ' carimbo, ' : ' carimbos, ') + bruto.length +
       ' dos 2000 caracteres. Atualizado ' + esc(dataLonga(lead.atualizado_em)) + '.</p>';
@@ -754,7 +754,7 @@ function leituraHtmlVeredito(lead) {
     '<div style="margin:16px 0"><span class="rotulo">O carimbo que vai para o servidor</span>' +
       '<div id="leitura-carimbo">' + leituraHtmlCarimbo(lead) + '</div></div>' +
     acao +
-    '<div style="margin-top:18px;border-top:1px solid var(--linha);padding-top:16px">' +
+    '<div style="margin-top:18px;border-top:1px solid var(--fio);padding-top:16px">' +
       '<span class="rotulo">O que já está gravado no servidor</span>' + leituraHtmlServidor(lead) + '</div>' +
     '</div>';
 }
@@ -825,7 +825,7 @@ function leituraHtmlDevolutiva(lead) {
         ? (lead.whatsapp ? esc(lead.whatsapp) : 'Esta pessoa não deixou WhatsApp.')
         : (lead.email ? esc(lead.email) : 'Esta pessoa não deixou e-mail.')) + '</p></div>' +
     '<div><span class="rotulo">Quem envia</span>' +
-      '<div style="padding:7px 0;font-size:13px;color:var(--branco)">' + esc(enviada ? (l.devolutiva.enviadaPor || 'sem nome') : leituraQuemSou()) + '</div>' +
+      '<div style="padding:7px 0;font-size:13px;color:var(--claro)">' + esc(enviada ? (l.devolutiva.enviadaPor || 'sem nome') : leituraQuemSou()) + '</div>' +
       '<p class="dica">O envio é feito por fora, no canal escolhido. Aqui se registra que saiu.</p></div>' +
     '</div>';
 
@@ -973,9 +973,9 @@ function leituraHtmlMotivos() {
         const frase = x.fora === 0 ? 'Nenhuma recusa.'
           : x.fora === x.total ? 'Todas as ' + x.total + ' foram recusadas.'
           : x.fora + ' de cada ' + x.total + ' não seguiram.';
-        return '<tr><td><b style="color:var(--branco)">' + esc(x.nome) + '</b></td>' +
+        return '<tr><td><b style="color:var(--claro)">' + esc(x.nome) + '</b></td>' +
           '<td>' + x.total + '</td>' +
-          '<td style="color:' + (parte >= 50 ? 'var(--alerta)' : 'var(--tinta-2)') + '">' + x.fora + '</td>' +
+          '<td style="color:' + (parte >= 50 ? 'var(--alerta)' : 'var(--tx-2)') + '">' + x.fora + '</td>' +
           '<td class="dica">' + esc(frase) + '</td></tr>';
       }).join('') + '</tbody></table></div></div>';
   };
@@ -994,7 +994,7 @@ function leituraHtmlMotivos() {
   const motivos = '<div class="cartao"><div class="cartao-t">Por motivo</div>' +
     '<div class="rolo-h"><table class="lista"><thead><tr><th>Motivo</th><th>Quantas</th></tr></thead><tbody>' +
     porMotivo.map(function (x) {
-      return '<tr><td>' + esc(x.nome) + '</td><td><b style="color:var(--branco)">' + x.quantas + '</b></td></tr>';
+      return '<tr><td>' + esc(x.nome) + '</td><td><b style="color:var(--claro)">' + x.quantas + '</b></td></tr>';
     }).join('') + '</tbody></table></div></div>';
 
   return cabecalho +
@@ -1038,7 +1038,7 @@ function leituraHtmlFicha() {
   if (!lead) return cabeca + leituraHtmlNenhuma();
 
   const topo = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">' +
-    '<b style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--branco)">Ficha de ' + esc(lead.nome || 'sem nome') + '</b>' +
+    '<b style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--claro)">Ficha de ' + esc(lead.nome || 'sem nome') + '</b>' +
     '<button class="bt bt-linha bt-sm" style="margin-left:auto" onclick="leituraFechar()">Fechar a ficha</button></div>';
 
   return cabeca + topo + leituraHtmlImportar(lead) + leituraHtmlAplicacao(lead) +
@@ -1261,8 +1261,14 @@ function leituraDia(d) {
 function leituraChecklist(k) {
   const m = iqvLer(CHAVES.metodo, null);
   const r = m && m.roteiros && m.roteiros[k];
-  const itens = (r && Array.isArray(r.checklist)) ? r.checklist : [];
-  return itens.map(function (t) { return { texto: String(t), feito: false }; });
+  // O roteiro guarda em definicaoPronto. O checklist e a queda para dado
+  // gravado antes desta correcao, para nao esvaziar projeto que ja existe.
+  const itens = (r && Array.isArray(r.definicaoPronto)) ? r.definicaoPronto
+              : (r && Array.isArray(r.checklist)) ? r.checklist : [];
+  return itens
+    .map(function (t) { return String(t).trim(); })
+    .filter(function (t) { return t; })
+    .map(function (t) { return { texto: t, feito: false }; });
 }
 
 function leituraParcelasNovas(valor, n, forma) {

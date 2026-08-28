@@ -187,7 +187,7 @@ DESENHO.dinheiro = function () {
           '<td>' + esc(moeda(m.prometido)) + '</td>' +
           '<td style="color:var(--ok)">' + (m.entrou ? esc(moeda(m.entrou)) : '<span class="dica">nada</span>') + '</td>' +
           '<td>' + (m.vencido ? '<span class="eti eti-alerta">' + esc(moeda(m.vencido)) + '</span>' : '<span class="dica">nada</span>') + '</td>' +
-          '<td style="font-size:12.5px;color:var(--tinta-2)">' + esc(nomes.slice(0, 3).join(', ')) +
+          '<td style="font-size:12.5px;color:var(--tx-2)">' + esc(nomes.slice(0, 3).join(', ')) +
             (nomes.length > 3 ? ' e mais ' + (nomes.length - 3) : '') + '</td>' +
         '</tr>';
       }).join('')
@@ -213,12 +213,12 @@ DESENHO.dinheiro = function () {
       chavesNivel.map(function (k) {
         const d = porNivel[k];
         const falta = d.contratado - d.recebido;
-        return '<div style="border:1px solid var(--linha);border-radius:var(--r-sm);padding:16px">' +
-          '<b style="color:var(--branco);font-size:14px">' + esc((dinheiroNivel(k) || {}).nome || k) + '</b>' +
+        return '<div style="border:1px solid var(--fio);border-radius:var(--r-sm);padding:16px">' +
+          '<b style="color:var(--claro);font-size:14px">' + esc((dinheiroNivel(k) || {}).nome || k) + '</b>' +
           '<div class="dica" style="margin-top:2px">' + d.n + ' projeto(s)</div>' +
           '<div style="margin-top:12px;font-size:13px">Contratado: <b>' + esc(moeda(d.contratado)) + '</b></div>' +
           '<div style="font-size:13px;color:var(--ok)">Recebido: ' + esc(moeda(d.recebido)) + '</div>' +
-          '<div style="font-size:13px;color:var(--tinta-3)">Falta: ' + esc(moeda(falta)) + '</div>' +
+          '<div style="font-size:13px;color:var(--tx-3)">Falta: ' + esc(moeda(falta)) + '</div>' +
         '</div>';
       }).join('') + '</div>'
     : '<p class="dica">Sem projeto contratado, não há o que separar por nível. ' +

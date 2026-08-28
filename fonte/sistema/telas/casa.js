@@ -22,7 +22,7 @@ function casaLinhaPessoa(u, editavel) {
   return '<tr>' +
     '<td><b>' + esc(u.nome || 'sem nome') + '</b>' +
       (souEu ? ' <span class="eti eti-marca">você</span>' : '') + '</td>' +
-    '<td style="font-size:12.5px;color:var(--tinta-2)">' + esc(u.email || '') + '</td>' +
+    '<td style="font-size:12.5px;color:var(--tx-2)">' + esc(u.email || '') + '</td>' +
     '<td>' + (u.senha
       ? '<span class="eti eti-ok">senha criada</span>'
       : '<span class="eti eti-atencao">escolhe na 1a entrada</span>') + '</td>' +
@@ -42,16 +42,16 @@ function casaLinhaPessoa(u, editavel) {
 // Esquecer senha acontece. Sem isto, a pessoa fica de fora e a unica saida
 // seria apagar o cadastro dela, o que levaria junto o vinculo com os
 // projetos onde ela e responsavel.
-function casaZerarSenha(id) {
+async function casaZerarSenha(id) {
   const lista = casaUsuarios();
   const u = lista.find(function (x) { return x.id === id; });
   if (!u) return;
-  const certeza = window.prompt(
-    'Zerar a senha de ' + (u.nome || u.email) + '.\n\n' +
-    'Na próxima entrada, essa pessoa escolhe uma senha nova. Você não fica sabendo qual é, ' +
-    'e ninguém consegue entrar no lugar dela antes disso, porque a lista mostra que a senha está zerada.\n\n' +
-    'Escreva ZERAR para continuar:');
-  if (String(certeza || '').trim().toUpperCase() !== 'ZERAR') return;
+  const sim = await perguntar({
+    titulo: 'Zerar a senha de ' + (u.nome || u.email),
+    texto: 'Na próxima entrada ela escolhe uma senha nova. Você não fica sabendo qual é.',
+    confirmar: 'Zerar a senha',
+  });
+  if (!sim) return;
   delete u.senha;
   casaGravarUsuarios(lista);
 }
@@ -64,17 +64,18 @@ function casaMudarPapel(id, papel) {
   casaGravarUsuarios(lista);
 }
 
-function casaRemover(id) {
+async function casaRemover(id) {
   const lista = casaUsuarios();
   const u = lista.find(function (x) { return x.id === id; });
   if (!u) return;
   // A confirmacao diz o que o botao NAO faz, que e a parte que engana.
-  const certeza = window.prompt(
-    'Tirar ' + (u.nome || u.email) + ' desta lista NÃO tira o acesso dela ao endereço. ' +
-    'Ela vai continuar entrando pelo Cloudflare Access, só que sem tela nenhuma.\n\n' +
-    'Para desligar de verdade, remova a pessoa da aplicação "sistema" no painel da Cloudflare.\n\n' +
-    'Escreva TIRAR para continuar:');
-  if (String(certeza || '').trim().toUpperCase() !== 'TIRAR') return;
+  const sim = await perguntar({
+    titulo: 'Tirar ' + (u.nome || u.email) + ' da lista',
+    texto: 'Ela some das telas, mas continua entrando pelo endereço.',
+    detalhe: 'Para cortar o acesso, tire o e-mail dela da aplicação no painel da Cloudflare.',
+    confirmar: 'Tirar da lista',
+  });
+  if (!sim) return;
   casaGravarUsuarios(lista.filter(function (x) { return x.id !== id; }));
 }
 
@@ -128,15 +129,16 @@ function casaContarResiduo() {
   return achadas;
 }
 
-function casaLimparResiduo() {
+async function casaLimparResiduo() {
   const achadas = casaContarResiduo();
   if (!achadas.length) return;
-  const certeza = window.prompt(
-    'Isto apaga ' + achadas.length + ' chave(s) do sistema do A! Fatorial guardadas neste navegador.\n\n' +
-    achadas.join('\n') + '\n\n' +
-    'Se aquele sistema ainda for usado por alguém neste mesmo computador, o trabalho dele se perde. ' +
-    'Não há como desfazer.\n\nEscreva APAGAR para continuar:');
-  if (String(certeza || '').trim().toUpperCase() !== 'APAGAR') return;
+  const sim = await perguntar({
+    titulo: 'Apagar ' + achadas.length + ' chave(s) do sistema anterior',
+    texto: 'Se alguém ainda usa aquele sistema neste computador, o trabalho dele se perde.',
+    detalhe: achadas.join(', '),
+    confirmar: 'Apagar',
+  });
+  if (!sim) return;
   try { achadas.forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
   DESENHO.casa();
 }
@@ -148,18 +150,13 @@ DESENHO.casa = function () {
   const lista = casaUsuarios();
 
   // 1. pessoas
-  escrever('casaAvisoAccess', aviso('info',
-    'São duas portas, e elas fazem coisas diferentes.',
-    'Esta lista decide QUEM é cada pessoa aqui dentro e o que ela enxerga. Quem cadastra não escolhe a senha: ' +
-    'a pessoa escolhe a dela na primeira entrada, e se esquecer, você zera aqui e ela escolhe outra. ' +
-    'Já o Cloudflare Access decide quem chega até o endereço, e é ele que protege de verdade. ' +
-    'Por isso tirar alguém desta lista não tira o acesso dela ao site: isso se faz no painel da Cloudflare. ' +
-    'E o Access não sabe o que é Gestor, Colaborador ou Cliente: essa parte é daqui.'));
+  escrever('casaAvisoAccess',
+    '<p class="dica" style="margin:-8px 0 16px">O Access decide quem chega ao endereço. ' +
+    'Esta lista decide o que cada um vê depois.</p>');
 
   escrever('casaPessoas', lista.length
     ? lista.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
-    : vazio('Só existe você aqui. Cadastre quem vai usar antes de distribuir o endereço: ' +
-            'quem passa pelo Access e não está nesta lista entra sem tela nenhuma e vê um aviso pedindo para falar com você.', 5));
+    : vazio('Só você por aqui.', 5));
 
   escrever('casaNova', editavel
     ? '<input class="campo campo-sm" id="casaNome" placeholder="Nome" style="flex:1;min-width:150px">' +
@@ -174,14 +171,14 @@ DESENHO.casa = function () {
   escrever('casaPermissoes',
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">' +
     PAPEIS.map(function (p) {
-      return '<div style="border:1px solid var(--linha);border-radius:var(--r-sm);padding:16px">' +
-        '<b style="color:var(--branco);font-size:14px">' + esc(p.nome) + '</b>' +
+      return '<div style="border:1px solid var(--fio);border-radius:var(--r-sm);padding:16px">' +
+        '<b style="color:var(--claro);font-size:14px">' + esc(p.nome) + '</b>' +
         '<p class="dica" style="margin:4px 0 12px">' + esc(p.resumo) + '</p>' +
         TELAS.map(function (t) {
           const marcada = (PERMISSOES[p.k] || []).indexOf(t.k) >= 0;
           const travada = (p.k === 'gestor' && t.k === 'casa');
           return '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;color:' +
-            (marcada ? 'var(--tinta)' : 'var(--tinta-4)') + '">' +
+            (marcada ? 'var(--tx)' : 'var(--tx-4)') + '">' +
             '<input type="checkbox"' + (marcada ? ' checked' : '') +
               (editavel && !travada ? '' : ' disabled') +
               ' onchange="casaAlternarTela(\'' + p.k + '\',\'' + t.k + '\')" style="accent-color:var(--o)">' +
@@ -197,7 +194,7 @@ DESENHO.casa = function () {
     (ULTIMA_FALHA_GRAVACAO
       ? aviso('alerta', 'Uma gravação falhou e o que você escreveu não foi salvo.',
           'Aconteceu em ' + esc(dataLonga(ULTIMA_FALHA_GRAVACAO.quando)) + ', na chave ' +
-          esc(ULTIMA_FALHA_GRAVACAO.chave) + '. Gravação que falha é silenciosa por padrão, e é por isso que esta tela avisa.')
+          esc(ULTIMA_FALHA_GRAVACAO.chave) + '.')
       : '') +
     (cheio
       ? aviso('atencao', 'O navegador está em ' + uso.porcento + '% da capacidade.',
@@ -207,34 +204,32 @@ DESENHO.casa = function () {
     '<div class="numeros" style="margin-bottom:0">' +
       '<div class="numero' + (cheio ? ' puxa' : '') + '"><div class="v">' + uso.porcento + '%</div>' +
         '<div class="l">Do navegador ocupado</div>' +
-        '<div class="obs">' + Math.round(uso.bytes / 1024) + ' KB nas chaves iqv_</div></div>' +
+        '</div>' +
       '<div class="numero"><div class="v">' + iqvLer(CHAVES.projetos, []).length + '</div>' +
         '<div class="l">Projetos guardados aqui</div>' +
-        '<div class="obs">só neste navegador</div></div>' +
+        '</div>' +
       '<div class="numero"><div class="v">' + lista.length + '</div>' +
         '<div class="l">Pessoas cadastradas</div>' +
-        '<div class="obs">o acesso é do Access</div></div>' +
-    '</div>' +
-    '<p class="dica" style="margin-top:14px">As aplicações são a exceção: elas vivem no servidor e são as mesmas para todo mundo. ' +
-    'Tudo o mais nesta lista existe só neste navegador, e some se alguém limpar os dados do site.</p>');
+        '</div>' +
+    '</div>');
 
   // 4. residuo do sistema anterior
   const residuo = casaContarResiduo();
   escrever('casaResiduo', residuo.length
-    ? aviso('atencao', 'Este navegador ainda guarda ' + residuo.length + ' chave(s) do sistema do A! Fatorial.',
-        'Aquele sistema morou neste mesmo endereço até 26 de agosto. Este aqui nunca lê nem escreve nessas chaves, ' +
-        'então elas não atrapalham nada: só ocupam espaço. Apagar é decisão sua e não tem volta.') +
-      (editavel ? '<button class="bt bt-linha bt-sm" onclick="casaLimparResiduo()">Apagar o resíduo</button>' : '')
-    : '<p class="dica">Nada do sistema anterior neste navegador. Se um dia aparecer, o aviso surge aqui, ' +
-      'e apagar continua sendo escolha escrita, nunca automática.</p>');
+    ? '<div class="cartao"><div class="cartao-t">Resíduo do sistema anterior</div>' +
+      aviso('atencao', 'Este navegador guarda ' + residuo.length + ' chave(s) do sistema do A! Fatorial.',
+        'Este sistema nunca lê nem escreve nelas. Só ocupam espaço. Apagar não tem volta.') +
+      (editavel ? '<button class="bt bt-linha bt-sm" onclick="casaLimparResiduo()">Apagar o resíduo</button>' : '') +
+      '</div>'
+    : '');
 
   // 5. marca
   escrever('casaMarca',
     '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">' +
       ['#08080a', '#ff8309', '#f6f4ef'].map(function (c) {
-        return '<span style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--linha);' +
+        return '<span style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--fio);' +
           'border-radius:var(--r-sm);padding:8px 12px;font-size:12px">' +
-          '<span style="width:16px;height:16px;border-radius:4px;background:' + c + ';border:1px solid var(--linha)"></span>' +
+          '<span style="width:16px;height:16px;border-radius:4px;background:' + c + ';border:1px solid var(--fio)"></span>' +
           c + '</span>';
       }).join('') +
       '<span class="dica" style="margin-left:6px">Sora nos títulos, Inter no texto. Os mesmos da landing.</span>' +

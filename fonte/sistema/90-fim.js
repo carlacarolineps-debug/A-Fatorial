@@ -52,6 +52,8 @@ function entrar(pessoa, origem) {
   const p = porChave(PAPEIS, pessoa.papel);
   texto('quem-nome', EU.nome);
   texto('quem-papel', p ? p.nome : pessoa.papel);
+  texto('quem-iniciais', String(EU.nome).trim().split(/\s+/).slice(0, 2)
+    .map(function (x) { return x[0]; }).join('').toUpperCase());
 
   montarMenu();
   irPara((PERMISSOES[pessoa.papel] || ['cliente'])[0]);
@@ -87,7 +89,7 @@ async function portaCriarPrimeiro() {
 
 function portaTelaPrimeiro(avisoTopo) {
   pintarPorta(
-    'Ninguém usa este sistema <b>ainda</b>',
+    'Este sistema é <b>seu</b>',
     'Crie o seu acesso de gestor. Depois você cadastra o resto da equipe por dentro.',
     (avisoTopo || '') +
     '<div id="portaErro"></div>' +
@@ -101,8 +103,7 @@ function portaTelaPrimeiro(avisoTopo) {
     '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password">' +
     '<button class="bt bt-marca" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaCriarPrimeiro()">Criar meu acesso</button>' +
-    '<p class="dica" style="margin-top:16px;line-height:1.6">O e-mail importa: quando o login protegido da Cloudflare ' +
-      'estiver ligado, é por ele que o sistema vai reconhecer você, sem pedir senha de novo.</p>');
+    '<p class="dica" style="margin-top:16px">É pelo e-mail que o login protegido vai reconhecer você depois.</p>');
 
   const campo = porId('portaNome');
   if (campo) campo.focus();
@@ -165,12 +166,11 @@ function portaTelaLogin(avisoTopo) {
       lista.map(function (p) {
         const papel = porChave(PAPEIS, p.papel) || { nome: p.papel, ic: '·' };
         return '<button class="papel" onclick="portaEscolher(\'' + esc(p.id) + '\')">' +
-          '<span class="ic">' + esc(papel.ic) + '</span>' +
+          ic(papel.ic, 'ic-20') +
           '<span><b>' + esc(p.nome || p.email) + '</b>' +
           '<span>' + esc(papel.nome) + (p.senha ? '' : ', primeira entrada') + '</span></span></button>';
       }).join('') +
-      '<p class="dica" style="margin-top:16px;line-height:1.6">Não está na lista? Quem tem acesso de gestor ' +
-      'cadastra você em "A casa".</p>');
+      '<p class="dica" style="margin-top:16px">Não está na lista? Quem é gestor cadastra você em "A casa".</p>');
     return;
   }
 
@@ -221,23 +221,21 @@ async function abrirPorta() {
       'Seu acesso ainda não foi <b>liberado</b>',
       'Você entrou pelo login protegido, mas ainda não tem cadastro aqui dentro.',
       aviso('info', esc(r.corpo.email),
-        'Peça para quem tem acesso de gestor abrir a tela "A casa" e cadastrar esse e-mail. ' +
-        'Passar pelo login não define sozinho o que você pode ver: essa parte é do sistema.'));
+        'Peça a quem é gestor para cadastrar esse e-mail em "A casa".'));
     return;
   }
 
   // 3. login daqui
   if (r.status === 503) {
     portaTelaLogin(aviso('atencao', 'O login protegido da Cloudflare ainda não está ligado.',
-      'A senha abaixo diz ao sistema quem é você e o que você enxerga. Ela não protege o endereço: ' +
-      'quem souber a URL chega até esta tela. Enquanto o Access não existir, evite guardar aqui o que não pode vazar.'));
+      'A senha abaixo diz quem é você, não protege o endereço: quem souber a URL chega até esta tela. ' +
+      'Até o Access existir, não guarde aqui o que não pode vazar.'));
     return;
   }
 
   if (r.status === 0) {
     portaTelaLogin(aviso('alerta', 'Não consegui falar com o servidor.',
-      'Se você abriu este arquivo direto do computador, ele não funciona assim: use o endereço publicado. ' +
-      'Dá para entrar mesmo assim, mas as aplicações da landing não vão carregar.'));
+      'Dá para entrar, mas as aplicações da landing não vão carregar.'));
     return;
   }
 

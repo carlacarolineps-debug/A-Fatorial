@@ -470,9 +470,9 @@ function projetosHtmlCarga(fichas) {
     else if (!meus.length && !abertas) leitura = 'Livre. Pode assinar o próximo veredito para esta pessoa.';
     else if (abertas > PROJETOS_MESA_CHEIA) leitura = 'A mesa está cheia, com ' + abertas + ' entregas abertas.';
     else leitura = 'Cabe mais um projeto.';
-    return '<tr><td><b style="color:var(--branco)">' + esc(nome) + '</b></td>' +
+    return '<tr><td><b style="color:var(--claro)">' + esc(nome) + '</b></td>' +
       '<td>' + meus.length + '</td><td>' + abertas + '</td>' +
-      '<td style="color:' + (atrasadas ? 'var(--alerta)' : 'var(--tinta-3)') + '">' + atrasadas + '</td>' +
+      '<td style="color:' + (atrasadas ? 'var(--alerta)' : 'var(--tx-3)') + '">' + atrasadas + '</td>' +
       '<td>' + comCliente + '</td><td class="dica">' + esc(leitura) + '</td></tr>';
   };
 
@@ -491,7 +491,7 @@ function projetosHtmlCarga(fichas) {
   }
 
   return '<div class="cartao"><div class="cartao-t"><span>Carga de quem executa</span>' +
-    '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tinta-4)">Retrato de ' + esc(dataLonga(new Date().toISOString())) + '</span></div>' +
+    '<span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;font-size:11px;color:var(--tx-4)">Retrato de ' + esc(dataLonga(new Date().toISOString())) + '</span></div>' +
     '<div class="rolo-h"><table class="lista"><thead><tr>' +
     '<th>Pessoa</th><th>Projetos</th><th>Entregas abertas</th><th>Atrasadas</th><th>Com o cliente</th><th>A leitura disso</th>' +
     '</tr></thead><tbody>' + corpo + '</tbody></table></div>' +
@@ -548,15 +548,15 @@ function projetosHtmlFases(f) {
     else if (atual) selo = '<span class="eti eti-marca">Fase de agora</span>';
     else selo = '<span class="eti eti-neutra">Ainda não</span>';
 
-    html += '<div style="border:1px solid ' + (atual ? 'var(--o-35)' : 'var(--linha)') + ';border-radius:var(--r-sm);padding:13px;' +
+    html += '<div style="border:1px solid ' + (atual ? 'var(--o-35)' : 'var(--fio)') + ';border-radius:var(--r-sm);padding:13px;' +
       'background:' + (atual ? 'var(--o-05)' : 'transparent') + '">' +
-      '<div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-4);font-weight:700">Fase 0' + fase.n + '</div>' +
-      '<b style="display:block;color:var(--branco);font-size:13.5px;margin:3px 0 8px">' + esc(fase.nome) + '</b>' +
+      '<div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx-4);font-weight:700">Fase 0' + fase.n + '</div>' +
+      '<b style="display:block;color:var(--claro);font-size:13.5px;margin:3px 0 8px">' + esc(fase.nome) + '</b>' +
       selo;
 
     daFase.forEach(function (e) {
       if (!e.dentro) {
-        html += '<div style="margin-top:7px;padding:7px 10px;border:1px dashed var(--linha-2);border-radius:var(--r-sm);opacity:.5;font-size:12px">' +
+        html += '<div style="margin-top:7px;padding:7px 10px;border:1px dashed var(--fio-2);border-radius:var(--r-sm);opacity:.5;font-size:12px">' +
           esc(e.nome) + '<span class="dica" style="display:block">' + esc(fora) + '</span></div>';
         return;
       }
@@ -572,7 +572,7 @@ function projetosHtmlFases(f) {
       html += '<button class="bt bt-linha bt-sm" style="width:100%;margin-top:7px;text-align:left;display:block" ' +
         'onclick="projetosAbrirEntrega(' + projetosArg(f.p.id) + ',' + projetosArg(e.k) + ')">' +
         '<span style="display:flex;align-items:center;gap:6px;justify-content:space-between">' +
-        '<span style="color:var(--branco)">' + esc(e.nome) + '</span>' + etiqueta(ESTADOS_ENTREGA, e.estado) + '</span>' +
+        '<span style="color:var(--claro)">' + esc(e.nome) + '</span>' + etiqueta(ESTADOS_ENTREGA, e.estado) + '</span>' +
         '<span class="dica" style="display:block;margin-top:4px;' + (projetosVenceu(e.prazo) && e.estado !== 'aprovada' ? 'color:var(--alerta)' : '') + '">' + esc(obs) + '</span>' +
         '</button>';
     });
@@ -611,10 +611,10 @@ function projetosHtmlDaVez(f) {
     : 'Sem prazo marcado';
   const quem = projetosNomePessoa(e.responsavelId);
 
-  return '<div style="border:1px solid var(--linha);border-radius:var(--r-sm);padding:14px;margin-top:14px">' +
+  return '<div style="border:1px solid var(--fio);border-radius:var(--r-sm);padding:14px;margin-top:14px">' +
     '<span class="rotulo">A entrega da vez</span>' +
     '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' +
-    '<b style="color:var(--branco);font-size:14px">' + esc(e.nome) + '</b>' +
+    '<b style="color:var(--claro);font-size:14px">' + esc(e.nome) + '</b>' +
     etiqueta(ESTADOS_ENTREGA, e.estado) +
     '<span class="dica" style="' + (venceu ? 'color:var(--alerta)' : '') + '">' + esc(prazo) + '</span>' +
     (quem ? '<span class="dica">Com ' + esc(quem) + '</span>' : '<span class="dica" style="color:var(--atencao)">Sem responsável</span>') +
@@ -650,7 +650,7 @@ function projetosHtmlCartao(f) {
     (f.tudoAprovado
       ? '<span class="eti eti-ok">Produto pronto, entregue em ' + esc(dataCurta(f.entregueEm)) + '</span>'
       : '<span class="eti ' + eti + '">' + (b.lado === 'cliente' ? 'Com o cliente ' : 'Com a gente ') + esc(projetosHtmlTempo(b.dias)) + '</span>') + ' ' +
-    '<h3 style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--branco);margin-top:11px">' + esc(p.cliente || p.rotulo || 'sem nome') + '</h3>' +
+    '<h3 style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--claro);margin-top:11px">' + esc(p.cliente || p.rotulo || 'sem nome') + '</h3>' +
     '<div class="dica">' + esc(p.rotulo || '') + (p.rotulo ? '. ' : '') + 'Começou em ' + esc(dataCurta(p.inicio)) + '.' +
     (b.divergente && !f.tudoAprovado ? ' O cartão guardado dizia que a bola estava com ' + (b.lado === 'cliente' ? 'a gente' : 'o cliente') + ', mas quem manda é o estado das oito entregas.' : '') +
     '</div></div>' +
@@ -658,16 +658,16 @@ function projetosHtmlCartao(f) {
     (f.semEscopo
       ? '<div style="font-family:var(--display);font-size:20px;font-weight:300;color:var(--atencao);line-height:1.2">Sem escopo</div>' +
         '<div class="dica">nenhuma das oito foi contratada</div>'
-      : '<div style="font-family:var(--display);font-size:26px;font-weight:300;color:var(--branco);line-height:1">' + f.aprovadas.length + ' de ' + f.escopo.length + '</div>' +
+      : '<div style="font-family:var(--display);font-size:26px;font-weight:300;color:var(--claro);line-height:1">' + f.aprovadas.length + ' de ' + f.escopo.length + '</div>' +
         '<div class="dica">aprovadas pelo cliente' + (f.escopo.length < 8 ? ', das ' + f.escopo.length + ' contratadas no ' + esc(nivel) : '') + '</div>') +
     '</div></div>';
 
   // Os dados do contrato, curtos, depois da bola.
   html += '<div style="display:flex;flex-wrap:wrap;gap:20px;margin-top:16px">' +
-    '<div><span class="rotulo">Nível contratado</span><b style="color:var(--branco)">' + esc(nivel) + ', ' + esc(moeda(f.valor)) + '</b></div>' +
-    '<div><span class="rotulo">Produto pronto</span><b style="color:' + (f.atrasado ? 'var(--alerta)' : 'var(--branco)') + '">' + esc(prazo) + '</b></div>' +
-    '<div><span class="rotulo">Responsável</span><b style="color:' + (responsavel ? 'var(--branco)' : 'var(--atencao)') + '">' + esc(responsavel || 'ninguém') + '</b></div>' +
-    '<div><span class="rotulo">Parcelas</span><b style="color:var(--branco)">' + f.entrada.pagas + ' de ' + f.entrada.total + ' pagas</b></div>' +
+    '<div><span class="rotulo">Nível contratado</span><b style="color:var(--claro)">' + esc(nivel) + ', ' + esc(moeda(f.valor)) + '</b></div>' +
+    '<div><span class="rotulo">Produto pronto</span><b style="color:' + (f.atrasado ? 'var(--alerta)' : 'var(--claro)') + '">' + esc(prazo) + '</b></div>' +
+    '<div><span class="rotulo">Responsável</span><b style="color:' + (responsavel ? 'var(--claro)' : 'var(--atencao)') + '">' + esc(responsavel || 'ninguém') + '</b></div>' +
+    '<div><span class="rotulo">Parcelas</span><b style="color:var(--claro)">' + f.entrada.pagas + ' de ' + f.entrada.total + ' pagas</b></div>' +
     '<div style="flex:0 1 260px"><span class="rotulo">Etapa do método, marcada por nós</span>' +
     '<select class="campo campo-sm" onchange="projetosMudarEtapa(' + projetosArg(p.id) + ', this.value)">' +
     ETAPAS.map(function (et) {
@@ -709,7 +709,7 @@ function projetosHtmlCartao(f) {
 
 function projetosHtmlNada(titulo, texto, botoes) {
   return '<div class="cartao" style="text-align:center;padding:36px 26px">' +
-    '<b style="display:block;color:var(--branco);font-size:15px;margin-bottom:9px">' + esc(titulo) + '</b>' +
+    '<b style="display:block;color:var(--claro);font-size:15px;margin-bottom:9px">' + esc(titulo) + '</b>' +
     '<p class="dica" style="max-width:64ch;margin:0 auto 16px">' + esc(texto) + '</p>' + (botoes || '') + '</div>';
 }
 
