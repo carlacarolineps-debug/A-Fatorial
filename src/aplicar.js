@@ -61,7 +61,14 @@ const APARELHOS = ["celular", "tablet", "computador"];
 
 /* Tamanhos. Conferidos antes de qualquer trabalho, sempre. */
 const LIMITE = {
-  corpoResposta: 32 * 1024,
+  // O teto da aplicação cobre o pior formulário que o editor deixa
+  // publicar: quarenta perguntas de dois mil caracteres, e caractere
+  // acentuado ocupa mais de um byte. Um teto menor deixaria existir
+  // formulário aceito na gravação cuja resposta completa é sempre
+  // recusada no envio, e a pessoa perderia tudo o que escreveu sem ter
+  // o que consertar. Quem mantém os dois números de acordo é a conta de
+  // peso da gravação da versão, logo abaixo.
+  corpoResposta: 384 * 1024,
   corpoEvento: 4 * 1024,
   corpoDefinicao: 128 * 1024,
 
@@ -112,17 +119,32 @@ const SORTEADO = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const CHAVE = /^[a-z][a-z0-9_]{0,39}$/;
 
 /* ====================================================================
-   As dez perguntas de fábrica.
+   As nove perguntas de fábrica.
 
    Elas são a resposta da rota aberta enquanto ninguém tiver publicado
    nada: formulário no ar não depende de alguém ter publicado alguma
    coisa primeiro, nem de uma consulta ao banco ter dado certo.
+
+   Este objeto é a única fonte da lista: o build da página lê daqui e
+   embute a mesma coisa como socorro, e a cópia em fonte/aplicar tem que
+   dizer o mesmo. Duas listas escritas à mão se desencontram, e já se
+   desencontraram uma vez.
+
+   São nove perguntas, e "Em que estágio sua ideia está?" é a sexta. A
+   décima pergunta guardada que existiu aqui era leitura errada de um
+   número num print: ela nunca fez parte do formulário, e por isso não
+   está mais em lugar nenhum.
+
+   A de fábrica é a versão ZERO. A primeira publicação é a versão 1, e
+   assim nenhum número de versão significa dois formulários diferentes:
+   quem abriu antes de alguém publicar tem a aplicação conferida contra
+   as perguntas que ela realmente leu.
    ==================================================================== */
 export const FORMULARIO_FABRICA = {
-  versao: 1,
+  versao: 0,
   publicado_em: "2026-08-31 00:00:00",
   publicado_por: null,
-  nota: "As dez perguntas que vieram do Typeform.",
+  nota: "As nove perguntas que vieram do Typeform.",
   titulo: "Conte a sua ideia",
   abertura: {
     titulo: "Conte a sua ideia",
@@ -219,19 +241,24 @@ export const FORMULARIO_FABRICA = {
       nota: "",
     },
     {
-      chave: "pergunta_6",
-      titulo: "Pergunta que ainda falta",
-      descricao: "Este é o lugar da sexta pergunta do formulário antigo. Escreva o título, escolha o tipo e ligue a pergunta para ela aparecer.",
-      tipo: "texto_curto",
-      obrigatoria: false,
-      ativa: false,
+      chave: "estagio",
+      titulo: "Em que estágio sua ideia está?",
+      descricao: "",
+      tipo: "escolha_unica",
+      obrigatoria: true,
+      ativa: true,
       papel: null,
-      opcoes: [],
-      mascara: { minimo: 1, maximo: 200 },
-      erro: "",
+      opcoes: [
+        { chave: "ideia", texto: "Só uma ideia na cabeça" },
+        { chave: "experiencia", texto: "Tenho o conhecimento, mas não sei estruturar" },
+        { chave: "resultado", texto: "Já testei de forma informal" },
+        { chave: "cobra", texto: "Já vendo, mas quero profissionalizar" },
+      ],
+      mascara: null,
+      erro: "Escolha o ponto em que você está hoje.",
       dica: "",
       mostrar_se: null,
-      nota: "Reservada. A sexta pergunta do Typeform não veio no material. A chave já está guardada nesta posição para a pergunta voltar ao lugar dela, entre a quinta e a sétima, sem embaralhar a ordem nem a contagem das outras.",
+      nota: "As quatro chaves são as mesmas de ESTAGIOS no sistema (ideia, experiencia, resultado, cobra). Mantenha assim: a leitura do caso pode aproveitar o que a pessoa já disse em vez de perguntar de novo.",
     },
     {
       chave: "atende_clientes",
@@ -292,26 +319,6 @@ export const FORMULARIO_FABRICA = {
       dica: "",
       mostrar_se: null,
       nota: "",
-    },
-    {
-      chave: "estagio",
-      titulo: "Em que estágio sua ideia está?",
-      descricao: "",
-      tipo: "escolha_unica",
-      obrigatoria: true,
-      ativa: true,
-      papel: null,
-      opcoes: [
-        { chave: "ideia", texto: "Só uma ideia na cabeça" },
-        { chave: "experiencia", texto: "Tenho o conhecimento, mas não sei estruturar" },
-        { chave: "resultado", texto: "Já testei de forma informal" },
-        { chave: "cobra", texto: "Já vendo, mas quero profissionalizar" },
-      ],
-      mascara: null,
-      erro: "Escolha o ponto em que você está hoje.",
-      dica: "",
-      mostrar_se: null,
-      nota: "As quatro chaves são as mesmas de ESTAGIOS no sistema (ideia, experiencia, resultado, cobra). Mantenha assim: a leitura do caso pode aproveitar o que a pessoa já disse em vez de perguntar de novo.",
     },
   ],
 };
@@ -400,7 +407,8 @@ export function podar(definicao) {
     .map(({ nota, papel, ...resto }) => resto);
 
   return {
-    versao: definicao?.versao ?? 1,
+    // sem número dentro da definição, vale a de fábrica, que é a zero
+    versao: definicao?.versao ?? 0,
     publicado_em: definicao?.publicado_em ?? null,
     titulo: definicao?.titulo ?? "",
     abertura: definicao?.abertura ?? null,

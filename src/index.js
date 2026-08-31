@@ -5,6 +5,7 @@
 // wrangler.toml. Menos código no caminho da página = página mais rápida.
 import { json } from "./lib.js";
 import { receberTypeform } from "./typeform.js";
+import { rotasAplicar } from "./aplicar.js";
 import { listarLeads, atualizarLead } from "./leads.js";
 import { quemSouEu } from "./eu.js";
 import { robots, sitemap } from "./seo.js";
@@ -12,6 +13,11 @@ import { robots, sitemap } from "./seo.js";
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // O formulário próprio da casa mora sob um prefixo só, e resolve os
+    // próprios caminhos. Vem antes do switch porque são seis, e listar um
+    // por um aqui só faria esta função crescer sem dizer nada.
+    if (url.pathname.startsWith("/api/")) return rotasAplicar(request, env, url);
 
     switch (url.pathname) {
       case "/typeform":

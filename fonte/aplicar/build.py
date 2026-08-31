@@ -199,6 +199,12 @@ if os.path.exists(servidor):
         print()
 if bruta is None:
     bruta = json.loads(ler('formulario.json'))
+    chaves = [p.get('chave') for p in bruta.get('perguntas', [])]
+    if 'pergunta_6' not in chaves:
+        print('AVISO: a copia desta pasta esta sem a sexta pergunta guardada,')
+        print('       que o contrato manda existir desligada na posicao 6.')
+        print('       Perguntas encontradas: %s' % ', '.join(str(c) for c in chaves))
+        print()
 
 reserva = podar(bruta)
 definicao_js = json.dumps(reserva, ensure_ascii=False, separators=(',', ':'))

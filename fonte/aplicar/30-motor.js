@@ -125,6 +125,8 @@ function apagar(chave) {
 var E = {
   def: null,            // a definicao em uso
   reserva: false,       // veio da copia embutida
+  resolvida: false,     // o servidor ja respondeu, de um jeito ou de outro
+  mexeu: false,         // a pessoa ja respondeu alguma coisa nesta visita
   respostas: {},        // chave estavel -> valor
   lista: [],            // perguntas visiveis agora
   numero: {},           // chave -> numero mostrado
@@ -678,7 +680,10 @@ function telaCapa() {
 
   var rodape = '<p class="dica">A casa conta quantas pessoas abrem este formulário e em que ' +
                'pergunta param, para melhorá-lo. Não guardamos quem é você nessa contagem.</p>';
-  if (E.reserva) {
+  // A linha da versao so aparece depois que o servidor respondeu, e so
+  // quando quem respondeu foi a copia embutida. Antes disso ela piscaria
+  // na tela de todo mundo por um instante, sem ser verdade.
+  if (E.reserva && E.resolvida) {
     var quando = dataPorExtenso((E.def.publicado_em || '').replace(' ', 'T'));
     if (quando) rodape += '<p class="dica">Esta é a versão de ' + esc(quando) + ' do formulário.</p>';
   }
@@ -988,8 +993,23 @@ function focar(tela) {
   if (campo) { tenta(function () { campo.focus({ preventScroll: true }); }); return; }
   var marcado = tela.querySelector('.opcao input:checked') || tela.querySelector('.opcao input');
   if (marcado) { tenta(function () { marcado.focus({ preventScroll: true }); }); return; }
-  var bt = tela.querySelector('.btn');
-  tenta(function () { (bt || tela).focus({ preventScroll: true }); });
+  // Tela sem campo e sem opcao: o foco vai no bloco, que le o texto. No
+  // botao ele acenderia o anel de foco sem ninguem ter usado o teclado.
+  tenta(function () { tela.focus({ preventScroll: true }); });
+}
+
+// Refaz a tela de agora sem animacao. Serve para quando o conteudo mudou
+// debaixo dela: a definicao que chegou do servidor, ou a recusa que o
+// servidor mandou de volta.
+function redesenhar() {
+  var velha = E.telaAtual;
+  var nova = construir(E.pos);
+  E.telaAtual = nova;
+  palco.appendChild(nova);
+  ligarTela(nova);
+  if (velha && velha.parentNode) velha.parentNode.removeChild(velha);
+  moldura();
+  focar(nova);
 }
 
 /* ---------------------------------------------------------------------
@@ -1153,6 +1173,7 @@ function marcarCheio(campo) {
 
 function ligarTexto(p, campo) {
   campo.addEventListener('input', function () {
+    E.mexeu = true;
     E.respostas[p.chave] = campo.value;
     marcarCheio(campo);
     if (p.tipo === 'email') sugerirDominio(p, campo);
@@ -1189,6 +1210,7 @@ function ligarTextoLongo(p, campo) {
   campo.addEventListener('input', function () {
     // Nada de corte automatico: cortar em silencio no meio de uma frase
     // e pior que deixar passar longo. O limite e conferido no envio.
+    E.mexeu = true;
     E.respostas[p.chave] = campo.value;
     marcarCheio(campo);
     pintar();
@@ -1212,6 +1234,7 @@ function ligarTelefone(p, campo) {
   }
 
   campo.addEventListener('input', function () {
+    E.mexeu = true;
     var pais = paisPorSigla(campo.dataset.pais || 'BR');
     var cru = campo.value;
 
@@ -1301,6 +1324,7 @@ function escolheu(p, tela) {
   tela.querySelectorAll('.opcao input').forEach(function (i) {
     if (i.checked) marcadas.push(i.value);
   });
+  E.mexeu = true;
   if (p.tipo === 'escolha_multipla') E.respostas[p.chave] = marcadas;
   else E.respostas[p.chave] = marcadas[0] || '';
   limparRecado(tela);
@@ -1415,6 +1439,7 @@ function avancarDaqui(pulando) {
     }
   }
 
+  E.mexeu = true;
   delete E.errosServidor[p.chave];
   passo('respondeu', p.chave, ordemNaVersao(p.chave), Date.now() - E.telaEm);
   salvarRascunho();
@@ -1630,14 +1655,7 @@ function falharEnvio(qual) {
 
 function redesenharRevisao() {
   if (E.pos !== E.lista.length) { ir(E.lista.length, 'frente'); return; }
-  var velha = E.telaAtual;
-  var nova = telaRevisao();
-  E.telaAtual = nova;
-  palco.appendChild(nova);
-  ligarTela(nova);
-  if (velha && velha.parentNode) velha.parentNode.removeChild(velha);
-  moldura();
-  focar(nova);
+  redesenhar();
 }
 
 function pintarEnviando(ligado) {
@@ -1946,31 +1964,23 @@ function abrir() {
   E.envio = sorteio();
   E.visita = sorteio();
 
-  buscarDefinicao().then(function (viva2) {
-    if (viva2 && viva2.perguntas && viva2.perguntas.length) {
-      E.def = viva2;
-      E.reserva = false;
-    } else {
-      E.def = RESERVA;
-      E.reserva = true;
-    }
-    recalcular();
+  // A pagina desenha na hora, com a copia embutida, e so depois pergunta
+  // ao servidor. Esperar a resposta para desenhar seria deixar a pessoa
+  // olhando para uma tela preta em rede ruim, e formulario no ar nao
+  // depende de uma consulta ao banco ter dado certo.
+  E.def = RESERVA;
+  E.reserva = true;
+  recalcular();
+  passo('abriu', null, null, 0);
 
-    passo('abriu', null, null, 0);
-    if (E.reserva) passo('falhou', null, null, 0, 'definicao');
-
-    if (jaEnviou()) {
-      // Reabrir depois de enviar mostra o agradecimento, nao um
-      // formulario em branco.
-      E.concluido = true;
-      recalcular();
-      ir(E.lista.length + 1, 'frente', true);
-      return;
-    }
-
+  if (jaEnviou()) {
+    // Reabrir depois de enviar mostra o agradecimento, nao um formulario
+    // em branco.
+    E.concluido = true;
+    ir(E.lista.length + 1, 'frente', true);
+  } else {
     var onde = aplicarRascunho();
     tenta(function () { history.replaceState({ pos: -1 }, '', location.pathname + location.search); });
-
     if (onde >= 0) {
       // Retoma sozinha e diz o que fez, com um caminho de volta ao lado.
       // Perguntar custa uma tela a todo mundo para resolver um caso raro.
@@ -1979,6 +1989,23 @@ function abrir() {
     } else {
       ir(-1, 'frente', true);
     }
+  }
+
+  buscarDefinicao().then(function (doServidor) {
+    E.resolvida = true;
+    if (doServidor && doServidor.perguntas && doServidor.perguntas.length) {
+      E.def = doServidor;
+      E.reserva = false;
+      recalcular();
+    } else {
+      passo('falhou', null, null, 0, 'definicao');
+    }
+    // Trocar a definicao com a pessoa no meio do caminho mudaria a
+    // pergunta debaixo da mao dela. Enquanto ela nao mexeu, refaz a tela;
+    // depois disso, a versao que ela comecou a ler e a que vale, e o
+    // servidor aceita versao antiga de proposito.
+    if (!E.mexeu && !E.enviando) redesenhar();
+    else moldura();
   });
 }
 
