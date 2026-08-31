@@ -76,6 +76,14 @@ const LIMITE = {
   corpoEvento: 4 * 1024,
   corpoDefinicao: 128 * 1024,
 
+  // O que vai para o log cru tem teto proprio, e bem menor. O log existe
+  // para explicar depois o que aconteceu, e os primeiros milhares de
+  // caracteres explicam. Guardar a aplicacao inteira fazia o banco crescer
+  // pelo tamanho do corpo: reenvio do mesmo envio pula o freio de
+  // proposito, para nao punir repique de rede, e sem este teto quem
+  // repetisse a mesma aplicacao grande escreveria 384 KB por vez.
+  corpoNoLog: 8 * 1024,
+
   textoCurto: 200,
   textoLongo: 2000,
   email: 254,
@@ -1552,11 +1560,19 @@ const baldeCheio = () => json({
 /* O log cru é a única coisa que vai existir para explicar quando der
    problema em produção. Vale para o formulário próprio como já vale para
    o Typeform. */
+function paraOLog(bruto) {
+  const texto = typeof bruto === "string" ? bruto : null;
+  if (texto === null) return null;
+  if (texto.length <= LIMITE.corpoNoLog) return texto;
+  return texto.slice(0, LIMITE.corpoNoLog) +
+    `\n[cortado aqui: vieram ${texto.length} caracteres]`;
+}
+
 async function anotarRecusa(env, motivo, payload = null) {
   try {
     await env.DB.prepare(
       "insert into webhook_log (origem, payload, erro) values ('formulario', ?1, ?2)",
-    ).bind(payload, motivo).run();
+    ).bind(paraOLog(payload), motivo).run();
   } catch {
     // o log é para explicar depois, e não pode derrubar a resposta agora
   }
@@ -1676,7 +1692,7 @@ export async function receberResposta(request, env) {
     if (!parcial || !jaExiste) {
       log = await env.DB.prepare(
         "insert into webhook_log (origem, payload) values ('formulario', ?1) returning id",
-      ).bind(lido.cru).first();
+      ).bind(paraOLog(lido.cru)).first();
     }
 
     // Uma aplicação é uma escrita só. Não existe meia aplicação.

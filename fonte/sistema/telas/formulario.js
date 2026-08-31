@@ -617,6 +617,10 @@ async function formGravar(publicar) {
       }
     }
     if (nova) FORM.atual = nova;
+    // O bloco de confirmar sai da tela junto. Ele foi aberto para uma
+    // publicacao que nao aconteceu, e a base mudou embaixo dele: deixar
+    // aberto convida a apertar de novo sem reler o que o outro publicou.
+    FORM.confirmando = false;
     formGuardarLocal();
     formDesenhar();
     formDizer('Não salvei: alguém publicou uma versão nova enquanto você editava. O que você escreveu ' +

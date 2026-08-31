@@ -1500,6 +1500,10 @@ function voltar() {
   // ficavam desencontradas dali para a frente.
   if (E.travado) return;
   if (E.pos <= -1 || E.concluido) return;
+  // A linha da retomada vale para a tela onde a pessoa parou. Saindo dela
+  // para tras, ela deixa de valer. Fica depois das travas: clique recusado
+  // nao mexe em estado nenhum.
+  E.retomada = null;
   cancelarAvanco();
   if (E.pos < E.lista.length) {
     var p = E.lista[E.pos];
@@ -1640,6 +1644,10 @@ function enviarParcialAgora() {
   E.ultimaParcial = Date.now();
   E.parcialPendente = false;
   E.parcialParouEm = null;
+  // O relogio que guardava essa mesma parcial vai junto. Sem isto ele
+  // ainda dispara depois e manda a mesma coisa uma segunda vez, que e
+  // exatamente o que a espera de vinte segundos existe para evitar.
+  if (E.relogioParcial) { clearTimeout(E.relogioParcial); E.relogioParcial = null; }
   var p = (E.pos >= 0 && E.pos < E.lista.length) ? E.lista[E.pos] : null;
   var corpo = corpoDoEnvio(true, p ? p.chave : null);
   var texto = JSON.stringify(corpo);

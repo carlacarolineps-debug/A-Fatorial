@@ -72,7 +72,7 @@ original. Só é necessário se a marca mudar.
 cd fonte/sistema && python3 build.py
 ```
 
-A ordem é `00-cabeca.html`, `10-estilo.css`, `20-moldura.html`, as nove
+A ordem é `00-cabeca.html`, `10-estilo.css`, `20-moldura.html`, as dez
 telas de `telas/`, `30-base.js` e `90-fim.js`. Os 35 ícones e a marca são
 extraídos do `page.tpl.html` da landing na hora do build: os dois produtos
 usam o mesmo desenho para a mesma coisa, e não há um segundo conjunto para
@@ -81,8 +81,9 @@ manter em dia. Regra em `fonte/sistema/CONTRATO.md`.
 ### As dez telas e os três papéis
 
 `semana`, `ideias`, `formulario`, `leitura`, `projetos`, `entrega`,
-`roteiros`, `dinheiro`, `cliente`, `casa`. Cada uma é um par `telas/<chave>.html` mais
-`telas/<chave>.js`, e registra o próprio desenho em `DESENHO[<chave>]`.
+`roteiros`, `dinheiro`, `cliente`, `casa`. Cada uma é um par
+`telas/<chave>.html` mais `telas/<chave>.js`, e registra o próprio desenho
+em `DESENHO[<chave>]`.
 
 Os papéis são `gestor`, `colaborador` e `cliente`. Quem entra escolhe o
 próprio nome na porta e digita a senha dela; a senha nunca é guardada em
@@ -92,8 +93,15 @@ já provou quem é na porta da rua não prova de novo na porta da sala.
 
 Tela nova não pode nascer invisível: as permissões ficam salvas no
 navegador e foram escritas antes de ela existir. Ao criar uma tela,
-acrescente a chave em `PERMISSOES_DEFAULT`, em `PERM_TELAS` e em
-`TELAS_NOVAS`.
+acrescente a chave em três lugares do `30-base.js`, mais um no build:
+
+    TELAS                 a entrada com nome, ícone, grupo e título
+    PERMISSOES_DEFAULT    quais papéis a enxergam
+    TELAS_NOVAS           senão ela nasce invisível para quem já usou
+    build.py              a chave na lista de montagem
+
+É `carregarPermissoes()` que compara `TELAS_NOVAS` com o que está salvo e
+apresenta a tela para quem já tinha permissões guardadas.
 
 ## O formulário também é gerado
 
@@ -144,8 +152,9 @@ Nunca use o prefixo `af_`, nem para ler. É do outro negócio, na mesma
 origem. "A casa" oferece apagar essas chaves, com confirmação escrita, e
 esse é o único lugar que encosta nelas.
 
-É por isso que o Typeform não entrega direto no navegador. As respostas
-caem no banco D1 pela rota `/typeform`, e a rota `/leads` devolve para
+É por isso que aplicação não mora no navegador. As respostas caem no banco
+D1, pela rota `/api/resposta` do formulário da casa ou pela `/typeform`
+enquanto o Typeform antigo seguir ligado, e a rota `/leads` devolve para
 quem estiver autenticado.
 
 **"Ideias que chegaram" é a exceção.** É a única tela que fala com o
@@ -162,14 +171,23 @@ npm test
 ```
 
 Roda duas suítes: as 47 rotas de sempre e as 104 do formulário. Sobe
-wrangler local, bate nas rotas por HTTP e derruba tudo. As 47 são, entre elas que corpo adulterado depois de assinar é
-recusado, que reenvio do Typeform atualiza o lead em vez de duplicar e que
-o `/leads` com `TEAM_DOMAIN` e `ACCESS_AUD` preenchidos passa a exigir
-login em vez de abrir. O segundo servidor existe só para essa última
-parte. Roda no banco local; não encosta em produção.
+wrangler local, bate nas rotas por HTTP e derruba tudo no fim. Roda no
+banco local; não encosta em produção.
 
-Não precisa de preparo: o schema é aplicado no banco local e o segredo de
-teste entra por `--var`. Clone novo roda direto.
+São 47 verificações nas rotas de sempre, entre elas que corpo adulterado
+depois de assinar é recusado, que reenvio do Typeform atualiza o lead em
+vez de duplicar e que o `/leads` com `TEAM_DOMAIN` e `ACCESS_AUD`
+preenchidos passa a exigir login em vez de abrir. O segundo servidor
+existe só para essa última parte.
+
+As outras 104 são do formulário: a definição, a publicação, a submissão
+virando lead, os passos que alimentam as medidas, e os limites das duas
+rotas abertas.
+
+Quase não precisa de preparo: o schema é aplicado no banco local e o
+segredo de teste entra por `--var`. A suíte do formulário fabrica um
+certificado para o servidor de chaves de mentira, e para isso usa o
+`openssl` da máquina. Sem ele, essa parte falha.
 
 Antes de qualquer push que mexa em `src/` ou `wrangler.toml`, rode.
 
