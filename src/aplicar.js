@@ -431,6 +431,42 @@ export function familiaDoTipo(tipo) {
 }
 
 /* --------------------------------------------------------------------
+   Quanto pesa, no pior caso, uma aplicação completa deste formulário.
+
+   Serve para uma coisa só: não deixar publicar um formulário cujas
+   respostas completas o envio recusaria por tamanho. Conta cada
+   caractere por quatro bytes, que é o pior caso da acentuação, e soma a
+   moldura de cada campo. Errar para mais aqui é de propósito.
+   -------------------------------------------------------------------- */
+// a identificação da aplicação, a versão, o nível e a origem
+const MOLDURA_DA_APLICACAO = 1024;
+
+export function pesoDaResposta(perguntas) {
+  let bytes = MOLDURA_DA_APLICACAO;
+
+  for (const p of perguntas ?? []) {
+    if (p.tipo === "recado") continue;
+    // a identificação da pergunta, as aspas, os dois pontos, a vírgula
+    bytes += tamanho(p.chave) + 16;
+
+    if (TIPOS_ESCOLHA.includes(p.tipo)) {
+      // no pior caso a pessoa marca todas as opções
+      for (const o of p.opcoes ?? []) bytes += tamanho(o.chave) * 4 + 8;
+      continue;
+    }
+    if (p.tipo === "email") { bytes += LIMITE.email * 4; continue; }
+    if (p.tipo === "telefone") { bytes += LIMITE.telefone * 4; continue; }
+    if (p.tipo === "numero") { bytes += 32; continue; }
+
+    const teto = p.tipo === "texto_longo" ? LIMITE.textoLongo : LIMITE.textoCurto;
+    const maximo = p.mascara?.maximo ?? teto;
+    bytes += Math.min(Math.max(maximo, 0), teto) * 4;
+  }
+
+  return bytes;
+}
+
+/* --------------------------------------------------------------------
    Confere a definição inteira antes de gravar.
 
    Devolve { erro } com a frase que a Carla lê no editor, ou { limpa }
@@ -522,6 +558,7 @@ export function validarDefinicao(bruta, familias = new Map()) {
     }
 
     // opções: de 2 a 20 nos dois tipos de escolha, nenhuma nos demais
+    let usadas = null;
     const opcoesBrutas = p.opcoes ?? [];
     if (!Array.isArray(opcoesBrutas)) {
       return { erro: `as opções de "${titulo}" não vieram em lista.` };
@@ -534,7 +571,7 @@ export function validarDefinicao(bruta, familias = new Map()) {
       if (opcoesBrutas.length > LIMITE.opcoes) {
         return { erro: `"${titulo}" passou de ${LIMITE.opcoes} opções. Uma lista maior que isso ninguém lê até o fim.` };
       }
-      const usadas = new Set();
+      usadas = new Set();
       const textos = new Set();
       for (const o of opcoesBrutas) {
         const oChave = String(o?.chave ?? "");
@@ -559,7 +596,6 @@ export function validarDefinicao(bruta, familias = new Map()) {
         textos.add(comparavel);
         opcoes.push({ chave: oChave, texto: oTexto });
       }
-      escolhasAnteriores.set(chave, usadas);
     } else if (opcoesBrutas.length) {
       return { erro: `"${titulo}" não é pergunta de escolha e não pode ter opções.` };
     }
@@ -590,20 +626,33 @@ export function validarDefinicao(bruta, familias = new Map()) {
     if (p.mostrar_se != null) {
       const alvo = String(p.mostrar_se?.chave ?? "");
       const querem = p.mostrar_se?.igual_a;
-      if (!escolhasAnteriores.has(alvo)) {
+      // A pergunta desta volta ainda não entrou em escolhasAnteriores, e
+      // é por isso que ela não pode depender de si mesma: quem depende
+      // de si mesma nunca aparece para ninguém, e some do formulário sem
+      // dizer nada.
+      const anterior = escolhasAnteriores.get(alvo);
+      if (!anterior) {
         return { erro: `"${titulo}" só aparece dependendo de outra pergunta, e essa outra precisa ser uma pergunta de escolha que vem antes dela.` };
+      }
+      // Depender de pergunta que está fora do ar é o mesmo que nunca
+      // aparecer: a outra não é feita, então a resposta que abriria esta
+      // nunca chega.
+      if (ativa && !anterior.ativa) {
+        return { erro: `"${titulo}" está no ar dependendo de uma pergunta que está fora do ar, e por isso nunca apareceria para ninguém. Ponha a outra pergunta no ar, ou tire a condição.` };
       }
       if (!Array.isArray(querem) || querem.length < 1 || querem.length > LIMITE.opcoes) {
         return { erro: `"${titulo}" depende de outra pergunta, mas não diz de quais respostas.` };
       }
-      const possiveis = escolhasAnteriores.get(alvo);
       for (const q of querem) {
-        if (!possiveis.has(String(q))) {
+        if (!anterior.opcoes.has(String(q))) {
           return { erro: `"${titulo}" depende de uma resposta que a outra pergunta não oferece.` };
         }
       }
       mostrar_se = { chave: alvo, igual_a: querem.map(String) };
     }
+
+    // Só agora esta pergunta vira alvo possível para as de baixo.
+    if (usadas) escolhasAnteriores.set(chave, { opcoes: usadas, ativa });
 
     // o que já recebeu resposta não muda de família de tipo
     const familiaAntiga = familias.get(chave);
