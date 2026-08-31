@@ -1,0 +1,65 @@
+<!-- =====================================================================
+     A moldura: o que fica de pe em toda tela.
+
+     O miolo do palco e desenhado pelo motor, uma tela por vez, sempre a
+     partir das respostas guardadas. Nenhuma resposta mora no desenho: a
+     tela se refaz ao voltar, e e por isso que voltar nunca perde nada.
+     ===================================================================== -->
+
+<div class="fundo" aria-hidden="true"></div>
+
+<div class="progresso" id="progresso" style="--p:0" aria-hidden="true"></div>
+
+<main class="palco" id="palco"></main>
+
+<!-- O numero aparece duas vezes: em algarismo tabular para quem enxerga,
+     e em frase para quem ouve. Fora de regiao viva de proposito: anunciar
+     a contagem a cada tela vira ruido, e a pergunta ja e anunciada pelo
+     foco. -->
+<p class="contagem" id="contagem" hidden>
+  <span id="contagemNumero" aria-hidden="true"></span>
+  <span class="so-leitor" id="contagemFrase"></span>
+</p>
+
+<nav class="setas" id="setas" hidden aria-label="Navegar entre as perguntas">
+  <button type="button" class="seta seta-cima js-voltar" id="setaVoltar" aria-label="Voltar uma pergunta">
+    <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+  </button>
+  <button type="button" class="seta seta-baixo js-avancar" id="setaAvancar" aria-label="Seguir">
+    <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+  </button>
+</nav>
+
+<!-- No celular o botao vive aqui, e a barra sobe junto com o teclado
+     virtual, com a altura medida. -->
+<div class="barra" id="barra" hidden>
+  <button type="button" class="seta seta-cima js-voltar" id="barraVoltar" aria-label="Voltar uma pergunta">
+    <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+  </button>
+  <button type="button" class="btn btn-o js-avancar" id="barraAcao">
+    <span id="barraRotulo">Seguir</span>
+    <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+  </button>
+</div>
+
+<!-- Uma unica regiao viva na pagina inteira, dividida entre o erro de
+     validacao e o estado do envio. Duas regioes vivas e o leitor de tela
+     le so a ultima. -->
+<p class="so-leitor" id="viva" role="status" aria-live="polite"></p>
+
+<!-- A lista de paises do telefone, aberta por cima quando pedida. -->
+<div class="paises" id="paises" hidden role="dialog" aria-modal="true" aria-label="Escolher o país">
+  <div class="paises-caixa">
+    <input class="paises-busca" id="paisesBusca" type="text" autocomplete="off"
+           spellcheck="false" placeholder="Procurar país">
+    <div class="paises-lista" id="paisesLista"></div>
+  </div>
+</div>
+
+<!-- A armadilha do robo: rotulo plausivel, escondida para fora da tela,
+     nunca preenchida por gente. Veio com conteudo, a aplicacao e
+     descartada em silencio e o robo nao aprende a desviar. -->
+<div class="isca" aria-hidden="true">
+  <label for="sobre_voce_extra">Conte mais sobre você</label>
+  <input id="sobre_voce_extra" name="sobre_voce_extra" type="text" tabindex="-1" autocomplete="off">
+</div>

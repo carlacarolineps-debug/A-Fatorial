@@ -1,0 +1,591 @@
+/* ====================================================================
+   Formulario de aplicacao  ·  Ideia Que Vende
+   Os tokens sao os da landing, valor por valor. Quem clica no botao
+   laranja da pagina e cai aqui nao pode sentir que trocou de empresa.
+
+   A superficie e preta de proposito: a pessoa chega pela faixa de
+   aplicacao, que ja e preta com dois brilhos laranja. Abrir branco seria
+   um estouro de luz e a sensacao de ter saido do site.
+   ==================================================================== */
+:root{
+  /* superficies escuras, da landing */
+  --preto:#08080a;
+  --preto-2:#0d0d10;
+  --preto-3:#141418;
+  --preto-4:#1b1b21;
+
+  /* superficies claras. Aqui so aparecem na selecao de texto. */
+  --papel:#f6f4ef;
+  --papel-2:#fffefb;
+  --branco:#ffffff;
+
+  /* marca. Sobre preto o laranja pode ser ele mesmo, cheio. O --o-ink
+     existe para o caso de algum bloco nascer em fundo de papel. */
+  --o:#ff8309;
+  --o-lt:#ffa53d;
+  --o-dp:#e56600;
+  --o-ink:#b84f00;
+  --o-grad:linear-gradient(135deg,#ffa53d 0%,#ff8309 46%,#ef6a00 100%);
+  --o-05:rgba(255,131,9,.05);
+  --o-10:rgba(255,131,9,.10);
+  --o-18:rgba(255,131,9,.18);
+  --o-35:rgba(255,131,9,.35);
+
+  /* tinta sobre escuro */
+  --tinta:#f2efe8;     /* resposta escrita, titulo */
+  --tinta-2:#b9b9c2;   /* descricao da pergunta */
+  --tinta-3:#8d8d97;   /* dica, contador */
+  --tinta-4:#5f5f69;   /* marca-lugar e desabilitado. Nunca informacao. */
+
+  /* fios */
+  --fio:rgba(255,255,255,.14);      /* repouso */
+  --fio-2:rgba(255,255,255,.055);   /* divisao fraca */
+  --fio-3:rgba(255,255,255,.30);    /* preenchido, hover */
+
+  /* sinais */
+  --ok:#4ac97e;
+  --atencao:#ffc14d;
+  --alerta:#ff6b5a;
+  --info:#7ab8ff;
+
+  /* tipografia */
+  --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --texto:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+
+  /* Sete degraus, com salto real entre eles. O --t-campo e grande de
+     proposito: e a voz de quem responde, e nunca desce de 16px, senao o
+     iPhone da zoom sozinho ao focar e a pessoa termina o formulario
+     torto. */
+  --t-capa:clamp(32px,5vw,58px);
+  --t-pergunta:clamp(26px,3.5vw,42px);
+  --t-campo:clamp(19px,2.1vw,24px);
+  --t-descricao:clamp(15px,1.4vw,17px);
+  --t-opcao:15.5px;
+  --t-corpo:15px;
+  --t-apoio:13px;
+  --t-rotulo:11px;
+
+  /* canto seco: os 4 e 10 da landing. O 3 e so para o quadradinho da
+     letra, que e pequeno demais para 4 nao virar circulo. */
+  --r:4px;
+  --r-sm:3px;
+  --r-lg:10px;
+  --r-pilula:999px;
+
+  /* uma escala de espaco so */
+  --e1:6px;  --e2:12px; --e3:20px;
+  --e4:32px; --e5:52px; --e6:80px;
+
+  /* medidas da tela */
+  --coluna:640px;
+  --gut:clamp(20px,4vw,44px);
+  --barra-h:64px;          /* barra fixa de baixo, no celular */
+  --letra:24px;            /* lado do quadradinho da letra */
+  --teclado:0px;           /* altura medida do teclado virtual */
+
+  /* movimento. O --ease e o da landing, valor por valor. */
+  --ease:cubic-bezier(.2,.7,.25,1);
+  --t-controle:.2s;
+  --t-campo-foco:.38s;
+  --t-troca:.42s;
+  --t-saida:.26s;
+  --pausa-avanco:320ms;    /* espera antes de escolha unica avancar */
+}
+
+/* ---------------------------------------------------------------- base */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--preto);color:var(--tinta);
+  font-family:var(--texto);font-size:var(--t-corpo);line-height:1.5;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0;font-family:var(--display);font-weight:800;letter-spacing:-.035em;line-height:1.05}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+input,textarea{font:inherit;color:inherit}
+::selection{background:var(--o);color:#0a0a0c}
+:focus-visible{outline:2px solid var(--o);outline-offset:3px;border-radius:2px}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:#111114}
+::-webkit-scrollbar-thumb{background:#2f2f38;border-radius:8px;border:3px solid #111114}
+::-webkit-scrollbar-thumb:hover{background:var(--o-dp)}
+html{scrollbar-color:#2f2f38 #111114;scrollbar-width:thin}
+
+/* Os dois brilhos laranja e o ruido da landing, copiados e baixados de
+   intensidade: aqui eles sao o fundo de uma leitura, nao de uma capa. */
+.fundo{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(58% 46% at 78% 18%,rgba(255,131,9,.16),transparent 64%),
+    radial-gradient(64% 54% at 12% 92%,rgba(255,131,9,.10),transparent 62%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.032;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* So para leitor de tela. A contagem aparece uma vez em numero tabular e
+   uma vez em frase, e a frase e esta. */
+.so-leitor{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap;margin:-1px;padding:0;border:0;
+}
+
+/* A armadilha do robo. Escondida para FORA da tela, e nao por display,
+   porque parte dos robos pula o que esta escondido por display e a
+   armadilha que o robo enxerga como escondida nao pega ninguem. */
+.isca{position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden}
+
+/* --------------------------------------------------------- a barra fina */
+.progresso{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:120;
+  transform-origin:0 50%;transform:scaleX(var(--p,0));background:var(--o-grad);
+  transition:transform var(--t-troca) var(--ease);
+}
+
+/* ------------------------------------------------------------- o palco */
+.palco{position:relative;z-index:1;min-height:100svh;display:grid}
+.tela{
+  grid-area:1/1; display:flex; flex-direction:column; justify-content:center;
+  width:min(var(--coluna),100% - var(--gut)*2); margin-inline:auto;
+  padding-block:var(--e6) calc(var(--e6) + 20px + var(--teclado));
+}
+/* A tela inativa sai da arvore de acessibilidade pela propriedade
+   hidden. Como .tela declara display, a regra do navegador perde e esta
+   linha precisa existir. */
+.tela[hidden]{display:none}
+.tela:focus{outline:none}
+
+.tela[data-estado="entrando"]{animation:entra var(--t-troca) var(--ease) both}
+.tela[data-estado="saindo"]{animation:sai var(--t-saida) var(--ease) both;
+  position:absolute;pointer-events:none}
+.tela[data-estado="entrando"][data-sentido="tras"]{animation-name:entra-tras}
+.tela[data-estado="saindo"][data-sentido="tras"]{animation-name:sai-tras}
+@keyframes entra{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:none}}
+@keyframes sai{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,-14px,0)}}
+@keyframes entra-tras{from{opacity:0;transform:translate3d(0,-18px,0)}to{opacity:1;transform:none}}
+@keyframes sai-tras{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,14px,0)}}
+
+/* ------------------------------------------------------- a linha do numero */
+.ordinal{
+  display:flex;align-items:center;gap:7px;margin-bottom:14px;
+  color:var(--o);font-size:var(--t-apoio);font-weight:600;
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;
+}
+.ordinal svg{width:12px;height:12px;flex:none}
+
+/* ---------------------------------------------------------- a pergunta */
+.pergunta{
+  font-family:var(--display);font-weight:800;letter-spacing:-.035em;
+  line-height:1.06;font-size:var(--t-pergunta);color:var(--tinta);
+  display:block;padding:0;width:100%;
+}
+.opcional{
+  font-family:var(--texto);font-weight:500;letter-spacing:0;line-height:1;
+  font-size:var(--t-apoio);color:var(--tinta-3);margin-left:12px;
+  white-space:nowrap;vertical-align:middle;
+}
+.descricao{
+  margin-top:14px;font-size:var(--t-descricao);line-height:1.62;
+  color:var(--tinta-2);max-width:54ch;
+}
+.grupo{border:0;padding:0;margin:0;min-width:0}
+
+/* ------------------------------------------------------------ os campos */
+.campo-area{margin-top:var(--e4)}
+
+/* Campo de uma linha: fio embaixo, sem caixa. */
+.campo{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--fio);
+  border-radius:0;padding:10px 2px 13px;
+  font-family:var(--texto);font-size:var(--t-campo);line-height:1.35;
+  color:var(--tinta);caret-color:var(--o);outline:0;
+  transition:border-color var(--t-campo-foco) var(--ease);
+}
+.campo::placeholder{color:var(--tinta-4)}
+.campo:focus{border-bottom-color:var(--o)}
+.campo[data-cheio="sim"]{border-bottom-color:var(--fio-3)}
+.campo[data-cheio="sim"]:focus{border-bottom-color:var(--o)}
+.campo[data-erro="sim"]{border-bottom-color:var(--alerta)}
+
+/* A caixa volta aqui, e so aqui, porque texto longo precisa de limite
+   visivel. */
+.campo-longo{
+  width:100%;min-height:132px;resize:none;overflow:hidden;
+  background:rgba(255,255,255,.028);
+  border:1px solid var(--fio);border-radius:var(--r);
+  padding:16px 18px;font-size:clamp(17px,1.7vw,20px);line-height:1.6;
+  font-family:var(--texto);color:var(--tinta);caret-color:var(--o);outline:0;
+  transition:border-color var(--t-controle) var(--ease),
+             background-color var(--t-controle);
+}
+.campo-longo::placeholder{color:var(--tinta-4)}
+.campo-longo:focus{border-color:var(--o);background:var(--o-05)}
+.campo-longo[data-cheio="sim"]{border-color:var(--fio-3)}
+.campo-longo[data-erro="sim"]{border-color:var(--alerta)}
+
+/* A contagem nasce muda e so aparece depois de 80% do limite, para nao
+   parecer prova. */
+.contador{
+  margin-top:8px;text-align:right;font-size:var(--t-apoio);
+  color:var(--tinta-3);font-variant-numeric:tabular-nums;
+  opacity:0;transition:opacity var(--t-controle);
+}
+.contador[data-visivel="sim"]{opacity:1}
+.contador[data-passou="sim"]{color:var(--alerta)}
+
+/* --------------------------------------------------------- as escolhas */
+.opcoes{display:grid;gap:9px;margin-top:var(--e4);border:0;padding:0;margin-inline:0}
+.opcao{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  position:relative;min-height:56px;padding:13px 16px;cursor:pointer;
+  background:rgba(255,255,255,.028);
+  border:1px solid var(--fio);border-radius:var(--r);
+  font-size:var(--t-opcao);line-height:1.45;color:var(--tinta);
+  transition:border-color var(--t-controle) var(--ease),
+             background-color var(--t-controle) var(--ease),
+             transform var(--t-controle) var(--ease);
+}
+/* Esconde o radio SEM tirar do teclado. display:none tiraria. */
+.opcao input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.opcao .letra{
+  flex:none;width:var(--letra);height:var(--letra);
+  display:grid;place-items:center;
+  border:1px solid var(--fio);border-radius:var(--r-sm);
+  font-size:var(--t-rotulo);font-weight:600;letter-spacing:.06em;
+  color:var(--tinta-3);font-variant-numeric:tabular-nums;
+  transition:border-color var(--t-controle),background-color var(--t-controle),
+             color var(--t-controle);
+}
+.opcao .rotulo{flex:1;min-width:0}
+.opcao .visto{width:17px;height:17px;flex:none;color:var(--o);opacity:0;
+  transform:scale(.7);transition:opacity var(--t-controle),transform var(--t-controle) var(--ease)}
+
+/* hover: o cartao anda 3px para a direita, igual a seta do botao da
+   landing. Diz "por aqui" sem mexer na altura da lista. */
+.opcao:hover{border-color:var(--o-35);background:var(--o-05);transform:translateX(3px)}
+.opcao:hover .letra{border-color:var(--o-35);color:var(--o)}
+
+/* marcado */
+.opcao:has(:checked){border-color:var(--o);background:var(--o-10);transform:none}
+.opcao:has(:checked) .letra{background:var(--o);border-color:var(--o);color:#1b1204}
+.opcao:has(:checked) .visto{opacity:1;transform:none}
+
+/* o anel de foco, que o radio escondido levou embora */
+.opcao:has(:focus-visible){outline:2px solid var(--o);outline-offset:3px}
+
+/* Escolha multipla: mesmo cartao, quadrado no lugar do visto. */
+.opcao .caixa{
+  width:17px;height:17px;flex:none;border:1px solid var(--fio-3);
+  border-radius:2px;display:grid;place-items:center;color:transparent;
+  transition:border-color var(--t-controle),background-color var(--t-controle),color var(--t-controle);
+}
+.opcao .caixa svg{width:12px;height:12px}
+.opcao:has(:checked) .caixa{background:var(--o);border-color:var(--o);color:#1b1204}
+
+/* --------------------------------------------------------- o recado */
+/* Espaco reservado, sempre presente e quase sempre vazio: e por isso que
+   ele nao empurra nada quando aparece. */
+.recado{
+  min-height:20px;margin-top:10px;display:flex;align-items:center;gap:7px;
+  font-size:var(--t-apoio);color:var(--alerta);
+}
+.recado svg{width:14px;height:14px;flex:none}
+@keyframes tremor{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-5px)}
+  45%{transform:translateX(4px)}
+  70%{transform:translateX(-2px)}
+}
+.tremeu{animation:tremor .28s var(--ease) both}
+
+/* ----------------------------------------------------------- as dicas */
+.dica{font-size:var(--t-apoio);color:var(--tinta-3);line-height:1.55}
+.dica-teclado{color:var(--tinta-4)}
+.dica-linha{margin-top:14px;max-width:54ch}
+.dica kbd{
+  font:inherit;font-size:11.5px;border:1px solid var(--fio);border-radius:var(--r-sm);
+  padding:1px 5px;color:var(--tinta-3);background:rgba(255,255,255,.03);
+}
+
+/* ------------------------------------------------------------ as acoes */
+.acoes{display:flex;align-items:center;gap:16px;margin-top:var(--e4);flex-wrap:wrap}
+.acoes-fim{gap:12px}
+
+/* Os botoes perola da landing, copiados: mesmo volume, mesmo verniz. */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px 28px;border-radius:var(--r-pilula);font-weight:700;font-size:14.5px;
+  letter-spacing:.005em;position:relative;overflow:hidden;isolation:isolate;border:0;
+  touch-action:manipulation;text-decoration:none;
+  transition:transform .26s var(--ease),box-shadow .3s var(--ease),color .2s,
+             background-color .25s,border-color .25s;
+}
+.btn svg{width:17px;height:17px;flex:none;transition:transform .3s var(--ease)}
+.btn::before{
+  content:"";position:absolute;z-index:-1;left:-15%;right:-15%;top:-100%;bottom:25%;
+  border-radius:50%;background:rgba(255,255,255,.13);
+  transition:transform .35s var(--ease),background-color .3s;
+}
+.btn::after{
+  content:"";position:absolute;z-index:-1;left:6%;right:6%;top:11%;bottom:42%;
+  border-radius:20px 20px 0 0;
+  box-shadow:inset 0 9px 8px -9px rgba(255,255,255,.9);
+  background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0) 58%);
+  transition:opacity .35s var(--ease),transform .35s var(--ease);
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:hover::before{transform:translateY(-6%)}
+.btn:hover::after{opacity:.45;transform:translateY(6%)}
+.btn:hover svg{transform:translateX(3px)}
+.btn:active{transform:translateY(2px);transition-duration:.08s}
+.btn-o{
+  background:var(--o-grad);color:#1b1204;
+  box-shadow:
+    inset 0 .26rem .7rem rgba(255,255,255,.6),
+    inset 0 -.1rem .3rem rgba(122,52,0,.5),
+    inset 0 -.36rem .8rem rgba(255,214,158,.55),
+    0 1.5rem 2.2rem -1.1rem rgba(255,131,9,.55),
+    0 .6rem .9rem -.5rem rgba(0,0,0,.5);
+}
+.btn-o:hover{
+  box-shadow:
+    inset 0 .26rem .55rem rgba(255,255,255,.75),
+    inset 0 -.1rem .3rem rgba(122,52,0,.5),
+    inset 0 -.4rem .9rem rgba(255,224,180,.7),
+    0 1.9rem 2.8rem -1rem rgba(255,131,9,.7),
+    0 .7rem 1rem -.5rem rgba(0,0,0,.55);
+}
+.btn-o:active{
+  box-shadow:
+    inset 0 .3rem .5rem rgba(255,255,255,.8),
+    inset 0 -.1rem .3rem rgba(122,52,0,.6),
+    inset 0 -.3rem .7rem rgba(255,214,158,.4),
+    0 .5rem .9rem -.5rem rgba(0,0,0,.6);
+}
+.btn-linha{
+  background:#0f0f14;color:#fff;
+  box-shadow:
+    inset 0 .26rem .7rem rgba(255,255,255,.22),
+    inset 0 -.1rem .3rem rgba(0,0,0,.75),
+    inset 0 -.36rem .8rem rgba(255,255,255,.30),
+    0 1.4rem 2rem -1.1rem rgba(0,0,0,.7),
+    0 .5rem .8rem -.5rem rgba(0,0,0,.7);
+}
+.btn-linha::before{background:rgba(255,255,255,.09)}
+.btn-linha:hover{color:var(--o-lt)}
+.btn-grande{padding:19px 32px;font-size:clamp(15px,1.4vw,16.5px)}
+.btn[aria-disabled="true"],.btn:disabled{
+  opacity:.72;cursor:default;transform:none;
+}
+.btn:disabled:hover{transform:none}
+.btn:disabled:hover svg{transform:none}
+
+/* O anel girando do envio, com o mesmo traco 1.5 dos icones. */
+.anel{
+  width:16px;height:16px;flex:none;border:1.5px solid rgba(27,18,4,.28);
+  border-top-color:#1b1204;border-radius:50%;animation:gira .7s linear infinite;
+}
+@keyframes gira{to{transform:rotate(360deg)}}
+
+/* Botao de texto, sem perola: usado no "mudar", no "pular" e no
+   "comecar de novo". */
+.btn-texto{
+  font-size:var(--t-apoio);color:var(--tinta-3);text-decoration:underline;
+  text-underline-offset:3px;text-decoration-color:var(--fio-3);
+  transition:color var(--t-controle);touch-action:manipulation;
+}
+.btn-texto:hover{color:var(--o)}
+
+/* ------------------------------------------------- a contagem e as setas */
+.contagem{
+  position:fixed;left:var(--gut);bottom:30px;z-index:30;
+  font-size:var(--t-apoio);color:var(--tinta-3);
+  font-variant-numeric:tabular-nums;letter-spacing:.1em;
+}
+.setas{position:fixed;right:var(--gut);bottom:26px;z-index:30;display:flex;flex-direction:column;gap:2px}
+/* Como .setas declara display, a regra do navegador para o escondido
+   perde, e esta linha precisa existir. */
+.setas[hidden]{display:none}
+.seta{
+  width:44px;height:38px;display:grid;place-items:center;
+  border:1px solid var(--fio);background:rgba(255,255,255,.03);
+  color:var(--tinta-3);touch-action:manipulation;
+  transition:color var(--t-controle),border-color var(--t-controle),background-color var(--t-controle);
+}
+.seta:first-child{border-radius:var(--r) var(--r) 0 0}
+.seta:last-child{border-radius:0 0 var(--r) var(--r);border-top:0}
+.seta svg{width:16px;height:16px}
+.seta-cima svg{transform:rotate(-90deg)}
+.seta-baixo svg{transform:rotate(90deg)}
+.seta:hover:not(:disabled){color:var(--o);border-color:var(--o-35);background:var(--o-05)}
+.seta:disabled{color:var(--tinta-4);cursor:default}
+
+/* --------------------------------------------------------- a capa */
+/* O unico lugar centrado. Da pergunta 1 em diante tudo encosta a
+   esquerda, e essa troca de eixo ja diz "comecou". */
+.capa{align-items:center;text-align:center}
+.marca{width:52px;height:auto;color:var(--o);display:block}
+.marca-capa{margin-bottom:var(--e4)}
+.kicker{
+  margin-top:var(--e3);font-size:var(--t-rotulo);font-weight:700;
+  letter-spacing:.18em;color:var(--o);text-transform:uppercase;
+}
+.capa-titulo{margin-top:14px;font-size:var(--t-capa);max-width:16ch}
+.capa-texto{margin-top:var(--e3);font-size:var(--t-descricao);line-height:1.68;color:var(--tinta-2);max-width:52ch}
+.selos{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:var(--e4)}
+.selo{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 14px;
+  border:1px solid var(--fio);border-radius:var(--r-pilula);
+  background:rgba(255,255,255,.028);
+  font-size:var(--t-apoio);color:var(--tinta-2);
+}
+.selo svg{width:14px;height:14px;flex:none;color:var(--o)}
+.capa .acoes{justify-content:center;flex-direction:column;gap:12px;margin-top:var(--e5)}
+.rodape{
+  margin-top:var(--e5);padding-top:var(--e3);border-top:1px solid var(--fio-2);
+  max-width:56ch;
+}
+.rodape .dica + .dica{margin-top:8px}
+
+/* --------------------------------------------------------- a revisao */
+.revisao-lista{
+  margin-top:var(--e4);display:grid;gap:1px;
+  background:var(--fio-2);border:1px solid var(--fio-2);border-radius:var(--r);
+  overflow:hidden;
+}
+.revisao-item{
+  display:grid;grid-template-columns:1fr auto;align-items:start;gap:14px;
+  padding:15px 16px;background:var(--preto-2);
+}
+.revisao-item[data-erro="sim"]{background:rgba(255,107,90,.07)}
+.revisao-rotulo{font-size:var(--t-apoio);color:var(--tinta-3);line-height:1.4}
+.revisao-valor{
+  margin-top:5px;font-size:var(--t-corpo);color:var(--tinta);
+  line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.revisao-valor[data-vazio="sim"]{color:var(--tinta-4)}
+.revisao-erro{margin-top:6px;font-size:var(--t-apoio);color:var(--alerta)}
+
+/* ----------------------------------------------------- a falha do envio */
+.falha{
+  margin-top:var(--e3);padding:16px 18px;border-radius:var(--r);
+  border:1px solid rgba(255,107,90,.28);border-left:2px solid var(--alerta);
+  background:rgba(255,107,90,.06);
+}
+.falha h3{font-family:var(--display);font-size:16px;letter-spacing:-.02em;color:var(--tinta)}
+.falha p{margin-top:8px;font-size:var(--t-corpo);line-height:1.62;color:var(--tinta-2)}
+
+/* ------------------------------------------------------------- o fim */
+.fim{align-items:center;text-align:center}
+.fim-nome{margin-top:var(--e3);font-size:var(--t-apoio);font-weight:600;color:var(--o)}
+.fim-titulo{margin-top:var(--e4);font-size:clamp(28px,4vw,46px)}
+.fim-nome + .fim-titulo{margin-top:12px}
+.fim-texto{margin-top:var(--e3);font-size:var(--t-descricao);line-height:1.68;color:var(--tinta-2);max-width:52ch}
+.fim .acoes{justify-content:center;margin-top:var(--e5)}
+
+/* ------------------------------------------------- o seletor de pais */
+.pais-botao{
+  display:inline-flex;align-items:center;gap:8px;flex:none;
+  padding:9px 12px;border:1px solid var(--fio);border-radius:var(--r);
+  background:rgba(255,255,255,.028);color:var(--tinta-2);
+  font-size:14px;font-variant-numeric:tabular-nums;touch-action:manipulation;
+  transition:border-color var(--t-controle),color var(--t-controle),background-color var(--t-controle);
+}
+.pais-botao:hover{border-color:var(--o-35);color:var(--o);background:var(--o-05)}
+.pais-botao .sigla{font-weight:700;letter-spacing:.06em;color:var(--tinta)}
+.pais-botao svg{width:11px;height:11px;transform:rotate(90deg);flex:none}
+.linha-telefone{display:flex;align-items:flex-end;gap:12px}
+.linha-telefone .campo{flex:1;min-width:0}
+
+.paises{
+  position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  padding:var(--gut);background:rgba(4,4,6,.72);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+}
+.paises[hidden]{display:none}
+.paises-caixa{
+  width:min(420px,100%);max-height:min(70svh,560px);display:flex;flex-direction:column;
+  background:var(--preto-2);border:1px solid var(--fio);border-radius:var(--r-lg);
+  overflow:hidden;
+}
+.paises-busca{
+  width:100%;padding:15px 18px;background:transparent;border:0;
+  border-bottom:1px solid var(--fio-2);font-size:16px;color:var(--tinta);
+  caret-color:var(--o);outline:0;
+}
+.paises-busca::placeholder{color:var(--tinta-4)}
+.paises-lista{overflow-y:auto;padding:6px}
+.pais-item{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:11px 12px;border-radius:var(--r);color:var(--tinta-2);font-size:14.5px;
+  transition:background-color var(--t-controle),color var(--t-controle);
+}
+.pais-item:hover,.pais-item[data-realce="sim"]{background:var(--o-10);color:var(--tinta)}
+.pais-item .sigla{font-weight:700;letter-spacing:.06em;color:var(--tinta);width:30px;flex:none}
+.pais-item .cod{margin-left:auto;color:var(--tinta-3);font-variant-numeric:tabular-nums}
+.paises-vazio{padding:22px 18px;font-size:var(--t-apoio);color:var(--tinta-3);line-height:1.6}
+
+/* --------------------------------------------- a sugestao de e-mail */
+.sugestao{
+  margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:var(--t-apoio);color:var(--tinta-2);
+}
+.sugestao strong{color:var(--tinta);font-weight:600}
+
+/* ---------------------------------------------------- a barra do celular */
+.barra{display:none}
+@media (max-width:640px){
+  .barra{
+    position:fixed;left:0;right:0;bottom:var(--teclado,0px);z-index:20;
+    display:flex;align-items:center;gap:10px;
+    height:calc(var(--barra-h) + env(safe-area-inset-bottom));
+    padding:0 var(--gut) env(safe-area-inset-bottom);
+    background:rgba(8,8,10,.86);
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border-top:1px solid var(--fio-2);
+  }
+  .barra[hidden]{display:none}
+  .barra .btn{flex:1;padding:14px 20px}
+  .avancar{display:none}   /* o avancar vive na barra, nao no fluxo */
+  .setas{display:none}
+  .tela{
+    justify-content:flex-start;
+    padding-block:var(--e5) calc(var(--barra-h) + 48px + var(--teclado));
+  }
+  .capa,.fim{justify-content:center}
+  .contagem{bottom:calc(var(--barra-h) + env(safe-area-inset-bottom) + var(--teclado,0px) + 12px)}
+  .revisao-item{grid-template-columns:1fr;gap:8px}
+  .revisao-item .btn-texto{justify-self:start}
+}
+
+/* Sem :hover como unico sinal de estado: no toque ele gruda. */
+@media (pointer:coarse){
+  .opcao:hover{border-color:var(--fio);background:rgba(255,255,255,.028);transform:none}
+  .opcao:hover .letra{border-color:var(--fio);color:var(--tinta-3)}
+  .opcao:has(:checked):hover{border-color:var(--o);background:var(--o-10)}
+  .opcao:has(:checked):hover .letra{border-color:var(--o);color:#1b1204}
+  .dica-teclado{display:none}
+  .btn:hover{transform:none}
+}
+
+/* ------------------------------------------------- movimento reduzido */
+@media (prefers-reduced-motion:reduce){
+  /* A regra geral desta folha zera a duracao de tudo. Aqui ela precisa
+     perder, senao o bloco novo aparece seco e a troca fica invisivel. */
+  .tela[data-estado="entrando"],.tela[data-estado="saindo"]{
+    animation:aparece .16s linear both!important
+  }
+  @keyframes aparece{from{opacity:0}to{opacity:1}}
+  *,*::before,*::after{
+    animation-duration:.001ms;transition-duration:.001ms
+  }
+  /* O tremor do erro sai; a mensagem sozinha faz o trabalho. */
+  .tremeu{animation:none!important}
+  /* O anel do envio fica: sem ele o botao "Enviando" nao diz nada. */
+  .anel{animation:gira .9s linear infinite!important}
+}
