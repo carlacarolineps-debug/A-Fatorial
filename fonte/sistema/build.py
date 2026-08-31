@@ -22,6 +22,7 @@ os.chdir(AQUI)
 TELAS = [
     ('semana',    'Minha semana'),
     ('ideias',    'Ideias que chegaram'),
+    ('formulario','O formulario'),
     ('leitura',   'Leitura do caso'),
     ('projetos',  'Projetos em estruturacao'),
     ('entrega',   'Mesa da entrega'),

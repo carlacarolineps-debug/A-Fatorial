@@ -1,10 +1,10 @@
 // O login por pessoa, do primeiro dia ate tres pessoas com papeis
 // diferentes entrando cada uma no seu.
 import { chromium } from "playwright";
-const S = process.env.SAIDA || "/tmp";
+const S = "/tmp/claude-0/-home-user-A-Fatorial/bb0baab9-a91a-5dff-a54e-027743df2588/scratchpad";
 const B = "http://localhost:8787";
 
-const nav = await chromium.launch({ executablePath: process.env.CHROMIUM || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
+const nav = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
 const ctx = await nav.newContext({ viewport: { width: 1420, height: 980 } });
 const pg = await ctx.newPage();
 const erros = [];
@@ -19,7 +19,7 @@ const esperar = (ms) => pg.waitForTimeout(ms);
 await pg.goto(`${B}/sistema/`, { waitUntil: "networkidle" });
 await esperar(600);
 let porta = await pg.textContent("#porta");
-t("primeiro dia pede para criar o gestor", /Ninguém usa este sistema/.test(porta));
+t("primeiro dia pede para criar o gestor", /Este sistema é/.test(porta));
 t("e explica que o resto da equipe vem depois", /cadastra o resto da equipe/.test(porta));
 await pg.screenshot({ path: `${S}/log-1-primeiro.png` });
 
@@ -46,7 +46,7 @@ t("a senha NÃO fica guardada em texto puro", await pg.evaluate(() => {
   const p = JSON.parse(localStorage.getItem("iqv_usuarios"))[0];
   return p.senha && p.senha !== "segredo123" && p.senha.length === 64;
 }));
-t("o gestor vê as nove telas", (await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).length)) === 9);
+t("o gestor vê as dez telas", (await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).length)) === 10);
 
 // ---------- 2. o gestor cadastra a equipe ----------
 await pg.evaluate(() => irPara("casa"));
@@ -129,11 +129,27 @@ await pg.click("text=Entrar");
 await esperar(700);
 await pg.evaluate(() => irPara("casa"));
 await esperar(400);
-pg.once("dialog", (d) => d.accept("ZERAR"));
 await pg.evaluate(() => {
   const bia = pessoas().find((p) => p.nome === "Beatriz");
   casaZerarSenha(bia.id);
 });
+await esperar(300);
+t("zerar senha pergunta numa caixa da propria casa, sem prompt do navegador",
+  (await pg.locator(".dialogo").count()) === 1);
+t("e o foco ja esta no botao que confirma",
+  await pg.evaluate(() => document.activeElement && document.activeElement.id === "dlg-sim"));
+await pg.keyboard.press("Escape");
+await esperar(250);
+t("Escape fecha sem zerar nada",
+  (await pg.locator(".dialogo").count()) === 0 &&
+  await pg.evaluate(() => !!pessoas().find((p) => p.nome === "Beatriz").senha));
+
+await pg.evaluate(() => {
+  const bia = pessoas().find((p) => p.nome === "Beatriz");
+  casaZerarSenha(bia.id);
+});
+await esperar(300);
+await pg.click("#dlg-sim");
 await esperar(400);
 t("zerar senha volta a pessoa para a primeira entrada",
   await pg.evaluate(() => !pessoas().find((p) => p.nome === "Beatriz").senha));

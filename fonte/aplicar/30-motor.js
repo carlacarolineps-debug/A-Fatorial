@@ -154,7 +154,9 @@ var E = {
   fila: [],
   desistiuMandado: false,
   ultimaParcial: 0,
-  parcialPendente: false
+  parcialPendente: false,  // ha resposta nova esperando a vez dela
+  parcialParouEm: null,    // e em que pergunta ela parou
+  relogioParcial: null
 };
 
 /* ---------------------------------------------------------------------
@@ -271,7 +273,13 @@ function despachar(porBeacon) {
 /* ---------------------------------------------------------------------
    7. A definicao e as perguntas visiveis.
    --------------------------------------------------------------------- */
-function versaoEmUso() { return (E.def && E.def.versao) || 1; }
+// A versao de fabrica e a zero, e zero e um numero de versao de verdade.
+// Trocar zero por um so porque zero e falso fazia a resposta chegar
+// dizendo que a pessoa leu a versao 1, que pode ter outras perguntas.
+function versaoEmUso() {
+  var v = E.def ? E.def.versao : null;
+  return typeof v === 'number' && isFinite(v) ? v : 0;
+}
 
 function acharPergunta(chave) {
   var lista = (E.def && E.def.perguntas) || [];
@@ -543,7 +551,14 @@ function conferir(p) {
   if (p.tipo === 'telefone') {
     var lido = lerTelefone(txt);
     var n = lido.digitos.length;
-    var ok = lido.pais.c === '55' ? (n === 10 || n === 11) : (n >= 6 && n <= 15);
+    // A regua e a mesma do envio, e conta o codigo do pais junto: de 10 a
+    // 15 digitos ao todo. Contar so os digitos nacionais aqui deixava
+    // passar numero curto de fora, que era recusado nove perguntas
+    // depois, quando ja nao da para consertar sem voltar tudo.
+    var total = lido.pais.c.length + n;
+    var ok = lido.pais.c === '55'
+      ? (n === 10 || n === 11)
+      : (total >= 10 && total <= 15);
     return ok ? null : { texto: p.erro || PADRAO.telefone, detalhe: 'formato' };
   }
   if (p.tipo === 'numero') {
@@ -676,7 +691,9 @@ function telaCapa() {
   var selos = '';
   if (relogio) selos += '<span class="selo">' + icone('clock') + esc(relogio) + '</span>';
   selos += '<span class="selo">' + icone('doc') + esc(quantas) + '</span>';
-  selos += '<span class="selo">' + icone('lock') + 'as suas respostas ficam com a Carla</span>';
+  // Sem nome proprio: quem chega aqui ainda nao conhece ninguem da casa,
+  // e o primeiro nome de uma desconhecida nao tranquiliza, estranha.
+  selos += '<span class="selo">' + icone('lock') + 'as suas respostas ficam entre nós</span>';
 
   var rodape = '<p class="dica">A casa conta quantas pessoas abrem este formulário e em que ' +
                'pergunta param, para melhorá-lo. Não guardamos quem é você nessa contagem.</p>';
@@ -708,12 +725,13 @@ function telaPergunta(p) {
   var n = E.numero[p.chave];
   var titulo = interpolar(p.titulo);
   var descricao = interpolar(p.descricao);
-  var idDesc = 'desc-' + p.chave;
-  var idRec = 'rec-' + p.chave;
+  // A chave vem da definicao, e a definicao vem do servidor: ela passa
+  // por esc() aqui pelo mesmo motivo que passa no resto da funcao, sem
+  // abrir excecao por confiar em quem mandou.
+  var idDesc = 'desc-' + esc(p.chave);
+  var idRec = 'rec-' + esc(p.chave);
 
-  var cabeca =
-    (n ? '<p class="ordinal"><span>' + n + '</span>' + icone('arrow') + '</p>' : '') +
-    (descricao ? '' : '');
+  var cabeca = n ? '<p class="ordinal"><span>' + n + '</span>' + icone('arrow') + '</p>' : '';
 
   var marcaOpcional = p.obrigatoria || p.tipo === 'recado'
     ? '' : '<span class="opcional">opcional</span>';
@@ -733,7 +751,7 @@ function telaPergunta(p) {
       (descricao ? '<p class="descricao">' + esc(descricao) + '</p>' : '');
   } else {
     corpo =
-      '<h2 class="pergunta" id="rot-' + p.chave + '">' + esc(titulo) + marcaOpcional + '</h2>' +
+      '<h2 class="pergunta" id="rot-' + esc(p.chave) + '">' + esc(titulo) + marcaOpcional + '</h2>' +
       (descricao ? '<p class="descricao" id="' + idDesc + '">' + esc(descricao) + '</p>' : '') +
       '<div class="campo-area">' + campo(p, idDesc, idRec, descricao) + '</div>';
   }
@@ -852,9 +870,13 @@ function telaRevisao() {
   var falha = E.falha ? blocoFalha(E.falha) : '';
   var rotulo = E.falha ? 'Tentar enviar de novo' : 'Enviar a minha aplicação';
 
+  // A cabeca fica no mesmo eixo das perguntas, centrada; a lista embaixo
+  // continua alinhada a esquerda, que e por onde se le uma lista.
   return novaTela('revisao-tela',
-    '<p class="ordinal"><span>Conferir</span>' + icone('arrow') + '</p>' +
-    '<h2 class="pergunta">Confira antes de enviar</h2>' +
+    '<div class="cabeca-centro">' +
+      '<p class="ordinal"><span>Conferir</span>' + icone('arrow') + '</p>' +
+      '<h2 class="pergunta">Confira antes de enviar</h2>' +
+    '</div>' +
     '<div class="revisao-lista">' + linhas + '</div>' +
     falha +
     '<p class="recado" data-recado="1"></p>' +
@@ -862,7 +884,7 @@ function telaRevisao() {
       '<button type="button" class="btn btn-o avancar js-avancar">' +
         '<span>' + esc(rotulo) + '</span>' + icone('arrow') +
       '</button>' +
-      '<span class="dica">Confira antes de enviar. Depois disto, quem lê é a Carla.</span>' +
+      '<span class="dica">Depois de enviar, quem lê é a nossa equipe.</span>' +
     '</div>');
 }
 
@@ -947,7 +969,12 @@ function ir(pos, sentido, semHistorico) {
   palco.appendChild(nova);
   ligarTela(nova);
 
-  E.travado = true;
+  // A trava existe para uma coisa so: impedir que um segundo toque troque
+  // de tela enquanto duas telas estao no palco ao mesmo tempo. Na primeira
+  // pintura nao ha tela saindo, e travar ali fazia a capa engolir o
+  // primeiro toque de quem chega e aperta na hora, ate 900 milissegundos.
+  // No celular era toque perdido toda vez.
+  E.travado = !!velha;
   if (velha) {
     velha.dataset.estado = 'saindo';
     velha.dataset.sentido = sentido || 'frente';
@@ -1006,8 +1033,11 @@ function redesenhar() {
   var nova = construir(E.pos);
   E.telaAtual = nova;
   palco.appendChild(nova);
-  ligarTela(nova);
+  // A velha sai antes de a nova ser ligada. Ligar com as duas no palco
+  // deixa dois elementos com o mesmo id por um instante, e quem procura
+  // pelo documento acha o da tela que esta indo embora.
   if (velha && velha.parentNode) velha.parentNode.removeChild(velha);
+  ligarTela(nova);
   moldura();
   focar(nova);
 }
@@ -1187,7 +1217,10 @@ function ligarTexto(p, campo) {
 
 function ligarTextoLongo(p, campo) {
   var teto = Number(campo.getAttribute('data-teto')) || 2000;
-  var contador = porId('cont-' + p.chave);
+  // O contador se procura ao lado do campo, e nunca pelo documento
+  // inteiro: nas trocas de tela existem dois por um instante, e procurar
+  // pelo documento achava o da tela que estava saindo.
+  var contador = campo.parentNode ? campo.parentNode.querySelector('.contador') : null;
   function pintar() {
     var quantos = contar(campo.value);
     if (contador) {
@@ -1291,7 +1324,8 @@ function trocarBotaoPais(campo, pais) {
 }
 
 function sugerirDominio(p, campo) {
-  var caixa = porId('sug-' + p.chave);
+  // Ao lado do campo, pelo mesmo motivo do contador do texto longo.
+  var caixa = campo.parentNode ? campo.parentNode.querySelector('.sugestao') : null;
   if (!caixa) return;
   var sugestao = dominioParecido(campo.value);
   if (!sugestao) {
@@ -1411,7 +1445,7 @@ function reconferirSePreciso(p, campo) {
 function acaoPrincipal() {
   if (E.travado) return;
   if (E.pos === -1) { comecar(); return; }
-  if (E.pos === E.lista.length) { enviar(false); return; }
+  if (E.pos === E.lista.length) { enviar(); return; }
   if (E.pos > E.lista.length) return;
   avancarDaqui(false);
 }
@@ -1445,6 +1479,12 @@ function avancarDaqui(pulando) {
   salvarRascunho();
   talvezParcial(p.chave);
 
+  // A linha da retomada vale para a tela em que a pessoa voltou, e so
+  // para ela. Deixada de pe, ela repetia "continuamos de onde parou" em
+  // toda pergunta seguinte, onde ja nao era verdade, e levava junto o
+  // botao que apaga tudo.
+  E.retomada = null;
+
   if (E.voltarParaRevisao) {
     E.voltarParaRevisao = false;
     recalcular();
@@ -1455,6 +1495,10 @@ function avancarDaqui(pulando) {
 }
 
 function voltar() {
+  // A mesma trava do avancar: dois cliques dentro da troca andavam duas
+  // vezes no historico do navegador e uma so na tela, e as duas pilhas
+  // ficavam desencontradas dali para a frente.
+  if (E.travado) return;
   if (E.pos <= -1 || E.concluido) return;
   cancelarAvanco();
   if (E.pos < E.lista.length) {
@@ -1469,6 +1513,10 @@ function voltar() {
 function recomecar() {
   E.respostas = {};
   E.retomada = null;
+  // Sem isto, quem chegou aqui vindo do "mudar" da tela de conferir
+  // recomecava do zero e o primeiro Seguir pulava direto para a
+  // conferencia, com oito perguntas dizendo que nao foram respondidas.
+  E.voltarParaRevisao = false;
   E.errosServidor = {};
   apagar(CHAVE_RASCUNHO);
   salvarRascunho();
@@ -1535,23 +1583,63 @@ function chamar(caminho, corpo, limite) {
 }
 
 /* A captura parcial: quem preencheu contato e sumiu no meio hoje se
-   perde inteiro, e e por isso que se paga o plano do outro. */
-function talvezParcial(parouEm) {
+   perde inteiro, e e por isso que se paga o plano do outro.
+
+   Uma parcial vale por vinte segundos: mais que isso e a mesma resposta
+   gravada muitas vezes seguidas, sem nada de novo dentro. A espera vale
+   para os dois caminhos, o de responder uma pergunta e o de a aba sumir,
+   senao quem troca de aba trinta vezes grava trinta. */
+var ESPERA_PARCIAL = 20000;
+
+function quantasRespondidas() {
   var quantas = 0;
   Object.keys(E.respostas).forEach(function (k) { if (!estaVazio(E.respostas[k])) quantas += 1; });
-  if (quantas < 3 || E.concluido || E.enviando) return;
-  var agora = Date.now();
-  if (E.ultimaParcial && agora - E.ultimaParcial < 20000) { E.parcialPendente = true; return; }
-  E.ultimaParcial = agora;
+  return quantas;
+}
+
+// Quanto falta para a proxima parcial poder sair. Zero quer dizer agora.
+function faltaParaParcial() {
+  if (!E.ultimaParcial) return 0;
+  var falta = ESPERA_PARCIAL - (Date.now() - E.ultimaParcial);
+  return falta > 0 ? falta : 0;
+}
+
+function talvezParcial(parouEm) {
+  if (quantasRespondidas() < 3 || E.concluido || E.enviando) return;
+  var falta = faltaParaParcial();
+  if (falta > 0) {
+    // A parcial engolida pela espera nao se perde: ela volta sozinha
+    // quando os vinte segundos fecham, com o que estiver respondido ali.
+    E.parcialPendente = true;
+    E.parcialParouEm = parouEm || null;
+    if (!E.relogioParcial) {
+      E.relogioParcial = setTimeout(function () {
+        E.relogioParcial = null;
+        var onde = E.parcialParouEm;
+        E.parcialPendente = false;
+        E.parcialParouEm = null;
+        talvezParcial(onde);
+      }, falta);
+    }
+    return;
+  }
+  E.ultimaParcial = Date.now();
   E.parcialPendente = false;
+  E.parcialParouEm = null;
   chamar('/api/resposta', corpoDoEnvio(true, parouEm), 12000);
 }
 
 function enviarParcialAgora() {
   if (E.concluido || E.enviando) return;
-  var quantas = 0;
-  Object.keys(E.respostas).forEach(function (k) { if (!estaVazio(E.respostas[k])) quantas += 1; });
-  if (quantas < 3) return;
+  if (quantasRespondidas() < 3) return;
+  // A aba sumindo e a ultima chance de gravar. A espera vale aqui
+  // tambem, senao quem troca de aba trinta vezes grava trinta a mesma
+  // coisa; mas ela nao vale quando ha resposta nova esperando a vez,
+  // porque ai o que a espera economiza e justamente o que importa.
+  if (faltaParaParcial() > 0 && !E.parcialPendente) return;
+  E.ultimaParcial = Date.now();
+  E.parcialPendente = false;
+  E.parcialParouEm = null;
   var p = (E.pos >= 0 && E.pos < E.lista.length) ? E.lista[E.pos] : null;
   var corpo = corpoDoEnvio(true, p ? p.chave : null);
   var texto = JSON.stringify(corpo);
@@ -1573,7 +1661,14 @@ function enviarParcialAgora() {
 
 var ESPERAS = [0, 3000, 9000];
 
-function enviar(repique) {
+// A primeira tentativa espera os quinze segundos inteiros. As de repique
+// esperam menos: a rede que nao respondeu na primeira raramente responde
+// na terceira, e quem esta olhando o botao nao pode ficar um minuto sem
+// nada mudar na tela. Junto com isso, o rotulo troca a cada tentativa,
+// para a espera ter um sinal alem do anel girando.
+var LIMITES = [15000, 8000, 8000];
+
+function enviar() {
   if (E.enviando || E.concluido) return;
   E.enviando = true;
   E.falha = null;
@@ -1583,7 +1678,11 @@ function enviar(repique) {
 }
 
 function tentarEnvio(vez) {
-  chamar('/api/resposta', corpoDoEnvio(false, null), 15000).then(function (r) {
+  if (vez > 0) {
+    pintarEnviando(true, 'Tentando de novo');
+    viva('A conexão está lenta. Tentando enviar de novo.');
+  }
+  chamar('/api/resposta', corpoDoEnvio(false, null), LIMITES[vez] || 8000).then(function (r) {
     // So repica em falha de rede e quando o servidor diz que nao
     // conseguiu gravar. Recusa de resposta, limite estourado e corpo
     // ilegivel nao repicam: repetir o que foi recusado e insistir no erro.
@@ -1658,7 +1757,7 @@ function redesenharRevisao() {
   redesenhar();
 }
 
-function pintarEnviando(ligado) {
+function pintarEnviando(ligado, rotulo) {
   var alvos = [];
   if (E.telaAtual) E.telaAtual.querySelectorAll('.js-avancar').forEach(function (b) { alvos.push(b); });
   var barra = porId('barraAcao');
@@ -1669,7 +1768,7 @@ function pintarEnviando(ligado) {
     var seta = b.querySelector('svg');
     var anel = b.querySelector('.anel');
     if (ligado) {
-      if (rot) rot.textContent = 'Enviando';
+      if (rot) rot.textContent = rotulo || 'Enviando';
       if (seta) seta.style.display = 'none';
       if (!anel) {
         var d = document.createElement('span');

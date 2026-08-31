@@ -90,7 +90,6 @@
   --r:4px;
   --r-sm:3px;
   --r-lg:10px;
-  --r-pilula:999px;
 
   /* uma escala de espaco so */
   --e1:6px;  --e2:12px; --e3:20px;
@@ -177,6 +176,30 @@ body::after{
    linha precisa existir. */
 .tela[hidden]{display:none}
 .tela:focus{outline:none}
+
+/* A pergunta mora no meio da tela, na largura de leitura da coluna.
+   Encostada a esquerda ela deixava a metade direita vazia e o alto
+   morto, e o desenho lia como se tivesse escorregado. O bloco tambem
+   sobe um degrau: o rodape da tela ja tem a contagem e as setas, e
+   centrar contra a borda de baixo joga a pergunta para baixo demais. */
+.pergunta-tela{
+  align-items:center;text-align:center;
+  padding-bottom:calc(var(--e6) + 100px + var(--teclado));
+}
+.pergunta-tela > *{width:100%}
+.pergunta-tela .ordinal,
+.pergunta-tela .recado,
+.pergunta-tela .sugestao,
+.pergunta-tela .acoes{justify-content:center}
+.pergunta-tela .descricao,
+.pergunta-tela .dica-linha{margin-inline:auto}
+/* O que a pessoa escreve e o que ela escolhe continuam alinhados a
+   esquerda: texto centrado dentro de campo dança a cada letra digitada,
+   e lista de opcao centrada nao tem por onde o olho descer. */
+.pergunta-tela .campo,
+.pergunta-tela .campo-longo,
+.pergunta-tela .opcoes,
+.pergunta-tela .linha-telefone{text-align:left}
 
 .tela[data-estado="entrando"]{animation:entra var(--t-troca) var(--ease) both}
 .tela[data-estado="saindo"]{animation:sai var(--t-saida) var(--ease) both;
@@ -334,73 +357,30 @@ body::after{
 .acoes{display:flex;align-items:center;gap:16px;margin-top:var(--e4);flex-wrap:wrap}
 .acoes-fim{gap:12px}
 
-/* Os botoes perola da landing, copiados: mesmo volume, mesmo verniz. */
+/* O botao da marca: canto de 4px, laranja liso, sem degrade e sem halo.
+   A pilula com brilho em volta e cara de site generico; o que identifica
+   esta casa e o canto reto e o laranja chapado. O unico movimento e o da
+   seta andando um passo, que e o mesmo do resto da pagina. */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
-  padding:16px 28px;border-radius:var(--r-pilula);font-weight:700;font-size:14.5px;
-  letter-spacing:.005em;position:relative;overflow:hidden;isolation:isolate;border:0;
+  padding:16px 28px;border-radius:var(--r);font-weight:700;font-size:14.5px;
+  letter-spacing:.005em;position:relative;border:1px solid transparent;
   touch-action:manipulation;text-decoration:none;
-  transition:transform .26s var(--ease),box-shadow .3s var(--ease),color .2s,
-             background-color .25s,border-color .25s;
+  transition:color .2s,background-color .25s,border-color .25s;
 }
 .btn svg{width:17px;height:17px;flex:none;transition:transform .3s var(--ease)}
-.btn::before{
-  content:"";position:absolute;z-index:-1;left:-15%;right:-15%;top:-100%;bottom:25%;
-  border-radius:50%;background:rgba(255,255,255,.13);
-  transition:transform .35s var(--ease),background-color .3s;
-}
-.btn::after{
-  content:"";position:absolute;z-index:-1;left:6%;right:6%;top:11%;bottom:42%;
-  border-radius:20px 20px 0 0;
-  box-shadow:inset 0 9px 8px -9px rgba(255,255,255,.9);
-  background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0) 58%);
-  transition:opacity .35s var(--ease),transform .35s var(--ease);
-}
-.btn:hover{transform:translateY(-2px)}
-.btn:hover::before{transform:translateY(-6%)}
-.btn:hover::after{opacity:.45;transform:translateY(6%)}
 .btn:hover svg{transform:translateX(3px)}
-.btn:active{transform:translateY(2px);transition-duration:.08s}
-.btn-o{
-  background:var(--o-grad);color:#1b1204;
-  box-shadow:
-    inset 0 .26rem .7rem rgba(255,255,255,.6),
-    inset 0 -.1rem .3rem rgba(122,52,0,.5),
-    inset 0 -.36rem .8rem rgba(255,214,158,.55),
-    0 1.5rem 2.2rem -1.1rem rgba(255,131,9,.55),
-    0 .6rem .9rem -.5rem rgba(0,0,0,.5);
-}
-.btn-o:hover{
-  box-shadow:
-    inset 0 .26rem .55rem rgba(255,255,255,.75),
-    inset 0 -.1rem .3rem rgba(122,52,0,.5),
-    inset 0 -.4rem .9rem rgba(255,224,180,.7),
-    0 1.9rem 2.8rem -1rem rgba(255,131,9,.7),
-    0 .7rem 1rem -.5rem rgba(0,0,0,.55);
-}
-.btn-o:active{
-  box-shadow:
-    inset 0 .3rem .5rem rgba(255,255,255,.8),
-    inset 0 -.1rem .3rem rgba(122,52,0,.6),
-    inset 0 -.3rem .7rem rgba(255,214,158,.4),
-    0 .5rem .9rem -.5rem rgba(0,0,0,.6);
-}
-.btn-linha{
-  background:#0f0f14;color:#fff;
-  box-shadow:
-    inset 0 .26rem .7rem rgba(255,255,255,.22),
-    inset 0 -.1rem .3rem rgba(0,0,0,.75),
-    inset 0 -.36rem .8rem rgba(255,255,255,.30),
-    0 1.4rem 2rem -1.1rem rgba(0,0,0,.7),
-    0 .5rem .8rem -.5rem rgba(0,0,0,.7);
-}
-.btn-linha::before{background:rgba(255,255,255,.09)}
-.btn-linha:hover{color:var(--o-lt)}
+.btn-o{background:var(--o);border-color:var(--o);color:#1b1204}
+.btn-o:hover{background:var(--o-lt);border-color:var(--o-lt)}
+.btn-o:active{background:var(--o-dp);border-color:var(--o-dp)}
+.btn-linha{background:transparent;border-color:var(--fio);color:var(--tinta)}
+.btn-linha:hover{border-color:var(--o-35);color:var(--o);background:var(--o-05)}
+.btn-linha:active{background:var(--o-10)}
+.btn:focus-visible{outline:2px solid var(--o);outline-offset:3px}
 .btn-grande{padding:19px 32px;font-size:clamp(15px,1.4vw,16.5px)}
 .btn[aria-disabled="true"],.btn:disabled{
-  opacity:.72;cursor:default;transform:none;
+  opacity:.72;cursor:default;
 }
-.btn:disabled:hover{transform:none}
 .btn:disabled:hover svg{transform:none}
 
 /* O anel girando do envio, com o mesmo traco 1.5 dos icones. */
@@ -458,7 +438,7 @@ body::after{
 .selos{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:var(--e4)}
 .selo{
   display:inline-flex;align-items:center;gap:8px;padding:9px 14px;
-  border:1px solid var(--fio);border-radius:var(--r-pilula);
+  border:1px solid var(--fio);border-radius:var(--r);
   background:rgba(255,255,255,.028);
   font-size:var(--t-apoio);color:var(--tinta-2);
 }
@@ -471,6 +451,10 @@ body::after{
 .rodape .dica + .dica{margin-top:8px}
 
 /* --------------------------------------------------------- a revisao */
+/* Cabeca no mesmo eixo da pergunta, lista alinhada a esquerda. */
+.cabeca-centro{text-align:center}
+.cabeca-centro .ordinal{justify-content:center}
+.revisao-tela .acoes{justify-content:center}
 .revisao-lista{
   margin-top:var(--e4);display:grid;gap:1px;
   background:var(--fio-2);border:1px solid var(--fio-2);border-radius:var(--r);
@@ -590,7 +574,8 @@ body::after{
   .opcao:has(:checked):hover{border-color:var(--o);background:var(--o-10)}
   .opcao:has(:checked):hover .letra{border-color:var(--o);color:#1b1204}
   .dica-teclado{display:none}
-  .btn:hover{transform:none}
+  .btn-o:hover{background:var(--o);border-color:var(--o)}
+  .btn:hover svg{transform:none}
 }
 
 /* ------------------------------------------------- movimento reduzido */
@@ -713,7 +698,7 @@ body::after{
    ela e a pessoa responde igual, sem ver tela de erro: erro que a pessoa
    nao precisa resolver nao vira aviso na cara dela.
    --------------------------------------------------------------------- */
-var RESERVA = {"versao":1,"publicado_em":"2026-08-31 00:00:00","titulo":"Conte a sua ideia","abertura":{"titulo":"Conte a sua ideia","texto":"São perguntas sobre o que você sabe fazer e o que quer transformar em produto. Suas respostas vão direto para a nossa mesa, e nós lemos uma por uma antes de responder.","botao":"Começar","tempo":"9 perguntas, cerca de 4 minutos"},"agradecimento":{"titulo":"Recebemos a sua ideia","texto":"Ela entrou na fila de leitura. Nós lemos o que você escreveu e voltamos pelo WhatsApp ou pelo e-mail que você deixou. Se precisar acrescentar alguma coisa, responda o e-mail que chegar.","link":{"texto":"Voltar para o site","url":"/"}},"perguntas":[{"chave":"nome","titulo":"Nome completo","descricao":"","tipo":"texto_curto","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":{"minimo":2,"maximo":120},"erro":"Escreva o seu nome completo, com pelo menos duas letras.","dica":"Como você assina","mostrar_se":null},{"chave":"email","titulo":"E-mail","descricao":"","tipo":"email","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":null,"erro":"Confira o e-mail: faltou o arroba ou o endereço depois dele.","dica":"voce@empresa.com.br","mostrar_se":null},{"chave":"whatsapp","titulo":"WhatsApp","descricao":"","tipo":"telefone","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":{"pais_padrao":"BR"},"erro":"Confira o número: com DDD, ele tem 10 ou 11 dígitos.","dica":"","mostrar_se":null},{"chave":"atuacao","titulo":"Atuação profissional","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"empresario","texto":"Empresário ou dono de negócios"},{"chave":"liberal","texto":"Profissional liberal (médico, advogado, etc.)"},{"chave":"autonomo","texto":"Autônomo ou prestador de serviço"},{"chave":"criador","texto":"Freelancer ou criador de conteúdo"},{"chave":"clt","texto":"Empregado CLT"},{"chave":"outro","texto":"Outro"}],"mascara":null,"erro":"Escolha a opção mais próxima do seu dia a dia.","dica":"","mostrar_se":null},{"chave":"o_que_transformar","titulo":"O que você quer transformar em produto?","descricao":"Explique em poucas linhas o que você sabe fazer e o que imagina transformar em mentoria, consultoria ou treinamento.","tipo":"texto_longo","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":{"minimo":20,"maximo":2000},"erro":"Escreva pelo menos uma frase inteira. É esta resposta que a mesa lê primeiro.","dica":"O que você faz hoje, e o que imagina vender","mostrar_se":null},{"chave":"atende_clientes","titulo":"Você já atende clientes nesse tema?","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"ainda_nao","texto":"Ainda não"},{"chave":"esporadica","texto":"Sim, de forma esporádica"},{"chave":"recorrente","texto":"Sim, de forma recorrente"}],"mascara":null,"erro":"Escolha uma das três.","dica":"","mostrar_se":null},{"chave":"faturamento","titulo":"Faixa de faturamento mensal","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"sem_faturamento","texto":"Ainda não faturo"},{"chave":"ate_5k","texto":"Até R$ 5 mil"},{"chave":"de_5k_a_15k","texto":"R$ 5 mil a R$ 15 mil"},{"chave":"de_15k_a_50k","texto":"R$ 15 mil a R$ 50 mil"},{"chave":"acima_de_50k","texto":"Acima de R$ 50 mil"}],"mascara":null,"erro":"Escolha a faixa mais próxima. Ninguém confere número aqui.","dica":"","mostrar_se":null},{"chave":"objetivo","titulo":"Seu principal objetivo","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"primeiro_produto","texto":"Criar meu primeiro produto do zero"},{"chave":"estruturar","texto":"Estruturar e organizar o que já faço"},{"chave":"faturar_mais","texto":"Aumentar meu faturamento"},{"chave":"escalar","texto":"Escalar e ter previsibilidade"}],"mascara":null,"erro":"Escolha o que mais pesa hoje.","dica":"","mostrar_se":null},{"chave":"estagio","titulo":"Em que estágio sua ideia está?","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"ideia","texto":"Só uma ideia na cabeça"},{"chave":"experiencia","texto":"Tenho o conhecimento, mas não sei estruturar"},{"chave":"resultado","texto":"Já testei de forma informal"},{"chave":"cobra","texto":"Já vendo, mas quero profissionalizar"}],"mascara":null,"erro":"Escolha o ponto em que você está hoje.","dica":"","mostrar_se":null}]};
+var RESERVA = {"versao":0,"publicado_em":"2026-08-31 00:00:00","titulo":"Conte a sua ideia","abertura":{"titulo":"Conte a sua ideia","texto":"São perguntas sobre o que você sabe fazer e o que quer transformar em produto. Suas respostas vão direto para a nossa mesa, e nós lemos uma por uma antes de responder.","botao":"Começar","tempo":"9 perguntas, cerca de 4 minutos"},"agradecimento":{"titulo":"Recebemos a sua ideia","texto":"Ela entrou na fila de leitura. Nós lemos o que você escreveu e voltamos pelo WhatsApp ou pelo e-mail que você deixou. Se precisar acrescentar alguma coisa, responda o e-mail que chegar.","link":{"texto":"Voltar para o site","url":"/"}},"perguntas":[{"chave":"nome","titulo":"Nome completo","descricao":"","tipo":"texto_curto","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":{"minimo":2,"maximo":120},"erro":"Escreva o seu nome completo, com pelo menos duas letras.","dica":"Como você assina","mostrar_se":null},{"chave":"email","titulo":"E-mail","descricao":"","tipo":"email","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":null,"erro":"Confira o e-mail: faltou o arroba ou o endereço depois dele.","dica":"voce@empresa.com.br","mostrar_se":null},{"chave":"whatsapp","titulo":"WhatsApp","descricao":"","tipo":"telefone","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":{"pais_padrao":"BR"},"erro":"Confira o número: com DDD, ele tem 10 ou 11 dígitos.","dica":"","mostrar_se":null},{"chave":"atuacao","titulo":"Atuação profissional","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"empresario","texto":"Empresário ou dono de negócios"},{"chave":"liberal","texto":"Profissional liberal (médico, advogado, etc.)"},{"chave":"autonomo","texto":"Autônomo ou prestador de serviço"},{"chave":"criador","texto":"Freelancer ou criador de conteúdo"},{"chave":"clt","texto":"Empregado CLT"},{"chave":"outro","texto":"Outro"}],"mascara":null,"erro":"Escolha a opção mais próxima do seu dia a dia.","dica":"","mostrar_se":null},{"chave":"o_que_transformar","titulo":"O que você quer transformar em produto?","descricao":"Explique em poucas linhas o que você sabe fazer e o que imagina transformar em mentoria, consultoria ou treinamento.","tipo":"texto_longo","obrigatoria":true,"ativa":true,"opcoes":[],"mascara":{"minimo":20,"maximo":2000},"erro":"Escreva pelo menos uma frase inteira. É esta resposta que a mesa lê primeiro.","dica":"O que você faz hoje, e o que imagina vender","mostrar_se":null},{"chave":"estagio","titulo":"Em que estágio sua ideia está?","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"ideia","texto":"Só uma ideia na cabeça"},{"chave":"experiencia","texto":"Tenho o conhecimento, mas não sei estruturar"},{"chave":"resultado","texto":"Já testei de forma informal"},{"chave":"cobra","texto":"Já vendo, mas quero profissionalizar"}],"mascara":null,"erro":"Escolha o ponto em que você está hoje.","dica":"","mostrar_se":null},{"chave":"atende_clientes","titulo":"Você já atende clientes nesse tema?","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"ainda_nao","texto":"Ainda não"},{"chave":"esporadica","texto":"Sim, de forma esporádica"},{"chave":"recorrente","texto":"Sim, de forma recorrente"}],"mascara":null,"erro":"Escolha uma das três.","dica":"","mostrar_se":null},{"chave":"faturamento","titulo":"Faixa de faturamento mensal","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"sem_faturamento","texto":"Ainda não faturo"},{"chave":"ate_5k","texto":"Até R$ 5 mil"},{"chave":"de_5k_a_15k","texto":"R$ 5 mil a R$ 15 mil"},{"chave":"de_15k_a_50k","texto":"R$ 15 mil a R$ 50 mil"},{"chave":"acima_de_50k","texto":"Acima de R$ 50 mil"}],"mascara":null,"erro":"Escolha a faixa mais próxima. Ninguém confere número aqui.","dica":"","mostrar_se":null},{"chave":"objetivo","titulo":"Seu principal objetivo","descricao":"","tipo":"escolha_unica","obrigatoria":true,"ativa":true,"opcoes":[{"chave":"primeiro_produto","texto":"Criar meu primeiro produto do zero"},{"chave":"estruturar","texto":"Estruturar e organizar o que já faço"},{"chave":"faturar_mais","texto":"Aumentar meu faturamento"},{"chave":"escalar","texto":"Escalar e ter previsibilidade"}],"mascara":null,"erro":"Escolha o que mais pesa hoje.","dica":"","mostrar_se":null}]};
 
 /* O que a casa configura. O numero do WhatsApp e o mesmo lugar da
    landing: vazio, o botao de conversa nao aparece, porque botao que nao
@@ -836,7 +821,9 @@ var E = {
   fila: [],
   desistiuMandado: false,
   ultimaParcial: 0,
-  parcialPendente: false
+  parcialPendente: false,  // ha resposta nova esperando a vez dela
+  parcialParouEm: null,    // e em que pergunta ela parou
+  relogioParcial: null
 };
 
 /* ---------------------------------------------------------------------
@@ -953,7 +940,13 @@ function despachar(porBeacon) {
 /* ---------------------------------------------------------------------
    7. A definicao e as perguntas visiveis.
    --------------------------------------------------------------------- */
-function versaoEmUso() { return (E.def && E.def.versao) || 1; }
+// A versao de fabrica e a zero, e zero e um numero de versao de verdade.
+// Trocar zero por um so porque zero e falso fazia a resposta chegar
+// dizendo que a pessoa leu a versao 1, que pode ter outras perguntas.
+function versaoEmUso() {
+  var v = E.def ? E.def.versao : null;
+  return typeof v === 'number' && isFinite(v) ? v : 0;
+}
 
 function acharPergunta(chave) {
   var lista = (E.def && E.def.perguntas) || [];
@@ -1225,7 +1218,14 @@ function conferir(p) {
   if (p.tipo === 'telefone') {
     var lido = lerTelefone(txt);
     var n = lido.digitos.length;
-    var ok = lido.pais.c === '55' ? (n === 10 || n === 11) : (n >= 6 && n <= 15);
+    // A regua e a mesma do envio, e conta o codigo do pais junto: de 10 a
+    // 15 digitos ao todo. Contar so os digitos nacionais aqui deixava
+    // passar numero curto de fora, que era recusado nove perguntas
+    // depois, quando ja nao da para consertar sem voltar tudo.
+    var total = lido.pais.c.length + n;
+    var ok = lido.pais.c === '55'
+      ? (n === 10 || n === 11)
+      : (total >= 10 && total <= 15);
     return ok ? null : { texto: p.erro || PADRAO.telefone, detalhe: 'formato' };
   }
   if (p.tipo === 'numero') {
@@ -1358,7 +1358,9 @@ function telaCapa() {
   var selos = '';
   if (relogio) selos += '<span class="selo">' + icone('clock') + esc(relogio) + '</span>';
   selos += '<span class="selo">' + icone('doc') + esc(quantas) + '</span>';
-  selos += '<span class="selo">' + icone('lock') + 'as suas respostas ficam com a Carla</span>';
+  // Sem nome proprio: quem chega aqui ainda nao conhece ninguem da casa,
+  // e o primeiro nome de uma desconhecida nao tranquiliza, estranha.
+  selos += '<span class="selo">' + icone('lock') + 'as suas respostas ficam entre nós</span>';
 
   var rodape = '<p class="dica">A casa conta quantas pessoas abrem este formulário e em que ' +
                'pergunta param, para melhorá-lo. Não guardamos quem é você nessa contagem.</p>';
@@ -1390,12 +1392,13 @@ function telaPergunta(p) {
   var n = E.numero[p.chave];
   var titulo = interpolar(p.titulo);
   var descricao = interpolar(p.descricao);
-  var idDesc = 'desc-' + p.chave;
-  var idRec = 'rec-' + p.chave;
+  // A chave vem da definicao, e a definicao vem do servidor: ela passa
+  // por esc() aqui pelo mesmo motivo que passa no resto da funcao, sem
+  // abrir excecao por confiar em quem mandou.
+  var idDesc = 'desc-' + esc(p.chave);
+  var idRec = 'rec-' + esc(p.chave);
 
-  var cabeca =
-    (n ? '<p class="ordinal"><span>' + n + '</span>' + icone('arrow') + '</p>' : '') +
-    (descricao ? '' : '');
+  var cabeca = n ? '<p class="ordinal"><span>' + n + '</span>' + icone('arrow') + '</p>' : '';
 
   var marcaOpcional = p.obrigatoria || p.tipo === 'recado'
     ? '' : '<span class="opcional">opcional</span>';
@@ -1415,7 +1418,7 @@ function telaPergunta(p) {
       (descricao ? '<p class="descricao">' + esc(descricao) + '</p>' : '');
   } else {
     corpo =
-      '<h2 class="pergunta" id="rot-' + p.chave + '">' + esc(titulo) + marcaOpcional + '</h2>' +
+      '<h2 class="pergunta" id="rot-' + esc(p.chave) + '">' + esc(titulo) + marcaOpcional + '</h2>' +
       (descricao ? '<p class="descricao" id="' + idDesc + '">' + esc(descricao) + '</p>' : '') +
       '<div class="campo-area">' + campo(p, idDesc, idRec, descricao) + '</div>';
   }
@@ -1534,9 +1537,13 @@ function telaRevisao() {
   var falha = E.falha ? blocoFalha(E.falha) : '';
   var rotulo = E.falha ? 'Tentar enviar de novo' : 'Enviar a minha aplicação';
 
+  // A cabeca fica no mesmo eixo das perguntas, centrada; a lista embaixo
+  // continua alinhada a esquerda, que e por onde se le uma lista.
   return novaTela('revisao-tela',
-    '<p class="ordinal"><span>Conferir</span>' + icone('arrow') + '</p>' +
-    '<h2 class="pergunta">Confira antes de enviar</h2>' +
+    '<div class="cabeca-centro">' +
+      '<p class="ordinal"><span>Conferir</span>' + icone('arrow') + '</p>' +
+      '<h2 class="pergunta">Confira antes de enviar</h2>' +
+    '</div>' +
     '<div class="revisao-lista">' + linhas + '</div>' +
     falha +
     '<p class="recado" data-recado="1"></p>' +
@@ -1544,7 +1551,7 @@ function telaRevisao() {
       '<button type="button" class="btn btn-o avancar js-avancar">' +
         '<span>' + esc(rotulo) + '</span>' + icone('arrow') +
       '</button>' +
-      '<span class="dica">Confira antes de enviar. Depois disto, quem lê é a Carla.</span>' +
+      '<span class="dica">Depois de enviar, quem lê é a nossa equipe.</span>' +
     '</div>');
 }
 
@@ -1629,7 +1636,12 @@ function ir(pos, sentido, semHistorico) {
   palco.appendChild(nova);
   ligarTela(nova);
 
-  E.travado = true;
+  // A trava existe para uma coisa so: impedir que um segundo toque troque
+  // de tela enquanto duas telas estao no palco ao mesmo tempo. Na primeira
+  // pintura nao ha tela saindo, e travar ali fazia a capa engolir o
+  // primeiro toque de quem chega e aperta na hora, ate 900 milissegundos.
+  // No celular era toque perdido toda vez.
+  E.travado = !!velha;
   if (velha) {
     velha.dataset.estado = 'saindo';
     velha.dataset.sentido = sentido || 'frente';
@@ -1688,8 +1700,11 @@ function redesenhar() {
   var nova = construir(E.pos);
   E.telaAtual = nova;
   palco.appendChild(nova);
-  ligarTela(nova);
+  // A velha sai antes de a nova ser ligada. Ligar com as duas no palco
+  // deixa dois elementos com o mesmo id por um instante, e quem procura
+  // pelo documento acha o da tela que esta indo embora.
   if (velha && velha.parentNode) velha.parentNode.removeChild(velha);
+  ligarTela(nova);
   moldura();
   focar(nova);
 }
@@ -1869,7 +1884,10 @@ function ligarTexto(p, campo) {
 
 function ligarTextoLongo(p, campo) {
   var teto = Number(campo.getAttribute('data-teto')) || 2000;
-  var contador = porId('cont-' + p.chave);
+  // O contador se procura ao lado do campo, e nunca pelo documento
+  // inteiro: nas trocas de tela existem dois por um instante, e procurar
+  // pelo documento achava o da tela que estava saindo.
+  var contador = campo.parentNode ? campo.parentNode.querySelector('.contador') : null;
   function pintar() {
     var quantos = contar(campo.value);
     if (contador) {
@@ -1973,7 +1991,8 @@ function trocarBotaoPais(campo, pais) {
 }
 
 function sugerirDominio(p, campo) {
-  var caixa = porId('sug-' + p.chave);
+  // Ao lado do campo, pelo mesmo motivo do contador do texto longo.
+  var caixa = campo.parentNode ? campo.parentNode.querySelector('.sugestao') : null;
   if (!caixa) return;
   var sugestao = dominioParecido(campo.value);
   if (!sugestao) {
@@ -2093,7 +2112,7 @@ function reconferirSePreciso(p, campo) {
 function acaoPrincipal() {
   if (E.travado) return;
   if (E.pos === -1) { comecar(); return; }
-  if (E.pos === E.lista.length) { enviar(false); return; }
+  if (E.pos === E.lista.length) { enviar(); return; }
   if (E.pos > E.lista.length) return;
   avancarDaqui(false);
 }
@@ -2127,6 +2146,12 @@ function avancarDaqui(pulando) {
   salvarRascunho();
   talvezParcial(p.chave);
 
+  // A linha da retomada vale para a tela em que a pessoa voltou, e so
+  // para ela. Deixada de pe, ela repetia "continuamos de onde parou" em
+  // toda pergunta seguinte, onde ja nao era verdade, e levava junto o
+  // botao que apaga tudo.
+  E.retomada = null;
+
   if (E.voltarParaRevisao) {
     E.voltarParaRevisao = false;
     recalcular();
@@ -2137,6 +2162,10 @@ function avancarDaqui(pulando) {
 }
 
 function voltar() {
+  // A mesma trava do avancar: dois cliques dentro da troca andavam duas
+  // vezes no historico do navegador e uma so na tela, e as duas pilhas
+  // ficavam desencontradas dali para a frente.
+  if (E.travado) return;
   if (E.pos <= -1 || E.concluido) return;
   cancelarAvanco();
   if (E.pos < E.lista.length) {
@@ -2151,6 +2180,10 @@ function voltar() {
 function recomecar() {
   E.respostas = {};
   E.retomada = null;
+  // Sem isto, quem chegou aqui vindo do "mudar" da tela de conferir
+  // recomecava do zero e o primeiro Seguir pulava direto para a
+  // conferencia, com oito perguntas dizendo que nao foram respondidas.
+  E.voltarParaRevisao = false;
   E.errosServidor = {};
   apagar(CHAVE_RASCUNHO);
   salvarRascunho();
@@ -2217,23 +2250,63 @@ function chamar(caminho, corpo, limite) {
 }
 
 /* A captura parcial: quem preencheu contato e sumiu no meio hoje se
-   perde inteiro, e e por isso que se paga o plano do outro. */
-function talvezParcial(parouEm) {
+   perde inteiro, e e por isso que se paga o plano do outro.
+
+   Uma parcial vale por vinte segundos: mais que isso e a mesma resposta
+   gravada muitas vezes seguidas, sem nada de novo dentro. A espera vale
+   para os dois caminhos, o de responder uma pergunta e o de a aba sumir,
+   senao quem troca de aba trinta vezes grava trinta. */
+var ESPERA_PARCIAL = 20000;
+
+function quantasRespondidas() {
   var quantas = 0;
   Object.keys(E.respostas).forEach(function (k) { if (!estaVazio(E.respostas[k])) quantas += 1; });
-  if (quantas < 3 || E.concluido || E.enviando) return;
-  var agora = Date.now();
-  if (E.ultimaParcial && agora - E.ultimaParcial < 20000) { E.parcialPendente = true; return; }
-  E.ultimaParcial = agora;
+  return quantas;
+}
+
+// Quanto falta para a proxima parcial poder sair. Zero quer dizer agora.
+function faltaParaParcial() {
+  if (!E.ultimaParcial) return 0;
+  var falta = ESPERA_PARCIAL - (Date.now() - E.ultimaParcial);
+  return falta > 0 ? falta : 0;
+}
+
+function talvezParcial(parouEm) {
+  if (quantasRespondidas() < 3 || E.concluido || E.enviando) return;
+  var falta = faltaParaParcial();
+  if (falta > 0) {
+    // A parcial engolida pela espera nao se perde: ela volta sozinha
+    // quando os vinte segundos fecham, com o que estiver respondido ali.
+    E.parcialPendente = true;
+    E.parcialParouEm = parouEm || null;
+    if (!E.relogioParcial) {
+      E.relogioParcial = setTimeout(function () {
+        E.relogioParcial = null;
+        var onde = E.parcialParouEm;
+        E.parcialPendente = false;
+        E.parcialParouEm = null;
+        talvezParcial(onde);
+      }, falta);
+    }
+    return;
+  }
+  E.ultimaParcial = Date.now();
   E.parcialPendente = false;
+  E.parcialParouEm = null;
   chamar('/api/resposta', corpoDoEnvio(true, parouEm), 12000);
 }
 
 function enviarParcialAgora() {
   if (E.concluido || E.enviando) return;
-  var quantas = 0;
-  Object.keys(E.respostas).forEach(function (k) { if (!estaVazio(E.respostas[k])) quantas += 1; });
-  if (quantas < 3) return;
+  if (quantasRespondidas() < 3) return;
+  // A aba sumindo e a ultima chance de gravar. A espera vale aqui
+  // tambem, senao quem troca de aba trinta vezes grava trinta a mesma
+  // coisa; mas ela nao vale quando ha resposta nova esperando a vez,
+  // porque ai o que a espera economiza e justamente o que importa.
+  if (faltaParaParcial() > 0 && !E.parcialPendente) return;
+  E.ultimaParcial = Date.now();
+  E.parcialPendente = false;
+  E.parcialParouEm = null;
   var p = (E.pos >= 0 && E.pos < E.lista.length) ? E.lista[E.pos] : null;
   var corpo = corpoDoEnvio(true, p ? p.chave : null);
   var texto = JSON.stringify(corpo);
@@ -2255,7 +2328,14 @@ function enviarParcialAgora() {
 
 var ESPERAS = [0, 3000, 9000];
 
-function enviar(repique) {
+// A primeira tentativa espera os quinze segundos inteiros. As de repique
+// esperam menos: a rede que nao respondeu na primeira raramente responde
+// na terceira, e quem esta olhando o botao nao pode ficar um minuto sem
+// nada mudar na tela. Junto com isso, o rotulo troca a cada tentativa,
+// para a espera ter um sinal alem do anel girando.
+var LIMITES = [15000, 8000, 8000];
+
+function enviar() {
   if (E.enviando || E.concluido) return;
   E.enviando = true;
   E.falha = null;
@@ -2265,7 +2345,11 @@ function enviar(repique) {
 }
 
 function tentarEnvio(vez) {
-  chamar('/api/resposta', corpoDoEnvio(false, null), 15000).then(function (r) {
+  if (vez > 0) {
+    pintarEnviando(true, 'Tentando de novo');
+    viva('A conexão está lenta. Tentando enviar de novo.');
+  }
+  chamar('/api/resposta', corpoDoEnvio(false, null), LIMITES[vez] || 8000).then(function (r) {
     // So repica em falha de rede e quando o servidor diz que nao
     // conseguiu gravar. Recusa de resposta, limite estourado e corpo
     // ilegivel nao repicam: repetir o que foi recusado e insistir no erro.
@@ -2340,7 +2424,7 @@ function redesenharRevisao() {
   redesenhar();
 }
 
-function pintarEnviando(ligado) {
+function pintarEnviando(ligado, rotulo) {
   var alvos = [];
   if (E.telaAtual) E.telaAtual.querySelectorAll('.js-avancar').forEach(function (b) { alvos.push(b); });
   var barra = porId('barraAcao');
@@ -2351,7 +2435,7 @@ function pintarEnviando(ligado) {
     var seta = b.querySelector('svg');
     var anel = b.querySelector('.anel');
     if (ligado) {
-      if (rot) rot.textContent = 'Enviando';
+      if (rot) rot.textContent = rotulo || 'Enviando';
       if (seta) seta.style.display = 'none';
       if (!anel) {
         var d = document.createElement('span');

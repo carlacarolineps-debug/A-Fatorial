@@ -46,7 +46,7 @@ await pg.reload({ waitUntil: "networkidle" });
 await pg.waitForTimeout(700);
 
 const telas = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x) => x.k));
-t("o gestor enxerga as nove telas", telas.length === 9, telas.join(", "));
+t("o gestor enxerga as dez telas", telas.length === 10, telas.join(", "));
 
 for (const k of telas) {
   const antes = erros.length;
@@ -89,6 +89,7 @@ const doColab = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x
 t("colaborador não vê o dinheiro", !doColab.includes("dinheiro"), doColab.join(", "));
 t("colaborador não vê A casa", !doColab.includes("casa"));
 t("colaborador vê a mesa e as entregas", doColab.includes("ideias") && doColab.includes("entrega"));
+t("colaborador edita o formulário, cliente não", doColab.includes("formulario"));
 
 await pg.evaluate(() => { sessaoGuardar("pk"); });
 await pg.reload({ waitUntil: "networkidle" });

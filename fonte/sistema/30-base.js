@@ -113,6 +113,7 @@ const CHAVES = {
   permissoes:   'iqv_permissoes',
   marca:        'iqv_marca',
   registro:     'iqv_registro',
+  formularioRascunho: 'iqv_formulario_rascunho',
 };
 
 // Ultimo erro de gravacao, para "A casa" poder mostrar em vez de calar.
@@ -313,6 +314,8 @@ const TELAS = [
     titulo: ['Minha <b>semana</b>', 'O que vence, o que atrasou e quem está esperando'] },
   { k: 'ideias',   nome: 'Ideias que chegaram',    ic: 'i-spark', grupo: 'A mesa',
     titulo: ['Ideias que <b>chegaram</b>', 'Quem contou a ideia e ainda não teve resposta nossa'] },
+  { k: 'formulario', nome: 'O formulário',         ic: 'i-flag', grupo: 'A mesa',
+    titulo: ['O <b>formulário</b>', 'As perguntas que a pessoa responde antes de chegar na sua mesa'] },
   { k: 'leitura',  nome: 'Leitura do caso',        ic: 'i-search', grupo: 'A mesa',
     titulo: ['Leitura do <b>caso</b>', 'Cabe no método, em que nível, e o que a pessoa recebe de volta'], mesa: 'papel' },
   { k: 'projetos', nome: 'Projetos em estruturação',ic: 'i-layers', grupo: 'Meu trabalho',
@@ -340,8 +343,8 @@ const GRUPOS = ['A mesa', 'Meu trabalho', 'O método', 'O cliente', 'A casa'];
    acesso padrao uma vez so. Depois disso, desmarcar em "A casa" vale.
    --------------------------------------------------------------------- */
 const PERMISSOES_DEFAULT = {
-  gestor:      ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
-  colaborador: ['semana', 'ideias', 'leitura', 'projetos', 'entrega', 'roteiros', 'cliente'],
+  gestor:      ['semana', 'ideias', 'formulario', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
+  colaborador: ['semana', 'ideias', 'formulario', 'leitura', 'projetos', 'entrega', 'roteiros', 'cliente'],
   cliente:     ['cliente'],
 };
 
@@ -355,7 +358,7 @@ let PERMISSOES = JSON.parse(JSON.stringify(PERMISSOES_DEFAULT));
 let TELAS_VISTAS = [];
 // Telas que passaram a existir depois da versao anterior. So vale para o
 // navegador que ainda nao tem TELAS_VISTAS guardada.
-const TELAS_NOVAS = [];
+const TELAS_NOVAS = ['formulario'];
 
 (function carregarPermissoes() {
   const salvo = iqvLer(CHAVES.permissoes, null);

@@ -1,4 +1,8 @@
 import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import https from "node:https";
 // Testes das rotas do formulário de aplicação.
 //
 // Sobe dois wrangler locais, bate nas seis rotas de verdade por HTTP e
@@ -8,7 +12,8 @@ import crypto from "node:crypto";
 //   - a rota que a página pública lê abre para qualquer um, e não deixa
 //     escapar recado interno, fiação de coluna nem pergunta desligada
 //   - as três rotas com login ficam fechadas enquanto TEAM_DOMAIN e
-//     ACCESS_AUD faltarem, e passam a exigir login quando existirem
+//     ACCESS_AUD faltarem, passam a exigir login quando existirem, e
+//     fazem o trabalho delas quando quem bate mostra um crachá bom
 //   - uma aplicação vira UMA linha na mesa, com nome, e-mail e WhatsApp
 //     nas colunas certas e as respostas com o título como chave
 //   - reenvio depois de queda de rede atualiza a mesma linha, não duplica,
@@ -17,28 +22,121 @@ import crypto from "node:crypto";
 //     linha, e texto com marca de script é guardado como texto
 //   - a rota de métrica nunca recebe o que a pessoa escreveu
 //
-// O segundo servidor existe só para a outra metade da porta: com as duas
-// variáveis preenchidas as rotas fechadas respondem 401 em vez de abrir.
+// O segundo servidor existe para a outra metade da porta: com as duas
+// variáveis preenchidas as rotas fechadas respondem 401 em vez de abrir,
+// e com um crachá bom elas abrem e trabalham.
 import { spawn, spawnSync } from "node:child_process";
 import { setTimeout as espera } from "node:timers/promises";
 import {
   FORMULARIO_FABRICA, podar, validarDefinicao, normalizarEventos,
 } from "./src/aplicar.js";
 
+// O segundo servidor guarda o banco dele num diretório próprio: dois
+// wrangler rodando juntos não podem disputar o mesmo estado local.
+const ESTADO_PORTA = ".wrangler/estado-aplicar";
+
+const bancoLocal = (argumentos, onde = null) => spawnSync(
+  "npx",
+  ["wrangler", "d1", "execute", "ideia-que-vende", "--local",
+   ...(onde ? ["--persist-to", onde] : []), ...argumentos],
+  { stdio: "ignore" },
+);
+
 // O banco local nasce vazio num clone novo. As tabelas do formulário são
 // as seis novas mais as que já existiam, e as duas listas de criação
 // podem rodar quantas vezes for preciso.
-for (const arquivo of ["schema.sql", "schema-formulario.sql"]) {
-  const feito = spawnSync(
-    "npx",
-    ["wrangler", "d1", "execute", "ideia-que-vende", "--local", `--file=${arquivo}`],
-    { stdio: "ignore" },
-  );
-  if (feito.status !== 0) {
-    console.error(`não consegui criar as tabelas de ${arquivo} no banco local`);
-    process.exit(1);
+//
+// As versões publicadas são apagadas junto. Sem isso, quem publicasse uma
+// vez pelo editor contra o servidor local passaria a ver as conferências
+// da rota aberta vermelhas em toda rodada, acusando a poda de deixar
+// passar o que na verdade alguém pôs no ar de propósito. Com a tabela
+// limpa, a de fábrica volta a ser a que está no ar em toda rodada.
+for (const onde of [null, ESTADO_PORTA]) {
+  for (const arquivo of ["schema.sql", "schema-formulario.sql"]) {
+    if (bancoLocal([`--file=${arquivo}`], onde).status !== 0) {
+      console.error(`não consegui criar as tabelas de ${arquivo} no banco local`);
+      process.exit(1);
+    }
   }
+  bancoLocal(["--command", "delete from formulario_versoes"], onde);
 }
+
+// O banco do segundo servidor é só deste arquivo: nada de ninguém mora
+// ali, e ele começa limpo. As contas de funil e de distribuição de opções
+// dizem números exatos, e sem isso a segunda rodada da mesma máquina
+// veria o dobro de tudo e acusaria os números de estarem errados quando o
+// errado seria o teste.
+bancoLocal(["--command", [
+  "delete from formulario_visitas",
+  "delete from formulario_eventos",
+  "delete from formulario_escolhas",
+  "delete from formulario_baldes",
+  "delete from formulario_dia",
+  "delete from webhook_log",
+  "delete from leads",
+].join("; ")], ESTADO_PORTA);
+
+/* --------------------------------------------------------------------
+   O crachá da porta.
+
+   O Cloudflare Access assina um crachá e o Worker confere a assinatura
+   contra as chaves públicas que o time publica. Para exercitar o que
+   existe DEPOIS da porta, e não só a porta, o time daqui é um servidor de
+   chaves que sobe nesta mesma máquina: ele publica a chave pública do par
+   sorteado aqui, e o crachá é assinado com a privada.
+
+   O Worker vai buscar essas chaves por conexão segura, então o servidor
+   precisa de um certificado, e o wrangler precisa saber que esse
+   certificado vale. É só isso que NODE_EXTRA_CA_CERTS faz aqui, e ele
+   vale só para o processo que este arquivo levanta.
+   -------------------------------------------------------------------- */
+const PORTA_DAS_CHAVES = 8791;
+const TIME_DE_TESTE = `localhost:${PORTA_DAS_CHAVES}`;
+const ETIQUETA = "aud-de-teste";
+const QUEM_ENTRA = "carla@exemplo.com.br";
+
+const pastaDaPorta = fs.mkdtempSync(path.join(os.tmpdir(), "iqv-porta-"));
+const certificado = path.join(pastaDaPorta, "cert.pem");
+const chaveDoCertificado = path.join(pastaDaPorta, "chave.pem");
+const certificadoFeito = spawnSync("openssl", [
+  "req", "-x509", "-newkey", "rsa:2048", "-keyout", chaveDoCertificado,
+  "-out", certificado, "-days", "1", "-nodes", "-subj", "/CN=localhost",
+  "-addext", "subjectAltName=DNS:localhost",
+], { stdio: "ignore" }).status === 0;
+
+const parDeChaves = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
+const chavesPublicadas = JSON.stringify({
+  keys: [{ ...parDeChaves.publicKey.export({ format: "jwk" }), kid: "porta", alg: "RS256", use: "sig" }],
+});
+
+let servidorDeChaves = null;
+if (certificadoFeito) {
+  servidorDeChaves = https.createServer(
+    { key: fs.readFileSync(chaveDoCertificado), cert: fs.readFileSync(certificado) },
+    (pedido, resposta) => {
+      resposta.writeHead(200, { "content-type": "application/json" });
+      resposta.end(chavesPublicadas);
+    },
+  );
+  await new Promise((pronto) => servidorDeChaves.listen(PORTA_DAS_CHAVES, pronto));
+}
+
+const emBase64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+const cracha = (trocas = {}) => {
+  const cabeca = emBase64({ alg: "RS256", kid: "porta", typ: "JWT" });
+  const corpo = emBase64({
+    iss: `https://${TIME_DE_TESTE}`,
+    aud: [ETIQUETA],
+    email: QUEM_ENTRA,
+    exp: Math.floor(Date.now() / 1000) + 600,
+    ...trocas,
+  });
+  const assinatura = crypto
+    .sign("sha256", Buffer.from(`${cabeca}.${corpo}`), parDeChaves.privateKey)
+    .toString("base64url");
+  return `${cabeca}.${corpo}.${assinatura}`;
+};
+const comCracha = (trocas = {}) => ({ "cf-access-jwt-assertion": cracha(trocas) });
 
 // Portas próprias: assim este arquivo e o teste.mjs podem rodar um atrás
 // do outro sem esperar porta ser liberada.
@@ -56,15 +154,17 @@ process.on("exit", derrubar);
 process.on("SIGINT", () => { derrubar(); process.exit(1); });
 
 // O mesmo Worker, com a porta de entrada configurada. Sem ele, o 401
-// nunca é exercitado: só o 503 de configuração faltando seria.
+// nunca é exercitado: só o 503 de configuração faltando seria, e nada do
+// que as três rotas fazem depois de a porta abrir chegaria a rodar.
 const servidorPorta = spawn(
   "npx",
   ["wrangler", "dev", "--port", "8790", "--local", "--inspector-port", "9240",
-   // banco próprio: dois wrangler rodando juntos não podem disputar o
-   // mesmo diretório de estado local
-   "--persist-to", ".wrangler/estado-aplicar",
-   "--var", "TEAM_DOMAIN:teste.invalid", "--var", "ACCESS_AUD:aud-de-teste"],
-  { stdio: ["ignore", "pipe", "pipe"], detached: true },
+   "--persist-to", ESTADO_PORTA,
+   "--var", `TEAM_DOMAIN:${TIME_DE_TESTE}`, "--var", `ACCESS_AUD:${ETIQUETA}`],
+  {
+    stdio: ["ignore", "pipe", "pipe"], detached: true,
+    env: { ...process.env, NODE_EXTRA_CA_CERTS: certificado },
+  },
 );
 const derrubarPorta = () => { try { process.kill(-servidorPorta.pid, "SIGKILL"); } catch {} };
 process.on("exit", derrubarPorta);
@@ -90,16 +190,16 @@ const t = (nome, cond, extra = "") => {
 };
 
 /* --------------------------------------------------------------------
-   A mesa lê as aplicações pela rota que fica atrás do Cloudflare Access,
-   e não existe login de verdade para forjar aqui. Então a conferência é
-   feita pela MESMA consulta que aquela rota faz, direto no banco local:
-   as mesmas colunas, e as respostas lidas do mesmo jeito. Junto vai o
-   teste de que a porta continua fechada para quem não entrou.
+   A mesa lê as aplicações pela rota que fica atrás do Cloudflare Access.
+   Algumas conferências são feitas pela MESMA consulta que aquela rota
+   faz, direto no banco local: as mesmas colunas, e as respostas lidas do
+   mesmo jeito.
    -------------------------------------------------------------------- */
-const consultar = (sql) => {
+const consultarEm = (sql, onde) => {
   const saida = spawnSync(
     "npx",
-    ["wrangler", "d1", "execute", "ideia-que-vende", "--local", "--json", "--command", sql],
+    ["wrangler", "d1", "execute", "ideia-que-vende", "--local",
+     ...(onde ? ["--persist-to", onde] : []), "--json", "--command", sql],
     { encoding: "utf8" },
   );
   const texto = saida.stdout ?? "";
@@ -111,6 +211,7 @@ const consultar = (sql) => {
     return [];
   }
 };
+const consultar = (sql) => consultarEm(sql, null);
 
 const aplicacaoDaMesa = (envio) => {
   const linhas = consultar(`
@@ -136,12 +237,13 @@ let contaLugar = 0;
 const outroLugar = () => `2001:db8:${rodada}:${(contaLugar += 1).toString(16)}::1`;
 
 // Uma aplicação inteira, como a página manda: a chave estável de cada
-// pergunta, e a chave da opção escolhida nas de escolha.
+// pergunta, e a chave da opção escolhida nas de escolha. A de fábrica é a
+// versão zero, e é ela que está no ar enquanto ninguém publicou nada.
 const aplicacao = (mudancas = {}) => {
   const { respostas, ...resto } = mudancas;
   return {
     envio: crypto.randomUUID(),
-    versao: 1,
+    versao: 0,
     plano: "pro",
     origem: "landing",
     parcial: false,
@@ -154,10 +256,10 @@ const aplicacao = (mudancas = {}) => {
       whatsapp: "+55 11 98888-7777",
       atuacao: "liberal",
       o_que_transformar: "Sou nutricionista ha doze anos e quero montar uma mentoria para outras nutricionistas.",
+      estagio: "cobra",
       atende_clientes: "recorrente",
       faturamento: "de_15k_a_50k",
       objetivo: "estruturar",
-      estagio: "cobra",
       ...(respostas ?? {}),
     },
   };
@@ -188,17 +290,19 @@ const chamar = async (endereco, opcoes) => {
   }
 };
 
-const enviar = (corpo, lugar) => chamar(`${B}/api/resposta`, {
+const enviarPara = (base, corpo, lugar) => chamar(`${base}/api/resposta`, {
   method: "POST",
   headers: { "content-type": "application/json", "cf-connecting-ip": lugar },
   body: typeof corpo === "string" ? corpo : JSON.stringify(corpo),
 });
+const enviar = (corpo, lugar) => enviarPara(B, corpo, lugar);
 
-const passos = (corpo, lugar) => chamar(`${B}/api/evento`, {
+const passosPara = (base, corpo, lugar) => chamar(`${base}/api/evento`, {
   method: "POST",
   headers: { "content-type": "application/json", "cf-connecting-ip": lugar },
   body: typeof corpo === "string" ? corpo : JSON.stringify(corpo),
 });
+const passos = (corpo, lugar) => passosPara(B, corpo, lugar);
 
 let r, j;
 
@@ -212,9 +316,14 @@ const perguntasNoAr = Array.isArray(noAr.perguntas) ? noAr.perguntas : [];
 t("formulário: a rota abre para quem não entrou em lugar nenhum", r.status === 200 && j.ok === true, `status=${r.status}`);
 t("formulário: vem com as perguntas e a abertura",
   perguntasNoAr.length > 0 && !!noAr.abertura?.botao);
-t("formulário: as nove perguntas no ar, sem a que está desligada",
-  perguntasNoAr.length === 9 && !perguntasNoAr.some((p) => p.chave === "pergunta_6"),
+t("formulário: as nove perguntas, na ordem que a dona confirmou",
+  perguntasNoAr.map((p) => p.chave).join(",") === [
+    "nome", "email", "whatsapp", "atuacao", "o_que_transformar",
+    "estagio", "atende_clientes", "faturamento", "objetivo",
+  ].join(","),
   perguntasNoAr.map((p) => p.chave).join(","));
+t("formulário: o estágio da ideia é a sexta pergunta",
+  perguntasNoAr[5]?.titulo === "Em que estágio sua ideia está?", perguntasNoAr[5]?.titulo);
 t("formulário: recado interno não viaja para a rua",
   perguntasNoAr.length > 0 && !JSON.stringify(noAr).includes('"nota"') && !("publicado_por" in noAr));
 t("formulário: a fiação que liga pergunta a coluna também não",
@@ -242,8 +351,11 @@ r = await chamar(`${B}/api/formulario`, { method: "PUT", body: definicaoBoa });
 j = await lerJson(r);
 t("gravar formulário: sem a configuração da porta  503 dizendo o que falta",
   r.status === 503 && /TEAM_DOMAIN/.test(j.erro) && /ACCESS_AUD/.test(j.erro), JSON.stringify(j));
-t("gravar formulário: e não deixa passar, nenhuma versão foi gravada",
-  consultar("select count(*) as quantas from formulario_versoes")[0]?.quantas === 0);
+// A conferência olha só o que ESTE pedido gravaria. Contar a tabela
+// inteira acusaria a porta de ter deixado passar sempre que alguém
+// tivesse publicado alguma coisa pelo editor contra o servidor local.
+t("gravar formulário: e não deixa passar, nada do que ele mandava foi gravado",
+  consultar("select count(*) as quantas from formulario_versoes where nota = 'tentativa sem login'")[0]?.quantas === 0);
 
 r = await chamar(`${BP}/api/formulario`, { method: "PUT", body: definicaoBoa });
 j = await lerJson(r);
@@ -286,6 +398,214 @@ r = await chamar(`${BP}/api/metricas`);
 const corpoBarrado = await r.text();
 t("números: quem é barrado não recebe nada além do motivo", corpoBarrado.length < 120, `${corpoBarrado.length} bytes`);
 
+/* ====================================================================
+   A porta que abre, e o que existe atrás dela.
+
+   Até aqui só a portaria foi exercitada. Nada do que as três rotas fazem
+   depois dela chegava a rodar: as quinze consultas dos números, a conta
+   de versão de quem publica e a contagem de respostas por versão. Como as
+   três terminam num catch que devolve uma frase, um erro de coluna
+   atravessaria todas as conferências e chegaria na Carla como "não
+   consegui ler os números agora", sem nada no caminho para pegar antes.
+   ==================================================================== */
+
+// Uma conferência antes das outras, para uma quebra aqui dizer o próprio
+// nome em vez de virar dez linhas vermelhas acusando o Worker.
+r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+const portaAbriu = r.status === 200;
+t("a porta abre para quem mostra um crachá bom",
+  portaAbriu,
+  portaAbriu ? "" : (certificadoFeito
+    ? `status=${r.status}. O Worker não conseguiu ler o servidor de chaves desta máquina, então nenhum crachá passa.`
+    : "não consegui criar o certificado do servidor de chaves. O openssl está instalado?"));
+
+j = await lerJson(r);
+t("com a tabela vazia, o editor recebe a de fábrica inteira, com a fiação da mesa",
+  j.atual === 0 && Array.isArray(j.versoes) && j.versoes.length === 0 &&
+  j.formulario?.perguntas?.some((p) => p.papel === "nome"),
+  JSON.stringify({ atual: j.atual, versoes: j.versoes?.length, papeis: (j.formulario?.perguntas ?? []).filter((p) => p.papel).map((p) => p.papel) }));
+
+r = await chamar(`${BP}/api/metricas`, { headers: comCracha({ exp: 1 }) });
+t("crachá vencido não entra, mesmo com a assinatura boa", r.status === 401, `status=${r.status}`);
+
+r = await chamar(`${BP}/api/metricas`, { headers: comCracha({ aud: ["etiqueta-de-outra-aplicacao"] }) });
+t("crachá de outra aplicação do mesmo time não entra", r.status === 401, `status=${r.status}`);
+
+r = await chamar(`${BP}/api/metricas`, { headers: comCracha({ iss: "https://outro-time.invalid" }) });
+t("crachá de outro time não entra", r.status === 401, `status=${r.status}`);
+
+// ---------- publicar, e o que a publicação muda ----------
+const publicar = (corpo) => chamar(`${BP}/api/formulario`, {
+  method: "PUT",
+  headers: { ...comCracha(), "content-type": "application/json" },
+  body: JSON.stringify(corpo),
+});
+
+r = await publicar({ base_versao: 0, publicar: true, nota: "as nove primeiras", definicao: FORMULARIO_FABRICA });
+j = await lerJson(r);
+t("a primeira publicação vira a versão 1, carimbada com quem publicou",
+  r.status === 200 && j.versao === 1 && !!j.publicado_em && j.publicado_por === QUEM_ENTRA,
+  JSON.stringify(j));
+
+r = await chamar(`${BP}/api/formulario`);
+j = await lerJson(r);
+t("e a rota aberta passa a servir a versão publicada",
+  j.formulario?.versao === 1 && j.formulario?.perguntas?.length === 9,
+  `versão ${j.formulario?.versao} com ${j.formulario?.perguntas?.length} perguntas`);
+
+r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+j = await lerJson(r);
+t("a lista de versões conta as perguntas e quantas respostas cada uma recebeu",
+  j.atual === 1 && j.versoes?.length === 1 && j.versoes[0].perguntas === 9 &&
+  j.versoes[0].respostas_recebidas === 0 && j.versoes[0].nota === "as nove primeiras",
+  JSON.stringify(j.versoes?.[0]));
+
+r = await chamar(`${BP}/api/formulario/versoes?versao=1`, { headers: comCracha() });
+j = await lerJson(r);
+t("uma versão pedida volta inteira, sem poda, para quem edita",
+  r.status === 200 && j.formulario?.perguntas?.length === 9 &&
+  j.formulario.perguntas.some((p) => p.papel === "whatsapp"), `status=${r.status}`);
+
+r = await chamar(`${BP}/api/formulario/versoes?versao=99`, { headers: comCracha() });
+t("uma versão que não existe  404", r.status === 404, `status=${r.status}`);
+r = await chamar(`${BP}/api/formulario/versoes?versao=abc`, { headers: comCracha() });
+t("um número de versão que não é número  400", r.status === 400, `status=${r.status}`);
+
+r = await publicar({ base_versao: 0, publicar: true, nota: "editando em cima do velho", definicao: FORMULARIO_FABRICA });
+j = await lerJson(r);
+t("quem publica em cima de uma versão vencida é recusado, e recebe a nova inteira",
+  r.status === 409 && j.atual === 1 && j.formulario?.perguntas?.length === 9,
+  JSON.stringify({ status: r.status, atual: j.atual, erro: j.erro }));
+
+r = await publicar({ base_versao: 1, publicar: false, nota: "primeiro rascunho", definicao: FORMULARIO_FABRICA });
+j = await lerJson(r);
+const numeroDoRascunho = j.versao;
+t("o rascunho é gravado sem data de publicação",
+  r.status === 200 && j.versao === 2 && j.publicado_em === null, JSON.stringify(j));
+
+r = await chamar(`${BP}/api/formulario`);
+j = await lerJson(r);
+t("e quem abre o formulário continua vendo a versão que está no ar",
+  j.formulario?.versao === 1, `versão ${j.formulario?.versao}`);
+
+r = await publicar({ base_versao: 1, publicar: false, nota: "segundo rascunho", definicao: FORMULARIO_FABRICA });
+j = await lerJson(r);
+t("um rascunho novo sobrescreve o anterior em vez de virar outro número",
+  r.status === 200 && j.versao === numeroDoRascunho,
+  `${j.versao} contra ${numeroDoRascunho}`);
+
+r = await publicar({ base_versao: 1, publicar: true, nota: "publicando o rascunho", definicao: FORMULARIO_FABRICA });
+j = await lerJson(r);
+t("publicar o rascunho carimba a data nele, sem criar número novo",
+  r.status === 200 && j.versao === numeroDoRascunho && !!j.publicado_em, JSON.stringify(j));
+
+const semNome = structuredClone(FORMULARIO_FABRICA);
+semNome.perguntas = semNome.perguntas.map((p) => (p.papel === "nome" ? { ...p, papel: null } : p));
+r = await publicar({ base_versao: 2, publicar: true, nota: "sem quem guarda o nome", definicao: semNome });
+j = await lerJson(r);
+t("uma definição sem a pergunta que guarda o nome é recusada, com a frase para gente ler",
+  r.status === 422 && /nome/.test(j.erro ?? "") && !/[{}<>]/.test(j.erro ?? ""), JSON.stringify(j));
+
+r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+j = await lerJson(r);
+t("e a recusa não deixou versão nenhuma para trás",
+  j.versoes?.length === 2, `${j.versoes?.length} versões`);
+
+// ---------- os números, com gente de verdade passando pelo formulário ----------
+// Os passos e a aplicação entram pelas rotas abertas do MESMO servidor, e
+// não por SQL escrito à mão: assim o que os números leem é exatamente o
+// que a página grava.
+const visitaQueTerminou = crypto.randomUUID();
+const visitaQueParou = crypto.randomUUID();
+const lugarDosNumeros = outroLugar();
+
+await passosPara(BP, {
+  visita: visitaQueTerminou, versao: 1,
+  contexto: { aparelho: "celular", origem: "instagram", campanha: "agosto", referencia: "instagram.com", plano: "pro" },
+  eventos: [
+    { seq: 1, tipo: "abriu", chave: null, ordem: null, ms: 0 },
+    { seq: 2, tipo: "comecou", chave: null, ordem: null, ms: 0 },
+    { seq: 3, tipo: "viu", chave: "nome", ordem: 1, ms: 0 },
+    { seq: 4, tipo: "respondeu", chave: "nome", ordem: 1, ms: 8000 },
+    { seq: 5, tipo: "viu", chave: "email", ordem: 2, ms: 0 },
+    { seq: 6, tipo: "respondeu", chave: "email", ordem: 2, ms: 6000 },
+    { seq: 7, tipo: "revisou", chave: null, ordem: null, ms: 0 },
+    { seq: 8, tipo: "enviou", chave: null, ordem: null, ms: 190000 },
+  ],
+}, lugarDosNumeros);
+
+await passosPara(BP, {
+  visita: visitaQueParou, versao: 1,
+  contexto: { aparelho: "computador", origem: "direto", campanha: null, referencia: null, plano: null },
+  eventos: [
+    { seq: 1, tipo: "abriu", chave: null, ordem: null, ms: 0 },
+    { seq: 2, tipo: "comecou", chave: null, ordem: null, ms: 0 },
+    { seq: 3, tipo: "viu", chave: "nome", ordem: 1, ms: 0 },
+    { seq: 4, tipo: "respondeu", chave: "nome", ordem: 1, ms: 9000 },
+    { seq: 5, tipo: "viu", chave: "email", ordem: 2, ms: 0 },
+    { seq: 6, tipo: "erro_campo", chave: "email", ordem: 2, ms: 0, detalhe: "formato" },
+  ],
+}, lugarDosNumeros);
+
+const aplicacaoDosNumeros = aplicacao({ versao: 1 });
+r = await enviarPara(BP, aplicacaoDosNumeros, outroLugar());
+j = await lerJson(r);
+t("uma aplicação da versão publicada é aceita pelo servidor da porta",
+  r.status === 200 && Number.isInteger(j.lead_id), JSON.stringify(j));
+
+r = await chamar(`${BP}/api/metricas`, { headers: comCracha() });
+const numeros = await lerJson(r);
+t("os números respondem para quem entrou", r.status === 200 && numeros.ok === true, `status=${r.status}`);
+t("o funil conta visitas, e não passos",
+  numeros.funil?.abriu === 2 && numeros.funil?.comecou === 2 &&
+  numeros.funil?.revisou === 1 && numeros.funil?.enviou === 1 &&
+  numeros.funil?.abandono === 1,
+  JSON.stringify(numeros.funil));
+t("e a conta de quem termina é enviou sobre começou, com três casas",
+  numeros.funil?.conclusao_sobre_comecou === 0.5, String(numeros.funil?.conclusao_sobre_comecou));
+t("o tempo até enviar sai do que o navegador mediu",
+  numeros.tempo?.amostra === 1 && numeros.tempo?.mediana_ms === 190000, JSON.stringify(numeros.tempo));
+
+const porChave = Object.fromEntries((numeros.perguntas ?? []).map((p) => [p.chave, p]));
+t("pergunta a pergunta, quem viu e quem respondeu",
+  porChave.nome?.viu === 2 && porChave.nome?.respondeu === 2 &&
+  porChave.email?.viu === 2 && porChave.email?.respondeu === 1,
+  JSON.stringify({ nome: porChave.nome, email: porChave.email }));
+t("e onde a página recusou o que a pessoa escreveu",
+  porChave.email?.erro_campo === 1 && porChave.email?.abandonou === 1,
+  JSON.stringify(porChave.email));
+t("a pergunta que mais perde gente é apontada pelo nome",
+  numeros.pior_pergunta?.chave === "email", JSON.stringify(numeros.pior_pergunta));
+t("a pergunta traz o título que a pessoa leu, e não a chave",
+  porChave.faturamento?.titulo === "Faixa de faturamento mensal", porChave.faturamento?.titulo);
+t("a distribuição das opções vem do envio aceito, e não de passo forjável",
+  porChave.faturamento?.opcoes?.find((o) => o.chave === "de_15k_a_50k")?.quantas === 1,
+  JSON.stringify(porChave.faturamento?.opcoes?.map((o) => `${o.chave}:${o.quantas}`)));
+t("os números separam aparelho, origem e quem indicou",
+  numeros.por_aparelho?.some((a) => a.aparelho === "celular" && a.visitas === 1) &&
+  numeros.por_origem?.some((o) => o.origem === "instagram") &&
+  numeros.por_referencia?.some((v) => v.veio_de === "instagram.com"),
+  JSON.stringify({ aparelho: numeros.por_aparelho, origem: numeros.por_origem }));
+t("e a série por dia tem um dia com as duas visitas",
+  (numeros.por_dia ?? []).some((d) => d.abriu === 2),
+  JSON.stringify((numeros.por_dia ?? []).filter((d) => d.abriu > 0)));
+t("a resposta diz de quando ela foi lida, sem prometer nada de instantâneo",
+  /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(numeros.lido_em ?? ""), numeros.lido_em);
+
+r = await chamar(`${BP}/api/metricas?de=2026-13-40&ate=2026-08-31`, { headers: comCracha() });
+j = await lerJson(r);
+t("uma data que não existe é recusada, com frase e sem código",
+  r.status === 400 && typeof j.erro === "string" && !/[{}<>]/.test(j.erro), JSON.stringify(j));
+
+r = await chamar(`${BP}/api/metricas?de=2020-01-01&ate=2026-08-31`, { headers: comCracha() });
+t("um período maior que um ano também", r.status === 400, `status=${r.status}`);
+
+r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+j = await lerJson(r);
+t("e a lista de versões passa a contar a aplicação que chegou",
+  j.versoes?.find((v) => v.versao === 1)?.respostas_recebidas === 1,
+  JSON.stringify(j.versoes?.map((v) => `v${v.versao}:${v.respostas_recebidas}`)));
+
 // ---------- uma aplicação inteira vira uma linha na mesa ----------
 const completa = aplicacao();
 r = await enviar(completa, outroLugar());
@@ -304,8 +624,9 @@ t("nome, e-mail e WhatsApp nas colunas certas",
 t("as respostas guardam o título da pergunta como chave, na ordem em que foram feitas",
   JSON.stringify(Object.keys(naMesa?.respostas ?? {})) === JSON.stringify([
     "Nome completo", "E-mail", "WhatsApp", "Atuação profissional",
-    "O que você quer transformar em produto?", "Você já atende clientes nesse tema?",
-    "Faixa de faturamento mensal", "Seu principal objetivo", "Em que estágio sua ideia está?",
+    "O que você quer transformar em produto?", "Em que estágio sua ideia está?",
+    "Você já atende clientes nesse tema?", "Faixa de faturamento mensal",
+    "Seu principal objetivo",
   ]), Object.keys(naMesa?.respostas ?? {}).join(" | "));
 t("a escolha é guardada pelo texto que a pessoa leu, não pela chave",
   naMesa?.respostas["Faixa de faturamento mensal"] === "R$ 15 mil a R$ 50 mil",
@@ -315,7 +636,7 @@ t("o andamento nasce novo e a observação nasce vazia",
 t("o nível e a origem da página vão junto",
   naMesa?.plano === "pro" && naMesa?.origem === "landing", `${naMesa?.plano} | ${naMesa?.origem}`);
 t("a mesa sabe qual formulário a pessoa respondeu",
-  naMesa?.typeform_form_id === "aplicar:v1", naMesa?.typeform_form_id);
+  naMesa?.typeform_form_id === "aplicar:v0", naMesa?.typeform_form_id);
 
 // A mesa anota alguma coisa, e então a mesma aplicação chega de novo:
 // é o repique depois de queda de rede, e ele não pode apagar a anotação
@@ -340,9 +661,9 @@ t("resposta grande demais para o campo é recusada, com o texto daquela pergunta
   JSON.stringify(j.campos?.[0] ?? j));
 t("e a recusa não deixa linha na mesa", aplicacaoDaMesa(gigante.envio) === null);
 
-r = await enviar(JSON.stringify({ ...aplicacao(), recheio: "x".repeat(41_000) }), outroLugar());
+r = await enviar(JSON.stringify({ ...aplicacao(), recheio: "x".repeat(400_000) }), outroLugar());
 j = await lerJson(r);
-t("corpo de 40 KB é recusado sem nem ser lido  413", r.status === 413 && j.ok === false, JSON.stringify(j));
+t("corpo grande demais é recusado sem nem ser lido  413", r.status === 413 && j.ok === false, JSON.stringify(j));
 
 const semObrigatorias = aplicacao({ respostas: { email: "", o_que_transformar: "" } });
 r = await enviar(semObrigatorias, outroLugar());
@@ -399,16 +720,27 @@ t("e fica registrada, para o descarte ter dono",
   (consultar("select count(*) as quantas from webhook_log where origem = 'formulario' and erro = 'armadilha'")[0]?.quantas ?? 0) > 0);
 
 // ---------- o freio de quem insiste ----------
-const mesmoLugar = outroLugar();
-const respostasDoFreio = [];
-for (let i = 0; i < 6; i++) {
-  const tentativa = await enviar(aplicacao(), mesmoLugar);
-  respostasDoFreio.push(tentativa.status);
-}
+// A janela do balde é a hora do relógio. Começar o bloco às 20h59m57s
+// faria as três primeiras contarem numa janela e as três seguintes na
+// outra, e a sexta passaria: a linha viraria vermelha em cima de código
+// que está certo. Quando a hora vira no meio, o bloco é refeito; ela não
+// vira duas vezes seguidas em seis chamadas.
+const janelaDaHora = () => Math.floor(Date.now() / 3600e3);
+const medirOFreio = async () => {
+  const lugar = outroLugar();
+  const comecou = janelaDaHora();
+  const respostas = [];
+  for (let i = 0; i < 6; i++) {
+    respostas.push((await enviar(aplicacao(), lugar)).status);
+  }
+  return { lugar, respostas, virouAHora: janelaDaHora() !== comecou };
+};
+let freio = await medirOFreio();
+if (freio.virouAHora) freio = await medirOFreio();
 t("cinco aplicações do mesmo lugar passam, a sexta é freada",
-  respostasDoFreio.slice(0, 5).every((s) => s === 200) && respostasDoFreio[5] === 429,
-  respostasDoFreio.join(","));
-j = await lerJson(await enviar(aplicacao(), mesmoLugar));
+  freio.respostas.slice(0, 5).every((s) => s === 200) && freio.respostas[5] === 429,
+  freio.respostas.join(","));
+j = await lerJson(await enviar(aplicacao(), freio.lugar));
 t("e quem foi freado lê o motivo, sem código",
   j.erro === "muitas tentativas seguidas deste mesmo lugar" && j.tente_em === "1 hora", JSON.stringify(j));
 
@@ -435,7 +767,7 @@ const visita = crypto.randomUUID();
 const lugarDosPassos = outroLugar();
 
 r = await passos({
-  visita, versao: 1,
+  visita, versao: 0,
   eventos: [{ seq: 1, tipo: "explodiu", chave: null, ordem: null, ms: 0 }],
 }, lugarDosPassos);
 j = await lerJson(r);
@@ -443,7 +775,7 @@ t("passo com tipo inventado não entra, e não derruba o lote",
   r.status === 200 && j.ok === true && j.gravados === 0, JSON.stringify(j));
 
 r = await passos({
-  visita, versao: 1,
+  visita, versao: 0,
   eventos: [{ seq: 2, tipo: "viu", chave: "pergunta_que_nao_existe", ordem: 1, ms: 0 }],
 }, lugarDosPassos);
 j = await lerJson(r);
@@ -451,7 +783,7 @@ t("passo de uma pergunta que não existe naquela versão também não entra",
   r.status === 200 && j.gravados === 0, JSON.stringify(j));
 
 const lote = {
-  visita, versao: 1,
+  visita, versao: 0,
   contexto: { aparelho: "celular", origem: "instagram", campanha: "agosto", referencia: "instagram.com", plano: "pro" },
   eventos: [
     { seq: 3, tipo: "abriu", chave: null, ordem: null, ms: 0, texto: "Marina Alves" },
@@ -478,16 +810,16 @@ t("o passo guardado tem só a pergunta e o tempo",
 t("e a visita nunca é gravada junto do envio",
   consultar(`select count(*) as quantas from leads where respostas like '%${visita}%'`)[0]?.quantas === 0);
 
-r = await passos({ visita: "abc", versao: 1, eventos: [{ seq: 1, tipo: "abriu" }] }, lugarDosPassos);
+r = await passos({ visita: "abc", versao: 0, eventos: [{ seq: 1, tipo: "abriu" }] }, lugarDosPassos);
 t("lote sem identificação  400", r.status === 400, `status=${r.status}`);
 
 r = await passos({
-  visita, versao: 1,
+  visita, versao: 0,
   eventos: Array.from({ length: 21 }, (x, i) => ({ seq: 100 + i, tipo: "viu", chave: "nome", ordem: 1, ms: 0 })),
 }, lugarDosPassos);
 t("lote com mais de vinte passos  400", r.status === 400, `status=${r.status}`);
 
-r = await passos(JSON.stringify({ visita, versao: 1, recheio: "x".repeat(5000), eventos: [{ seq: 200, tipo: "abriu" }] }), lugarDosPassos);
+r = await passos(JSON.stringify({ visita, versao: 0, recheio: "x".repeat(5000), eventos: [{ seq: 200, tipo: "abriu" }] }), lugarDosPassos);
 t("lote grande demais  413", r.status === 413, `status=${r.status}`);
 
 r = await chamar(`${B}/api/evento`);
@@ -500,8 +832,8 @@ r = await chamar(`${BP}/leads`);
 t("e com a porta configurada ela exige login", r.status === 401, `status=${r.status}`);
 
 // ---------- o que a definição recusa, sem precisar de servidor ----------
-// Estas três só acontecem com login, e login de verdade não existe aqui.
-// A conferência que importa é a mesma, e ela é função pura.
+// A conferência que importa aqui é função pura, e por isso não precisa de
+// servidor nenhum para rodar.
 const comChaveRepetida = structuredClone(FORMULARIO_FABRICA);
 comChaveRepetida.perguntas[1].chave = "nome";
 t("definição: duas perguntas com a mesma chave é recusada",
@@ -521,17 +853,19 @@ const escolhaSemOpcoes = structuredClone(FORMULARIO_FABRICA);
 escolhaSemOpcoes.perguntas[3].opcoes = [];
 t("definição: escolha sem opções é recusada", !!validarDefinicao(escolhaSemOpcoes).erro);
 
-const podada = podar(FORMULARIO_FABRICA);
+const comDesligada = structuredClone(FORMULARIO_FABRICA);
+comDesligada.perguntas[8].ativa = false;
+const podada = podar(comDesligada);
 t("a poda tira a pergunta desligada e a fiação, e nada mais",
-  podada.perguntas.length === 9 && !podada.perguntas.some((p) => "papel" in p || "nota" in p));
+  podada.perguntas.length === 8 && !podada.perguntas.some((p) => "papel" in p || "nota" in p),
+  `${podada.perguntas.length} perguntas`);
 
 t("passo com tempo absurdo vira zero em vez de recusar o lote",
   normalizarEventos([{ seq: 1, tipo: "abriu", ms: 99_999_999 }], new Set())[0]?.ms === 0);
 
 console.log(`\n${ok} passaram, ${bad} falharam`);
+if (servidorDeChaves) servidorDeChaves.close();
+fs.rmSync(pastaDaPorta, { recursive: true, force: true });
 derrubar();
 derrubarPorta();
 process.exit(bad ? 1 : 0);
-
-// A linha do package.json, em "scripts":
-//     "teste-aplicar": "node teste-aplicar.mjs"

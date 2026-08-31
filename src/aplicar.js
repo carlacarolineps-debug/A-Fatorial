@@ -14,6 +14,10 @@
 // As três com login usam a mesma portaria do /leads. Com TEAM_DOMAIN ou
 // ACCESS_AUD vazios elas respondem 503 dizendo qual falta, e nunca
 // deixam passar: não conferir o token e liberar seria pior que fechar.
+// Banco fora do ar é outra coisa, e por isso tem resposta própria: as
+// duas trazem "motivo", uma dizendo "configuracao" e a outra "banco",
+// para a tela nunca mais dizer que falta ligar o login quando o que
+// caiu foi o banco.
 //
 // A aplicação aceita vira UMA linha em leads, no formato que a tela
 // "Ideias que chegaram" já lê. Nenhuma coluna nova, nenhuma alteração de
@@ -667,11 +671,29 @@ export function validarDefinicao(bruta, familias = new Map()) {
     });
   }
 
-  // Sem os dois campos da mesa a aplicação chega e ninguém consegue
-  // responder a pessoa. É a única recusa que não fala de uma pergunta.
+  // Sem os três campos da mesa a aplicação chega sem nome e sem por onde
+  // responder. O nome entra nesta conta junto com os outros dois: sem
+  // ele, a lista da mesa vira uma fila de gente sem nome, e a busca por
+  // nome não acha ninguém, mesmo com a pessoa tendo escrito o nome dela.
+  // É a única recusa que não fala de uma pergunta.
   const noAr = limpas.filter((p) => p.ativa);
-  if (!noAr.some((p) => p.papel === "email") || !noAr.some((p) => p.papel === "whatsapp")) {
-    return { erro: "o formulário precisa de uma pergunta de e-mail e uma de WhatsApp para a mesa conseguir responder" };
+  const faltando = [];
+  if (!noAr.some((p) => p.papel === "nome")) faltando.push("de nome");
+  if (!noAr.some((p) => p.papel === "email")) faltando.push("de e-mail");
+  if (!noAr.some((p) => p.papel === "whatsapp")) faltando.push("de WhatsApp");
+  if (faltando.length) {
+    const quais = faltando.length === 1
+      ? `uma pergunta ${faltando[0]}`
+      : `uma pergunta ${faltando.slice(0, -1).join(", uma ")} e uma ${faltando[faltando.length - 1]}`;
+    return { erro: `o formulário precisa de ${quais} para a mesa saber com quem está falando e conseguir responder. Marque em cada pergunta qual campo da mesa ela preenche.` };
+  }
+
+  // O formulário aceito aqui tem que ser respondível: se a soma dos
+  // tamanhos máximos não couber no envio, existiria um formulário no ar
+  // cuja resposta completa é sempre recusada, e a pessoa perderia tudo o
+  // que escreveu sem ter o que consertar.
+  if (pesoDaResposta(limpas) > LIMITE.corpoResposta) {
+    return { erro: "o formulário ficou comprido demais: somando o tamanho máximo de todas as perguntas, uma resposta inteira não caberia num envio só. Diminua o máximo de alguma pergunta de texto, ou tire uma pergunta." };
   }
 
   return {
@@ -1113,7 +1135,10 @@ export function intervaloDeDatas(busca, hoje = diaDaqui()) {
   let versao = null;
   if (versaoPedida !== null && versaoPedida !== undefined && versaoPedida !== "") {
     versao = Number(versaoPedida);
-    if (!Number.isInteger(versao) || versao < 1) return { erro: "a versão pedida não é um número de versão." };
+    // a zero é a de fábrica, e ela também recebeu gente antes da
+    // primeira publicação: os números dela são de um formulário de
+    // verdade e podem ser pedidos como os dos outros
+    if (!Number.isInteger(versao) || versao < 0) return { erro: "a versão pedida não é um número de versão." };
   }
 
   return { de: de.toISOString().slice(0, 10), ate: ate.toISOString().slice(0, 10), versao, dias };
@@ -1138,7 +1163,11 @@ async function portaria(request, env) {
   const faltando = ["TEAM_DOMAIN", "ACCESS_AUD"].filter((v) => !env[v]);
   if (faltando.length) {
     return {
-      barrado: json({ ok: false, erro: `falta configurar no Worker: ${faltando.join(", ")}` }, 503),
+      barrado: json({
+        ok: false,
+        erro: `falta configurar no Worker: ${faltando.join(", ")}`,
+        motivo: "configuracao",
+      }, 503),
     };
   }
 
@@ -1147,6 +1176,24 @@ async function portaria(request, env) {
 
   return { quem };
 }
+
+/* --------------------------------------------------------------------
+   Banco fora do ar não é porta sem configuração.
+
+   As duas davam a mesma resposta, e a tela lia as duas como a mesma
+   coisa: quem estava com o banco fora do ar lia "o login protegido ainda
+   não foi ligado" e ia atrás de ligar uma coisa que já estava ligada.
+   Agora a porta sem configuração continua como no /leads, e a falha de
+   banco tem resposta própria. As duas dizem "motivo", e é por ele que a
+   tela escolhe a frase, sem ler texto e sem escrever número nenhum na
+   cara de ninguém.
+
+   As duas rotas abertas ficam de fora desta separação de propósito: lá
+   não existe porta, e a página conta com essa resposta para guardar o
+   que a pessoa escreveu e tentar de novo sozinha.
+   -------------------------------------------------------------------- */
+const bancoFora = (frase) =>
+  json({ ok: false, erro: frase, motivo: "banco", pode_repetir: true }, 502);
 
 /* Lê o corpo com o tamanho conferido DUAS vezes: no que o pedido diz que
    traz, para recusar cedo, e no que ele trouxe de verdade, para recusar
@@ -1231,7 +1278,7 @@ export async function formularioPublico(request, env) {
     // A página cai na definição que o build embutiu nela e não mostra
     // tela de erro: erro que a pessoa não precisa resolver não vira
     // aviso na cara dela.
-    return json({ ok: false, erro: "o formulário não pôde ser lido agora" }, 503);
+    return json({ ok: false, erro: "o formulário não pôde ser lido agora", motivo: "banco" }, 503);
   }
 }
 
@@ -1254,10 +1301,16 @@ export async function listarVersoes(request, env, url = new URL(request.url)) {
 
     if (pedida !== null && pedida !== "") {
       const numero = Number(pedida);
-      if (!Number.isInteger(numero) || numero < 1) {
+      if (!Number.isInteger(numero) || numero < 0) {
         return json({ ok: false, erro: "essa não é uma versão." }, 400);
       }
-      const definicao = await definicaoDaVersao(env, numero);
+      // A zero é a de fábrica, que não mora no banco. Ela vem inteira,
+      // com o campo da mesa e o recado interno de cada pergunta: é dela
+      // que a primeira publicação sai, e é o campo da mesa que diz qual
+      // pergunta guarda o nome, o e-mail e o WhatsApp de quem aplica.
+      const definicao = numero === 0
+        ? FORMULARIO_FABRICA
+        : await definicaoDaVersao(env, numero);
       if (!definicao) return json({ ok: false, erro: "essa versão não existe." }, 404);
       // sem poda: quem edita precisa ver o recado interno e os campos da
       // mesa, que é justamente o que a rota aberta não mostra
@@ -1290,9 +1343,20 @@ export async function listarVersoes(request, env, url = new URL(request.url)) {
       };
     });
 
+    // Tabela vazia é o primeiro dia, e a tela precisa de um lugar de onde
+    // partir. A rota aberta não serve: ela vem podada, sem o campo da
+    // mesa de cada pergunta, e a versão publicada a partir dela nasceria
+    // sem ninguém guardando o nome. Então a de fábrica vai junto,
+    // inteira, como a versão zero que ela é.
+    if (!versoes.length) {
+      return json({
+        ok: true, atual: atual.atual, versoes, formulario: FORMULARIO_FABRICA,
+      });
+    }
+
     return json({ ok: true, atual: atual.atual, versoes });
   } catch {
-    return json({ ok: false, erro: "não consegui ler as versões agora" }, 503);
+    return bancoFora("não consegui ler as versões agora");
   }
 }
 
@@ -1349,10 +1413,14 @@ export async function gravarFormulario(request, env) {
       }, 409);
     }
 
-    // As famílias de tipo saem só das versões publicadas: rascunho nunca
-    // recebeu resposta, e travar por causa dele seria travar por nada. A
-    // de fábrica também não entra, para a sexta pergunta poder virar uma
-    // escolha no dia em que a Carla escrever o texto dela.
+    // As famílias de tipo saem só das versões publicadas, e dentro delas
+    // só das perguntas que estavam no ar. Rascunho nunca recebeu
+    // resposta, e pergunta fora do ar também não: travar o tipo de uma
+    // pergunta que nunca foi feita a ninguém seria acusá-la de ter
+    // recebido respostas que não existem, e ainda impediria de acertar o
+    // tipo dela antes da estreia. Pergunta que esteve no ar uma vez fica
+    // travada para sempre, mesmo que depois seja desligada: as respostas
+    // daquele tempo continuam na mesa.
     const publicadas = await env.DB.prepare(`
       select versao, definicao from formulario_versoes
       where publicado_em is not null order by versao desc limit 100
@@ -1367,6 +1435,7 @@ export async function gravarFormulario(request, env) {
         continue;
       }
       for (const p of anterior?.perguntas ?? []) {
+        if (p?.ativa !== true) continue;
         if (!familias.has(p.chave)) familias.set(p.chave, familiaDoTipo(p.tipo));
       }
     }
@@ -1416,7 +1485,7 @@ export async function gravarFormulario(request, env) {
       publicado_por: quemGravou,
     });
   } catch {
-    return json({ ok: false, erro: "não consegui gravar o formulário agora. Tente de novo em um minuto." }, 503);
+    return bancoFora("não consegui gravar o formulário agora. Tente de novo em um minuto.");
   }
 }
 
@@ -1547,8 +1616,18 @@ export async function receberResposta(request, env) {
     // A versão que a pessoa leu manda. Formulário publicado no meio do
     // preenchimento não pode fazer ninguém perder o que escreveu: a
     // aplicação é gravada com os títulos da versão que ela viu.
+    //
+    // A zero é a de fábrica, que mora no código e não no banco. Ela é
+    // conferida como qualquer outra: quem abriu antes de existir versão
+    // publicada responde as perguntas que leu, e a publicação que
+    // acontecer no meio do caminho não transforma o que ela escreveu em
+    // resposta de pergunta nenhuma.
     const pedida = inteiro(corpo.versao);
-    let definicao = pedida !== null && pedida > 0 ? await definicaoDaVersao(env, pedida) : null;
+    let definicao = pedida === 0
+      ? FORMULARIO_FABRICA
+      : pedida !== null && pedida > 0
+        ? await definicaoDaVersao(env, pedida)
+        : null;
     if (definicao && !definicao.publicado_em) definicao = null;
     let versao;
     if (definicao) {
@@ -1657,7 +1736,7 @@ export async function receberResposta(request, env) {
     }
     // A página guarda tudo e tenta de novo com o mesmo identificador, e o
     // reenvio atualiza a mesma linha.
-    return json({ ok: false, erro: "não consegui gravar agora", pode_repetir: true }, 503);
+    return json({ ok: false, erro: "não consegui gravar agora", motivo: "banco", pode_repetir: true }, 503);
   }
 }
 
@@ -1696,8 +1775,13 @@ export async function receberEvento(request, env) {
     const porVisita = await contarNoBalde(env, "evento_visita", visita, BALDE.eventoVisita);
     if (porVisita.estourou) return baldeCheio();
 
+    // a zero é a de fábrica, como na rota da aplicação
     const pedida = inteiro(corpo.versao);
-    let definicao = pedida !== null && pedida > 0 ? await definicaoDaVersao(env, pedida) : null;
+    let definicao = pedida === 0
+      ? FORMULARIO_FABRICA
+      : pedida !== null && pedida > 0
+        ? await definicaoDaVersao(env, pedida)
+        : null;
     let versao;
     if (definicao) {
       versao = definicao.versao;
@@ -1774,7 +1858,7 @@ export async function receberEvento(request, env) {
 
     return json({ ok: true, gravados });
   } catch {
-    return json({ ok: false, erro: "não consegui guardar os passos agora" }, 503);
+    return json({ ok: false, erro: "não consegui guardar os passos agora", motivo: "banco" }, 503);
   }
 }
 
@@ -1831,6 +1915,114 @@ async function resumirDia(env) {
 }
 
 /* --------------------------------------------------------------------
+   Os números de um período mais velho que o expurgo.
+
+   Passados doze meses, a linha por visita já foi apagada, e o que sobra
+   daqueles dias é o resumo: dia, aparelho, origem e contagem, sem nada
+   de ninguém. É para isso que ele existe, e sem esta leitura pedir
+   agosto do ano passado devolvia tudo zerado com o resumo guardado ali
+   do lado.
+
+   O que não volta, não volta: o caminho pergunta a pergunta, a mediana,
+   quem chegou a conferir antes de enviar e o recorte por versão moram no
+   detalhe que foi apagado. A resposta diz "resumo" para a tela escrever
+   o que ficou e o que já não existe, em vez de desenhar zero como se
+   ninguém tivesse aparecido.
+   -------------------------------------------------------------------- */
+const MESES_DE_DETALHE = 12;
+
+export function corteDoDetalhe(hoje = diaDaqui()) {
+  const d = new Date(`${hoje}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() - MESES_DE_DETALHE);
+  return d.toISOString().slice(0, 10);
+}
+
+async function metricasDoResumo(env, de, ate) {
+  try {
+    const [rTotal, rDia, rAparelho, rOrigem, rPorta] = await env.DB.batch([
+      env.DB.prepare(`
+        select coalesce(sum(visitas), 0)             as abriu,
+               coalesce(sum(iniciados), 0)           as comecou,
+               coalesce(sum(concluidos), 0)          as enviou,
+               coalesce(sum(ms_total_concluidos), 0) as ms
+        from formulario_dia where dia between ?1 and ?2
+      `).bind(de, ate),
+      env.DB.prepare(`
+        select dia, sum(visitas) as abriu, sum(iniciados) as comecou,
+               sum(concluidos) as enviou
+        from formulario_dia where dia between ?1 and ?2
+        group by dia order by dia
+      `).bind(de, ate),
+      env.DB.prepare(`
+        select aparelho, sum(visitas) as visitas, sum(concluidos) as enviou,
+               case when sum(concluidos) > 0
+                    then round(sum(ms_total_concluidos) / sum(concluidos) / 1000.0)
+               end as media_seg
+        from formulario_dia where dia between ?1 and ?2
+        group by aparelho order by visitas desc
+      `).bind(de, ate),
+      env.DB.prepare(`
+        select origem, 'sem campanha' as campanha,
+               sum(visitas) as visitas, sum(concluidos) as enviou
+        from formulario_dia where dia between ?1 and ?2
+        group by origem order by visitas desc limit 50
+      `).bind(de, ate),
+      env.DB.prepare(`
+        select coalesce(sum(erro = 'armadilha'), 0) as armadilha,
+               coalesce(sum(erro = 'limite'), 0)    as limite
+        from webhook_log
+        where origem = 'formulario'
+          and date(recebido_em, '-3 hours') between ?1 and ?2
+      `).bind(de, ate),
+    ]);
+
+    const total = rTotal?.results?.[0] ?? {};
+    const abriu = total.abriu ?? 0;
+    const comecou = total.comecou ?? 0;
+    const enviou = total.enviou ?? 0;
+    const parte = (a, b) => (b ? Math.round((a / b) * 1000) / 1000 : 0);
+
+    return json({
+      ok: true,
+      de, ate,
+      versao: null,
+      lido_em: carimbo(),
+      // o que a tela lê para dizer que deste período ficaram só os totais
+      resumo: true,
+      funil: {
+        abriu, comecou,
+        // quem chegou a conferir antes de enviar morava no detalhe
+        revisou: null,
+        enviou,
+        conclusao_sobre_comecou: parte(enviou, comecou),
+        conclusao_sobre_abriu: parte(enviou, abriu),
+        abandono: abriu - enviou,
+      },
+      tempo: {
+        mediana_ms: null,
+        media_ms: enviou ? Math.round((total.ms ?? 0) / enviou) : null,
+        p90_ms: null,
+        amostra: enviou,
+      },
+      perguntas: [],
+      pior_pergunta: null,
+      por_dia: rDia?.results ?? [],
+      por_aparelho: rAparelho?.results ?? [],
+      por_origem: rOrigem?.results ?? [],
+      por_referencia: [],
+      por_plano: [],
+      recusadas: {
+        armadilha: rPorta?.results?.[0]?.armadilha ?? 0,
+        limite: rPorta?.results?.[0]?.limite ?? 0,
+        respostas: 0,
+      },
+    });
+  } catch {
+    return bancoFora("não consegui ler os números agora");
+  }
+}
+
+/* --------------------------------------------------------------------
    GET /api/metricas  ·  com login
 
    Os números que a tela desenha. Nenhuma consulta daqui cruza com a
@@ -1849,10 +2041,16 @@ export async function lerMetricas(request, env, url = new URL(request.url)) {
   try {
     await resumirDia(env);
 
+    // Período inteiro mais velho que o expurgo: o detalhe daqueles dias
+    // já foi apagado, e quem responde é o resumo.
+    if (ate < corteDoDetalhe()) return metricasDoResumo(env, de, ate);
+
     // O pedaço abaixo é escolhido por um sim ou não, nunca montado com
     // texto de fora: o número da versão entra amarrado, como todo o resto.
-    const filtro = versao ? " and versao = ?3" : "";
-    const par = versao ? [de, ate, versao] : [de, ate];
+    // A de fábrica é a versão zero, então o que decide é haver ou não
+    // versão pedida, e nunca o número ser diferente de zero.
+    const filtro = versao !== null ? " and versao = ?3" : "";
+    const par = versao !== null ? [de, ate, versao] : [de, ate];
     const com = (sql) => env.DB.prepare(sql).bind(...par);
 
     const resultados = await env.DB.batch([
@@ -2008,11 +2206,17 @@ export async function lerMetricas(request, env, url = new URL(request.url)) {
 
     /* as perguntas, pela versão mais nova em que cada uma aparece */
     const definicoes = [];
-    for (const linha of varias(rVersoes)) {
-      try {
-        definicoes.push(JSON.parse(linha.definicao));
-      } catch {
-        // versão ilegível não derruba a tela inteira
+    // A de fábrica não mora no banco. Quando o recorte pedido é a versão
+    // zero, é ela quem diz os títulos e as posições daqueles números.
+    if (versao === 0) {
+      definicoes.push(FORMULARIO_FABRICA);
+    } else {
+      for (const linha of varias(rVersoes)) {
+        try {
+          definicoes.push(JSON.parse(linha.definicao));
+        } catch {
+          // versão ilegível não derruba a tela inteira
+        }
       }
     }
     if (!definicoes.length) definicoes.push(FORMULARIO_FABRICA);
@@ -2131,7 +2335,7 @@ export async function lerMetricas(request, env, url = new URL(request.url)) {
       },
     });
   } catch {
-    return json({ ok: false, erro: "não consegui ler os números agora" }, 503);
+    return bancoFora("não consegui ler os números agora");
   }
 }
 

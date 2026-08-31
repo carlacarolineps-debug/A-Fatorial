@@ -70,7 +70,6 @@
   --r:4px;
   --r-sm:3px;
   --r-lg:10px;
-  --r-pilula:999px;
 
   /* uma escala de espaco so */
   --e1:6px;  --e2:12px; --e3:20px;
@@ -157,6 +156,30 @@ body::after{
    linha precisa existir. */
 .tela[hidden]{display:none}
 .tela:focus{outline:none}
+
+/* A pergunta mora no meio da tela, na largura de leitura da coluna.
+   Encostada a esquerda ela deixava a metade direita vazia e o alto
+   morto, e o desenho lia como se tivesse escorregado. O bloco tambem
+   sobe um degrau: o rodape da tela ja tem a contagem e as setas, e
+   centrar contra a borda de baixo joga a pergunta para baixo demais. */
+.pergunta-tela{
+  align-items:center;text-align:center;
+  padding-bottom:calc(var(--e6) + 100px + var(--teclado));
+}
+.pergunta-tela > *{width:100%}
+.pergunta-tela .ordinal,
+.pergunta-tela .recado,
+.pergunta-tela .sugestao,
+.pergunta-tela .acoes{justify-content:center}
+.pergunta-tela .descricao,
+.pergunta-tela .dica-linha{margin-inline:auto}
+/* O que a pessoa escreve e o que ela escolhe continuam alinhados a
+   esquerda: texto centrado dentro de campo dança a cada letra digitada,
+   e lista de opcao centrada nao tem por onde o olho descer. */
+.pergunta-tela .campo,
+.pergunta-tela .campo-longo,
+.pergunta-tela .opcoes,
+.pergunta-tela .linha-telefone{text-align:left}
 
 .tela[data-estado="entrando"]{animation:entra var(--t-troca) var(--ease) both}
 .tela[data-estado="saindo"]{animation:sai var(--t-saida) var(--ease) both;
@@ -314,73 +337,30 @@ body::after{
 .acoes{display:flex;align-items:center;gap:16px;margin-top:var(--e4);flex-wrap:wrap}
 .acoes-fim{gap:12px}
 
-/* Os botoes perola da landing, copiados: mesmo volume, mesmo verniz. */
+/* O botao da marca: canto de 4px, laranja liso, sem degrade e sem halo.
+   A pilula com brilho em volta e cara de site generico; o que identifica
+   esta casa e o canto reto e o laranja chapado. O unico movimento e o da
+   seta andando um passo, que e o mesmo do resto da pagina. */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
-  padding:16px 28px;border-radius:var(--r-pilula);font-weight:700;font-size:14.5px;
-  letter-spacing:.005em;position:relative;overflow:hidden;isolation:isolate;border:0;
+  padding:16px 28px;border-radius:var(--r);font-weight:700;font-size:14.5px;
+  letter-spacing:.005em;position:relative;border:1px solid transparent;
   touch-action:manipulation;text-decoration:none;
-  transition:transform .26s var(--ease),box-shadow .3s var(--ease),color .2s,
-             background-color .25s,border-color .25s;
+  transition:color .2s,background-color .25s,border-color .25s;
 }
 .btn svg{width:17px;height:17px;flex:none;transition:transform .3s var(--ease)}
-.btn::before{
-  content:"";position:absolute;z-index:-1;left:-15%;right:-15%;top:-100%;bottom:25%;
-  border-radius:50%;background:rgba(255,255,255,.13);
-  transition:transform .35s var(--ease),background-color .3s;
-}
-.btn::after{
-  content:"";position:absolute;z-index:-1;left:6%;right:6%;top:11%;bottom:42%;
-  border-radius:20px 20px 0 0;
-  box-shadow:inset 0 9px 8px -9px rgba(255,255,255,.9);
-  background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0) 58%);
-  transition:opacity .35s var(--ease),transform .35s var(--ease);
-}
-.btn:hover{transform:translateY(-2px)}
-.btn:hover::before{transform:translateY(-6%)}
-.btn:hover::after{opacity:.45;transform:translateY(6%)}
 .btn:hover svg{transform:translateX(3px)}
-.btn:active{transform:translateY(2px);transition-duration:.08s}
-.btn-o{
-  background:var(--o-grad);color:#1b1204;
-  box-shadow:
-    inset 0 .26rem .7rem rgba(255,255,255,.6),
-    inset 0 -.1rem .3rem rgba(122,52,0,.5),
-    inset 0 -.36rem .8rem rgba(255,214,158,.55),
-    0 1.5rem 2.2rem -1.1rem rgba(255,131,9,.55),
-    0 .6rem .9rem -.5rem rgba(0,0,0,.5);
-}
-.btn-o:hover{
-  box-shadow:
-    inset 0 .26rem .55rem rgba(255,255,255,.75),
-    inset 0 -.1rem .3rem rgba(122,52,0,.5),
-    inset 0 -.4rem .9rem rgba(255,224,180,.7),
-    0 1.9rem 2.8rem -1rem rgba(255,131,9,.7),
-    0 .7rem 1rem -.5rem rgba(0,0,0,.55);
-}
-.btn-o:active{
-  box-shadow:
-    inset 0 .3rem .5rem rgba(255,255,255,.8),
-    inset 0 -.1rem .3rem rgba(122,52,0,.6),
-    inset 0 -.3rem .7rem rgba(255,214,158,.4),
-    0 .5rem .9rem -.5rem rgba(0,0,0,.6);
-}
-.btn-linha{
-  background:#0f0f14;color:#fff;
-  box-shadow:
-    inset 0 .26rem .7rem rgba(255,255,255,.22),
-    inset 0 -.1rem .3rem rgba(0,0,0,.75),
-    inset 0 -.36rem .8rem rgba(255,255,255,.30),
-    0 1.4rem 2rem -1.1rem rgba(0,0,0,.7),
-    0 .5rem .8rem -.5rem rgba(0,0,0,.7);
-}
-.btn-linha::before{background:rgba(255,255,255,.09)}
-.btn-linha:hover{color:var(--o-lt)}
+.btn-o{background:var(--o);border-color:var(--o);color:#1b1204}
+.btn-o:hover{background:var(--o-lt);border-color:var(--o-lt)}
+.btn-o:active{background:var(--o-dp);border-color:var(--o-dp)}
+.btn-linha{background:transparent;border-color:var(--fio);color:var(--tinta)}
+.btn-linha:hover{border-color:var(--o-35);color:var(--o);background:var(--o-05)}
+.btn-linha:active{background:var(--o-10)}
+.btn:focus-visible{outline:2px solid var(--o);outline-offset:3px}
 .btn-grande{padding:19px 32px;font-size:clamp(15px,1.4vw,16.5px)}
 .btn[aria-disabled="true"],.btn:disabled{
-  opacity:.72;cursor:default;transform:none;
+  opacity:.72;cursor:default;
 }
-.btn:disabled:hover{transform:none}
 .btn:disabled:hover svg{transform:none}
 
 /* O anel girando do envio, com o mesmo traco 1.5 dos icones. */
@@ -438,7 +418,7 @@ body::after{
 .selos{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:var(--e4)}
 .selo{
   display:inline-flex;align-items:center;gap:8px;padding:9px 14px;
-  border:1px solid var(--fio);border-radius:var(--r-pilula);
+  border:1px solid var(--fio);border-radius:var(--r);
   background:rgba(255,255,255,.028);
   font-size:var(--t-apoio);color:var(--tinta-2);
 }
@@ -451,6 +431,10 @@ body::after{
 .rodape .dica + .dica{margin-top:8px}
 
 /* --------------------------------------------------------- a revisao */
+/* Cabeca no mesmo eixo da pergunta, lista alinhada a esquerda. */
+.cabeca-centro{text-align:center}
+.cabeca-centro .ordinal{justify-content:center}
+.revisao-tela .acoes{justify-content:center}
 .revisao-lista{
   margin-top:var(--e4);display:grid;gap:1px;
   background:var(--fio-2);border:1px solid var(--fio-2);border-radius:var(--r);
@@ -570,7 +554,8 @@ body::after{
   .opcao:has(:checked):hover{border-color:var(--o);background:var(--o-10)}
   .opcao:has(:checked):hover .letra{border-color:var(--o);color:#1b1204}
   .dica-teclado{display:none}
-  .btn:hover{transform:none}
+  .btn-o:hover{background:var(--o);border-color:var(--o)}
+  .btn:hover svg{transform:none}
 }
 
 /* ------------------------------------------------- movimento reduzido */

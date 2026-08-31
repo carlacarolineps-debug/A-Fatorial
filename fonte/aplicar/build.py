@@ -107,8 +107,8 @@ def podar(d):
 # Ela existe em dois lugares por natureza: o servidor grava a primeira
 # versao com ela, e a pagina a carrega embutida para abrir mesmo quando a
 # leitura falha. Duas copias escritas a mao se desencontram, e ja se
-# desencontraram uma vez: a copia desta pasta apareceu com nove perguntas
-# e sem a sexta guardada enquanto a do servidor seguia com dez.
+# desencontraram uma vez, com uma das duas listando pergunta que a outra
+# nao tinha.
 #
 # Entao a fonte e o servidor, quando ele existe: o mesmo objeto, lido de
 # la. O arquivo desta pasta fica como socorro para quem clonar o
@@ -199,12 +199,21 @@ if os.path.exists(servidor):
         print()
 if bruta is None:
     bruta = json.loads(ler('formulario.json'))
-    chaves = [p.get('chave') for p in bruta.get('perguntas', [])]
-    if 'pergunta_6' not in chaves:
-        print('AVISO: a copia desta pasta esta sem a sexta pergunta guardada,')
-        print('       que o contrato manda existir desligada na posicao 6.')
-        print('       Perguntas encontradas: %s' % ', '.join(str(c) for c in chaves))
-        print()
+
+# O formulario tem nove perguntas, nesta ordem, e "Em que estagio sua
+# ideia esta" e a sexta. A conferencia mora aqui porque a copia embutida
+# e o unico formulario que a pessoa ve quando a leitura do servidor
+# falha: nascendo diferente, ela responde uma coisa e a mesa espera
+# outra. E aviso, e nao parada: quem esta mexendo na definicao precisa
+# conseguir montar a pagina no meio do caminho.
+ORDEM = ['nome', 'email', 'whatsapp', 'atuacao', 'o_que_transformar',
+         'estagio', 'atende_clientes', 'faturamento', 'objetivo']
+no_ar = [p.get('chave') for p in bruta.get('perguntas', []) if p.get('ativa', True)]
+if no_ar != ORDEM:
+    print('AVISO: as perguntas no ar nao batem com a ordem combinada.')
+    print('       combinado: %s' % ', '.join(ORDEM))
+    print('       veio:      %s' % ', '.join(str(c) for c in no_ar))
+    print()
 
 reserva = podar(bruta)
 definicao_js = json.dumps(reserva, ensure_ascii=False, separators=(',', ':'))

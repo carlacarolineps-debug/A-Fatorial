@@ -15,6 +15,12 @@
 -- ar. Versao nao se sobrescreve por um motivo pratico: quem edita as
 -- perguntas e quem toca o negocio, e uma edicao errada as onze da noite
 -- precisa ter volta sem depender de ninguem.
+--
+-- A de fabrica, que mora no codigo do servidor e nao nesta tabela, e a
+-- versao ZERO. A primeira publicacao e a 1. Assim nenhum numero de
+-- versao significa dois formularios diferentes, e a aplicacao de quem
+-- respondeu antes de alguem publicar e conferida contra as perguntas que
+-- essa pessoa realmente leu.
 -- ---------------------------------------------------------------------
 create table if not exists formulario_versoes (
   versao integer primary key,
@@ -191,6 +197,13 @@ create index if not exists formulario_baldes_expira_idx
 -- O resumo que sobrevive ao expurgo: dia, aparelho, origem e contagem,
 -- sem nada de ninguem. Fica para sempre, e e dele que sai a comparacao
 -- com o ano passado. Existe por causa do expurgo, nao por velocidade.
+--
+-- Quem escreve e o resumo diario, uma vez por dia. Quem le e a tela de
+-- numeros quando o periodo pedido inteiro e mais velho que o corte de
+-- doze meses: dali para tras a linha por visita ja foi apagada, e o que
+-- responde e esta tabela. O que nao esta aqui nao volta, e a resposta
+-- daquele periodo diz isso: nao ha caminho pergunta a pergunta, nao ha
+-- mediana de tempo e nao ha recorte por versao.
 -- ---------------------------------------------------------------------
 create table if not exists formulario_dia (
   dia text not null,

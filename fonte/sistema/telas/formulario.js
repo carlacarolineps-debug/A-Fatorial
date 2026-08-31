@@ -79,10 +79,6 @@ const FORM_PERIODOS = [
   { k: 'tudo', nome: 'Desde o começo' },
 ];
 
-// Titulo de fabrica da sexta pergunta, que a Carla ainda nao mandou. O
-// aviso do topo some no instante em que ela trocar este texto.
-const FORM_TITULO_RESERVADO = 'Pergunta que ainda falta';
-
 // Abaixo disso, conta de "cada 10" balanca demais para ser escrita.
 const FORM_MINIMO_PARA_CONTA = 20;
 
@@ -115,6 +111,7 @@ const FORM = {
   salvando: false,
   confirmando: false,      // o bloco de confirmar a publicacao esta aberto
   soLeitura: false,        // colaborador, ou login protegido desligado
+  podada: false,           // veio pela porta da rua, sem o campo da mesa
   diffAberto: null,        // versao com as diferencas abertas na tabela
   guardadas: {},           // definicoes de versoes ja buscadas, por numero
   verMais: false,          // a tabela de versoes esta inteira
@@ -338,22 +335,47 @@ async function formPedir(caminho, opcoes) {
   let corpo = null;
   try { corpo = await r.json(); } catch (e) { corpo = null; }
   if (corpo === null) return { erro: 'login' };
-  if (r.status === 503) return { erro: 'semporta', corpo: corpo };
   if (r.status === 401) return { erro: 'sessao', corpo: corpo };
   if (r.status === 409) return { erro: 'conflito', corpo: corpo };
-  if (!r.ok || !corpo.ok) return { erro: 'recusa', status: r.status, corpo: corpo };
+  // O servidor diz o motivo de proposito. Sem ele, "o login protegido nao
+  // foi ligado" e "o lugar onde as coisas ficam guardadas nao respondeu"
+  // chegariam aqui iguais, e a segunda mandaria a Carla ligar uma coisa
+  // que ja esta ligada, por um problema que passa sozinho.
+  const motivo = String((corpo && corpo.motivo) || '');
+  if (motivo === 'configuracao') return { erro: 'semporta', corpo: corpo };
+  if (motivo === 'banco') return { erro: 'banco', corpo: corpo };
+  if (!r.ok || !corpo.ok) return { erro: 'recusa', corpo: corpo };
   return { corpo: corpo };
 }
 
 // Os textos dos estados de rede, num lugar so. Nenhum deles mostra
 // codigo, nome de endereco nem nome de configuracao: quem le e a Carla.
-function formFalhaDe(erro, corpo, status) {
+//
+// `momento` diz o que estava acontecendo: 'leitura' quando a tela estava
+// buscando, 'gravacao' quando estava salvando. A mesma queda de rede pede
+// coisas diferentes nos dois casos, e mandar tentar salvar de novo o que
+// nunca chegou a ser escrito e mandar a pessoa procurar um botao que nao
+// existe.
+function formFalhaDe(erro, corpo, momento) {
+  const gravando = momento === 'gravacao';
+
   if (erro === 'rede') {
     return { tom: 'alerta', titulo: 'Não consegui falar com o servidor.',
       texto: 'O formulário mora no servidor, não neste navegador. Se você abriu este arquivo direto do ' +
-        'computador, entre pelo endereço publicado. Se já estava nele, foi a rede que caiu. O que você ' +
-        'escreveu continua nesta tela e também ficou guardado neste navegador, então nada se perde: ' +
-        'tente salvar de novo.' };
+        'computador, entre pelo endereço publicado. Se já estava nele, foi a rede que caiu' + (gravando
+          ? '. O que você escreveu continua nesta tela e também ficou guardado neste navegador, então ' +
+            'nada se perde: tente salvar de novo.'
+          : ': volte a rede e peça para buscar de novo.') };
+  }
+  if (erro === 'banco') {
+    return { tom: 'alerta',
+      titulo: gravando ? 'Não consegui salvar agora.' : 'Não consegui trazer o formulário agora.',
+      texto: 'O servidor respondeu, mas não alcançou o lugar onde o formulário fica guardado. Isso ' +
+        'costuma passar sozinho em um minuto. O formulário que está no ar continua funcionando e ' +
+        'recebendo' + (gravando
+          ? '. O que você escreveu continua nesta tela e ficou guardado neste navegador: espere um ' +
+            'pouco e tente de novo.'
+          : ': espere um pouco e peça para buscar de novo.') };
   }
   if (erro === 'login') {
     return { tom: 'atencao', titulo: 'Seu login venceu.',
@@ -371,34 +393,19 @@ function formFalhaDe(erro, corpo, status) {
       texto: 'Você chegou até ele, mas o login protegido não validou o seu acesso. Recarregue a página ' +
         'para entrar de novo.' };
   }
+  // A frase do servidor e escrita para pessoa, e e ela que diz o que
+  // fazer. O numero da resposta nao entra: numero nao explica nada para
+  // quem le, e a explicacao ja veio junto.
   const dito = String((corpo && corpo.erro) || 'sem explicação').replace(/[.:;,\s]*$/, '');
   return { tom: 'alerta', titulo: 'O servidor recusou o pedido.',
-    texto: 'Ele respondeu ' + (status || '') + ' e disse: "' + esc(dito) + '". Nada se perdeu: o ' +
-      'formulário que está no ar continua como estava. Tente de novo e, se repetir, avise quem cuida ' +
-      'da publicação.' };
+    texto: 'Ele disse: "' + esc(dito) + '". Nada se perdeu: o formulário que está no ar continua como ' +
+      'estava. Tente de novo e, se repetir, avise quem cuida da publicação.' };
 }
 
-function formParar(erro, corpo, status) {
+function formParar(erro, corpo) {
   FORM.estado = 'erro';
-  FORM.falha = formFalhaDe(erro, corpo, status);
+  FORM.falha = formFalhaDe(erro, corpo, 'leitura');
   formDesenhar();
-}
-
-// A definicao que vem pela porta da rua nao carrega o que cada resposta
-// vira na lista da mesa: isso e fiacao interna e nao viaja para a
-// internet. Quando a tela cai nela por falta de versao gravada, o e-mail
-// e o WhatsApp voltam pelo tipo da pergunta. Sem isto, a tela acusaria
-// que falta uma pergunta de e-mail num formulario que tem uma, e a
-// primeira publicacao seria recusada sem culpa de ninguem.
-function formRemendarPapeis(def) {
-  if (!def || !Array.isArray(def.perguntas)) return def;
-  const jaTem = function (papel) { return def.perguntas.some(function (p) { return p.papel === papel; }); };
-  const primeira = function (tipo) {
-    return def.perguntas.find(function (p) { return p.tipo === tipo && p.ativa !== false && !p.papel; }) || null;
-  };
-  if (!jaTem('email')) { const p = primeira('email'); if (p) p.papel = 'email'; }
-  if (!jaTem('whatsapp')) { const p = primeira('telefone'); if (p) p.papel = 'whatsapp'; }
-  return def;
 }
 
 async function formCarregar() {
@@ -411,13 +418,18 @@ async function formCarregar() {
   const lista = await formPedir('/api/formulario/versoes');
 
   // Sem o login protegido ligado, ver e seguro e escrever e que nao: a
-  // tela cai para a definicao publica e desabilita tudo.
+  // tela cai para a definicao que a pagina publica le e desabilita tudo.
+  // Essa definicao vem sem as perguntas fora do ar, sem o recado interno
+  // e sem o campo da mesa de cada pergunta, e por isso ela so serve para
+  // ler: `podada` e o que impede a tela de mostrar como verdade o que
+  // ela nao recebeu.
   if (lista.erro === 'semporta') {
     const publica = await formPedir('/api/formulario');
     FORM.soLeitura = true;
     FORM.falha = formFalhaDe('semporta');
     if (publica.corpo && publica.corpo.formulario) {
-      FORM.def = formRemendarPapeis(formCopia(publica.corpo.formulario));
+      FORM.podada = true;
+      FORM.def = formCopia(publica.corpo.formulario);
       FORM.servidor = formCopia(FORM.def);
       FORM.noAr = formCopia(FORM.def);
       FORM.atual = Number(FORM.def.versao || 0);
@@ -431,8 +443,9 @@ async function formCarregar() {
     return;
   }
 
-  if (lista.erro) { formParar(lista.erro, lista.corpo, lista.status); return; }
+  if (lista.erro) { formParar(lista.erro, lista.corpo); return; }
 
+  FORM.podada = false;
   FORM.soLeitura = !EU.ehGestor();
   FORM.atual = Number(lista.corpo.atual || 0);
   FORM.versoes = Array.isArray(lista.corpo.versoes) ? lista.corpo.versoes : [];
@@ -451,28 +464,38 @@ async function formCarregar() {
   let noAr = null;
   if (FORM.atual > 0) {
     const p = await formPedir('/api/formulario/versoes?versao=' + encodeURIComponent(FORM.atual));
-    if (p.erro) { formParar(p.erro, p.corpo, p.status); return; }
+    if (p.erro) { formParar(p.erro, p.corpo); return; }
     noAr = p.corpo.formulario || null;
   }
 
   let edicao = noAr;
   if (rascunho) {
     const p = await formPedir('/api/formulario/versoes?versao=' + encodeURIComponent(rascunho.versao));
-    if (p.erro) { formParar(p.erro, p.corpo, p.status); return; }
+    if (p.erro) { formParar(p.erro, p.corpo); return; }
     edicao = p.corpo.formulario || edicao;
   }
 
-  // Nenhuma versao gravada por aqui ainda: o que esta no ar e o que
-  // entrou junto com o site, e a rota publica e quem sabe dizer qual e.
+  // Nenhuma versao gravada por aqui ainda. O que esta no ar e o formulario
+  // que entrou junto com o site, e ele e a versao zero: a lista de versoes
+  // devolve essa definicao inteira quando nao ha nenhuma gravada, e a
+  // versao zero tambem pode ser pedida pelo numero.
+  //
+  // Ela vem inteira de proposito, e nao pela porta da rua: pela porta da
+  // rua a definicao chega sem o campo da mesa de cada pergunta, e a
+  // primeira publicacao gravaria o formulario sem ninguem guardando o
+  // nome, o e-mail e o WhatsApp de quem aplica.
   if (!edicao) {
-    const publica = await formPedir('/api/formulario');
-    if (publica.erro) { formParar(publica.erro, publica.corpo, publica.status); return; }
-    edicao = formRemendarPapeis(publica.corpo.formulario || null);
+    edicao = lista.corpo.formulario || null;
+    if (!edicao) {
+      const zero = await formPedir('/api/formulario/versoes?versao=0');
+      if (zero.erro) { formParar(zero.erro, zero.corpo); return; }
+      edicao = zero.corpo.formulario || null;
+    }
     noAr = null;
   }
 
   if (!edicao) {
-    formParar('recusa', { erro: 'o formulário voltou vazio' }, 200);
+    formParar('recusa', { erro: 'o formulário voltou vazio' });
     return;
   }
 
@@ -564,30 +587,65 @@ async function formGravar(publicar) {
   if (resposta.erro === 'conflito') {
     // A definicao da versao nova vem junto da recusa, de proposito: a tela
     // mostra o que mudou sem uma segunda ida ao servidor.
+    //
+    // E ela vira a nova base na hora. Sem isso a proxima tentativa sairia
+    // com o mesmo numero vencido e voltaria recusada do mesmo jeito, para
+    // sempre: a pessoa juntaria as mudancas a mao e nunca conseguiria
+    // publicar, sem nada na tela dizendo por que.
     const c = resposta.corpo || {};
-    FORM.conflito = { versao: Number(c.atual || 0), definicao: c.formulario || c.definicao || null };
-    if (FORM.conflito.definicao) FORM.guardadas[FORM.conflito.versao] = FORM.conflito.definicao;
+    const nova = Number(c.atual || 0);
+    const definicao = c.formulario || c.definicao || null;
+    FORM.conflito = { versao: nova, definicao: definicao, partiuDe: Number(FORM.atual || 0) };
+    if (definicao) {
+      FORM.guardadas[nova] = definicao;
+      FORM.noAr = formCopia(definicao);
+      FORM.publicadoEm = definicao.publicado_em || FORM.publicadoEm;
+      FORM.publicadoPor = definicao.publicado_por || null;
+      // A versao nova ainda nao esta na lista que esta tela leu. Sem esta
+      // linha, a tabela de versoes mostraria a antiga como a que esta no
+      // ar enquanto o aviso diz o contrario.
+      if (nova && !FORM.versoes.some(function (v) { return Number(v.versao) === nova; })) {
+        FORM.versoes.push({
+          versao: nova,
+          criado_em: definicao.publicado_em || null,
+          publicado_em: definicao.publicado_em || null,
+          publicado_por: definicao.publicado_por || null,
+          nota: definicao.nota || '',
+          perguntas: (definicao.perguntas || []).length,
+          respostas_recebidas: 0,
+        });
+      }
+    }
+    if (nova) FORM.atual = nova;
     formGuardarLocal();
     formDesenhar();
     formDizer('Não salvei: alguém publicou uma versão nova enquanto você editava. O que você escreveu ' +
-      'continua nesta tela.');
+      'continua nesta tela, e a próxima tentativa já parte da versão nova.');
     return;
   }
 
   if (resposta.erro) {
-    const f = formFalhaDe(resposta.erro, resposta.corpo, resposta.status);
-    // Recusa de definicao vem com a frase do servidor dizendo qual
-    // pergunta e por que. Ela e escrita para pessoa, entao vai inteira.
+    // Recusa da conferencia do servidor vem com a frase dizendo qual
+    // pergunta e por que. Ela e escrita para pessoa, entao vai inteira. O
+    // titulo diz qual dos dois botoes foi apertado: quem clicou em
+    // publicar e le que o rascunho falhou fica sem saber se publicou.
     if (resposta.erro === 'recusa') {
-      FORM.recado = { tom: 'alerta', titulo: 'O rascunho não foi salvo.',
+      FORM.recado = { tom: 'alerta',
+        titulo: publicar ? 'Não publiquei.' : 'O rascunho não foi salvo.',
         texto: esc(String((resposta.corpo && resposta.corpo.erro) || 'o servidor não explicou o motivo')) +
           '. O que você escreveu continua nesta tela e ficou guardado neste navegador.' };
     } else {
-      FORM.recado = f;
+      FORM.recado = formFalhaDe(resposta.erro, resposta.corpo, 'gravacao');
     }
+    // O bloco de confirmar fecha: ele cobre a barra de acoes, e quem
+    // precisa consertar alguma coisa antes de tentar de novo nao consegue
+    // com ele aberto por cima.
+    FORM.confirmando = false;
     formGuardarLocal();
     formDesenhar();
-    formDizer('Não consegui salvar agora. O aviso acima diz o que aconteceu.');
+    formDizer(publicar
+      ? 'Não consegui publicar agora. O aviso acima diz o que aconteceu.'
+      : 'Não consegui salvar agora. O aviso acima diz o que aconteceu.');
     return;
   }
 
@@ -727,9 +785,19 @@ function formImpedimentos() {
   lista.forEach(function (p, i) {
     const t = String(p.titulo || '').trim();
 
-    if (p.ativa !== false && !t) {
+    // O texto e cobrado de toda pergunta, esteja ela no ar ou nao: a
+    // conferencia do servidor cobra do mesmo jeito, e antes de olhar se a
+    // pergunta aparece. Cobrando so das que estao no ar, bastava tirar a
+    // pergunta do ar para o impedimento sumir, o botao acender e a
+    // gravacao voltar recusada.
+    if (!t) {
       impede.push({ chave: p.chave, onde: 'titulo', resumo: 'A pergunta ' + (i + 1) + ' está sem texto.',
-        texto: 'Escreva o que a pessoa lê. Pergunta sem texto não vai para o ar.' });
+        texto: 'Escreva o que a pessoa lê. Pergunta sem texto não vai para o ar, e nem fica guardada ' +
+          'em rascunho: tirar ela do ar não resolve.' });
+    } else if (/^\d+$/.test(t)) {
+      impede.push({ chave: p.chave, onde: 'titulo',
+        resumo: 'A pergunta ' + (i + 1) + ' tem só números no texto.',
+        texto: 'Escreva o que a pessoa lê. Um número sozinho não é pergunta para quem está do outro lado.' });
     }
     if (t.length > 120) {
       impede.push({ chave: p.chave, onde: 'titulo', resumo: 'O texto da pergunta ' + (i + 1) + ' passou de 120 letras.',
@@ -786,10 +854,21 @@ function formImpedimentos() {
     }
   });
 
+  const comNome = formPapelDe('nome');
   const comEmail = formPapelDe('email');
   const comZap = formPapelDe('whatsapp');
   const emailDesligado = formPerguntas().find(function (p) { return p.papel === 'email' && p.ativa === false; });
 
+  // Os tres campos da mesa. Sem o nome, a lista de Ideias que chegaram
+  // vira uma fila de gente sem nome e a busca por nome nao acha ninguem,
+  // mesmo com a pessoa tendo escrito o nome dela. O servidor cobra os
+  // tres, e a tela cobrava so dois: o formulario passava daqui e voltava
+  // recusado de la.
+  if (!comNome) {
+    impede.push({ chave: null, onde: 'papel', resumo: 'Nenhuma pergunta está marcada como o nome.',
+      texto: 'Nenhuma pergunta está marcada como o nome de quem aplica. Sem ela a aplicação chega à mesa ' +
+        'sem nome, e a busca por nome não acha ninguém. Marque em alguma pergunta que ela vira o nome.' });
+  }
   if (!comEmail) {
     impede.push({ chave: emailDesligado ? emailDesligado.chave : null, onde: 'papel',
       resumo: 'Nenhuma pergunta está marcada como o e-mail.',
@@ -802,6 +881,18 @@ function formImpedimentos() {
     impede.push({ chave: null, onde: 'papel', resumo: 'Nenhuma pergunta está marcada como o WhatsApp.',
       texto: 'Nenhuma pergunta está marcada como o WhatsApp. É por ele que você responde a maioria, ' +
         'então o formulário precisa de uma.' });
+  }
+
+  // O botao de volta do obrigado so leva para dentro do site. O servidor
+  // recusa endereco de fora sem dizer nada: ele guardava o resto e jogava
+  // o botao fora, a tela dizia que salvou, e o botao tinha sumido.
+  const volta = String((((FORM.def || {}).agradecimento || {}).link || {}).url || '').trim();
+  if (volta && !/^\/[\w\-/]{0,80}$/.test(volta)) {
+    impede.push({ chave: null, onde: 'link',
+      resumo: 'O botão de volta do obrigado aponta para fora do site.',
+      texto: 'O botão de volta só leva para dentro do site, e o endereço começa com barra: escreva / ' +
+        'para levar de volta à página inicial. Endereço de outro site não é aceito, e deixar vazio ' +
+        'tira o botão.' });
   }
 
   return impede;
@@ -1167,12 +1258,19 @@ function formDescartarResgate() {
   formDizer('Descartei o que estava guardado neste navegador. A tela mostra o rascunho do servidor.');
 }
 
-// Abre a pagina publica em outra aba, em modo de conferencia, para ela
-// responder o formulario inteiro como uma pessoa de fora. Quem nao e da
-// casa continua vendo a versao que esta no ar.
-function formVerInteiro() {
-  window.open('/aplicar?conferir=1', '_blank', 'noopener');
-}
+// Aqui existia um botao que abria a pagina publica em outra aba para
+// conferir o formulario inteiro. Ele saiu por dois motivos, e volta quando
+// os dois estiverem resolvidos do outro lado:
+//
+// 1. a pagina publica nao le nenhum pedido de conferencia no endereco.
+//    Ela busca sempre a versao publicada, entao o botao mostrava o
+//    formulario velho justamente para quem tinha acabado de mudar ele;
+// 2. cada abertura conta como visita de gente de fora. A equipe conferindo
+//    tres vezes por dia entrava na conta de "vezes que a pagina foi
+//    aberta" e derrubava a conta de quantos terminam, na aba do lado.
+//
+// Enquanto isso, a previa de cada pergunta, dentro dela, e o que mostra
+// como a pessoa ve.
 
 // A versao publicada logo antes desta. E com ela que a comparacao faz
 // sentido: rascunho nao entra, porque rascunho nunca esteve no ar.
@@ -1221,7 +1319,7 @@ async function formTrazerVersao(versao) {
   }
   const p = await formPedir('/api/formulario/versoes?versao=' + encodeURIComponent(versao));
   if (p.erro) {
-    FORM.recado = formFalhaDe(p.erro, p.corpo, p.status);
+    FORM.recado = formFalhaDe(p.erro, p.corpo, 'leitura');
     formDesenhar();
     return;
   }
@@ -1288,7 +1386,7 @@ function formFrase() {
 
 function formEtiquetaEstado() {
   if (FORM.estado === 'carregando') return '<span class="eti eti-info">Buscando</span>';
-  if (FORM.estado === 'erro') return '<span class="eti eti-alerta">Não salvou</span>';
+  if (FORM.estado === 'erro') return '<span class="eti eti-alerta">Sem resposta</span>';
   if (formTemMudancaNaTela()) return '<span class="eti eti-atencao">Não salvo</span>';
   if (FORM.temRascunho) return '<span class="eti eti-atencao">Rascunho salvo</span>';
   return '<span class="eti eti-ok">No ar</span>';
@@ -1320,7 +1418,8 @@ function formAvisosHtml() {
     html += '<div class="aviso aviso-atencao">' +
       '<b>Alguém publicou enquanto você editava.</b>' +
       '<p>A versão no ar agora é a ' + FORM.conflito.versao + ', e você começou a partir da ' +
-      FORM.atual + '. Nada se perdeu: veja o que mudou e junte com o que você escreveu antes de publicar.</p>' +
+      FORM.conflito.partiuDe + '. Nada se perdeu: veja o que mudou, junte com o que você escreveu e ' +
+      'publique de novo. A próxima tentativa já parte da versão ' + FORM.conflito.versao + '.</p>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
       '<button class="bt bt-linha bt-sm" onclick="formVerDiferencas(' + FORM.conflito.versao + ')">' +
       'Ver o que mudou na versão ' + FORM.conflito.versao + '</button></div>' +
@@ -1344,20 +1443,9 @@ function formAvisosHtml() {
       '<button class="bt bt-linha bt-sm" onclick="formDescartarResgate()">Descartar</button></div></div>';
   }
 
-  // A sexta pergunta, que ainda espera o texto dela. Este aviso depende de
-  // uma condicao e some sozinho quando a condicao passa, entao e aviso e
-  // nao paragrafo com borda colorida.
-  const reservada = formPerguntas().find(function (p) {
-    return formNormal(p.titulo) === formNormal(FORM_TITULO_RESERVADO);
-  });
-  if (reservada && FORM.estado === 'ok') {
-    const pos = formIndice(reservada.chave) + 1;
-    html += aviso('info', 'A ' + formOrdem(pos) + ' pergunta está esperando o texto dela.',
-      'Ela está guardada na posição certa e fora do ar, então ninguém vê. Escreva a pergunta, ' +
-      'ligue no ar e publique.');
-  }
-
-  const impede = formImpedimentos();
+  // Quem nao publica nao precisa da lista do que impede publicar: para
+  // quem le, ela apareceria em toda visita sem nada a fazer com ela.
+  const impede = formPodeEditar() ? formImpedimentos() : [];
   if (impede.length && FORM.estado === 'ok') {
     const resumos = [];
     impede.forEach(function (i) { if (resumos.indexOf(i.resumo) < 0) resumos.push(i.resumo); });
@@ -1383,7 +1471,10 @@ function formBarraAcoesHtml() {
   const impede = formImpedimentos();
   const naTela = formTemMudancaNaTela();
   const mudouDoAr = formDiferencas(FORM.noAr, FORM.def).length > 0;
-  const pode = formPodeEditar() && !FORM.salvando;
+  // Depois de uma leitura que nao completou, a tela nao sabe mais qual e a
+  // versao no ar: gravar a partir dai e publicar em cima de um numero que
+  // pode nao existir mais. Primeiro buscar de novo, e o botao esta ao lado.
+  const pode = formPodeEditar() && !FORM.salvando && FORM.estado !== 'erro';
 
   if (FORM.confirmando) {
     const ativas = formAtivas().length;
@@ -1417,18 +1508,37 @@ function formBarraAcoesHtml() {
       '</div></div>';
   }
 
-  const podePublicar = pode && !impede.length && (mudouDoAr || FORM.temRascunho);
-  const podeSalvar = pode && naTela;
+  // Enquanto nada foi publicado por aqui, nao existe "mudou do que esta no
+  // ar": a comparacao e com o nada e devolve zero sempre. Sem esta linha,
+  // o primeiro dia terminava com o botao de publicar apagado e a edicao
+  // pronta na tela, sem nenhuma frase dizendo por que.
+  const primeiraVez = !FORM.atual;
+  const podePublicar = pode && !impede.length && (mudouDoAr || FORM.temRascunho || primeiraVez);
+  // O rascunho passa pela mesma conferencia do servidor que a publicacao:
+  // deixar o botao aceso com a lista de impedimentos cheia era prometer
+  // uma gravacao que volta recusada.
+  const podeSalvar = pode && naTela && !impede.length;
 
   return '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:4px">' +
     '<button class="bt bt-marca bt-sm" onclick="formPedirPublicacao()"' + (podePublicar ? '' : ' disabled') + '>' +
       'Publicar</button>' +
     '<button class="bt bt-linha bt-sm" onclick="formSalvarRascunho()"' + (podeSalvar ? '' : ' disabled') + '>' +
       'Salvar rascunho</button>' +
-    '<button class="bt bt-linha bt-sm" onclick="formVerInteiro()"' + (naTela ? ' disabled' : '') + '>' +
-      'Ver o formulário inteiro</button>' +
-    (naTela ? '<span class="dica">Salve o rascunho para ver o formulário com as suas mudanças.</span>' : '') +
+    (FORM.estado === 'erro' ? formBuscarDeNovoHtml() : '') +
+    (pode && naTela && impede.length
+      ? '<span class="dica">O rascunho passa pela mesma conferência da publicação. Resolva o que está ' +
+        'no aviso acima para guardar ele no servidor: o que você escreveu já está guardado neste ' +
+        'navegador enquanto isso.</span>'
+      : '') +
     '</div>';
+}
+
+// A saida de qualquer leitura que nao completou. Sem ele, a tela ficava
+// parada ate a pessoa recarregar o navegador inteiro, e nenhuma frase
+// dizia que era isso o que faltava fazer.
+function formBuscarDeNovoHtml() {
+  return '<button class="bt bt-linha bt-sm" onclick="formCarregar()"' +
+    (FORM.estado === 'carregando' ? ' disabled' : '') + '>Buscar de novo</button>';
 }
 
 /* --------------------------------------------------- pergunta fechada */
@@ -1522,7 +1632,7 @@ function formCamposDoTipo(p) {
           String.fromCharCode(65 + i) + '</span>' +
         '<input class="campo campo-sm" id="form-opcao-' + chave + '-' + i + '" style="flex:1;min-width:0"' + trava +
           ' value="' + esc(o.texto) + '" placeholder="O que ela lê nesta opção"' +
-          ' aria-label="Opção ' + (i + 1) + ' de ' + (p.titulo || 'pergunta sem texto') + '"' +
+          ' aria-label="Opção ' + (i + 1) + ' de ' + esc(p.titulo || 'pergunta sem texto') + '"' +
           ' oninput="formOpcaoTexto(\'' + chave + '\', ' + i + ', this.value)"' +
           ' onblur="formOpcaoAoSair(\'' + chave + '\', ' + i + ')">' +
         '<button class="bt bt-linha bt-sm" id="form-op-sobe-' + chave + '-' + i + '"' +
@@ -1692,12 +1802,18 @@ function formAbertaHtml(p) {
       '</div>' +
       '<div>' +
         '<div class="rotulo">Na lista da mesa, isto vira</div>' +
-        '<select class="campo campo-sm"' + (p.tipo === 'recado' ? ' disabled' : trava) +
-          ' onchange="formMudarPapel(\'' + chave + '\', this.value)">' +
-          FORM_PAPEIS.map(function (x) {
-            return '<option value="' + x.k + '"' + (x.k === (p.papel || '') ? ' selected' : '') + '>' +
-              esc(x.nome) + '</option>';
-          }).join('') + '</select>' +
+        // Lido pela porta da rua, o formulario chega sem esta informacao.
+        // Desenhar o seletor assim mostraria "nada em coluna propria" em
+        // todas as perguntas, e isso e mentira, nao falta de dado.
+        (FORM.podada
+          ? '<p class="dica">Enquanto o login protegido não estiver ligado, esta tela lê o formulário ' +
+            'pela mesma porta de quem aplica, e por ela não vem o que cada resposta vira na lista da mesa.</p>'
+          : '<select class="campo campo-sm"' + (p.tipo === 'recado' ? ' disabled' : trava) +
+            ' onchange="formMudarPapel(\'' + chave + '\', this.value)">' +
+            FORM_PAPEIS.map(function (x) {
+              return '<option value="' + x.k + '"' + (x.k === (p.papel || '') ? ' selected' : '') + '>' +
+                esc(x.nome) + '</option>';
+            }).join('') + '</select>') +
       '</div>' +
     '</div>' +
     '<p class="dica" style="margin-top:6px">Nome, e-mail e WhatsApp ganham coluna própria em Ideias que ' +
@@ -1807,6 +1923,10 @@ function formCapaHtml() {
         ' aria-label="Endereço do botão de volta"' +
         ' oninput="formCapa(\'agradecimento\', \'link_url\', this.value)">' +
     '</div>' +
+    '<p class="dica" style="margin-top:6px">O botão só leva para dentro do site, e o endereço começa ' +
+    'com barra: escreva / para voltar à página inicial. Deixe os dois vazios para o obrigado não ter ' +
+    'botão.</p>' +
+    '<div id="form-erro-link">' + formErrosHtml(null, 'link') + '</div>' +
   '</div>';
 }
 
@@ -1885,8 +2005,11 @@ function formCorpoPerguntas() {
     return '<div class="cartao"><p class="dica">Buscando o formulário no servidor.</p></div>';
   }
   if (!FORM.def) {
-    return '<div class="cartao"><p class="dica">O formulário vem do servidor, e ele não respondeu. ' +
-      'O aviso acima diz o que fazer.</p></div>';
+    return '<div class="cartao">' +
+      '<p class="dica" style="margin-bottom:12px">O formulário vem do servidor, e a busca não ' +
+      'completou. O aviso acima diz o que aconteceu. Nada foi perdido, porque nada chegou a ser ' +
+      'editado: quando a rede voltar, peça para buscar de novo.</p>' +
+      formBuscarDeNovoHtml() + '</div>';
   }
 
   const carimbo = FORM.publicadoEm
@@ -1943,13 +2066,22 @@ async function formMedidasCarregar() {
   const r = await formPedir('/api/metricas?de=' + i.de + '&ate=' + i.ate);
   if (r.erro) {
     FORM.medEstado = 'erro';
-    FORM.medFalha = formFalhaDe(r.erro, r.corpo, r.status);
+    FORM.medFalha = formFalhaDe(r.erro, r.corpo, 'leitura');
     // A frase de rede desta visao fala dos numeros, nao das perguntas.
     if (r.erro === 'rede') {
       FORM.medFalha.texto = 'Os números são contados no servidor, não neste navegador. Se você abriu este ' +
         'arquivo direto do computador, entre pelo endereço publicado. Se já estava nele, foi a rede que caiu: ' +
         'peça para buscar de novo.';
     }
+    if (r.erro === 'banco') {
+      FORM.medFalha.titulo = 'Não consegui trazer os números agora.';
+      FORM.medFalha.texto = 'O servidor respondeu, mas não alcançou o lugar onde as contas ficam ' +
+        'guardadas. Isso costuma passar sozinho em um minuto: espere um pouco e peça para buscar de ' +
+        'novo. O formulário continua no ar e continua recebendo, e nenhuma conta se perde.';
+    }
+    // Esta frase e so para a porta sem configuracao. O lugar guardado
+    // fora do ar tem a dele logo acima, e mandar procurar quem publica
+    // por um problema que passa sozinho custa a tarde de alguem.
     if (r.erro === 'semporta') {
       FORM.medFalha.texto = 'Enquanto ele não existir, os números ficam fechados: abrir agora deixaria o ' +
         'movimento do site à vista de qualquer um que soubesse o endereço. O formulário continua no ar ' +
@@ -2348,6 +2480,7 @@ function formPintarTopo() {
     if (!caixa.hidden) caixa.innerHTML = formNumerosHtml();
   }
   escrever('form-avisos', formAvisosHtml());
+  escrever('form-erro-link', formErrosHtml(null, 'link'));
 
   const barra = porId('form-barra');
   if (barra) barra.innerHTML = formBarraAcoesHtml();
@@ -2443,24 +2576,31 @@ DESENHO.formulario = function () {
    a. Esta tela le a definicao completa em GET /api/formulario/versoes,
       com e sem ?versao=N, porque a rota publica vem podada e o editor
       precisa da pergunta desligada, do recado interno e do papel de cada
-      pergunta. Com a tabela de versoes vazia, ela cai na rota publica e
-      grava com base_versao 0.
+      pergunta.
 
-   b. "Ver o formulario inteiro" abre /aplicar?conferir=1 em outra aba. O
-      nome do parametro precisa bater com o que a pagina publica espera
-      para buscar o rascunho em vez da versao no ar.
+   b. Com a tabela de versoes vazia, a tela edita a definicao de fabrica
+      inteira: ou a que a lista de versoes devolve junto da lista vazia,
+      ou a que ?versao=0 entrega. Ela NUNCA edita o que vem pela porta da
+      rua, porque de la a definicao chega sem o papel de cada pergunta, e
+      a primeira publicacao gravaria o formulario sem ninguem guardando o
+      nome, o e-mail e o WhatsApp de quem aplica. A gravacao continua
+      partindo de base_versao 0.
 
    c. A recusa por versao vencida (409) e lida como
       { atual: N, formulario: {...} }. Se a rota devolver a definicao com
-      outro nome, esta tela tambem aceita "definicao".
+      outro nome, esta tela tambem aceita "definicao". A definicao vem
+      junto de proposito: alem de mostrar o que mudou, ela vira a nova
+      base da tela, senao a tentativa seguinte sai com o mesmo numero
+      vencido e volta recusada para sempre.
 
-   d. Enquanto a tabela de versoes estiver vazia, a unica definicao que a
-      tela alcanca e a podada da rota publica, que nao carrega o papel de
-      cada pergunta. A tela remenda isso pelo tipo: a primeira pergunta de
-      e-mail vira o e-mail da mesa, e a primeira de WhatsApp vira o
-      WhatsApp. Sem o remendo, a tela acusaria que falta uma pergunta de
-      e-mail num formulario que tem uma. Se a rota das versoes puder
-      devolver a definicao de fabrica inteira quando a tabela esta vazia,
-      o remendo sai daqui e a sexta pergunta desligada aparece desde o
-      primeiro dia.
+   d. A separacao de 503 e por "motivo", e nao por numero: "configuracao"
+      e a porta sem login protegido, "banco" e o lugar guardado fora do
+      ar. Sem esse campo as duas voltam a ser lidas como a mesma coisa, e
+      quem esta com o lugar guardado fora do ar le que o login protegido
+      nao foi ligado.
+
+   e. Nao existe botao de abrir a pagina publica para conferir. Ele volta
+      quando a pagina souber duas coisas: abrir o rascunho no lugar da
+      versao publicada, e nao contar a visita da equipe como visita de
+      gente de fora. Hoje ela nao le nada disso do endereco.
    ===================================================================== */
