@@ -4,61 +4,90 @@ A landing e o sistema sobem juntos, num projeto só, num domínio só.
 Não existe passo de build: o site é HTML pronto.
 
     ideiaquevende.com.br/           landing (pública)
+    ideiaquevende.com.br/aplicar    o formulário da casa (público)
     ideiaquevende.com.br/sistema/   sistema (atrás de login)
-    ideiaquevende.com.br/typeform   recebe as respostas do Typeform
+    ideiaquevende.com.br/api/*      o formulário conversa por aqui
+    ideiaquevende.com.br/typeform   recebe as respostas do Typeform (ainda ligado)
     ideiaquevende.com.br/leads      devolve os leads para a mesa (e anota o andamento)
 
 ---
 
-## Onde estamos (28/08/2026)
+## Onde estamos (31/08/2026)
 
 Este bloco é o resumo para quem chegar agora. O resto do arquivo é o passo
 a passo completo.
 
-**No ar e conferido:**
+**A base, no ar e conferida:**
 
 - Worker **`ideia-que-vende`** publicado, com o domínio
   `ideiaquevende.com.br` ligado nele e o banco D1 conectado (binding `DB`).
-- **A landing está no ar**, com o botão "Entrar no sistema" no rodapé.
-- A branch de publicação foi corrigida hoje: estava apontando para a `main`,
-  que só tem o sistema de outro negócio. Leia a seção seguinte, é a
-  armadilha que custou um dia.
+- **A landing está no ar.** Desde 31/08 todos os botões de chamada dela
+  levam para `/aplicar`, o formulário da própria casa, e não mais para o
+  Typeform.
+- A branch de publicação foi corrigida em 28/08: estava apontando para a
+  `main`, que só tem o sistema de outro negócio. Leia a seção seguinte, é
+  a armadilha que custou um dia.
 - **"Builds for non-production branches" desmarcado**, então nenhuma outra
   conversa consegue publicar neste domínio.
-- Banco D1 **`ideia-que-vende`** com as tabelas `leads` e `webhook_log`,
-  ainda zerado: nenhuma resposta chegou.
-- `npm test` passa nas 47 verificações, num clone novo, sem preparo.
+- Cada push chega no domínio em cerca de 28 segundos.
 
-**No ar, e este é o ponto importante de hoje:**
+**O sistema de gestão, em `/sistema/`:**
 
-- **O sistema de gestão está publicado** em `/sistema/`, nove telas, feito
-  a partir do método da landing. A Carla pediu que subisse antes do Access,
-  sabendo do que vem abaixo.
-- Quem entra **escolhe o próprio nome** na porta e digita a senha dela. A
-  senha nunca é guardada em texto puro: fica como SHA-256 de
-  `senha + ':' + id`, e quem cadastra outra pessoa não escolhe a senha
-  dela, ela escolhe na primeira entrada.
-- Três papéis, e cada um vê o que é dele: **gestor** (as nove telas),
-  **colaborador** (sem dinheiro e sem A casa) e **cliente** (uma tela só,
-  e sem barra lateral).
-- Conferido num navegador de verdade: 33 verificações das telas e 28 do
-  login.
+- **Dez telas.** Quem entra escolhe o próprio nome na porta e digita a
+  senha dela. A senha nunca é guardada em texto puro: fica como SHA-256 de
+  `senha + ':' + id`. Quem cadastra outra pessoa não escolhe a senha dela,
+  ela escolhe na primeira entrada.
+- Três papéis: **gestor** (as dez telas), **colaborador** (sem dinheiro e
+  sem A casa) e **cliente** (uma tela só, sem barra lateral).
+
+**O formulário da casa, em `/aplicar`:**
+
+- Nove perguntas, uma por tela, com teclado, barra de progresso, volta sem
+  perder o que foi escrito e rascunho que sobrevive a fechar a aba.
+- Fonte, marca e os 35 ícones vão embutidos: **nenhuma requisição a
+  terceiros**, e o build recusa a montagem se aparecer alguma.
+- As respostas caem na mesma tabela `leads` onde as do Typeform caem, no
+  mesmo formato, com o título de cada pergunta como chave. A tela "Ideias
+  que chegaram" desenha sem nenhuma mudança nela.
+- A tela **"O formulário"**, dentro do sistema, é onde a Carla edita as
+  perguntas, publica, volta uma versão atrás e lê as medidas.
+
+**Banco D1 `ideia-que-vende`**, oito tabelas: `leads`, `webhook_log` e as
+seis do formulário (`formulario_versoes`, `formulario_visitas`,
+`formulario_eventos`, `formulario_escolhas`, `formulario_baldes`,
+`formulario_dia`).
+
+**As verificações, todas verdes:**
+
+    npm test                                 47 + 104 = 151 rotas
+    node verifica-aplicar.mjs                 95 a página, em navegador
+    node fonte/sistema/verifica.mjs           36 as dez telas, três papéis
+    node fonte/sistema/verifica-login.mjs     28 a porta
+                                             ---
+                                             310
+
+As três de navegador pedem um `npx wrangler dev` de pé na porta 8787.
 
 **O que ainda não protege, e precisa ficar claro:**
 
-- **Sem o Cloudflare Access, o endereço não tem porta.** A senha de dentro
-  diz ao sistema quem é você e o que você enxerga; ela não impede ninguém
+- **Sem o Cloudflare Access, o endereço do sistema não tem porta.** A senha
+  de dentro diz quem é a pessoa e o que ela enxerga; ela não impede ninguém
   de chegar até a tela de login. A própria porta escreve isso enquanto o
-  Access não existir. Até lá, evite guardar ali o que não pode vazar.
+  Access não existir.
+- Enquanto ele não existir, **a aba de medidas e a edição do formulário
+  ficam fechadas**, com 503 de propósito, e as duas telas explicam por quê
+  sem escrever código na tela. O formulário público continua no ar e
+  continua recebendo: só a parte de dentro é que espera.
 - Foi assim que o sistema do outro negócio ficou exposto em 26/08.
 
 **Falta, em ordem:**
 
 1. **Criar o Cloudflare Access** e preencher `TEAM_DOMAIN` e `ACCESS_AUD`
-   (seção 5). É o passo que fecha a porta, e é o mais urgente.
+   (seção 5). É o passo que fecha a porta, libera as medidas e a edição do
+   formulário, e é o mais urgente.
 2. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
-3. Ligar o Typeform: campo oculto, webhook e segredo (seção 4). A
-   automação está em rascunho, com o gatilho desligado.
+3. Decidir sobre o Typeform. Ele continua ligado e recebendo, caso alguém
+   tenha o link antigo. Desligar é decisão da Carla.
 
 ---
 

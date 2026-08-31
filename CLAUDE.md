@@ -4,9 +4,11 @@ Dois sites num projeto só, publicados como um Worker da Cloudflare no
 domínio `ideiaquevende.com.br`.
 
     public/index.html          landing pública      (~310 KB, gerada)
-    public/sistema/index.html  sistema de gestão    (~485 KB, gerado)
+    public/aplicar/index.html  o formulário da casa (~216 KB, gerado)
+    public/sistema/index.html  sistema de gestão    (~603 KB, gerado)
     src/                       rotas do servidor
     fonte/                     de onde a landing é gerada
+    fonte/aplicar/             de onde o formulário é gerado
     fonte/sistema/             de onde o sistema é gerado
 
 O repositório se chama `A-Fatorial` por herança: até 26 de agosto ele
@@ -76,10 +78,10 @@ extraídos do `page.tpl.html` da landing na hora do build: os dois produtos
 usam o mesmo desenho para a mesma coisa, e não há um segundo conjunto para
 manter em dia. Regra em `fonte/sistema/CONTRATO.md`.
 
-### As nove telas e os três papéis
+### As dez telas e os três papéis
 
-`semana`, `ideias`, `leitura`, `projetos`, `entrega`, `roteiros`,
-`dinheiro`, `cliente`, `casa`. Cada uma é um par `telas/<chave>.html` mais
+`semana`, `ideias`, `formulario`, `leitura`, `projetos`, `entrega`,
+`roteiros`, `dinheiro`, `cliente`, `casa`. Cada uma é um par `telas/<chave>.html` mais
 `telas/<chave>.js`, e registra o próprio desenho em `DESENHO[<chave>]`.
 
 Os papéis são `gestor`, `colaborador` e `cliente`. Quem entra escolhe o
@@ -92,6 +94,44 @@ Tela nova não pode nascer invisível: as permissões ficam salvas no
 navegador e foram escritas antes de ela existir. Ao criar uma tela,
 acrescente a chave em `PERMISSOES_DEFAULT`, em `PERM_TELAS` e em
 `TELAS_NOVAS`.
+
+## O formulário também é gerado
+
+`public/aplicar/index.html` sai de `fonte/aplicar/`:
+
+```sh
+cd fonte/aplicar && python3 build.py
+```
+
+É a página que a landing abre em `/aplicar`, uma pergunta por tela. As
+nove perguntas de fábrica moram em **`src/aplicar.js`**, em
+`FORMULARIO_FABRICA`, e é de lá que o build lê: `fonte/aplicar/formulario.json`
+é só socorro para quando o build não consegue ler o módulo. Uma lista só,
+num lugar só, senão as duas divergem sem ninguém notar.
+
+Fonte, marca e os 35 ícones entram embutidos, e o build **recusa a
+montagem** se sobrar qualquer requisição a terceiros.
+
+### As seis rotas do formulário
+
+Todas sob `/api/`, resolvidas por `rotasAplicar()` em `src/aplicar.js`:
+
+    GET  /api/formulario           a definição no ar, pública e podada
+    GET  /api/formulario/versoes   a definição inteira, atrás do Access
+    PUT  /api/formulario           publica uma versão nova, atrás do Access
+    POST /api/resposta             recebe uma aplicação, pública
+    POST /api/evento               recebe os passos, pública
+    GET  /api/metricas             os números, atrás do Access
+
+As duas públicas são as que qualquer um na internet alcança: elas têm
+limite de tamanho, limite por sessão e freio por origem, e recusam o resto
+com 400. As três com Access respondem 503 dizendo o que falta enquanto
+`TEAM_DOMAIN` e `ACCESS_AUD` estiverem vazios, igual `/leads`.
+
+A submissão grava na **mesma tabela `leads`**, com o título de cada
+pergunta como chave do objeto `respostas`, e com `typeform_response_id`
+valendo `aplicar:<envio>`: a coluna passou a significar "id da resposta na
+origem". A tela "Ideias que chegaram" desenha isso sem saber de nada.
 
 ### Onde a informação mora
 
@@ -121,8 +161,8 @@ o único lugar onde entra texto escrito por desconhecido, o que explica o
 npm test
 ```
 
-Sobe dois wrangler locais, bate nas rotas por HTTP e derruba os dois. São
-47 verificações, entre elas que corpo adulterado depois de assinar é
+Roda duas suítes: as 47 rotas de sempre e as 104 do formulário. Sobe
+wrangler local, bate nas rotas por HTTP e derruba tudo. As 47 são, entre elas que corpo adulterado depois de assinar é
 recusado, que reenvio do Typeform atualiza o lead em vez de duplicar e que
 o `/leads` com `TEAM_DOMAIN` e `ACCESS_AUD` preenchidos passa a exigir
 login em vez de abrir. O segundo servidor existe só para essa última
@@ -137,9 +177,12 @@ As telas têm verificação própria, num navegador de verdade. Com um
 `npx wrangler dev` de pé na porta 8787:
 
 ```sh
-node fonte/sistema/verifica.mjs        # 33: as nove telas, os três papéis
+node fonte/sistema/verifica.mjs        # 36: as dez telas, os três papéis
 node fonte/sistema/verifica-login.mjs  # 28: a porta, do primeiro dia em diante
+node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
 ```
+
+São 310 verificações no total: 151 de rota e 159 de navegador.
 
 ## Cuidados no que já está de pé
 
