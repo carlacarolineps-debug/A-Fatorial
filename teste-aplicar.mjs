@@ -140,9 +140,15 @@ const comCracha = (trocas = {}) => ({ "cf-access-jwt-assertion": cracha(trocas) 
 
 // Portas próprias: assim este arquivo e o teste.mjs podem rodar um atrás
 // do outro sem esperar porta ser liberada.
+//
+// As duas variáveis do Access entram VAZIAS por escrito, e não por herança
+// do wrangler.toml: este servidor prova o estado "ainda não configurado", e
+// o arquivo deixou de estar nesse estado quando o Access foi ligado de
+// verdade. Mesmo motivo explicado no teste.mjs.
 const servidor = spawn(
   "npx",
-  ["wrangler", "dev", "--port", "8789", "--local", "--inspector-port", "9239"],
+  ["wrangler", "dev", "--port", "8789", "--local", "--inspector-port", "9239",
+   "--var", "TEAM_DOMAIN:", "--var", "ACCESS_AUD:"],
   { stdio: ["ignore", "pipe", "pipe"], detached: true },
 );
 

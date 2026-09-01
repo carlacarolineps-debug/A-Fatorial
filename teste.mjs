@@ -29,9 +29,17 @@ if (criarTabelas.status !== 0) {
 
 // Este Worker não tem mais segredo nenhum: o único era o do webhook do
 // Typeform, que saiu em 31/08 com a rota dele.
+//
+// As duas variáveis do Access entram VAZIAS de propósito, e por escrito.
+// Antes elas vinham vazias do próprio wrangler.toml, e no dia em que a
+// Carla configurou o Access de verdade três testes passaram a falhar sem
+// que nada tivesse quebrado: eles provam o estado "ainda não configurado",
+// e esse estado deixou de existir no arquivo. Forçar aqui prende o teste ao
+// que ele quer provar, e não ao que está publicado hoje.
 const servidor = spawn(
   "npx",
-  ["wrangler", "dev", "--port", "8787", "--local", "--inspector-port", "9229"],
+  ["wrangler", "dev", "--port", "8787", "--local", "--inspector-port", "9229",
+   "--var", "TEAM_DOMAIN:", "--var", "ACCESS_AUD:"],
   { stdio: ["ignore", "pipe", "pipe"], detached: true },
 );
 
