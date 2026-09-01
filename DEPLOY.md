@@ -312,29 +312,41 @@ fim.
 
 ### 5b. A aplicação
 
+A tela mudou de desenho em 2025. O que vale é o caminho abaixo; se o seu
+painel estiver diferente, os nomes dos campos continuam os mesmos.
+
 1. **Zero Trust** → **Access controls** → **Applications** → **Create new
-   application** (em versões mais antigas o botão se chama **Add an
-   application**) → **Self-hosted**
-2. **Application name:** `Ideia Que Vende`
-3. No endereço público, preencha:
+   application** (ou o botão **Add an application**, no meio da página,
+   quando a lista ainda está vazia)
 
-   | Subdomain | Domain                 | Path      |
-   |-----------|------------------------|-----------|
-   | *(vazio)* | `ideiaquevende.com.br` | `sistema` |
+2. Abre uma janela **Add an application**, com quatro abas. Fique na
+   primeira, **Self-hosted and private**.
 
-4. Procure **Add public hostname** (ou "Add domain", conforme a versão da
-   tela) e acrescente **mais três**, no mesmo formato:
+3. Logo abaixo tem quatro opções: *Private destinations*, *Workers*,
+   *Public DNS* e *Service auth*. Escolha **Public DNS**.
+
+   **Não escolha Workers.** Ela protege o site inteiro pelo nome do
+   programa, e o site inteiro inclui a landing e o formulário. Ninguém de
+   fora conseguiria abrir a página de vendas.
+
+4. **Continue with Self-hosted and private**
+
+5. **Application name:** `Ideia Que Vende`
+
+6. Procure **Add public hostname**. São **quatro**, todos no mesmo
+   domínio, e todos nesta mesma aplicação:
 
    | Subdomain | Domain                 | Path       |
    |-----------|------------------------|------------|
+   | *(vazio)* | `ideiaquevende.com.br` | `sistema`  |
    | *(vazio)* | `ideiaquevende.com.br` | `leads`    |
    | *(vazio)* | `ideiaquevende.com.br` | `eu`       |
    | *(vazio)* | `ideiaquevende.com.br` | `api/mesa` |
 
-   Os três são chamados pelo próprio sistema, por dentro: o `leads` traz
-   as aplicações, o `eu` diz quem entrou, e o `api/mesa` é por onde a tela
-   "O formulário" edita as perguntas e lê as medidas. Se algum ficar de
-   fora, o sistema abre e aquela parte não funciona.
+   Os três últimos são chamados pelo próprio sistema, por dentro: o
+   `leads` traz as aplicações, o `eu` diz quem entrou, e o `api/mesa` é
+   por onde a tela "O formulário" edita as perguntas e lê as medidas. Se
+   algum ficar de fora, o sistema abre e aquela parte não funciona.
 
    **Pare em `api/mesa`, e não escreva `api`.** O formulário que a pessoa
    de fora preenche também vive sob `api`, e ela não tem como fazer login:
@@ -342,7 +354,7 @@ fim.
    para quem chega. Foi por isso que as rotas da mesa ganharam um prefixo
    só delas: o Access protege por caminho, não por método.
 
-5. **Next**, e crie a política:
+7. **Next**, e crie a política:
 
    | Campo   | Valor                                    |
    |---------|------------------------------------------|
@@ -353,7 +365,17 @@ fim.
    Comece só com o seu e-mail. Acrescentar gente depois é uma linha nessa
    mesma política.
 
-6. **Next** → **Add application**
+8. **Next** → **Add application**
+
+### 5b-bis. O aviso "Add an identity provider" pode ser fechado
+
+A página de Applications sugere ligar um provedor de identidade. Não
+precisa. Sem nenhum, a Cloudflare usa o método próprio dela: a pessoa
+digita o e-mail, recebe um código de seis números e entra. É de graça e
+não depende de mais nenhuma conta.
+
+Entrar com um clique no botão do Google dá para acrescentar depois, sem
+refazer a aplicação.
 
 ### 5c. Os dois valores que eu preciso
 
@@ -362,6 +384,8 @@ fim.
 
 - o **team domain**, algo como `grupoa.cloudflareaccess.com`
 - a **Application Audience (AUD) Tag**, um hexadecimal comprido
+
+Um print dessa aba já basta: os dois valores aparecem nela.
 
 **Me mande os dois aqui.** Eles entram no `wrangler.toml`, e não no
 painel: as variáveis de texto do painel são sobrescritas pelo arquivo a
