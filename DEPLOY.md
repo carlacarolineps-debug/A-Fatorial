@@ -92,6 +92,59 @@ As três de navegador pedem um `npx wrangler dev` de pé na porta 8787.
 
 ---
 
+## A decisao que esta em aberto (01/09)
+
+A Carla quer **uma porta so**: a pessoa entra com o login dela e aparece a
+area dela. Cliente ve a dele, colaborador ve a dele, gestor ve tudo. Isso
+ja e o desenho do sistema; o que falta e o servidor **cumprir** a regra.
+
+### O que impede hoje
+
+1. **O servidor nao sabe o que e papel.** A portaria pergunta uma coisa
+   so: "o Access deixou entrar?". Quem passa recebe as 500 aplicacoes,
+   pode reescrever o formulario e ler as medidas. A regra de que cliente
+   ve uma tela so mora no `localStorage`, ou seja, no navegador dele.
+2. **Os projetos moram no navegador de quem os criou.** Um cliente
+   entrando da maquina dele veria o sistema vazio, nao "com menos coisa".
+
+Enquanto os dois nao forem resolvidos, area de cliente nao existe em
+plataforma nenhuma.
+
+### Por que o Access nao serve para uma porta so
+
+Cada cliente precisaria de vaga no Zero Trust, cadastrada a mao no painel.
+Passando de 50 pessoas ativas no mes, a Cloudflare **bloqueia** quem tentar
+entrar, em vez de cobrar. Um cliente pagante batendo em porta fechada, ou
+a propria gestao, se os clientes encheram as vagas. Acima disso, o Access
+sozinho custa US$ 3 por pessoa por mes.
+
+Ou seja: **com cliente entrando pela mesma porta, o Access sai** e o login
+passa a ser do proprio sistema, no banco que ja existe.
+
+### Uma correcao, para nao assustar a toa
+
+As aplicacoes **nao estao expostas hoje**. Sem `TEAM_DOMAIN` e `ACCESS_AUD`
+o servidor recusa entregar os leads: quem abrir o endereco do sistema ve
+uma casca vazia, sem dado nenhum de ninguem.
+
+O problema e o outro lado: **a Carla tambem nao consegue ler**. O
+formulario esta no ar recebendo, e "Ideias que chegaram" so funciona
+quando existir Access ou o login novo.
+
+### O que esta decidido e o que nao esta
+
+Decidido: o banco fica na Cloudflare. O D1 nao tem endereco na internet,
+so o Worker fala com ele, e nao ha senha de banco para vazar. Supabase
+entraria pela trava por linha, que e uma tranca a mais e custa US$ 25 por
+mes, uma segunda conta e um segundo painel; hoje ela nem entraria em acao,
+porque o Worker fica na frente do banco de qualquer jeito.
+
+Em aberto, e e da Carla: ligar o Access agora como desbloqueio rapido e
+tirar depois, ou esperar o login proprio e ficar sem ler as aplicacoes ate
+la. Ela pediu para deixar essa parte para depois.
+
+---
+
 ## A armadilha que custou um dia inteiro
 
 Em 28/08 o dominio passou a mostrar coisa errada, e a causa nao estava no
