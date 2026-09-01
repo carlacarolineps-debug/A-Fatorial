@@ -1,7 +1,7 @@
 # Um Worker só serve o site inteiro e as rotas de dados.
 #
 # public/  vira o site (landing em /, sistema em /sistema/)
-# src/     vira /typeform, /leads, /eu, /api/* , /robots.txt e /sitemap.xml
+# src/     vira /leads, /eu, /api/* , /robots.txt e /sitemap.xml
 #
 # Não existe passo de build: o site é HTML pronto. O deploy só sobe os
 # arquivos e o script.
@@ -27,7 +27,7 @@ binding = "ASSETS"
 # O Worker só é chamado nestes caminhos. Todo o resto (a landing, o
 # sistema, a imagem de compartilhamento) sai direto do cache da borda,
 # sem executar código e sem contar requisição de Worker.
-run_worker_first = ["/typeform", "/leads", "/eu", "/api/*", "/robots.txt", "/sitemap.xml"]
+run_worker_first = ["/leads", "/eu", "/api/*", "/robots.txt", "/sitemap.xml"]
 
 # O banco já existe e as tabelas já foram criadas.
 [[d1_databases]]
@@ -38,9 +38,10 @@ database_id = "9e6ad2f3-7bf5-42dc-acdf-20282227edff"
 [observability]
 enabled = true
 
-# O segredo do webhook NÃO vai aqui: este arquivo é versionado no git.
-# Defina no painel do Worker, em Settings > Variables and Secrets, como
-# tipo Secret, com o nome TYPEFORM_WEBHOOK_SECRET.
+# O Typeform saiu em 31/08: as aplicacoes chegam pelo formulario da propria
+# casa, em /aplicar. Com ele saiu o segredo do webhook, que era o unico
+# secret deste Worker. Se um dia o TYPEFORM_WEBHOOK_SECRET ainda estiver
+# no painel, em Settings > Variables and Secrets, pode apagar.
 #
 # Os dois campos abaixo saem da MESMA tela: Zero Trust > Access >
 # Applications > (a aplicacao do /sistema) > Overview.

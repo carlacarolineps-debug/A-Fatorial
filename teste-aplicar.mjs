@@ -347,7 +347,7 @@ const definicaoBoa = JSON.stringify({
   definicao: FORMULARIO_FABRICA,
 });
 
-r = await chamar(`${B}/api/formulario`, { method: "PUT", body: definicaoBoa });
+r = await chamar(`${B}/api/mesa/formulario`, { method: "PUT", body: definicaoBoa });
 j = await lerJson(r);
 t("gravar formulário: sem a configuração da porta  503 dizendo o que falta",
   r.status === 503 && /TEAM_DOMAIN/.test(j.erro) && /ACCESS_AUD/.test(j.erro), JSON.stringify(j));
@@ -357,44 +357,43 @@ t("gravar formulário: sem a configuração da porta  503 dizendo o que falta",
 t("gravar formulário: e não deixa passar, nada do que ele mandava foi gravado",
   consultar("select count(*) as quantas from formulario_versoes where nota = 'tentativa sem login'")[0]?.quantas === 0);
 
-r = await chamar(`${BP}/api/formulario`, { method: "PUT", body: definicaoBoa });
+r = await chamar(`${BP}/api/mesa/formulario`, { method: "PUT", body: definicaoBoa });
 j = await lerJson(r);
 t("gravar formulário: com a porta configurada e sem login  401",
   r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
 
-r = await chamar(`${BP}/api/formulario`, {
-  method: "PUT", headers: { "cf-access-jwt-assertion": "token.forjado.aqui" }, body: definicaoBoa,
+r = await chamar(`${BP}/api/mesa/formulario`, { method: "PUT", headers: { "cf-access-jwt-assertion": "token.forjado.aqui" }, body: definicaoBoa,
 });
 t("gravar formulário: login forjado  401", r.status === 401, `status=${r.status}`);
 
-r = await chamar(`${B}/api/formulario/versoes`);
+r = await chamar(`${B}/api/mesa/formulario`);
 j = await lerJson(r);
 t("versões: sem a configuração da porta  503", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
 
-r = await chamar(`${BP}/api/formulario/versoes`);
+r = await chamar(`${BP}/api/mesa/formulario`);
 t("versões: com a porta configurada e sem login  401", r.status === 401, `status=${r.status}`);
 
-r = await chamar(`${B}/api/formulario/versoes`, { method: "DELETE" });
+r = await chamar(`${B}/api/mesa/formulario`, { method: "DELETE" });
 t("versões: método que não existe nesse caminho  405", r.status === 405, `status=${r.status}`);
 
 // ---------- os números: só com login ----------
-r = await chamar(`${B}/api/metricas`);
+r = await chamar(`${B}/api/mesa/metricas`);
 j = await lerJson(r);
 t("números: sem a configuração da porta  503 dizendo o que falta",
   r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
 
-r = await chamar(`${BP}/api/metricas`);
+r = await chamar(`${BP}/api/mesa/metricas`);
 j = await lerJson(r);
 t("números: com a porta configurada e sem login  401",
   r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
 
-r = await chamar(`${BP}/api/metricas`, { headers: { "cf-access-jwt-assertion": "token.forjado.aqui" } });
+r = await chamar(`${BP}/api/mesa/metricas`, { headers: { "cf-access-jwt-assertion": "token.forjado.aqui" } });
 t("números: login forjado  401", r.status === 401, `status=${r.status}`);
 
-r = await chamar(`${B}/api/metricas`, { method: "POST" });
+r = await chamar(`${B}/api/mesa/metricas`, { method: "POST" });
 t("números: método que não existe nesse caminho  405", r.status === 405, `status=${r.status}`);
 
-r = await chamar(`${BP}/api/metricas`);
+r = await chamar(`${BP}/api/mesa/metricas`);
 const corpoBarrado = await r.text();
 t("números: quem é barrado não recebe nada além do motivo", corpoBarrado.length < 120, `${corpoBarrado.length} bytes`);
 
@@ -411,7 +410,7 @@ t("números: quem é barrado não recebe nada além do motivo", corpoBarrado.len
 
 // Uma conferência antes das outras, para uma quebra aqui dizer o próprio
 // nome em vez de virar dez linhas vermelhas acusando o Worker.
-r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/formulario`, { headers: comCracha() });
 const portaAbriu = r.status === 200;
 t("a porta abre para quem mostra um crachá bom",
   portaAbriu,
@@ -425,18 +424,17 @@ t("com a tabela vazia, o editor recebe a de fábrica inteira, com a fiação da 
   j.formulario?.perguntas?.some((p) => p.papel === "nome"),
   JSON.stringify({ atual: j.atual, versoes: j.versoes?.length, papeis: (j.formulario?.perguntas ?? []).filter((p) => p.papel).map((p) => p.papel) }));
 
-r = await chamar(`${BP}/api/metricas`, { headers: comCracha({ exp: 1 }) });
+r = await chamar(`${BP}/api/mesa/metricas`, { headers: comCracha({ exp: 1 }) });
 t("crachá vencido não entra, mesmo com a assinatura boa", r.status === 401, `status=${r.status}`);
 
-r = await chamar(`${BP}/api/metricas`, { headers: comCracha({ aud: ["etiqueta-de-outra-aplicacao"] }) });
+r = await chamar(`${BP}/api/mesa/metricas`, { headers: comCracha({ aud: ["etiqueta-de-outra-aplicacao"] }) });
 t("crachá de outra aplicação do mesmo time não entra", r.status === 401, `status=${r.status}`);
 
-r = await chamar(`${BP}/api/metricas`, { headers: comCracha({ iss: "https://outro-time.invalid" }) });
+r = await chamar(`${BP}/api/mesa/metricas`, { headers: comCracha({ iss: "https://outro-time.invalid" }) });
 t("crachá de outro time não entra", r.status === 401, `status=${r.status}`);
 
 // ---------- publicar, e o que a publicação muda ----------
-const publicar = (corpo) => chamar(`${BP}/api/formulario`, {
-  method: "PUT",
+const publicar = (corpo) => chamar(`${BP}/api/mesa/formulario`, { method: "PUT",
   headers: { ...comCracha(), "content-type": "application/json" },
   body: JSON.stringify(corpo),
 });
@@ -453,22 +451,22 @@ t("e a rota aberta passa a servir a versão publicada",
   j.formulario?.versao === 1 && j.formulario?.perguntas?.length === 9,
   `versão ${j.formulario?.versao} com ${j.formulario?.perguntas?.length} perguntas`);
 
-r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/formulario`, { headers: comCracha() });
 j = await lerJson(r);
 t("a lista de versões conta as perguntas e quantas respostas cada uma recebeu",
   j.atual === 1 && j.versoes?.length === 1 && j.versoes[0].perguntas === 9 &&
   j.versoes[0].respostas_recebidas === 0 && j.versoes[0].nota === "as nove primeiras",
   JSON.stringify(j.versoes?.[0]));
 
-r = await chamar(`${BP}/api/formulario/versoes?versao=1`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/formulario?versao=1`, { headers: comCracha() });
 j = await lerJson(r);
 t("uma versão pedida volta inteira, sem poda, para quem edita",
   r.status === 200 && j.formulario?.perguntas?.length === 9 &&
   j.formulario.perguntas.some((p) => p.papel === "whatsapp"), `status=${r.status}`);
 
-r = await chamar(`${BP}/api/formulario/versoes?versao=99`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/formulario?versao=99`, { headers: comCracha() });
 t("uma versão que não existe  404", r.status === 404, `status=${r.status}`);
-r = await chamar(`${BP}/api/formulario/versoes?versao=abc`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/formulario?versao=abc`, { headers: comCracha() });
 t("um número de versão que não é número  400", r.status === 400, `status=${r.status}`);
 
 r = await publicar({ base_versao: 0, publicar: true, nota: "editando em cima do velho", definicao: FORMULARIO_FABRICA });
@@ -506,7 +504,7 @@ j = await lerJson(r);
 t("uma definição sem a pergunta que guarda o nome é recusada, com a frase para gente ler",
   r.status === 422 && /nome/.test(j.erro ?? "") && !/[{}<>]/.test(j.erro ?? ""), JSON.stringify(j));
 
-r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/formulario`, { headers: comCracha() });
 j = await lerJson(r);
 t("e a recusa não deixou versão nenhuma para trás",
   j.versoes?.length === 2, `${j.versoes?.length} versões`);
@@ -553,7 +551,7 @@ j = await lerJson(r);
 t("uma aplicação da versão publicada é aceita pelo servidor da porta",
   r.status === 200 && Number.isInteger(j.lead_id), JSON.stringify(j));
 
-r = await chamar(`${BP}/api/metricas`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/metricas`, { headers: comCracha() });
 const numeros = await lerJson(r);
 t("os números respondem para quem entrou", r.status === 200 && numeros.ok === true, `status=${r.status}`);
 t("o funil conta visitas, e não passos",
@@ -592,15 +590,15 @@ t("e a série por dia tem um dia com as duas visitas",
 t("a resposta diz de quando ela foi lida, sem prometer nada de instantâneo",
   /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(numeros.lido_em ?? ""), numeros.lido_em);
 
-r = await chamar(`${BP}/api/metricas?de=2026-13-40&ate=2026-08-31`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/metricas?de=2026-13-40&ate=2026-08-31`, { headers: comCracha() });
 j = await lerJson(r);
 t("uma data que não existe é recusada, com frase e sem código",
   r.status === 400 && typeof j.erro === "string" && !/[{}<>]/.test(j.erro), JSON.stringify(j));
 
-r = await chamar(`${BP}/api/metricas?de=2020-01-01&ate=2026-08-31`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/metricas?de=2020-01-01&ate=2026-08-31`, { headers: comCracha() });
 t("um período maior que um ano também", r.status === 400, `status=${r.status}`);
 
-r = await chamar(`${BP}/api/formulario/versoes`, { headers: comCracha() });
+r = await chamar(`${BP}/api/mesa/formulario`, { headers: comCracha() });
 j = await lerJson(r);
 t("e a lista de versões passa a contar a aplicação que chegou",
   j.versoes?.find((v) => v.versao === 1)?.respostas_recebidas === 1,

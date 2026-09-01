@@ -297,15 +297,20 @@ t("a capa não mostra contagem de pergunta nenhuma", await pg.locator("#contagem
 t("a barra de progresso começa no zero", (await andarDaBarra(pg)) === 0);
 t("a capa não trata a dona pelo primeiro nome com quem acabou de chegar",
   !/Carla/.test(await texto(pg.locator(".capa"))));
-// O desenho do botão é o da marca, e não a pílula com degradê e halo que
-// é cara de site genérico. Conferido no computado, porque o que a pessoa
-// vê é o computado, e não o que está escrito na folha de estilo.
+// O botão é o MESMO da página de vendas: pílula, laranja em degradê,
+// verniz por dentro. Esta conferência já pediu o contrário, um retângulo
+// liso, porque eu tinha decidido por conta própria que a pílula era
+// genérica. A pílula é a marca, e quem clica nela na capa do site clica
+// na mesma coisa aqui. Conferido no computado, porque o que a pessoa vê é
+// o computado, e não o que está escrito na folha de estilo.
 const desenhoBotao = await pg.$eval(".capa .btn-o", (el) => {
   const c = getComputedStyle(el);
   return { canto: c.borderTopLeftRadius, fundo: c.backgroundImage, sombra: c.boxShadow };
 }).catch(() => ({}));
-t("o botão principal é o da marca: canto de 4px, laranja liso, sem degradê e sem halo",
-  desenhoBotao.canto === "4px" && desenhoBotao.fundo === "none" && desenhoBotao.sombra === "none",
+t("o botão principal é o mesmo da página de vendas: pílula, degradê e verniz",
+  parseInt(desenhoBotao.canto, 10) >= 24 &&
+  /linear-gradient/.test(desenhoBotao.fundo || "") &&
+  /inset/.test(desenhoBotao.sombra || ""),
   JSON.stringify(desenhoBotao));
 await pg.screenshot({ path: `${S}/aplicar-1-capa.png` });
 

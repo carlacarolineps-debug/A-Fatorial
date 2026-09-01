@@ -1,5 +1,5 @@
 -- =====================================================================
--- leads: respostas da aplicacao da landing (Typeform) no D1.
+-- leads: as aplicacoes que chegam da landing, no D1.
 --
 -- O que entra aqui e dado pessoal (nome, e-mail, telefone). Quem le e a
 -- rota /leads do Worker, que fica atras do Cloudflare Access. O banco em
@@ -10,9 +10,13 @@ create table if not exists leads (
   criado_em text not null default (datetime('now')),
   atualizado_em text not null default (datetime('now')),
 
-  -- identificador da resposta no Typeform. UNIQUE porque o Typeform
-  -- reenvia o webhook quando nao recebe 200, e reenvio nao pode virar
-  -- lead duplicado na mesa.
+  -- id da resposta na origem, e a versao do formulario que a gerou. O
+  -- nome das duas colunas e heranca do Typeform, que serviu este site ate
+  -- 31/08; o formulario da casa grava "aplicar:<envio>" e "aplicar:v<n>".
+  -- Renomear custaria uma migracao e nao mudaria nada do que elas fazem.
+  --
+  -- UNIQUE porque reenvio depois de queda de rede nao pode virar uma
+  -- segunda aplicacao na mesa.
   typeform_response_id text unique,
   typeform_form_id text,
 
@@ -21,8 +25,9 @@ create table if not exists leads (
   email text,
   whatsapp text,
 
-  -- as respostas completas, do jeito que vieram. Se o formulario mudar
-  -- amanha, nada se perde: o que nao virou coluna continua aqui.
+  -- as respostas completas, com o titulo de cada pergunta como chave. Se
+  -- o formulario mudar amanha, nada se perde: o que nao virou coluna
+  -- continua aqui, e aplicacao velha e nova convivem na mesma tela.
   respostas text not null default '{}',
 
   -- plano que a pessoa clicou na landing, quando veio de la

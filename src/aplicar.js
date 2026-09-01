@@ -1,11 +1,11 @@
 // /api/*  ·  o formulário de aplicação
 //
 //   GET  /api/formulario           aberta     as perguntas que estão no ar
-//   GET  /api/formulario/versoes   com login  a lista, e cada versão inteira
-//   PUT  /api/formulario           com login  grava uma versão nova
+//   GET  /api/mesa/formulario      com login  a lista, e cada versão inteira
+//   PUT  /api/mesa/formulario      com login  grava uma versão nova
 //   POST /api/resposta             aberta     recebe a aplicação
 //   POST /api/evento               aberta     recebe os passos do preenchimento
-//   GET  /api/metricas             com login  os números que a tela desenha
+//   GET  /api/mesa/metricas        com login  os números que a tela desenha
 //
 // Duas ficam abertas para a internet inteira. Tudo que entra por elas é
 // medido, contado e conferido antes de virar escrita, e toda escrita
@@ -152,17 +152,20 @@ const CHAVE = /^[a-z][a-z0-9_]{0,39}$/;
    quem abriu antes de alguém publicar tem a aplicação conferida contra
    as perguntas que ela realmente leu.
    ==================================================================== */
+// A abertura vem com o paragrafo vazio de proposito: a capa fica com a
+// marca, o titulo e o botao, e a dona acrescenta uma linha por dentro de
+// "O formulario" se quiser. E nao existe mais linha de tempo e contagem:
+// a contagem aparece na primeira pergunta, em 01 de 09.
 export const FORMULARIO_FABRICA = {
   versao: 0,
   publicado_em: "2026-08-31 00:00:00",
   publicado_por: null,
-  nota: "As nove perguntas que vieram do Typeform.",
+  nota: "As nove perguntas com que o formulário entrou no ar.",
   titulo: "Conte a sua ideia",
   abertura: {
     titulo: "Conte a sua ideia",
-    texto: "São perguntas sobre o que você sabe fazer e o que quer transformar em produto. Suas respostas vão direto para a nossa mesa, e nós lemos uma por uma antes de responder.",
+    texto: "",
     botao: "Começar",
-    tempo: "9 perguntas, cerca de 4 minutos",
   },
   agradecimento: {
     titulo: "Recebemos a sua ideia",
@@ -978,7 +981,8 @@ export function montarLead({ envio, versao, visiveis, valores, respostas, plano,
   const email = daPergunta("email");
 
   return {
-    // O prefixo garante que nunca colida com um token do Typeform, e a
+    // O prefixo diz de onde a resposta veio, e mantem a coluna util caso
+    // um dia entre aplicacao de outra origem. A
     // coluna única continua fazendo o que já fazia: reenvio atualiza a
     // mesma linha em vez de virar uma segunda aplicação na mesa.
     typeform_response_id: `aplicar:${envio}`,
@@ -1291,7 +1295,7 @@ export async function formularioPublico(request, env) {
 }
 
 /* --------------------------------------------------------------------
-   GET /api/formulario/versoes  ·  com login
+   GET /api/mesa/formulario  ·  com login
 
    Existe porque um formulário que só se publica para a frente é um
    formulário que uma edição errada quebra sem volta.
@@ -1369,7 +1373,7 @@ export async function listarVersoes(request, env, url = new URL(request.url)) {
 }
 
 /* --------------------------------------------------------------------
-   PUT /api/formulario  ·  com login
+   PUT /api/mesa/formulario  ·  com login
 
    Grava uma versão nova. Versão nunca se sobrescreve: cada publicação é
    uma linha nova, e a mais alta é a que está no ar. Quem edita as
@@ -1559,7 +1563,7 @@ const baldeCheio = () => json({
 
 /* O log cru é a única coisa que vai existir para explicar quando der
    problema em produção. Vale para o formulário próprio como já vale para
-   o Typeform. */
+   qualquer origem de aplicacao. */
 function paraOLog(bruto) {
   const texto = typeof bruto === "string" ? bruto : null;
   if (texto === null) return null;
@@ -1582,7 +1586,7 @@ async function anotarRecusa(env, motivo, payload = null) {
    POST /api/resposta  ·  aberta
 
    Recebe a aplicação e vira uma linha em leads, com o mesmo
-   "insert ... on conflict" que o Typeform já usa: reenvio depois de
+   "insert ... on conflict": reenvio depois de
    queda de rede atualiza a mesma linha em vez de virar uma segunda
    aplicação na mesa.
    -------------------------------------------------------------------- */
@@ -2039,7 +2043,7 @@ async function metricasDoResumo(env, de, ate) {
 }
 
 /* --------------------------------------------------------------------
-   GET /api/metricas  ·  com login
+   GET /api/mesa/metricas  ·  com login
 
    Os números que a tela desenha. Nenhuma consulta daqui cruza com a
    tabela das pessoas: a identificação da visita e a do envio nunca se
@@ -2363,15 +2367,9 @@ const metodoErrado = () => json({ ok: false, erro: "método" }, 405);
 
 export async function rotasAplicar(request, env, url = new URL(request.url)) {
   switch (url.pathname) {
+    /* ---- abertas: qualquer um na internet alcanca ---- */
     case "/api/formulario":
-      if (request.method === "GET") return formularioPublico(request, env);
-      if (request.method === "PUT") return gravarFormulario(request, env);
-      return metodoErrado();
-
-    case "/api/formulario/versoes":
-      return request.method === "GET"
-        ? listarVersoes(request, env, url)
-        : metodoErrado();
+      return request.method === "GET" ? formularioPublico(request, env) : metodoErrado();
 
     case "/api/resposta":
       return request.method === "POST" ? receberResposta(request, env) : metodoErrado();
@@ -2379,7 +2377,22 @@ export async function rotasAplicar(request, env, url = new URL(request.url)) {
     case "/api/evento":
       return request.method === "POST" ? receberEvento(request, env) : metodoErrado();
 
-    case "/api/metricas":
+    /* ---- da mesa: atras do Cloudflare Access ----
+
+       Elas moram sob um prefixo proprio, e nao junto das abertas, porque
+       o Access protege por CAMINHO e nao por metodo. Enquanto publicar
+       era PUT /api/formulario e ler era GET no mesmo caminho, nao havia
+       como cobrir um sem cobrir o outro: pondo /api/formulario atras do
+       Access, o formulario publico parava de abrir para quem chega da
+       landing; deixando de fora, o editor nunca receberia o login e a
+       Carla nunca conseguiria publicar. Com /api/mesa/ separado, a
+       aplicacao do Access cobre so este prefixo. */
+    case "/api/mesa/formulario":
+      if (request.method === "GET") return listarVersoes(request, env, url);
+      if (request.method === "PUT") return gravarFormulario(request, env);
+      return metodoErrado();
+
+    case "/api/mesa/metricas":
       return request.method === "GET" ? lerMetricas(request, env, url) : metodoErrado();
   }
 

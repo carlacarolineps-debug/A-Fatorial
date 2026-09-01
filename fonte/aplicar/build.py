@@ -122,10 +122,22 @@ def literal_do_servidor(caminho):
     inicio = texto.find('{', onde)
     if inicio < 0:
         return None
-    # Percorre contando chaves, sem confundir com chave dentro de texto.
+    # Percorre contando chaves, sem confundir com chave dentro de texto,
+    # nem com chave dentro de comentario. Comentario aqui ja custou caro
+    # uma vez: um // com aspas no meio derrubava a leitura, o build caia
+    # calado na copia desta pasta, e a pagina saia com a lista velha.
     nivel, i, dentro, escapado = 0, inicio, False, False
     while i < len(texto):
         c = texto[i]
+        if not dentro and c == '/' and i + 1 < len(texto):
+            if texto[i + 1] == '/':
+                fim = texto.find('\n', i)
+                i = len(texto) if fim < 0 else fim
+                continue
+            if texto[i + 1] == '*':
+                fim = texto.find('*/', i + 2)
+                i = len(texto) if fim < 0 else fim + 2
+                continue
         if dentro:
             if escapado:
                 escapado = False
@@ -151,6 +163,15 @@ def literal_do_servidor(caminho):
     saida, i, dentro, escapado = [], 0, False, False
     while i < len(cru):
         c = cru[i]
+        if not dentro and c == '/' and i + 1 < len(cru):
+            if cru[i + 1] == '/':
+                fim = cru.find('\n', i)
+                i = len(cru) if fim < 0 else fim
+                continue
+            if cru[i + 1] == '*':
+                fim = cru.find('*/', i + 2)
+                i = len(cru) if fim < 0 else fim + 2
+                continue
         if dentro:
             saida.append(c)
             if escapado:

@@ -125,13 +125,20 @@ montagem** se sobrar qualquer requisição a terceiros.
 Todas sob `/api/`, resolvidas por `rotasAplicar()` em `src/aplicar.js`:
 
     GET  /api/formulario           a definição no ar, pública e podada
-    GET  /api/formulario/versoes   a definição inteira, atrás do Access
-    PUT  /api/formulario           publica uma versão nova, atrás do Access
     POST /api/resposta             recebe uma aplicação, pública
     POST /api/evento               recebe os passos, pública
-    GET  /api/metricas             os números, atrás do Access
+    GET  /api/mesa/formulario      a definição inteira, atrás do Access
+    PUT  /api/mesa/formulario      publica uma versão nova, atrás do Access
+    GET  /api/mesa/metricas        os números, atrás do Access
 
-As duas públicas são as que qualquer um na internet alcança: elas têm
+**O prefixo `/api/mesa/` não é enfeite.** O Access protege por caminho e
+não por método: enquanto publicar era `PUT /api/formulario` e ler era
+`GET` no mesmo caminho, não havia como trancar um sem trancar o outro, e
+qualquer aplicação do Access que cobrisse `/api` derrubaria o formulário
+público. As três da mesa moram sob um prefixo só delas, e é esse prefixo
+que entra no Access.
+
+As três públicas são as que qualquer um na internet alcança: elas têm
 limite de tamanho, limite por sessão e freio por origem, e recusam o resto
 com 400. As três com Access respondem 503 dizendo o que falta enquanto
 `TEAM_DOMAIN` e `ACCESS_AUD` estiverem vazios, igual `/leads`.
@@ -153,9 +160,8 @@ origem. "A casa" oferece apagar essas chaves, com confirmação escrita, e
 esse é o único lugar que encosta nelas.
 
 É por isso que aplicação não mora no navegador. As respostas caem no banco
-D1, pela rota `/api/resposta` do formulário da casa ou pela `/typeform`
-enquanto o Typeform antigo seguir ligado, e a rota `/leads` devolve para
-quem estiver autenticado.
+D1 pela rota `/api/resposta`, e a rota `/leads` devolve para quem estiver
+autenticado.
 
 **"Ideias que chegaram" é a exceção.** É a única tela que fala com o
 servidor: lê o `/leads` e escreve o andamento de volta pelo
@@ -170,15 +176,14 @@ o único lugar onde entra texto escrito por desconhecido, o que explica o
 npm test
 ```
 
-Roda duas suítes: as 47 rotas de sempre e as 104 do formulário. Sobe
+Roda duas suítes: as 39 rotas de sempre e as 104 do formulário. Sobe
 wrangler local, bate nas rotas por HTTP e derruba tudo no fim. Roda no
 banco local; não encosta em produção.
 
-São 47 verificações nas rotas de sempre, entre elas que corpo adulterado
-depois de assinar é recusado, que reenvio do Typeform atualiza o lead em
-vez de duplicar e que o `/leads` com `TEAM_DOMAIN` e `ACCESS_AUD`
-preenchidos passa a exigir login em vez de abrir. O segundo servidor
-existe só para essa última parte.
+São 39 verificações nas rotas de sempre: o site estático com os cabeçalhos
+certos, o `robots.txt` e o `sitemap.xml`, e o `/leads` e o `/eu` com
+`TEAM_DOMAIN` e `ACCESS_AUD` preenchidos passando a exigir login em vez de
+abrir. O segundo servidor existe só para essa última parte.
 
 As outras 104 são do formulário: a definição, a publicação, a submissão
 virando lead, os passos que alimentam as medidas, e os limites das duas
@@ -200,7 +205,7 @@ node fonte/sistema/verifica-login.mjs  # 28: a porta, do primeiro dia em diante
 node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
 ```
 
-São 310 verificações no total: 151 de rota e 159 de navegador.
+São 302 verificações no total: 143 de rota e 159 de navegador.
 
 ## Cuidados no que já está de pé
 

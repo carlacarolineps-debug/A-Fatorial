@@ -7,7 +7,6 @@ Não existe passo de build: o site é HTML pronto.
     ideiaquevende.com.br/aplicar    o formulário da casa (público)
     ideiaquevende.com.br/sistema/   sistema (atrás de login)
     ideiaquevende.com.br/api/*      o formulário conversa por aqui
-    ideiaquevende.com.br/typeform   recebe as respostas do Typeform (ainda ligado)
     ideiaquevende.com.br/leads      devolve os leads para a mesa (e anota o andamento)
 
 ---
@@ -22,8 +21,8 @@ a passo completo.
 - Worker **`ideia-que-vende`** publicado, com o domínio
   `ideiaquevende.com.br` ligado nele e o banco D1 conectado (binding `DB`).
 - **A landing está no ar.** Desde 31/08 todos os botões de chamada dela
-  levam para `/aplicar`, o formulário da própria casa, e não mais para o
-  Typeform.
+  levam para `/aplicar`, o formulário da própria casa. O Typeform saiu:
+  a rota, o segredo do webhook e as verificações dele foram removidos.
 - A branch de publicação foi corrigida em 28/08: estava apontando para a
   `main`, que só tem o sistema de outro negócio. Leia a seção seguinte, é
   a armadilha que custou um dia.
@@ -46,9 +45,10 @@ a passo completo.
   perder o que foi escrito e rascunho que sobrevive a fechar a aba.
 - Fonte, marca e os 35 ícones vão embutidos: **nenhuma requisição a
   terceiros**, e o build recusa a montagem se aparecer alguma.
-- As respostas caem na mesma tabela `leads` onde as do Typeform caem, no
-  mesmo formato, com o título de cada pergunta como chave. A tela "Ideias
-  que chegaram" desenha sem nenhuma mudança nela.
+- As respostas caem na tabela `leads`, com o título de cada pergunta como
+  chave. A tela "Ideias que chegaram" desenha sem nenhuma mudança nela. As
+  duas colunas com nome de Typeform continuam ali por herança: renomear
+  custaria uma migração e não mudaria o que elas fazem.
 - A tela **"O formulário"**, dentro do sistema, é onde a Carla edita as
   perguntas, publica, volta uma versão atrás e lê as medidas.
 
@@ -59,12 +59,12 @@ seis do formulário (`formulario_versoes`, `formulario_visitas`,
 
 **As verificações, todas verdes:**
 
-    npm test                                 47 + 104 = 151 rotas
+    npm test                                 39 + 104 = 143 rotas
     node verifica-aplicar.mjs                 95 a página, em navegador
     node fonte/sistema/verifica.mjs           36 as dez telas, três papéis
     node fonte/sistema/verifica-login.mjs     28 a porta
                                              ---
-                                             310
+                                             302
 
 As três de navegador pedem um `npx wrangler dev` de pé na porta 8787.
 
@@ -86,8 +86,9 @@ As três de navegador pedem um `npx wrangler dev` de pé na porta 8787.
    (seção 5). É o passo que fecha a porta, libera as medidas e a edição do
    formulário, e é o mais urgente.
 2. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
-3. Decidir sobre o Typeform. Ele continua ligado e recebendo, caso alguém
-   tenha o link antigo. Desligar é decisão da Carla.
+3. Se a automação do Typeform ainda existir na conta de lá, apagar. Ela
+   nunca chegou a ser ligada (ficou em rascunho, com o gatilho desligado),
+   e deste lado não existe mais rota para ela bater.
 
 ---
 
@@ -251,57 +252,6 @@ endereço, e o Access (passo 5) protege só o domínio de verdade.
 
 ---
 
-## 4. Ligar o Typeform
-
-O formulário é o `m70jOwFd`, o mesmo que está escrito na landing. São
-três partes, e a primeira é a que costuma ser esquecida.
-
-### 4a. O campo oculto do plano
-
-Quando alguém clica em "Solicitar análise" num dos três planos, a landing
-abre o Typeform com `?plano=start`, `?plano=pro` ou `?plano=premium` no
-endereço. Esse valor só chega até o sistema se o formulário tiver um
-campo oculto com esse nome exato.
-
-1. Abra o formulário no Typeform
-2. **Settings** (ou o ícone de engrenagem) → **Hidden fields**
-3. Acrescente um campo chamado **`plano`**, tudo minúsculo, sem acento
-4. Salve e publique o formulário
-
-Sem isso, tudo continua funcionando: o lead chega, o nome chega, o e-mail
-chega. Só a coluna "plano" fica sempre vazia, e ninguém entende por quê.
-É por isso que este passo vem primeiro.
-
-### 4b. O webhook
-
-1. **Connect** → **Webhooks** → **Add a webhook**
-2. Endpoint:
-
-       https://ideiaquevende.com.br/typeform
-
-3. Ligue **Secret** e escreva uma senha longa e aleatória. **Copie agora**,
-   ela não aparece de novo.
-4. **Save**, e depois **Test webhook**
-
-### 4c. O mesmo segredo no Worker
-
-1. **Workers & Pages** → **ideia-que-vende** → **Settings** →
-   **Variables and Secrets** → **Add**
-2. Type: **Secret**, e não "Text"
-3. Name: `TYPEFORM_WEBHOOK_SECRET`
-4. Value: a mesma senha do passo 4b, sem espaço sobrando
-5. **Deploy**
-
-> Precisa ser do tipo **Secret**. Como "Text" ele fica legível para quem
-> abrir o painel.
-
-O servidor confere a assinatura sobre o corpo CRU da mensagem. Se o
-segredo dos dois lados não for idêntico, byte a byte, a resposta é 401 e
-o lead não entra. Isso é de propósito: sem essa conferência, qualquer um
-que descobrisse o endereço encheria a sua mesa de lead falso.
-
----
-
 ## 5. Trancar o sistema com o Cloudflare Access
 
 Isso põe uma tela de login na frente do sistema sem escrever uma linha de
@@ -334,20 +284,24 @@ fim.
    | *(vazio)* | `ideiaquevende.com.br` | `sistema` |
 
 4. Procure **Add public hostname** (ou "Add domain", conforme a versão da
-   tela) e acrescente **mais dois**, no mesmo formato:
+   tela) e acrescente **mais três**, no mesmo formato:
 
-   | Subdomain | Domain                 | Path    |
-   |-----------|------------------------|---------|
-   | *(vazio)* | `ideiaquevende.com.br` | `leads` |
-   | *(vazio)* | `ideiaquevende.com.br` | `eu`    |
+   | Subdomain | Domain                 | Path       |
+   |-----------|------------------------|------------|
+   | *(vazio)* | `ideiaquevende.com.br` | `leads`    |
+   | *(vazio)* | `ideiaquevende.com.br` | `eu`       |
+   | *(vazio)* | `ideiaquevende.com.br` | `api/mesa` |
 
-   O `/leads` traz as aplicações do Typeform e o `/eu` diz quem entrou.
-   Os dois são chamados pelo próprio sistema, por dentro. Se ficarem de
-   fora, o sistema abre e não consegue ler nada.
+   Os três são chamados pelo próprio sistema, por dentro: o `leads` traz
+   as aplicações, o `eu` diz quem entrou, e o `api/mesa` é por onde a tela
+   "O formulário" edita as perguntas e lê as medidas. Se algum ficar de
+   fora, o sistema abre e aquela parte não funciona.
 
-   **Não inclua `/typeform`.** Essa rota é o Typeform batendo na porta, e
-   ele não tem como fazer login: ela se protege sozinha pela assinatura
-   com o segredo. Se cair dentro do Access, o lead para de chegar.
+   **Pare em `api/mesa`, e não escreva `api`.** O formulário que a pessoa
+   de fora preenche também vive sob `api`, e ela não tem como fazer login:
+   pondo `api` inteiro aqui dentro, o formulário da landing para de abrir
+   para quem chega. Foi por isso que as rotas da mesa ganharam um prefixo
+   só delas: o Access protege por caminho, não por método.
 
 5. **Next**, e crie a política:
 
@@ -397,34 +351,6 @@ aparecer a tela de login do Cloudflare, e não o sistema.
 Depois que eu preencher os dois valores e publicar, a porta do sistema
 para de oferecer a escolha de perfil e passa a reconhecer você pelo
 e-mail do login.
-
----
-
-## 6. Conferir que o Typeform chegou
-
-No Typeform, **Connect** → **Webhooks** → **View deliveries**. A entrega
-de teste tem que aparecer com **200**.
-
-O que cada resposta quer dizer:
-
-| Resposta | O que aconteceu | O que fazer |
-|---|---|---|
-| **200** | Chegou e foi gravado | Nada, está funcionando |
-| **401** | O segredo dos dois lados não bate | Refaça o passo 4c, atenção a espaço sobrando |
-| **405** | O Typeform mandou por GET | Confira o endereço do webhook |
-| **404** | O endereço está errado | Tem que ser `/typeform`, sem barra no fim |
-
-Depois de uma resposta de teste real, confira se o plano chegou. Se a
-coluna `plano` vier vazia mesmo tendo clicado num plano na landing, o
-campo oculto do passo 4a não foi criado.
-
-Para ver o que chegou no banco, aqui no chat eu consulto direto. Ou pelo
-painel: **Storage & Databases** → **D1** → **ideia-que-vende** →
-**Console**:
-
-```sql
-select criado_em, nome, email, whatsapp, plano from leads order by id desc;
-```
 
 ---
 

@@ -6,9 +6,6 @@ import http from "node:http";
 // servidor no fim. Não toca no banco de produção: tudo roda no D1 local.
 //
 // O que estes testes guardam, e por que valem o trabalho:
-//   - o /typeform só aceita corpo assinado, e a assinatura é sobre o corpo
-//     CRU (o teste "corpo adulterado depois de assinar" existe para isso)
-//   - reenvio do Typeform atualiza o lead, não duplica
 //   - o /leads fecha sozinho enquanto TEAM_DOMAIN e ACCESS_AUD faltarem
 //   - o /sistema/ sai com noindex e no-store
 //   - o endereço de teste (.workers.dev) não é indexável
@@ -16,9 +13,8 @@ import { spawn, spawnSync } from "node:child_process";
 import { setTimeout as espera } from "node:timers/promises";
 import { lerPedido } from "./src/leads.js";
 
-const SEGREDO = "segredo-de-teste";
 
-// O banco local nasce vazio num clone novo. Sem as tabelas, o /typeform
+// O banco local nasce vazio num clone novo. Sem as tabelas, a rota
 // estoura antes de chegar no que o teste quer medir, então o schema é
 // aplicado aqui e não na mão de quem clonou.
 const criarTabelas = spawnSync(
@@ -31,13 +27,11 @@ if (criarTabelas.status !== 0) {
   process.exit(1);
 }
 
-// O segredo entra por --var, não por .dev.vars: assim o teste não depende
-// de arquivo nenhum e não pisa no .dev.vars de quem tem o segredo de
-// verdade guardado ali.
+// Este Worker não tem mais segredo nenhum: o único era o do webhook do
+// Typeform, que saiu em 31/08 com a rota dele.
 const servidor = spawn(
   "npx",
-  ["wrangler", "dev", "--port", "8787", "--local", "--inspector-port", "9229",
-   "--var", `TYPEFORM_WEBHOOK_SECRET:${SEGREDO}`],
+  ["wrangler", "dev", "--port", "8787", "--local", "--inspector-port", "9229"],
   { stdio: ["ignore", "pipe", "pipe"], detached: true },
 );
 
@@ -80,28 +74,6 @@ const t = (nome, cond, extra = "") => {
   (cond ? ok++ : bad++);
   console.log(`${cond ? "PASS" : "FALHOU"}  ${nome}${extra ? "   " + extra : ""}`);
 };
-
-const payload = JSON.stringify({
-  event_id: "01H", event_type: "form_response",
-  form_response: {
-    form_id: "m70jOwFd", token: "resp-abc-123",
-    hidden: { plano: "pro" },
-    definition: { fields: [
-      { id: "f1", title: "Qual seu nome?", type: "short_text" },
-      { id: "f2", title: "Seu melhor e-mail", type: "email" },
-      { id: "f3", title: "WhatsApp", type: "phone_number" },
-      { id: "f4", title: "Faturamento hoje", type: "multiple_choice" },
-    ]},
-    answers: [
-      { field: { id: "f1" }, type: "text", text: "Carla Caroline" },
-      { field: { id: "f2" }, type: "email", email: "CARLA@Exemplo.COM" },
-      { field: { id: "f3" }, type: "phone_number", phone_number: "+5511999998888" },
-      { field: { id: "f4" }, type: "choice", choice: { label: "10k a 50k" } },
-    ],
-  },
-});
-const assina = (corpo, seg = SEGREDO) =>
-  "sha256=" + crypto.createHmac("sha256", seg).update(corpo).digest("base64");
 
 // ---------- site estático ----------
 let r = await fetch(`${B}/`);
@@ -155,40 +127,9 @@ t("sitemap: namespace certo", txt.includes("http://www.sitemaps.org/schemas/site
 t("sitemap: loc com o host pedido", txt.includes("<loc>http://localhost:8787/</loc>"));
 t("sitemap: content-type xml", (r.headers.get("content-type") || "").includes("xml"), r.headers.get("content-type"));
 
-// ---------- /typeform ----------
-r = await fetch(`${B}/typeform`, { method: "POST", headers: { "typeform-signature": assina(payload) }, body: payload });
-let j = await r.json();
-t("typeform: assinatura certa  200 ok", r.status === 200 && j.ok === true, JSON.stringify(j));
-t("typeform: resposta é no-store", r.headers.get("cache-control") === "no-store");
-
-r = await fetch(`${B}/typeform`, { method: "POST", headers: { "typeform-signature": assina(payload, "segredo-errado") }, body: payload });
-t("typeform: assinatura errada  401", r.status === 401, `status=${r.status}`);
-
-r = await fetch(`${B}/typeform`, { method: "POST", body: payload });
-t("typeform: sem assinatura  401", r.status === 401, `status=${r.status}`);
-
-const adulterado = payload.replace("Carla Caroline", "Outra Pessoa!");
-r = await fetch(`${B}/typeform`, { method: "POST", headers: { "typeform-signature": assina(payload) }, body: adulterado });
-t("typeform: corpo adulterado depois de assinar  401", r.status === 401, `status=${r.status}`);
-
-r = await fetch(`${B}/typeform`, { method: "POST", headers: { "typeform-signature": "lixo" }, body: payload });
-t("typeform: cabeçalho lixo  401", r.status === 401, `status=${r.status}`);
-
-r = await fetch(`${B}/typeform`);
-t("typeform: GET  405", r.status === 405, `status=${r.status}`);
-
-// reenvio do mesmo token não pode duplicar
-await fetch(`${B}/typeform`, { method: "POST", headers: { "typeform-signature": assina(payload) }, body: payload });
-
-// payload assinado mas sem token → 200 (fica no log), sem quebrar
-const semToken = JSON.stringify({ form_response: { form_id: "x", answers: [] } });
-r = await fetch(`${B}/typeform`, { method: "POST", headers: { "typeform-signature": assina(semToken) }, body: semToken });
-j = await r.json();
-t("typeform: payload sem token  200 ok:false", r.status === 200 && j.ok === false, JSON.stringify(j));
-
 // ---------- /leads ----------
 r = await fetch(`${B}/leads`);
-j = await r.json();
+let j = await r.json();
 t("leads: sem TEAM_DOMAIN/AUD  503 explicando", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
 
 r = await fetch(`${B}/leads`, { method: "PATCH", body: JSON.stringify({ id: 1, status: "contatado" }) });

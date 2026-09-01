@@ -112,13 +112,29 @@ input,textarea{font:inherit;color:inherit}
 ::-webkit-scrollbar-thumb:hover{background:var(--o-dp)}
 html{scrollbar-color:#2f2f38 #111114;scrollbar-width:thin}
 
-/* Os dois brilhos laranja e o ruido da landing, copiados e baixados de
-   intensidade: aqui eles sao o fundo de uma leitura, nao de uma capa. */
+/* Os brilhos laranja da landing. Nas perguntas eles ficam baixos, que ali
+   o fundo e de leitura; na capa sobem para o peso do heroi da pagina de
+   vendas, porque a capa E uma capa e estava sem graca. Quem troca e o
+   .fundo lendo o estado do palco. */
 .fundo{
   position:fixed;inset:0;z-index:0;pointer-events:none;
+  transition:opacity .6s var(--ease),background .6s var(--ease);
   background:
     radial-gradient(58% 46% at 78% 18%,rgba(255,131,9,.16),transparent 64%),
     radial-gradient(64% 54% at 12% 92%,rgba(255,131,9,.10),transparent 62%);
+}
+body[data-tela="capa"] .fundo{
+  background:
+    radial-gradient(58% 48% at 72% 34%,rgba(255,131,9,.42),transparent 64%),
+    radial-gradient(70% 58% at 22% 90%,rgba(255,131,9,.26),transparent 62%),
+    radial-gradient(44% 40% at 92% 88%,rgba(255,180,90,.16),transparent 66%);
+}
+/* o veu que a landing poe por cima do brilho, para o texto nao brigar */
+body[data-tela="capa"] .fundo::after{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,rgba(8,8,10,.82) 0%,rgba(8,8,10,.22) 26%,rgba(8,8,10,.10) 54%,rgba(8,8,10,.66) 88%,var(--preto) 100%),
+    radial-gradient(120% 80% at 14% 84%,rgba(8,8,10,.5),transparent 58%);
 }
 body::after{
   content:"";position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.032;mix-blend-mode:overlay;
@@ -337,25 +353,67 @@ body::after{
 .acoes{display:flex;align-items:center;gap:16px;margin-top:var(--e4);flex-wrap:wrap}
 .acoes-fim{gap:12px}
 
-/* O botao da marca: canto de 4px, laranja liso, sem degrade e sem halo.
-   A pilula com brilho em volta e cara de site generico; o que identifica
-   esta casa e o canto reto e o laranja chapado. O unico movimento e o da
-   seta andando um passo, que e o mesmo do resto da pagina. */
+/* O botao e o mesmo da pagina de vendas, copiado de la sem mudar nada:
+   pilula, laranja em degrade, verniz em cima e bolha embaixo. Eu tinha
+   trocado por um retangulo liso achando que a pilula era generica; a
+   pilula E a marca, e quem clica nela na capa clica na mesma coisa aqui. */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
-  padding:16px 28px;border-radius:var(--r);font-weight:700;font-size:14.5px;
-  letter-spacing:.005em;position:relative;border:1px solid transparent;
+  padding:16px 28px;border-radius:999px;font-weight:700;font-size:14.5px;
+  letter-spacing:.005em;position:relative;overflow:hidden;isolation:isolate;border:0;
   touch-action:manipulation;text-decoration:none;
-  transition:color .2s,background-color .25s,border-color .25s;
+  transition:transform .26s var(--ease),box-shadow .3s var(--ease),color .2s,background-color .25s,border-color .25s;
+  will-change:transform;
 }
 .btn svg{width:17px;height:17px;flex:none;transition:transform .3s var(--ease)}
+/* bolha inferior: da o volume de perola */
+.btn::before{
+  content:"";position:absolute;z-index:-1;left:-15%;right:-15%;top:-100%;bottom:25%;
+  border-radius:50%;background:rgba(255,255,255,.13);
+  transition:transform .35s var(--ease),background-color .3s;
+}
+/* verniz superior */
+.btn::after{
+  content:"";position:absolute;z-index:-1;left:6%;right:6%;top:11%;bottom:42%;
+  border-radius:20px 20px 0 0;
+  box-shadow:inset 0 9px 8px -9px rgba(255,255,255,.9);
+  background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0) 58%);
+  transition:opacity .35s var(--ease),transform .35s var(--ease);
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:hover::before{transform:translateY(-6%)}
+.btn:hover::after{opacity:.45;transform:translateY(6%)}
 .btn:hover svg{transform:translateX(3px)}
-.btn-o{background:var(--o);border-color:var(--o);color:#1b1204}
-.btn-o:hover{background:var(--o-lt);border-color:var(--o-lt)}
-.btn-o:active{background:var(--o-dp);border-color:var(--o-dp)}
-.btn-linha{background:transparent;border-color:var(--fio);color:var(--tinta)}
-.btn-linha:hover{border-color:var(--o-35);color:var(--o);background:var(--o-05)}
-.btn-linha:active{background:var(--o-10)}
+.btn:active{transform:translateY(2px);transition-duration:.08s}
+
+.btn-o{
+  background:var(--o-grad);color:#1b1204;
+  box-shadow:
+    inset 0 .26rem .7rem rgba(255,255,255,.6),
+    inset 0 -.1rem .3rem rgba(122,52,0,.5),
+    inset 0 -.36rem .8rem rgba(255,214,158,.55),
+    0 1.5rem 2.2rem -1.1rem rgba(255,131,9,.55),
+    0 .6rem .9rem -.5rem rgba(0,0,0,.5);
+}
+.btn-o:hover{
+  box-shadow:
+    inset 0 .26rem .55rem rgba(255,255,255,.75),
+    inset 0 -.1rem .3rem rgba(122,52,0,.5),
+    inset 0 -.4rem .9rem rgba(255,224,180,.7),
+    0 1.9rem 2.8rem -1rem rgba(255,131,9,.7),
+    0 .7rem 1rem -.5rem rgba(0,0,0,.55);
+}
+.btn-linha{
+  background:#0f0f14;color:#fff;
+  box-shadow:
+    inset 0 .26rem .7rem rgba(255,255,255,.22),
+    inset 0 -.1rem .3rem rgba(0,0,0,.75),
+    inset 0 -.36rem .8rem rgba(255,255,255,.30),
+    0 1.4rem 2rem -1.1rem rgba(0,0,0,.7),
+    0 .5rem .8rem -.5rem rgba(0,0,0,.7);
+}
+.btn-linha::before{background:rgba(255,255,255,.09)}
+.btn-linha:hover{color:var(--o-lt)}
 .btn:focus-visible{outline:2px solid var(--o);outline-offset:3px}
 .btn-grande{padding:19px 32px;font-size:clamp(15px,1.4vw,16.5px)}
 .btn[aria-disabled="true"],.btn:disabled{
@@ -408,22 +466,44 @@ body::after{
    esquerda, e essa troca de eixo ja diz "comecou". */
 .capa{align-items:center;text-align:center}
 .marca{width:52px;height:auto;color:var(--o);display:block}
-.marca-capa{margin-bottom:var(--e4)}
+/* A marca da capa e a mesma do heroi da landing: grande, com o halo
+   laranja em volta. Ela era um logotipo de 52px e nao segurava a tela. */
+.marca-capa{
+  width:clamp(84px,10vw,138px);margin-bottom:var(--e4);opacity:.95;
+  filter:drop-shadow(0 0 34px rgba(255,131,9,.45));
+}
 .kicker{
   margin-top:var(--e3);font-size:var(--t-rotulo);font-weight:700;
   letter-spacing:.18em;color:var(--o);text-transform:uppercase;
 }
-.capa-titulo{margin-top:14px;font-size:var(--t-capa);max-width:16ch}
-.capa-texto{margin-top:var(--e3);font-size:var(--t-descricao);line-height:1.68;color:var(--tinta-2);max-width:52ch}
-.selos{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:var(--e4)}
-.selo{
-  display:inline-flex;align-items:center;gap:8px;padding:9px 14px;
-  border:1px solid var(--fio);border-radius:var(--r);
-  background:rgba(255,255,255,.028);
-  font-size:var(--t-apoio);color:var(--tinta-2);
+/* O titulo da capa desvanece de cima para baixo, o mesmo gesto do heroi
+   da landing, mas mais fraco. La o titulo tem tres linhas e o desvanecer
+   vira profundidade; aqui ele tem uma ou duas, e o desvanecer da landing
+   fazia a palavra parecer impressa com pouca tinta. */
+.capa-titulo{
+  margin-top:14px;max-width:14ch;letter-spacing:-.05em;line-height:.96;
+  font-size:clamp(42px,7.2vw,86px);
+  background-image:linear-gradient(180deg,#fff 34%,rgba(255,255,255,.74) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  padding-bottom:.06em;
 }
-.selo svg{width:14px;height:14px;flex:none;color:var(--o)}
+.capa-texto{margin-top:var(--e3);font-size:var(--t-descricao);line-height:1.68;color:var(--tinta-2);max-width:52ch}
 .capa .acoes{justify-content:center;flex-direction:column;gap:12px;margin-top:var(--e5)}
+
+/* A entrada da landing: cada peca sobe vinte pixels, uma depois da outra.
+   E o que faz a capa parecer viva em vez de impressa.
+
+   Animacao, e nao transicao presa a um estado: o estado de entrada e
+   apagado quando a troca de tela termina, e com transicao a capa inteira
+   voltava a ficar invisivel um instante depois de aparecer. Animacao com
+   forwards segura o fim onde ele parou. */
+@keyframes sobeEntrando{ from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+.rv{opacity:0;animation:sobeEntrando .75s var(--ease) forwards}
+.rv-1{animation-delay:.06s}.rv-2{animation-delay:.14s}
+.rv-3{animation-delay:.22s}.rv-4{animation-delay:.30s}
+@media (prefers-reduced-motion:reduce){
+  .rv{opacity:1;animation:none}
+}
 .rodape{
   margin-top:var(--e5);padding-top:var(--e3);border-top:1px solid var(--fio-2);
   max-width:56ch;

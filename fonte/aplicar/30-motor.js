@@ -675,30 +675,22 @@ function telaCapa() {
   var titulo = interpolar(ab.titulo || E.def.titulo || 'Conte a sua ideia');
   var texto = interpolar(ab.texto || '');
   var botao = ab.botao || 'Começar';
-  var tempo = ab.tempo || '';
 
-  // O tempo da definicao ja traz as duas informacoes numa frase so
-  // ("9 perguntas, cerca de 4 minutos"). Quando ela vem assim, cada
-  // metade vai no seu selo, para a contagem nao aparecer duas vezes.
-  var quantas = E.total + (E.total === 1 ? ' pergunta' : ' perguntas');
-  var relogio = tempo;
-  var partes = tempo.split(/\s*,\s*/);
-  if (partes.length === 2) {
-    if (/pergunta/i.test(partes[0])) { quantas = partes[0]; relogio = partes[1]; }
-    else if (/pergunta/i.test(partes[1])) { quantas = partes[1]; relogio = partes[0]; }
-  }
+  // As três etiquetas de ficha técnica que ficavam aqui, com o relógio, a
+  // contagem de perguntas e a linha de privacidade, saíram a pedido da
+  // dona. Quem chega para contar a própria ideia não precisa de ficha
+  // técnica antes de começar, e a contagem aparece na primeira pergunta
+  // mesmo, em "01 / 09".
+  //
+  // O parágrafo de abertura só aparece se ela escrever um em "O
+  // formulário". De fábrica ele vem vazio, e a capa fica com a marca, o
+  // título e o botão, e mais nada.
 
-  var selos = '';
-  if (relogio) selos += '<span class="selo">' + icone('clock') + esc(relogio) + '</span>';
-  selos += '<span class="selo">' + icone('doc') + esc(quantas) + '</span>';
-  // Sem nome proprio: quem chega aqui ainda nao conhece ninguem da casa,
-  // e o primeiro nome de uma desconhecida nao tranquiliza, estranha.
-  selos += '<span class="selo">' + icone('lock') + 'as suas respostas ficam entre nós</span>';
-
-  var rodape = '<p class="dica">A casa conta quantas pessoas abrem este formulário e em que ' +
-               'pergunta param, para melhorá-lo. Não guardamos quem é você nessa contagem.</p>';
-  // A linha da versao so aparece depois que o servidor respondeu, e so
-  // quando quem respondeu foi a copia embutida. Antes disso ela piscaria
+  // Uma linha, pequena: a contagem existe e quem abre tem direito de
+  // saber. Tirar isto não seria enxugar texto, seria deixar de contar.
+  var rodape = '<p class="dica">Contamos quantas pessoas abrem e onde param, sem guardar quem é você.</p>';
+  // A linha da versão só aparece depois que o servidor respondeu, e so
+  // quando quem respondeu foi a cópia embutida. Antes disso ela piscaria
   // na tela de todo mundo por um instante, sem ser verdade.
   if (E.reserva && E.resolvida) {
     var quando = dataPorExtenso((E.def.publicado_em || '').replace(' ', 'T'));
@@ -706,18 +698,17 @@ function telaCapa() {
   }
 
   return novaTela('capa',
-    '<svg class="marca marca-capa" viewBox="0 0 171 139" aria-hidden="true"><use href="#marca"/></svg>' +
-    '<p class="kicker">Aplicação</p>' +
-    '<h1 class="pergunta capa-titulo">' + esc(titulo) + '</h1>' +
-    (texto ? '<p class="capa-texto">' + esc(texto) + '</p>' : '') +
-    '<div class="selos">' + selos + '</div>' +
-    '<div class="acoes">' +
+    '<svg class="marca marca-capa rv rv-1" viewBox="0 0 171 139" aria-hidden="true"><use href="#marca"/></svg>' +
+    '<p class="kicker rv rv-2">Aplicação</p>' +
+    '<h1 class="pergunta capa-titulo rv rv-2">' + esc(titulo) + '</h1>' +
+    (texto ? '<p class="capa-texto rv rv-3">' + esc(texto) + '</p>' : '') +
+    '<div class="acoes rv rv-3">' +
       '<button type="button" class="btn btn-o btn-grande comecar js-avancar">' +
         '<span>' + esc(botao) + '</span>' + icone('arrow') +
       '</button>' +
       '<span class="dica dica-teclado">ou aperte <kbd>Enter</kbd></span>' +
     '</div>' +
-    '<div class="rodape">' + rodape + '</div>');
+    '<div class="rodape rv rv-4">' + rodape + '</div>');
 }
 
 /* Uma pergunta. */
@@ -1049,6 +1040,11 @@ function moldura() {
   var naCapa = E.pos === -1;
   var noFim = E.pos > E.lista.length;
   var naRevisao = E.pos === E.lista.length;
+
+  // Qual tela esta no palco, escrito no corpo da pagina: e por aqui que o
+  // fundo sabe quando acender o brilho laranja da capa e quando baixar
+  // para o tom de leitura das perguntas.
+  document.body.dataset.tela = naCapa ? 'capa' : noFim ? 'fim' : naRevisao ? 'revisao' : 'pergunta';
   var p = (!naCapa && !noFim && !naRevisao) ? E.lista[E.pos] : null;
   var n = p ? E.numero[p.chave] : null;
 

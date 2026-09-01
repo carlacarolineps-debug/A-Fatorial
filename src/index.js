@@ -4,7 +4,6 @@
 // aqui. Este código só roda nos caminhos listados em run_worker_first no
 // wrangler.toml. Menos código no caminho da página = página mais rápida.
 import { json } from "./lib.js";
-import { receberTypeform } from "./typeform.js";
 import { rotasAplicar } from "./aplicar.js";
 import { listarLeads, atualizarLead } from "./leads.js";
 import { quemSouEu } from "./eu.js";
@@ -20,11 +19,6 @@ export default {
     if (url.pathname.startsWith("/api/")) return rotasAplicar(request, env, url);
 
     switch (url.pathname) {
-      case "/typeform":
-        return request.method === "POST"
-          ? receberTypeform(request, env)
-          : json({ erro: "método" }, 405);
-
       case "/leads":
         if (request.method === "GET") return listarLeads(request, env);
         // a mesa anota o andamento pelo próprio sistema

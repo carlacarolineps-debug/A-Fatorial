@@ -415,7 +415,7 @@ async function formCarregar() {
   FORM.conflito = null;
   formDesenhar();
 
-  const lista = await formPedir('/api/formulario/versoes');
+  const lista = await formPedir('/api/mesa/formulario');
 
   // Sem o login protegido ligado, ver e seguro e escrever e que nao: a
   // tela cai para a definicao que a pagina publica le e desabilita tudo.
@@ -463,14 +463,14 @@ async function formCarregar() {
   // saber quais perguntas ja receberam resposta.
   let noAr = null;
   if (FORM.atual > 0) {
-    const p = await formPedir('/api/formulario/versoes?versao=' + encodeURIComponent(FORM.atual));
+    const p = await formPedir('/api/mesa/formulario?versao=' + encodeURIComponent(FORM.atual));
     if (p.erro) { formParar(p.erro, p.corpo); return; }
     noAr = p.corpo.formulario || null;
   }
 
   let edicao = noAr;
   if (rascunho) {
-    const p = await formPedir('/api/formulario/versoes?versao=' + encodeURIComponent(rascunho.versao));
+    const p = await formPedir('/api/mesa/formulario?versao=' + encodeURIComponent(rascunho.versao));
     if (p.erro) { formParar(p.erro, p.corpo); return; }
     edicao = p.corpo.formulario || edicao;
   }
@@ -487,7 +487,7 @@ async function formCarregar() {
   if (!edicao) {
     edicao = lista.corpo.formulario || null;
     if (!edicao) {
-      const zero = await formPedir('/api/formulario/versoes?versao=0');
+      const zero = await formPedir('/api/mesa/formulario?versao=0');
       if (zero.erro) { formParar(zero.erro, zero.corpo); return; }
       edicao = zero.corpo.formulario || null;
     }
@@ -571,7 +571,7 @@ async function formGravar(publicar) {
   formDesenhar();
   formDizer('Salvando no servidor.');
 
-  const resposta = await formPedir('/api/formulario', {
+  const resposta = await formPedir('/api/mesa/formulario', {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
@@ -1289,7 +1289,7 @@ function formVersaoAnterior(n) {
 // mesma linha tres vezes nao pede tres vezes ao servidor.
 async function formBuscarVersao(n) {
   if (FORM.guardadas[n]) return FORM.guardadas[n];
-  const r = await formPedir('/api/formulario/versoes?versao=' + encodeURIComponent(n));
+  const r = await formPedir('/api/mesa/formulario?versao=' + encodeURIComponent(n));
   if (r.erro || !r.corpo.formulario) return null;
   FORM.guardadas[n] = r.corpo.formulario;
   return FORM.guardadas[n];
@@ -1321,7 +1321,7 @@ async function formTrazerVersao(versao) {
     });
     if (!sim) return;
   }
-  const p = await formPedir('/api/formulario/versoes?versao=' + encodeURIComponent(versao));
+  const p = await formPedir('/api/mesa/formulario?versao=' + encodeURIComponent(versao));
   if (p.erro) {
     FORM.recado = formFalhaDe(p.erro, p.corpo, 'leitura');
     formDesenhar();
@@ -1907,9 +1907,8 @@ function formCapaHtml() {
     '<div class="rotulo" style="margin-top:16px">Texto da capa</div>' +
     '<textarea class="campo" style="min-height:74px"' + trava +
       ' oninput="formCapa(\'abertura\', \'texto\', this.value)">' + esc(a.texto || '') + '</textarea>' +
+    '<p class="dica" style="margin-top:6px">Em branco, a capa fica com a marca, o título e o botão.</p>' +
 
-    campo('Tempo e contagem', 'abertura', 'tempo', a.tempo, '',
-      'Confira esta linha quando ligar ou desligar uma pergunta.') +
     campo('Botão que começa', 'abertura', 'botao', a.botao, ' maxlength="20"') +
 
     campo('Título do obrigado', 'agradecimento', 'titulo', f.titulo) +
@@ -2067,7 +2066,7 @@ async function formMedidasCarregar() {
   formDesenhar();
 
   const i = formIntervalo();
-  const r = await formPedir('/api/metricas?de=' + i.de + '&ate=' + i.ate);
+  const r = await formPedir('/api/mesa/metricas?de=' + i.de + '&ate=' + i.ate);
   if (r.erro) {
     FORM.medEstado = 'erro';
     FORM.medFalha = formFalhaDe(r.erro, r.corpo, 'leitura');
@@ -2577,7 +2576,7 @@ DESENHO.formulario = function () {
 
    Quatro combinados com as outras frentes, que valem a conferencia:
 
-   a. Esta tela le a definicao completa em GET /api/formulario/versoes,
+   a. Esta tela le a definicao completa em GET /api/mesa/formulario,
       com e sem ?versao=N, porque a rota publica vem podada e o editor
       precisa da pergunta desligada, do recado interno e do papel de cada
       pergunta.
