@@ -275,7 +275,9 @@ fim.
 
 ### 5b. A aplicação
 
-1. **Access** → **Applications** → **Add an application** → **Self-hosted**
+1. **Zero Trust** → **Access controls** → **Applications** → **Create new
+   application** (em versões mais antigas o botão se chama **Add an
+   application**) → **Self-hosted**
 2. **Application name:** `Ideia Que Vende`
 3. No endereço público, preencha:
 
@@ -318,8 +320,8 @@ fim.
 
 ### 5c. Os dois valores que eu preciso
 
-**Access** → **Applications** → clique em **Ideia Que Vende** → aba
-**Overview**. Copie:
+**Zero Trust** → **Access controls** → **Applications** → clique em
+**Ideia Que Vende** → aba **Overview**. Copie:
 
 - o **team domain**, algo como `grupoa.cloudflareaccess.com`
 - a **Application Audience (AUD) Tag**, um hexadecimal comprido
@@ -345,8 +347,14 @@ deixar passar seria pior que fechar.
 
 ### 5d. Conferir que pegou
 
-Abra `https://ideiaquevende.com.br/sistema/` numa janela anônima. Tem que
-aparecer a tela de login do Cloudflare, e não o sistema.
+Duas conferências, na mesma janela anônima:
+
+1. `https://ideiaquevende.com.br/sistema/` tem que mostrar a **tela de
+   login da Cloudflare**, e não o sistema. Se mostrar o sistema, algum
+   caminho do 5b ficou de fora.
+2. `https://ideiaquevende.com.br/aplicar` tem que abrir **normalmente,
+   sem pedir login**. Se pedir, foi `api` escrito no lugar de `api/mesa`,
+   e o formulário parou para quem chega da landing.
 
 Depois que eu preencher os dois valores e publicar, a porta do sistema
 para de oferecer a escolha de perfil e passa a reconhecer você pelo
