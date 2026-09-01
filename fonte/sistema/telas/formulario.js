@@ -325,7 +325,12 @@ function formLerLocal() {
 async function formPedir(caminho, opcoes) {
   let r;
   try {
-    r = await fetch(caminho, opcoes || { headers: { accept: 'application/json' }, cache: 'no-store' });
+    // Os cabecalhos entram sempre, tenha ou nao vindo opcoes: o pedido que
+    // publica uma versao nova traz as dele, e sem juntar os dois ele seria
+    // o unico a sair sem o aviso de que o login venceu.
+    const o = Object.assign({ cache: 'no-store' }, opcoes || {});
+    o.headers = cabecalhos(o.headers);
+    r = await fetch(caminho, o);
   } catch (e) {
     return { erro: 'rede' };
   }

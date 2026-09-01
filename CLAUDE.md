@@ -87,9 +87,26 @@ em `DESENHO[<chave>]`.
 
 Os papéis são `gestor`, `colaborador` e `cliente`. Quem entra escolhe o
 próprio nome na porta e digita a senha dela; a senha nunca é guardada em
-texto puro, e sim como SHA-256 de `senha + ':' + id`. Quando o Cloudflare
-Access estiver ligado, a rota `/eu` diz qual e-mail ele autenticou, e quem
-já provou quem é na porta da rua não prova de novo na porta da sala.
+texto puro, e sim como SHA-256 de `senha + ':' + id`.
+
+**O Cloudflare Access está ligado desde 01/09, e ele manda.** A porta
+pergunta ao `/eu` quem entrou ANTES de olhar a sessão guardada no
+navegador: a sessão diz quem entrou aqui da última vez, o Access diz quem
+está entrando agora, e num computador que duas pessoas usam a ordem
+contrária abriria o sistema no nome da primeira, com o papel dela. Sessão
+de outra pessoa é apagada em vez de aproveitada. E-mail que passa no
+Access sem cadastro aqui dentro não entra e não vira gestor.
+
+Por isso o "Sair" leva a pessoa para `/cdn-cgi/access/logout`: apagar só a
+sessão daqui não é sair, a porta perguntaria de novo e o Access devolveria
+o mesmo e-mail no mesmo segundo.
+
+Todo pedido ao servidor leva `X-Requested-With`. Sem ele, um crachá
+vencido volta como a página de login do Access, em HTML, e cada tela
+descobre isso tentando ler HTML como JSON. Com ele volta 401.
+
+**O papel filtra tela, nunca dado.** Quem passa pelo Access lê `/leads`
+direto, cadastrada aqui dentro ou não.
 
 Tela nova não pode nascer invisível: as permissões ficam salvas no
 navegador e foram escritas antes de ela existir. Ao criar uma tela,
@@ -201,11 +218,11 @@ As telas têm verificação própria, num navegador de verdade. Com um
 
 ```sh
 node fonte/sistema/verifica.mjs        # 36: as dez telas, os três papéis
-node fonte/sistema/verifica-login.mjs  # 28: a porta, do primeiro dia em diante
+node fonte/sistema/verifica-login.mjs  # 37: a porta, do primeiro dia em diante
 node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
 ```
 
-São 302 verificações no total: 143 de rota e 159 de navegador.
+São 311 verificações no total: 143 de rota e 168 de navegador.
 
 ## Cuidados no que já está de pé
 

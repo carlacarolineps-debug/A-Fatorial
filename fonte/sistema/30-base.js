@@ -457,6 +457,29 @@ function resumoIgual(a, b) {
 }
 
 /* ---------------------------------------------------------------------
+   Falar com o servidor.
+
+   Todo pedido leva o X-Requested-With. Sem ele, quando o cracha do login
+   protegido vence, o Cloudflare Access nao responde erro: ele responde a
+   PAGINA de entrada dele, em HTML, e o navegador segue o desvio calado.
+   Cada tela descobria isso tentando ler HTML como JSON e deduzindo do
+   estouro que o login tinha vencido. Com o cabecalho, o Access responde
+   401 direto, e a tela le o numero em vez de adivinhar.
+
+   O tratamento antigo continua em pe nas telas, como rede de baixo: um
+   desvio ainda pode chegar por outro caminho.
+   --------------------------------------------------------------------- */
+function cabecalhos(extras) {
+  return Object.assign(
+    { accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    extras || {});
+}
+
+// Fica verdadeiro quando o /eu responde que o Access autenticou alguem.
+// So o "Sair" usa isso, e por um motivo pratico explicado la embaixo.
+let ACCESS_NO_AR = false;
+
+/* ---------------------------------------------------------------------
    A sessao. Fica no navegador para nao pedir senha a cada aba, e sai no
    "Sair". Guarda so o id: papel e nome vem da lista, entao mudar o papel
    de alguem vale na proxima tela que ela abrir, e nao so no proximo login.
@@ -560,10 +583,19 @@ function alternarMenu() {
 }
 
 function sair() {
-  // Sair daqui fecha a sessao DESTE sistema. O Cloudflare Access continua
-  // com voce logado no endereco: encerrar aquilo e em /cdn-cgi/access/logout,
-  // e a porta diz isso para ninguem achar que saiu e nao ter saido.
   sessaoApagar();
+
+  // Com o login protegido no ar, apagar so a sessao daqui nao e sair: a
+  // porta perguntaria de novo quem entrou, o Access devolveria o mesmo
+  // e-mail e ela abriria o sistema outra vez, no mesmo segundo. Quem
+  // clicou em Sair veria a tela piscar e continuar dentro.
+  //
+  // O endereco abaixo e da propria Cloudflare, nao deste sistema: ela
+  // apaga o cracha do navegador e devolve a pessoa para a tela de
+  // entrada. Usar o endereco do site, e nao o do time, faz a saida ser
+  // imediata em vez de esperar o cracha vencer sozinho.
+  if (ACCESS_NO_AR) { location.href = '/cdn-cgi/access/logout'; return; }
+
   EU.id = null; EU.email = null; EU.nome = null; EU.papel = null; EU.origem = null;
   PORTA_ESCOLHIDA = null;
   porId('app').hidden = true;

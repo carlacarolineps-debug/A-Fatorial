@@ -367,15 +367,31 @@ painel estiver diferente, os nomes dos campos continuam os mesmos.
 
 8. **Next** → **Add application**
 
-### 5b-bis. O aviso "Add an identity provider" pode ser fechado
+### 5b-bis. Ligar o código por e-mail, senão a tela de login vem errada
 
-A página de Applications sugere ligar um provedor de identidade. Não
-precisa. Sem nenhum, a Cloudflare usa o método próprio dela: a pessoa
-digita o e-mail, recebe um código de seis números e entra. É de graça e
-não depende de mais nenhuma conta.
+**Isto não é opcional, e foi onde a Carla travou em 01/09.**
 
-Entrar com um clique no botão do Google dá para acrescentar depois, sem
-refazer a aplicação.
+Desde 18 de junho de 2026 toda organização nova do Zero Trust nasce com um
+método de login só, o "Cloudflare": a pessoa entra com a conta que ela tem
+na própria Cloudflare. Antes disso o padrão era o código por e-mail, e ele
+deixou de ser ligado sozinho.
+
+O efeito na tela: em vez de um campo de e-mail, aparece um botão escrito
+"Sign in with: Cloudflare". Quem não tem conta na Cloudflare, que é a
+equipe inteira, não passa dali.
+
+1. **Zero Trust** → **Integrations** → **Identity providers**
+2. Em **Your identity providers**, **Add new identity provider**
+3. Escolha **One-time PIN** e salve. Não pede configuração nenhuma.
+
+Depois, para sumir com o botão da Cloudflare e cair direto no campo de
+e-mail: **Access controls** → **Applications** → a aplicação →
+**Authentication**, desligue **Accept all available identity providers**,
+marque só o **One-time PIN** e ligue **Apply instant authentication**.
+Com um método só, esse último pula a tela de escolher.
+
+O código tem seis números, vale 10 minutos e serve uma vez só. Entrar com
+um clique pelo Google dá para acrescentar depois, sem refazer nada.
 
 ### 5c. Os dois valores que eu preciso
 

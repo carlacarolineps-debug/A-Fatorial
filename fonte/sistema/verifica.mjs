@@ -23,10 +23,15 @@ const t = (nome, cond, extra = "") => {
 
 await pg.goto(`${B}/sistema/`, { waitUntil: "networkidle" });
 
-// 1. A porta, com o Access desligado
+// 1. A porta, com o Access ligado mas sem cracha nenhum neste navegador
+//
+// Estas duas provavam o aviso de "ainda nao esta ligado", que vinha do 503
+// do /eu. O Access foi ligado em 01/09 e o /eu passou a responder 401, que
+// e o que a pessoa recebe quando o cracha dela vence. Provar o aviso antigo
+// seria provar um estado que nao existe mais.
 const porta = await pg.textContent("#porta");
-t("a porta avisa que o login protegido não está ligado", /não está ligado/.test(porta));
-t("a porta diz que a senha identifica mas não protege", /não protege o endereço/.test(porta));
+t("sem cracha valido, a porta diz que o login protegido venceu", /venceu/.test(porta));
+t("e ainda assim deixa criar o primeiro acesso", /Este sistema é/.test(porta));
 await pg.screenshot({ path: `${S}/sis-0-porta.png` });
 
 // 2. Semear as tres pessoas e entrar como gestor

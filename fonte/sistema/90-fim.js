@@ -21,9 +21,10 @@ let PORTA_ESCOLHIDA = null;   // id da pessoa selecionada na lista
 
 async function lerEu() {
   try {
-    const r = await fetch('/eu', { headers: { accept: 'application/json' }, cache: 'no-store' });
+    const r = await fetch('/eu', { headers: cabecalhos(), cache: 'no-store' });
     let corpo = null;
     try { corpo = await r.json(); } catch (e) { corpo = null; }
+    ACCESS_NO_AR = (r.status === 200 && !!corpo && !!corpo.email);
     return { status: r.status, corpo: corpo };
   } catch (e) {
     return { status: 0, corpo: null };
@@ -196,15 +197,14 @@ function portaTelaLogin(avisoTopo) {
 async function abrirPorta() {
   pintarPorta('Entrando no <b>sistema</b>', 'Conferindo o seu acesso.', '');
 
-  // 1. sessao ja aberta neste navegador
-  const sessao = sessaoLer();
-  if (sessao && sessao.pessoaId) {
-    const pessoa = acharPessoaPorId(sessao.pessoaId);
-    if (pessoa && pessoa.ativo !== false) { entrar(pessoa, 'senha'); return; }
-    sessaoApagar();
-  }
-
-  // 2. o Cloudflare Access ja disse quem e
+  // 1. quem o login protegido autenticou, se ele estiver no ar
+  //
+  // Esta pergunta vem ANTES da sessao guardada, e a ordem importa. A
+  // sessao diz quem entrou neste navegador da ultima vez; o Access diz
+  // quem esta entrando agora. Num computador que duas pessoas usam, a
+  // sessao da primeira abriria o sistema no nome dela para a segunda,
+  // com o papel dela junto. Quem prova quem e na porta da rua e quem
+  // manda aqui dentro.
   const r = await lerEu();
 
   if (r.status === 200 && r.corpo && r.corpo.email) {
@@ -212,6 +212,12 @@ async function abrirPorta() {
     const pessoa = pessoas().find(function (p) {
       return String(p.email || '').toLowerCase() === alvo && p.ativo !== false;
     });
+
+    // Sessao de outra pessoa neste navegador nao sobrevive: ela seria
+    // usada na proxima abertura, e voltariamos ao problema de cima.
+    const sessao = sessaoLer();
+    if (sessao && (!pessoa || sessao.pessoaId !== pessoa.id)) sessaoApagar();
+
     if (pessoa) { entrar(pessoa, 'access'); return; }
 
     // E-mail que passou no Access mas nao esta na lista NAO vira gestor por
@@ -223,6 +229,14 @@ async function abrirPorta() {
       aviso('info', esc(r.corpo.email),
         'Peça a quem é gestor para cadastrar esse e-mail em "A casa".'));
     return;
+  }
+
+  // 2. sem resposta do login protegido, vale a sessao ja aberta aqui
+  const sessao = sessaoLer();
+  if (sessao && sessao.pessoaId) {
+    const pessoa = acharPessoaPorId(sessao.pessoaId);
+    if (pessoa && pessoa.ativo !== false) { entrar(pessoa, 'senha'); return; }
+    sessaoApagar();
   }
 
   // 3. login daqui

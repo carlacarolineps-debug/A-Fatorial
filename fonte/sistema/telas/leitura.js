@@ -324,7 +324,7 @@ function leituraCarimbos(obs) {
    --------------------------------------------------------------------- */
 async function leituraPedir(metodo, corpo) {
   try {
-    const opcoes = { method: metodo, headers: { accept: 'application/json' }, cache: 'no-store' };
+    const opcoes = { method: metodo, headers: cabecalhos(), cache: 'no-store' };
     if (corpo) {
       opcoes.headers['content-type'] = 'application/json';
       opcoes.body = JSON.stringify(corpo);

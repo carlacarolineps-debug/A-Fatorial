@@ -142,7 +142,7 @@ async function ideiasCarregar() {
 
   let r;
   try {
-    r = await fetch('/leads', { headers: { accept: 'application/json' }, cache: 'no-store' });
+    r = await fetch('/leads', { headers: cabecalhos(), cache: 'no-store' });
   } catch (e) {
     // Sem servidor: arquivo aberto direto do computador, ou rede fora.
     ideiasParar('alerta', 'Não consegui falar com o servidor.',
@@ -221,7 +221,7 @@ async function ideiasGravar(id, mudanca) {
   try {
     const r = await fetch('/leads', {
       method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
+      headers: cabecalhos({ 'content-type': 'application/json' }),
       body: JSON.stringify(Object.assign({ id: id }, mudanca)),
     });
     let corpo = null;

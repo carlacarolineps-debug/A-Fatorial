@@ -429,7 +429,7 @@ function entregaArg(v) {
    --------------------------------------------------------------------- */
 async function entregaPedirLeads() {
   try {
-    const r = await fetch('/leads', { headers: { 'Accept': 'application/json' } });
+    const r = await fetch('/leads', { headers: cabecalhos() });
     let dados = null;
     try { dados = await r.json(); } catch (e) { dados = null; }
     // login vencido nao volta em JSON: o Access devolve a pagina de

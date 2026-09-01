@@ -1474,6 +1474,29 @@ function resumoIgual(a, b) {
 }
 
 /* ---------------------------------------------------------------------
+   Falar com o servidor.
+
+   Todo pedido leva o X-Requested-With. Sem ele, quando o cracha do login
+   protegido vence, o Cloudflare Access nao responde erro: ele responde a
+   PAGINA de entrada dele, em HTML, e o navegador segue o desvio calado.
+   Cada tela descobria isso tentando ler HTML como JSON e deduzindo do
+   estouro que o login tinha vencido. Com o cabecalho, o Access responde
+   401 direto, e a tela le o numero em vez de adivinhar.
+
+   O tratamento antigo continua em pe nas telas, como rede de baixo: um
+   desvio ainda pode chegar por outro caminho.
+   --------------------------------------------------------------------- */
+function cabecalhos(extras) {
+  return Object.assign(
+    { accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    extras || {});
+}
+
+// Fica verdadeiro quando o /eu responde que o Access autenticou alguem.
+// So o "Sair" usa isso, e por um motivo pratico explicado la embaixo.
+let ACCESS_NO_AR = false;
+
+/* ---------------------------------------------------------------------
    A sessao. Fica no navegador para nao pedir senha a cada aba, e sai no
    "Sair". Guarda so o id: papel e nome vem da lista, entao mudar o papel
    de alguem vale na proxima tela que ela abrir, e nao so no proximo login.
@@ -1577,10 +1600,19 @@ function alternarMenu() {
 }
 
 function sair() {
-  // Sair daqui fecha a sessao DESTE sistema. O Cloudflare Access continua
-  // com voce logado no endereco: encerrar aquilo e em /cdn-cgi/access/logout,
-  // e a porta diz isso para ninguem achar que saiu e nao ter saido.
   sessaoApagar();
+
+  // Com o login protegido no ar, apagar so a sessao daqui nao e sair: a
+  // porta perguntaria de novo quem entrou, o Access devolveria o mesmo
+  // e-mail e ela abriria o sistema outra vez, no mesmo segundo. Quem
+  // clicou em Sair veria a tela piscar e continuar dentro.
+  //
+  // O endereco abaixo e da propria Cloudflare, nao deste sistema: ela
+  // apaga o cracha do navegador e devolve a pessoa para a tela de
+  // entrada. Usar o endereco do site, e nao o do time, faz a saida ser
+  // imediata em vez de esperar o cracha vencer sozinho.
+  if (ACCESS_NO_AR) { location.href = '/cdn-cgi/access/logout'; return; }
+
   EU.id = null; EU.email = null; EU.nome = null; EU.papel = null; EU.origem = null;
   PORTA_ESCOLHIDA = null;
   porId('app').hidden = true;
@@ -2594,7 +2626,7 @@ async function ideiasCarregar() {
 
   let r;
   try {
-    r = await fetch('/leads', { headers: { accept: 'application/json' }, cache: 'no-store' });
+    r = await fetch('/leads', { headers: cabecalhos(), cache: 'no-store' });
   } catch (e) {
     // Sem servidor: arquivo aberto direto do computador, ou rede fora.
     ideiasParar('alerta', 'Não consegui falar com o servidor.',
@@ -2673,7 +2705,7 @@ async function ideiasGravar(id, mudanca) {
   try {
     const r = await fetch('/leads', {
       method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
+      headers: cabecalhos({ 'content-type': 'application/json' }),
       body: JSON.stringify(Object.assign({ id: id }, mudanca)),
     });
     let corpo = null;
@@ -3409,7 +3441,12 @@ function formLerLocal() {
 async function formPedir(caminho, opcoes) {
   let r;
   try {
-    r = await fetch(caminho, opcoes || { headers: { accept: 'application/json' }, cache: 'no-store' });
+    // Os cabecalhos entram sempre, tenha ou nao vindo opcoes: o pedido que
+    // publica uma versao nova traz as dele, e sem juntar os dois ele seria
+    // o unico a sair sem o aviso de que o login venceu.
+    const o = Object.assign({ cache: 'no-store' }, opcoes || {});
+    o.headers = cabecalhos(o.headers);
+    r = await fetch(caminho, o);
   } catch (e) {
     return { erro: 'rede' };
   }
@@ -6018,7 +6055,7 @@ function leituraCarimbos(obs) {
    --------------------------------------------------------------------- */
 async function leituraPedir(metodo, corpo) {
   try {
-    const opcoes = { method: metodo, headers: { accept: 'application/json' }, cache: 'no-store' };
+    const opcoes = { method: metodo, headers: cabecalhos(), cache: 'no-store' };
     if (corpo) {
       opcoes.headers['content-type'] = 'application/json';
       opcoes.body = JSON.stringify(corpo);
@@ -8328,7 +8365,7 @@ function entregaArg(v) {
    --------------------------------------------------------------------- */
 async function entregaPedirLeads() {
   try {
-    const r = await fetch('/leads', { headers: { 'Accept': 'application/json' } });
+    const r = await fetch('/leads', { headers: cabecalhos() });
     let dados = null;
     try { dados = await r.json(); } catch (e) { dados = null; }
     // login vencido nao volta em JSON: o Access devolve a pagina de
@@ -10393,9 +10430,10 @@ let PORTA_ESCOLHIDA = null;   // id da pessoa selecionada na lista
 
 async function lerEu() {
   try {
-    const r = await fetch('/eu', { headers: { accept: 'application/json' }, cache: 'no-store' });
+    const r = await fetch('/eu', { headers: cabecalhos(), cache: 'no-store' });
     let corpo = null;
     try { corpo = await r.json(); } catch (e) { corpo = null; }
+    ACCESS_NO_AR = (r.status === 200 && !!corpo && !!corpo.email);
     return { status: r.status, corpo: corpo };
   } catch (e) {
     return { status: 0, corpo: null };
@@ -10568,15 +10606,14 @@ function portaTelaLogin(avisoTopo) {
 async function abrirPorta() {
   pintarPorta('Entrando no <b>sistema</b>', 'Conferindo o seu acesso.', '');
 
-  // 1. sessao ja aberta neste navegador
-  const sessao = sessaoLer();
-  if (sessao && sessao.pessoaId) {
-    const pessoa = acharPessoaPorId(sessao.pessoaId);
-    if (pessoa && pessoa.ativo !== false) { entrar(pessoa, 'senha'); return; }
-    sessaoApagar();
-  }
-
-  // 2. o Cloudflare Access ja disse quem e
+  // 1. quem o login protegido autenticou, se ele estiver no ar
+  //
+  // Esta pergunta vem ANTES da sessao guardada, e a ordem importa. A
+  // sessao diz quem entrou neste navegador da ultima vez; o Access diz
+  // quem esta entrando agora. Num computador que duas pessoas usam, a
+  // sessao da primeira abriria o sistema no nome dela para a segunda,
+  // com o papel dela junto. Quem prova quem e na porta da rua e quem
+  // manda aqui dentro.
   const r = await lerEu();
 
   if (r.status === 200 && r.corpo && r.corpo.email) {
@@ -10584,6 +10621,12 @@ async function abrirPorta() {
     const pessoa = pessoas().find(function (p) {
       return String(p.email || '').toLowerCase() === alvo && p.ativo !== false;
     });
+
+    // Sessao de outra pessoa neste navegador nao sobrevive: ela seria
+    // usada na proxima abertura, e voltariamos ao problema de cima.
+    const sessao = sessaoLer();
+    if (sessao && (!pessoa || sessao.pessoaId !== pessoa.id)) sessaoApagar();
+
     if (pessoa) { entrar(pessoa, 'access'); return; }
 
     // E-mail que passou no Access mas nao esta na lista NAO vira gestor por
@@ -10595,6 +10638,14 @@ async function abrirPorta() {
       aviso('info', esc(r.corpo.email),
         'Peça a quem é gestor para cadastrar esse e-mail em "A casa".'));
     return;
+  }
+
+  // 2. sem resposta do login protegido, vale a sessao ja aberta aqui
+  const sessao = sessaoLer();
+  if (sessao && sessao.pessoaId) {
+    const pessoa = acharPessoaPorId(sessao.pessoaId);
+    if (pessoa && pessoa.ativo !== false) { entrar(pessoa, 'senha'); return; }
+    sessaoApagar();
   }
 
   // 3. login daqui

@@ -1,5 +1,7 @@
 // O login por pessoa, do primeiro dia ate tres pessoas com papeis
-// diferentes entrando cada uma no seu.
+// diferentes entrando cada uma no seu, e no fim as duas coisas que o
+// Cloudflare Access mudou: quem manda quando os dois discordam, e o que o
+// botao Sair precisa fazer para ser mesmo sair.
 import { chromium } from "playwright";
 const S = "/tmp/claude-0/-home-user-A-Fatorial/bb0baab9-a91a-5dff-a54e-027743df2588/scratchpad";
 const B = "http://localhost:8787";
@@ -155,6 +157,68 @@ t("zerar senha volta a pessoa para a primeira entrada",
   await pg.evaluate(() => !pessoas().find((p) => p.nome === "Beatriz").senha));
 t("e a senha do gestor continua intacta",
   await pg.evaluate(() => !!pessoas().find((p) => p.nome === "Carla Caroline").senha));
+
+// ---------- 8. o login protegido manda mais que a sessao do navegador ----------
+//
+// Ate aqui o /eu respondeu 401, porque nao existe cracha nenhum neste
+// navegador de teste. Daqui para baixo o /eu e trocado por uma resposta de
+// mentira, para provar o que a PORTA decide quando o Access responde, que e
+// o que mudou. Trocar a resposta e o suficiente: quem confere assinatura de
+// verdade e o servidor, e isso ja tem prova propria nas rotas.
+let craxaDe = "ninguem@outrolugar.com";
+await pg.route("**/eu", (rota) => rota.fulfill({
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({ ok: true, email: craxaDe, nome: "Quem for" }),
+}));
+
+// 8a. E-mail que passou no Access mas nao esta cadastrado aqui dentro nao
+// entra, e nao vira gestor por descuido. E a sessao guardada de outra
+// pessoa nao serve de atalho para ele.
+await pg.evaluate(() => { sessaoGuardar(pessoas().find((p) => p.nome === "Carla Caroline").id); });
+await pg.reload({ waitUntil: "networkidle" });
+await esperar(800);
+t("e-mail de fora passa no login protegido mas nao entra no sistema",
+  await pg.evaluate(() => EU.papel === null), await pg.evaluate(() => EU.papel));
+t("e a porta diz o que fazer, em vez de so barrar",
+  /não foi liberado/.test(await pg.textContent("#porta")));
+t("a sessao de outra pessoa nao vira atalho para ele",
+  await pg.evaluate(() => localStorage.getItem("iqv_sessao") === null));
+
+// 8b. A sessao guardada e da Carla, gestora. O cracha e da Beatriz,
+// colaboradora. Num computador que duas pessoas usam, a ordem antiga abria
+// o sistema no nome da Carla, com o papel dela, para quem tinha entrado
+// como Beatriz.
+craxaDe = "bia@ideiaquevende.com.br";
+await pg.evaluate(() => { sessaoGuardar(pessoas().find((p) => p.nome === "Carla Caroline").id); });
+await pg.reload({ waitUntil: "networkidle" });
+await esperar(800);
+
+t("com o login protegido no ar, quem entra e quem ele autenticou",
+  await pg.evaluate(() => EU.nome === "Beatriz"), await pg.evaluate(() => EU.nome));
+t("e nao quem tinha sessao guardada neste navegador",
+  await pg.evaluate(() => EU.papel === "colaborador"), await pg.evaluate(() => EU.papel));
+t("a sessao da outra pessoa e apagada, e nao fica para a proxima abertura",
+  await pg.evaluate(() => localStorage.getItem("iqv_sessao") === null));
+t("e a origem fica registrada como o login protegido",
+  await pg.evaluate(() => EU.origem === "access"));
+
+// ---------- 9. o Sair encerra tambem o login protegido ----------
+//
+// Sem isto o botao nao faz nada visivel: a porta perguntaria de novo, o
+// Access devolveria o mesmo e-mail e o sistema abriria outra vez.
+let saiuPor = null;
+await pg.route("**/cdn-cgi/access/logout", (rota) => {
+  saiuPor = rota.request().url();
+  return rota.fulfill({ status: 200, contentType: "text/html", body: "<p>saiu</p>" });
+});
+await pg.evaluate(() => sair());
+await esperar(900);
+
+t("Sair encerra o login protegido, e nao so a sessao daqui",
+  saiuPor !== null && /\/cdn-cgi\/access\/logout$/.test(String(saiuPor)), String(saiuPor));
+t("e usa o endereco do proprio site, para a saida ser imediata",
+  saiuPor !== null && String(saiuPor).indexOf(B) === 0, String(saiuPor));
 
 t("nenhum erro de JavaScript em todo o caminho", erros.length === 0, erros.slice(0, 3).join(" | "));
 console.log(`\n${ok} passaram, ${bad} falharam`);
