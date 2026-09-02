@@ -95,11 +95,10 @@ As três de navegador pedem um `npx wrangler dev` de pé na porta 8787.
    porta da casa. Enquanto existir, quem abre o sistema vê duas telas de
    login seguidas, e os pedidos que o sistema faz por dentro voltam como a
    página de entrada do Access em vez de dados.
-2. **Criar a primeira gestora**, abrindo `/sistema/` (seção 5c). Enquanto
-   a tabela `pessoas` estiver vazia, essa tela responde para qualquer um
-   que chegue: quem chegar primeiro vira gestora.
-3. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
-4. Se a automação do Typeform ainda existir na conta de lá, apagar. Ela
+2. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site com o
+   mesmo banco. Nada fica exposto por ele hoje, porque a porta é a mesma;
+   o que incomoda é ter dois endereços para a mesma casa.
+3. Se a automação do Typeform ainda existir na conta de lá, apagar. Ela
    nunca chegou a ser ligada (ficou em rascunho, com o gatilho desligado),
    e deste lado não existe mais rota para ela bater.
 
@@ -349,14 +348,25 @@ por mês.
 Custo prático: entrar leva uns 100 ms a mais num computador, e talvez meio
 segundo num telefone antigo. O botão avisa enquanto calcula.
 
-### 5c. O primeiro acesso
+### 5c. O primeiro acesso, e por que ele já foi feito
 
-Abra `ideiaquevende.com.br/sistema/`. Com a tabela vazia, a porta pede
-para criar a primeira gestora: nome, e-mail e senha.
+Com a tabela `pessoas` vazia, a porta pede para criar a primeira gestora,
+e **essa tela responde para quem chegar primeiro**. Ela não tem como
+saber quem é a dona da casa: é o problema clássico do primeiro
+administrador, e a trava é só "a tabela está vazia".
 
-**Essa tela só aparece uma vez.** Depois da primeira pessoa existir, ela
-responde 409 para sempre, senão qualquer um se cadastraria como gestor no
-dia seguinte.
+Entre publicar o código e a Carla escolher a senha dela existiria uma
+janela de minutos em que qualquer um varrendo o domínio viraria gestor,
+leria as aplicações inteiras e a trancaria para fora com um 409 sem
+explicação. O `.workers.dev`, que ainda serve o mesmo site, alargava essa
+janela.
+
+**Por isso a linha da Carla foi criada direto no banco, em 02/09, ANTES
+de o código subir.** A janela nunca chegou a abrir. Depois da primeira
+pessoa existir, a rota responde 409 para sempre.
+
+Reabrir isso exige esvaziar a tabela `pessoas` na mão: pelo sistema não
+dá, porque a última gestora não consegue se remover nem se desligar.
 
 Dali em diante, quem cadastra o resto da equipe é a tela "A casa": nome,
 e-mail e papel. O sistema sorteia a primeira senha e mostra uma vez só,

@@ -546,6 +546,19 @@ async function sair(request, env) {
    gestor no dia seguinte.
    -------------------------------------------------------------------- */
 async function primeiroAcesso(request, env) {
+  // A JANELA DESTA ROTA E REAL, e foi fechada por fora. Enquanto a tabela
+  // esta vazia ela responde para QUEM CHEGAR PRIMEIRO, e nao tem como ser
+  // diferente: e o problema do primeiro administrador, e a unica coisa que
+  // ela pode conferir e se ja existe gente.
+  //
+  // Entre publicar o codigo e a dona da casa escolher a senha existiria
+  // uma janela de minutos em que qualquer um varrendo o dominio viraria
+  // gestor, leria as aplicacoes inteiras e a trancaria para fora com o 409
+  // logo abaixo. Por isso a primeira linha foi criada direto no banco
+  // antes de o codigo subir: a janela nunca chegou a abrir.
+  //
+  // Reabrir exige esvaziar a tabela na mao. Pelo sistema nao da: a ultima
+  // gestora nao consegue se remover nem se desligar.
   const conta = await env.DB.prepare("select count(*) as n from pessoas").first();
   if ((conta?.n || 0) > 0) {
     return json({ ok: false, erro: "a casa já tem gente. Peça a quem é gestor para cadastrar você." }, 409);
