@@ -140,8 +140,20 @@ body[data-mesa="papel"]{
 }
 
 /* ---------------------------------------------------------- moldura */
-.app{display:grid;grid-template-columns:var(--lateral) 1fr;min-height:100dvh}
+.app{display:grid;grid-template-columns:var(--lateral) 1fr;min-height:100dvh;
+  position:relative;isolation:isolate}
 .app.sozinho{grid-template-columns:1fr}
+/* O chao da mesa, com o mesmo calor da porta. Um halo laranja no alto a
+   esquerda e outro, mais fraco, no pe a direita, fixos: rolar a pagina
+   nao os arrasta. Preto chapado em tela grande vira faixa e parece
+   apagado; isto e o que faz a porta e o miolo serem a mesma casa. So no
+   preto: sobre papel o halo viraria mancha. */
+.app::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background:radial-gradient(58% 48% at 16% -8%,rgba(255,131,9,.13),transparent 62%),
+             radial-gradient(42% 40% at 102% 104%,rgba(255,131,9,.07),transparent 62%);
+}
+body[data-mesa="papel"] .app::before{content:none}
 /* min-width:0 na coluna do conteudo. Sem isto o minimo automatico do grid
    deixa uma linha larga (as oito entregas, uma tabela comprida) esticar a
    coluna inteira: em vez de rolar dentro do .rolo-h, ela estourava a
@@ -149,7 +161,8 @@ body[data-mesa="papel"]{
 .app>div{min-width:0}
 
 .lateral{
-  background:var(--preto); border-right:1px solid var(--linha);
+  background:linear-gradient(180deg,rgba(255,131,9,.045),transparent 22%),var(--preto);
+  border-right:1px solid var(--linha);
   display:flex; flex-direction:column; position:sticky; top:0; height:100dvh;
   /* a lateral nunca inverte, entao ela fixa os proprios tokens */
   --tx:var(--tinta); --tx-2:var(--tinta-2); --tx-3:var(--tinta-3); --tx-4:var(--tinta-4);
@@ -188,6 +201,13 @@ body[data-mesa="papel"]{
    a maior mancha de cor da tela e so dizia "voce esta aqui". */
 .menu-item.on{color:var(--branco);font-weight:700;background:none;
   box-shadow:inset 2px 0 0 var(--o)}
+/* O item aberto ganha o mesmo brilho do cartao da porta, saindo do fio
+   laranja e morrendo antes do meio: diz "aqui" sem pintar a linha. */
+.menu-item.on::after{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:62%;
+  pointer-events:none; z-index:1;
+  background:linear-gradient(90deg,rgba(255,131,9,.13),transparent);
+}
 .menu-item.on .ic{opacity:1;color:var(--o)}
 /* Contagem informativa e numero cinza. O crachao laranja acende so com
    atraso de verdade: seis crachas acesos ao mesmo tempo e o mesmo que
@@ -213,7 +233,8 @@ body[data-mesa="papel"]{
 }
 .lateral-pe .iniciais{
   width:32px; height:32px; flex:none; border-radius:var(--r-sm); display:grid;
-  place-items:center; background:var(--preto-3); border:1px solid var(--linha);
+  place-items:center; border:1px solid rgba(255,131,9,.35);
+  background:linear-gradient(160deg,rgba(255,131,9,.18),var(--preto-3) 70%);
   font-family:var(--display); font-weight:800; font-size:12px; color:var(--tinta-2);
 }
 .lateral-pe b{display:block;font-size:13px;font-weight:700;color:var(--branco);line-height:1.3}
@@ -528,14 +549,17 @@ kbd{
    Nada disso pesa: sao gradientes, sombra e duas animacoes de opacidade.
    Nenhuma imagem, nenhuma biblioteca, nenhuma requisicao. */
 .porta{
-  min-height:100dvh; display:grid; padding:clamp(20px,4vw,56px);
-  background:var(--preto); position:relative; overflow:hidden;
-  grid-template-columns:minmax(0,1fr) minmax(360px,440px);
-  align-items:center; justify-content:center; gap:clamp(28px,6vw,90px);
+  min-height:100dvh; display:grid; background:var(--preto); position:relative;
+  overflow:hidden; align-items:center;
+  /* A tela inteira, e nao um miolo centrado. A frase mora no terco da
+     esquerda e o cartao no da direita, e o que cresce com a tela e a
+     margem: em monitor grande as duas metades continuam no lugar em vez
+     de virarem um bloquinho no meio de um mar preto. */
+  padding:clamp(20px,5vh,64px) clamp(20px,7vw,150px);
+  grid-template-columns:minmax(0,1fr) clamp(340px,31vw,470px);
+  gap:clamp(32px,8vw,170px);
 }
-/* A frase nao encosta no cartao nem some na largura toda: ela para onde
-   uma manchete para, e o resto e ar. */
-.porta-capa{max-width:620px;justify-self:end}
+.porta-capa{max-width:none;justify-self:start}
 
 /* O brilho de cima e o de baixo, respirando devagar. O de cima e o mesmo
    halo da capa da landing; o de baixo existe para o cartao nao flutuar
@@ -545,8 +569,8 @@ kbd{
   border-radius:50%; filter:blur(90px);
 }
 .porta::before{
-  top:-34vh; left:46%; width:130vh; height:86vh; transform:translateX(-50%);
-  background:radial-gradient(circle,rgba(255,131,9,.42),rgba(255,131,9,.10) 45%,transparent 66%);
+  top:-30vh; left:18%; width:120vh; height:110vh; transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(255,131,9,.34),rgba(255,131,9,.08) 46%,transparent 66%);
   animation:portaPulso 9s var(--ease) infinite alternate;
 }
 /* Este fica ATRAS do cartao, de proposito. Vidro sobre preto chapado nao
@@ -589,8 +613,9 @@ kbd{
 .porta-marca b{font-family:var(--display);font-weight:800;font-size:var(--t-rotulo);
   letter-spacing:.2em;text-transform:uppercase;color:var(--branco)}
 .porta-frase{
-  font-family:var(--display); font-weight:800; line-height:1.02;
-  font-size:clamp(30px,3.6vw,52px); letter-spacing:-.04em; color:var(--branco);
+  font-family:var(--display); font-weight:800; line-height:1.0;
+  font-size:clamp(30px,4.8vw,84px); letter-spacing:-.045em; color:var(--branco);
+  text-wrap:balance;
 }
 .porta-frase span{color:var(--o)}
 
@@ -660,8 +685,24 @@ kbd{
 
 /* ---- os textos dentro do cartao ---- */
 .porta h1{
-  font-family:var(--display); font-weight:800; font-size:clamp(24px,2.4vw,32px);
+  font-family:var(--display); font-weight:800; font-size:clamp(22px,2.2vw,32px);
   letter-spacing:-.04em; color:var(--branco); text-align:left; line-height:1.06;
+}
+
+/* Tela baixa: janela de notebook com a barra do navegador comendo a
+   altura. O cartao nao pode ocupar 80% dela; aqui tudo dentro dele
+   aperta um degrau, e a frase do lado tambem. */
+@media (max-height:660px) and (min-width:901px){
+  .porta{padding-top:16px;padding-bottom:16px}
+  .porta-caixa{padding:20px 24px 22px}
+  .porta h1{font-size:22px}
+  .porta > .porta-caixa > p{margin:4px 0 12px}
+  .porta .rotulo{margin-bottom:4px}
+  .porta .campo-com-icone .campo{padding-top:8px;padding-bottom:8px}
+  .porta .bt-marca{margin-top:12px;padding-top:10px;padding-bottom:10px}
+  .porta .dica{margin-top:10px !important}
+  .porta-frase{font-size:clamp(28px,4vw,56px)}
+  .porta-capa{gap:12px}
 }
 .porta h1 b{color:var(--o);font-weight:inherit}
 .porta > .porta-caixa > p{text-align:left;color:var(--tinta-3);font-size:var(--t-apoio);
