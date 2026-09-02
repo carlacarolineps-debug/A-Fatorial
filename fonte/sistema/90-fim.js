@@ -50,6 +50,71 @@ function pintarPorta(titulo, texto_, corpo) {
 const erroDaPorta = (msg, dica) =>
   escrever('portaErro', aviso('alerta', msg, dica || 'Corrija e tente de novo.'));
 
+/* ---------------------------------------------------------------------
+   Os campos da porta.
+
+   Icone dentro do campo e o olho na senha. O olho existe porque digitar
+   senha as cegas erra, e quem errou tres vezes comeca a achar que a senha
+   esta errada quando o que estava errado era o Caps Lock. Ele nasce
+   fechado: mostrar por padrao seria mostrar a senha para quem passa atras.
+   --------------------------------------------------------------------- */
+const ICONES_DA_PORTA = {
+  email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/>' +
+    '<path d="m3 6.5 9 6.5 9-6.5"/></svg>',
+  senha: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2"/>' +
+    '<path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>',
+  nome: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/>' +
+    '<path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
+};
+
+const OLHO_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/>' +
+    '<circle cx="12" cy="12" r="2.6"/>' +
+    '<path class="risco" d="M4 20 20 4"/>' +
+  '</svg>';
+
+/* Um campo. `tipo` e 'email', 'senha' ou 'nome', e so o de senha ganha
+   olho. O rotulo vem sempre: campo sem rotulo obriga a pessoa a adivinhar
+   pelo texto de dentro, que some quando ela comeca a escrever. */
+function campoDaPorta(id, tipo, rotulo, extras) {
+  const e = extras || {};
+  const ehSenha = tipo === 'senha';
+  const auto = e.auto || (tipo === 'email' ? 'username' : ehSenha ? 'current-password' : 'name');
+  return '<label class="rotulo" for="' + id + '"' +
+      (e.espaco ? ' style="margin-top:14px"' : '') + '>' + esc(rotulo) + '</label>' +
+    '<span class="campo-com-icone' + (ehSenha ? ' tem-olho' : '') + '">' +
+      '<input class="campo" id="' + id + '" type="' + (ehSenha ? 'password' : tipo === 'email' ? 'email' : 'text') + '"' +
+        ' autocomplete="' + auto + '"' +
+        (e.dica ? ' placeholder="' + esc(e.dica) + '"' : '') +
+        (e.aoEnter ? ' onkeydown="if(event.key===\'Enter\'){' + e.aoEnter + '}"' : '') + '>' +
+      '<span class="ic-campo">' + ICONES_DA_PORTA[tipo] + '</span>' +
+      (ehSenha
+        ? '<button type="button" class="olho" aria-pressed="false" aria-label="Mostrar a senha" ' +
+          'title="Mostrar a senha" onclick="alternarOlho(this)">' + OLHO_SVG + '</button>'
+        : '') +
+    '</span>';
+}
+
+function alternarOlho(botao) {
+  const campo = botao.parentNode.querySelector('.campo');
+  if (!campo) return;
+  const mostrando = campo.type === 'text';
+  campo.type = mostrando ? 'password' : 'text';
+  botao.setAttribute('aria-pressed', mostrando ? 'false' : 'true');
+  const rotulo = mostrando ? 'Mostrar a senha' : 'Esconder a senha';
+  botao.setAttribute('aria-label', rotulo);
+  botao.title = rotulo;
+  // O cursor volta para o campo, no fim do que ja foi digitado: quem
+  // clicou no olho quer conferir e continuar escrevendo, nao recomecar.
+  campo.focus();
+  const fim = campo.value.length;
+  try { campo.setSelectionRange(fim, fim); } catch (e) {}
+}
+
 // Embaralhar a senha leva uns 100 ms num computador e pode passar de meio
 // segundo num telefone antigo. Sem trocar o texto do botao, esse tempo
 // parece clique que nao pegou, e a pessoa clica de novo.
@@ -132,16 +197,13 @@ function portaTelaEntrar(avisoTopo) {
     'Entre com o seu e-mail e a sua senha.',
     (avisoTopo || '') +
     '<div id="portaErro"></div>' +
-    '<label class="rotulo" for="portaEmail">E-mail</label>' +
-    '<input class="campo" id="portaEmail" type="email" autocomplete="username" ' +
-      'placeholder="o e-mail que você usa aqui" ' +
-      'onkeydown="if(event.key===\'Enter\')porId(\'portaSenha\').focus()">' +
-    '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
-    '<input class="campo" id="portaSenha" type="password" autocomplete="current-password" ' +
-      'onkeydown="if(event.key===\'Enter\')portaEntrar()">' +
+    campoDaPorta('portaEmail', 'email', 'E-mail',
+      { dica: 'o e-mail que você usa aqui', aoEnter: "porId('portaSenha').focus()" }) +
+    campoDaPorta('portaSenha', 'senha', 'Senha',
+      { espaco: true, aoEnter: 'portaEntrar()' }) +
     '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaEntrar()">Entrar</button>' +
-    '<p class="dica" style="margin-top:16px">Esqueceu a senha? Quem é gestor define uma nova em "A casa".</p>');
+    '<p class="dica" style="margin-top:16px">Esqueceu a senha? Quem é gestor define uma nova para você.</p>');
 
   const campo = porId('portaEmail');
   if (campo) campo.focus();
@@ -187,15 +249,12 @@ function portaTelaPrimeiro(avisoTopo) {
     'Crie o seu acesso de gestor. Depois você cadastra o resto da equipe por dentro.',
     (avisoTopo || '') +
     '<div id="portaErro"></div>' +
-    '<label class="rotulo" for="portaNome">Seu nome</label>' +
-    '<input class="campo" id="portaNome" autocomplete="name" placeholder="Como você aparece para a equipe">' +
-    '<label class="rotulo" for="portaEmail" style="margin-top:14px">Seu e-mail</label>' +
-    '<input class="campo" id="portaEmail" type="email" autocomplete="username" placeholder="é por ele que você vai entrar">' +
-    '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
-    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
-    '<label class="rotulo" for="portaSenha2" style="margin-top:14px">Repita a senha</label>' +
-    '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password" ' +
-      'onkeydown="if(event.key===\'Enter\')portaCriarPrimeiro()">' +
+    campoDaPorta('portaNome', 'nome', 'Seu nome', { dica: 'Como você aparece para a equipe' }) +
+    campoDaPorta('portaEmail', 'email', 'Seu e-mail', { espaco: true, dica: 'é por ele que você vai entrar' }) +
+    campoDaPorta('portaSenha', 'senha', 'Senha',
+      { espaco: true, auto: 'new-password', dica: 'pelo menos ' + SENHA_MINIMA + ' caracteres' }) +
+    campoDaPorta('portaSenha2', 'senha', 'Repita a senha',
+      { espaco: true, auto: 'new-password', aoEnter: 'portaCriarPrimeiro()' }) +
     '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaCriarPrimeiro()">Criar meu acesso</button>' +
     '<p class="dica" style="margin-top:16px">A senha fica guardada no servidor, embaralhada. Nem eu consigo ler ela de volta.</p>');
@@ -243,13 +302,11 @@ function portaTelaTrocar(pessoa) {
     'A senha que você recebeu serve uma vez só. A partir de agora é a sua.',
     aviso('info', esc(pessoa.email), 'Ninguém mais vai saber a senha que você escolher agora.') +
     '<div id="portaErro"></div>' +
-    '<label class="rotulo" for="portaAtual">A senha que você recebeu</label>' +
-    '<input class="campo" id="portaAtual" type="password" autocomplete="current-password">' +
-    '<label class="rotulo" for="portaNova" style="margin-top:14px">Sua senha nova</label>' +
-    '<input class="campo" id="portaNova" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
-    '<label class="rotulo" for="portaNova2" style="margin-top:14px">Repita a senha nova</label>' +
-    '<input class="campo" id="portaNova2" type="password" autocomplete="new-password" ' +
-      'onkeydown="if(event.key===\'Enter\')portaTrocar()">' +
+    campoDaPorta('portaAtual', 'senha', 'A senha que você recebeu') +
+    campoDaPorta('portaNova', 'senha', 'Sua senha nova',
+      { espaco: true, auto: 'new-password', dica: 'pelo menos ' + SENHA_MINIMA + ' caracteres' }) +
+    campoDaPorta('portaNova2', 'senha', 'Repita a senha nova',
+      { espaco: true, auto: 'new-password', aoEnter: 'portaTrocar()' }) +
     '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaTrocar()">Guardar e entrar</button>');
 
@@ -293,5 +350,33 @@ async function abrirPorta() {
   if (r.corpo.eu.precisa_trocar) { portaTelaTrocar(r.corpo.eu); return; }
   entrar(r.corpo.eu);
 }
+
+/* ---------------------------------------------------------------------
+   O cartao acompanha o mouse.
+
+   Inclinacao de poucos graus, calculada da posicao do ponteiro dentro do
+   proprio cartao. E o unico movimento da tela que responde a pessoa, e e
+   o que faz o vidro parecer vidro em vez de retangulo escuro.
+
+   No toque nao existe: o CSS anula a transformacao abaixo de 900px, e
+   quem pediu menos movimento no sistema operacional tambem nao ganha.
+   --------------------------------------------------------------------- */
+(function inclinarCartao() {
+  const caixa = porId('porta-caixa');
+  const porta = porId('porta');
+  if (!caixa || !porta || !window.matchMedia) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(hover: hover)').matches) return;
+
+  porta.addEventListener('mousemove', function (e) {
+    const r = caixa.getBoundingClientRect();
+    const x = (e.clientX - r.left - r.width / 2) / r.width;
+    const y = (e.clientY - r.top - r.height / 2) / r.height;
+    caixa.style.transform =
+      'perspective(1400px) rotateX(' + (-y * 7).toFixed(2) + 'deg) ' +
+      'rotateY(' + (x * 7).toFixed(2) + 'deg)';
+  });
+  porta.addEventListener('mouseleave', function () { caixa.style.transform = ''; });
+})();
 
 abrirPorta();

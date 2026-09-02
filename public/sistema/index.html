@@ -533,23 +533,70 @@ kbd{
 }
 
 /* ----------------------------------------------------------- a porta
-   Capa a esquerda, formulario no papel a direita: o mesmo gesto do
-   .split da capa, que ja poe o claro ao lado do escuro. E a pessoa
-   aprende a gramatica do sistema antes de clicar em qualquer coisa. */
+   Tudo no preto da marca, e o que se preenche num cartao de vidro
+   flutuando em cima. A capa da esquerda continua sendo a mesma frase da
+   landing, e agora ela e o FUNDO do cartao em vez de um bloco ao lado: a
+   pessoa ve a casa inteira de uma vez, e nao duas metades coladas.
+
+   O brilho, o feixe correndo na borda e o vidro sao do desenho que a
+   Carla mandou. O laranja, as fontes e o canto seco de 10px sao daqui:
+   o desenho de la e roxo e arredondado, e trocar isso seria trocar de
+   empresa entre a landing e o login.
+
+   Nada disso pesa: sao gradientes, sombra e duas animacoes de opacidade.
+   Nenhuma imagem, nenhuma biblioteca, nenhuma requisicao. */
 .porta{
-  min-height:100dvh; display:grid; padding:0; background:var(--preto);
-  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); place-items:stretch;
+  min-height:100dvh; display:grid; padding:clamp(20px,4vw,56px);
+  background:var(--preto); position:relative; overflow:hidden;
+  grid-template-columns:minmax(0,1fr) minmax(360px,440px);
+  align-items:center; justify-content:center; gap:clamp(28px,6vw,90px);
 }
+/* A frase nao encosta no cartao nem some na largura toda: ela para onde
+   uma manchete para, e o resto e ar. */
+.porta-capa{max-width:620px;justify-self:end}
+
+/* O brilho de cima e o de baixo, respirando devagar. O de cima e o mesmo
+   halo da capa da landing; o de baixo existe para o cartao nao flutuar
+   sobre preto chapado no rodape. */
+.porta::before,.porta::after{
+  content:""; position:absolute; pointer-events:none; z-index:0;
+  border-radius:50%; filter:blur(90px);
+}
+.porta::before{
+  top:-34vh; left:46%; width:130vh; height:86vh; transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(255,131,9,.42),rgba(255,131,9,.10) 45%,transparent 66%);
+  animation:portaPulso 9s var(--ease) infinite alternate;
+}
+/* Este fica ATRAS do cartao, de proposito. Vidro sobre preto chapado nao
+   parece vidro: parece retangulo cinza. E o brilho passando por tras que
+   faz o desfoque aparecer. */
+.porta::after{
+  top:12vh; right:-16vh; left:auto; width:86vh; height:86vh;
+  background:radial-gradient(circle,rgba(255,131,9,.30),rgba(255,131,9,.07) 48%,transparent 68%);
+  animation:portaPulso2 7s var(--ease) 1.4s infinite alternate;
+}
+@keyframes portaPulso{
+  from{opacity:.6;transform:translateX(-50%) scale(.96)}
+  to{opacity:1;transform:translateX(-50%) scale(1.06)}
+}
+@keyframes portaPulso2{ from{opacity:.45;transform:scale(.96)} to{opacity:.9;transform:scale(1.08)} }
+
+/* Grao. Preto liso em tela grande vira faixa; o ruido mata a faixa e nao
+   custa requisicao nenhuma, porque e um SVG escrito aqui dentro. */
+.porta .grao{
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  opacity:.035; mix-blend-mode:soft-light;
+  background-size:220px 220px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E");
+}
+
 .porta-capa{
-  background:var(--preto); color:var(--branco); position:relative; overflow:hidden;
-  display:flex; flex-direction:column; justify-content:space-between;
-  padding:clamp(28px,4vw,56px);
+  position:relative; z-index:2; background:none; color:var(--branco);
+  display:flex; flex-direction:column; justify-content:center;
+  gap:clamp(20px,4vh,40px); padding:0 clamp(0px,3vw,40px); overflow:visible;
+  min-height:0;
 }
-.porta-capa::before{
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(54% 58% at 86% 18%,rgba(255,131,9,.20),transparent 62%),
-             radial-gradient(44% 46% at 6% 94%,rgba(255,131,9,.10),transparent 64%);
-}
+.porta-capa::before{content:none}
 .porta-capa>*{position:relative;z-index:2}
 .porta-capa .pe{
   font-size:var(--t-rotulo); font-weight:600; letter-spacing:.2em;
@@ -559,36 +606,151 @@ kbd{
 .porta-marca svg{width:26px;height:22px;fill:var(--o);stroke:none}
 .porta-marca b{font-family:var(--display);font-weight:800;font-size:var(--t-rotulo);
   letter-spacing:.2em;text-transform:uppercase;color:var(--branco)}
-/* A mesma frase da capa, no mesmo peso. Quem clicou no botao da landing
-   chega aqui e reconhece a casa antes de ler qualquer campo. */
 .porta-frase{
   font-family:var(--display); font-weight:800; line-height:1.02;
-  font-size:clamp(30px,3.4vw,48px); letter-spacing:-.04em; color:var(--branco);
+  font-size:clamp(30px,3.6vw,52px); letter-spacing:-.04em; color:var(--branco);
 }
 .porta-frase span{color:var(--o)}
-@media (max-width:820px){
-  .porta{grid-template-columns:1fr}
-  .porta-capa{padding:var(--e4) var(--e3);gap:var(--e3)}
-  .porta-frase,.porta-capa .pe{display:none}
-}
+
+/* ---- o cartao de vidro ---- */
 .porta-caixa{
-  background:var(--papel); color:var(--ink); display:grid; align-content:center;
-  padding:clamp(28px,4vw,56px); max-width:none; width:auto;
-  --fundo-2:var(--papel-2); --fundo-3:#fff;
-  --tx:var(--ink); --tx-2:var(--ink-2); --tx-3:var(--ink-3); --tx-4:var(--ink-4);
-  --fio:var(--linha-l); --fio-2:var(--linha-l2); --o-tx:var(--o-ink); --claro:var(--ink);
-  --sinal-ok:var(--ok-p); --sinal-atencao:var(--atencao-p);
-  --sinal-alerta:var(--alerta-p); --sinal-info:var(--info-p);
+  position:relative; z-index:2; display:grid; align-content:center;
+  padding:clamp(28px,3vw,40px);
+  border-radius:var(--r-lg); border:1px solid rgba(255,255,255,.09);
+  border-top-color:rgba(255,180,110,.20);
+  background:linear-gradient(160deg,rgba(255,131,9,.055),rgba(8,8,10,.60) 42%),
+             rgba(10,10,13,.52);
+  -webkit-backdrop-filter:blur(26px) saturate(1.35);
+  backdrop-filter:blur(26px) saturate(1.35);
+  box-shadow:0 1px 0 rgba(255,255,255,.07) inset,
+             0 40px 100px -34px rgba(0,0,0,.95),
+             0 0 60px -18px rgba(255,131,9,.28);
+  transform-style:preserve-3d;
+  transition:transform .35s var(--ease);
 }
-.porta-caixa>*{width:100%;max-width:380px;margin-inline:auto}
+/* Quadriculado de fundo, quase invisivel. Ele existe para o vidro ter
+   textura propria e nao parecer um retangulo cinza. */
+.porta-caixa::before{
+  content:""; position:absolute; inset:0; border-radius:inherit;
+  pointer-events:none; opacity:.028;
+  background-image:linear-gradient(135deg,#fff .5px,transparent .5px),
+                   linear-gradient(45deg,#fff .5px,transparent .5px);
+  background-size:32px 32px;
+}
+.porta-caixa>*{width:100%;max-width:none;margin-inline:auto;position:relative;z-index:2}
+
+/* ---- o feixe que corre a borda ----
+   Duas faixas finas dando a volta, uma em cada sentido, dentro de um
+   recorte com o mesmo raio do cartao. E o que o desenho da Carla fazia
+   com quatro elementos animados; aqui sao dois, e o resultado na tela e
+   o mesmo. */
+.porta-feixe{
+  position:absolute; inset:-1px; border-radius:inherit;
+  overflow:hidden; pointer-events:none; z-index:1;
+}
+.porta-feixe i{
+  position:absolute; display:block; filter:blur(1px); opacity:.85;
+}
+.porta-feixe i:nth-child(1){
+  top:0; left:-45%; height:2px; width:45%;
+  background:linear-gradient(90deg,transparent,#fff,var(--o),transparent);
+  animation:feixeH 3.4s var(--ease) infinite;
+}
+.porta-feixe i:nth-child(2){
+  bottom:0; right:-45%; height:2px; width:45%;
+  background:linear-gradient(90deg,transparent,var(--o),#fff,transparent);
+  animation:feixeH2 3.4s var(--ease) 1.7s infinite;
+}
+.porta-feixe i:nth-child(3){
+  right:0; top:-45%; width:2px; height:45%;
+  background:linear-gradient(180deg,transparent,#fff,var(--o),transparent);
+  animation:feixeV 3.4s var(--ease) .85s infinite;
+}
+.porta-feixe i:nth-child(4){
+  left:0; bottom:-45%; width:2px; height:45%;
+  background:linear-gradient(180deg,transparent,var(--o),#fff,transparent);
+  animation:feixeV2 3.4s var(--ease) 2.55s infinite;
+}
+@keyframes feixeH { 0%{left:-45%} 55%,100%{left:100%} }
+@keyframes feixeH2{ 0%{right:-45%} 55%,100%{right:100%} }
+@keyframes feixeV { 0%{top:-45%} 55%,100%{top:100%} }
+@keyframes feixeV2{ 0%{bottom:-45%} 55%,100%{bottom:100%} }
+
+/* ---- os textos dentro do cartao ---- */
 .porta h1{
-  font-family:var(--display); font-weight:800; font-size:clamp(26px,2.6vw,34px);
-  letter-spacing:-.04em; color:var(--ink); text-align:left; line-height:1.05;
+  font-family:var(--display); font-weight:800; font-size:clamp(24px,2.4vw,32px);
+  letter-spacing:-.04em; color:var(--branco); text-align:left; line-height:1.06;
 }
-.porta h1 b{color:var(--o-ink);font-weight:inherit}
-.porta > .porta-caixa > p{text-align:left;color:var(--ink-3);font-size:var(--t-apoio);
-  margin:var(--e1) 0 var(--e4)}
+.porta h1 b{color:var(--o);font-weight:inherit}
+.porta > .porta-caixa > p{text-align:left;color:var(--tinta-3);font-size:var(--t-apoio);
+  margin:var(--e1) 0 var(--e3)}
+.porta .rotulo{color:var(--tinta-3)}
+.porta .dica{color:var(--tinta-4)}
 .porta .bt-marca{width:100%;justify-content:center;margin-top:var(--e3)}
+
+/* ---- campo com icone, e o olho da senha ---- */
+.campo-com-icone{position:relative;display:block}
+.campo-com-icone .ic-campo{
+  position:absolute; left:13px; top:50%; transform:translateY(-50%);
+  width:16px; height:16px; color:var(--tinta-4); pointer-events:none;
+  transition:color var(--t-controle) var(--ease);
+}
+.campo-com-icone .campo{
+  padding-left:38px; background:rgba(255,255,255,.045);
+  border-color:rgba(255,255,255,.09); color:var(--branco);
+}
+.campo-com-icone .campo::placeholder{color:var(--tinta-4)}
+.campo-com-icone .campo:focus{
+  background:rgba(255,255,255,.075); border-color:var(--o-35);
+}
+.campo-com-icone .campo:focus ~ .ic-campo{color:var(--o)}
+.campo-com-icone:has(.campo:focus) .ic-campo{color:var(--o)}
+.tem-olho .campo{padding-right:44px}
+
+/* O olho e botao de verdade: quem chega de teclado alcanca, e leitor de
+   tela le "mostrar a senha" em vez de ler nada. */
+.olho{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  width:32px; height:32px; display:grid; place-items:center;
+  background:none; border:0; border-radius:var(--r-sm); cursor:pointer;
+  color:var(--tinta-4); transition:color var(--t-controle) var(--ease);
+}
+.olho:hover,.olho:focus-visible{color:var(--branco)}
+.olho svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.olho .risco{opacity:0;transition:opacity var(--t-controle) var(--ease)}
+.olho[aria-pressed="true"] .risco{opacity:1}
+
+/* ---- o botao enquanto calcula ---- */
+.bt[disabled]{cursor:progress}
+.girando{
+  width:15px;height:15px;border-radius:50%;flex:none;
+  border:2px solid rgba(0,0,0,.28); border-top-color:rgba(0,0,0,.75);
+  animation:gira .7s linear infinite;
+}
+@keyframes gira{to{transform:rotate(360deg)}}
+
+/* ---- entrada ---- */
+.porta-caixa{animation:portaEntra .7s var(--ease) both}
+.porta-capa{animation:portaEntra .7s var(--ease) .08s both}
+@keyframes portaEntra{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .porta::before,.porta::after,.porta-feixe i,.porta-caixa,.porta-capa,.girando{
+    animation:none;
+  }
+  .porta-caixa{transition:none}
+}
+
+@media (max-width:900px){
+  .porta{grid-template-columns:1fr; align-content:center; gap:var(--e3)}
+  .porta-capa{padding:0; gap:var(--e2); max-width:none; justify-self:stretch}
+  .porta::after{top:38vh;right:-30vh;width:70vh;height:70vh}
+  .porta-frase{font-size:clamp(26px,7vw,36px)}
+  .porta-capa .pe{display:none}
+  /* Sem inclinacao no toque: no celular ela so faria o cartao tremer. */
+  .porta-caixa{transform:none !important}
+}
 
 /* Escolher quem entra vira indice, nao cartao com quadrado laranja. E a
    mesma linha do menu e da tabela: na terceira vez ja esta aprendida. */
@@ -607,6 +769,21 @@ kbd{
 .papel .seta{margin-left:auto;opacity:.3;transform:none}
 .papel:hover .seta{opacity:1;transform:translateX(4px)}
 .papel:hover b{color:var(--o-tx)}
+
+/* A linha de cadastrar gente, em "A casa". Grade, e nao flex solto: cada
+   campo tem a largura do que ele pede, e o rotulo fica em cima em vez de
+   dentro, para nao sumir quando a pessoa comeca a escrever. */
+.linha-nova{
+  display:grid; gap:6px 10px; margin-top:16px; align-items:center;
+  grid-template-columns:minmax(140px,1fr) minmax(190px,1.5fr) minmax(150px,auto) auto;
+}
+.linha-nova .rotulo{margin:0}
+.linha-nova .bt{white-space:nowrap}
+@media (max-width:820px){
+  .linha-nova{grid-template-columns:1fr}
+  .linha-nova .rotulo{margin-top:8px}
+  .linha-nova .bt{width:100%;justify-content:center;margin-top:6px}
+}
 
 /* ---------------------------------------------------------- celular */
 @media (max-width:1080px){ .grade-4,.numeros,.tira{grid-template-columns:repeat(2,1fr)} }
@@ -642,6 +819,7 @@ kbd{
      miolo e so um buraco vazio aqui, pintado pelo 90-fim.js.
      ===================================================================== -->
 <div class="porta" id="porta">
+  <div class="grao"></div>
   <!-- A lombada da porta: a marca fica de um lado, no preto da casa, e o
        que se preenche fica do outro, no papel. Junto, o formulario ficava
        com o nome da empresa em branco sobre bege. -->
@@ -654,7 +832,8 @@ kbd{
     <div class="pe">O sistema de dentro da casa</div>
   </div>
 
-  <div class="porta-caixa">
+  <div class="porta-caixa" id="porta-caixa">
+    <div class="porta-feixe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <h1 id="porta-titulo">Entrando no <b>sistema</b></h1>
     <p id="porta-texto">Conferindo o seu acesso.</p>
     <div id="porta-corpo"></div>
@@ -10332,6 +10511,28 @@ function casaLinhaPessoa(u, editavel) {
 
 const casaAchar = (id) => CASA_PESSOAS.find(function (x) { return x.id === id; }) || null;
 
+/* Escrever, embaixo da lista de papel, o que aquele papel enxerga. A
+   pessoa que cadastra nao deveria ter que rolar ate "Telas por papel"
+   para descobrir o que acabou de dar de acesso a alguem. A frase e
+   montada da MESMA lista que manda de verdade, entao ela nao mente
+   quando alguem mexe nas caixas la embaixo. */
+function casaExplicarPapel() {
+  const escolhido = (porId('casaPapel') || {}).value || 'colaborador';
+  const p = porChave(PAPEIS, escolhido);
+  const telas = (PERMISSOES[escolhido] || []).map(function (k) {
+    const tela = porChave(TELAS, k);
+    return tela ? tela.nome : k;
+  });
+  const total = PERMISSOES_DEFAULT.gestor.length;
+
+  escrever('casaPapelDica',
+    '<b style="color:var(--tx-2)">' + esc((p || {}).nome || escolhido) + ':</b> ' +
+    esc((p || {}).resumo || '') + ' ' +
+    (telas.length >= total
+      ? 'Enxerga <b style="color:var(--o-tx)">todas as ' + total + ' telas</b>, e é quem cadastra gente.'
+      : 'Enxerga ' + telas.length + ' das ' + total + ' telas: ' + esc(telas.join(', ')) + '.'));
+}
+
 /* Esquecer senha acontece. O gestor escolhe uma nova, passa adiante, e a
    pessoa troca na primeira entrada: a senha que andou pelo WhatsApp nao
    fica valendo. Nao existe "sem senha" aqui, porque conta sem senha nao
@@ -10587,14 +10788,29 @@ DESENHO.casa = function () {
       ? CASA_PESSOAS.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
       : vazio('Só você por aqui.', 5));
 
+    // A linha de cadastro em grade, e nao em flex solto: com flex-wrap os
+    // tres campos e o botao caiam cada um numa largura, e a lista de papel
+    // esticava sozinha ate a margem. Aqui cada coisa tem o tamanho do que
+    // ela pede: nome curto, e-mail longo, papel do tamanho do nome maior.
     escrever('casaNova', editavel
-      ? '<input class="campo campo-sm" id="casaNome" placeholder="Nome" style="flex:1;min-width:150px">' +
-        '<input class="campo campo-sm" id="casaEmail" placeholder="e-mail de entrada" style="flex:1.4;min-width:200px">' +
-        '<select class="campo campo-sm" id="casaPapel" style="min-width:150px">' +
-          PAPEIS.map(function (p) { return '<option value="' + p.k + '">' + esc(p.nome) + '</option>'; }).join('') +
-        '</select>' +
-        '<button class="bt bt-marca bt-sm" onclick="casaAdicionar()">Acrescentar</button>'
+      ? '<div class="linha-nova">' +
+          '<label class="rotulo" for="casaNome">Nome</label>' +
+          '<label class="rotulo" for="casaEmail">E-mail de entrada</label>' +
+          '<label class="rotulo" for="casaPapel">O que ela vai poder fazer</label>' +
+          '<span></span>' +
+          '<input class="campo campo-sm" id="casaNome" placeholder="Como ela aparece nas telas">' +
+          '<input class="campo campo-sm" id="casaEmail" type="email" placeholder="é por ele que ela entra">' +
+          '<select class="campo campo-sm" id="casaPapel" onchange="casaExplicarPapel()">' +
+            PAPEIS.map(function (p) {
+              return '<option value="' + p.k + '"' + (p.k === 'colaborador' ? ' selected' : '') + '>' +
+                esc(p.nome) + '</option>';
+            }).join('') +
+          '</select>' +
+          '<button class="bt bt-marca bt-sm" onclick="casaAdicionar()">Acrescentar</button>' +
+          '<p class="dica" id="casaPapelDica" style="grid-column:1/-1;margin-top:2px"></p>' +
+        '</div>'
       : '');
+    if (editavel) casaExplicarPapel();
   }
 
   // 2. telas por papel
@@ -10717,6 +10933,71 @@ function pintarPorta(titulo, texto_, corpo) {
 const erroDaPorta = (msg, dica) =>
   escrever('portaErro', aviso('alerta', msg, dica || 'Corrija e tente de novo.'));
 
+/* ---------------------------------------------------------------------
+   Os campos da porta.
+
+   Icone dentro do campo e o olho na senha. O olho existe porque digitar
+   senha as cegas erra, e quem errou tres vezes comeca a achar que a senha
+   esta errada quando o que estava errado era o Caps Lock. Ele nasce
+   fechado: mostrar por padrao seria mostrar a senha para quem passa atras.
+   --------------------------------------------------------------------- */
+const ICONES_DA_PORTA = {
+  email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/>' +
+    '<path d="m3 6.5 9 6.5 9-6.5"/></svg>',
+  senha: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2"/>' +
+    '<path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>',
+  nome: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/>' +
+    '<path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
+};
+
+const OLHO_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/>' +
+    '<circle cx="12" cy="12" r="2.6"/>' +
+    '<path class="risco" d="M4 20 20 4"/>' +
+  '</svg>';
+
+/* Um campo. `tipo` e 'email', 'senha' ou 'nome', e so o de senha ganha
+   olho. O rotulo vem sempre: campo sem rotulo obriga a pessoa a adivinhar
+   pelo texto de dentro, que some quando ela comeca a escrever. */
+function campoDaPorta(id, tipo, rotulo, extras) {
+  const e = extras || {};
+  const ehSenha = tipo === 'senha';
+  const auto = e.auto || (tipo === 'email' ? 'username' : ehSenha ? 'current-password' : 'name');
+  return '<label class="rotulo" for="' + id + '"' +
+      (e.espaco ? ' style="margin-top:14px"' : '') + '>' + esc(rotulo) + '</label>' +
+    '<span class="campo-com-icone' + (ehSenha ? ' tem-olho' : '') + '">' +
+      '<input class="campo" id="' + id + '" type="' + (ehSenha ? 'password' : tipo === 'email' ? 'email' : 'text') + '"' +
+        ' autocomplete="' + auto + '"' +
+        (e.dica ? ' placeholder="' + esc(e.dica) + '"' : '') +
+        (e.aoEnter ? ' onkeydown="if(event.key===\'Enter\'){' + e.aoEnter + '}"' : '') + '>' +
+      '<span class="ic-campo">' + ICONES_DA_PORTA[tipo] + '</span>' +
+      (ehSenha
+        ? '<button type="button" class="olho" aria-pressed="false" aria-label="Mostrar a senha" ' +
+          'title="Mostrar a senha" onclick="alternarOlho(this)">' + OLHO_SVG + '</button>'
+        : '') +
+    '</span>';
+}
+
+function alternarOlho(botao) {
+  const campo = botao.parentNode.querySelector('.campo');
+  if (!campo) return;
+  const mostrando = campo.type === 'text';
+  campo.type = mostrando ? 'password' : 'text';
+  botao.setAttribute('aria-pressed', mostrando ? 'false' : 'true');
+  const rotulo = mostrando ? 'Mostrar a senha' : 'Esconder a senha';
+  botao.setAttribute('aria-label', rotulo);
+  botao.title = rotulo;
+  // O cursor volta para o campo, no fim do que ja foi digitado: quem
+  // clicou no olho quer conferir e continuar escrevendo, nao recomecar.
+  campo.focus();
+  const fim = campo.value.length;
+  try { campo.setSelectionRange(fim, fim); } catch (e) {}
+}
+
 // Embaralhar a senha leva uns 100 ms num computador e pode passar de meio
 // segundo num telefone antigo. Sem trocar o texto do botao, esse tempo
 // parece clique que nao pegou, e a pessoa clica de novo.
@@ -10799,16 +11080,13 @@ function portaTelaEntrar(avisoTopo) {
     'Entre com o seu e-mail e a sua senha.',
     (avisoTopo || '') +
     '<div id="portaErro"></div>' +
-    '<label class="rotulo" for="portaEmail">E-mail</label>' +
-    '<input class="campo" id="portaEmail" type="email" autocomplete="username" ' +
-      'placeholder="o e-mail que você usa aqui" ' +
-      'onkeydown="if(event.key===\'Enter\')porId(\'portaSenha\').focus()">' +
-    '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
-    '<input class="campo" id="portaSenha" type="password" autocomplete="current-password" ' +
-      'onkeydown="if(event.key===\'Enter\')portaEntrar()">' +
+    campoDaPorta('portaEmail', 'email', 'E-mail',
+      { dica: 'o e-mail que você usa aqui', aoEnter: "porId('portaSenha').focus()" }) +
+    campoDaPorta('portaSenha', 'senha', 'Senha',
+      { espaco: true, aoEnter: 'portaEntrar()' }) +
     '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaEntrar()">Entrar</button>' +
-    '<p class="dica" style="margin-top:16px">Esqueceu a senha? Quem é gestor define uma nova em "A casa".</p>');
+    '<p class="dica" style="margin-top:16px">Esqueceu a senha? Quem é gestor define uma nova para você.</p>');
 
   const campo = porId('portaEmail');
   if (campo) campo.focus();
@@ -10854,15 +11132,12 @@ function portaTelaPrimeiro(avisoTopo) {
     'Crie o seu acesso de gestor. Depois você cadastra o resto da equipe por dentro.',
     (avisoTopo || '') +
     '<div id="portaErro"></div>' +
-    '<label class="rotulo" for="portaNome">Seu nome</label>' +
-    '<input class="campo" id="portaNome" autocomplete="name" placeholder="Como você aparece para a equipe">' +
-    '<label class="rotulo" for="portaEmail" style="margin-top:14px">Seu e-mail</label>' +
-    '<input class="campo" id="portaEmail" type="email" autocomplete="username" placeholder="é por ele que você vai entrar">' +
-    '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
-    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
-    '<label class="rotulo" for="portaSenha2" style="margin-top:14px">Repita a senha</label>' +
-    '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password" ' +
-      'onkeydown="if(event.key===\'Enter\')portaCriarPrimeiro()">' +
+    campoDaPorta('portaNome', 'nome', 'Seu nome', { dica: 'Como você aparece para a equipe' }) +
+    campoDaPorta('portaEmail', 'email', 'Seu e-mail', { espaco: true, dica: 'é por ele que você vai entrar' }) +
+    campoDaPorta('portaSenha', 'senha', 'Senha',
+      { espaco: true, auto: 'new-password', dica: 'pelo menos ' + SENHA_MINIMA + ' caracteres' }) +
+    campoDaPorta('portaSenha2', 'senha', 'Repita a senha',
+      { espaco: true, auto: 'new-password', aoEnter: 'portaCriarPrimeiro()' }) +
     '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaCriarPrimeiro()">Criar meu acesso</button>' +
     '<p class="dica" style="margin-top:16px">A senha fica guardada no servidor, embaralhada. Nem eu consigo ler ela de volta.</p>');
@@ -10910,13 +11185,11 @@ function portaTelaTrocar(pessoa) {
     'A senha que você recebeu serve uma vez só. A partir de agora é a sua.',
     aviso('info', esc(pessoa.email), 'Ninguém mais vai saber a senha que você escolher agora.') +
     '<div id="portaErro"></div>' +
-    '<label class="rotulo" for="portaAtual">A senha que você recebeu</label>' +
-    '<input class="campo" id="portaAtual" type="password" autocomplete="current-password">' +
-    '<label class="rotulo" for="portaNova" style="margin-top:14px">Sua senha nova</label>' +
-    '<input class="campo" id="portaNova" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
-    '<label class="rotulo" for="portaNova2" style="margin-top:14px">Repita a senha nova</label>' +
-    '<input class="campo" id="portaNova2" type="password" autocomplete="new-password" ' +
-      'onkeydown="if(event.key===\'Enter\')portaTrocar()">' +
+    campoDaPorta('portaAtual', 'senha', 'A senha que você recebeu') +
+    campoDaPorta('portaNova', 'senha', 'Sua senha nova',
+      { espaco: true, auto: 'new-password', dica: 'pelo menos ' + SENHA_MINIMA + ' caracteres' }) +
+    campoDaPorta('portaNova2', 'senha', 'Repita a senha nova',
+      { espaco: true, auto: 'new-password', aoEnter: 'portaTrocar()' }) +
     '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaTrocar()">Guardar e entrar</button>');
 
@@ -10960,6 +11233,34 @@ async function abrirPorta() {
   if (r.corpo.eu.precisa_trocar) { portaTelaTrocar(r.corpo.eu); return; }
   entrar(r.corpo.eu);
 }
+
+/* ---------------------------------------------------------------------
+   O cartao acompanha o mouse.
+
+   Inclinacao de poucos graus, calculada da posicao do ponteiro dentro do
+   proprio cartao. E o unico movimento da tela que responde a pessoa, e e
+   o que faz o vidro parecer vidro em vez de retangulo escuro.
+
+   No toque nao existe: o CSS anula a transformacao abaixo de 900px, e
+   quem pediu menos movimento no sistema operacional tambem nao ganha.
+   --------------------------------------------------------------------- */
+(function inclinarCartao() {
+  const caixa = porId('porta-caixa');
+  const porta = porId('porta');
+  if (!caixa || !porta || !window.matchMedia) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(hover: hover)').matches) return;
+
+  porta.addEventListener('mousemove', function (e) {
+    const r = caixa.getBoundingClientRect();
+    const x = (e.clientX - r.left - r.width / 2) / r.width;
+    const y = (e.clientY - r.top - r.height / 2) / r.height;
+    caixa.style.transform =
+      'perspective(1400px) rotateX(' + (-y * 7).toFixed(2) + 'deg) ' +
+      'rotateY(' + (x * 7).toFixed(2) + 'deg)';
+  });
+  porta.addEventListener('mouseleave', function () { caixa.style.transform = ''; });
+})();
 
 abrirPorta();
 

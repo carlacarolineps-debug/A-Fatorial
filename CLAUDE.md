@@ -264,12 +264,12 @@ As telas têm verificação própria, num navegador de verdade. Com um
 `npx wrangler dev` de pé na porta 8787:
 
 ```sh
-node fonte/sistema/verifica.mjs        # 36: as dez telas, os três papéis
-node fonte/sistema/verifica-login.mjs  # 35: a porta, do primeiro dia em diante
+node fonte/sistema/verifica.mjs        # 40: as dez telas, os três papéis
+node fonte/sistema/verifica-login.mjs  # 42: a porta, do primeiro dia em diante
 node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
 ```
 
-São 354 verificações no total: 188 de rota e 166 de navegador.
+São 361 verificações no total: 188 de rota e 173 de navegador.
 
 ## Cuidados no que já está de pé
 

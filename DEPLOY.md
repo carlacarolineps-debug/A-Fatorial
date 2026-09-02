@@ -69,8 +69,8 @@ seis do formulário (`formulario_versoes`, `formulario_visitas`,
 
     npm test                                 84 + 104 = 188 rotas
     node verifica-aplicar.mjs                 95 a página, em navegador
-    node fonte/sistema/verifica.mjs           36 as dez telas, três papéis
-    node fonte/sistema/verifica-login.mjs     35 a porta
+    node fonte/sistema/verifica.mjs           40 as dez telas, três papéis
+    node fonte/sistema/verifica-login.mjs     42 a porta
                                              ---
                                              302
 

@@ -101,6 +101,28 @@ function casaLinhaPessoa(u, editavel) {
 
 const casaAchar = (id) => CASA_PESSOAS.find(function (x) { return x.id === id; }) || null;
 
+/* Escrever, embaixo da lista de papel, o que aquele papel enxerga. A
+   pessoa que cadastra nao deveria ter que rolar ate "Telas por papel"
+   para descobrir o que acabou de dar de acesso a alguem. A frase e
+   montada da MESMA lista que manda de verdade, entao ela nao mente
+   quando alguem mexe nas caixas la embaixo. */
+function casaExplicarPapel() {
+  const escolhido = (porId('casaPapel') || {}).value || 'colaborador';
+  const p = porChave(PAPEIS, escolhido);
+  const telas = (PERMISSOES[escolhido] || []).map(function (k) {
+    const tela = porChave(TELAS, k);
+    return tela ? tela.nome : k;
+  });
+  const total = PERMISSOES_DEFAULT.gestor.length;
+
+  escrever('casaPapelDica',
+    '<b style="color:var(--tx-2)">' + esc((p || {}).nome || escolhido) + ':</b> ' +
+    esc((p || {}).resumo || '') + ' ' +
+    (telas.length >= total
+      ? 'Enxerga <b style="color:var(--o-tx)">todas as ' + total + ' telas</b>, e é quem cadastra gente.'
+      : 'Enxerga ' + telas.length + ' das ' + total + ' telas: ' + esc(telas.join(', ')) + '.'));
+}
+
 /* Esquecer senha acontece. O gestor escolhe uma nova, passa adiante, e a
    pessoa troca na primeira entrada: a senha que andou pelo WhatsApp nao
    fica valendo. Nao existe "sem senha" aqui, porque conta sem senha nao
@@ -356,14 +378,29 @@ DESENHO.casa = function () {
       ? CASA_PESSOAS.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
       : vazio('Só você por aqui.', 5));
 
+    // A linha de cadastro em grade, e nao em flex solto: com flex-wrap os
+    // tres campos e o botao caiam cada um numa largura, e a lista de papel
+    // esticava sozinha ate a margem. Aqui cada coisa tem o tamanho do que
+    // ela pede: nome curto, e-mail longo, papel do tamanho do nome maior.
     escrever('casaNova', editavel
-      ? '<input class="campo campo-sm" id="casaNome" placeholder="Nome" style="flex:1;min-width:150px">' +
-        '<input class="campo campo-sm" id="casaEmail" placeholder="e-mail de entrada" style="flex:1.4;min-width:200px">' +
-        '<select class="campo campo-sm" id="casaPapel" style="min-width:150px">' +
-          PAPEIS.map(function (p) { return '<option value="' + p.k + '">' + esc(p.nome) + '</option>'; }).join('') +
-        '</select>' +
-        '<button class="bt bt-marca bt-sm" onclick="casaAdicionar()">Acrescentar</button>'
+      ? '<div class="linha-nova">' +
+          '<label class="rotulo" for="casaNome">Nome</label>' +
+          '<label class="rotulo" for="casaEmail">E-mail de entrada</label>' +
+          '<label class="rotulo" for="casaPapel">O que ela vai poder fazer</label>' +
+          '<span></span>' +
+          '<input class="campo campo-sm" id="casaNome" placeholder="Como ela aparece nas telas">' +
+          '<input class="campo campo-sm" id="casaEmail" type="email" placeholder="é por ele que ela entra">' +
+          '<select class="campo campo-sm" id="casaPapel" onchange="casaExplicarPapel()">' +
+            PAPEIS.map(function (p) {
+              return '<option value="' + p.k + '"' + (p.k === 'colaborador' ? ' selected' : '') + '>' +
+                esc(p.nome) + '</option>';
+            }).join('') +
+          '</select>' +
+          '<button class="bt bt-marca bt-sm" onclick="casaAdicionar()">Acrescentar</button>' +
+          '<p class="dica" id="casaPapelDica" style="grid-column:1/-1;margin-top:2px"></p>' +
+        '</div>'
       : '');
+    if (editavel) casaExplicarPapel();
   }
 
   // 2. telas por papel

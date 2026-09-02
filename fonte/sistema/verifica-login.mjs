@@ -229,6 +229,28 @@ const semGestora = await pg.evaluate(async () => {
 });
 t("a única gestora não consegue se rebaixar", semGestora === 409, `status=${semGestora}`);
 
+/* ---------- 9. o olho da senha ---------- */
+await pg.evaluate(() => sair());
+await esperar(1500);
+await pg.fill("#portaSenha", "conferindo123");
+t("a senha nasce escondida", (await pg.getAttribute("#portaSenha", "type")) === "password");
+t("e o olho diz o que faz, para quem usa leitor de tela",
+  (await pg.getAttribute(".olho", "aria-label")) === "Mostrar a senha");
+
+await pg.click(".olho");
+await esperar(300);
+t("clicar no olho mostra a senha", (await pg.getAttribute("#portaSenha", "type")) === "text");
+t("e o rótulo passa a dizer o contrário",
+  (await pg.getAttribute(".olho", "aria-label")) === "Esconder a senha");
+t("e o que foi digitado continua lá", (await pg.inputValue("#portaSenha")) === "conferindo123");
+t("e o cursor volta para o campo, no fim do que já foi escrito",
+  await pg.evaluate(() => document.activeElement && document.activeElement.id === "portaSenha"));
+
+await pg.click(".olho");
+await esperar(300);
+t("clicar de novo esconde", (await pg.getAttribute("#portaSenha", "type")) === "password");
+await pg.screenshot({ path: `${S}/log-5-olho.png` });
+
 t("nenhum erro de JavaScript em todo o caminho", erros.length === 0, erros.slice(0, 3).join(" | "));
 console.log(`\n${ok} passaram, ${bad} falharam`);
 await nav.close();

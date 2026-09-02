@@ -169,6 +169,26 @@ t("e nunca apaga sozinho: o resíduo continua lá", aindaLa);
 const casaTexto = await pg.textContent("#tela-casa");
 t("mas A casa avisa que o resíduo existe", /guarda 2 chave/.test(casaTexto));
 
+// 7. A casa explica o papel ANTES de cadastrar, e a explicacao sai da
+// mesma lista que manda de verdade.
+await pg.evaluate(() => irPara("casa"));
+await pg.waitForTimeout(900);
+await pg.selectOption("#casaPapel", "gestor");
+await pg.waitForTimeout(250);
+let dica = await pg.textContent("#casaPapelDica");
+t("ao escolher Gestor, a casa diz que ele vê todas as telas", /todas as 10 telas/.test(dica), dica);
+
+await pg.selectOption("#casaPapel", "colaborador");
+await pg.waitForTimeout(250);
+dica = await pg.textContent("#casaPapelDica");
+t("ao escolher Colaborador, ela diz quantas e quais", /8 das 10 telas/.test(dica) && /Minha semana/.test(dica), dica);
+t("e não promete o que o colaborador não vê", !/Contratado e recebido/.test(dica), dica);
+
+await pg.selectOption("#casaPapel", "cliente");
+await pg.waitForTimeout(250);
+dica = await pg.textContent("#casaPapelDica");
+t("ao escolher Cliente, ela diz que é uma tela só", /1 das 10 telas/.test(dica), dica);
+
 t("nenhum erro de JavaScript em todo o caminho", erros.length === 0, erros.slice(0, 4).join(" | "));
 
 console.log(`\n${ok} passaram, ${bad} falharam`);
