@@ -5,11 +5,13 @@ domínio `ideiaquevende.com.br`.
 
     public/index.html          landing pública      (~310 KB, gerada)
     public/aplicar/index.html  o formulário da casa (~216 KB, gerado)
-    public/sistema/index.html  sistema de gestão    (~603 KB, gerado)
+    public/sistema/index.html  sistema de gestão    (~669 KB, gerado)
+    public/proposta/index.html a proposta do cliente (~127 KB, gerada)
     src/                       rotas do servidor
     fonte/                     de onde a landing é gerada
     fonte/aplicar/             de onde o formulário é gerado
     fonte/sistema/             de onde o sistema é gerado
+    fonte/proposta/            de onde a proposta é gerada
 
 O repositório se chama `A-Fatorial` por herança: até 26 de agosto ele
 serviu o sistema de gestão de outro negócio, o A! Fatorial, neste mesmo
@@ -78,10 +80,10 @@ extraídos do `page.tpl.html` da landing na hora do build: os dois produtos
 usam o mesmo desenho para a mesma coisa, e não há um segundo conjunto para
 manter em dia. Regra em `fonte/sistema/CONTRATO.md`.
 
-### As dez telas e os três papéis
+### As onze telas e os três papéis
 
 `semana`, `ideias`, `formulario`, `leitura`, `projetos`, `entrega`,
-`roteiros`, `dinheiro`, `cliente`, `casa`. Cada uma é um par
+`roteiros`, `dinheiro`, `cliente`, `propostas`, `casa`. Cada uma é um par
 `telas/<chave>.html` mais `telas/<chave>.js`, e registra o próprio desenho
 em `DESENHO[<chave>]`.
 
@@ -224,12 +226,61 @@ esse é o único lugar que encosta nelas.
 D1 pela rota `/api/resposta`, e a rota `/leads` devolve para quem estiver
 autenticado.
 
-**"Ideias que chegaram" é a exceção.** É a única tela que fala com o
-servidor: lê o `/leads` e escreve o andamento de volta pelo
-`PATCH /leads`. Por isso ela tem estados que nenhuma outra tem
-(carregando, sem servidor, login vencido, servidor sem configuração) e é
-o único lugar onde entra texto escrito por desconhecido, o que explica o
-`esc()` antes de qualquer coisa virar HTML.
+**Duas telas são a exceção**, e falam com o servidor: "Ideias que
+chegaram", que lê o `/leads` e escreve o andamento de volta pelo
+`PATCH /leads`, e "Propostas". Por isso elas têm estados que nenhuma outra
+tem (carregando, sem servidor, login vencido) e são onde entra texto
+escrito por desconhecido, o que explica o `esc()` antes de qualquer coisa
+virar HTML.
+
+## A proposta com aceite
+
+A décima primeira tela, `propostas`, monta uma proposta a partir de uma
+aplicação da mesa e devolve um código de cinco letras. O cliente abre
+`/proposta/`, digita o código, escolhe o plano, lê o contrato inteiro e
+assina. Duas coisas acontecem sozinhas: a proposta vira "aceita" e a
+aplicação vira "ganho" na mesa.
+
+O código é sorteado, e não sequencial: `ID-` mais cinco de
+`ABCDEFGHJKMNPQRSTUVWXYZ23456789`, sem as letras que se confundem com
+número. Sequencial deixaria qualquer um ler a proposta do vizinho somando
+um. E o código sozinho **não** entrega o lead, o WhatsApp da casa nem o
+valor das outras propostas: a rota pública devolve só o que aquela pessoa
+precisa ver para decidir.
+
+### As quatro rotas da proposta
+
+    GET  /api/propostas   a lista, com login (gestor ou colaborador)
+    POST /api/propostas   cria e sorteia o código, com login
+    GET  /api/proposta    abre pelo código, pública
+    POST /api/aceite      registra a assinatura, pública
+
+As duas públicas são as que o cliente alcança sem entrar em lugar nenhum.
+Assinar duas vezes responde 409, e proposta vencida responde 410.
+
+O que fica guardado da assinatura é o nome, o documento, o contato, o
+plano escolhido e o **resumo SHA-256 do contrato inteiro, já com o nome
+dentro**. É esse resumo que aparece no comprovante: ele prova que o texto
+não mudou depois, sem precisar guardar uma cópia por assinatura.
+
+As tabelas `propostas` e `aceites` moram no `schema-propostas.sql`.
+
+### A página do cliente também é gerada
+
+`public/proposta/index.html` sai de `fonte/proposta/`:
+
+```sh
+cd fonte/proposta && python3 build.py
+```
+
+Mesma regra das outras: fonte e marca embutidas, e o build **recusa a
+montagem** se sobrar requisição a terceiros, travessão, ou se o texto do
+contrato vazar para dentro da página. O contrato vem do servidor, para uma
+cópia velha no navegador de alguém nunca virar o que foi assinado.
+
+**As doze cláusulas precisam de leitura de advogado antes do primeiro
+envio de verdade.** Elas vieram prontas no pacote de origem e ninguém do
+Direito olhou ainda.
 
 ## Testes
 
@@ -237,9 +288,9 @@ o único lugar onde entra texto escrito por desconhecido, o que explica o
 npm test
 ```
 
-Roda duas suítes: as 84 rotas de sempre e as 104 do formulário. Sobe
-wrangler local, bate nas rotas por HTTP e derruba tudo no fim. Roda no
-banco local; não encosta em produção.
+Roda três suítes: as 84 rotas de sempre, as 104 do formulário e as 25 da
+proposta. Sobe wrangler local, bate nas rotas por HTTP e derruba tudo no
+fim. Roda no banco local; não encosta em produção.
 
 São 84 verificações nas rotas de sempre: o site estático com os cabeçalhos
 certos, o `robots.txt` e o `sitemap.xml`, e a porta inteira, do primeiro
@@ -250,6 +301,12 @@ alguém e ver a sessão dela cair na hora.
 As outras 104 são do formulário: a definição, a publicação, a submissão
 virando lead, os passos que alimentam as medidas, e os limites das duas
 rotas abertas.
+
+As 25 da proposta fazem o ciclo inteiro por HTTP: uma aplicação entra pelo
+formulário público, vira proposta com código sorteado, o cliente abre só
+com o código, assina, e os dois andamentos viram sozinhos. Conferem também
+o que o código NÃO entrega a quem o tem, assinar duas vezes e proposta
+vencida.
 
 Não precisa de preparo nenhum: os três schemas são aplicados no banco
 local e a casa é esvaziada antes de começar. O `openssl` deixou de ser
@@ -264,12 +321,18 @@ As telas têm verificação própria, num navegador de verdade. Com um
 `npx wrangler dev` de pé na porta 8787:
 
 ```sh
-node fonte/sistema/verifica.mjs        # 40: as dez telas, os três papéis
-node fonte/sistema/verifica-login.mjs  # 42: a porta, do primeiro dia em diante
-node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
+node fonte/sistema/verifica.mjs           # 42: as onze telas, os três papéis
+node fonte/sistema/verifica-login.mjs     # 42: a porta, do primeiro dia em diante
+node fonte/sistema/verifica-propostas.mjs # 28: o ciclo da proposta, nas duas pontas
+node verifica-aplicar.mjs                 # 95: o formulário, nas duas larguras
 ```
 
-São 361 verificações no total: 188 de rota e 173 de navegador.
+São 420 verificações no total: 213 de rota e 207 de navegador.
+
+`verifica-login.mjs` e `verifica-propostas.mjs` esvaziam a casa no banco
+local antes de começar, porque o primeiro acesso só responde sem ninguém
+cadastrado. Rodar qualquer uma das duas apaga as pessoas do seu banco de
+desenvolvimento, e nunca o de produção.
 
 ## Cuidados no que já está de pé
 

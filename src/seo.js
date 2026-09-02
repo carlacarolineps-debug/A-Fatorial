@@ -26,6 +26,7 @@ export function robots(url) {
     `User-agent: *
 Allow: /
 Disallow: /sistema/
+Disallow: /proposta/
 
 Sitemap: ${url.origin}/sitemap.xml
 `,

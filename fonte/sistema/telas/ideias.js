@@ -437,8 +437,14 @@ function ideiasLinha(l, apoio) {
     '<td>' + ideiasOrigemCelula(l) + '</td>' +
     '<td><select class="campo campo-sm" style="min-width:158px" onchange="ideiasMudarAndamento(' + l.id + ', this.value)"' +
       (salvando ? ' disabled' : '') + '>' + opcoes + '</select></td>' +
-    '<td style="text-align:right"><button class="bt bt-linha bt-sm" onclick="ideiasAlternar(' + l.id + ')">' +
-      (aberto ? 'Fechar' : 'Ver o que escreveu') + '</button></td>' +
+    '<td style="text-align:right;white-space:nowrap">' +
+      '<button class="bt bt-linha bt-sm" onclick="ideiasAlternar(' + l.id + ')">' +
+        (aberto ? 'Fechar' : 'Ver o que escreveu') + '</button> ' +
+      // Daqui sai a proposta. Ela nasce ligada a esta aplicacao, e por
+      // isso o aceite do cliente devolve o lead como "ganho" sozinho: sem
+      // o vinculo, alguem teria que lembrar de marcar na mao.
+      '<button class="bt bt-linha bt-sm" onclick="propParaOLead(' + l.id + ')">Gerar proposta</button>' +
+    '</td>' +
   '</tr>' + (aberto ? ideiasDetalhe(l, apoio) : '');
 }
 

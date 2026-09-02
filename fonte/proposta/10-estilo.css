@@ -1,0 +1,198 @@
+/* ====================================================================
+   A proposta, do lado do cliente.
+
+   Os tokens sao os MESMOS da landing e do sistema, valor por valor. Quem
+   recebe o link vem do WhatsApp da Carla e vai assinar um contrato: se a
+   pagina parecer de outra empresa, a duvida que aparece nao e sobre o
+   desenho, e sobre estar no lugar certo.
+
+   O pacote de origem vinha em Archivo com roxo, que sao de outro produto.
+   O que ficou de la e a estrutura da pagina: codigo, planos, contrato,
+   aceite, comprovante.
+   ==================================================================== */
+:root{
+  --preto:#08080a; --preto-2:#0d0d10; --preto-3:#141418;
+  --papel:#f6f4ef; --papel-2:#fffefb; --branco:#fff;
+  --ink:#101014; --ink-2:#3a3a42; --ink-3:#5f5f69; --ink-4:#8d8d97;
+  --linha-l:#e5e1d8; --linha-l2:#efece5;
+  --o:#ff8309; --o-lt:#ffa53d; --o-dp:#e56600; --o-ink:#b84f00;
+  --o-10:rgba(255,131,9,.10); --o-35:rgba(255,131,9,.35);
+  --tinta:#f2efe8; --tinta-2:#b9b9c2; --tinta-3:#8d8d97; --tinta-4:#5f5f69;
+  --linha:rgba(255,255,255,.10);
+  --ok:#1c7a45; --alerta:#b8362a;
+  --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --texto:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r:4px; --r-sm:3px; --r-lg:10px;
+  --e1:6px; --e2:12px; --e3:20px; --e4:32px; --e5:52px;
+  --ease:cubic-bezier(.2,.7,.25,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--papel); color:var(--ink);
+  font:400 15px/1.6 var(--texto); -webkit-font-smoothing:antialiased;
+}
+.env{width:min(760px,100% - 40px);margin-inline:auto;padding:clamp(28px,6vw,64px) 0 var(--e5)}
+[hidden]{display:none !important}
+
+/* ---------------------------------------------------------- a capa */
+.capa{
+  background:var(--preto); color:var(--branco); position:relative; overflow:hidden;
+  padding:clamp(28px,6vw,56px) 0;
+}
+.capa::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(58% 62% at 82% 12%,rgba(255,131,9,.22),transparent 62%);
+}
+.capa .env{padding:0;position:relative;z-index:2}
+.marca{display:flex;align-items:center;gap:12px;margin-bottom:var(--e3)}
+.marca svg{width:26px;height:22px;color:var(--o);flex:none}
+.marca b{
+  font-family:var(--display); font-weight:800; font-size:11px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--branco);
+}
+h1{
+  font-family:var(--display); font-weight:800; line-height:1.04;
+  font-size:clamp(28px,4.4vw,46px); letter-spacing:-.04em; color:var(--branco);
+  text-wrap:balance;
+}
+h1 em{font-style:normal;color:var(--o)}
+.capa p{color:var(--tinta-2);margin-top:var(--e2);max-width:58ch}
+.cod{
+  display:inline-block; margin-top:var(--e3); padding:5px 11px;
+  border:1px solid var(--o-35); border-radius:999px; color:var(--o);
+  font-family:var(--display); font-weight:700; font-size:11px;
+  letter-spacing:.18em; text-transform:uppercase;
+}
+
+/* ------------------------------------------------------ a tela do codigo */
+.porta-cod{
+  max-width:420px; margin:clamp(40px,10vh,90px) auto; padding:var(--e4);
+  background:var(--papel-2); border:1px solid var(--linha-l); border-radius:var(--r-lg);
+  box-shadow:0 20px 50px -30px rgba(0,0,0,.35);
+}
+.porta-cod h2{
+  font-family:var(--display); font-weight:800; font-size:22px;
+  letter-spacing:-.035em; margin-bottom:var(--e1);
+}
+.porta-cod p{color:var(--ink-3);font-size:14px;margin-bottom:var(--e3)}
+#g-code{
+  font-family:var(--display); font-weight:800; font-size:22px;
+  letter-spacing:.16em; text-align:center; text-transform:uppercase;
+}
+
+/* --------------------------------------------------------- secoes */
+.secao{border-top:1px solid var(--linha-l);padding-top:var(--e3);margin-top:var(--e5)}
+.secao-t{
+  font-family:var(--display); font-weight:800; font-size:11px;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--o-ink);
+  margin-bottom:var(--e2);
+}
+h2.grande{
+  font-family:var(--display); font-weight:800; font-size:clamp(21px,2.4vw,27px);
+  letter-spacing:-.035em; line-height:1.2; margin-bottom:var(--e2);
+}
+.diag{font-size:17px;line-height:1.6;color:var(--ink-2);max-width:62ch}
+
+/* ---------------------------------------------------------- planos */
+.opts{display:grid;gap:var(--e2);margin-top:var(--e3)}
+.opt{
+  position:relative; display:block; cursor:pointer; padding:var(--e3);
+  background:var(--papel-2); border:1px solid var(--linha-l); border-radius:var(--r-lg);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
+}
+.opt:hover{border-color:var(--o-35)}
+.opt.sel{border-color:var(--o);box-shadow:0 0 0 1px var(--o),0 12px 30px -20px rgba(255,131,9,.6)}
+.opt input{position:absolute;opacity:0;width:0;height:0}
+.opt .selo{
+  display:inline-block; margin-bottom:var(--e1); padding:3px 9px; border-radius:999px;
+  background:var(--o-10); color:var(--o-ink); font-size:10.5px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.opt .t{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.03em;line-height:1.25}
+.opt .price{
+  font-family:var(--display); font-weight:800; font-size:30px; letter-spacing:-.045em;
+  color:var(--o-ink); margin:var(--e1) 0 var(--e2);
+}
+.opt ul{list-style:none;display:grid;gap:6px}
+.opt li{position:relative;padding-left:20px;font-size:14px;color:var(--ink-2)}
+.opt li::before{content:"";position:absolute;left:4px;top:9px;width:7px;height:7px;border-radius:50%;background:var(--o)}
+.opt .cond{margin-top:var(--e2);font-size:13px;color:var(--ink-3);border-top:1px solid var(--linha-l2);padding-top:var(--e2)}
+
+/* -------------------------------------------------------- contrato */
+.contrato{
+  max-height:390px; overflow-y:auto; padding:var(--e3);
+  background:var(--papel-2); border:1px solid var(--linha-l); border-radius:var(--r-lg);
+  font-size:14px; line-height:1.65;
+}
+.contrato h4{
+  font-family:var(--display); font-weight:800; font-size:14px; letter-spacing:-.02em;
+  margin:var(--e3) 0 5px; color:var(--ink);
+}
+.contrato h4:first-child{margin-top:0}
+.contrato p{color:var(--ink-2);white-space:pre-line}
+
+/* ---------------------------------------------------------- campos */
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:var(--e2) var(--e3);margin-top:var(--e3)}
+.grade .largo{grid-column:1/-1}
+@media (max-width:620px){ .grade{grid-template-columns:1fr} }
+.rotulo{
+  display:block; font-size:11px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:5px;
+}
+.campo{
+  width:100%; padding:11px 13px; font:400 15px var(--texto); color:var(--ink);
+  background:var(--papel-2); border:1px solid var(--linha-l); border-radius:var(--r-sm);
+  outline:0; transition:border-color .2s var(--ease);
+}
+.campo:focus{border-color:var(--o)}
+.campo::placeholder{color:var(--ink-4)}
+
+.li{display:flex;gap:10px;align-items:flex-start;margin-top:var(--e3);font-size:14px;color:var(--ink-2)}
+.li input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--o)}
+
+/* --------------------------------------------------------- botoes */
+.bt{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:13px 22px; border:0; border-radius:var(--r-sm); cursor:pointer;
+  font:600 15px var(--texto); background:var(--o); color:#241300;
+  transition:background-color .2s var(--ease),opacity .2s var(--ease);
+}
+.bt:hover{background:var(--o-lt)}
+.bt[disabled]{opacity:.55;cursor:default}
+.bt-linha{background:none;color:var(--ink);border:1px solid var(--linha-l)}
+.bt-linha:hover{background:var(--papel-2);border-color:var(--ink-4)}
+.largura{width:100%}
+
+.erro{margin-top:var(--e2);font-size:14px;color:var(--alerta);min-height:1.2em}
+
+/* ------------------------------------------------------ comprovante */
+.recibo{
+  margin-top:var(--e4); padding:var(--e3);
+  background:var(--preto); color:var(--tinta); border-radius:var(--r-lg);
+}
+.recibo h3{
+  font-family:var(--display); font-weight:800; font-size:19px; letter-spacing:-.03em;
+  color:var(--branco); margin-bottom:var(--e1);
+}
+.recibo>p{color:var(--tinta-2);font-size:14px;margin-bottom:var(--e3)}
+.recibo dl{display:grid;grid-template-columns:auto 1fr;gap:8px var(--e3);font-size:13.5px}
+.recibo dt{color:var(--tinta-4);white-space:nowrap}
+.recibo dd{color:var(--tinta);word-break:break-word}
+.recibo .acoes{display:flex;gap:var(--e2);flex-wrap:wrap;margin-top:var(--e3)}
+.recibo .bt-linha{color:var(--tinta);border-color:var(--linha)}
+.recibo .bt-linha:hover{background:rgba(255,255,255,.06);border-color:var(--tinta-4)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;letter-spacing:.04em}
+
+.aviso{
+  padding:var(--e2) var(--e3); border-left:3px solid var(--o); border-radius:var(--r-sm);
+  background:var(--o-10); font-size:14px; color:var(--ink-2); margin-top:var(--e3);
+}
+.aviso b{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+
+/* --------------------------------------------------------- rodape */
+.pe{
+  margin-top:var(--e5); padding-top:var(--e3); border-top:1px solid var(--linha-l);
+  display:flex; gap:var(--e3); flex-wrap:wrap; font-size:12.5px; color:var(--ink-4);
+}
+.pe span{white-space:nowrap}

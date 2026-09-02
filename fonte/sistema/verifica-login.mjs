@@ -76,7 +76,7 @@ await pg.fill("#portaSenha2", "umasenhaboa");
 await pg.click("text=Criar meu acesso");
 await esperar(1200);
 t("gestora entra depois de criar", await pg.evaluate(() => EU.papel === "gestor"), await pg.evaluate(() => EU.papel));
-t("a gestora vê as dez telas", (await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).length)) === 10);
+t("a gestora vê as onze telas", (await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).length)) === 11);
 t("a senha NÃO fica guardada no navegador", await pg.evaluate(() => {
   const tudo = JSON.stringify(localStorage);
   return !/umasenhaboa/.test(tudo);

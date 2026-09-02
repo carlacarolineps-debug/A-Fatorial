@@ -29,7 +29,11 @@ const LIMITE_OBSERVACOES = 2000;
    Portaria comum às duas rotas.
    Devolve uma Response quando é para barrar, e null quando pode seguir.
    -------------------------------------------------------------------- */
-async function portaria(request, env) {
+// Exportada porque o src/propostas.js usa a MESMA portaria: quem le a mesa
+// e quem manda proposta sao as mesmas pessoas, e duas conferencias
+// parecidas em arquivos diferentes viram duas regras diferentes no dia em
+// que uma das duas mudar.
+export async function portaria(request, env) {
   const { barrado } = await exigirEntrada(request, env, ["gestor", "colaborador"]);
   return barrado || null;
 }

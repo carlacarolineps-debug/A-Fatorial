@@ -23,6 +23,7 @@ TELAS = [
     ('semana',    'Minha semana'),
     ('ideias',    'Ideias que chegaram'),
     ('formulario','O formulario'),
+    ('propostas', 'Propostas'),
     ('leitura',   'Leitura do caso'),
     ('projetos',  'Projetos em estruturacao'),
     ('entrega',   'Mesa da entrega'),

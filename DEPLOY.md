@@ -8,6 +8,7 @@ Não existe passo de build: o site é HTML pronto.
     ideiaquevende.com.br/sistema/   sistema (atrás de login)
     ideiaquevende.com.br/api/*      o formulário conversa por aqui
     ideiaquevende.com.br/leads      devolve os leads para a mesa (e anota o andamento)
+    ideiaquevende.com.br/proposta/  a proposta que o cliente abre com o código
 
 ---
 
@@ -32,7 +33,7 @@ a passo completo.
 
 **O sistema de gestão, em `/sistema/`:**
 
-- **Dez telas.** Quem entra digita **e-mail e senha**, conferidos pelo
+- **Onze telas.** Quem entra digita **e-mail e senha**, conferidos pelo
   servidor. A senha nunca é guardada: fica o resumo PBKDF2 dela, com sal
   próprio por pessoa.
 - **A lista de quem tem acesso mora no banco**, e não no navegador. Vale
@@ -40,7 +41,7 @@ a passo completo.
 - **A senha crua não sai do navegador.** As 210 mil voltas que a embaralham
   são feitas lá, e o que viaja é o resultado. É isso que faz tudo caber no
   plano grátis do Worker. A conta está na seção 5.
-- Três papéis: **gestor** (as dez telas), **colaborador** (sem dinheiro e
+- Três papéis: **gestor** (as onze telas), **colaborador** (sem dinheiro e
   sem A casa) e **cliente** (uma tela só, sem barra lateral). **O papel é
   conferido no banco a cada pedido**, e não só no menu: cliente não lê a
   mesa nem sabendo o endereço.
@@ -60,47 +61,66 @@ a passo completo.
 - A tela **"O formulário"**, dentro do sistema, é onde a Carla edita as
   perguntas, publica, volta uma versão atrás e lê as medidas.
 
-**Banco D1 `ideia-que-vende`**, onze tabelas: `leads`, `webhook_log`, as
+**Banco D1 `ideia-que-vende`**, treze tabelas: `leads`, `webhook_log`, as
 seis do formulário (`formulario_versoes`, `formulario_visitas`,
 `formulario_eventos`, `formulario_escolhas`, `formulario_baldes`,
-`formulario_dia`) e as três da porta (`pessoas`, `sessoes`, `freio`).
+`formulario_dia`), as três da porta (`pessoas`, `sessoes`, `freio`) e as
+duas da proposta (`propostas`, `aceites`).
+
+**A proposta com aceite, desde 02/09:**
+
+- A tela **"Propostas"** monta a proposta a partir de uma aplicação da
+  mesa e devolve um código de cinco letras, sorteado. O cliente abre
+  `/proposta/`, digita o código, escolhe o plano, lê o contrato e assina.
+- **Dois andamentos viram sozinhos:** a proposta passa a "aceita" e a
+  aplicação passa a "ganho" na mesa, sem ninguém marcar nada.
+- Fica guardado o resumo SHA-256 do contrato inteiro, já com o nome de
+  quem assinou dentro. É o que aparece no comprovante, e é o que prova
+  depois que o texto não mudou.
+- **As doze cláusulas ainda não passaram por advogado.** Vieram prontas no
+  pacote de origem. Antes do primeiro envio de verdade, é preciso essa
+  leitura.
 
 **As verificações, todas verdes:**
 
-    npm test                                 84 + 104 = 188 rotas
+    npm test                            84 + 104 + 25 = 213 rotas
     node verifica-aplicar.mjs                 95 a página, em navegador
-    node fonte/sistema/verifica.mjs           40 as dez telas, três papéis
+    node fonte/sistema/verifica.mjs           42 as onze telas, três papéis
     node fonte/sistema/verifica-login.mjs     42 a porta
+    node fonte/sistema/verifica-propostas.mjs 28 o ciclo da proposta
                                              ---
-                                             302
+                                             420
 
-As três de navegador pedem um `npx wrangler dev` de pé na porta 8787.
+As quatro de navegador pedem um `npx wrangler dev` de pé na porta 8787.
+As duas que exercitam a porta esvaziam a casa no banco **local** antes de
+começar, porque o primeiro acesso só responde com a casa vazia.
 
-**O que ainda não protege, e precisa ficar claro:**
+**O que o endereço do sistema não faz, e precisa ficar claro:**
 
-- **Sem o Cloudflare Access, o endereço do sistema não tem porta.** A senha
-  de dentro diz quem é a pessoa e o que ela enxerga; ela não impede ninguém
-  de chegar até a tela de login. A própria porta escreve isso enquanto o
-  Access não existir.
-- Enquanto ele não existir, **a aba de medidas e a edição do formulário
-  ficam fechadas**, com 503 de propósito, e as duas telas explicam por quê
-  sem escrever código na tela. O formulário público continua no ar e
-  continua recebendo: só a parte de dentro é que espera.
-- Foi assim que o sistema do outro negócio ficou exposto em 26/08.
+- **Qualquer um chega até a tela de login.** O que a porta faz é dizer
+  quem é a pessoa e o que ela enxerga, e isso é conferido no banco a cada
+  pedido: sem entrar, nem o endereço na mão devolve dado nenhum. O que ela
+  não faz é esconder que o sistema existe.
+- Isso é diferente de 26/08, quando o sistema do outro negócio ficou
+  exposto: lá não havia porta nenhuma, e os dados saíam para quem pedisse.
 
 **Falta, em ordem:**
 
-1. **Apagar a aplicação do Cloudflare Access**, se ela ainda existir
-   (seção 5a). Ela foi criada em 01/09 e substituída no dia seguinte pela
-   porta da casa. Enquanto existir, quem abre o sistema vê duas telas de
-   login seguidas, e os pedidos que o sistema faz por dentro voltam como a
-   página de entrada do Access em vez de dados.
-2. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site com o
+1. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site com o
    mesmo banco. Nada fica exposto por ele hoje, porque a porta é a mesma;
    o que incomoda é ter dois endereços para a mesma casa.
+2. **A leitura de advogado nas doze cláusulas do contrato**, antes do
+   primeiro envio de verdade.
 3. Se a automação do Typeform ainda existir na conta de lá, apagar. Ela
    nunca chegou a ser ligada (ficou em rascunho, com o gatilho desligado),
    e deste lado não existe mais rota para ela bater.
+
+**Feito em 02/09:** a aplicação do Cloudflare Access foi apagada. Ela foi
+criada em 01/09 e substituída no dia seguinte pela porta da casa. Se
+alguém recriar uma cobrindo `/sistema`, `/leads`, `/eu` ou `/api/mesa`,
+quem abre o sistema passa a ver duas telas de login seguidas, e os pedidos
+que o sistema faz por dentro voltam como a página de entrada do Access em
+vez de dados.
 
 ---
 

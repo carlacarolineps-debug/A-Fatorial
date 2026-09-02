@@ -77,7 +77,7 @@ const ANDAMENTOS = [
   { k: 'novo',        nome: 'Nova aplicação',    eti: 'eti-marca' },
   { k: 'contatado',   nome: 'Em leitura',        eti: 'eti-info' },
   { k: 'qualificado', nome: 'Cabe no método',    eti: 'eti-info' },
-  { k: 'proposta',    nome: 'Retorno enviado',   eti: 'eti-atencao' },
+  { k: 'proposta',    nome: 'Proposta enviada',  eti: 'eti-atencao' },
   { k: 'ganho',       nome: 'Virou projeto',     eti: 'eti-ok' },
   { k: 'perdido',     nome: 'Não seguimos agora',eti: 'eti-neutra' },
 ];
@@ -117,6 +117,7 @@ const CHAVES = {
   marca:        'iqv_marca',
   registro:     'iqv_registro',
   formularioRascunho: 'iqv_formulario_rascunho',
+  contratada:   'iqv_contratada',
 };
 
 // Ultimo erro de gravacao, para "A casa" poder mostrar em vez de calar.
@@ -331,6 +332,8 @@ const TELAS = [
     titulo: ['Contratado e <b>recebido</b>', 'Quanto foi vendido e quanto entrou de fato'] },
   { k: 'cliente',  nome: 'Meu projeto',            ic: 'i-case', grupo: 'O cliente',
     titulo: ['Meu <b>projeto</b>', 'O que o cliente vê do próprio projeto'] },
+  { k: 'propostas', nome: 'Propostas',           ic: 'i-doc', grupo: 'A mesa',
+    titulo: ['<b>Propostas</b>', 'O que foi enviado, quem abriu e quem já assinou'] },
   { k: 'casa',     nome: 'A casa',                 ic: 'i-shield', grupo: 'A casa',
     titulo: ['A <b>casa</b>', 'Quem entra, o que cada um enxerga, e onde o dado pode se perder'] },
 ];
@@ -346,8 +349,8 @@ const GRUPOS = ['A mesa', 'Meu trabalho', 'O método', 'O cliente', 'A casa'];
    acesso padrao uma vez so. Depois disso, desmarcar em "A casa" vale.
    --------------------------------------------------------------------- */
 const PERMISSOES_DEFAULT = {
-  gestor:      ['semana', 'ideias', 'formulario', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
-  colaborador: ['semana', 'ideias', 'formulario', 'leitura', 'projetos', 'entrega', 'roteiros', 'cliente'],
+  gestor:      ['semana', 'ideias', 'formulario', 'propostas', 'leitura', 'projetos', 'entrega', 'roteiros', 'dinheiro', 'cliente', 'casa'],
+  colaborador: ['semana', 'ideias', 'formulario', 'propostas', 'leitura', 'projetos', 'entrega', 'roteiros', 'cliente'],
   cliente:     ['cliente'],
 };
 
@@ -361,7 +364,7 @@ let PERMISSOES = JSON.parse(JSON.stringify(PERMISSOES_DEFAULT));
 let TELAS_VISTAS = [];
 // Telas que passaram a existir depois da versao anterior. So vale para o
 // navegador que ainda nao tem TELAS_VISTAS guardada.
-const TELAS_NOVAS = ['formulario'];
+const TELAS_NOVAS = ['formulario', 'propostas'];
 
 (function carregarPermissoes() {
   const salvo = iqvLer(CHAVES.permissoes, null);

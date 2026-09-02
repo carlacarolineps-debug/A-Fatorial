@@ -11,13 +11,12 @@
 // medido, contado e conferido antes de virar escrita, e toda escrita
 // passa por prepare().bind(): nada aqui monta SQL com texto de fora.
 //
-// As três com login usam a mesma portaria do /leads. Com TEAM_DOMAIN ou
-// ACCESS_AUD vazios elas respondem 503 dizendo qual falta, e nunca
-// deixam passar: não conferir o token e liberar seria pior que fechar.
-// Banco fora do ar é outra coisa, e por isso tem resposta própria: as
-// duas trazem "motivo", uma dizendo "configuracao" e a outra "banco",
-// para a tela nunca mais dizer que falta ligar o login quando o que
-// caiu foi o banco.
+// As três com login usam a mesma portaria do /leads: 401 para quem não
+// entrou, 403 para quem entrou como cliente. Até 02/09 elas também
+// respondiam 503 quando faltava configurar o Cloudflare Access. Aquilo
+// acabou junto com o Access: a porta é da casa e não depende de nada
+// preenchido em painel nenhum. Banco fora do ar continua tendo resposta
+// própria, com "motivo": "banco".
 //
 // A aplicação aceita vira UMA linha em leads, no formato que a tela
 // "Ideias que chegaram" já lê. Nenhuma coluna nova, nenhuma alteração de
