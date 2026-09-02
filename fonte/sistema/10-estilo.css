@@ -556,8 +556,8 @@ kbd{
      margem: em monitor grande as duas metades continuam no lugar em vez
      de virarem um bloquinho no meio de um mar preto. */
   padding:clamp(20px,5vh,64px) clamp(20px,7vw,150px);
-  grid-template-columns:minmax(0,1fr) clamp(340px,31vw,470px);
-  gap:clamp(32px,8vw,170px);
+  grid-template-columns:minmax(0,1fr) clamp(380px,36vw,560px);
+  gap:clamp(28px,6vw,140px);
 }
 .porta-capa{max-width:none;justify-self:start}
 
@@ -614,7 +614,7 @@ kbd{
   letter-spacing:.2em;text-transform:uppercase;color:var(--branco)}
 .porta-frase{
   font-family:var(--display); font-weight:800; line-height:1.0;
-  font-size:clamp(30px,4.8vw,84px); letter-spacing:-.045em; color:var(--branco);
+  font-size:clamp(30px,4.3vw,84px); letter-spacing:-.045em; color:var(--branco);
   text-wrap:balance;
 }
 .porta-frase span{color:var(--o)}
@@ -622,7 +622,10 @@ kbd{
 /* ---- o cartao de vidro ---- */
 .porta-caixa{
   position:relative; z-index:2; display:grid; align-content:center;
-  padding:clamp(28px,3vw,40px);
+  padding:clamp(30px,3.6vw,52px);
+  /* Em coluna unica o cartao nao encosta nas bordas nem some: largura
+     toda ate 600px, e centrado dali em diante. */
+  width:100%; max-width:600px; margin-inline:auto;
   border-radius:var(--r-lg); border:1px solid rgba(255,255,255,.09);
   border-top-color:rgba(255,180,110,.20);
   background:linear-gradient(160deg,rgba(255,131,9,.055),rgba(8,8,10,.60) 42%),
@@ -685,17 +688,20 @@ kbd{
 
 /* ---- os textos dentro do cartao ---- */
 .porta h1{
-  font-family:var(--display); font-weight:800; font-size:clamp(22px,2.2vw,32px);
+  font-family:var(--display); font-weight:800; font-size:clamp(26px,2.6vw,38px);
   letter-spacing:-.04em; color:var(--branco); text-align:left; line-height:1.06;
 }
+.porta > .porta-caixa > p{font-size:14px}
+.porta .rotulo{font-size:12px;letter-spacing:.16em}
+.porta .dica{font-size:13px}
 
 /* Tela baixa: janela de notebook com a barra do navegador comendo a
    altura. O cartao nao pode ocupar 80% dela; aqui tudo dentro dele
    aperta um degrau, e a frase do lado tambem. */
 @media (max-height:660px) and (min-width:901px){
   .porta{padding-top:16px;padding-bottom:16px}
-  .porta-caixa{padding:20px 24px 22px}
-  .porta h1{font-size:22px}
+  .porta-caixa{padding:24px 28px 26px}
+  .porta h1{font-size:24px}
   .porta > .porta-caixa > p{margin:4px 0 12px}
   .porta .rotulo{margin-bottom:4px}
   .porta .campo-com-icone .campo{padding-top:8px;padding-bottom:8px}
@@ -709,7 +715,8 @@ kbd{
   margin:var(--e1) 0 var(--e3)}
 .porta .rotulo{color:var(--tinta-3)}
 .porta .dica{color:var(--tinta-4)}
-.porta .bt-marca{width:100%;justify-content:center;margin-top:var(--e3)}
+.porta .bt-marca{width:100%;justify-content:center;margin-top:var(--e3);
+  padding-top:14px;padding-bottom:14px;font-size:15px}
 
 /* ---- campo com icone, e o olho da senha ---- */
 .campo-com-icone{position:relative;display:block}
@@ -719,9 +726,11 @@ kbd{
   transition:color var(--t-controle) var(--ease);
 }
 .campo-com-icone .campo{
-  padding-left:38px; background:rgba(255,255,255,.045);
-  border-color:rgba(255,255,255,.09); color:var(--branco);
+  padding:13px 12px 13px 42px; font-size:15px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.09); border-radius:var(--r-sm); color:var(--branco);
 }
+.campo-com-icone .ic-campo{left:14px;width:18px;height:18px}
 .campo-com-icone .campo::placeholder{color:var(--tinta-4)}
 .campo-com-icone .campo:focus{
   background:rgba(255,255,255,.075); border-color:var(--o-35);
@@ -765,6 +774,19 @@ kbd{
   .porta-caixa{transition:none}
 }
 
+/* Janela estreita E baixa, que e a de quem abre o sistema numa aba ao lado
+   de outra coisa: a frase sairia, o cartao desceria e o botao de entrar
+   cairia abaixo da dobra. Aqui a frase se recolhe, a marca fica, e o
+   cartao cabe inteiro. */
+@media (max-width:900px) and (max-height:640px){
+  .porta-frase{display:none}
+  .porta{gap:var(--e2);padding-top:14px;padding-bottom:14px}
+  .porta-caixa{padding:22px 26px 24px}
+  .porta h1{font-size:24px}
+  .porta > .porta-caixa > p{margin:4px 0 10px}
+  .porta .campo-com-icone .campo{padding-top:10px;padding-bottom:10px}
+  .porta .bt-marca{margin-top:12px;padding-top:11px;padding-bottom:11px}
+}
 @media (max-width:900px){
   .porta{grid-template-columns:1fr; align-content:center; gap:var(--e3)}
   .porta-capa{padding:0; gap:var(--e2); max-width:none; justify-self:stretch}
@@ -810,10 +832,10 @@ kbd{
 
 /* ---------------------------------------------------------- celular */
 @media (max-width:1080px){ .grade-4,.numeros,.tira{grid-template-columns:repeat(2,1fr)} }
-@media (max-width:860px){
-  .porta{grid-template-columns:1fr}
-  .porta-capa{min-height:42vh}
-}
+/* A regra que ficava aqui, min-height de 42vh na capa, era da porta
+   dividida em duas metades e sobreviveu a ela: em janela baixa e estreita
+   abria um buraco de 230px entre a marca e o cartao, e empurrava o botao
+   de entrar para baixo da dobra. */
 @media (max-width:760px){
   .grade-2,.grade-3,.grade-4{grid-template-columns:1fr;gap:var(--e3)}
 }
