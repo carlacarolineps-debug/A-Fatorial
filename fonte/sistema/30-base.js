@@ -446,6 +446,57 @@ function primeiraMaiuscula(s) {
 }
 
 /* ---------------------------------------------------------------------
+   Embaralhar a senha ANTES de mandar.
+
+   Senha crua nao sai deste navegador. O que viaja e a PROVA: o resultado
+   de 210 mil voltas de PBKDF2 sobre a senha, com sal tirado do proprio
+   e-mail.
+
+   Por que aqui e nao no servidor. Embaralhar precisa ser caro, senao
+   roubar o banco vira roubar as senhas. Mas o plano gratis do Worker da
+   10 ms de processador por pedido, e 210 mil voltas gastam uns 120: no
+   gratis, entrar falharia. Fazendo a conta aqui, ela custa uns 100 ms na
+   maquina de quem entra, uma vez por mes, e o servidor gasta menos de 2.
+
+   E o que importa continua de pe: quem roubar a tabela ainda precisa dar
+   as 210 mil voltas para cada chute. O custo por chute nao mudou, so
+   mudou de maquina.
+
+   O sal sai do e-mail, e nao de uma pergunta ao servidor. Perguntar "qual
+   e o sal desta pessoa" antes de ela provar quem e contaria a qualquer um
+   quais e-mails existem. Sal nao precisa ser secreto: precisa ser
+   diferente por pessoa, e o e-mail e.
+
+   As regras vem do servidor, na resposta do /eu, para os dois lados nunca
+   discordarem sobre quantas voltas dar.
+   --------------------------------------------------------------------- */
+let REGRAS_DA_PROVA = null;
+
+const emHex = (bytes) => Array.from(new Uint8Array(bytes))
+  .map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+
+async function provaDaSenha(email, senha) {
+  const regras = REGRAS_DA_PROVA;
+  if (!regras) throw new Error('sem as regras do servidor');
+
+  const alvo = String(email || '').trim().toLowerCase();
+  const sal = await crypto.subtle.digest('SHA-256',
+    new TextEncoder().encode(regras.tempero + alvo));
+
+  const chave = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(String(senha)), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: sal, iterations: regras.voltas, hash: 'SHA-256' },
+    chave, 256);
+  return emHex(bits);
+}
+
+// Quanto a senha precisa ter. Fica deste lado porque e deste lado que a
+// senha existe: no servidor chega a prova, que tem sempre o mesmo
+// tamanho.
+const SENHA_MINIMA = 8;
+
+/* ---------------------------------------------------------------------
    Falar com o servidor.
 
    Um lugar so para os cabecalhos, para nenhuma tela sair sem eles. O

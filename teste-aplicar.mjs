@@ -95,6 +95,19 @@ const SENHA_DE_TESTE = "umasenhadeteste";
 let CRACHA = "";
 const comCracha = () => ({ cookie: CRACHA });
 
+// A senha crua nao viaja: o que vai e a prova, embaralhada com sal tirado
+// do e-mail. A conta e refeita aqui igual a do navegador.
+const REGRAS = { versao: 1, voltas: 210000, tempero: "iqv-porta-v1:" };
+const prova = async (email, senha) => {
+  const sal = await crypto.webcrypto.subtle.digest("SHA-256",
+    Buffer.from(REGRAS.tempero + String(email).trim().toLowerCase()));
+  const chave = await crypto.webcrypto.subtle.importKey(
+    "raw", Buffer.from(String(senha)), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.webcrypto.subtle.deriveBits(
+    { name: "PBKDF2", salt: sal, iterations: REGRAS.voltas, hash: "SHA-256" }, chave, 256);
+  return Buffer.from(bits).toString("hex");
+};
+
 const servidor = spawn(
   "npx",
   ["wrangler", "dev", "--port", "8789", "--local", "--inspector-port", "9239",
@@ -136,7 +149,7 @@ const t = (nome, cond, extra = "") => {
   const r = await fetch(`${B}/primeiro-acesso`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ nome: "Carla de Teste", email: QUEM_ENTRA, senha: SENHA_DE_TESTE }),
+    body: JSON.stringify({ nome: "Carla de Teste", email: QUEM_ENTRA, prova: await prova(QUEM_ENTRA, SENHA_DE_TESTE) }),
   });
   const posto = (r.headers.getSetCookie?.() || []).find((c) => c.startsWith("iqv_cracha="));
   if (!posto) {
@@ -393,12 +406,12 @@ t("crachá curto demais nem chega a consultar o banco", r.status === 401, `statu
   await fetch(`${B}/pessoas`, {
     method: "POST",
     headers: { "content-type": "application/json", cookie: CRACHA },
-    body: JSON.stringify({ nome: "Marina", email: "marina@cliente.com", papel: "cliente", senha: "primeira123" }),
+    body: JSON.stringify({ nome: "Marina", email: "marina@cliente.com", papel: "cliente", prova: await prova("marina@cliente.com", "primeira123") }),
   });
   const entrada = await fetch(`${B}/entrar`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email: "marina@cliente.com", senha: "primeira123" }),
+    body: JSON.stringify({ email: "marina@cliente.com", prova: await prova("marina@cliente.com", "primeira123") }),
   });
   const posto = (entrada.headers.getSetCookie?.() || []).find((c) => c.startsWith("iqv_cracha="));
   r = await chamar(`${BP}/api/mesa/metricas`, { headers: { cookie: posto.split(";")[0] } });

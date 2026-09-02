@@ -137,27 +137,51 @@ const com = (quem, extra = {}) => ({
 const postar = (caminho, corpo, quem) =>
   fetch(`${B}${caminho}`, com(quem, { method: "POST", body: JSON.stringify(corpo) }));
 
+// A senha crua nao sai do navegador: o que viaja e a PROVA, 210 mil voltas
+// de PBKDF2 com sal tirado do e-mail. Aqui a conta e refeita igual, porque
+// e assim que o sistema vai mandar de verdade. Se as duas contas
+// divergirem, ninguem entra, e este teste e quem avisa.
+const REGRAS = { versao: 1, voltas: 210000, tempero: "iqv-porta-v1:" };
+const prova = async (email, senha) => {
+  const sal = await crypto.webcrypto.subtle.digest("SHA-256",
+    Buffer.from(REGRAS.tempero + String(email).trim().toLowerCase()));
+  const chave = await crypto.webcrypto.subtle.importKey(
+    "raw", Buffer.from(String(senha)), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.webcrypto.subtle.deriveBits(
+    { name: "PBKDF2", salt: sal, iterations: REGRAS.voltas, hash: "SHA-256" }, chave, 256);
+  return Buffer.from(bits).toString("hex");
+};
+
 let j;
 
 r = await fetch(`${B}/eu`);
 j = await r.json();
 t("porta: com a casa vazia, o /eu avisa", r.status === 200 && j.casa_vazia === true && j.entrou === false, JSON.stringify(j));
+t("porta: o servidor ensina ao navegador como embaralhar a senha",
+  j.regras?.voltas === REGRAS.voltas && j.regras?.tempero === REGRAS.tempero,
+  JSON.stringify(j.regras));
 
-r = await postar("/primeiro-acesso", { nome: "Carla", email: "carla@iqv.com.br", senha: "curta" });
+// A senha crua nao pode ser aceita como se fosse a prova: se fosse, quem
+// contornasse a tela mandaria a senha em texto e o embaralhamento do
+// navegador viraria enfeite.
+r = await postar("/primeiro-acesso", { nome: "Carla", email: "carla@iqv.com.br", senha: "umasenhaboa" });
+t("porta: mandar a senha crua no lugar da prova é recusado", r.status === 400, `status=${r.status}`);
+
+r = await postar("/primeiro-acesso", { nome: "Carla", email: "carla@iqv.com.br", prova: "nao-e-uma-prova" });
 j = await r.json();
-t("porta: primeira senha curta é recusada", r.status === 400 && /8 caracteres/.test(j.erro), JSON.stringify(j));
+t("porta: prova torta é recusada", r.status === 400 && /embaralhada/.test(j.erro), JSON.stringify(j));
 
-r = await postar("/primeiro-acesso", { nome: "Carla", email: "nao-e-email", senha: "umasenhaboa" });
+r = await postar("/primeiro-acesso", { nome: "Carla", email: "nao-e-email", prova: await prova("nao-e-email", "umasenhaboa") });
 t("porta: primeiro acesso com e-mail torto é recusado", r.status === 400, `status=${r.status}`);
 
-r = await postar("/primeiro-acesso", { nome: "Carla Caroline", email: "Carla@IQV.com.BR", senha: "umasenhaboa" });
+r = await postar("/primeiro-acesso", { nome: "Carla Caroline", email: "Carla@IQV.com.BR", prova: await prova("carla@iqv.com.br", "umasenhaboa") });
 j = await r.json();
 guardar("carla", r);
 t("porta: a primeira pessoa nasce gestora", r.status === 200 && j.eu.papel === "gestor", JSON.stringify(j.eu || {}));
 t("porta: o e-mail é guardado em minúsculas", j.eu && j.eu.email === "carla@iqv.com.br", j.eu && j.eu.email);
 t("porta: entrar devolve um crachá no cookie", !!craxas.carla);
 
-r = await postar("/primeiro-acesso", { nome: "Intruso", email: "x@y.com", senha: "umasenhaboa" });
+r = await postar("/primeiro-acesso", { nome: "Intruso", email: "x@y.com", prova: await prova("x@y.com", "umasenhaboa") });
 t("porta: primeiro acesso não funciona duas vezes", r.status === 409, `status=${r.status}`);
 
 r = await fetch(`${B}/eu`, com("carla"));
@@ -169,11 +193,11 @@ j = await r.json();
 t("porta: crachá inventado não entra", j.entrou === false, JSON.stringify(j));
 
 // ---------- errar e-mail e errar senha respondem igual ----------
-r = await postar("/entrar", { email: "carla@iqv.com.br", senha: "erradaerrada" });
+r = await postar("/entrar", { email: "carla@iqv.com.br", prova: await prova("carla@iqv.com.br", "erradaerrada") });
 const erroSenha = await r.json();
 t("porta: senha errada  401", r.status === 401, `status=${r.status}`);
 
-r = await postar("/entrar", { email: "ninguem@lugar.com", senha: "erradaerrada" });
+r = await postar("/entrar", { email: "ninguem@lugar.com", prova: await prova("ninguem@lugar.com", "erradaerrada") });
 const erroEmail = await r.json();
 t("porta: e-mail que não existe responde a MESMA coisa que senha errada",
   erroEmail.erro === erroSenha.erro, `${erroEmail.erro} / ${erroSenha.erro}`);
@@ -184,35 +208,35 @@ t("porta: e-mail que não existe responde a MESMA coisa que senha errada",
 // mexer no banco, o que derrubaria o servidor no meio da rodada. Freando um
 // e-mail descartavel, o resto do teste segue com os de verdade.
 const chutado = "freio-de-teste@iqv.com.br";
-for (let i = 0; i < 8; i++) await postar("/entrar", { email: chutado, senha: "chuteichutei" });
-r = await postar("/entrar", { email: chutado, senha: "chuteichutei" });
+for (let i = 0; i < 8; i++) await postar("/entrar", { email: chutado, prova: await prova(chutado, "chuteichutei") });
+r = await postar("/entrar", { email: chutado, prova: await prova(chutado, "chuteichutei") });
 j = await r.json();
 t("porta: oito erros seguidos freiam aquele e-mail", r.status === 429 && j.freado === true, JSON.stringify(j));
 
-r = await postar("/entrar", { email: "carla@iqv.com.br", senha: "umasenhaboa" });
+r = await postar("/entrar", { email: "carla@iqv.com.br", prova: await prova("carla@iqv.com.br", "umasenhaboa") });
 guardar("carla", r);
 t("porta: e o freio é por e-mail, não fecha a casa inteira", r.status === 200, `status=${r.status}`);
 
 // ---------- cadastrar equipe ----------
-r = await postar("/pessoas", { nome: "Beatriz", email: "bia@iqv.com.br", papel: "colaborador", senha: "primeira123" }, "carla");
+r = await postar("/pessoas", { nome: "Beatriz", email: "bia@iqv.com.br", papel: "colaborador", prova: await prova("bia@iqv.com.br", "primeira123") }, "carla");
 j = await r.json();
 t("pessoas: a gestora cadastra", r.status === 200 && j.pessoa.papel === "colaborador", JSON.stringify(j.pessoa || j));
 t("pessoas: quem é cadastrada troca a senha na primeira entrada", j.pessoa && j.pessoa.precisa_trocar === true);
 
-r = await postar("/pessoas", { nome: "Outra", email: "bia@iqv.com.br", papel: "colaborador", senha: "primeira123" }, "carla");
+r = await postar("/pessoas", { nome: "Outra", email: "bia@iqv.com.br", papel: "colaborador", prova: await prova("bia@iqv.com.br", "primeira123") }, "carla");
 t("pessoas: o mesmo e-mail duas vezes é recusado", r.status === 409, `status=${r.status}`);
 
-r = await postar("/pessoas", { nome: "X", email: "x@iqv.com.br", papel: "chefe", senha: "primeira123" }, "carla");
+r = await postar("/pessoas", { nome: "X", email: "x@iqv.com.br", papel: "chefe", prova: await prova("x@iqv.com.br", "primeira123") }, "carla");
 t("pessoas: papel inventado é recusado", r.status === 400, `status=${r.status}`);
 
-r = await postar("/pessoas", { nome: "Marina", email: "marina@cliente.com", papel: "cliente", senha: "primeira123" }, "carla");
+r = await postar("/pessoas", { nome: "Marina", email: "marina@cliente.com", papel: "cliente", prova: await prova("marina@cliente.com", "primeira123") }, "carla");
 t("pessoas: cliente também é cadastrado aqui", r.status === 200, `status=${r.status}`);
 
 r = await fetch(`${B}/pessoas`);
 t("pessoas: sem entrar, a lista é 401", r.status === 401, `status=${r.status}`);
 
 // ---------- o papel filtra DADO, e não só tela ----------
-r = await postar("/entrar", { email: "marina@cliente.com", senha: "primeira123" });
+r = await postar("/entrar", { email: "marina@cliente.com", prova: await prova("marina@cliente.com", "primeira123") });
 j = await r.json();
 guardar("marina", r);
 t("porta: quem foi cadastrada entra com a senha que recebeu", r.status === 200, `status=${r.status}`);
@@ -224,12 +248,12 @@ t("leads: cliente NÃO lê a mesa, nem com o endereço na mão", r.status === 40
 r = await fetch(`${B}/pessoas`, com("marina"));
 t("pessoas: cliente não lê a lista da equipe", r.status === 403, `status=${r.status}`);
 
-r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "primeira123" });
+r = await postar("/entrar", { email: "bia@iqv.com.br", prova: await prova("bia@iqv.com.br", "primeira123") });
 guardar("bia", r);
 r = await fetch(`${B}/leads`, com("bia"));
 t("leads: colaboradora lê a mesa", r.status === 200, `status=${r.status}`);
 
-r = await postar("/pessoas", { nome: "Z", email: "z@iqv.com.br", papel: "gestor", senha: "primeira123" }, "bia");
+r = await postar("/pessoas", { nome: "Z", email: "z@iqv.com.br", papel: "gestor", prova: await prova("z@iqv.com.br", "primeira123") }, "bia");
 t("pessoas: colaboradora não cadastra ninguém", r.status === 403, `status=${r.status}`);
 
 r = await fetch(`${B}/leads`, com("carla"));
@@ -249,19 +273,19 @@ r = await fetch(`${B}/leads`, { method: "DELETE" });
 t("leads: DELETE  405", r.status === 405, `status=${r.status}`);
 
 // ---------- trocar a própria senha ----------
-r = await postar("/minha-senha", { atual: "erradaerrada", nova: "outrasenha1" }, "bia");
+r = await postar("/minha-senha", { atual: await prova("bia@iqv.com.br", "erradaerrada"), nova: await prova("bia@iqv.com.br", "outrasenha1") }, "bia");
 t("senha: a atual errada não troca nada", r.status === 400, `status=${r.status}`);
 
-r = await postar("/minha-senha", { atual: "primeira123", nova: "curta" }, "bia");
-t("senha: a nova curta é recusada", r.status === 400, `status=${r.status}`);
+r = await postar("/minha-senha", { atual: await prova("bia@iqv.com.br", "primeira123"), nova: "prova-torta" }, "bia");
+t("senha: prova torta na senha nova é recusada", r.status === 400, `status=${r.status}`);
 
-r = await postar("/minha-senha", { atual: "primeira123", nova: "outrasenha1" }, "bia");
+r = await postar("/minha-senha", { atual: await prova("bia@iqv.com.br", "primeira123"), nova: await prova("bia@iqv.com.br", "outrasenha1") }, "bia");
 t("senha: com a atual certa, troca", r.status === 200, `status=${r.status}`);
 
-r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "primeira123" });
+r = await postar("/entrar", { email: "bia@iqv.com.br", prova: await prova("bia@iqv.com.br", "primeira123") });
 t("senha: a antiga para de entrar", r.status === 401, `status=${r.status}`);
 
-r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "outrasenha1" });
+r = await postar("/entrar", { email: "bia@iqv.com.br", prova: await prova("bia@iqv.com.br", "outrasenha1") });
 j = await r.json();
 guardar("bia", r);
 t("senha: a nova entra, e a marca de trocar sai", r.status === 200 && j.eu.precisa_trocar === false, JSON.stringify(j.eu || {}));
@@ -287,7 +311,7 @@ t("casa: a gestora desliga a colaboradora", r.status === 200, `status=${r.status
 r = await fetch(`${B}/leads`, com("bia"));
 t("casa: quem foi desligada cai na hora, e não daqui a um mês", r.status === 401, `status=${r.status}`);
 
-r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "outrasenha1" });
+r = await postar("/entrar", { email: "bia@iqv.com.br", prova: await prova("bia@iqv.com.br", "outrasenha1") });
 t("casa: e não consegue entrar de novo", r.status === 401, `status=${r.status}`);
 
 // ---------- sair ----------

@@ -50,7 +50,11 @@ enabled = true
 # Agora quem confere quem entra e o src/porta.js, com e-mail e senha no
 # banco D1, e nao ha nada para configurar fora do repositorio.
 #
-# ATENCAO AO PLANO DO WORKER. O calculo da senha usa 210 mil voltas de
-# PBKDF2, que gastam mais que os 10 ms de processador do plano gratis.
-# Isso pede o plano de 5 dolares. Se um dia precisar voltar para o gratis,
-# o numero de voltas esta em src/porta.js, numa constante so.
+# ISTO RODA NO PLANO GRATIS, e e de proposito. As 210 mil voltas de PBKDF2
+# que embaralham a senha gastam uns 120 ms de processador, e o plano gratis
+# da 10 por pedido: elas sao feitas no NAVEGADOR de quem entra, e o servidor
+# faz por cima um passo de 2 mil voltas, que custa menos de 2 ms. A conta
+# esta explicada no cabecalho do src/porta.js.
+#
+# Nao mova as 210 mil de volta para ca "para ficar mais seguro": a
+# seguranca ja esta preservada onde ela esta, e mover derruba o login.

@@ -28,19 +28,58 @@
 import { json } from "./lib.js";
 
 /* --------------------------------------------------------------------
-   Quanto trabalho a senha custa.
+   Onde a senha e embaralhada, e por que nao e aqui.
 
-   Cada volta e uma passada de SHA-256, e sao as voltas que fazem tentar
-   senha por forca bruta caro. 210 mil gastam uns 120 ms de processador
-   por entrada, e entrada acontece uma vez por mes por pessoa.
+   Embaralhar senha PRECISA ser caro: e o custo por chute que faz roubar o
+   banco nao virar roubar as senhas. Mas o plano gratis do Worker da 10 ms
+   de processador por pedido, e 210 mil voltas de PBKDF2 gastam uns 120.
+   No plano gratis, entrar simplesmente falharia.
 
-   ISTO PEDE O PLANO PAGO DO WORKER. O plano gratis da 10 ms de
-   processador por pedido, e este calculo passa disso com folga. Se um dia
-   for preciso voltar para o gratis, este numero desce para uns 10 mil, e
-   quem ja tem senha continua entrando: o numero usado fica gravado junto
-   com o resumo de cada pessoa.
+   Entao o trabalho caro mudou de lado: quem faz as 210 mil voltas e o
+   NAVEGADOR de quem esta entrando, antes de mandar qualquer coisa. O que
+   viaja e o resultado disso, que este arquivo chama de PROVA. O servidor
+   faz por cima dela um passo barato, de 2 mil voltas, e guarda so isso.
+
+   Guardado = barato( caro( senha ) )
+
+   O que isso preserva, e e a parte que importa: quem roubar a tabela
+   inteira tem que, para cada chute, fazer as 210 mil voltas e depois as 2
+   mil. O custo por chute continua o mesmo de antes. A conta so saiu do
+   servidor e foi para a maquina de quem entra, que tem processador de
+   sobra e faz isso uma vez por mes.
+
+   O que isso NAO faz: proteger contra quem consegue ler o que trafega ou
+   rodar codigo dentro da pagina. Para esse, a prova vale tanto quanto a
+   senha. Mas isso ja era verdade com a senha crua indo no mesmo lugar,
+   entao nao se perdeu nada; e o trafego e https.
+
+   A senha crua nunca chega aqui. Nem em log, nem em erro, nem por
+   engano: ela nao e mandada.
    -------------------------------------------------------------------- */
-const VOLTAS = 210000;
+
+// O que o navegador faz. O numero fica escrito aqui porque e o servidor
+// que ensina a regra ao navegador, na resposta do /eu: assim os dois nunca
+// discordam, e mudar isto e mudar num lugar so.
+//
+// O sal do navegador vem do proprio e-mail, e nao de consulta nenhuma.
+// Consultar "qual e o sal desta pessoa" antes de ela provar quem e diria a
+// qualquer um quais e-mails existem, que e exatamente o que o resto deste
+// arquivo tem o cuidado de nao contar. Sal nao precisa ser secreto: ele
+// precisa ser diferente por pessoa, e o e-mail e.
+export const REGRAS_DA_PROVA = {
+  versao: 1,
+  voltas: 210000,
+  tempero: "iqv-porta-v1:",
+};
+
+// O passo barato, deste lado. 2 mil voltas gastam menos de 2 ms, cabem
+// com folga nos 10 do plano gratis, e existem para que duas pessoas com a
+// mesma prova ainda guardem coisas diferentes, por causa do sal sorteado.
+const VOLTAS = 2000;
+
+// A prova tem 32 bytes em hexadecimal, sempre. Recusar aqui o que nao tem
+// essa cara evita que um pedido torto chegue no calculo.
+const pareceProva = (v) => typeof v === "string" && /^[0-9a-f]{64}$/.test(v);
 
 // Um mes. E o intervalo em que a pessoa digita a senha de novo: doze
 // vezes por ano, e nao uma por dia.
@@ -53,7 +92,6 @@ const ERROS_ATE_FREAR = 8;
 const MINUTOS_DE_FREIO = 15;
 
 const PAPEIS = ["gestor", "colaborador", "cliente"];
-const SENHA_MINIMA = 8;
 
 const COOKIE = "iqv_cracha";
 
@@ -81,12 +119,13 @@ async function resumoSHA(texto) {
   return emHex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texto)));
 }
 
-/* O resumo da senha. O sal entra junto para duas pessoas com a mesma
-   senha guardarem coisas diferentes, e as voltas entram por fora para
-   poderem mudar sem invalidar o que ja esta gravado. */
-async function resumoSenha(senha, salHex, voltas) {
+/* O passo barato por cima da prova que veio do navegador. O sal sorteado
+   entra junto para duas pessoas com a mesma prova guardarem coisas
+   diferentes, e as voltas entram por fora para poderem mudar sem
+   invalidar o que ja esta gravado. */
+async function resumoDaProva(prova, salHex, voltas) {
   const chave = await crypto.subtle.importKey(
-    "raw", new TextEncoder().encode(String(senha)), "PBKDF2", false, ["deriveBits"],
+    "raw", new TextEncoder().encode(String(prova)), "PBKDF2", false, ["deriveBits"],
   );
   const bits = await crypto.subtle.deriveBits(
     { name: "PBKDF2", salt: deHex(salHex), iterations: voltas, hash: "SHA-256" },
@@ -255,6 +294,10 @@ async function contarQuemSou(request, env) {
 
   return json({
     ok: true,
+    // A regra de embaralhar vai junto: o navegador nao a tem escrita nele,
+    // ele pergunta. Assim os dois lados nunca discordam sobre quantas
+    // voltas dar, e mudar o numero e mexer num arquivo so.
+    regras: REGRAS_DA_PROVA,
     casa_vazia: (conta?.n || 0) === 0,
     entrou: !!eu,
     eu: eu ? {
@@ -270,14 +313,14 @@ async function contarQuemSou(request, env) {
 async function entrar(request, env) {
   const corpo = await corpoJson(request);
   const email = limparEmail(corpo?.email);
-  const senha = String(corpo?.senha || "");
+  const prova = String(corpo?.prova || "");
 
   // Uma frase so para tudo que da errado aqui. Dizer "este e-mail nao
   // existe" entregaria de graca quais e-mails existem.
   const naoEntrou = () =>
     json({ ok: false, erro: "e-mail ou senha não conferem" }, 401);
 
-  if (!pareceEmail(email) || !senha) return naoEntrou();
+  if (!pareceEmail(email) || !pareceProva(prova)) return naoEntrou();
 
   if (await freado(env, email)) {
     return json({
@@ -300,7 +343,7 @@ async function entrar(request, env) {
     return naoEntrou();
   }
 
-  const resumo = await resumoSenha(senha, p.senha_sal, p.senha_voltas || VOLTAS);
+  const resumo = await resumoDaProva(prova, p.senha_sal, p.senha_voltas || VOLTAS);
   if (!iguais(resumo, p.senha_hash)) {
     await contarErro(env, email);
     return naoEntrou();
@@ -369,16 +412,20 @@ async function primeiroAcesso(request, env) {
   const corpo = await corpoJson(request);
   const nome = String(corpo?.nome || "").trim().slice(0, 120);
   const email = limparEmail(corpo?.email);
-  const senha = String(corpo?.senha || "");
+  const prova = String(corpo?.prova || "");
 
+  // O tamanho minimo da senha e conferido no navegador, porque e la que a
+  // senha existe: aqui chega a prova, que tem sempre o mesmo tamanho. Quem
+  // contornar a tela e puser uma senha curta so enfraquece a propria
+  // conta, e nao a de mais ninguem.
   const erro = !nome ? "escreva o seu nome"
     : !pareceEmail(email) ? "escreva um e-mail válido"
-    : senha.length < SENHA_MINIMA ? `a senha precisa de pelo menos ${SENHA_MINIMA} caracteres`
+    : !pareceProva(prova) ? "não recebi a senha embaralhada. Recarregue a página e tente de novo."
     : null;
   if (erro) return json({ ok: false, erro }, 400);
 
   const sal = sorteio(16);
-  const hash = await resumoSenha(senha, sal, VOLTAS);
+  const hash = await resumoDaProva(prova, sal, VOLTAS);
 
   const feito = await env.DB.prepare(`
     insert into pessoas (email, nome, papel, ativo, senha_hash, senha_sal, senha_voltas)
@@ -408,9 +455,11 @@ async function trocarMinhaSenha(request, env) {
   const atual = String(corpo?.atual || "");
   const nova = String(corpo?.nova || "");
 
-  if (nova.length < SENHA_MINIMA) {
-    return json({ ok: false, erro: `a senha nova precisa de pelo menos ${SENHA_MINIMA} caracteres` }, 400);
+  if (!pareceProva(atual) || !pareceProva(nova)) {
+    return json({ ok: false, erro: "não recebi as senhas embaralhadas. Recarregue a página e tente de novo." }, 400);
   }
+  // Comparar as duas provas equivale a comparar as duas senhas: a mesma
+  // senha, do mesmo e-mail, sempre da a mesma prova.
   if (nova === atual) {
     return json({ ok: false, erro: "a senha nova é igual à antiga" }, 400);
   }
@@ -419,13 +468,13 @@ async function trocarMinhaSenha(request, env) {
     "select senha_hash, senha_sal, senha_voltas from pessoas where id = ?1",
   ).bind(eu.id).first();
 
-  const confere = await resumoSenha(atual, p.senha_sal, p.senha_voltas || VOLTAS);
+  const confere = await resumoDaProva(atual, p.senha_sal, p.senha_voltas || VOLTAS);
   if (!iguais(confere, p.senha_hash)) {
     return json({ ok: false, erro: "a senha atual não confere" }, 400);
   }
 
   const sal = sorteio(16);
-  const hash = await resumoSenha(nova, sal, VOLTAS);
+  const hash = await resumoDaProva(nova, sal, VOLTAS);
   await env.DB.prepare(`
     update pessoas set senha_hash = ?2, senha_sal = ?3, senha_voltas = ?4,
                        precisa_trocar = 0, atualizado_em = ?5
@@ -475,12 +524,12 @@ async function cadastrarPessoa(request, env) {
   const nome = String(corpo?.nome || "").trim().slice(0, 120);
   const email = limparEmail(corpo?.email);
   const papel = String(corpo?.papel || "colaborador");
-  const senha = String(corpo?.senha || "");
+  const prova = String(corpo?.prova || "");
 
   const erro = !nome ? "escreva o nome"
     : !pareceEmail(email) ? "escreva um e-mail válido"
     : !PAPEIS.includes(papel) ? "papel que não existe"
-    : senha.length < SENHA_MINIMA ? `a primeira senha precisa de pelo menos ${SENHA_MINIMA} caracteres`
+    : !pareceProva(prova) ? "não recebi a primeira senha embaralhada. Recarregue a página e tente de novo."
     : null;
   if (erro) return json({ ok: false, erro }, 400);
 
@@ -488,7 +537,7 @@ async function cadastrarPessoa(request, env) {
   if (jaTem) return json({ ok: false, erro: "já existe alguém com esse e-mail" }, 409);
 
   const sal = sorteio(16);
-  const hash = await resumoSenha(senha, sal, VOLTAS);
+  const hash = await resumoDaProva(prova, sal, VOLTAS);
 
   const feito = await env.DB.prepare(`
     insert into pessoas (email, nome, papel, ativo, senha_hash, senha_sal, senha_voltas, precisa_trocar)
@@ -553,13 +602,13 @@ async function mudarPessoa(request, env) {
   // troca na primeira entrada. Nao existe "senha em branco" aqui: conta
   // sem senha nao entra, e ficaria travada esperando um e-mail que este
   // sistema nao manda.
-  if (corpo.senha !== undefined) {
-    const senha = String(corpo.senha);
-    if (senha.length < SENHA_MINIMA) {
-      return json({ ok: false, erro: `a senha precisa de pelo menos ${SENHA_MINIMA} caracteres` }, 400);
+  if (corpo.prova !== undefined) {
+    const prova = String(corpo.prova);
+    if (!pareceProva(prova)) {
+      return json({ ok: false, erro: "não recebi a senha embaralhada. Recarregue a página e tente de novo." }, 400);
     }
     const sal = sorteio(16);
-    mudar("senha_hash", await resumoSenha(senha, sal, VOLTAS));
+    mudar("senha_hash", await resumoDaProva(prova, sal, VOLTAS));
     mudar("senha_sal", sal);
     mudar("senha_voltas", VOLTAS);
     mudar("precisa_trocar", 1);
@@ -576,7 +625,7 @@ async function mudarPessoa(request, env) {
   // Desligar alguem ou zerar a senha dela derruba as sessoes abertas.
   // Sem isto, quem foi desligada continuaria dentro ate o cracha vencer,
   // e "tirei o acesso dela" seria mentira por ate um mes.
-  if (corpo.ativo === false || corpo.senha !== undefined) {
+  if (corpo.ativo === false || corpo.prova !== undefined) {
     await env.DB.prepare("delete from sessoes where pessoa_id = ?1").bind(id).run();
   }
 

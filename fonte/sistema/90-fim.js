@@ -50,10 +50,20 @@ function pintarPorta(titulo, texto_, corpo) {
 const erroDaPorta = (msg, dica) =>
   escrever('portaErro', aviso('alerta', msg, dica || 'Corrija e tente de novo.'));
 
-function ocupada(idDoBotao, sim) {
+// Embaralhar a senha leva uns 100 ms num computador e pode passar de meio
+// segundo num telefone antigo. Sem trocar o texto do botao, esse tempo
+// parece clique que nao pegou, e a pessoa clica de novo.
+function ocupada(idDoBotao, sim, texto_) {
   const b = porId(idDoBotao);
-  if (b) { b.disabled = !!sim; b.style.opacity = sim ? '.6' : ''; }
+  if (!b) return;
+  b.disabled = !!sim;
+  b.style.opacity = sim ? '.6' : '';
+  if (texto_) b.textContent = sim ? texto_ + '...' : texto_;
 }
+
+// De quem e a senha que esta sendo trocada. O sal da prova sai do e-mail,
+// entao a tela de trocar precisa saber qual e.
+let PORTA_EMAIL = null;
 
 function entrar(pessoa) {
   EU.id = pessoa.id;
@@ -89,10 +99,13 @@ async function portaEntrar() {
   if (!email || email.indexOf('@') < 0) { erroDaPorta('Escreva o seu e-mail.'); return; }
   if (!senha) { erroDaPorta('Escreva a sua senha.'); return; }
 
-  ocupada('portaBotao', true);
+  ocupada('portaBotao', true, 'Conferindo');
   escrever('portaErro', '');
-  const r = await pedirPorta('/entrar', { email: email, senha: senha });
-  ocupada('portaBotao', false);
+  const r = await pedirPorta('/entrar', {
+    email: email,
+    prova: await provaDaSenha(email, senha),
+  });
+  ocupada('portaBotao', false, 'Entrar');
 
   if (r.status === 0) {
     erroDaPorta('Não consegui falar com o servidor.',
@@ -149,10 +162,13 @@ async function portaCriarPrimeiro() {
     : null;
   if (erro) { erroDaPorta(erro); return; }
 
-  ocupada('portaBotao', true);
+  ocupada('portaBotao', true, 'Criando');
   escrever('portaErro', '');
-  const r = await pedirPorta('/primeiro-acesso', { nome: nome, email: email, senha: senha });
-  ocupada('portaBotao', false);
+  const r = await pedirPorta('/primeiro-acesso', {
+    nome: nome, email: email,
+    prova: await provaDaSenha(email, senha),
+  });
+  ocupada('portaBotao', false, 'Criar meu acesso');
 
   if (r.status === 0) {
     erroDaPorta('Não consegui falar com o servidor.', 'Tente de novo em instantes.');
@@ -201,10 +217,13 @@ async function portaTrocar() {
     : null;
   if (erro) { erroDaPorta(erro); return; }
 
-  ocupada('portaBotao', true);
+  ocupada('portaBotao', true, 'Guardando');
   escrever('portaErro', '');
-  const r = await pedirPorta('/minha-senha', { atual: atual, nova: nova });
-  ocupada('portaBotao', false);
+  const r = await pedirPorta('/minha-senha', {
+    atual: await provaDaSenha(PORTA_EMAIL, atual),
+    nova: await provaDaSenha(PORTA_EMAIL, nova),
+  });
+  ocupada('portaBotao', false, 'Guardar e entrar');
 
   if (r.status === 0) {
     erroDaPorta('Não consegui falar com o servidor.', 'Tente de novo em instantes.');
@@ -218,6 +237,7 @@ async function portaTrocar() {
 }
 
 function portaTelaTrocar(pessoa) {
+  PORTA_EMAIL = pessoa.email;
   pintarPorta(
     'Escolha a sua <b>senha</b>',
     'A senha que você recebeu serve uma vez só. A partir de agora é a sua.',
@@ -255,6 +275,16 @@ async function abrirPorta() {
         'Se você abriu este arquivo direto do computador, entre pelo endereço publicado, em ideiaquevende.com.br/sistema/.') +
       '<button class="bt bt-linha" style="width:100%;justify-content:center;margin-top:14px" ' +
         'onclick="abrirPorta()">Tentar de novo</button>');
+    return;
+  }
+
+  REGRAS_DA_PROVA = r.corpo.regras || null;
+  if (!REGRAS_DA_PROVA) {
+    pintarPorta(
+      'O servidor respondeu <b>diferente</b> do esperado',
+      'Não recebi a regra de embaralhar a senha, e sem ela não dá para entrar com segurança.',
+      aviso('alerta', 'Isso costuma ser publicação pela metade.',
+        'Recarregue em um minuto. Se continuar, o site precisa ser publicado de novo.'));
     return;
   }
 

@@ -112,5 +112,5 @@ print('public/sistema/index.html: %d bytes | %.1f kb | %d telas'
 print()
 print('LEMBRETE: quem confere a senha e o servidor, no src/porta.js, desde')
 print('02/09. O papel e conferido no BANCO a cada pedido, entao cliente nao')
-print('le a mesa nem com o endereco na mao. O calculo da senha pede o plano')
-print('pago do Worker: os 10 ms do gratis nao dao conta.')
+print('le a mesa nem com o endereco na mao. A senha crua nunca sai do')
+print('navegador: o que viaja e a prova, 210 mil voltas de PBKDF2.')

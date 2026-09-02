@@ -315,18 +315,27 @@ seguidas: a da Cloudflare e a da casa. E pior, os pedidos que o sistema
 faz por dentro (`/leads`, `/eu`, `/api/mesa`) voltam como a página de
 entrada do Access em vez de dados.
 
-### 5b. O plano do Worker precisa ser o pago
+### 5b. O plano continua o grátis, e isso é de propósito
 
-**Workers & Pages** → o Worker `ideia-que-vende` → o plano.
+Não precisa pagar nada. Vale saber por quê, porque parece que deveria.
 
-São 5 dólares por mês. Não é capricho: o cálculo que embaralha a senha
-usa 210 mil voltas e gasta mais que os 10 ms de processador que o plano
-grátis dá por pedido. No grátis, entrar começaria a falhar sem erro
-claro.
+Embaralhar senha precisa ser caro: é o custo por chute que faz roubar o
+banco não virar roubar as senhas. Mas o plano grátis do Worker dá 10 ms de
+processador por pedido, e as 210 mil voltas gastam uns 120. No grátis, o
+login simplesmente falharia.
 
-Se um dia for preciso ficar no grátis, o número de voltas está em
-`src/porta.js`, numa constante só, e desce para uns 10 mil. Isso enfraquece
-a senha contra quem rouba o banco inteiro, e por isso não é o padrão.
+Então a conta cara mudou de lado: quem faz as 210 mil voltas é o navegador
+de quem está entrando, e o que viaja é o resultado. O servidor faz um passo
+barato por cima e gasta menos de 2 ms.
+
+**A proteção continua a mesma.** Quem roubar a tabela inteira ainda precisa
+dar as 210 mil voltas para cada chute. O custo por chute não mudou, mudou
+de máquina: saiu do servidor, que é cobrado por milissegundo, e foi para o
+computador de quem entra, que tem processador de sobra e faz isso uma vez
+por mês.
+
+Custo prático: entrar leva uns 100 ms a mais num computador, e talvez meio
+segundo num telefone antigo. O botão avisa enquanto calcula.
 
 ### 5c. O primeiro acesso
 

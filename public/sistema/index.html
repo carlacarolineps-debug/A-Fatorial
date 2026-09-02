@@ -1463,6 +1463,57 @@ function primeiraMaiuscula(s) {
 }
 
 /* ---------------------------------------------------------------------
+   Embaralhar a senha ANTES de mandar.
+
+   Senha crua nao sai deste navegador. O que viaja e a PROVA: o resultado
+   de 210 mil voltas de PBKDF2 sobre a senha, com sal tirado do proprio
+   e-mail.
+
+   Por que aqui e nao no servidor. Embaralhar precisa ser caro, senao
+   roubar o banco vira roubar as senhas. Mas o plano gratis do Worker da
+   10 ms de processador por pedido, e 210 mil voltas gastam uns 120: no
+   gratis, entrar falharia. Fazendo a conta aqui, ela custa uns 100 ms na
+   maquina de quem entra, uma vez por mes, e o servidor gasta menos de 2.
+
+   E o que importa continua de pe: quem roubar a tabela ainda precisa dar
+   as 210 mil voltas para cada chute. O custo por chute nao mudou, so
+   mudou de maquina.
+
+   O sal sai do e-mail, e nao de uma pergunta ao servidor. Perguntar "qual
+   e o sal desta pessoa" antes de ela provar quem e contaria a qualquer um
+   quais e-mails existem. Sal nao precisa ser secreto: precisa ser
+   diferente por pessoa, e o e-mail e.
+
+   As regras vem do servidor, na resposta do /eu, para os dois lados nunca
+   discordarem sobre quantas voltas dar.
+   --------------------------------------------------------------------- */
+let REGRAS_DA_PROVA = null;
+
+const emHex = (bytes) => Array.from(new Uint8Array(bytes))
+  .map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+
+async function provaDaSenha(email, senha) {
+  const regras = REGRAS_DA_PROVA;
+  if (!regras) throw new Error('sem as regras do servidor');
+
+  const alvo = String(email || '').trim().toLowerCase();
+  const sal = await crypto.subtle.digest('SHA-256',
+    new TextEncoder().encode(regras.tempero + alvo));
+
+  const chave = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(String(senha)), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: sal, iterations: regras.voltas, hash: 'SHA-256' },
+    chave, 256);
+  return emHex(bits);
+}
+
+// Quanto a senha precisa ter. Fica deste lado porque e deste lado que a
+// senha existe: no servidor chega a prova, que tem sempre o mesmo
+// tamanho.
+const SENHA_MINIMA = 8;
+
+/* ---------------------------------------------------------------------
    Falar com o servidor.
 
    Um lugar so para os cabecalhos, para nenhuma tela sair sem eles. O
@@ -10266,7 +10317,9 @@ async function casaNovaSenha(id) {
   if (!sim) return;
 
   const senha = casaSortearSenha();
-  const r = await casaPedir('PATCH', { id: id, senha: senha });
+  // A prova e calculada com o e-mail DELA, porque e com o e-mail dela que
+  // ela vai entrar: o sal da prova sai do e-mail de quem entra.
+  const r = await casaPedir('PATCH', { id: id, prova: await provaDaSenha(u.email, senha) });
   if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'trocar a senha'); return; }
 
   // A lista e relida ANTES de escrever o aviso: recarregar redesenha a
@@ -10346,7 +10399,10 @@ async function casaAdicionar() {
   }
 
   const senha = casaSortearSenha();
-  const r = await casaPedir('POST', { nome: nome, email: email, papel: papel, senha: senha });
+  const r = await casaPedir('POST', {
+    nome: nome, email: email, papel: papel,
+    prova: await provaDaSenha(email, senha),
+  });
   if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'cadastrar'); return; }
 
   const campoNome = porId('casaNome'); if (campoNome) campoNome.value = '';
@@ -10565,10 +10621,20 @@ function pintarPorta(titulo, texto_, corpo) {
 const erroDaPorta = (msg, dica) =>
   escrever('portaErro', aviso('alerta', msg, dica || 'Corrija e tente de novo.'));
 
-function ocupada(idDoBotao, sim) {
+// Embaralhar a senha leva uns 100 ms num computador e pode passar de meio
+// segundo num telefone antigo. Sem trocar o texto do botao, esse tempo
+// parece clique que nao pegou, e a pessoa clica de novo.
+function ocupada(idDoBotao, sim, texto_) {
   const b = porId(idDoBotao);
-  if (b) { b.disabled = !!sim; b.style.opacity = sim ? '.6' : ''; }
+  if (!b) return;
+  b.disabled = !!sim;
+  b.style.opacity = sim ? '.6' : '';
+  if (texto_) b.textContent = sim ? texto_ + '...' : texto_;
 }
+
+// De quem e a senha que esta sendo trocada. O sal da prova sai do e-mail,
+// entao a tela de trocar precisa saber qual e.
+let PORTA_EMAIL = null;
 
 function entrar(pessoa) {
   EU.id = pessoa.id;
@@ -10604,10 +10670,13 @@ async function portaEntrar() {
   if (!email || email.indexOf('@') < 0) { erroDaPorta('Escreva o seu e-mail.'); return; }
   if (!senha) { erroDaPorta('Escreva a sua senha.'); return; }
 
-  ocupada('portaBotao', true);
+  ocupada('portaBotao', true, 'Conferindo');
   escrever('portaErro', '');
-  const r = await pedirPorta('/entrar', { email: email, senha: senha });
-  ocupada('portaBotao', false);
+  const r = await pedirPorta('/entrar', {
+    email: email,
+    prova: await provaDaSenha(email, senha),
+  });
+  ocupada('portaBotao', false, 'Entrar');
 
   if (r.status === 0) {
     erroDaPorta('Não consegui falar com o servidor.',
@@ -10664,10 +10733,13 @@ async function portaCriarPrimeiro() {
     : null;
   if (erro) { erroDaPorta(erro); return; }
 
-  ocupada('portaBotao', true);
+  ocupada('portaBotao', true, 'Criando');
   escrever('portaErro', '');
-  const r = await pedirPorta('/primeiro-acesso', { nome: nome, email: email, senha: senha });
-  ocupada('portaBotao', false);
+  const r = await pedirPorta('/primeiro-acesso', {
+    nome: nome, email: email,
+    prova: await provaDaSenha(email, senha),
+  });
+  ocupada('portaBotao', false, 'Criar meu acesso');
 
   if (r.status === 0) {
     erroDaPorta('Não consegui falar com o servidor.', 'Tente de novo em instantes.');
@@ -10716,10 +10788,13 @@ async function portaTrocar() {
     : null;
   if (erro) { erroDaPorta(erro); return; }
 
-  ocupada('portaBotao', true);
+  ocupada('portaBotao', true, 'Guardando');
   escrever('portaErro', '');
-  const r = await pedirPorta('/minha-senha', { atual: atual, nova: nova });
-  ocupada('portaBotao', false);
+  const r = await pedirPorta('/minha-senha', {
+    atual: await provaDaSenha(PORTA_EMAIL, atual),
+    nova: await provaDaSenha(PORTA_EMAIL, nova),
+  });
+  ocupada('portaBotao', false, 'Guardar e entrar');
 
   if (r.status === 0) {
     erroDaPorta('Não consegui falar com o servidor.', 'Tente de novo em instantes.');
@@ -10733,6 +10808,7 @@ async function portaTrocar() {
 }
 
 function portaTelaTrocar(pessoa) {
+  PORTA_EMAIL = pessoa.email;
   pintarPorta(
     'Escolha a sua <b>senha</b>',
     'A senha que você recebeu serve uma vez só. A partir de agora é a sua.',
@@ -10770,6 +10846,16 @@ async function abrirPorta() {
         'Se você abriu este arquivo direto do computador, entre pelo endereço publicado, em ideiaquevende.com.br/sistema/.') +
       '<button class="bt bt-linha" style="width:100%;justify-content:center;margin-top:14px" ' +
         'onclick="abrirPorta()">Tentar de novo</button>');
+    return;
+  }
+
+  REGRAS_DA_PROVA = r.corpo.regras || null;
+  if (!REGRAS_DA_PROVA) {
+    pintarPorta(
+      'O servidor respondeu <b>diferente</b> do esperado',
+      'Não recebi a regra de embaralhar a senha, e sem ela não dá para entrar com segurança.',
+      aviso('alerta', 'Isso costuma ser publicação pela metade.',
+        'Recarregue em um minuto. Se continuar, o site precisa ser publicado de novo.'));
     return;
   }
 

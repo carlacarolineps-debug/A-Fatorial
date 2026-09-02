@@ -35,7 +35,7 @@ const entrarComo = async (email) => {
     await fetch("/entrar", {
       method: "POST",
       headers: { "content-type": "application/json", accept: "application/json" },
-      body: JSON.stringify({ email: e, senha: s }),
+      body: JSON.stringify({ email: e, prova: await provaDaSenha(e, s) }),
     });
   }, [email, SENHA]);
   await pg.reload({ waitUntil: "networkidle" });
@@ -53,22 +53,25 @@ await pg.screenshot({ path: `${S}/sis-0-porta.png` });
 
 // 2. As tres pessoas, criadas pelo servidor, e entrar como gestora
 await pg.evaluate(async ([s]) => {
+  // A pagina ja carregou, entao provaDaSenha e as regras do servidor estao
+  // aqui dentro: a semeadura embaralha a senha do mesmo jeito que a tela.
   const mandar = (caminho, corpo) => fetch(caminho, {
     method: "POST",
     headers: { "content-type": "application/json", accept: "application/json" },
     body: JSON.stringify(corpo),
   });
-  await mandar("/primeiro-acesso", { nome: "Carla Caroline", email: "carla@iqv.com.br", senha: s });
-  await mandar("/pessoas", { nome: "Beatriz", email: "bia@iqv.com.br", papel: "colaborador", senha: s });
-  await mandar("/pessoas", { nome: "Marina Alves", email: "marina@cliente.com", papel: "cliente", senha: s });
+  const pv = (email) => provaDaSenha(email, s);
+  await mandar("/primeiro-acesso", { nome: "Carla Caroline", email: "carla@iqv.com.br", prova: await pv("carla@iqv.com.br") });
+  await mandar("/pessoas", { nome: "Beatriz", email: "bia@iqv.com.br", papel: "colaborador", prova: await pv("bia@iqv.com.br") });
+  await mandar("/pessoas", { nome: "Marina Alves", email: "marina@cliente.com", papel: "cliente", prova: await pv("marina@cliente.com") });
   // As duas cadastradas nascem com a marca de trocar a senha, que
   // prenderia esta verificacao na tela de troca. Aqui elas ja trocaram:
   // o que se quer provar sao as telas, e a troca tem verificacao propria.
   for (const email of ["bia@iqv.com.br", "marina@cliente.com"]) {
     await fetch("/sair", { method: "POST", headers: { accept: "application/json" } });
-    await mandar("/entrar", { email, senha: s });
-    await mandar("/minha-senha", { atual: s, nova: s + "x" });
-    await mandar("/minha-senha", { atual: s + "x", nova: s });
+    await mandar("/entrar", { email, prova: await pv(email) });
+    await mandar("/minha-senha", { atual: await pv(email), nova: await provaDaSenha(email, s + "x") });
+    await mandar("/minha-senha", { atual: await provaDaSenha(email, s + "x"), nova: await pv(email) });
   }
 }, [SENHA]);
 

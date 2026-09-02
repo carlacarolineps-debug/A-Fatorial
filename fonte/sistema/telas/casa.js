@@ -112,7 +112,9 @@ async function casaNovaSenha(id) {
   if (!sim) return;
 
   const senha = casaSortearSenha();
-  const r = await casaPedir('PATCH', { id: id, senha: senha });
+  // A prova e calculada com o e-mail DELA, porque e com o e-mail dela que
+  // ela vai entrar: o sal da prova sai do e-mail de quem entra.
+  const r = await casaPedir('PATCH', { id: id, prova: await provaDaSenha(u.email, senha) });
   if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'trocar a senha'); return; }
 
   // A lista e relida ANTES de escrever o aviso: recarregar redesenha a
@@ -192,7 +194,10 @@ async function casaAdicionar() {
   }
 
   const senha = casaSortearSenha();
-  const r = await casaPedir('POST', { nome: nome, email: email, papel: papel, senha: senha });
+  const r = await casaPedir('POST', {
+    nome: nome, email: email, papel: papel,
+    prova: await provaDaSenha(email, senha),
+  });
   if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'cadastrar'); return; }
 
   const campoNome = porId('casaNome'); if (campoNome) campoNome.value = '';

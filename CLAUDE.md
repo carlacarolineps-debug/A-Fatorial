@@ -101,9 +101,28 @@ O que isso muda, e não é pouco:
 - **O papel filtra DADO, e não só tela.** `/leads` e `/api/mesa/` exigem
   `gestor` ou `colaborador`, conferidos no banco a cada pedido. Cliente
   não lê a mesa nem com o endereço na mão.
-- **A senha nunca é guardada.** Fica o resumo PBKDF2 dela, com sal
-  próprio por pessoa, e o número de voltas gravado junto para o dia em
-  que ele subir.
+- **A senha nunca sai do navegador.** O que viaja é a **prova**: 210 mil
+  voltas de PBKDF2 sobre a senha, com sal tirado do próprio e-mail. O
+  servidor faz 2 mil voltas por cima disso e guarda só o resultado.
+
+      guardado = barato( caro( senha ) )
+
+  Isso existe por causa do plano grátis do Worker, que dá 10 ms de
+  processador por pedido: as 210 mil voltas gastam uns 120, e o login
+  falharia. Fazendo a conta no navegador, ela custa uns 100 ms na máquina
+  de quem entra, uma vez por mês, e o servidor gasta menos de 2 ms.
+
+  **O que importa continua de pé:** quem roubar a tabela inteira ainda
+  precisa dar as 210 mil voltas para cada chute. O custo por chute não
+  mudou, mudou de máquina.
+
+  O sal sai do e-mail (`SHA-256` de `iqv-porta-v1:` mais o e-mail), e não
+  de uma consulta. Perguntar "qual é o sal desta pessoa" antes de ela
+  provar quem é contaria a qualquer um quais e-mails existem. Sal não
+  precisa ser secreto: precisa ser diferente por pessoa.
+
+  As regras (voltas e tempero) vêm do servidor, na resposta do `/eu`, para
+  os dois lados nunca discordarem.
 - **Quem cadastra escolhe a primeira senha**, sorteada pela tela, e a
   pessoa troca antes de ver qualquer coisa. Senha que andou por WhatsApp
   não fica valendo.
@@ -115,10 +134,11 @@ O que isso muda, e não é pouco:
 O crachá é um número sorteado de 32 bytes, num cookie `HttpOnly`, e o que
 fica no banco é o SHA-256 dele. Vale 30 dias: doze logins por ano.
 
-**Isto pede o plano pago do Worker.** O cálculo da senha usa 210 mil
-voltas e passa dos 10 ms de processador do plano grátis. O número está em
-`src/porta.js`, numa constante só, e quem já tem senha continua entrando
-se ele mudar.
+**Roda no plano grátis**, e é por isso que a conta cara mora no
+navegador. Se um dia o `REGRAS_DA_PROVA.voltas` mudar, quem já tem senha
+para de entrar: o número usado fica gravado em `senha_voltas` só para o
+passo do servidor, e o do navegador é global. Mudar exige uma versão nova
+no `REGRAS_DA_PROVA` e um período em que o navegador manda as duas provas.
 
 ### As oito rotas da porta
 
@@ -217,11 +237,11 @@ o único lugar onde entra texto escrito por desconhecido, o que explica o
 npm test
 ```
 
-Roda duas suítes: as 72 rotas de sempre e as 104 do formulário. Sobe
+Roda duas suítes: as 74 rotas de sempre e as 104 do formulário. Sobe
 wrangler local, bate nas rotas por HTTP e derruba tudo no fim. Roda no
 banco local; não encosta em produção.
 
-São 72 verificações nas rotas de sempre: o site estático com os cabeçalhos
+São 74 verificações nas rotas de sempre: o site estático com os cabeçalhos
 certos, o `robots.txt` e o `sitemap.xml`, e a porta inteira, do primeiro
 acesso ao freio de força bruta, passando por errar e-mail e errar senha
 respondendo a mesma frase, pelo cliente que não lê a mesa e por desligar
@@ -249,7 +269,7 @@ node fonte/sistema/verifica-login.mjs  # 35: a porta, do primeiro dia em diante
 node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
 ```
 
-São 342 verificações no total: 176 de rota e 166 de navegador.
+São 344 verificações no total: 178 de rota e 166 de navegador.
 
 ## Cuidados no que já está de pé
 
@@ -268,6 +288,7 @@ São 342 verificações no total: 176 de rota e 166 de navegador.
   a pessoa passa a ver duas telas de login seguidas, e os pedidos que o
   sistema faz por dentro voltam como a página de entrada do Access em vez
   de dados.
-- **O plano do Worker precisa ser o pago.** O cálculo da senha passa dos
-  10 ms de processador do grátis, e login começaria a falhar sem erro
-  claro.
+- **O cálculo da senha cabe no plano grátis de propósito.** Se alguém
+  mover as 210 mil voltas de volta para o servidor "para ficar mais
+  seguro", o login passa a estourar os 10 ms de processador e falha sem
+  erro claro. A segurança já está preservada onde ela está.
