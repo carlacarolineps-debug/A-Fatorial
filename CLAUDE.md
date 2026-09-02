@@ -237,11 +237,11 @@ o único lugar onde entra texto escrito por desconhecido, o que explica o
 npm test
 ```
 
-Roda duas suítes: as 74 rotas de sempre e as 104 do formulário. Sobe
+Roda duas suítes: as 84 rotas de sempre e as 104 do formulário. Sobe
 wrangler local, bate nas rotas por HTTP e derruba tudo no fim. Roda no
 banco local; não encosta em produção.
 
-São 74 verificações nas rotas de sempre: o site estático com os cabeçalhos
+São 84 verificações nas rotas de sempre: o site estático com os cabeçalhos
 certos, o `robots.txt` e o `sitemap.xml`, e a porta inteira, do primeiro
 acesso ao freio de força bruta, passando por errar e-mail e errar senha
 respondendo a mesma frase, pelo cliente que não lê a mesa e por desligar
@@ -269,7 +269,7 @@ node fonte/sistema/verifica-login.mjs  # 35: a porta, do primeiro dia em diante
 node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
 ```
 
-São 344 verificações no total: 178 de rota e 166 de navegador.
+São 354 verificações no total: 188 de rota e 166 de navegador.
 
 ## Cuidados no que já está de pé
 

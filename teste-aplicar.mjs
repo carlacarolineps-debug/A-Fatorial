@@ -48,6 +48,12 @@ const bancoLocal = (argumentos, onde = null) => spawnSync(
 // da rota aberta vermelhas em toda rodada, acusando a poda de deixar
 // passar o que na verdade alguém pôs no ar de propósito. Com a tabela
 // limpa, a de fábrica volta a ser a que está no ar em toda rodada.
+// As tabelas da porta sao derrubadas antes de recriadas. "create table if
+// not exists" nao acrescenta coluna nova numa tabela que ja existe de uma
+// rodada anterior, e o insert entao falha por coluna que falta, com uma
+// mensagem que nao diz isso. Banco de teste pode ser jogado fora.
+bancoLocal(["--command", "drop table if exists sessoes; drop table if exists freio; drop table if exists pessoas;"], ESTADO_PORTA);
+
 for (const onde of [ESTADO_PORTA]) {
   for (const arquivo of ["schema.sql", "schema-formulario.sql", "schema-porta.sql"]) {
     if (bancoLocal([`--file=${arquivo}`], onde).status !== 0) {

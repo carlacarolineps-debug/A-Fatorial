@@ -157,7 +157,7 @@ async function portaCriarPrimeiro() {
 
   const erro = !nome ? 'Escreva o seu nome.'
     : (!email || email.indexOf('@') < 0) ? 'Escreva um e-mail válido.'
-    : senha.length < 8 ? 'A senha precisa de pelo menos 8 caracteres.'
+    : senha.length < SENHA_MINIMA ? 'A senha precisa de pelo menos ' + SENHA_MINIMA + ' caracteres.'
     : senha !== repete ? 'As duas senhas não são iguais.'
     : null;
   if (erro) { erroDaPorta(erro); return; }
@@ -192,7 +192,7 @@ function portaTelaPrimeiro(avisoTopo) {
     '<label class="rotulo" for="portaEmail" style="margin-top:14px">Seu e-mail</label>' +
     '<input class="campo" id="portaEmail" type="email" autocomplete="username" placeholder="é por ele que você vai entrar">' +
     '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
-    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos 8 caracteres">' +
+    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
     '<label class="rotulo" for="portaSenha2" style="margin-top:14px">Repita a senha</label>' +
     '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password" ' +
       'onkeydown="if(event.key===\'Enter\')portaCriarPrimeiro()">' +
@@ -212,7 +212,7 @@ async function portaTrocar() {
   const repete = String((porId('portaNova2') || {}).value || '');
 
   const erro = !atual ? 'Escreva a senha que você recebeu.'
-    : nova.length < 8 ? 'A senha nova precisa de pelo menos 8 caracteres.'
+    : nova.length < SENHA_MINIMA ? 'A senha nova precisa de pelo menos ' + SENHA_MINIMA + ' caracteres.'
     : nova !== repete ? 'As duas senhas novas não são iguais.'
     : null;
   if (erro) { erroDaPorta(erro); return; }
@@ -246,7 +246,7 @@ function portaTelaTrocar(pessoa) {
     '<label class="rotulo" for="portaAtual">A senha que você recebeu</label>' +
     '<input class="campo" id="portaAtual" type="password" autocomplete="current-password">' +
     '<label class="rotulo" for="portaNova" style="margin-top:14px">Sua senha nova</label>' +
-    '<input class="campo" id="portaNova" type="password" autocomplete="new-password" placeholder="pelo menos 8 caracteres">' +
+    '<input class="campo" id="portaNova" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
     '<label class="rotulo" for="portaNova2" style="margin-top:14px">Repita a senha nova</label>' +
     '<input class="campo" id="portaNova2" type="password" autocomplete="new-password" ' +
       'onkeydown="if(event.key===\'Enter\')portaTrocar()">' +

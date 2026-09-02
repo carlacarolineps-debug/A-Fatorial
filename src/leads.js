@@ -38,16 +38,25 @@ export async function listarLeads(request, env) {
   const barrado = await portaria(request, env);
   if (barrado) return barrado;
 
+  // Duzentas, e nao quinhentas. O plano gratis do Worker da 10 ms de
+  // processador por pedido, e quinhentas aplicacoes de nove respostas
+  // compridas passavam disso so no ler e reescrever o JSON de cada uma.
+  // A tela mostra as mais novas primeiro e ninguem rola ate a quingentesima.
   const { results } = await env.DB.prepare(`
     select id, criado_em, atualizado_em, nome, email, whatsapp,
            plano, origem, status, observacoes, respostas
-    from leads order by criado_em desc limit 500
+    from leads order by criado_em desc limit 200
   `).all();
 
+  // As respostas seguem como TEXTO, do jeito que saem do banco. Antes elas
+  // eram lidas aqui e reescritas na resposta, duas travessias por linha por
+  // nada: quem precisa do objeto e a tela, e ela ja tem que ler o corpo
+  // inteiro de qualquer jeito.
   return json({
     ok: true,
     status_possiveis: STATUS_LEAD,
-    leads: results.map((l) => ({ ...l, respostas: JSON.parse(l.respostas || "{}") })),
+    respostas_em_texto: true,
+    leads: results,
   });
 }
 

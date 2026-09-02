@@ -80,7 +80,7 @@ const LEITURA_MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', '
    2. O estado da tela. Some quando a pagina recarrega, e e para sumir:
    o que precisa durar esta em iqv_leituras e no carimbo do servidor.
    --------------------------------------------------------------------- */
-let LEITURA_ESTADO = 'carregando';   // carregando | ok | sem_servidor | login | sem_configuracao | erro
+let LEITURA_ESTADO = 'carregando';   // carregando | ok | sem_servidor | login | sem_papel | erro
 let LEITURA_ERRO = null;
 let LEITURA_LEADS = [];
 let LEITURA_QUANDO = null;           // quando esta lista foi buscada
@@ -332,11 +332,11 @@ async function leituraPedir(metodo, corpo) {
     const r = await fetch('/leads', opcoes);
     let dados = null;
     try { dados = await r.json(); } catch (e) { dados = null; }
-    // login vencido nao volta em JSON: o Access devolve a pagina de
-    // entrada dele, em HTML, e o fetch ja seguiu o desvio
+    // resposta que nao e JSON e erro do servidor, e nao dado: tratar como
+    // "entre de novo" e o caminho que resolve na maioria das vezes
     if (dados === null) return { estado: 'login' };
-    if (r.status === 503) return { estado: 'sem_configuracao', mensagem: dados.erro };
     if (r.status === 401) return { estado: 'login' };
+    if (r.status === 403) return { estado: 'sem_papel', mensagem: dados.erro };
     if (!r.ok) return { estado: 'erro', mensagem: dados.erro || ('o servidor respondeu ' + r.status) };
     return { estado: 'ok', dados: dados };
   } catch (e) {
@@ -354,7 +354,7 @@ async function leituraBuscar() {
   if (r.estado === 'ok') {
     LEITURA_ESTADO = 'ok';
     LEITURA_ERRO = null;
-    LEITURA_LEADS = Array.isArray(r.dados.leads) ? r.dados.leads : [];
+    LEITURA_LEADS = lerLeads(r.dados);
     LEITURA_QUANDO = new Date().toISOString();
   } else {
     LEITURA_ESTADO = r.estado;
@@ -375,9 +375,9 @@ function leituraRecadoDeRede(r) {
     return { tom: 'atencao', titulo: 'Seu login venceu antes de gravar',
       texto: 'Nada foi gravado. Recarregue a página para entrar de novo e repita a ação.' };
   }
-  if (r.estado === 'sem_configuracao') {
-    return { tom: 'alerta', titulo: 'O login protegido ainda não foi ligado',
-      texto: 'Sem ele o servidor não lê nem grava aplicação, e esta tela não registra andamento.' };
+  if (r.estado === 'sem_papel') {
+    return { tom: 'atencao', titulo: 'O seu acesso não alcança as aplicações',
+      texto: 'Nada foi gravado. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' };
   }
   return { tom: 'alerta', titulo: 'O servidor recusou a gravação',
     texto: 'O que ele respondeu foi: ' + esc(r.mensagem || 'sem explicação') + '. O andamento continua como estava.' };
@@ -406,12 +406,12 @@ function leituraHtmlRede() {
       '<button class="bt bt-linha bt-sm" onclick="leituraAtualizar()" style="margin-bottom:18px">Tentar de novo</button>';
   }
   if (LEITURA_ESTADO === 'login') {
-    return aviso('atencao', 'Seu login venceu.',
-      'O servidor não reconheceu a sua sessão e respondeu com a página de entrada em vez das aplicações. Recarregue a página para entrar de novo.' + orfas);
+    return aviso('atencao', 'A sua entrada venceu.',
+      'O servidor não reconheceu mais a sua sessão. Recarregue a página para entrar de novo com o seu e-mail e a sua senha.' + orfas);
   }
-  if (LEITURA_ESTADO === 'sem_configuracao') {
-    return aviso('alerta', 'O Worker ainda não tem o login protegido configurado.',
-      'TEAM_DOMAIN e ACCESS_AUD estão vazios, e o servidor recusa entregar aplicação sem eles, de propósito: sem essas duas não há como conferir quem está pedindo. O caminho está no DEPLOY.md.' + orfas);
+  if (LEITURA_ESTADO === 'sem_papel') {
+    return aviso('atencao', 'O seu acesso não alcança as aplicações.',
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' + orfas);
   }
   return aviso('alerta', 'O servidor recusou o pedido.',
     'O que ele respondeu foi: ' + esc(LEITURA_ERRO || 'sem explicação') + '.' + orfas);
@@ -899,7 +899,11 @@ function leituraHtmlProjeto(lead) {
   }
 
   const niveis = leituraNiveis();
-  const pessoas = (iqvLer(CHAVES.usuarios, []) || []).filter(function (u) { return u.ativo !== false && u.papel !== 'cliente'; });
+  // A equipe vem do servidor desde 02/09. Esta linha ainda lia a chave do
+  // navegador, que ninguem escreve mais: a lista saia sempre vazia, e
+  // abrir projeto dizia "ninguem esta cadastrado em A casa" mesmo com a
+  // equipe inteira cadastrada.
+  const pessoas = (usuarios() || []).filter(function (u) { return u.ativo !== false && u.papel !== 'cliente'; });
   const prazo = new Date();
   prazo.setDate(prazo.getDate() + 90);
 

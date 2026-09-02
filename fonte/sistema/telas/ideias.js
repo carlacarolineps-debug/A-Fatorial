@@ -152,33 +152,28 @@ async function ideiasCarregar() {
     return;
   }
 
-  // A resposta nem sempre e JSON. Quando o login do Access vence, o que
-  // volta e a pagina de login em HTML, e ler aquilo como JSON estoura. O
-  // estouro apareceria como erro sem nome para quem so precisava
-  // recarregar a pagina.
+  // A resposta nem sempre e JSON: um erro do servidor pode voltar em HTML.
+  // Ler aquilo como JSON estoura, e o estouro apareceria como erro sem
+  // nome para quem so precisava recarregar a pagina.
   let corpo = null;
   try { corpo = await r.json(); } catch (e) { corpo = null; }
 
   if (corpo === null) {
-    ideiasParar('atencao', 'Seu login venceu.',
-      'O servidor devolveu a página de login no lugar das aplicações. Recarregue esta página para entrar de novo. ' +
-      'Se continuar aparecendo, <a href="/cdn-cgi/access/logout">saia do login protegido</a> e entre outra vez.');
-    return;
-  }
-
-  if (r.status === 503) {
-    // De proposito: sem TEAM_DOMAIN e ACCESS_AUD nao ha como conferir
-    // login nenhum, e deixar passar seria pior que fechar.
-    ideiasParar('atencao', 'O login protegido ainda não foi ligado.',
-      'Enquanto ele não existir, a lista fica fechada: abrir agora deixaria as aplicações à vista de ' +
-      'qualquer um que soubesse o endereço.');
+    ideiasParar('atencao', 'O servidor respondeu de um jeito que não entendi.',
+      'Recarregue esta página. Se continuar, é o site que precisa ser publicado de novo.');
     return;
   }
 
   if (r.status === 401) {
-    ideiasParar('atencao', 'O servidor não reconheceu a sua sessão.',
-      'Você chegou até ele, mas o login protegido não validou o seu acesso. Recarregue a página para entrar de novo. ' +
-      'Se você entrou por outro endereço da empresa, é preciso entrar de novo por este.');
+    ideiasParar('atencao', 'A sua entrada venceu.',
+      'Recarregue a página para entrar de novo com o seu e-mail e a sua senha.');
+    return;
+  }
+
+  if (r.status === 403) {
+    // O papel e conferido no servidor a cada pedido, e nao so no menu.
+    ideiasParar('atencao', 'O seu acesso não alcança as aplicações.',
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".');
     return;
   }
 
@@ -189,7 +184,7 @@ async function ideiasCarregar() {
     return;
   }
 
-  IDEIAS.itens = Array.isArray(corpo.leads) ? corpo.leads : [];
+  IDEIAS.itens = lerLeads(corpo);
   IDEIAS.lidoEm = new Date().toISOString();
   IDEIAS.estado = 'ok';
   ideiasDesenhar();
@@ -468,7 +463,7 @@ function ideiasFrase(esperando, respondidas) {
   }
   if (IDEIAS.estado !== 'ok') {
     return ['Buscando as aplicações no <b>servidor</b>.',
-            'Elas moram no banco, atrás do login protegido, e não neste navegador.'];
+            'Elas moram no banco, atrás da porta, e não neste navegador.'];
   }
   if (!IDEIAS.itens.length) {
     return ['Nenhuma ideia chegou <b>ainda</b>.',

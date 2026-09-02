@@ -724,7 +724,7 @@ kbd{
      A unica tela do sistema que fala com o servidor. Todo o resto vive em
      localStorage, por navegador. As aplicacoes nao podem viver assim: elas
      chegam do Typeform, caem no D1 e voltam pela rota /leads, atras do
-     login protegido. Se morassem no navegador, cada pessoa da mesa veria
+     porta. Se morassem no navegador, cada pessoa da mesa veria
      uma fila diferente da fila de quem esta sentado ao lado.
 
      Dai os quatro estados que nenhuma outra tela tem, e que estao escritos
@@ -790,7 +790,7 @@ kbd{
      rascunho em vez de se sobrescreverem em silencio.
 
      Dai os mesmos estados de rede de "Ideias que chegaram", com texto
-     proprio: buscando, sem servidor, login vencido, login protegido ainda
+     proprio: buscando, sem servidor, entrada vencida, papel que nao alcanca
      nao ligado, e o lugar onde o formulario fica guardado fora do ar. Os
      dois ultimos chegam pela mesma porta e pedem coisas opostas de quem
      le, entao nunca compartilham frase.
@@ -1126,7 +1126,10 @@ const CHAVES = {
   metodo:       'iqv_metodo',
   recebimentos: 'iqv_recebimentos',
   retratos:     'iqv_retratos',
-  usuarios:     'iqv_usuarios',
+  // iqv_usuarios saiu em 02/09: a equipe mora no servidor. A chave pode
+  // continuar no navegador de quem usou o sistema antes disso, e "A casa"
+  // nao a le nem a apaga: apagar dado de gente sem pedir e o tipo de
+  // esperteza que some com trabalho alheio.
   permissoes:   'iqv_permissoes',
   marca:        'iqv_marca',
   registro:     'iqv_registro',
@@ -1411,21 +1414,20 @@ function salvarPermissoes() {
 /* ---------------------------------------------------------------------
    6. Quem e a pessoa.
 
-   Sao duas portas, e elas se somam em vez de competir:
+   Uma porta so, e ela e nossa. A pessoa entra com e-mail e senha, e quem
+   confere e o servidor. Ate 01/09 eram duas portas somadas, o Cloudflare
+   Access na frente e uma senha aqui dentro; a de fora saiu porque a tela
+   de entrada era dela, e a Carla queria a da casa.
 
-   O CLOUDFLARE ACCESS decide quem chega ate aqui. Ele e quem protege o
-   endereco, e a rota /eu do servidor diz qual e-mail ele autenticou (uma
-   pagina estatica nao enxerga os proprios cabecalhos).
+   O que EU guarda vem do servidor, e nao do navegador: id, nome, e-mail e
+   papel chegam na resposta de quem entrou. O papel aqui serve para montar
+   o menu e esconder tela. QUEM DE VERDADE DECIDE E O SERVIDOR, que confere
+   o papel no banco a cada pedido: mexer no EU pelo console muda o menu e
+   nao muda nada do que o servidor entrega.
 
-   O LOGIN DAQUI decide QUEM da casa esta usando, e o que essa pessoa ve.
-   Cada pessoa tem o proprio cadastro e a propria senha. Enquanto o Access
-   nao existir, e esta porta que separa os papeis, e a tela diz isso com
-   todas as letras: ela identifica, nao protege. Depois do Access, quem ja
-   entrou pelo e-mail nem ve tela de senha.
-
-   Duas consequencias que "A casa" escreve por extenso: tirar alguem da
-   lista NAO tira o acesso dela ao endereco (isso e no painel do Access), e
-   o Access nao sabe o que e Gestor ou Colaborador, essa parte e do sistema.
+   Tirar alguem de "A casa" agora TIRA o acesso dela de verdade, e as
+   sessoes abertas dela caem na hora. Antes isso era so cosmetico, porque
+   quem trancava o endereco era outro.
    --------------------------------------------------------------------- */
 const EU = {
   id: null,
@@ -1514,6 +1516,26 @@ async function provaDaSenha(email, senha) {
 const SENHA_MINIMA = 8;
 
 /* ---------------------------------------------------------------------
+   As aplicacoes que chegam do servidor.
+
+   As respostas de cada uma viajam como TEXTO, e sao abertas aqui. O
+   servidor fazia isso: lia o texto e reescrevia no corpo da resposta, duas
+   travessias por linha. Com duzentas aplicacoes de nove respostas
+   compridas, so isso ja passava dos 10 ms de processador que o plano
+   gratis da por pedido, e o pedido morria. Aqui e de graca, e a tela ja
+   ia ter que ler o corpo inteiro de qualquer jeito.
+   --------------------------------------------------------------------- */
+function lerLeads(corpo) {
+  const lista = (corpo && corpo.leads) || [];
+  if (!corpo || !corpo.respostas_em_texto) return lista;
+  return lista.map(function (l) {
+    let r = {};
+    try { r = JSON.parse(l.respostas || '{}'); } catch (e) { r = {}; }
+    return Object.assign({}, l, { respostas: r });
+  });
+}
+
+/* ---------------------------------------------------------------------
    Falar com o servidor.
 
    Um lugar so para os cabecalhos, para nenhuma tela sair sem eles. O
@@ -1544,7 +1566,14 @@ async function carregarEquipe() {
     const r = await fetch('/pessoas', { headers: cabecalhos(), cache: 'no-store' });
     if (!r.ok) return;
     const d = await r.json();
-    if (d && d.ok && Array.isArray(d.pessoas)) EQUIPE = d.pessoas;
+    if (!d || !d.ok || !Array.isArray(d.pessoas)) return;
+    EQUIPE = d.pessoas;
+
+    // A lista chega DEPOIS da primeira tela ser desenhada, senao a
+    // abertura esperaria por ela sem precisar. Mas quem ja esta na tela
+    // veria "ninguem" no lugar dos nomes ate clicar em outra coisa: quem
+    // pede a lista redesenha o que estiver aberto.
+    if (TELA_ATUAL && DESENHO[TELA_ATUAL]) DESENHO[TELA_ATUAL]();
   } catch (e) {
     // Sem a lista as telas de trabalho abrem com "ninguem" no lugar dos
     // nomes, o que e ruim mas nao impede escrever. Derrubar a entrada
@@ -2669,33 +2698,28 @@ async function ideiasCarregar() {
     return;
   }
 
-  // A resposta nem sempre e JSON. Quando o login do Access vence, o que
-  // volta e a pagina de login em HTML, e ler aquilo como JSON estoura. O
-  // estouro apareceria como erro sem nome para quem so precisava
-  // recarregar a pagina.
+  // A resposta nem sempre e JSON: um erro do servidor pode voltar em HTML.
+  // Ler aquilo como JSON estoura, e o estouro apareceria como erro sem
+  // nome para quem so precisava recarregar a pagina.
   let corpo = null;
   try { corpo = await r.json(); } catch (e) { corpo = null; }
 
   if (corpo === null) {
-    ideiasParar('atencao', 'Seu login venceu.',
-      'O servidor devolveu a página de login no lugar das aplicações. Recarregue esta página para entrar de novo. ' +
-      'Se continuar aparecendo, <a href="/cdn-cgi/access/logout">saia do login protegido</a> e entre outra vez.');
-    return;
-  }
-
-  if (r.status === 503) {
-    // De proposito: sem TEAM_DOMAIN e ACCESS_AUD nao ha como conferir
-    // login nenhum, e deixar passar seria pior que fechar.
-    ideiasParar('atencao', 'O login protegido ainda não foi ligado.',
-      'Enquanto ele não existir, a lista fica fechada: abrir agora deixaria as aplicações à vista de ' +
-      'qualquer um que soubesse o endereço.');
+    ideiasParar('atencao', 'O servidor respondeu de um jeito que não entendi.',
+      'Recarregue esta página. Se continuar, é o site que precisa ser publicado de novo.');
     return;
   }
 
   if (r.status === 401) {
-    ideiasParar('atencao', 'O servidor não reconheceu a sua sessão.',
-      'Você chegou até ele, mas o login protegido não validou o seu acesso. Recarregue a página para entrar de novo. ' +
-      'Se você entrou por outro endereço da empresa, é preciso entrar de novo por este.');
+    ideiasParar('atencao', 'A sua entrada venceu.',
+      'Recarregue a página para entrar de novo com o seu e-mail e a sua senha.');
+    return;
+  }
+
+  if (r.status === 403) {
+    // O papel e conferido no servidor a cada pedido, e nao so no menu.
+    ideiasParar('atencao', 'O seu acesso não alcança as aplicações.',
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".');
     return;
   }
 
@@ -2706,7 +2730,7 @@ async function ideiasCarregar() {
     return;
   }
 
-  IDEIAS.itens = Array.isArray(corpo.leads) ? corpo.leads : [];
+  IDEIAS.itens = lerLeads(corpo);
   IDEIAS.lidoEm = new Date().toISOString();
   IDEIAS.estado = 'ok';
   ideiasDesenhar();
@@ -2985,7 +3009,7 @@ function ideiasFrase(esperando, respondidas) {
   }
   if (IDEIAS.estado !== 'ok') {
     return ['Buscando as aplicações no <b>servidor</b>.',
-            'Elas moram no banco, atrás do login protegido, e não neste navegador.'];
+            'Elas moram no banco, atrás da porta, e não neste navegador.'];
   }
   if (!IDEIAS.itens.length) {
     return ['Nenhuma ideia chegou <b>ainda</b>.',
@@ -3259,7 +3283,7 @@ const FORM = {
   previa: {},              // o que foi marcado na previa, so para ver
   salvando: false,
   confirmando: false,      // o bloco de confirmar a publicacao esta aberto
-  soLeitura: false,        // colaborador, ou login protegido desligado
+  soLeitura: false,        // quem nao e gestor ve, mas nao publica
   podada: false,           // veio pela porta da rua, sem o campo da mesa
   diffAberto: null,        // versao com as diferencas abertas na tabela
   guardadas: {},           // definicoes de versoes ja buscadas, por numero
@@ -3483,7 +3507,7 @@ async function formPedir(caminho, opcoes) {
   } catch (e) {
     return { erro: 'rede' };
   }
-  // Quando o login protegido vence, o que volta e a pagina de login em
+  // Quando a entrada vence, o que pode voltar e uma pagina de erro em
   // HTML. Ler aquilo como JSON estoura, e o estouro apareceria como erro
   // sem nome para quem so precisava recarregar a pagina.
   let corpo = null;
@@ -3491,13 +3515,15 @@ async function formPedir(caminho, opcoes) {
   if (corpo === null) return { erro: 'login' };
   if (r.status === 401) return { erro: 'sessao', corpo: corpo };
   if (r.status === 409) return { erro: 'conflito', corpo: corpo };
-  // O servidor diz o motivo de proposito. Sem ele, "o login protegido nao
-  // foi ligado" e "o lugar onde as coisas ficam guardadas nao respondeu"
-  // chegariam aqui iguais, e a segunda mandaria a Carla ligar uma coisa
-  // que ja esta ligada, por um problema que passa sozinho.
+  // O servidor diz o motivo de proposito. Sem ele, "o seu papel nao
+  // alcanca isto" e "o lugar onde as coisas ficam guardadas nao respondeu"
+  // chegariam aqui iguais, e a segunda mandaria a Carla atras de uma
+  // permissao por um problema que passa sozinho.
   const motivo = String((corpo && corpo.motivo) || '');
-  if (motivo === 'configuracao') return { erro: 'semporta', corpo: corpo };
   if (motivo === 'banco') return { erro: 'banco', corpo: corpo };
+  // 403 e papel: quem nao e gestor le mas nao publica, e quem e cliente
+  // nem chega aqui. A tela cai para so-leitura em vez de mostrar erro.
+  if (r.status === 403) return { erro: 'sempapel', corpo: corpo };
   if (!r.ok || !corpo.ok) return { erro: 'recusa', corpo: corpo };
   return { corpo: corpo };
 }
@@ -3532,20 +3558,18 @@ function formFalhaDe(erro, corpo, momento) {
           : ': espere um pouco e peça para buscar de novo.') };
   }
   if (erro === 'login') {
-    return { tom: 'atencao', titulo: 'Seu login venceu.',
-      texto: 'O servidor devolveu a página de login no lugar do formulário. Recarregue esta página para ' +
-        'entrar de novo. O que você escreveu ficou guardado neste navegador e volta quando você entrar.' };
+    return { tom: 'atencao', titulo: 'A sua entrada venceu.',
+      texto: 'Recarregue esta página para entrar de novo. O que você escreveu ficou guardado neste ' +
+        'navegador e volta quando você entrar.' };
   }
-  if (erro === 'semporta') {
-    return { tom: 'atencao', titulo: 'O login protegido ainda não foi ligado.',
-      texto: 'Enquanto ele não existir, as perguntas não se editam por aqui: qualquer um que soubesse o ' +
-        'endereço poderia trocar as perguntas do site. O formulário que está no ar continua funcionando ' +
-        'e recebendo.' };
+  if (erro === 'sempapel') {
+    return { tom: 'info', titulo: 'Aqui você vê, mas não edita.',
+      texto: 'Publicar uma versão nova das perguntas é de quem tem acesso de gestor. O formulário que ' +
+        'está no ar continua funcionando e recebendo, e os números continuam à sua vista.' };
   }
   if (erro === 'sessao') {
-    return { tom: 'atencao', titulo: 'O servidor não reconheceu a sua sessão.',
-      texto: 'Você chegou até ele, mas o login protegido não validou o seu acesso. Recarregue a página ' +
-        'para entrar de novo.' };
+    return { tom: 'atencao', titulo: 'A sua entrada venceu.',
+      texto: 'Recarregue a página para entrar de novo com o seu e-mail e a sua senha.' };
   }
   // A frase do servidor e escrita para pessoa, e e ela que diz o que
   // fazer. O numero da resposta nao entra: numero nao explica nada para
@@ -3571,16 +3595,16 @@ async function formCarregar() {
 
   const lista = await formPedir('/api/mesa/formulario');
 
-  // Sem o login protegido ligado, ver e seguro e escrever e que nao: a
+  // Para quem nao publica, ver e seguro e escrever e que nao: a
   // tela cai para a definicao que a pagina publica le e desabilita tudo.
   // Essa definicao vem sem as perguntas fora do ar, sem o recado interno
   // e sem o campo da mesa de cada pergunta, e por isso ela so serve para
   // ler: `podada` e o que impede a tela de mostrar como verdade o que
   // ela nao recebeu.
-  if (lista.erro === 'semporta') {
+  if (lista.erro === 'sempapel') {
     const publica = await formPedir('/api/formulario');
     FORM.soLeitura = true;
-    FORM.falha = formFalhaDe('semporta');
+    FORM.falha = formFalhaDe('sempapel');
     if (publica.corpo && publica.corpo.formulario) {
       FORM.podada = true;
       FORM.def = formCopia(publica.corpo.formulario);
@@ -4964,7 +4988,7 @@ function formAbertaHtml(p) {
         // Desenhar o seletor assim mostraria "nada em coluna propria" em
         // todas as perguntas, e isso e mentira, nao falta de dado.
         (FORM.podada
-          ? '<p class="dica">Enquanto o login protegido não estiver ligado, esta tela lê o formulário ' +
+          ? '<p class="dica">Sem acesso de gestor, esta tela lê o formulário ' +
             'pela mesma porta de quem aplica, e por ela não vem o que cada resposta vira na lista da mesa.</p>'
           : '<select class="campo campo-sm"' + (p.tipo === 'recado' ? ' disabled' : trava) +
             ' onchange="formMudarPapel(\'' + chave + '\', this.value)">' +
@@ -5236,12 +5260,11 @@ async function formMedidasCarregar() {
         'guardadas. Isso costuma passar sozinho em um minuto: espere um pouco e peça para buscar de ' +
         'novo. O formulário continua no ar e continua recebendo, e nenhuma conta se perde.';
     }
-    // Esta frase e so para a porta sem configuracao. O lugar guardado
-    // fora do ar tem a dele logo acima, e mandar procurar quem publica
-    // por um problema que passa sozinho custa a tarde de alguem.
-    if (r.erro === 'semporta') {
-      FORM.medFalha.texto = 'Enquanto ele não existir, os números ficam fechados: abrir agora deixaria o ' +
-        'movimento do site à vista de qualquer um que soubesse o endereço. O formulário continua no ar ' +
+    // Esta frase e so para quem o papel nao alcanca. O lugar guardado fora
+    // do ar tem a dele logo acima, e mandar procurar quem publica por um
+    // problema que passa sozinho custa a tarde de alguem.
+    if (r.erro === 'sempapel') {
+      FORM.medFalha.texto = 'Os números são de quem tem acesso de gestor. O formulário continua no ar ' +
         'e continua recebendo.';
     }
     formDesenhar();
@@ -5750,11 +5773,10 @@ DESENHO.formulario = function () {
       base da tela, senao a tentativa seguinte sai com o mesmo numero
       vencido e volta recusada para sempre.
 
-   d. A separacao de 503 e por "motivo", e nao por numero: "configuracao"
-      e a porta sem login protegido, "banco" e o lugar guardado fora do
-      ar. Sem esse campo as duas voltam a ser lidas como a mesma coisa, e
-      quem esta com o lugar guardado fora do ar le que o login protegido
-      nao foi ligado.
+   d. O 503 do banco vem com motivo "banco", e o 403 do papel vem sozinho.
+      Sem essa separacao os dois voltam a ser lidos como a mesma coisa, e
+      quem esta com o lugar guardado fora do ar sai atras de uma permissao
+      que ja tem, por um problema que passa sozinho.
 
    e. Nao existe botao de abrir a pagina publica para conferir. Ele volta
       quando a pagina souber duas coisas: abrir o rascunho no lugar da
@@ -5844,7 +5866,7 @@ const LEITURA_MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', '
    2. O estado da tela. Some quando a pagina recarrega, e e para sumir:
    o que precisa durar esta em iqv_leituras e no carimbo do servidor.
    --------------------------------------------------------------------- */
-let LEITURA_ESTADO = 'carregando';   // carregando | ok | sem_servidor | login | sem_configuracao | erro
+let LEITURA_ESTADO = 'carregando';   // carregando | ok | sem_servidor | login | sem_papel | erro
 let LEITURA_ERRO = null;
 let LEITURA_LEADS = [];
 let LEITURA_QUANDO = null;           // quando esta lista foi buscada
@@ -6096,11 +6118,11 @@ async function leituraPedir(metodo, corpo) {
     const r = await fetch('/leads', opcoes);
     let dados = null;
     try { dados = await r.json(); } catch (e) { dados = null; }
-    // login vencido nao volta em JSON: o Access devolve a pagina de
-    // entrada dele, em HTML, e o fetch ja seguiu o desvio
+    // resposta que nao e JSON e erro do servidor, e nao dado: tratar como
+    // "entre de novo" e o caminho que resolve na maioria das vezes
     if (dados === null) return { estado: 'login' };
-    if (r.status === 503) return { estado: 'sem_configuracao', mensagem: dados.erro };
     if (r.status === 401) return { estado: 'login' };
+    if (r.status === 403) return { estado: 'sem_papel', mensagem: dados.erro };
     if (!r.ok) return { estado: 'erro', mensagem: dados.erro || ('o servidor respondeu ' + r.status) };
     return { estado: 'ok', dados: dados };
   } catch (e) {
@@ -6118,7 +6140,7 @@ async function leituraBuscar() {
   if (r.estado === 'ok') {
     LEITURA_ESTADO = 'ok';
     LEITURA_ERRO = null;
-    LEITURA_LEADS = Array.isArray(r.dados.leads) ? r.dados.leads : [];
+    LEITURA_LEADS = lerLeads(r.dados);
     LEITURA_QUANDO = new Date().toISOString();
   } else {
     LEITURA_ESTADO = r.estado;
@@ -6139,9 +6161,9 @@ function leituraRecadoDeRede(r) {
     return { tom: 'atencao', titulo: 'Seu login venceu antes de gravar',
       texto: 'Nada foi gravado. Recarregue a página para entrar de novo e repita a ação.' };
   }
-  if (r.estado === 'sem_configuracao') {
-    return { tom: 'alerta', titulo: 'O login protegido ainda não foi ligado',
-      texto: 'Sem ele o servidor não lê nem grava aplicação, e esta tela não registra andamento.' };
+  if (r.estado === 'sem_papel') {
+    return { tom: 'atencao', titulo: 'O seu acesso não alcança as aplicações',
+      texto: 'Nada foi gravado. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' };
   }
   return { tom: 'alerta', titulo: 'O servidor recusou a gravação',
     texto: 'O que ele respondeu foi: ' + esc(r.mensagem || 'sem explicação') + '. O andamento continua como estava.' };
@@ -6170,12 +6192,12 @@ function leituraHtmlRede() {
       '<button class="bt bt-linha bt-sm" onclick="leituraAtualizar()" style="margin-bottom:18px">Tentar de novo</button>';
   }
   if (LEITURA_ESTADO === 'login') {
-    return aviso('atencao', 'Seu login venceu.',
-      'O servidor não reconheceu a sua sessão e respondeu com a página de entrada em vez das aplicações. Recarregue a página para entrar de novo.' + orfas);
+    return aviso('atencao', 'A sua entrada venceu.',
+      'O servidor não reconheceu mais a sua sessão. Recarregue a página para entrar de novo com o seu e-mail e a sua senha.' + orfas);
   }
-  if (LEITURA_ESTADO === 'sem_configuracao') {
-    return aviso('alerta', 'O Worker ainda não tem o login protegido configurado.',
-      'TEAM_DOMAIN e ACCESS_AUD estão vazios, e o servidor recusa entregar aplicação sem eles, de propósito: sem essas duas não há como conferir quem está pedindo. O caminho está no DEPLOY.md.' + orfas);
+  if (LEITURA_ESTADO === 'sem_papel') {
+    return aviso('atencao', 'O seu acesso não alcança as aplicações.',
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' + orfas);
   }
   return aviso('alerta', 'O servidor recusou o pedido.',
     'O que ele respondeu foi: ' + esc(LEITURA_ERRO || 'sem explicação') + '.' + orfas);
@@ -6663,7 +6685,11 @@ function leituraHtmlProjeto(lead) {
   }
 
   const niveis = leituraNiveis();
-  const pessoas = (iqvLer(CHAVES.usuarios, []) || []).filter(function (u) { return u.ativo !== false && u.papel !== 'cliente'; });
+  // A equipe vem do servidor desde 02/09. Esta linha ainda lia a chave do
+  // navegador, que ninguem escreve mais: a lista saia sempre vazia, e
+  // abrir projeto dizia "ninguem esta cadastrado em A casa" mesmo com a
+  // equipe inteira cadastrada.
+  const pessoas = (usuarios() || []).filter(function (u) { return u.ativo !== false && u.papel !== 'cliente'; });
   const prazo = new Date();
   prazo.setDate(prazo.getDate() + 90);
 
@@ -8404,10 +8430,10 @@ async function entregaPedirLeads() {
     // login vencido nao volta em JSON: o Access devolve a pagina de
     // entrada dele, em HTML, e o fetch ja seguiu o desvio
     if (dados === null) return { estado: 'login' };
-    if (r.status === 503) return { estado: 'sem_configuracao' };
+    if (r.status === 403) return { estado: 'sem_papel' };
     if (r.status === 401) return { estado: 'login' };
     if (!r.ok) return { estado: 'erro', mensagem: dados.erro || ('o servidor respondeu ' + r.status) };
-    return { estado: 'ok', leads: Array.isArray(dados.leads) ? dados.leads : [] };
+    return { estado: 'ok', leads: lerLeads(dados) };
   } catch (e) {
     return { estado: 'sem_servidor' };
   }
@@ -9165,17 +9191,17 @@ function entregaHtmlAplicacao(p) {
       'O que você escreve nesta entrega continua sendo gravado normalmente, porque isso é deste navegador. O que falta é só a memória da aplicação: nome das perguntas e respostas moram no banco.') + botao;
   }
   if (a.estado === 'login') {
-    return aviso('atencao', 'Seu login venceu.',
-      'O servidor respondeu com a página de entrada em vez das aplicações. Recarregue a página para entrar de novo. A entrega que está sendo escrita não se perde: ela é deste navegador.') + botao;
+    return aviso('atencao', 'A sua entrada venceu.',
+      'Recarregue a página para entrar de novo. A entrega que está sendo escrita não se perde: ela é deste navegador.') + botao;
   }
-  if (a.estado === 'sem_configuracao') {
-    return aviso('alerta', 'O login protegido ainda não foi ligado.',
-      'Sem ele o servidor não entrega as aplicações. Escreva a entrega com a leitura do caso, que é deste navegador.') + botao;
+  if (a.estado === 'sem_papel') {
+    return aviso('atencao', 'O seu acesso não alcança as aplicações.',
+      'Escreva a entrega com a leitura do caso, que é deste navegador. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".') + botao;
   }
   if (a.estado === 'sumiu') {
     return aviso('atencao', 'A aplicação deste projeto não está mais na lista do servidor.',
       'O projeto continua inteiro. O que sumiu foi a aplicação de número ' + esc(String(p.leadId)) +
-      ', que pode ter saído das 500 mais recentes. O Diagnóstico estratégico deste projeto passa a ser a única memória do que a pessoa contou.') + botao;
+      ', que pode ter saído das 200 mais recentes. O Diagnóstico estratégico deste projeto passa a ser a única memória do que a pessoa contou.') + botao;
   }
   if (a.estado === 'erro') {
     return aviso('alerta', 'O servidor recusou o pedido.',
@@ -10290,9 +10316,14 @@ function casaLinhaPessoa(u, editavel) {
         }).join('') + '</select>'
       : '<span class="eti eti-neutra">' + esc((porChave(PAPEIS, u.papel) || {}).nome || u.papel) + '</span>') + '</td>' +
     '<td style="text-align:right;white-space:nowrap">' + (editavel
-      ? '<button class="bt bt-linha bt-sm" onclick="casaNovaSenha(' + Number(u.id) + ')">Nova senha</button> ' +
-        (souEu ? ''
-          : '<button class="bt bt-linha bt-sm" onclick="casaLigar(' + Number(u.id) + ',' + (desligada ? 'true' : 'false') + ')">' +
+      // Na propria linha o botao e outro. "Nova senha" sorteia uma e
+      // derruba as sessoes da pessoa: usado em si mesma, ele expulsava
+      // quem clicou e mostrava a propria senha nova na tela que ja tinha
+      // ido embora. Trocar a de gente e sortear; trocar a sua e digitar.
+      ? (souEu
+          ? '<button class="bt bt-linha bt-sm" onclick="casaMinhaSenha()">Trocar a minha senha</button>'
+          : '<button class="bt bt-linha bt-sm" onclick="casaNovaSenha(' + Number(u.id) + ')">Nova senha</button> ' +
+            '<button class="bt bt-linha bt-sm" onclick="casaLigar(' + Number(u.id) + ',' + (desligada ? 'true' : 'false') + ')">' +
             (desligada ? 'Religar' : 'Desligar') + '</button> ' +
             '<button class="bt bt-linha bt-sm" onclick="casaRemover(' + Number(u.id) + ')">Tirar</button>')
       : '') + '</td>' +
@@ -10342,6 +10373,71 @@ function casaSortearSenha() {
     crypto.getRandomValues(new Uint8Array(quantas)),
     function (b) { return fonte[b % fonte.length]; }).join('');
   return sorteia(letras, 4) + '-' + sorteia(numeros, 3) + '-' + sorteia(letras, 4);
+}
+
+/* Trocar a PROPRIA senha. Passa pelo /minha-senha, que pede a atual e
+   mantem esta sessao de pe: e a unica troca em que a pessoa escolhe, e
+   nao recebe. Sem isto, quem e gestor nao tinha por onde trocar a senha
+   dela por dentro do sistema. */
+async function casaMinhaSenha() {
+  const sim = await perguntar({
+    titulo: 'Trocar a sua senha',
+    texto: 'Você digita a atual e a nova. As suas outras sessões, em outros computadores, caem.',
+    confirmar: 'Trocar agora',
+  });
+  if (!sim) return;
+  escrever('casaAvisoAccess',
+    '<div class="cartao" style="margin-bottom:14px">' +
+    '<div class="cartao-t">Trocar a minha senha</div>' +
+    '<div id="casaSenhaErro"></div>' +
+    '<label class="rotulo" for="casaSenhaAtual">Senha atual</label>' +
+    '<input class="campo campo-sm" id="casaSenhaAtual" type="password" autocomplete="current-password">' +
+    '<label class="rotulo" for="casaSenhaNova" style="margin-top:10px">Senha nova</label>' +
+    '<input class="campo campo-sm" id="casaSenhaNova" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
+    '<label class="rotulo" for="casaSenhaNova2" style="margin-top:10px">Repita a senha nova</label>' +
+    '<input class="campo campo-sm" id="casaSenhaNova2" type="password" autocomplete="new-password">' +
+    '<button class="bt bt-marca bt-sm" style="margin-top:12px" onclick="casaGravarMinhaSenha()">Guardar</button>' +
+    '</div>');
+  const campo = porId('casaSenhaAtual');
+  if (campo) campo.focus();
+}
+
+async function casaGravarMinhaSenha() {
+  const atual = String((porId('casaSenhaAtual') || {}).value || '');
+  const nova = String((porId('casaSenhaNova') || {}).value || '');
+  const repete = String((porId('casaSenhaNova2') || {}).value || '');
+
+  const erro = !atual ? 'Escreva a sua senha atual.'
+    : nova.length < SENHA_MINIMA ? 'A senha nova precisa de pelo menos ' + SENHA_MINIMA + ' caracteres.'
+    : nova !== repete ? 'As duas senhas novas não são iguais.'
+    : null;
+  if (erro) { escrever('casaSenhaErro', aviso('alerta', erro, 'Corrija e tente de novo.')); return; }
+
+  let r;
+  try {
+    const resposta = await fetch('/minha-senha', {
+      method: 'POST',
+      headers: cabecalhos({ 'content-type': 'application/json' }),
+      cache: 'no-store',
+      body: JSON.stringify({
+        atual: await provaDaSenha(EU.email, atual),
+        nova: await provaDaSenha(EU.email, nova),
+      }),
+    });
+    r = { status: resposta.status, corpo: await resposta.json().catch(function () { return null; }) };
+  } catch (e) {
+    r = { status: 0, corpo: null };
+  }
+
+  if (!r.corpo || !r.corpo.ok) {
+    escrever('casaSenhaErro', aviso('alerta',
+      r.corpo && r.corpo.erro ? primeiraMaiuscula(r.corpo.erro) : 'Não consegui trocar a senha.',
+      'Nada foi mudado.'));
+    return;
+  }
+  await casaCarregar();
+  escrever('casaAvisoAccess', aviso('info', 'Senha trocada.',
+    'Você continua aqui. Se estava entrada em outro computador, aquela sessão caiu.'));
 }
 
 async function casaMudarPapel(id, papel) {
@@ -10728,7 +10824,7 @@ async function portaCriarPrimeiro() {
 
   const erro = !nome ? 'Escreva o seu nome.'
     : (!email || email.indexOf('@') < 0) ? 'Escreva um e-mail válido.'
-    : senha.length < 8 ? 'A senha precisa de pelo menos 8 caracteres.'
+    : senha.length < SENHA_MINIMA ? 'A senha precisa de pelo menos ' + SENHA_MINIMA + ' caracteres.'
     : senha !== repete ? 'As duas senhas não são iguais.'
     : null;
   if (erro) { erroDaPorta(erro); return; }
@@ -10763,7 +10859,7 @@ function portaTelaPrimeiro(avisoTopo) {
     '<label class="rotulo" for="portaEmail" style="margin-top:14px">Seu e-mail</label>' +
     '<input class="campo" id="portaEmail" type="email" autocomplete="username" placeholder="é por ele que você vai entrar">' +
     '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
-    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos 8 caracteres">' +
+    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
     '<label class="rotulo" for="portaSenha2" style="margin-top:14px">Repita a senha</label>' +
     '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password" ' +
       'onkeydown="if(event.key===\'Enter\')portaCriarPrimeiro()">' +
@@ -10783,7 +10879,7 @@ async function portaTrocar() {
   const repete = String((porId('portaNova2') || {}).value || '');
 
   const erro = !atual ? 'Escreva a senha que você recebeu.'
-    : nova.length < 8 ? 'A senha nova precisa de pelo menos 8 caracteres.'
+    : nova.length < SENHA_MINIMA ? 'A senha nova precisa de pelo menos ' + SENHA_MINIMA + ' caracteres.'
     : nova !== repete ? 'As duas senhas novas não são iguais.'
     : null;
   if (erro) { erroDaPorta(erro); return; }
@@ -10817,7 +10913,7 @@ function portaTelaTrocar(pessoa) {
     '<label class="rotulo" for="portaAtual">A senha que você recebeu</label>' +
     '<input class="campo" id="portaAtual" type="password" autocomplete="current-password">' +
     '<label class="rotulo" for="portaNova" style="margin-top:14px">Sua senha nova</label>' +
-    '<input class="campo" id="portaNova" type="password" autocomplete="new-password" placeholder="pelo menos 8 caracteres">' +
+    '<input class="campo" id="portaNova" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
     '<label class="rotulo" for="portaNova2" style="margin-top:14px">Repita a senha nova</label>' +
     '<input class="campo" id="portaNova2" type="password" autocomplete="new-password" ' +
       'onkeydown="if(event.key===\'Enter\')portaTrocar()">' +

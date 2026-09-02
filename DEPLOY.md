@@ -11,7 +11,7 @@ Não existe passo de build: o site é HTML pronto.
 
 ---
 
-## Onde estamos (31/08/2026)
+## Onde estamos (02/09/2026)
 
 Este bloco é o resumo para quem chegar agora. O resto do arquivo é o passo
 a passo completo.
@@ -32,12 +32,20 @@ a passo completo.
 
 **O sistema de gestão, em `/sistema/`:**
 
-- **Dez telas.** Quem entra escolhe o próprio nome na porta e digita a
-  senha dela. A senha nunca é guardada em texto puro: fica como SHA-256 de
-  `senha + ':' + id`. Quem cadastra outra pessoa não escolhe a senha dela,
-  ela escolhe na primeira entrada.
+- **Dez telas.** Quem entra digita **e-mail e senha**, conferidos pelo
+  servidor. A senha nunca é guardada: fica o resumo PBKDF2 dela, com sal
+  próprio por pessoa.
+- **A lista de quem tem acesso mora no banco**, e não no navegador. Vale
+  em qualquer computador.
+- **A senha crua não sai do navegador.** As 210 mil voltas que a embaralham
+  são feitas lá, e o que viaja é o resultado. É isso que faz tudo caber no
+  plano grátis do Worker. A conta está na seção 5.
 - Três papéis: **gestor** (as dez telas), **colaborador** (sem dinheiro e
-  sem A casa) e **cliente** (uma tela só, sem barra lateral).
+  sem A casa) e **cliente** (uma tela só, sem barra lateral). **O papel é
+  conferido no banco a cada pedido**, e não só no menu: cliente não lê a
+  mesa nem sabendo o endereço.
+- Quem é cadastrada recebe uma senha sorteada e **troca antes de ver
+  qualquer tela**. Isso é obedecido pelo servidor, e não só pela tela.
 
 **O formulário da casa, em `/aplicar`:**
 
@@ -52,17 +60,17 @@ a passo completo.
 - A tela **"O formulário"**, dentro do sistema, é onde a Carla edita as
   perguntas, publica, volta uma versão atrás e lê as medidas.
 
-**Banco D1 `ideia-que-vende`**, oito tabelas: `leads`, `webhook_log` e as
+**Banco D1 `ideia-que-vende`**, onze tabelas: `leads`, `webhook_log`, as
 seis do formulário (`formulario_versoes`, `formulario_visitas`,
 `formulario_eventos`, `formulario_escolhas`, `formulario_baldes`,
-`formulario_dia`).
+`formulario_dia`) e as três da porta (`pessoas`, `sessoes`, `freio`).
 
 **As verificações, todas verdes:**
 
-    npm test                                 39 + 104 = 143 rotas
+    npm test                                 84 + 104 = 188 rotas
     node verifica-aplicar.mjs                 95 a página, em navegador
     node fonte/sistema/verifica.mjs           36 as dez telas, três papéis
-    node fonte/sistema/verifica-login.mjs     28 a porta
+    node fonte/sistema/verifica-login.mjs     35 a porta
                                              ---
                                              302
 
@@ -82,12 +90,16 @@ As três de navegador pedem um `npx wrangler dev` de pé na porta 8787.
 
 **Falta, em ordem:**
 
-1. **Criar o Cloudflare Access** e preencher `TEAM_DOMAIN` e `ACCESS_AUD`
-   (seção 5). É o passo que fecha a porta, libera as medidas e a edição do
-   formulário, e destrava a leitura das aplicações. É o mais urgente, e é
-   o único que depende da Carla.
-2. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
-3. Se a automação do Typeform ainda existir na conta de lá, apagar. Ela
+1. **Apagar a aplicação do Cloudflare Access**, se ela ainda existir
+   (seção 5a). Ela foi criada em 01/09 e substituída no dia seguinte pela
+   porta da casa. Enquanto existir, quem abre o sistema vê duas telas de
+   login seguidas, e os pedidos que o sistema faz por dentro voltam como a
+   página de entrada do Access em vez de dados.
+2. **Criar a primeira gestora**, abrindo `/sistema/` (seção 5c). Enquanto
+   a tabela `pessoas` estiver vazia, essa tela responde para qualquer um
+   que chegue: quem chegar primeiro vira gestora.
+3. Desligar o endereço `.workers.dev`, que ainda serve o mesmo site.
+4. Se a automação do Typeform ainda existir na conta de lá, apagar. Ela
    nunca chegou a ser ligada (ficou em rascunho, com o gatilho desligado),
    e deste lado não existe mais rota para ela bater.
 

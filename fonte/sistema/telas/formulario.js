@@ -110,7 +110,7 @@ const FORM = {
   previa: {},              // o que foi marcado na previa, so para ver
   salvando: false,
   confirmando: false,      // o bloco de confirmar a publicacao esta aberto
-  soLeitura: false,        // colaborador, ou login protegido desligado
+  soLeitura: false,        // quem nao e gestor ve, mas nao publica
   podada: false,           // veio pela porta da rua, sem o campo da mesa
   diffAberto: null,        // versao com as diferencas abertas na tabela
   guardadas: {},           // definicoes de versoes ja buscadas, por numero
@@ -334,7 +334,7 @@ async function formPedir(caminho, opcoes) {
   } catch (e) {
     return { erro: 'rede' };
   }
-  // Quando o login protegido vence, o que volta e a pagina de login em
+  // Quando a entrada vence, o que pode voltar e uma pagina de erro em
   // HTML. Ler aquilo como JSON estoura, e o estouro apareceria como erro
   // sem nome para quem so precisava recarregar a pagina.
   let corpo = null;
@@ -342,13 +342,15 @@ async function formPedir(caminho, opcoes) {
   if (corpo === null) return { erro: 'login' };
   if (r.status === 401) return { erro: 'sessao', corpo: corpo };
   if (r.status === 409) return { erro: 'conflito', corpo: corpo };
-  // O servidor diz o motivo de proposito. Sem ele, "o login protegido nao
-  // foi ligado" e "o lugar onde as coisas ficam guardadas nao respondeu"
-  // chegariam aqui iguais, e a segunda mandaria a Carla ligar uma coisa
-  // que ja esta ligada, por um problema que passa sozinho.
+  // O servidor diz o motivo de proposito. Sem ele, "o seu papel nao
+  // alcanca isto" e "o lugar onde as coisas ficam guardadas nao respondeu"
+  // chegariam aqui iguais, e a segunda mandaria a Carla atras de uma
+  // permissao por um problema que passa sozinho.
   const motivo = String((corpo && corpo.motivo) || '');
-  if (motivo === 'configuracao') return { erro: 'semporta', corpo: corpo };
   if (motivo === 'banco') return { erro: 'banco', corpo: corpo };
+  // 403 e papel: quem nao e gestor le mas nao publica, e quem e cliente
+  // nem chega aqui. A tela cai para so-leitura em vez de mostrar erro.
+  if (r.status === 403) return { erro: 'sempapel', corpo: corpo };
   if (!r.ok || !corpo.ok) return { erro: 'recusa', corpo: corpo };
   return { corpo: corpo };
 }
@@ -383,20 +385,18 @@ function formFalhaDe(erro, corpo, momento) {
           : ': espere um pouco e peça para buscar de novo.') };
   }
   if (erro === 'login') {
-    return { tom: 'atencao', titulo: 'Seu login venceu.',
-      texto: 'O servidor devolveu a página de login no lugar do formulário. Recarregue esta página para ' +
-        'entrar de novo. O que você escreveu ficou guardado neste navegador e volta quando você entrar.' };
+    return { tom: 'atencao', titulo: 'A sua entrada venceu.',
+      texto: 'Recarregue esta página para entrar de novo. O que você escreveu ficou guardado neste ' +
+        'navegador e volta quando você entrar.' };
   }
-  if (erro === 'semporta') {
-    return { tom: 'atencao', titulo: 'O login protegido ainda não foi ligado.',
-      texto: 'Enquanto ele não existir, as perguntas não se editam por aqui: qualquer um que soubesse o ' +
-        'endereço poderia trocar as perguntas do site. O formulário que está no ar continua funcionando ' +
-        'e recebendo.' };
+  if (erro === 'sempapel') {
+    return { tom: 'info', titulo: 'Aqui você vê, mas não edita.',
+      texto: 'Publicar uma versão nova das perguntas é de quem tem acesso de gestor. O formulário que ' +
+        'está no ar continua funcionando e recebendo, e os números continuam à sua vista.' };
   }
   if (erro === 'sessao') {
-    return { tom: 'atencao', titulo: 'O servidor não reconheceu a sua sessão.',
-      texto: 'Você chegou até ele, mas o login protegido não validou o seu acesso. Recarregue a página ' +
-        'para entrar de novo.' };
+    return { tom: 'atencao', titulo: 'A sua entrada venceu.',
+      texto: 'Recarregue a página para entrar de novo com o seu e-mail e a sua senha.' };
   }
   // A frase do servidor e escrita para pessoa, e e ela que diz o que
   // fazer. O numero da resposta nao entra: numero nao explica nada para
@@ -422,16 +422,16 @@ async function formCarregar() {
 
   const lista = await formPedir('/api/mesa/formulario');
 
-  // Sem o login protegido ligado, ver e seguro e escrever e que nao: a
+  // Para quem nao publica, ver e seguro e escrever e que nao: a
   // tela cai para a definicao que a pagina publica le e desabilita tudo.
   // Essa definicao vem sem as perguntas fora do ar, sem o recado interno
   // e sem o campo da mesa de cada pergunta, e por isso ela so serve para
   // ler: `podada` e o que impede a tela de mostrar como verdade o que
   // ela nao recebeu.
-  if (lista.erro === 'semporta') {
+  if (lista.erro === 'sempapel') {
     const publica = await formPedir('/api/formulario');
     FORM.soLeitura = true;
-    FORM.falha = formFalhaDe('semporta');
+    FORM.falha = formFalhaDe('sempapel');
     if (publica.corpo && publica.corpo.formulario) {
       FORM.podada = true;
       FORM.def = formCopia(publica.corpo.formulario);
@@ -1815,7 +1815,7 @@ function formAbertaHtml(p) {
         // Desenhar o seletor assim mostraria "nada em coluna propria" em
         // todas as perguntas, e isso e mentira, nao falta de dado.
         (FORM.podada
-          ? '<p class="dica">Enquanto o login protegido não estiver ligado, esta tela lê o formulário ' +
+          ? '<p class="dica">Sem acesso de gestor, esta tela lê o formulário ' +
             'pela mesma porta de quem aplica, e por ela não vem o que cada resposta vira na lista da mesa.</p>'
           : '<select class="campo campo-sm"' + (p.tipo === 'recado' ? ' disabled' : trava) +
             ' onchange="formMudarPapel(\'' + chave + '\', this.value)">' +
@@ -2087,12 +2087,11 @@ async function formMedidasCarregar() {
         'guardadas. Isso costuma passar sozinho em um minuto: espere um pouco e peça para buscar de ' +
         'novo. O formulário continua no ar e continua recebendo, e nenhuma conta se perde.';
     }
-    // Esta frase e so para a porta sem configuracao. O lugar guardado
-    // fora do ar tem a dele logo acima, e mandar procurar quem publica
-    // por um problema que passa sozinho custa a tarde de alguem.
-    if (r.erro === 'semporta') {
-      FORM.medFalha.texto = 'Enquanto ele não existir, os números ficam fechados: abrir agora deixaria o ' +
-        'movimento do site à vista de qualquer um que soubesse o endereço. O formulário continua no ar ' +
+    // Esta frase e so para quem o papel nao alcanca. O lugar guardado fora
+    // do ar tem a dele logo acima, e mandar procurar quem publica por um
+    // problema que passa sozinho custa a tarde de alguem.
+    if (r.erro === 'sempapel') {
+      FORM.medFalha.texto = 'Os números são de quem tem acesso de gestor. O formulário continua no ar ' +
         'e continua recebendo.';
     }
     formDesenhar();
@@ -2601,11 +2600,10 @@ DESENHO.formulario = function () {
       base da tela, senao a tentativa seguinte sai com o mesmo numero
       vencido e volta recusada para sempre.
 
-   d. A separacao de 503 e por "motivo", e nao por numero: "configuracao"
-      e a porta sem login protegido, "banco" e o lugar guardado fora do
-      ar. Sem esse campo as duas voltam a ser lidas como a mesma coisa, e
-      quem esta com o lugar guardado fora do ar le que o login protegido
-      nao foi ligado.
+   d. O 503 do banco vem com motivo "banco", e o 403 do papel vem sozinho.
+      Sem essa separacao os dois voltam a ser lidos como a mesma coisa, e
+      quem esta com o lugar guardado fora do ar sai atras de uma permissao
+      que ja tem, por um problema que passa sozinho.
 
    e. Nao existe botao de abrir a pagina publica para conferir. Ele volta
       quando a pagina souber duas coisas: abrir o rascunho no lugar da

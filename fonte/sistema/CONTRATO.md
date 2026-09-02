@@ -52,13 +52,21 @@ Armazenamento: `iqvLer(chave, padrao)`, `iqvGravar(chave, valor)`,
 `CHAVES.*`, `iqvOcupacao()`.
 
 Quem é a pessoa: `EU.id`, `EU.papel`, `EU.email`, `EU.nome`,
-`EU.origem`, `EU.pode(tela)`, `EU.ehGestor()`.
+`EU.pode(tela)`, `EU.ehGestor()`.
 
 Os papéis são `'gestor'`, `'colaborador'` e `'cliente'`.
 
-Pessoas e sessão: `pessoas()`, `gravarPessoas(lista)`,
-`acharPessoaPorId(id)`, `resumoSenha(senha, id)`, `resumoIgual(a, b)`,
-`sessaoGuardar(id)`, `sessaoLer()`, `sessaoApagar()`.
+Pessoas: `pessoas()` e `usuarios()`, que devolvem a equipe lida do
+servidor, e `acharUsuario(email)`. A lista chega em `carregarEquipe()`,
+uma vez por entrada.
+
+**Nada de senha mora aqui.** A senha é conferida no servidor desde 02/09.
+O que este lado faz é `provaDaSenha(email, senha)`, que embaralha antes de
+mandar, e `SENHA_MINIMA`, que diz o tamanho mínimo. Não existe sessão
+guardada no navegador: quem diz que a pessoa continua entrada é o cookie
+que o servidor põe.
+
+Falar com o servidor: `cabecalhos(extras)` e `lerLeads(corpo)`.
 
 Classes de CSS: `.abertura`, `.selo`, `.cartao`, `.cartao-t`,
 `.numeros`, `.numero`, `.numero.puxa`, `table.lista`, `.eti` com

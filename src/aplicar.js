@@ -1170,8 +1170,8 @@ export function intervaloDeDatas(busca, hoje = diaDaqui()) {
    Devolve { barrado: Response } quando é para barrar, e { quem } com a
    pessoa que entrou quando pode seguir.
    -------------------------------------------------------------------- */
-async function portaria(request, env) {
-  const { barrado, eu } = await exigirEntrada(request, env, ["gestor", "colaborador"]);
+async function portaria(request, env, papeis = ["gestor", "colaborador"]) {
+  const { barrado, eu } = await exigirEntrada(request, env, papeis);
   return barrado ? { barrado } : { quem: eu };
 }
 
@@ -1369,7 +1369,10 @@ export async function listarVersoes(request, env, url = new URL(request.url)) {
    Ou a versão inteira entra, ou nada entra.
    -------------------------------------------------------------------- */
 export async function gravarFormulario(request, env) {
-  const porta = await portaria(request, env);
+  // So gestor publica. A tela ja desabilitava tudo para quem nao e gestor
+  // (formPodeEditar, no formulario.js), mas tela e sugestao: sem esta linha,
+  // um colaborador publicava uma versao nova chamando o endereco direto.
+  const porta = await portaria(request, env, ["gestor"]);
   if (porta.barrado) return porta.barrado;
 
   const lido = await corpoJson(request, LIMITE.corpoDefinicao);

@@ -28,67 +28,119 @@
 import { json } from "./lib.js";
 
 /* --------------------------------------------------------------------
-   Onde a senha e embaralhada, e por que nao e aqui.
+   Onde a senha e embaralhada, e o que isso custa de verdade.
 
-   Embaralhar senha PRECISA ser caro: e o custo por chute que faz roubar o
+   Embaralhar senha precisa ser caro: e o custo por chute que faz roubar o
    banco nao virar roubar as senhas. Mas o plano gratis do Worker da 10 ms
    de processador por pedido, e 210 mil voltas de PBKDF2 gastam uns 120.
    No plano gratis, entrar simplesmente falharia.
 
-   Entao o trabalho caro mudou de lado: quem faz as 210 mil voltas e o
-   NAVEGADOR de quem esta entrando, antes de mandar qualquer coisa. O que
-   viaja e o resultado disso, que este arquivo chama de PROVA. O servidor
-   faz por cima dela um passo barato, de 2 mil voltas, e guarda so isso.
+   Entao o trabalho caro e feito no NAVEGADOR de quem esta entrando, antes
+   de mandar qualquer coisa. O que viaja e o resultado disso, que este
+   arquivo chama de PROVA. O servidor faz por cima dela um passo proprio e
+   guarda so isso.
 
-   Guardado = barato( caro( senha ) )
+       guardado = servidor( navegador( senha ) )
 
-   O que isso preserva, e e a parte que importa: quem roubar a tabela
-   inteira tem que, para cada chute, fazer as 210 mil voltas e depois as 2
-   mil. O custo por chute continua o mesmo de antes. A conta so saiu do
-   servidor e foi para a maquina de quem entra, que tem processador de
-   sobra e faz isso uma vez por mes.
+   ATE ONDE ISSO PROTEGE, sem exagero.
 
-   O que isso NAO faz: proteger contra quem consegue ler o que trafega ou
-   rodar codigo dentro da pagina. Para esse, a prova vale tanto quanto a
-   senha. Mas isso ja era verdade com a senha crua indo no mesmo lugar,
-   entao nao se perdeu nada; e o trafego e https.
+   O sal do navegador sai do proprio e-mail, entao ele e PUBLICO: qualquer
+   um que saiba o e-mail da Carla consegue calcular a metade cara sem ter
+   o banco. Um atacante que escolhe um alvo pode gastar meses ANTES de
+   qualquer roubo montando uma tabela de senha para prova, e no dia em que
+   o banco vazar cada chute custa a ele so a metade do servidor.
 
-   A senha crua nunca chega aqui. Nem em log, nem em erro, nem por
-   engano: ela nao e mandada.
+   Ou seja: contra quem mira uma pessoa especifica e se prepara, o custo
+   por chute e o do servidor, e nao a soma. Isso e menos do que um
+   PBKDF2 de 210 mil voltas guardado do jeito classico daria, e esta
+   escrito aqui porque a versao anterior deste comentario dizia que o
+   custo continuava o mesmo, e nao continua.
+
+   Por que ainda assim vale a pena:
+
+   1. O sal ser por e-mail impede a tabela unica que serve para todo
+      mundo. Cada alvo custa uma preparacao propria de 210 mil voltas por
+      senha testada.
+   2. Contra quem rouba o banco sem ter se preparado antes, o custo e a
+      soma das duas metades.
+   3. A metade do servidor e a maior que cabe nos 10 ms do plano gratis, e
+      nao um numero simbolico.
+   4. A senha crua nunca sai do navegador. Nao aparece em log, em erro nem
+      em pedido nenhum, porque nao e mandada.
+
+   O que fecharia o buraco de vez seria um sal sorteado por pessoa, mas o
+   navegador precisa dele ANTES de provar quem e, e servir esse sal a quem
+   pergunta entrega tanto o sal quanto a lista de quem existe. A troca foi
+   feita de olhos abertos.
    -------------------------------------------------------------------- */
 
 // O que o navegador faz. O numero fica escrito aqui porque e o servidor
 // que ensina a regra ao navegador, na resposta do /eu: assim os dois nunca
 // discordam, e mudar isto e mudar num lugar so.
 //
-// O sal do navegador vem do proprio e-mail, e nao de consulta nenhuma.
-// Consultar "qual e o sal desta pessoa" antes de ela provar quem e diria a
-// qualquer um quais e-mails existem, que e exatamente o que o resto deste
-// arquivo tem o cuidado de nao contar. Sal nao precisa ser secreto: ele
-// precisa ser diferente por pessoa, e o e-mail e.
+// A VERSAO E GRAVADA POR PESSOA, na coluna prova_versao. Ela ainda nao e
+// LIDA por ninguem, e isso e de proposito: o que ela guarda e o dado que
+// a migracao vai precisar no dia em que este numero mudar. Sem a coluna,
+// mudar as voltas ou o tempero trancaria todo mundo para fora de uma vez,
+// sem nem dar para saber quem foi calculado com o que.
+//
+// A migracao, quando vier, e o navegador mandar as provas das DUAS
+// versoes durante um tempo e o servidor escolher pela versao de cada
+// pessoa. Nao esta escrita ainda porque so ha uma versao, e escrever
+// migracao antes de existir de onde migrar e escrever bug.
+//
+// O que NAO da para fazer e o servidor dizer ao navegador qual e a versao
+// daquela pessoa antes de ela provar quem e: isso responderia "existe" ou
+// "nao existe" para qualquer e-mail perguntado.
 export const REGRAS_DA_PROVA = {
   versao: 1,
   voltas: 210000,
   tempero: "iqv-porta-v1:",
 };
 
-// O passo barato, deste lado. 2 mil voltas gastam menos de 2 ms, cabem
-// com folga nos 10 do plano gratis, e existem para que duas pessoas com a
-// mesma prova ainda guardem coisas diferentes, por causa do sal sorteado.
-const VOLTAS = 2000;
+// O passo deste lado. 12 mil voltas gastam uns 6 ms, e o teto do plano
+// gratis e 10 por pedido: e o maior numero que cabe com folga para o
+// resto do pedido. Ele nao e enfeite, e a unica coisa que um atacante
+// preparado paga por chute.
+const VOLTAS = 12000;
 
 // A prova tem 32 bytes em hexadecimal, sempre. Recusar aqui o que nao tem
 // essa cara evita que um pedido torto chegue no calculo.
 const pareceProva = (v) => typeof v === "string" && /^[0-9a-f]{64}$/.test(v);
 
+// Um sal fixo, so para dar trabalho igual quando o e-mail nao existe. Ele
+// nunca protege nada: existe para o relogio nao contar quem esta na lista.
+const SAL_DE_MENTIRA = "00000000000000000000000000000000";
+
 // Um mes. E o intervalo em que a pessoa digita a senha de novo: doze
 // vezes por ano, e nao uma por dia.
 const DIAS_DE_SESSAO = 30;
 
-// Oito erros em quinze minutos fecham a porta para aquele e-mail por
-// mais quinze. Numero folgado para quem so errou o Caps Lock, e apertado
-// para quem esta chutando.
-const ERROS_ATE_FREAR = 8;
+/* --------------------------------------------------------------------
+   O freio, e por que ele NAO conta so por e-mail.
+
+   A primeira versao contava erros por e-mail. Parecia certo e era um
+   buraco: quem soubesse o e-mail da Carla mandava oito pedidos com
+   qualquer coisa no lugar da senha e a trancava por quinze minutos, sem
+   nunca ter chegado perto da senha dela. Repetindo a cada quinze, a
+   Carla ficava de fora para sempre e sem ter o que fazer.
+
+   Agora o balde principal e de QUEM ESTA TENTANDO, e nao de quem esta
+   sendo tentado: a chave junta o e-mail com o endereco de onde veio o
+   pedido. Errar oito vezes fecha a porta para AQUELE tentante, e nao para
+   a dona da conta, que continua entrando do computador dela.
+
+   O segundo balde e so do endereco, com numero mais alto: ele pega quem
+   nao esta insistindo num e-mail so, e sim varrendo uma lista inteira
+   testando a mesma senha em cada um. Esse ataque nao encostava no
+   primeiro balde, porque cada e-mail levava um erro so.
+
+   Endereco vem do cabecalho que a propria borda da Cloudflare carimba, e
+   nao de nada que o pedido escolha. Sem ele (so acontece em teste local),
+   sobra o balde do e-mail sozinho: pior que o de agora, melhor que nada.
+   -------------------------------------------------------------------- */
+const ERROS_ATE_FREAR = 8;         // por e-mail e endereco juntos
+const ERROS_DO_ENDERECO = 40;      // o mesmo endereco varrendo muitos e-mails
 const MINUTOS_DE_FREIO = 15;
 
 const PAPEIS = ["gestor", "colaborador", "cliente"];
@@ -150,6 +202,13 @@ const limparEmail = (v) => String(v || "").trim().toLowerCase();
 const pareceEmail = (v) => /^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v) && v.length <= 254;
 
 async function corpoJson(request, limite = 4096) {
+  // O tamanho e olhado ANTES de montar a string. Lendo primeiro, um pedido
+  // de 100 MB (o teto de upload da Cloudflare) viraria uns 200 MB de texto
+  // na memoria antes de ser recusado, e isso derruba o Worker. E /entrar
+  // nao pede cracha nenhum para chegar ate aqui.
+  const anunciado = Number(request.headers.get("content-length") || 0);
+  if (anunciado > limite) return null;
+
   const txt = await request.text();
   if (txt.length > limite) return null;
   try { return JSON.parse(txt); } catch { return null; }
@@ -215,10 +274,31 @@ export async function quemEsta(request, env) {
 }
 
 /* Portaria pronta para as outras rotas: devolve uma Response quando e
-   para barrar, e null quando pode seguir. `papeis` limita a quem. */
-export async function exigirEntrada(request, env, papeis) {
+   para barrar, e null quando pode seguir. `papeis` limita a quem.
+
+   QUEM AINDA NAO TROCOU A PRIMEIRA SENHA NAO PASSA DAQUI. A marca
+   precisa_trocar existia so na tela, e tela e sugestao: quem recebesse a
+   senha sorteada e chamasse o endereco direto ganhava um cracha de trinta
+   dias com o acesso inteiro, sem nunca trocar nada. E a senha que anda por
+   WhatsApp e justamente a que mais gente ve. Agora a sessao existe, mas
+   so serve para trocar a senha, e nada mais.
+
+   O `deixarTrocar` e para as duas rotas que precisam funcionar nesse
+   estado: a que diz quem voce e, e a que troca a senha. */
+export async function exigirEntrada(request, env, papeis, deixarTrocar) {
   const eu = await quemEsta(request, env);
   if (!eu) return { barrado: json({ ok: false, erro: "não autorizado" }, 401) };
+
+  if (eu.precisa_trocar && !deixarTrocar) {
+    return {
+      barrado: json({
+        ok: false,
+        erro: "escolha a sua senha antes de continuar",
+        precisa_trocar: true,
+      }, 403),
+    };
+  }
+
   if (papeis && !papeis.includes(eu.papel)) {
     return { barrado: json({ ok: false, erro: "sem permissão" }, 403) };
   }
@@ -229,35 +309,82 @@ export async function exigirEntrada(request, env, papeis) {
    O freio
    ==================================================================== */
 
-async function freado(env, chave) {
-  const l = await env.DB.prepare("select tentativas, ate from freio where chave = ?1")
-    .bind(chave).first();
-  if (!l) return false;
-  if (l.ate <= agora()) {
-    await env.DB.prepare("delete from freio where chave = ?1").bind(chave).run();
-    return false;
+// O endereco de quem pediu, carimbado pela borda. "sem-endereco" so
+// aparece rodando na propria maquina, no teste.
+const dondeVeio = (request) =>
+  request.headers.get("cf-connecting-ip") || "sem-endereco";
+
+const chavesDoFreio = (request, email) => {
+  const ip = dondeVeio(request);
+  return { tentante: `t:${ip}|${email}`, endereco: `e:${ip}` };
+};
+
+async function freado(env, request, email) {
+  const { tentante, endereco } = chavesDoFreio(request, email);
+  const { results } = await env.DB.prepare(
+    "select chave, tentativas, ate from freio where chave in (?1, ?2)",
+  ).bind(tentante, endereco).all();
+
+  const hoje = agora();
+  for (const l of results) {
+    if (l.ate <= hoje) continue;   // janela vencida nao freia; ela e apagada na faxina
+    const teto = l.chave === endereco ? ERROS_DO_ENDERECO : ERROS_ATE_FREAR;
+    if (l.tentativas >= teto) return true;
   }
-  return l.tentativas >= ERROS_ATE_FREAR;
+  return false;
 }
 
-async function contarErro(env, chave) {
-  await env.DB.prepare(`
+async function contarErro(env, request, email) {
+  const { tentante, endereco } = chavesDoFreio(request, email);
+  const ate = daquiA(MINUTOS_DE_FREIO * 60e3);
+  const subir = env.DB.prepare(`
     insert into freio (chave, tentativas, ate) values (?1, 1, ?2)
     on conflict(chave) do update set
       tentativas = case when freio.ate <= ?3 then 1 else freio.tentativas + 1 end,
       ate = ?2
-  `).bind(chave, daquiA(MINUTOS_DE_FREIO * 60e3), agora()).run();
+  `);
+  await env.DB.batch([
+    subir.bind(tentante, ate, agora()),
+    subir.bind(endereco, ate, agora()),
+  ]);
 }
 
-const limparFreio = (env, chave) =>
-  env.DB.prepare("delete from freio where chave = ?1").bind(chave).run();
+// Entrar limpa o balde de quem entrou, e nao o do endereco: quem acertou
+// nao e mais suspeito, mas o endereco que varreu cinquenta e-mails
+// continua sendo, mesmo tendo acertado um.
+const limparFreio = (env, request, email) =>
+  env.DB.prepare("delete from freio where chave = ?1")
+    .bind(chavesDoFreio(request, email).tentante).run();
+
 
 /* ====================================================================
    As rotas
    ==================================================================== */
 
+/* --------------------------------------------------------------------
+   De onde o pedido veio.
+
+   O cookie tem SameSite=Lax, e isso ja impede que um site qualquer faca o
+   navegador de outra pessoa mandar um POST com o cracha dela junto. Esta
+   conferencia e a segunda tranca: ela custa nada, nao depende de o
+   navegador implementar SameSite direito, e recusa por escrito em vez de
+   depender de o cookie nao ter viajado.
+
+   Pedido sem Origin passa: e o que acontece quando a pessoa digita o
+   endereco, e tambem nos testes.
+   -------------------------------------------------------------------- */
+function veioDeFora(request, url) {
+  const origem = request.headers.get("origin");
+  if (!origem) return false;
+  try { return new URL(origem).host !== url.host; } catch { return true; }
+}
+
 export async function rotasPorta(request, env, url) {
   const m = request.method;
+
+  if (m !== "GET" && veioDeFora(request, url)) {
+    return json({ ok: false, erro: "pedido veio de outro site" }, 403);
+  }
   switch (url.pathname) {
     case "/eu":
       return m === "GET" ? contarQuemSou(request, env) : metodo();
@@ -322,7 +449,7 @@ async function entrar(request, env) {
 
   if (!pareceEmail(email) || !pareceProva(prova)) return naoEntrou();
 
-  if (await freado(env, email)) {
+  if (await freado(env, request, email)) {
     return json({
       ok: false,
       erro: `muitas tentativas seguidas. Espere ${MINUTOS_DE_FREIO} minutos e tente de novo.`,
@@ -338,26 +465,32 @@ async function entrar(request, env) {
   // Pessoa que nao existe, pessoa desligada e pessoa sem senha caem todas
   // no mesmo lugar. E o freio conta os tres, senao ele nao freia quem
   // esta varrendo e-mails.
-  if (!p || p.ativo !== 1 || !p.senha_hash) {
-    await contarErro(env, email);
+  //
+  // A conta e feita MESMO quando nao ha ninguem, contra um sal de mentira.
+  // Sem isso, e-mail que existe demorava uns 6 ms a mais que e-mail que
+  // nao existe, e essa diferenca, medida algumas vezes, entrega a lista de
+  // quem tem acesso, que e justamente o que as respostas iguais escondem.
+  const alvo = (p && p.ativo === 1 && p.senha_hash) ? p : null;
+  const resumo = await resumoDaProva(
+    prova,
+    alvo ? alvo.senha_sal : SAL_DE_MENTIRA,
+    alvo ? (alvo.senha_voltas || VOLTAS) : VOLTAS,
+  );
+
+  if (!alvo || !iguais(resumo, alvo.senha_hash)) {
+    await contarErro(env, request, email);
     return naoEntrou();
   }
 
-  const resumo = await resumoDaProva(prova, p.senha_sal, p.senha_voltas || VOLTAS);
-  if (!iguais(resumo, p.senha_hash)) {
-    await contarErro(env, email);
-    return naoEntrou();
-  }
-
-  await limparFreio(env, email);
-  const cracha = await abrirSessao(env, p.id);
+  await limparFreio(env, request, email);
+  const cracha = await abrirSessao(env, alvo.id);
 
   return comCookie(
     json({
       ok: true,
       eu: {
-        id: p.id, nome: p.nome, email: p.email,
-        papel: p.papel, precisa_trocar: p.precisa_trocar === 1,
+        id: alvo.id, nome: alvo.nome, email: alvo.email,
+        papel: alvo.papel, precisa_trocar: alvo.precisa_trocar === 1,
       },
     }),
     cookieDe(request, cracha, DIAS_DE_SESSAO * 86400),
@@ -373,9 +506,18 @@ async function abrirSessao(env, pessoaId) {
   await env.DB.prepare("update pessoas set entrou_em = ?2 where id = ?1")
     .bind(pessoaId, agora()).run();
 
-  // Faxina barata: sessao vencida so ocupa espaco, e apagar aqui evita
-  // precisar de tarefa agendada so para isso.
-  await env.DB.prepare("delete from sessoes where expira_em <= ?1").bind(agora()).run();
+  // Faxina barata: sessao e freio vencidos so ocupam espaco, e apagar aqui
+  // evita precisar de tarefa agendada so para isso.
+  //
+  // Dentro de try porque ela vem DEPOIS de a sessao ja estar gravada: se o
+  // banco tossir na faxina, o login deu certo e nao pode virar erro. A
+  // sujeira fica para a proxima entrada.
+  try {
+    await env.DB.batch([
+      env.DB.prepare("delete from sessoes where expira_em <= ?1").bind(agora()),
+      env.DB.prepare("delete from freio where ate <= ?1").bind(agora()),
+    ]);
+  } catch (e) { /* limpar e desejavel, entrar e obrigatorio */ }
 
   return cracha;
 }
@@ -428,9 +570,9 @@ async function primeiroAcesso(request, env) {
   const hash = await resumoDaProva(prova, sal, VOLTAS);
 
   const feito = await env.DB.prepare(`
-    insert into pessoas (email, nome, papel, ativo, senha_hash, senha_sal, senha_voltas)
-    values (?1, ?2, 'gestor', 1, ?3, ?4, ?5)
-  `).bind(email, nome, hash, sal, VOLTAS).run();
+    insert into pessoas (email, nome, papel, ativo, senha_hash, senha_sal, senha_voltas, prova_versao)
+    values (?1, ?2, 'gestor', 1, ?3, ?4, ?5, ?6)
+  `).bind(email, nome, hash, sal, VOLTAS, REGRAS_DA_PROVA.versao).run();
 
   const id = feito.meta.last_row_id;
   const cracha = await abrirSessao(env, id);
@@ -448,7 +590,7 @@ async function primeiroAcesso(request, env) {
    alguem com a sessao aberta trocaria a senha e tomaria a conta.
    -------------------------------------------------------------------- */
 async function trocarMinhaSenha(request, env) {
-  const { barrado, eu } = await exigirEntrada(request, env);
+  const { barrado, eu } = await exigirEntrada(request, env, null, true);
   if (barrado) return barrado;
 
   const corpo = await corpoJson(request);
@@ -477,9 +619,9 @@ async function trocarMinhaSenha(request, env) {
   const hash = await resumoDaProva(nova, sal, VOLTAS);
   await env.DB.prepare(`
     update pessoas set senha_hash = ?2, senha_sal = ?3, senha_voltas = ?4,
-                       precisa_trocar = 0, atualizado_em = ?5
+                       prova_versao = ?5, precisa_trocar = 0, atualizado_em = ?6
     where id = ?1
-  `).bind(eu.id, hash, sal, VOLTAS, agora()).run();
+  `).bind(eu.id, hash, sal, VOLTAS, REGRAS_DA_PROVA.versao, agora()).run();
 
   // Trocar senha derruba as OUTRAS sessoes, e mantem esta. E o que a
   // pessoa espera de "troquei porque achei que alguem descobriu".
@@ -540,9 +682,9 @@ async function cadastrarPessoa(request, env) {
   const hash = await resumoDaProva(prova, sal, VOLTAS);
 
   const feito = await env.DB.prepare(`
-    insert into pessoas (email, nome, papel, ativo, senha_hash, senha_sal, senha_voltas, precisa_trocar)
-    values (?1, ?2, ?3, 1, ?4, ?5, ?6, 1)
-  `).bind(email, nome, papel, hash, sal, VOLTAS).run();
+    insert into pessoas (email, nome, papel, ativo, senha_hash, senha_sal, senha_voltas, precisa_trocar, prova_versao)
+    values (?1, ?2, ?3, 1, ?4, ?5, ?6, 1, ?7)
+  `).bind(email, nome, papel, hash, sal, VOLTAS, REGRAS_DA_PROVA.versao).run();
 
   return json({
     ok: true,
@@ -611,6 +753,7 @@ async function mudarPessoa(request, env) {
     mudar("senha_hash", await resumoDaProva(prova, sal, VOLTAS));
     mudar("senha_sal", sal);
     mudar("senha_voltas", VOLTAS);
+    mudar("prova_versao", REGRAS_DA_PROVA.versao);
     mudar("precisa_trocar", 1);
   }
 
@@ -619,8 +762,24 @@ async function mudarPessoa(request, env) {
   mudar("atualizado_em", agora());
 
   const sets = campos.map((c, i) => `${c} = ?${i + 1}`).join(", ");
-  await env.DB.prepare(`update pessoas set ${sets} where id = ?${campos.length + 1}`)
-    .bind(...valores, id).run();
+
+  // A conferencia de "sobra outro gestor" foi feita la em cima, mas dois
+  // pedidos simultaneos passariam os dois por ela e a casa acabaria sem
+  // gestor nenhum, sem volta. Por isso ela vai TAMBEM para dentro do
+  // proprio update: mexer no papel ou no ativo de um gestor so acontece
+  // se, no instante da escrita, existir outro gestor ativo.
+  const mexeNoGestor = corpo.papel !== undefined || corpo.ativo !== undefined;
+  const trava = (mexeNoGestor && alvo.papel === "gestor")
+    ? ` and exists (select 1 from pessoas where papel = 'gestor' and ativo = 1 and id <> ?${campos.length + 1})`
+    : "";
+
+  const feito = await env.DB.prepare(
+    `update pessoas set ${sets} where id = ?${campos.length + 1}${trava}`,
+  ).bind(...valores, id).run();
+
+  if (trava && feito.meta.changes === 0) {
+    return json({ ok: false, erro: "esta é a única pessoa com acesso de gestor. Faça outra gestora antes." }, 409);
+  }
 
   // Desligar alguem ou zerar a senha dela derruba as sessoes abertas.
   // Sem isto, quem foi desligada continuaria dentro ate o cracha vencer,

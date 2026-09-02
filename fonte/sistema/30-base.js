@@ -109,7 +109,10 @@ const CHAVES = {
   metodo:       'iqv_metodo',
   recebimentos: 'iqv_recebimentos',
   retratos:     'iqv_retratos',
-  usuarios:     'iqv_usuarios',
+  // iqv_usuarios saiu em 02/09: a equipe mora no servidor. A chave pode
+  // continuar no navegador de quem usou o sistema antes disso, e "A casa"
+  // nao a le nem a apaga: apagar dado de gente sem pedir e o tipo de
+  // esperteza que some com trabalho alheio.
   permissoes:   'iqv_permissoes',
   marca:        'iqv_marca',
   registro:     'iqv_registro',
@@ -394,21 +397,20 @@ function salvarPermissoes() {
 /* ---------------------------------------------------------------------
    6. Quem e a pessoa.
 
-   Sao duas portas, e elas se somam em vez de competir:
+   Uma porta so, e ela e nossa. A pessoa entra com e-mail e senha, e quem
+   confere e o servidor. Ate 01/09 eram duas portas somadas, o Cloudflare
+   Access na frente e uma senha aqui dentro; a de fora saiu porque a tela
+   de entrada era dela, e a Carla queria a da casa.
 
-   O CLOUDFLARE ACCESS decide quem chega ate aqui. Ele e quem protege o
-   endereco, e a rota /eu do servidor diz qual e-mail ele autenticou (uma
-   pagina estatica nao enxerga os proprios cabecalhos).
+   O que EU guarda vem do servidor, e nao do navegador: id, nome, e-mail e
+   papel chegam na resposta de quem entrou. O papel aqui serve para montar
+   o menu e esconder tela. QUEM DE VERDADE DECIDE E O SERVIDOR, que confere
+   o papel no banco a cada pedido: mexer no EU pelo console muda o menu e
+   nao muda nada do que o servidor entrega.
 
-   O LOGIN DAQUI decide QUEM da casa esta usando, e o que essa pessoa ve.
-   Cada pessoa tem o proprio cadastro e a propria senha. Enquanto o Access
-   nao existir, e esta porta que separa os papeis, e a tela diz isso com
-   todas as letras: ela identifica, nao protege. Depois do Access, quem ja
-   entrou pelo e-mail nem ve tela de senha.
-
-   Duas consequencias que "A casa" escreve por extenso: tirar alguem da
-   lista NAO tira o acesso dela ao endereco (isso e no painel do Access), e
-   o Access nao sabe o que e Gestor ou Colaborador, essa parte e do sistema.
+   Tirar alguem de "A casa" agora TIRA o acesso dela de verdade, e as
+   sessoes abertas dela caem na hora. Antes isso era so cosmetico, porque
+   quem trancava o endereco era outro.
    --------------------------------------------------------------------- */
 const EU = {
   id: null,
@@ -497,6 +499,26 @@ async function provaDaSenha(email, senha) {
 const SENHA_MINIMA = 8;
 
 /* ---------------------------------------------------------------------
+   As aplicacoes que chegam do servidor.
+
+   As respostas de cada uma viajam como TEXTO, e sao abertas aqui. O
+   servidor fazia isso: lia o texto e reescrevia no corpo da resposta, duas
+   travessias por linha. Com duzentas aplicacoes de nove respostas
+   compridas, so isso ja passava dos 10 ms de processador que o plano
+   gratis da por pedido, e o pedido morria. Aqui e de graca, e a tela ja
+   ia ter que ler o corpo inteiro de qualquer jeito.
+   --------------------------------------------------------------------- */
+function lerLeads(corpo) {
+  const lista = (corpo && corpo.leads) || [];
+  if (!corpo || !corpo.respostas_em_texto) return lista;
+  return lista.map(function (l) {
+    let r = {};
+    try { r = JSON.parse(l.respostas || '{}'); } catch (e) { r = {}; }
+    return Object.assign({}, l, { respostas: r });
+  });
+}
+
+/* ---------------------------------------------------------------------
    Falar com o servidor.
 
    Um lugar so para os cabecalhos, para nenhuma tela sair sem eles. O
@@ -527,7 +549,14 @@ async function carregarEquipe() {
     const r = await fetch('/pessoas', { headers: cabecalhos(), cache: 'no-store' });
     if (!r.ok) return;
     const d = await r.json();
-    if (d && d.ok && Array.isArray(d.pessoas)) EQUIPE = d.pessoas;
+    if (!d || !d.ok || !Array.isArray(d.pessoas)) return;
+    EQUIPE = d.pessoas;
+
+    // A lista chega DEPOIS da primeira tela ser desenhada, senao a
+    // abertura esperaria por ela sem precisar. Mas quem ja esta na tela
+    // veria "ninguem" no lugar dos nomes ate clicar em outra coisa: quem
+    // pede a lista redesenha o que estiver aberto.
+    if (TELA_ATUAL && DESENHO[TELA_ATUAL]) DESENHO[TELA_ATUAL]();
   } catch (e) {
     // Sem a lista as telas de trabalho abrem com "ninguem" no lugar dos
     // nomes, o que e ruim mas nao impede escrever. Derrubar a entrada

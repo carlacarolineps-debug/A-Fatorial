@@ -46,9 +46,18 @@ create table if not exists pessoas (
   senha_sal text,
   senha_voltas integer,
 
+  -- Qual versao da regra do navegador gerou a prova desta pessoa. Sem
+  -- esta coluna, mudar as voltas ou o tempero trancaria todo mundo para
+  -- fora de uma vez: o navegador passaria a calcular uma prova diferente
+  -- da que esta guardada, e nem a senha certa entraria. Com ela, o dia da
+  -- mudanca tem saida.
+  prova_versao integer not null default 1,
+
   -- Quando o gestor cadastra alguem, ele escolhe a primeira senha e passa
   -- adiante. Esta marca obriga a troca na primeira entrada, para a senha
-  -- que andou por WhatsApp nao ficar valendo para sempre.
+  -- que andou por WhatsApp nao ficar valendo para sempre. Ela e obedecida
+  -- pelo SERVIDOR, na exigirEntrada: sessao de quem ainda nao trocou so
+  -- serve para trocar.
   precisa_trocar integer not null default 0,
 
   entrou_em text
@@ -87,3 +96,16 @@ create table if not exists freio (
   tentativas integer not null default 0,
   ate text not null
 );
+
+-- ---------------------------------------------------------------------
+-- Colunas que chegaram depois.
+--
+-- "create table if not exists" NAO acrescenta coluna nenhuma numa tabela
+-- que ja existe: num banco que ja rodou uma vez, o bloco la de cima passa
+-- calado e a coluna nova nunca aparece. Depois o insert falha por coluna
+-- que falta, com uma mensagem que nao diz isso.
+--
+-- Rodar de novo num banco que ja tem a coluna devolve erro de coluna
+-- duplicada, e esse erro pode ser ignorado.
+-- ---------------------------------------------------------------------
+-- alter table pessoas add column prova_versao integer not null default 1;

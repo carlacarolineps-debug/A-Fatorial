@@ -28,6 +28,10 @@ spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local",
   "--command", "delete from sessoes; delete from pessoas; delete from freio;"],
   { stdio: "ignore" });
 
+// A colaboradora e o cliente nascem com a marca de trocar a senha, e a
+// sessao de quem nao trocou so serve para trocar. Quem semeia gente aqui
+// tem que trocar a senha de cada uma antes de usar a conta.
+
 const SENHA = "senhadeteste1";
 const entrarComo = async (email) => {
   await pg.evaluate(async ([e, s]) => {

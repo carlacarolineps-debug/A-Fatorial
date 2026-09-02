@@ -85,9 +85,14 @@ function casaLinhaPessoa(u, editavel) {
         }).join('') + '</select>'
       : '<span class="eti eti-neutra">' + esc((porChave(PAPEIS, u.papel) || {}).nome || u.papel) + '</span>') + '</td>' +
     '<td style="text-align:right;white-space:nowrap">' + (editavel
-      ? '<button class="bt bt-linha bt-sm" onclick="casaNovaSenha(' + Number(u.id) + ')">Nova senha</button> ' +
-        (souEu ? ''
-          : '<button class="bt bt-linha bt-sm" onclick="casaLigar(' + Number(u.id) + ',' + (desligada ? 'true' : 'false') + ')">' +
+      // Na propria linha o botao e outro. "Nova senha" sorteia uma e
+      // derruba as sessoes da pessoa: usado em si mesma, ele expulsava
+      // quem clicou e mostrava a propria senha nova na tela que ja tinha
+      // ido embora. Trocar a de gente e sortear; trocar a sua e digitar.
+      ? (souEu
+          ? '<button class="bt bt-linha bt-sm" onclick="casaMinhaSenha()">Trocar a minha senha</button>'
+          : '<button class="bt bt-linha bt-sm" onclick="casaNovaSenha(' + Number(u.id) + ')">Nova senha</button> ' +
+            '<button class="bt bt-linha bt-sm" onclick="casaLigar(' + Number(u.id) + ',' + (desligada ? 'true' : 'false') + ')">' +
             (desligada ? 'Religar' : 'Desligar') + '</button> ' +
             '<button class="bt bt-linha bt-sm" onclick="casaRemover(' + Number(u.id) + ')">Tirar</button>')
       : '') + '</td>' +
@@ -137,6 +142,71 @@ function casaSortearSenha() {
     crypto.getRandomValues(new Uint8Array(quantas)),
     function (b) { return fonte[b % fonte.length]; }).join('');
   return sorteia(letras, 4) + '-' + sorteia(numeros, 3) + '-' + sorteia(letras, 4);
+}
+
+/* Trocar a PROPRIA senha. Passa pelo /minha-senha, que pede a atual e
+   mantem esta sessao de pe: e a unica troca em que a pessoa escolhe, e
+   nao recebe. Sem isto, quem e gestor nao tinha por onde trocar a senha
+   dela por dentro do sistema. */
+async function casaMinhaSenha() {
+  const sim = await perguntar({
+    titulo: 'Trocar a sua senha',
+    texto: 'Você digita a atual e a nova. As suas outras sessões, em outros computadores, caem.',
+    confirmar: 'Trocar agora',
+  });
+  if (!sim) return;
+  escrever('casaAvisoAccess',
+    '<div class="cartao" style="margin-bottom:14px">' +
+    '<div class="cartao-t">Trocar a minha senha</div>' +
+    '<div id="casaSenhaErro"></div>' +
+    '<label class="rotulo" for="casaSenhaAtual">Senha atual</label>' +
+    '<input class="campo campo-sm" id="casaSenhaAtual" type="password" autocomplete="current-password">' +
+    '<label class="rotulo" for="casaSenhaNova" style="margin-top:10px">Senha nova</label>' +
+    '<input class="campo campo-sm" id="casaSenhaNova" type="password" autocomplete="new-password" placeholder="pelo menos ' + SENHA_MINIMA + ' caracteres">' +
+    '<label class="rotulo" for="casaSenhaNova2" style="margin-top:10px">Repita a senha nova</label>' +
+    '<input class="campo campo-sm" id="casaSenhaNova2" type="password" autocomplete="new-password">' +
+    '<button class="bt bt-marca bt-sm" style="margin-top:12px" onclick="casaGravarMinhaSenha()">Guardar</button>' +
+    '</div>');
+  const campo = porId('casaSenhaAtual');
+  if (campo) campo.focus();
+}
+
+async function casaGravarMinhaSenha() {
+  const atual = String((porId('casaSenhaAtual') || {}).value || '');
+  const nova = String((porId('casaSenhaNova') || {}).value || '');
+  const repete = String((porId('casaSenhaNova2') || {}).value || '');
+
+  const erro = !atual ? 'Escreva a sua senha atual.'
+    : nova.length < SENHA_MINIMA ? 'A senha nova precisa de pelo menos ' + SENHA_MINIMA + ' caracteres.'
+    : nova !== repete ? 'As duas senhas novas não são iguais.'
+    : null;
+  if (erro) { escrever('casaSenhaErro', aviso('alerta', erro, 'Corrija e tente de novo.')); return; }
+
+  let r;
+  try {
+    const resposta = await fetch('/minha-senha', {
+      method: 'POST',
+      headers: cabecalhos({ 'content-type': 'application/json' }),
+      cache: 'no-store',
+      body: JSON.stringify({
+        atual: await provaDaSenha(EU.email, atual),
+        nova: await provaDaSenha(EU.email, nova),
+      }),
+    });
+    r = { status: resposta.status, corpo: await resposta.json().catch(function () { return null; }) };
+  } catch (e) {
+    r = { status: 0, corpo: null };
+  }
+
+  if (!r.corpo || !r.corpo.ok) {
+    escrever('casaSenhaErro', aviso('alerta',
+      r.corpo && r.corpo.erro ? primeiraMaiuscula(r.corpo.erro) : 'Não consegui trocar a senha.',
+      'Nada foi mudado.'));
+    return;
+  }
+  await casaCarregar();
+  escrever('casaAvisoAccess', aviso('info', 'Senha trocada.',
+    'Você continua aqui. Se estava entrada em outro computador, aquela sessão caiu.'));
 }
 
 async function casaMudarPapel(id, papel) {

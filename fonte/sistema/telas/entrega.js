@@ -435,10 +435,10 @@ async function entregaPedirLeads() {
     // login vencido nao volta em JSON: o Access devolve a pagina de
     // entrada dele, em HTML, e o fetch ja seguiu o desvio
     if (dados === null) return { estado: 'login' };
-    if (r.status === 503) return { estado: 'sem_configuracao' };
+    if (r.status === 403) return { estado: 'sem_papel' };
     if (r.status === 401) return { estado: 'login' };
     if (!r.ok) return { estado: 'erro', mensagem: dados.erro || ('o servidor respondeu ' + r.status) };
-    return { estado: 'ok', leads: Array.isArray(dados.leads) ? dados.leads : [] };
+    return { estado: 'ok', leads: lerLeads(dados) };
   } catch (e) {
     return { estado: 'sem_servidor' };
   }
@@ -1196,17 +1196,17 @@ function entregaHtmlAplicacao(p) {
       'O que você escreve nesta entrega continua sendo gravado normalmente, porque isso é deste navegador. O que falta é só a memória da aplicação: nome das perguntas e respostas moram no banco.') + botao;
   }
   if (a.estado === 'login') {
-    return aviso('atencao', 'Seu login venceu.',
-      'O servidor respondeu com a página de entrada em vez das aplicações. Recarregue a página para entrar de novo. A entrega que está sendo escrita não se perde: ela é deste navegador.') + botao;
+    return aviso('atencao', 'A sua entrada venceu.',
+      'Recarregue a página para entrar de novo. A entrega que está sendo escrita não se perde: ela é deste navegador.') + botao;
   }
-  if (a.estado === 'sem_configuracao') {
-    return aviso('alerta', 'O login protegido ainda não foi ligado.',
-      'Sem ele o servidor não entrega as aplicações. Escreva a entrega com a leitura do caso, que é deste navegador.') + botao;
+  if (a.estado === 'sem_papel') {
+    return aviso('atencao', 'O seu acesso não alcança as aplicações.',
+      'Escreva a entrega com a leitura do caso, que é deste navegador. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".') + botao;
   }
   if (a.estado === 'sumiu') {
     return aviso('atencao', 'A aplicação deste projeto não está mais na lista do servidor.',
       'O projeto continua inteiro. O que sumiu foi a aplicação de número ' + esc(String(p.leadId)) +
-      ', que pode ter saído das 500 mais recentes. O Diagnóstico estratégico deste projeto passa a ser a única memória do que a pessoa contou.') + botao;
+      ', que pode ter saído das 200 mais recentes. O Diagnóstico estratégico deste projeto passa a ser a única memória do que a pessoa contou.') + botao;
   }
   if (a.estado === 'erro') {
     return aviso('alerta', 'O servidor recusou o pedido.',
