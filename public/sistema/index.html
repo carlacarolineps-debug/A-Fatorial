@@ -636,10 +636,10 @@ kbd{
 </head>
 <body>
 <!-- =====================================================================
-     A porta. Quem identifica a pessoa e o Cloudflare Access, pelo e-mail
-     que ele carimba no pedido e que a rota /eu devolve. Enquanto o Access
-     nao estiver ligado, esta tela diz isso por escrito em vez de fingir
-     um login que nao protege nada.
+     A porta. E-mail e senha, conferidos no servidor. O que aparece nesta
+     caixa muda conforme o servidor responde: criar o primeiro acesso,
+     entrar, ou escolher a senha propria na primeira entrada. Por isso o
+     miolo e so um buraco vazio aqui, pintado pelo 90-fim.js.
      ===================================================================== -->
 <div class="porta" id="porta">
   <!-- A lombada da porta: a marca fica de um lado, no preto da casa, e o
@@ -995,7 +995,7 @@ kbd{
 
   <div class="cartao">
     <div class="cartao-t">Telas por papel</div>
-    <p class="dica" style="margin:-8px 0 16px">O Cloudflare Access abre a porta. O que a pessoa vê depois disso é decidido aqui.</p>
+    <p class="dica" style="margin:-8px 0 16px">Quem entra e com que senha fica na lista acima. O que cada papel enxerga depois de entrar é decidido aqui.</p>
     <div id="casaPermissoes"></div>
   </div>
 
@@ -1432,9 +1432,6 @@ const EU = {
   email: null,
   nome: null,
   papel: null,
-  // 'access'  o servidor autenticou pelo Cloudflare Access
-  // 'senha'   a pessoa entrou pelo login deste sistema
-  origem: null,
   pode: function (tela) {
     if (!this.papel) return false;
     return (PERMISSOES[this.papel] || []).indexOf(tela) >= 0;
@@ -1443,48 +1440,34 @@ const EU = {
 };
 
 /* ---------------------------------------------------------------------
-   Senha.
+   Quem confere a senha nao mora mais aqui.
 
-   Guardar senha em texto puro num arquivo que qualquer um baixa seria
-   pior que nao ter senha: as pessoas repetem senha entre servicos, e a
-   daqui viraria a de outro lugar. O que fica guardado e o resumo
-   SHA-256 de senha + id, entao duas pessoas com a mesma senha guardam
-   coisas diferentes e ninguem le a senha de ninguem abrindo o arquivo.
+   Ate 01/09 este arquivo calculava o resumo da senha e comparava com uma
+   lista guardada no navegador. Isso dizia QUEM era a pessoa e nada mais:
+   quem baixasse o arquivo enxergava a lista inteira e podia tentar senha
+   a vontade, sem ninguem barrando. E cada navegador tinha a SUA lista,
+   entao cadastrar alguem no computador da Carla nao cadastrava em lugar
+   nenhum.
 
-   Isto NAO transforma o sistema em cofre. Quem baixa o HTML enxerga a
-   lista de pessoas e pode tentar senha a vontade, sem ninguem barrando.
-   Quem protege o endereco e o Cloudflare Access. Esta senha separa
-   pessoas, e a porta diz isso por escrito.
+   Agora a senha e conferida no servidor e a lista e uma so para todo
+   mundo. O que sobrou aqui e a moldura: quem esta na tela e o que essa
+   pessoa pode ver.
    --------------------------------------------------------------------- */
-async function resumoSenha(senha, id) {
-  const bytes = new TextEncoder().encode(String(senha) + ':' + String(id));
-  const digestao = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(digestao))
-    .map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-}
 
-// Comparacao de tempo constante: === vaza o tamanho do acerto por timing.
-function resumoIgual(a, b) {
-  const x = String(a || ''), y = String(b || '');
-  let dif = x.length ^ y.length;
-  for (let i = 0; i < Math.max(x.length, y.length); i++) {
-    dif |= (x.charCodeAt(i) || 0) ^ (y.charCodeAt(i) || 0);
-  }
-  return dif === 0;
+// "e-mail ou senha nao conferem" vira "E-mail ou senha nao conferem". O
+// servidor escreve em minuscula porque as mesmas frases aparecem no meio
+// de outras; na tela elas comecam a frase.
+function primeiraMaiuscula(s) {
+  const v = String(s || '');
+  return v.charAt(0).toUpperCase() + v.slice(1);
 }
 
 /* ---------------------------------------------------------------------
    Falar com o servidor.
 
-   Todo pedido leva o X-Requested-With. Sem ele, quando o cracha do login
-   protegido vence, o Cloudflare Access nao responde erro: ele responde a
-   PAGINA de entrada dele, em HTML, e o navegador segue o desvio calado.
-   Cada tela descobria isso tentando ler HTML como JSON e deduzindo do
-   estouro que o login tinha vencido. Com o cabecalho, o Access responde
-   401 direto, e a tela le o numero em vez de adivinhar.
-
-   O tratamento antigo continua em pe nas telas, como rede de baixo: um
-   desvio ainda pode chegar por outro caminho.
+   Um lugar so para os cabecalhos, para nenhuma tela sair sem eles. O
+   cracha de quem entrou nao aparece aqui: ele viaja num cookie que o
+   navegador manda sozinho e que JavaScript nenhum consegue ler.
    --------------------------------------------------------------------- */
 function cabecalhos(extras) {
   return Object.assign(
@@ -1492,26 +1475,33 @@ function cabecalhos(extras) {
     extras || {});
 }
 
-// Fica verdadeiro quando o /eu responde que o Access autenticou alguem.
-// So o "Sair" usa isso, e por um motivo pratico explicado la embaixo.
-let ACCESS_NO_AR = false;
-
 /* ---------------------------------------------------------------------
-   A sessao. Fica no navegador para nao pedir senha a cada aba, e sai no
-   "Sair". Guarda so o id: papel e nome vem da lista, entao mudar o papel
-   de alguem vale na proxima tela que ela abrir, e nao so no proximo login.
+   A equipe.
+
+   Quem tem acesso mora no servidor, e nao mais no navegador. A lista e
+   lida uma vez na entrada e fica aqui para as telas que precisam dela
+   (a semana, os projetos e as entregas, para dizer de quem e cada coisa).
+
+   A sessao tambem saiu daqui: quem diz que a pessoa continua entrada e o
+   cookie, que o servidor poe e o navegador guarda. Sessao decidida pelo
+   proprio navegador nao decidia nada.
    --------------------------------------------------------------------- */
-const CHAVE_SESSAO = 'iqv_sessao';
+let EQUIPE = [];
 
-function sessaoGuardar(id) { iqvGravar(CHAVE_SESSAO, { pessoaId: id }); }
-function sessaoLer() { return iqvLer(CHAVE_SESSAO, null); }
-function sessaoApagar() { try { localStorage.removeItem(CHAVE_SESSAO); } catch (e) {} }
-
-function pessoas() { return iqvLer(CHAVES.usuarios, []); }
-function gravarPessoas(lista) { return iqvGravar(CHAVES.usuarios, lista); }
-function acharPessoaPorId(id) {
-  return pessoas().find(function (p) { return p.id === id; }) || null;
+async function carregarEquipe() {
+  try {
+    const r = await fetch('/pessoas', { headers: cabecalhos(), cache: 'no-store' });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d && d.ok && Array.isArray(d.pessoas)) EQUIPE = d.pessoas;
+  } catch (e) {
+    // Sem a lista as telas de trabalho abrem com "ninguem" no lugar dos
+    // nomes, o que e ruim mas nao impede escrever. Derrubar a entrada
+    // inteira por causa disso seria pior.
+  }
 }
+
+function pessoas() { return EQUIPE; }
 
 // mantido porque as telas ja chamam assim
 function usuarios() { return pessoas(); }
@@ -1599,25 +1589,17 @@ function alternarMenu() {
   }
 }
 
-function sair() {
-  sessaoApagar();
-
-  // Com o login protegido no ar, apagar so a sessao daqui nao e sair: a
-  // porta perguntaria de novo quem entrou, o Access devolveria o mesmo
-  // e-mail e ela abriria o sistema outra vez, no mesmo segundo. Quem
-  // clicou em Sair veria a tela piscar e continuar dentro.
-  //
-  // O endereco abaixo e da propria Cloudflare, nao deste sistema: ela
-  // apaga o cracha do navegador e devolve a pessoa para a tela de
-  // entrada. Usar o endereco do site, e nao o do time, faz a saida ser
-  // imediata em vez de esperar o cracha vencer sozinho.
-  if (ACCESS_NO_AR) { location.href = '/cdn-cgi/access/logout'; return; }
-
-  EU.id = null; EU.email = null; EU.nome = null; EU.papel = null; EU.origem = null;
-  PORTA_ESCOLHIDA = null;
-  porId('app').hidden = true;
-  porId('porta').hidden = false;
-  abrirPorta();
+async function sair() {
+  // Sair de verdade apaga a sessao NO SERVIDOR, e nao so o cookie daqui.
+  // Cookie apagado so no navegador continuaria valendo se alguem tivesse
+  // copiado o valor dele, e "eu sai" viraria mentira por um mes.
+  try {
+    await fetch('/sair', { method: 'POST', headers: cabecalhos(), cache: 'no-store' });
+  } catch (e) {
+    // Sem rede nao da para encerrar do outro lado. Recarregar ainda tira
+    // a pessoa da tela, e a porta vai dizer o que houve.
+  }
+  location.reload();
 }
 /* =====================================================================
    Minha semana  ·  o que vence, o que atrasou e quem está esperando
@@ -10179,95 +10161,201 @@ DESENHO.cliente = function () {
    subentendido e depois vira problema.
    ===================================================================== */
 
-function casaUsuarios() { return iqvLer(CHAVES.usuarios, []); }
+/* ---------------------------------------------------------------------
+   As pessoas moram no servidor.
 
-function casaGravarUsuarios(lista) {
-  if (iqvGravar(CHAVES.usuarios, lista)) { DESENHO.casa(); return true; }
+   Ate 01/09 esta lista vivia no localStorage, e isso tinha uma
+   consequencia que ninguem lembra na hora: cadastrar alguem no
+   computador da Carla nao cadastrava em lugar nenhum. A pessoa chegava,
+   abria o sistema no computador dela e nao existia.
+
+   Agora e uma lista so. Cada mudanca vai ao servidor e volta, e por isso
+   cada botao aqui espera resposta antes de redesenhar.
+   --------------------------------------------------------------------- */
+
+let CASA_PESSOAS = [];
+let CASA_ESTADO = 'carregando';   // carregando | lendo | pronto | erro
+let CASA_ERRO = '';
+
+async function casaPedir(metodo, corpo) {
+  try {
+    const opcoes = { method: metodo, headers: cabecalhos(), cache: 'no-store' };
+    if (corpo) {
+      opcoes.headers['content-type'] = 'application/json';
+      opcoes.body = JSON.stringify(corpo);
+    }
+    const r = await fetch('/pessoas', opcoes);
+    let d = null;
+    try { d = await r.json(); } catch (e) { d = null; }
+    return { status: r.status, corpo: d };
+  } catch (e) {
+    return { status: 0, corpo: null };
+  }
+}
+
+async function casaCarregar() {
+  const r = await casaPedir('GET');
+  if (r.status === 0) {
+    CASA_ESTADO = 'erro';
+    CASA_ERRO = 'Não consegui falar com o servidor. As pessoas moram lá, não neste navegador.';
+  } else if (!r.corpo || !r.corpo.ok) {
+    CASA_ESTADO = 'erro';
+    CASA_ERRO = r.corpo && r.corpo.erro ? primeiraMaiuscula(r.corpo.erro) : 'Não consegui ler a lista.';
+  } else {
+    CASA_PESSOAS = r.corpo.pessoas || [];
+    EQUIPE = CASA_PESSOAS;
+    CASA_ESTADO = 'pronto';
+    CASA_ERRO = '';
+  }
   DESENHO.casa();
-  return false;
+}
+
+// Uma frase so para o que der errado em qualquer botao desta tela.
+function casaFalhou(r, quando) {
+  escrever('casaAvisoAccess', aviso('alerta',
+    r.status === 0 ? 'Não consegui falar com o servidor.'
+      : r.corpo && r.corpo.erro ? primeiraMaiuscula(r.corpo.erro)
+      : 'Não consegui ' + quando + '.',
+    'Nada foi mudado. Tente de novo.'));
 }
 
 function casaPodeEditar() { return EU.papel === 'gestor'; }
 
 function casaLinhaPessoa(u, editavel) {
   const souEu = EU.id === u.id;
-  return '<tr>' +
+  const desligada = u.ativo === false;
+  return '<tr' + (desligada ? ' style="opacity:.55"' : '') + '>' +
     '<td><b>' + esc(u.nome || 'sem nome') + '</b>' +
-      (souEu ? ' <span class="eti eti-marca">você</span>' : '') + '</td>' +
+      (souEu ? ' <span class="eti eti-marca">você</span>' : '') +
+      (desligada ? ' <span class="eti eti-neutra">desligada</span>' : '') + '</td>' +
     '<td style="font-size:12.5px;color:var(--tx-2)">' + esc(u.email || '') + '</td>' +
-    '<td>' + (u.senha
-      ? '<span class="eti eti-ok">senha criada</span>'
-      : '<span class="eti eti-atencao">escolhe na 1a entrada</span>') + '</td>' +
+    '<td>' + (u.precisa_trocar
+      ? '<span class="eti eti-atencao">troca na 1a entrada</span>'
+      : '<span class="eti eti-ok">senha própria</span>') + '</td>' +
     '<td>' + (editavel && !souEu
-      ? '<select class="campo campo-sm" onchange="casaMudarPapel(\'' + esc(u.id) + '\', this.value)">' +
+      ? '<select class="campo campo-sm" onchange="casaMudarPapel(' + Number(u.id) + ', this.value)">' +
         PAPEIS.map(function (p) {
           return '<option value="' + p.k + '"' + (p.k === u.papel ? ' selected' : '') + '>' + esc(p.nome) + '</option>';
         }).join('') + '</select>'
       : '<span class="eti eti-neutra">' + esc((porChave(PAPEIS, u.papel) || {}).nome || u.papel) + '</span>') + '</td>' +
     '<td style="text-align:right;white-space:nowrap">' + (editavel
-      ? (u.senha ? '<button class="bt bt-linha bt-sm" onclick="casaZerarSenha(\'' + esc(u.id) + '\')">Zerar senha</button> ' : '') +
-        (souEu ? '' : '<button class="bt bt-linha bt-sm" onclick="casaRemover(\'' + esc(u.id) + '\')">Tirar</button>')
+      ? '<button class="bt bt-linha bt-sm" onclick="casaNovaSenha(' + Number(u.id) + ')">Nova senha</button> ' +
+        (souEu ? ''
+          : '<button class="bt bt-linha bt-sm" onclick="casaLigar(' + Number(u.id) + ',' + (desligada ? 'true' : 'false') + ')">' +
+            (desligada ? 'Religar' : 'Desligar') + '</button> ' +
+            '<button class="bt bt-linha bt-sm" onclick="casaRemover(' + Number(u.id) + ')">Tirar</button>')
       : '') + '</td>' +
   '</tr>';
 }
 
-// Esquecer senha acontece. Sem isto, a pessoa fica de fora e a unica saida
-// seria apagar o cadastro dela, o que levaria junto o vinculo com os
-// projetos onde ela e responsavel.
-async function casaZerarSenha(id) {
-  const lista = casaUsuarios();
-  const u = lista.find(function (x) { return x.id === id; });
+const casaAchar = (id) => CASA_PESSOAS.find(function (x) { return x.id === id; }) || null;
+
+/* Esquecer senha acontece. O gestor escolhe uma nova, passa adiante, e a
+   pessoa troca na primeira entrada: a senha que andou pelo WhatsApp nao
+   fica valendo. Nao existe "sem senha" aqui, porque conta sem senha nao
+   entra e ficaria travada esperando um e-mail que este sistema nao manda. */
+async function casaNovaSenha(id) {
+  const u = casaAchar(id);
   if (!u) return;
   const sim = await perguntar({
-    titulo: 'Zerar a senha de ' + (u.nome || u.email),
-    texto: 'Na próxima entrada ela escolhe uma senha nova. Você não fica sabendo qual é.',
-    confirmar: 'Zerar a senha',
+    titulo: 'Nova senha para ' + (u.nome || u.email),
+    texto: 'Vou sortear uma senha, você passa para ela, e ela troca na primeira entrada.',
+    detalhe: 'As sessões abertas dela caem na hora.',
+    confirmar: 'Sortear a senha',
   });
   if (!sim) return;
-  delete u.senha;
-  casaGravarUsuarios(lista);
+
+  const senha = casaSortearSenha();
+  const r = await casaPedir('PATCH', { id: id, senha: senha });
+  if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'trocar a senha'); return; }
+
+  // A lista e relida ANTES de escrever o aviso: recarregar redesenha a
+  // tela inteira, e escrever antes apagaria a unica vez que a senha
+  // aparece. Mesma ordem do casaAdicionar, pelo mesmo motivo.
+  await casaCarregar();
+  escrever('casaAvisoAccess', aviso('info',
+    'A senha de ' + esc(u.nome || u.email) + ' agora é ' + esc(senha),
+    'Passe para ela agora: esta é a única vez que ela aparece. Na primeira entrada ela escolhe a dela.'));
 }
 
-function casaMudarPapel(id, papel) {
-  const lista = casaUsuarios();
-  const u = lista.find(function (x) { return x.id === id; });
+/* Senha sorteada aqui, e nao inventada por gente. Senha escolhida na
+   pressa vira "mudar123" e depois nao muda. Sem letras que se confundem
+   com numero, porque esta senha vai ser lida em voz alta ou digitada de
+   um print. */
+function casaSortearSenha() {
+  const letras = 'abcdefghjkmnpqrstuvwxyz';
+  const numeros = '23456789';
+  const sorteia = (fonte, quantas) => Array.from(
+    crypto.getRandomValues(new Uint8Array(quantas)),
+    function (b) { return fonte[b % fonte.length]; }).join('');
+  return sorteia(letras, 4) + '-' + sorteia(numeros, 3) + '-' + sorteia(letras, 4);
+}
+
+async function casaMudarPapel(id, papel) {
+  const r = await casaPedir('PATCH', { id: id, papel: papel });
+  if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'mudar o papel'); }
+  await casaCarregar();
+}
+
+async function casaLigar(id, religar) {
+  const u = casaAchar(id);
   if (!u) return;
-  u.papel = papel;
-  casaGravarUsuarios(lista);
+  if (!religar) {
+    const sim = await perguntar({
+      titulo: 'Desligar o acesso de ' + (u.nome || u.email),
+      texto: 'Ela para de entrar agora, e as sessões abertas dela caem.',
+      detalhe: 'O nome dela continua nos projetos e nas entregas. Religar é um clique.',
+      confirmar: 'Desligar',
+    });
+    if (!sim) return;
+  }
+  const r = await casaPedir('PATCH', { id: id, ativo: !!religar });
+  if (!r.corpo || !r.corpo.ok) { casaFalhou(r, religar ? 'religar' : 'desligar'); }
+  await casaCarregar();
 }
 
 async function casaRemover(id) {
-  const lista = casaUsuarios();
-  const u = lista.find(function (x) { return x.id === id; });
+  const u = casaAchar(id);
   if (!u) return;
-  // A confirmacao diz o que o botao NAO faz, que e a parte que engana.
   const sim = await perguntar({
-    titulo: 'Tirar ' + (u.nome || u.email) + ' da lista',
-    texto: 'Ela some das telas, mas continua entrando pelo endereço.',
-    detalhe: 'Para cortar o acesso, tire o e-mail dela da aplicação no painel da Cloudflare.',
-    confirmar: 'Tirar da lista',
+    titulo: 'Tirar ' + (u.nome || u.email) + ' de vez',
+    texto: 'O cadastro some, e com ele o histórico de quem fez o quê fica sem nome.',
+    detalhe: 'Se você só quer cortar o acesso, "Desligar" faz isso e guarda o nome.',
+    confirmar: 'Tirar de vez',
   });
   if (!sim) return;
-  casaGravarUsuarios(lista.filter(function (x) { return x.id !== id; }));
+  const r = await casaPedir('DELETE', { id: id });
+  if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'tirar da lista'); }
+  await casaCarregar();
 }
 
-function casaAdicionar() {
-  const nome = (porId('casaNome') || {}).value || '';
+async function casaAdicionar() {
+  const nome = String((porId('casaNome') || {}).value || '').trim();
   const email = String((porId('casaEmail') || {}).value || '').trim().toLowerCase();
   const papel = (porId('casaPapel') || {}).value || 'colaborador';
+
+  if (!nome) {
+    escrever('casaAvisoAccess', aviso('alerta', 'Falta o nome.',
+      'É como a pessoa aparece nas telas de trabalho.'));
+    return;
+  }
   if (!email || email.indexOf('@') < 0) {
     escrever('casaAvisoAccess', aviso('alerta', 'Falta o e-mail.',
-      'É pelo e-mail que o sistema reconhece quem o Cloudflare Access deixou entrar. Sem ele a pessoa não tem como ser encontrada.'));
+      'É por ele que a pessoa entra no sistema.'));
     return;
   }
-  const lista = casaUsuarios();
-  if (lista.some(function (x) { return String(x.email || '').toLowerCase() === email; })) {
-    escrever('casaAvisoAccess', aviso('atencao', 'Esse e-mail já está na lista.',
-      'Mude o papel dela na própria linha, em vez de cadastrar de novo.'));
-    return;
-  }
-  lista.push({ id: 'u' + Date.now(), nome: nome.trim() || email.split('@')[0], email: email, papel: papel, ativo: true });
-  casaGravarUsuarios(lista);
+
+  const senha = casaSortearSenha();
+  const r = await casaPedir('POST', { nome: nome, email: email, papel: papel, senha: senha });
+  if (!r.corpo || !r.corpo.ok) { casaFalhou(r, 'cadastrar'); return; }
+
+  const campoNome = porId('casaNome'); if (campoNome) campoNome.value = '';
+  const campoEmail = porId('casaEmail'); if (campoEmail) campoEmail.value = '';
+
+  await casaCarregar();
+  escrever('casaAvisoAccess', aviso('info',
+    esc(nome) + ' entra com ' + esc(email) + ' e a senha ' + esc(senha),
+    'Passe as duas coisas para ela agora: esta é a única vez que a senha aparece. Na primeira entrada ela escolhe a dela.'));
 }
 
 /* ------------------------------------------------------------------ */
@@ -10319,25 +10407,43 @@ async function casaLimparResiduo() {
 
 DESENHO.casa = function () {
   const editavel = casaPodeEditar();
-  const lista = casaUsuarios();
 
   // 1. pessoas
-  escrever('casaAvisoAccess',
-    '<p class="dica" style="margin:-8px 0 16px">O Access decide quem chega ao endereço. ' +
-    'Esta lista decide o que cada um vê depois.</p>');
+  //
+  // A lista vem do servidor, entao esta tela tem estado de carregando e de
+  // erro, que nenhuma outra tela de trabalho tem. Desenhar uma tabela
+  // vazia enquanto a resposta nao chegou faria a Carla achar que a equipe
+  // sumiu.
+  if (CASA_ESTADO === 'carregando') {
+    escrever('casaAvisoAccess', '<p class="dica" style="margin:-8px 0 16px">Lendo a lista no servidor.</p>');
+    escrever('casaPessoas', vazio('Um instante.', 5));
+    escrever('casaNova', '');
+    casaCarregar();
+    CASA_ESTADO = 'lendo';
+  } else if (CASA_ESTADO === 'erro') {
+    escrever('casaAvisoAccess', aviso('alerta', CASA_ERRO,
+      'As pessoas moram no servidor desde 01/09, e não neste navegador.') +
+      '<button class="bt bt-linha bt-sm" style="margin-bottom:14px" onclick="casaCarregar()">Tentar de novo</button>');
+    escrever('casaPessoas', vazio('Não consegui ler a lista.', 5));
+    escrever('casaNova', '');
+  } else {
+    escrever('casaAvisoAccess',
+      '<p class="dica" style="margin:-8px 0 16px">Cada pessoa entra com o próprio e-mail e a própria senha. ' +
+      'Esta lista vale em qualquer computador, e o papel decide o que cada uma vê.</p>');
 
-  escrever('casaPessoas', lista.length
-    ? lista.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
-    : vazio('Só você por aqui.', 5));
+    escrever('casaPessoas', CASA_PESSOAS.length
+      ? CASA_PESSOAS.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
+      : vazio('Só você por aqui.', 5));
 
-  escrever('casaNova', editavel
-    ? '<input class="campo campo-sm" id="casaNome" placeholder="Nome" style="flex:1;min-width:150px">' +
-      '<input class="campo campo-sm" id="casaEmail" placeholder="e-mail do login" style="flex:1.4;min-width:200px">' +
-      '<select class="campo campo-sm" id="casaPapel" style="min-width:150px">' +
-        PAPEIS.map(function (p) { return '<option value="' + p.k + '">' + esc(p.nome) + '</option>'; }).join('') +
-      '</select>' +
-      '<button class="bt bt-marca bt-sm" onclick="casaAdicionar()">Acrescentar</button>'
-    : '');
+    escrever('casaNova', editavel
+      ? '<input class="campo campo-sm" id="casaNome" placeholder="Nome" style="flex:1;min-width:150px">' +
+        '<input class="campo campo-sm" id="casaEmail" placeholder="e-mail de entrada" style="flex:1.4;min-width:200px">' +
+        '<select class="campo campo-sm" id="casaPapel" style="min-width:150px">' +
+          PAPEIS.map(function (p) { return '<option value="' + p.k + '">' + esc(p.nome) + '</option>'; }).join('') +
+        '</select>' +
+        '<button class="bt bt-marca bt-sm" onclick="casaAdicionar()">Acrescentar</button>'
+      : '');
+  }
 
   // 2. telas por papel
   escrever('casaPermissoes',
@@ -10380,8 +10486,8 @@ DESENHO.casa = function () {
       '<div class="numero"><div class="v">' + iqvLer(CHAVES.projetos, []).length + '</div>' +
         '<div class="l">Projetos guardados aqui</div>' +
         '</div>' +
-      '<div class="numero"><div class="v">' + lista.length + '</div>' +
-        '<div class="l">Pessoas cadastradas</div>' +
+      '<div class="numero"><div class="v">' + CASA_PESSOAS.length + '</div>' +
+        '<div class="l">Pessoas com acesso</div>' +
         '</div>' +
     '</div>');
 
@@ -10408,33 +10514,43 @@ DESENHO.casa = function () {
     '</div>');
 };
 /* =====================================================================
-   A entrada.
+   A entrada: e-mail e senha.
 
-   Tres caminhos, nesta ordem:
+   Ate 01/09 quem trancava o endereco era o Cloudflare Access, e a tela de
+   entrada era a dele. A Carla queria a porta da casa, com a marca da casa,
+   entao a conferencia mudou de lugar: quem diz se a senha confere agora e
+   o servidor, no src/porta.js, e nao este arquivo.
 
-   1. SESSAO ABERTA. A pessoa ja entrou neste navegador. Entra direto.
+   Isso e mais que estetica. Antes, a senha daqui era conferida DENTRO do
+   navegador, contra uma lista que morava no navegador: ela dizia quem era
+   a pessoa e nada mais, e cada computador tinha a sua lista. Agora a lista
+   e uma so, cadastrar alguem vale em todo lugar, e a senha protege de
+   verdade, porque quem confere esta do outro lado.
 
-   2. CLOUDFLARE ACCESS. A rota /eu diz qual e-mail o Access autenticou.
-      Se esse e-mail estiver cadastrado, entra sem senha: quem ja provou
-      quem e na porta da rua nao prova de novo na porta da sala.
+   Tres telas, e o servidor decide qual:
 
-   3. LOGIN DAQUI. Sem Access, ou com um e-mail que nao esta na lista, a
-      pessoa escolhe quem e e digita a senha dela.
+   1. CASA VAZIA. Ninguem cadastrado ainda: a porta pede para criar a
+      primeira gestora. Sistema que abre vazio e deixa entrar sem dizer
+      quem voce e nao tem como separar papel nenhum depois.
 
-   E no primeiro dia, quando nao existe ninguem cadastrado, a porta pede
-   para criar o primeiro gestor. Sistema que abre vazio e deixa entrar sem
-   dizer quem voce e nao tem como separar papel nenhum depois.
+   2. ENTRAR. E-mail e senha.
+
+   3. TROCAR A SENHA. Quem foi cadastrada por outra pessoa recebeu a
+      primeira senha de mao beijada, e troca antes de ver qualquer tela.
+      Senha que andou por WhatsApp nao pode ficar valendo para sempre.
    ===================================================================== */
 
-let PORTA_ESCOLHIDA = null;   // id da pessoa selecionada na lista
-
-async function lerEu() {
+async function pedirPorta(caminho, corpo) {
   try {
-    const r = await fetch('/eu', { headers: cabecalhos(), cache: 'no-store' });
-    let corpo = null;
-    try { corpo = await r.json(); } catch (e) { corpo = null; }
-    ACCESS_NO_AR = (r.status === 200 && !!corpo && !!corpo.email);
-    return { status: r.status, corpo: corpo };
+    const opcoes = { method: corpo ? 'POST' : 'GET', headers: cabecalhos(), cache: 'no-store' };
+    if (corpo) {
+      opcoes.headers['content-type'] = 'application/json';
+      opcoes.body = JSON.stringify(corpo);
+    }
+    const r = await fetch(caminho, opcoes);
+    let dados = null;
+    try { dados = await r.json(); } catch (e) { dados = null; }
+    return { status: r.status, corpo: dados };
   } catch (e) {
     return { status: 0, corpo: null };
   }
@@ -10446,14 +10562,19 @@ function pintarPorta(titulo, texto_, corpo) {
   escrever('porta-corpo', corpo);
 }
 
-function entrar(pessoa, origem) {
+const erroDaPorta = (msg, dica) =>
+  escrever('portaErro', aviso('alerta', msg, dica || 'Corrija e tente de novo.'));
+
+function ocupada(idDoBotao, sim) {
+  const b = porId(idDoBotao);
+  if (b) { b.disabled = !!sim; b.style.opacity = sim ? '.6' : ''; }
+}
+
+function entrar(pessoa) {
   EU.id = pessoa.id;
   EU.papel = pessoa.papel;
   EU.email = pessoa.email || null;
   EU.nome = pessoa.nome || (pessoa.email ? String(pessoa.email).split('@')[0] : 'sem nome');
-  EU.origem = origem;
-
-  if (origem === 'senha') sessaoGuardar(pessoa.id);
 
   porId('porta').hidden = true;
   porId('app').hidden = false;
@@ -10467,34 +10588,96 @@ function entrar(pessoa, origem) {
 
   montarMenu();
   irPara((PERMISSOES[pessoa.papel] || ['cliente'])[0]);
+
+  // A lista da equipe vem depois de a tela ja estar de pe: ela so serve
+  // para escrever nomes em telas de trabalho, e esperar por ela atrasaria
+  // a abertura por nada.
+  if (pessoa.papel !== 'cliente') carregarEquipe();
+}
+
+/* ---------------------------------------------------------------- entrar */
+
+async function portaEntrar() {
+  const email = String((porId('portaEmail') || {}).value || '').trim();
+  const senha = String((porId('portaSenha') || {}).value || '');
+
+  if (!email || email.indexOf('@') < 0) { erroDaPorta('Escreva o seu e-mail.'); return; }
+  if (!senha) { erroDaPorta('Escreva a sua senha.'); return; }
+
+  ocupada('portaBotao', true);
+  escrever('portaErro', '');
+  const r = await pedirPorta('/entrar', { email: email, senha: senha });
+  ocupada('portaBotao', false);
+
+  if (r.status === 0) {
+    erroDaPorta('Não consegui falar com o servidor.',
+      'A senha é conferida no servidor, então sem ele não dá para entrar. Tente de novo em instantes.');
+    return;
+  }
+  if (!r.corpo || !r.corpo.ok) {
+    const campo = porId('portaSenha');
+    if (campo) { campo.value = ''; campo.focus(); }
+    erroDaPorta(r.corpo && r.corpo.erro ? primeiraMaiuscula(r.corpo.erro) : 'Não consegui entrar.',
+      r.corpo && r.corpo.freado
+        ? 'Isso protege a sua conta de quem fica tentando senha.'
+        : 'Se você esqueceu a senha, quem é gestor define uma nova em "A casa".');
+    return;
+  }
+
+  if (r.corpo.eu.precisa_trocar) { portaTelaTrocar(r.corpo.eu); return; }
+  entrar(r.corpo.eu);
+}
+
+function portaTelaEntrar(avisoTopo) {
+  pintarPorta(
+    'Bem-vinda de <b>volta</b>',
+    'Entre com o seu e-mail e a sua senha.',
+    (avisoTopo || '') +
+    '<div id="portaErro"></div>' +
+    '<label class="rotulo" for="portaEmail">E-mail</label>' +
+    '<input class="campo" id="portaEmail" type="email" autocomplete="username" ' +
+      'placeholder="o e-mail que você usa aqui" ' +
+      'onkeydown="if(event.key===\'Enter\')porId(\'portaSenha\').focus()">' +
+    '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
+    '<input class="campo" id="portaSenha" type="password" autocomplete="current-password" ' +
+      'onkeydown="if(event.key===\'Enter\')portaEntrar()">' +
+    '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
+      'onclick="portaEntrar()">Entrar</button>' +
+    '<p class="dica" style="margin-top:16px">Esqueceu a senha? Quem é gestor define uma nova em "A casa".</p>');
+
+  const campo = porId('portaEmail');
+  if (campo) campo.focus();
 }
 
 /* ---------------------------------------------------------------- primeiro dia */
 
 async function portaCriarPrimeiro() {
   const nome = String((porId('portaNome') || {}).value || '').trim();
-  const email = String((porId('portaEmail') || {}).value || '').trim().toLowerCase();
+  const email = String((porId('portaEmail') || {}).value || '').trim();
   const senha = String((porId('portaSenha') || {}).value || '');
   const repete = String((porId('portaSenha2') || {}).value || '');
 
   const erro = !nome ? 'Escreva o seu nome.'
     : (!email || email.indexOf('@') < 0) ? 'Escreva um e-mail válido.'
-    : senha.length < 6 ? 'A senha precisa de pelo menos 6 caracteres.'
+    : senha.length < 8 ? 'A senha precisa de pelo menos 8 caracteres.'
     : senha !== repete ? 'As duas senhas não são iguais.'
     : null;
-  if (erro) { escrever('portaErro', aviso('alerta', erro, 'Corrija e tente de novo.')); return; }
+  if (erro) { erroDaPorta(erro); return; }
 
-  const id = 'p' + String(email).replace(/[^a-z0-9]/g, '').slice(0, 12) + '-' + email.length;
-  const pessoa = {
-    id: id, nome: nome, email: email, papel: 'gestor', ativo: true,
-    senha: await resumoSenha(senha, id),
-  };
-  if (!gravarPessoas([pessoa])) {
-    escrever('portaErro', aviso('alerta', 'Não consegui gravar no navegador.',
-      'O armazenamento pode estar cheio ou bloqueado. Sem gravar, o cadastro se perde ao fechar a aba.'));
+  ocupada('portaBotao', true);
+  escrever('portaErro', '');
+  const r = await pedirPorta('/primeiro-acesso', { nome: nome, email: email, senha: senha });
+  ocupada('portaBotao', false);
+
+  if (r.status === 0) {
+    erroDaPorta('Não consegui falar com o servidor.', 'Tente de novo em instantes.');
     return;
   }
-  entrar(pessoa, 'senha');
+  if (!r.corpo || !r.corpo.ok) {
+    erroDaPorta(r.corpo && r.corpo.erro ? primeiraMaiuscula(r.corpo.erro) : 'Não consegui criar o acesso.');
+    return;
+  }
+  entrar(r.corpo.eu);
 }
 
 function portaTelaPrimeiro(avisoTopo) {
@@ -10503,102 +10686,70 @@ function portaTelaPrimeiro(avisoTopo) {
     'Crie o seu acesso de gestor. Depois você cadastra o resto da equipe por dentro.',
     (avisoTopo || '') +
     '<div id="portaErro"></div>' +
-    '<label class="rotulo">Seu nome</label>' +
+    '<label class="rotulo" for="portaNome">Seu nome</label>' +
     '<input class="campo" id="portaNome" autocomplete="name" placeholder="Como você aparece para a equipe">' +
-    '<label class="rotulo" style="margin-top:14px">Seu e-mail</label>' +
-    '<input class="campo" id="portaEmail" type="email" autocomplete="email" placeholder="o mesmo do login protegido, quando ele existir">' +
-    '<label class="rotulo" style="margin-top:14px">Senha</label>' +
-    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos 6 caracteres">' +
-    '<label class="rotulo" style="margin-top:14px">Repita a senha</label>' +
-    '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password">' +
-    '<button class="bt bt-marca" style="width:100%;justify-content:center;margin-top:18px" ' +
+    '<label class="rotulo" for="portaEmail" style="margin-top:14px">Seu e-mail</label>' +
+    '<input class="campo" id="portaEmail" type="email" autocomplete="username" placeholder="é por ele que você vai entrar">' +
+    '<label class="rotulo" for="portaSenha" style="margin-top:14px">Senha</label>' +
+    '<input class="campo" id="portaSenha" type="password" autocomplete="new-password" placeholder="pelo menos 8 caracteres">' +
+    '<label class="rotulo" for="portaSenha2" style="margin-top:14px">Repita a senha</label>' +
+    '<input class="campo" id="portaSenha2" type="password" autocomplete="new-password" ' +
+      'onkeydown="if(event.key===\'Enter\')portaCriarPrimeiro()">' +
+    '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
       'onclick="portaCriarPrimeiro()">Criar meu acesso</button>' +
-    '<p class="dica" style="margin-top:16px">É pelo e-mail que o login protegido vai reconhecer você depois.</p>');
+    '<p class="dica" style="margin-top:16px">A senha fica guardada no servidor, embaralhada. Nem eu consigo ler ela de volta.</p>');
 
   const campo = porId('portaNome');
   if (campo) campo.focus();
 }
 
-/* ---------------------------------------------------------------- login */
+/* ---------------------------------------------------------------- trocar a senha */
 
-function portaEscolher(id) {
-  PORTA_ESCOLHIDA = id;
-  portaTelaLogin();
-  const campo = porId('portaSenhaLogin');
-  if (campo) campo.focus();
+async function portaTrocar() {
+  const atual = String((porId('portaAtual') || {}).value || '');
+  const nova = String((porId('portaNova') || {}).value || '');
+  const repete = String((porId('portaNova2') || {}).value || '');
+
+  const erro = !atual ? 'Escreva a senha que você recebeu.'
+    : nova.length < 8 ? 'A senha nova precisa de pelo menos 8 caracteres.'
+    : nova !== repete ? 'As duas senhas novas não são iguais.'
+    : null;
+  if (erro) { erroDaPorta(erro); return; }
+
+  ocupada('portaBotao', true);
+  escrever('portaErro', '');
+  const r = await pedirPorta('/minha-senha', { atual: atual, nova: nova });
+  ocupada('portaBotao', false);
+
+  if (r.status === 0) {
+    erroDaPorta('Não consegui falar com o servidor.', 'Tente de novo em instantes.');
+    return;
+  }
+  if (!r.corpo || !r.corpo.ok) {
+    erroDaPorta(r.corpo && r.corpo.erro ? primeiraMaiuscula(r.corpo.erro) : 'Não consegui trocar a senha.');
+    return;
+  }
+  abrirPorta();
 }
 
-function portaVoltar() { PORTA_ESCOLHIDA = null; portaTelaLogin(); }
-
-async function portaConferir() {
-  const pessoa = acharPessoaPorId(PORTA_ESCOLHIDA);
-  if (!pessoa) { portaVoltar(); return; }
-  const senha = String((porId('portaSenhaLogin') || {}).value || '');
-
-  // Pessoa cadastrada por outra pessoa ainda nao tem senha: a primeira
-  // entrada dela e onde ela escolhe. Melhor que senha provisoria mandada
-  // por WhatsApp, que ninguem troca depois.
-  if (!pessoa.senha) {
-    if (senha.length < 6) {
-      escrever('portaErro', aviso('info', 'Esta é a sua primeira entrada.',
-        'Escolha uma senha de pelo menos 6 caracteres. Ela fica só neste navegador.'));
-      return;
-    }
-    pessoa.senha = await resumoSenha(senha, pessoa.id);
-    const lista = pessoas().map(function (x) { return x.id === pessoa.id ? pessoa : x; });
-    if (!gravarPessoas(lista)) {
-      escrever('portaErro', aviso('alerta', 'Não consegui gravar a senha.', 'Tente de novo.'));
-      return;
-    }
-    entrar(pessoa, 'senha');
-    return;
-  }
-
-  const resumo = await resumoSenha(senha, pessoa.id);
-  if (!resumoIgual(resumo, pessoa.senha)) {
-    escrever('portaErro', aviso('alerta', 'Senha errada.',
-      'Se você esqueceu, quem tem acesso de gestor redefine a sua senha em "A casa".'));
-    const campo = porId('portaSenhaLogin');
-    if (campo) { campo.value = ''; campo.focus(); }
-    return;
-  }
-  entrar(pessoa, 'senha');
-}
-
-function portaTelaLogin(avisoTopo) {
-  const lista = pessoas().filter(function (p) { return p.ativo !== false; });
-
-  if (!lista.length) { portaTelaPrimeiro(avisoTopo); return; }
-
-  if (!PORTA_ESCOLHIDA) {
-    pintarPorta('Quem está <b>entrando</b>?', 'Escolha o seu nome na lista.',
-      (avisoTopo || '') +
-      lista.map(function (p) {
-        const papel = porChave(PAPEIS, p.papel) || { nome: p.papel, ic: '·' };
-        return '<button class="papel" onclick="portaEscolher(\'' + esc(p.id) + '\')">' +
-          ic(papel.ic, 'ic-20') +
-          '<span><b>' + esc(p.nome || p.email) + '</b>' +
-          '<span>' + esc(papel.nome) + (p.senha ? '' : ', primeira entrada') + '</span></span></button>';
-      }).join('') +
-      '<p class="dica" style="margin-top:16px">Não está na lista? Quem é gestor cadastra você em "A casa".</p>');
-    return;
-  }
-
-  const pessoa = acharPessoaPorId(PORTA_ESCOLHIDA);
-  if (!pessoa) { PORTA_ESCOLHIDA = null; portaTelaLogin(); return; }
-  const papel = porChave(PAPEIS, pessoa.papel) || { nome: pessoa.papel };
-
+function portaTelaTrocar(pessoa) {
   pintarPorta(
-    esc(String(pessoa.nome || pessoa.email).split(' ')[0]) + ', sua <b>senha</b>',
-    papel.nome + (pessoa.email ? ', ' + pessoa.email : ''),
+    'Escolha a sua <b>senha</b>',
+    'A senha que você recebeu serve uma vez só. A partir de agora é a sua.',
+    aviso('info', esc(pessoa.email), 'Ninguém mais vai saber a senha que você escolher agora.') +
     '<div id="portaErro"></div>' +
-    '<input class="campo" id="portaSenhaLogin" type="password" autocomplete="current-password" ' +
-      'placeholder="' + (pessoa.senha ? 'sua senha' : 'escolha uma senha, é a sua primeira entrada') + '" ' +
-      'onkeydown="if(event.key===\'Enter\')portaConferir()">' +
-    '<button class="bt bt-marca" style="width:100%;justify-content:center;margin-top:14px" ' +
-      'onclick="portaConferir()">Entrar</button>' +
-    '<button class="bt bt-linha" style="width:100%;justify-content:center;margin-top:8px" ' +
-      'onclick="portaVoltar()">Não sou eu</button>');
+    '<label class="rotulo" for="portaAtual">A senha que você recebeu</label>' +
+    '<input class="campo" id="portaAtual" type="password" autocomplete="current-password">' +
+    '<label class="rotulo" for="portaNova" style="margin-top:14px">Sua senha nova</label>' +
+    '<input class="campo" id="portaNova" type="password" autocomplete="new-password" placeholder="pelo menos 8 caracteres">' +
+    '<label class="rotulo" for="portaNova2" style="margin-top:14px">Repita a senha nova</label>' +
+    '<input class="campo" id="portaNova2" type="password" autocomplete="new-password" ' +
+      'onkeydown="if(event.key===\'Enter\')portaTrocar()">' +
+    '<button class="bt bt-marca" id="portaBotao" style="width:100%;justify-content:center;margin-top:18px" ' +
+      'onclick="portaTrocar()">Guardar e entrar</button>');
+
+  const campo = porId('portaAtual');
+  if (campo) campo.focus();
 }
 
 /* ---------------------------------------------------------------- abertura */
@@ -10606,64 +10757,26 @@ function portaTelaLogin(avisoTopo) {
 async function abrirPorta() {
   pintarPorta('Entrando no <b>sistema</b>', 'Conferindo o seu acesso.', '');
 
-  // 1. quem o login protegido autenticou, se ele estiver no ar
-  //
-  // Esta pergunta vem ANTES da sessao guardada, e a ordem importa. A
-  // sessao diz quem entrou neste navegador da ultima vez; o Access diz
-  // quem esta entrando agora. Num computador que duas pessoas usam, a
-  // sessao da primeira abriria o sistema no nome dela para a segunda,
-  // com o papel dela junto. Quem prova quem e na porta da rua e quem
-  // manda aqui dentro.
-  const r = await lerEu();
+  const r = await pedirPorta('/eu');
 
-  if (r.status === 200 && r.corpo && r.corpo.email) {
-    const alvo = String(r.corpo.email).toLowerCase();
-    const pessoa = pessoas().find(function (p) {
-      return String(p.email || '').toLowerCase() === alvo && p.ativo !== false;
-    });
-
-    // Sessao de outra pessoa neste navegador nao sobrevive: ela seria
-    // usada na proxima abertura, e voltariamos ao problema de cima.
-    const sessao = sessaoLer();
-    if (sessao && (!pessoa || sessao.pessoaId !== pessoa.id)) sessaoApagar();
-
-    if (pessoa) { entrar(pessoa, 'access'); return; }
-
-    // E-mail que passou no Access mas nao esta na lista NAO vira gestor por
-    // descuido, e nao cai numa tela qualquer.
-    if (!pessoas().length) { portaTelaPrimeiro(); return; }
+  // Sem servidor nao ha porta. Antes dava para entrar assim mesmo, porque a
+  // senha era conferida aqui dentro; agora quem confere esta do outro lado,
+  // e fingir que entrou so adiaria a descoberta para a primeira tela.
+  if (r.status === 0 || !r.corpo || !r.corpo.ok) {
     pintarPorta(
-      'Seu acesso ainda não foi <b>liberado</b>',
-      'Você entrou pelo login protegido, mas ainda não tem cadastro aqui dentro.',
-      aviso('info', esc(r.corpo.email),
-        'Peça a quem é gestor para cadastrar esse e-mail em "A casa".'));
+      'Não consegui falar com o <b>servidor</b>',
+      'A sua senha é conferida no servidor, então sem ele não dá para entrar.',
+      aviso('alerta', 'Pode ser a sua internet, ou o site ainda subindo.',
+        'Se você abriu este arquivo direto do computador, entre pelo endereço publicado, em ideiaquevende.com.br/sistema/.') +
+      '<button class="bt bt-linha" style="width:100%;justify-content:center;margin-top:14px" ' +
+        'onclick="abrirPorta()">Tentar de novo</button>');
     return;
   }
 
-  // 2. sem resposta do login protegido, vale a sessao ja aberta aqui
-  const sessao = sessaoLer();
-  if (sessao && sessao.pessoaId) {
-    const pessoa = acharPessoaPorId(sessao.pessoaId);
-    if (pessoa && pessoa.ativo !== false) { entrar(pessoa, 'senha'); return; }
-    sessaoApagar();
-  }
-
-  // 3. login daqui
-  if (r.status === 503) {
-    portaTelaLogin(aviso('atencao', 'O login protegido da Cloudflare ainda não está ligado.',
-      'A senha abaixo diz quem é você, não protege o endereço: quem souber a URL chega até esta tela. ' +
-      'Até o Access existir, não guarde aqui o que não pode vazar.'));
-    return;
-  }
-
-  if (r.status === 0) {
-    portaTelaLogin(aviso('alerta', 'Não consegui falar com o servidor.',
-      'Dá para entrar, mas as aplicações da landing não vão carregar.'));
-    return;
-  }
-
-  portaTelaLogin(aviso('atencao', 'Seu login protegido venceu.',
-    'Recarregue a página para entrar pela Cloudflare de novo, ou entre por aqui.'));
+  if (r.corpo.casa_vazia) { portaTelaPrimeiro(); return; }
+  if (!r.corpo.entrou) { portaTelaEntrar(); return; }
+  if (r.corpo.eu.precisa_trocar) { portaTelaTrocar(r.corpo.eu); return; }
+  entrar(r.corpo.eu);
 }
 
 abrirPorta();

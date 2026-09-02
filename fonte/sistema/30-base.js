@@ -415,9 +415,6 @@ const EU = {
   email: null,
   nome: null,
   papel: null,
-  // 'access'  o servidor autenticou pelo Cloudflare Access
-  // 'senha'   a pessoa entrou pelo login deste sistema
-  origem: null,
   pode: function (tela) {
     if (!this.papel) return false;
     return (PERMISSOES[this.papel] || []).indexOf(tela) >= 0;
@@ -426,48 +423,34 @@ const EU = {
 };
 
 /* ---------------------------------------------------------------------
-   Senha.
+   Quem confere a senha nao mora mais aqui.
 
-   Guardar senha em texto puro num arquivo que qualquer um baixa seria
-   pior que nao ter senha: as pessoas repetem senha entre servicos, e a
-   daqui viraria a de outro lugar. O que fica guardado e o resumo
-   SHA-256 de senha + id, entao duas pessoas com a mesma senha guardam
-   coisas diferentes e ninguem le a senha de ninguem abrindo o arquivo.
+   Ate 01/09 este arquivo calculava o resumo da senha e comparava com uma
+   lista guardada no navegador. Isso dizia QUEM era a pessoa e nada mais:
+   quem baixasse o arquivo enxergava a lista inteira e podia tentar senha
+   a vontade, sem ninguem barrando. E cada navegador tinha a SUA lista,
+   entao cadastrar alguem no computador da Carla nao cadastrava em lugar
+   nenhum.
 
-   Isto NAO transforma o sistema em cofre. Quem baixa o HTML enxerga a
-   lista de pessoas e pode tentar senha a vontade, sem ninguem barrando.
-   Quem protege o endereco e o Cloudflare Access. Esta senha separa
-   pessoas, e a porta diz isso por escrito.
+   Agora a senha e conferida no servidor e a lista e uma so para todo
+   mundo. O que sobrou aqui e a moldura: quem esta na tela e o que essa
+   pessoa pode ver.
    --------------------------------------------------------------------- */
-async function resumoSenha(senha, id) {
-  const bytes = new TextEncoder().encode(String(senha) + ':' + String(id));
-  const digestao = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(digestao))
-    .map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-}
 
-// Comparacao de tempo constante: === vaza o tamanho do acerto por timing.
-function resumoIgual(a, b) {
-  const x = String(a || ''), y = String(b || '');
-  let dif = x.length ^ y.length;
-  for (let i = 0; i < Math.max(x.length, y.length); i++) {
-    dif |= (x.charCodeAt(i) || 0) ^ (y.charCodeAt(i) || 0);
-  }
-  return dif === 0;
+// "e-mail ou senha nao conferem" vira "E-mail ou senha nao conferem". O
+// servidor escreve em minuscula porque as mesmas frases aparecem no meio
+// de outras; na tela elas comecam a frase.
+function primeiraMaiuscula(s) {
+  const v = String(s || '');
+  return v.charAt(0).toUpperCase() + v.slice(1);
 }
 
 /* ---------------------------------------------------------------------
    Falar com o servidor.
 
-   Todo pedido leva o X-Requested-With. Sem ele, quando o cracha do login
-   protegido vence, o Cloudflare Access nao responde erro: ele responde a
-   PAGINA de entrada dele, em HTML, e o navegador segue o desvio calado.
-   Cada tela descobria isso tentando ler HTML como JSON e deduzindo do
-   estouro que o login tinha vencido. Com o cabecalho, o Access responde
-   401 direto, e a tela le o numero em vez de adivinhar.
-
-   O tratamento antigo continua em pe nas telas, como rede de baixo: um
-   desvio ainda pode chegar por outro caminho.
+   Um lugar so para os cabecalhos, para nenhuma tela sair sem eles. O
+   cracha de quem entrou nao aparece aqui: ele viaja num cookie que o
+   navegador manda sozinho e que JavaScript nenhum consegue ler.
    --------------------------------------------------------------------- */
 function cabecalhos(extras) {
   return Object.assign(
@@ -475,26 +458,33 @@ function cabecalhos(extras) {
     extras || {});
 }
 
-// Fica verdadeiro quando o /eu responde que o Access autenticou alguem.
-// So o "Sair" usa isso, e por um motivo pratico explicado la embaixo.
-let ACCESS_NO_AR = false;
-
 /* ---------------------------------------------------------------------
-   A sessao. Fica no navegador para nao pedir senha a cada aba, e sai no
-   "Sair". Guarda so o id: papel e nome vem da lista, entao mudar o papel
-   de alguem vale na proxima tela que ela abrir, e nao so no proximo login.
+   A equipe.
+
+   Quem tem acesso mora no servidor, e nao mais no navegador. A lista e
+   lida uma vez na entrada e fica aqui para as telas que precisam dela
+   (a semana, os projetos e as entregas, para dizer de quem e cada coisa).
+
+   A sessao tambem saiu daqui: quem diz que a pessoa continua entrada e o
+   cookie, que o servidor poe e o navegador guarda. Sessao decidida pelo
+   proprio navegador nao decidia nada.
    --------------------------------------------------------------------- */
-const CHAVE_SESSAO = 'iqv_sessao';
+let EQUIPE = [];
 
-function sessaoGuardar(id) { iqvGravar(CHAVE_SESSAO, { pessoaId: id }); }
-function sessaoLer() { return iqvLer(CHAVE_SESSAO, null); }
-function sessaoApagar() { try { localStorage.removeItem(CHAVE_SESSAO); } catch (e) {} }
-
-function pessoas() { return iqvLer(CHAVES.usuarios, []); }
-function gravarPessoas(lista) { return iqvGravar(CHAVES.usuarios, lista); }
-function acharPessoaPorId(id) {
-  return pessoas().find(function (p) { return p.id === id; }) || null;
+async function carregarEquipe() {
+  try {
+    const r = await fetch('/pessoas', { headers: cabecalhos(), cache: 'no-store' });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d && d.ok && Array.isArray(d.pessoas)) EQUIPE = d.pessoas;
+  } catch (e) {
+    // Sem a lista as telas de trabalho abrem com "ninguem" no lugar dos
+    // nomes, o que e ruim mas nao impede escrever. Derrubar a entrada
+    // inteira por causa disso seria pior.
+  }
 }
+
+function pessoas() { return EQUIPE; }
 
 // mantido porque as telas ja chamam assim
 function usuarios() { return pessoas(); }
@@ -582,23 +572,15 @@ function alternarMenu() {
   }
 }
 
-function sair() {
-  sessaoApagar();
-
-  // Com o login protegido no ar, apagar so a sessao daqui nao e sair: a
-  // porta perguntaria de novo quem entrou, o Access devolveria o mesmo
-  // e-mail e ela abriria o sistema outra vez, no mesmo segundo. Quem
-  // clicou em Sair veria a tela piscar e continuar dentro.
-  //
-  // O endereco abaixo e da propria Cloudflare, nao deste sistema: ela
-  // apaga o cracha do navegador e devolve a pessoa para a tela de
-  // entrada. Usar o endereco do site, e nao o do time, faz a saida ser
-  // imediata em vez de esperar o cracha vencer sozinho.
-  if (ACCESS_NO_AR) { location.href = '/cdn-cgi/access/logout'; return; }
-
-  EU.id = null; EU.email = null; EU.nome = null; EU.papel = null; EU.origem = null;
-  PORTA_ESCOLHIDA = null;
-  porId('app').hidden = true;
-  porId('porta').hidden = false;
-  abrirPorta();
+async function sair() {
+  // Sair de verdade apaga a sessao NO SERVIDOR, e nao so o cookie daqui.
+  // Cookie apagado so no navegador continuaria valendo se alguem tivesse
+  // copiado o valor dele, e "eu sai" viraria mentira por um mes.
+  try {
+    await fetch('/sair', { method: 'POST', headers: cabecalhos(), cache: 'no-store' });
+  } catch (e) {
+    // Sem rede nao da para encerrar do outro lado. Recarregar ainda tira
+    // a pessoa da tela, e a porta vai dizer o que houve.
+  }
+  location.reload();
 }

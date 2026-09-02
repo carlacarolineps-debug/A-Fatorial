@@ -85,28 +85,52 @@ manter em dia. Regra em `fonte/sistema/CONTRATO.md`.
 `telas/<chave>.html` mais `telas/<chave>.js`, e registra o próprio desenho
 em `DESENHO[<chave>]`.
 
-Os papéis são `gestor`, `colaborador` e `cliente`. Quem entra escolhe o
-próprio nome na porta e digita a senha dela; a senha nunca é guardada em
-texto puro, e sim como SHA-256 de `senha + ':' + id`.
+Os papéis são `gestor`, `colaborador` e `cliente`.
 
-**O Cloudflare Access está ligado desde 01/09, e ele manda.** A porta
-pergunta ao `/eu` quem entrou ANTES de olhar a sessão guardada no
-navegador: a sessão diz quem entrou aqui da última vez, o Access diz quem
-está entrando agora, e num computador que duas pessoas usam a ordem
-contrária abriria o sistema no nome da primeira, com o papel dela. Sessão
-de outra pessoa é apagada em vez de aproveitada. E-mail que passa no
-Access sem cadastro aqui dentro não entra e não vira gestor.
+**A porta é da casa, e a senha mora no servidor.** Desde 02/09 a pessoa
+entra com e-mail e senha, conferidos pelo `src/porta.js`. O Cloudflare
+Access saiu: ele funcionava, mas a tela de entrada era dele, e a Carla
+pediu login e senha para separar cada colaborador.
 
-Por isso o "Sair" leva a pessoa para `/cdn-cgi/access/logout`: apagar só a
-sessão daqui não é sair, a porta perguntaria de novo e o Access devolveria
-o mesmo e-mail no mesmo segundo.
+O que isso muda, e não é pouco:
 
-Todo pedido ao servidor leva `X-Requested-With`. Sem ele, um crachá
-vencido volta como a página de login do Access, em HTML, e cada tela
-descobre isso tentando ler HTML como JSON. Com ele volta 401.
+- **A lista de pessoas saiu do navegador.** Ela vive na tabela `pessoas`
+  do D1, então cadastrar alguém vale em qualquer computador. Antes cada
+  navegador tinha a sua lista, e quem era cadastrada no computador da
+  Carla simplesmente não existia no dela.
+- **O papel filtra DADO, e não só tela.** `/leads` e `/api/mesa/` exigem
+  `gestor` ou `colaborador`, conferidos no banco a cada pedido. Cliente
+  não lê a mesa nem com o endereço na mão.
+- **A senha nunca é guardada.** Fica o resumo PBKDF2 dela, com sal
+  próprio por pessoa, e o número de voltas gravado junto para o dia em
+  que ele subir.
+- **Quem cadastra escolhe a primeira senha**, sorteada pela tela, e a
+  pessoa troca antes de ver qualquer coisa. Senha que andou por WhatsApp
+  não fica valendo.
+- **Desligar alguém derruba as sessões dela na hora**, e não daqui a um
+  mês.
+- **A casa nunca fica sem gestor**: a última gestora não consegue se
+  rebaixar, se desligar nem se remover.
 
-**O papel filtra tela, nunca dado.** Quem passa pelo Access lê `/leads`
-direto, cadastrada aqui dentro ou não.
+O crachá é um número sorteado de 32 bytes, num cookie `HttpOnly`, e o que
+fica no banco é o SHA-256 dele. Vale 30 dias: doze logins por ano.
+
+**Isto pede o plano pago do Worker.** O cálculo da senha usa 210 mil
+voltas e passa dos 10 ms de processador do plano grátis. O número está em
+`src/porta.js`, numa constante só, e quem já tem senha continua entrando
+se ele mudar.
+
+### As oito rotas da porta
+
+    GET    /eu               quem está entrando, e se já existe gente
+    POST   /entrar           e-mail e senha
+    POST   /sair             encerra a sessão no servidor, não só o cookie
+    POST   /primeiro-acesso  a primeira gestora, só com a casa vazia
+    POST   /minha-senha      a pessoa troca a própria senha
+    GET    /pessoas          a lista (gestor e colaborador)
+    POST   /pessoas          cadastra (só gestor)
+    PATCH  /pessoas          papel, ligar, desligar, nova senha (só gestor)
+    DELETE /pessoas          remove de vez (só gestor)
 
 Tela nova não pode nascer invisível: as permissões ficam salvas no
 navegador e foram escritas antes de ela existir. Ao criar uma tela,
@@ -144,21 +168,21 @@ Todas sob `/api/`, resolvidas por `rotasAplicar()` em `src/aplicar.js`:
     GET  /api/formulario           a definição no ar, pública e podada
     POST /api/resposta             recebe uma aplicação, pública
     POST /api/evento               recebe os passos, pública
-    GET  /api/mesa/formulario      a definição inteira, atrás do Access
-    PUT  /api/mesa/formulario      publica uma versão nova, atrás do Access
-    GET  /api/mesa/metricas        os números, atrás do Access
+    GET  /api/mesa/formulario      a definição inteira, com login
+    PUT  /api/mesa/formulario      publica uma versão nova, com login
+    GET  /api/mesa/metricas        os números, com login
 
-**O prefixo `/api/mesa/` não é enfeite.** O Access protege por caminho e
-não por método: enquanto publicar era `PUT /api/formulario` e ler era
-`GET` no mesmo caminho, não havia como trancar um sem trancar o outro, e
-qualquer aplicação do Access que cobrisse `/api` derrubaria o formulário
-público. As três da mesa moram sob um prefixo só delas, e é esse prefixo
-que entra no Access.
+**O prefixo `/api/mesa/` continua valendo, mesmo sem o Access.** Ele
+nasceu porque o Access protegia por caminho e não por método, e cobrir
+`/api` inteiro derrubaria o formulário público. Hoje quem separa é o
+código, mas o prefixo continua sendo a linha visível entre o que qualquer
+um na internet alcança e o que só a mesa alcança, e é ele que faz essa
+diferença aparecer no roteador em vez de ficar escondida numa função.
 
 As três públicas são as que qualquer um na internet alcança: elas têm
 limite de tamanho, limite por sessão e freio por origem, e recusam o resto
-com 400. As três com Access respondem 503 dizendo o que falta enquanto
-`TEAM_DOMAIN` e `ACCESS_AUD` estiverem vazios, igual `/leads`.
+com 400. As três da mesa respondem 401 para quem não entrou e 403 para
+quem entrou como cliente, igual `/leads`.
 
 A submissão grava na **mesma tabela `leads`**, com o título de cada
 pergunta como chave do objeto `respostas`, e com `typeform_response_id`
@@ -193,23 +217,26 @@ o único lugar onde entra texto escrito por desconhecido, o que explica o
 npm test
 ```
 
-Roda duas suítes: as 39 rotas de sempre e as 104 do formulário. Sobe
+Roda duas suítes: as 72 rotas de sempre e as 104 do formulário. Sobe
 wrangler local, bate nas rotas por HTTP e derruba tudo no fim. Roda no
 banco local; não encosta em produção.
 
-São 39 verificações nas rotas de sempre: o site estático com os cabeçalhos
-certos, o `robots.txt` e o `sitemap.xml`, e o `/leads` e o `/eu` com
-`TEAM_DOMAIN` e `ACCESS_AUD` preenchidos passando a exigir login em vez de
-abrir. O segundo servidor existe só para essa última parte.
+São 72 verificações nas rotas de sempre: o site estático com os cabeçalhos
+certos, o `robots.txt` e o `sitemap.xml`, e a porta inteira, do primeiro
+acesso ao freio de força bruta, passando por errar e-mail e errar senha
+respondendo a mesma frase, pelo cliente que não lê a mesa e por desligar
+alguém e ver a sessão dela cair na hora.
 
 As outras 104 são do formulário: a definição, a publicação, a submissão
 virando lead, os passos que alimentam as medidas, e os limites das duas
 rotas abertas.
 
-Quase não precisa de preparo: o schema é aplicado no banco local e o
-segredo de teste entra por `--var`. A suíte do formulário fabrica um
-certificado para o servidor de chaves de mentira, e para isso usa o
-`openssl` da máquina. Sem ele, essa parte falha.
+Não precisa de preparo nenhum: os três schemas são aplicados no banco
+local e a casa é esvaziada antes de começar. O `openssl` deixou de ser
+necessário: a suíte do formulário fabricava um par de chaves, um
+certificado e um servidor de chaves de mentira só para o Worker ter uma
+assinatura do Access para conferir. Agora ela entra com e-mail e senha,
+como a Carla entra, e sessenta linhas viraram uma.
 
 Antes de qualquer push que mexa em `src/` ou `wrangler.toml`, rode.
 
@@ -218,11 +245,11 @@ As telas têm verificação própria, num navegador de verdade. Com um
 
 ```sh
 node fonte/sistema/verifica.mjs        # 36: as dez telas, os três papéis
-node fonte/sistema/verifica-login.mjs  # 37: a porta, do primeiro dia em diante
+node fonte/sistema/verifica-login.mjs  # 35: a porta, do primeiro dia em diante
 node verifica-aplicar.mjs              # 95: o formulário, nas duas larguras
 ```
 
-São 311 verificações no total: 143 de rota e 168 de navegador.
+São 342 verificações no total: 176 de rota e 166 de navegador.
 
 ## Cuidados no que já está de pé
 
@@ -234,7 +261,13 @@ São 311 verificações no total: 143 de rota e 168 de navegador.
   Um dia inteiro se perdeu com isso apontando para `main`, que só tem um
   README: cada push publicava, e o domínio nunca mudava.
 - `TYPEFORM_WEBHOOK_SECRET` é secret do painel, nunca do repositório.
-- `TEAM_DOMAIN` e `ACCESS_AUD` vão no `wrangler.toml`, não no painel: as
-  variáveis de texto do painel são sobrescritas a cada deploy.
-- `TEAM_DOMAIN` e `ACCESS_AUD` vazios fazem `/leads` e `/eu` responderem
-  503 de propósito. Não "conserte" isso deixando passar.
+- **Este Worker não tem mais variável de configuração nenhuma.** Nada de
+  login vive fora do repositório, e não há painel para preencher.
+- **A aplicação do Cloudflare Access precisa continuar apagada.** Se
+  alguém recriar uma cobrindo `/sistema`, `/leads`, `/eu` ou `/api/mesa`,
+  a pessoa passa a ver duas telas de login seguidas, e os pedidos que o
+  sistema faz por dentro voltam como a página de entrada do Access em vez
+  de dados.
+- **O plano do Worker precisa ser o pago.** O cálculo da senha passa dos
+  10 ms de processador do grátis, e login começaria a falhar sem erro
+  claro.

@@ -289,155 +289,66 @@ endereço, e o Access (passo 5) protege só o domínio de verdade.
 
 ---
 
-## 5. Trancar o sistema com o Cloudflare Access
+## 5. A porta: e-mail e senha
 
-Isso põe uma tela de login na frente do sistema sem escrever uma linha de
-código de autenticação.
+**Não há nada para configurar no painel.** Isto é uma mudança de 02/09, e
+vale escrever por que: o Cloudflare Access trancava o endereço até então,
+funcionava, e mesmo assim saiu.
 
-**UMA aplicação só, com três caminhos dentro dela.** Isso não é detalhe de
-gosto: cada aplicação do Access tem uma etiqueta própria, o AUD, e o
-Worker confere **um** AUD. Se `/sistema` e `/leads` estiverem em
-aplicações separadas, o login funciona, o sistema abre, e as rotas de
-dados respondem 401 para sempre, sem explicação óbvia na tela.
+O motivo é a tela. O Access mostra a tela DELE, e desde 18/06/2026 toda
+conta nova do Zero Trust nasce oferecendo só "entrar com a conta da
+Cloudflare", que a equipe não tem. Dava para ligar o código por e-mail em
+três cliques, mas a Carla pediu login e senha, duas vezes, para separar
+cada colaborador com o acesso dele. Login e senha o Access não faz: ele
+não guarda senha de ninguém.
 
-### 5a. Criar o time, se ainda não existir
+### 5a. O que fazer no painel
 
-1. No menu da esquerda do painel: **Zero Trust** (abre em outra aba)
-2. Na primeira vez ele pede um **team name**. Escolha (por exemplo
-   `grupoa`) e pegue o plano **Free**, que cobre até 50 pessoas.
+**Apagar a aplicação do Access**, se ela ainda existir:
 
-O nome que você escolher vira o endereço do time,
-`<nome>.cloudflareaccess.com`, e é um dos dois valores que eu preciso no
-fim.
+1. **Zero Trust** → **Access controls** → **Applications**
+2. Abra a aplicação `ideiaquevende.com.br`
+3. Aba **Additional settings** → **Delete**, lá embaixo
 
-### 5b. A aplicação
+Enquanto ela existir, quem abre `/sistema/` vê duas telas de login
+seguidas: a da Cloudflare e a da casa. E pior, os pedidos que o sistema
+faz por dentro (`/leads`, `/eu`, `/api/mesa`) voltam como a página de
+entrada do Access em vez de dados.
 
-A tela mudou de desenho em 2025. O que vale é o caminho abaixo; se o seu
-painel estiver diferente, os nomes dos campos continuam os mesmos.
+### 5b. O plano do Worker precisa ser o pago
 
-1. **Zero Trust** → **Access controls** → **Applications** → **Create new
-   application** (ou o botão **Add an application**, no meio da página,
-   quando a lista ainda está vazia)
+**Workers & Pages** → o Worker `ideia-que-vende` → o plano.
 
-2. Abre uma janela **Add an application**, com quatro abas. Fique na
-   primeira, **Self-hosted and private**.
+São 5 dólares por mês. Não é capricho: o cálculo que embaralha a senha
+usa 210 mil voltas e gasta mais que os 10 ms de processador que o plano
+grátis dá por pedido. No grátis, entrar começaria a falhar sem erro
+claro.
 
-3. Logo abaixo tem quatro opções: *Private destinations*, *Workers*,
-   *Public DNS* e *Service auth*. Escolha **Public DNS**.
+Se um dia for preciso ficar no grátis, o número de voltas está em
+`src/porta.js`, numa constante só, e desce para uns 10 mil. Isso enfraquece
+a senha contra quem rouba o banco inteiro, e por isso não é o padrão.
 
-   **Não escolha Workers.** Ela protege o site inteiro pelo nome do
-   programa, e o site inteiro inclui a landing e o formulário. Ninguém de
-   fora conseguiria abrir a página de vendas.
+### 5c. O primeiro acesso
 
-4. **Continue with Self-hosted and private**
+Abra `ideiaquevende.com.br/sistema/`. Com a tabela vazia, a porta pede
+para criar a primeira gestora: nome, e-mail e senha.
 
-5. **Application name:** `Ideia Que Vende`
+**Essa tela só aparece uma vez.** Depois da primeira pessoa existir, ela
+responde 409 para sempre, senão qualquer um se cadastraria como gestor no
+dia seguinte.
 
-6. Procure **Add public hostname**. São **quatro**, todos no mesmo
-   domínio, e todos nesta mesma aplicação:
-
-   | Subdomain | Domain                 | Path       |
-   |-----------|------------------------|------------|
-   | *(vazio)* | `ideiaquevende.com.br` | `sistema`  |
-   | *(vazio)* | `ideiaquevende.com.br` | `leads`    |
-   | *(vazio)* | `ideiaquevende.com.br` | `eu`       |
-   | *(vazio)* | `ideiaquevende.com.br` | `api/mesa` |
-
-   Os três últimos são chamados pelo próprio sistema, por dentro: o
-   `leads` traz as aplicações, o `eu` diz quem entrou, e o `api/mesa` é
-   por onde a tela "O formulário" edita as perguntas e lê as medidas. Se
-   algum ficar de fora, o sistema abre e aquela parte não funciona.
-
-   **Pare em `api/mesa`, e não escreva `api`.** O formulário que a pessoa
-   de fora preenche também vive sob `api`, e ela não tem como fazer login:
-   pondo `api` inteiro aqui dentro, o formulário da landing para de abrir
-   para quem chega. Foi por isso que as rotas da mesa ganharam um prefixo
-   só delas: o Access protege por caminho, não por método.
-
-7. **Next**, e crie a política:
-
-   | Campo   | Valor                                    |
-   |---------|------------------------------------------|
-   | Name    | `Equipe`                                 |
-   | Action  | `Allow`                                  |
-   | Include | **Emails** e a lista de e-mails da equipe |
-
-   Comece só com o seu e-mail. Acrescentar gente depois é uma linha nessa
-   mesma política.
-
-8. **Next** → **Add application**
-
-### 5b-bis. Ligar o código por e-mail, senão a tela de login vem errada
-
-**Isto não é opcional, e foi onde a Carla travou em 01/09.**
-
-Desde 18 de junho de 2026 toda organização nova do Zero Trust nasce com um
-método de login só, o "Cloudflare": a pessoa entra com a conta que ela tem
-na própria Cloudflare. Antes disso o padrão era o código por e-mail, e ele
-deixou de ser ligado sozinho.
-
-O efeito na tela: em vez de um campo de e-mail, aparece um botão escrito
-"Sign in with: Cloudflare". Quem não tem conta na Cloudflare, que é a
-equipe inteira, não passa dali.
-
-1. **Zero Trust** → **Integrations** → **Identity providers**
-2. Em **Your identity providers**, **Add new identity provider**
-3. Escolha **One-time PIN** e salve. Não pede configuração nenhuma.
-
-Depois, para sumir com o botão da Cloudflare e cair direto no campo de
-e-mail: **Access controls** → **Applications** → a aplicação →
-**Authentication**, desligue **Accept all available identity providers**,
-marque só o **One-time PIN** e ligue **Apply instant authentication**.
-Com um método só, esse último pula a tela de escolher.
-
-O código tem seis números, vale 10 minutos e serve uma vez só. Entrar com
-um clique pelo Google dá para acrescentar depois, sem refazer nada.
-
-### 5c. Os dois valores que eu preciso
-
-**Zero Trust** → **Access controls** → **Applications** → clique em
-**Ideia Que Vende** → aba **Overview**. Copie:
-
-- o **team domain**, algo como `grupoa.cloudflareaccess.com`
-- a **Application Audience (AUD) Tag**, um hexadecimal comprido
-
-Um print dessa aba já basta: os dois valores aparecem nela.
-
-**Me mande os dois aqui.** Eles entram no `wrangler.toml`, e não no
-painel: as variáveis de texto do painel são sobrescritas pelo arquivo a
-cada publicação, então preencher lá some sozinho no dia seguinte.
-
-Nenhum dos dois é segredo: o AUD identifica a aplicação, não autoriza
-ninguém.
-
-Enquanto estiverem vazios, as rotas respondem:
-
-    {"erro":"falta configurar no Worker: TEAM_DOMAIN, ACCESS_AUD"}
-
-Isso é de propósito. Sem eles não dá para conferir quem está entrando, e
-deixar passar seria pior que fechar.
-
-> **Por que conferir o AUD, e não só a assinatura.** O mesmo Zero Trust
-> assina o crachá de **todas** as aplicações da conta, e existe outro
-> projeto nela. Sem conferir o AUD, quem tem acesso a qualquer outra
-> aplicação do time leria os leads daqui.
+Dali em diante, quem cadastra o resto da equipe é a tela "A casa": nome,
+e-mail e papel. O sistema sorteia a primeira senha e mostra uma vez só,
+para você passar adiante. A pessoa troca na primeira entrada.
 
 ### 5d. Conferir que pegou
 
-Duas conferências, na mesma janela anônima:
+Numa janela anônima:
 
-1. `https://ideiaquevende.com.br/sistema/` tem que mostrar a **tela de
-   login da Cloudflare**, e não o sistema. Se mostrar o sistema, algum
-   caminho do 5b ficou de fora.
-2. `https://ideiaquevende.com.br/aplicar` tem que abrir **normalmente,
-   sem pedir login**. Se pedir, foi `api` escrito no lugar de `api/mesa`,
-   e o formulário parou para quem chega da landing.
-
-Depois que eu preencher os dois valores e publicar, a porta do sistema
-para de oferecer a escolha de perfil e passa a reconhecer você pelo
-e-mail do login.
-
----
+1. `ideiaquevende.com.br/sistema/` pede **e-mail e senha**, sem nenhum
+   botão de "entrar com".
+2. `ideiaquevende.com.br/aplicar` abre normal, sem pedir nada.
+3. Entrando, a tela "Ideias que chegaram" carrega as aplicações.
 
 ## O que falta depois disso
 

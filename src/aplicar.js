@@ -22,7 +22,8 @@
 // A aplicação aceita vira UMA linha em leads, no formato que a tela
 // "Ideias que chegaram" já lê. Nenhuma coluna nova, nenhuma alteração de
 // tabela, nenhuma linha mudada naquela tela.
-import { json, accessQuem } from "./lib.js";
+import { json } from "./lib.js";
+import { exigirEntrada } from "./porta.js";
 
 /* ====================================================================
    Listas fechadas.
@@ -1163,30 +1164,15 @@ export function intervaloDeDatas(busca, hoje = diaDaqui()) {
 /* --------------------------------------------------------------------
    A portaria das três rotas com login, igual à do /leads.
 
-   Sem as duas configurações não dá para conferir token nenhum, e liberar
-   seria pior que fechar. A mensagem é específica de propósito: quem a vê
-   é quem publica o site, e um erro genérico custaria meia hora de caça
-   ao nada.
+   Quem mexe no formulário é quem toca o negócio: gestor e colaborador.
+   Cliente não edita pergunta nem lê medida.
 
-   Devolve { barrado: Response } quando é para barrar, e { quem } com o
-   que o Access autenticou quando pode seguir.
+   Devolve { barrado: Response } quando é para barrar, e { quem } com a
+   pessoa que entrou quando pode seguir.
    -------------------------------------------------------------------- */
 async function portaria(request, env) {
-  const faltando = ["TEAM_DOMAIN", "ACCESS_AUD"].filter((v) => !env[v]);
-  if (faltando.length) {
-    return {
-      barrado: json({
-        ok: false,
-        erro: `falta configurar no Worker: ${faltando.join(", ")}`,
-        motivo: "configuracao",
-      }, 503),
-    };
-  }
-
-  const quem = await accessQuem(request, env.TEAM_DOMAIN, env.ACCESS_AUD);
-  if (!quem) return { barrado: json({ ok: false, erro: "não autorizado" }, 401) };
-
-  return { quem };
+  const { barrado, eu } = await exigirEntrada(request, env, ["gestor", "colaborador"]);
+  return barrado ? { barrado } : { quem: eu };
 }
 
 /* --------------------------------------------------------------------

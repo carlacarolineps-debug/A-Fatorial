@@ -27,7 +27,9 @@ binding = "ASSETS"
 # O Worker só é chamado nestes caminhos. Todo o resto (a landing, o
 # sistema, a imagem de compartilhamento) sai direto do cache da borda,
 # sem executar código e sem contar requisição de Worker.
-run_worker_first = ["/leads", "/eu", "/api/*", "/robots.txt", "/sitemap.xml"]
+run_worker_first = ["/leads", "/eu", "/entrar", "/sair", "/primeiro-acesso",
+                    "/minha-senha", "/pessoas", "/api/*",
+                    "/robots.txt", "/sitemap.xml"]
 
 # O banco já existe e as tabelas já foram criadas.
 [[d1_databases]]
@@ -43,17 +45,12 @@ enabled = true
 # secret deste Worker. Se um dia o TYPEFORM_WEBHOOK_SECRET ainda estiver
 # no painel, em Settings > Variables and Secrets, pode apagar.
 #
-# Os dois campos abaixo saem de telas DIFERENTES do painel, apesar de
-# andarem juntos aqui:
+# Nao existe mais variavel de login aqui. Ate 01/09 o Cloudflare Access
+# trancava o endereco, e este arquivo guardava o time e a etiqueta dele.
+# Agora quem confere quem entra e o src/porta.js, com e-mail e senha no
+# banco D1, e nao ha nada para configurar fora do repositorio.
 #
-#   ACCESS_AUD   Zero Trust > Access controls > Applications > a aplicacao
-#                > aba "Additional settings" > "AUD tag"
-#   TEAM_DOMAIN  Zero Trust > Settings > General > "Team name", mais
-#                ".cloudflareaccess.com" no fim
-#
-# Nenhum dos dois e segredo: o AUD identifica a aplicacao, nao autoriza
-# ninguem. Enquanto estiverem vazios, /leads responde 503 dizendo qual
-# falta, em vez de deixar passar.
-[vars]
-TEAM_DOMAIN = "fancy-paper-5de9.cloudflareaccess.com"
-ACCESS_AUD = "9d1393cc87fcae7a77f895929ab629fce554a3a39ad464a69e6b68414b98ed42"
+# ATENCAO AO PLANO DO WORKER. O calculo da senha usa 210 mil voltas de
+# PBKDF2, que gastam mais que os 10 ms de processador do plano gratis.
+# Isso pede o plano de 5 dolares. Se um dia precisar voltar para o gratis,
+# o numero de voltas esta em src/porta.js, numa constante so.

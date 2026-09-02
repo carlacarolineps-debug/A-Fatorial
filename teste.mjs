@@ -6,7 +6,8 @@ import http from "node:http";
 // servidor no fim. Não toca no banco de produção: tudo roda no D1 local.
 //
 // O que estes testes guardam, e por que valem o trabalho:
-//   - o /leads fecha sozinho enquanto TEAM_DOMAIN e ACCESS_AUD faltarem
+//   - a porta so deixa entrar quem tem e-mail e senha que conferem
+//   - o papel e conferido no BANCO: cliente nao le a mesa
 //   - o /sistema/ sai com noindex e no-store
 //   - o endereço de teste (.workers.dev) não é indexável
 import { spawn, spawnSync } from "node:child_process";
@@ -17,29 +18,30 @@ import { lerPedido } from "./src/leads.js";
 // O banco local nasce vazio num clone novo. Sem as tabelas, a rota
 // estoura antes de chegar no que o teste quer medir, então o schema é
 // aplicado aqui e não na mão de quem clonou.
-const criarTabelas = spawnSync(
-  "npx",
-  ["wrangler", "d1", "execute", "ideia-que-vende", "--local", "--file=schema.sql"],
-  { stdio: "ignore" },
-);
-if (criarTabelas.status !== 0) {
-  console.error("não consegui criar as tabelas no banco local");
-  process.exit(1);
+// A casa e esvaziada aqui, e nao no meio do teste: o wrangler dev segura o
+// arquivo do banco local, e um segundo wrangler mexendo nele derruba o dev
+// no meio da rodada. Sem isto, "casa vazia" so passaria na primeira vez.
+spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local",
+  "--command", "delete from sessoes; delete from pessoas; delete from freio;"],
+  { stdio: "ignore" });
+
+for (const arquivo of ["schema.sql", "schema-porta.sql"]) {
+  const criar = spawnSync(
+    "npx",
+    ["wrangler", "d1", "execute", "ideia-que-vende", "--local", `--file=${arquivo}`],
+    { stdio: "ignore" },
+  );
+  if (criar.status !== 0) {
+    console.error(`não consegui aplicar o ${arquivo} no banco local`);
+    process.exit(1);
+  }
 }
 
 // Este Worker não tem mais segredo nenhum: o único era o do webhook do
 // Typeform, que saiu em 31/08 com a rota dele.
-//
-// As duas variáveis do Access entram VAZIAS de propósito, e por escrito.
-// Antes elas vinham vazias do próprio wrangler.toml, e no dia em que a
-// Carla configurou o Access de verdade três testes passaram a falhar sem
-// que nada tivesse quebrado: eles provam o estado "ainda não configurado",
-// e esse estado deixou de existir no arquivo. Forçar aqui prende o teste ao
-// que ele quer provar, e não ao que está publicado hoje.
 const servidor = spawn(
   "npx",
-  ["wrangler", "dev", "--port", "8787", "--local", "--inspector-port", "9229",
-   "--var", "TEAM_DOMAIN:", "--var", "ACCESS_AUD:"],
+  ["wrangler", "dev", "--port", "8787", "--local", "--inspector-port", "9229"],
   { stdio: ["ignore", "pipe", "pipe"], detached: true },
 );
 
@@ -50,33 +52,16 @@ const derrubar = () => { try { process.kill(-servidor.pid, "SIGKILL"); } catch {
 process.on("exit", derrubar);
 process.on("SIGINT", () => { derrubar(); process.exit(1); });
 
-// Um segundo Worker, igual ao primeiro mas COM o Access configurado. Ele
-// existe para provar a outra metade da porta: sem as variáveis o /leads
-// responde 503, e com elas preenchidas ele passa a exigir login de
-// verdade em vez de abrir. Sem este servidor, o 401 nunca é exercitado.
-const servidorAccess = spawn(
-  "npx",
-  ["wrangler", "dev", "--port", "8788", "--local", "--inspector-port", "9230",
-   // banco próprio: os dois wrangler rodando juntos não podem disputar o
-   // mesmo diretório de estado local
-   "--persist-to", ".wrangler/estado-access",
-   "--var", "TEAM_DOMAIN:teste.invalid", "--var", "ACCESS_AUD:aud-de-teste"],
-  { stdio: ["ignore", "pipe", "pipe"], detached: true },
-);
-const derrubarAccess = () => { try { process.kill(-servidorAccess.pid, "SIGKILL"); } catch {} };
-process.on("exit", derrubarAccess);
-
 const pronto = (proc, nome) => new Promise((res, rej) => {
   const prazo = setTimeout(() => rej(new Error(`${nome} não subiu em 90s`)), 90_000);
   proc.stdout.on("data", (c) => {
     if (String(c).includes("Ready on")) { clearTimeout(prazo); res(); }
   });
 });
-await Promise.all([pronto(servidor, "wrangler dev"), pronto(servidorAccess, "wrangler dev (access)")]);
+await pronto(servidor, "wrangler dev");
 await espera(500);
 
 const B = "http://localhost:8787";
-const BA = "http://localhost:8788";   // mesmo Worker, com TEAM_DOMAIN e ACCESS_AUD preenchidos
 let ok = 0, bad = 0;
 const t = (nome, cond, extra = "") => {
   (cond ? ok++ : bad++);
@@ -135,14 +120,127 @@ t("sitemap: namespace certo", txt.includes("http://www.sitemaps.org/schemas/site
 t("sitemap: loc com o host pedido", txt.includes("<loc>http://localhost:8787/</loc>"));
 t("sitemap: content-type xml", (r.headers.get("content-type") || "").includes("xml"), r.headers.get("content-type"));
 
-// ---------- /leads ----------
+// ---------- a porta: e-mail e senha ----------
+//
+// Guardar o cookie na mao: fetch do node nao tem pote de biscoitos.
+const craxas = {};
+const guardar = (quem, resposta) => {
+  const posto = resposta.headers.getSetCookie?.() || [];
+  const linha = posto.find((c) => c.startsWith("iqv_cracha="));
+  if (linha) craxas[quem] = linha.split(";")[0];
+};
+const com = (quem, extra = {}) => ({
+  ...extra,
+  headers: { "content-type": "application/json", ...(extra.headers || {}),
+             ...(craxas[quem] ? { cookie: craxas[quem] } : {}) },
+});
+const postar = (caminho, corpo, quem) =>
+  fetch(`${B}${caminho}`, com(quem, { method: "POST", body: JSON.stringify(corpo) }));
+
+let j;
+
+r = await fetch(`${B}/eu`);
+j = await r.json();
+t("porta: com a casa vazia, o /eu avisa", r.status === 200 && j.casa_vazia === true && j.entrou === false, JSON.stringify(j));
+
+r = await postar("/primeiro-acesso", { nome: "Carla", email: "carla@iqv.com.br", senha: "curta" });
+j = await r.json();
+t("porta: primeira senha curta é recusada", r.status === 400 && /8 caracteres/.test(j.erro), JSON.stringify(j));
+
+r = await postar("/primeiro-acesso", { nome: "Carla", email: "nao-e-email", senha: "umasenhaboa" });
+t("porta: primeiro acesso com e-mail torto é recusado", r.status === 400, `status=${r.status}`);
+
+r = await postar("/primeiro-acesso", { nome: "Carla Caroline", email: "Carla@IQV.com.BR", senha: "umasenhaboa" });
+j = await r.json();
+guardar("carla", r);
+t("porta: a primeira pessoa nasce gestora", r.status === 200 && j.eu.papel === "gestor", JSON.stringify(j.eu || {}));
+t("porta: o e-mail é guardado em minúsculas", j.eu && j.eu.email === "carla@iqv.com.br", j.eu && j.eu.email);
+t("porta: entrar devolve um crachá no cookie", !!craxas.carla);
+
+r = await postar("/primeiro-acesso", { nome: "Intruso", email: "x@y.com", senha: "umasenhaboa" });
+t("porta: primeiro acesso não funciona duas vezes", r.status === 409, `status=${r.status}`);
+
+r = await fetch(`${B}/eu`, com("carla"));
+j = await r.json();
+t("porta: o /eu reconhece quem entrou", j.entrou === true && j.eu.nome === "Carla Caroline", JSON.stringify(j.eu || {}));
+
+r = await fetch(`${B}/eu`, { headers: { cookie: "iqv_cracha=" + "f".repeat(64) } });
+j = await r.json();
+t("porta: crachá inventado não entra", j.entrou === false, JSON.stringify(j));
+
+// ---------- errar e-mail e errar senha respondem igual ----------
+r = await postar("/entrar", { email: "carla@iqv.com.br", senha: "erradaerrada" });
+const erroSenha = await r.json();
+t("porta: senha errada  401", r.status === 401, `status=${r.status}`);
+
+r = await postar("/entrar", { email: "ninguem@lugar.com", senha: "erradaerrada" });
+const erroEmail = await r.json();
+t("porta: e-mail que não existe responde a MESMA coisa que senha errada",
+  erroEmail.erro === erroSenha.erro, `${erroEmail.erro} / ${erroSenha.erro}`);
+
+// ---------- o freio ----------
+//
+// Num e-mail so dele: o freio dura quinze minutos e nao ha como soltar sem
+// mexer no banco, o que derrubaria o servidor no meio da rodada. Freando um
+// e-mail descartavel, o resto do teste segue com os de verdade.
+const chutado = "freio-de-teste@iqv.com.br";
+for (let i = 0; i < 8; i++) await postar("/entrar", { email: chutado, senha: "chuteichutei" });
+r = await postar("/entrar", { email: chutado, senha: "chuteichutei" });
+j = await r.json();
+t("porta: oito erros seguidos freiam aquele e-mail", r.status === 429 && j.freado === true, JSON.stringify(j));
+
+r = await postar("/entrar", { email: "carla@iqv.com.br", senha: "umasenhaboa" });
+guardar("carla", r);
+t("porta: e o freio é por e-mail, não fecha a casa inteira", r.status === 200, `status=${r.status}`);
+
+// ---------- cadastrar equipe ----------
+r = await postar("/pessoas", { nome: "Beatriz", email: "bia@iqv.com.br", papel: "colaborador", senha: "primeira123" }, "carla");
+j = await r.json();
+t("pessoas: a gestora cadastra", r.status === 200 && j.pessoa.papel === "colaborador", JSON.stringify(j.pessoa || j));
+t("pessoas: quem é cadastrada troca a senha na primeira entrada", j.pessoa && j.pessoa.precisa_trocar === true);
+
+r = await postar("/pessoas", { nome: "Outra", email: "bia@iqv.com.br", papel: "colaborador", senha: "primeira123" }, "carla");
+t("pessoas: o mesmo e-mail duas vezes é recusado", r.status === 409, `status=${r.status}`);
+
+r = await postar("/pessoas", { nome: "X", email: "x@iqv.com.br", papel: "chefe", senha: "primeira123" }, "carla");
+t("pessoas: papel inventado é recusado", r.status === 400, `status=${r.status}`);
+
+r = await postar("/pessoas", { nome: "Marina", email: "marina@cliente.com", papel: "cliente", senha: "primeira123" }, "carla");
+t("pessoas: cliente também é cadastrado aqui", r.status === 200, `status=${r.status}`);
+
+r = await fetch(`${B}/pessoas`);
+t("pessoas: sem entrar, a lista é 401", r.status === 401, `status=${r.status}`);
+
+// ---------- o papel filtra DADO, e não só tela ----------
+r = await postar("/entrar", { email: "marina@cliente.com", senha: "primeira123" });
+j = await r.json();
+guardar("marina", r);
+t("porta: quem foi cadastrada entra com a senha que recebeu", r.status === 200, `status=${r.status}`);
+t("porta: e é avisada de que precisa trocar", j.eu && j.eu.precisa_trocar === true);
+
+r = await fetch(`${B}/leads`, com("marina"));
+t("leads: cliente NÃO lê a mesa, nem com o endereço na mão", r.status === 403, `status=${r.status}`);
+
+r = await fetch(`${B}/pessoas`, com("marina"));
+t("pessoas: cliente não lê a lista da equipe", r.status === 403, `status=${r.status}`);
+
+r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "primeira123" });
+guardar("bia", r);
+r = await fetch(`${B}/leads`, com("bia"));
+t("leads: colaboradora lê a mesa", r.status === 200, `status=${r.status}`);
+
+r = await postar("/pessoas", { nome: "Z", email: "z@iqv.com.br", papel: "gestor", senha: "primeira123" }, "bia");
+t("pessoas: colaboradora não cadastra ninguém", r.status === 403, `status=${r.status}`);
+
+r = await fetch(`${B}/leads`, com("carla"));
+t("leads: a gestora lê a mesa", r.status === 200, `status=${r.status}`);
+
 r = await fetch(`${B}/leads`);
-let j = await r.json();
-t("leads: sem TEAM_DOMAIN/AUD  503 explicando", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
+j = await r.json();
+t("leads: sem entrar  401", r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
 
 r = await fetch(`${B}/leads`, { method: "PATCH", body: JSON.stringify({ id: 1, status: "contatado" }) });
-j = await r.json();
-t("leads: PATCH sem TEAM_DOMAIN/AUD  503 explicando", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
+t("leads: PATCH sem entrar  401", r.status === 401, `status=${r.status}`);
 
 r = await fetch(`${B}/leads`, { method: "POST" });
 t("leads: POST  405", r.status === 405, `status=${r.status}`);
@@ -150,37 +248,61 @@ t("leads: POST  405", r.status === 405, `status=${r.status}`);
 r = await fetch(`${B}/leads`, { method: "DELETE" });
 t("leads: DELETE  405", r.status === 405, `status=${r.status}`);
 
-// ---------- /leads com o Access configurado: exige login, não abre ----------
-r = await fetch(`${BA}/leads`);
-j = await r.json();
-t("leads configurado: GET sem login  401", r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
+// ---------- trocar a própria senha ----------
+r = await postar("/minha-senha", { atual: "erradaerrada", nova: "outrasenha1" }, "bia");
+t("senha: a atual errada não troca nada", r.status === 400, `status=${r.status}`);
 
-r = await fetch(`${BA}/leads`, { method: "PATCH", body: JSON.stringify({ id: 1, status: "ganho" }) });
-j = await r.json();
-t("leads configurado: PATCH sem login  401", r.status === 401, JSON.stringify(j));
+r = await postar("/minha-senha", { atual: "primeira123", nova: "curta" }, "bia");
+t("senha: a nova curta é recusada", r.status === 400, `status=${r.status}`);
 
-r = await fetch(`${BA}/leads`, { method: "GET", headers: { "cf-access-jwt-assertion": "token.forjado.aqui" } });
-t("leads configurado: JWT forjado  401", r.status === 401, `status=${r.status}`);
+r = await postar("/minha-senha", { atual: "primeira123", nova: "outrasenha1" }, "bia");
+t("senha: com a atual certa, troca", r.status === 200, `status=${r.status}`);
 
-// ---------- /eu: quem entrou ----------
-r = await fetch(`${B}/eu`);
+r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "primeira123" });
+t("senha: a antiga para de entrar", r.status === 401, `status=${r.status}`);
+
+r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "outrasenha1" });
 j = await r.json();
-t("eu: sem TEAM_DOMAIN/AUD  503 explicando", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
+guardar("bia", r);
+t("senha: a nova entra, e a marca de trocar sai", r.status === 200 && j.eu.precisa_trocar === false, JSON.stringify(j.eu || {}));
+
+// ---------- a casa nunca fica sem gestor ----------
+const listaAgora = await (await fetch(`${B}/pessoas`, com("carla"))).json();
+const idDaCarla = listaAgora.pessoas.find((p) => p.email === "carla@iqv.com.br").id;
+const idDaBia = listaAgora.pessoas.find((p) => p.email === "bia@iqv.com.br").id;
+
+r = await fetch(`${B}/pessoas`, com("carla", { method: "PATCH", body: JSON.stringify({ id: idDaCarla, papel: "colaborador" }) }));
+t("casa: a única gestora não consegue se rebaixar", r.status === 409, `status=${r.status}`);
+
+r = await fetch(`${B}/pessoas`, com("carla", { method: "PATCH", body: JSON.stringify({ id: idDaCarla, ativo: false }) }));
+t("casa: e não consegue desligar o próprio acesso", r.status === 409, `status=${r.status}`);
+
+r = await fetch(`${B}/pessoas`, com("carla", { method: "DELETE", body: JSON.stringify({ id: idDaCarla }) }));
+t("casa: nem se remover", r.status === 409, `status=${r.status}`);
+
+// ---------- desligar alguém derruba a sessão dela na hora ----------
+r = await fetch(`${B}/pessoas`, com("carla", { method: "PATCH", body: JSON.stringify({ id: idDaBia, ativo: false }) }));
+t("casa: a gestora desliga a colaboradora", r.status === 200, `status=${r.status}`);
+
+r = await fetch(`${B}/leads`, com("bia"));
+t("casa: quem foi desligada cai na hora, e não daqui a um mês", r.status === 401, `status=${r.status}`);
+
+r = await postar("/entrar", { email: "bia@iqv.com.br", senha: "outrasenha1" });
+t("casa: e não consegue entrar de novo", r.status === 401, `status=${r.status}`);
+
+// ---------- sair ----------
+r = await fetch(`${B}/sair`, com("carla", { method: "POST" }));
+t("sair: responde ok", r.status === 200, `status=${r.status}`);
+
+r = await fetch(`${B}/leads`, com("carla"));
+t("sair: o crachá antigo morre no servidor, e não só no navegador", r.status === 401, `status=${r.status}`);
 
 r = await fetch(`${B}/eu`, { method: "POST" });
 t("eu: POST  405", r.status === 405, `status=${r.status}`);
 
-r = await fetch(`${BA}/eu`);
-j = await r.json();
-t("eu configurado: sem login  401", r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
-
-r = await fetch(`${BA}/eu`, { headers: { "cf-access-jwt-assertion": "token.forjado.aqui" } });
-t("eu configurado: JWT forjado  401", r.status === 401, `status=${r.status}`);
-
-// o /eu nao pode virar um jeito de descobrir a lista de quem tem acesso
-r = await fetch(`${BA}/eu`);
+r = await fetch(`${B}/eu`);
 const corpoEu = await r.text();
-t("eu: não vaza nada além do erro quando barra", corpoEu.length < 120, `${corpoEu.length} bytes`);
+t("eu: não vaza a lista de quem tem acesso", !/carla@iqv/.test(corpoEu) && corpoEu.length < 200, `${corpoEu.length} bytes`);
 
 // ---------- o que o PATCH aceita mudar (função pura, sem servidor) ----------
 const p1 = lerPedido({ id: 7, status: "contatado" });
@@ -199,5 +321,4 @@ t("patch: observação muito longa é cortada", p2.valores[0].length === 2000, `
 
 console.log(`\n${ok} passaram, ${bad} falharam`);
 derrubar();
-derrubarAccess();
 process.exit(bad ? 1 : 0);

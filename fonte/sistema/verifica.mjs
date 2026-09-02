@@ -1,7 +1,8 @@
-// Abre o sistema novo num navegador e passa por todas as telas, com os
-// tres papeis. O Access nao esta ligado, entao a porta oferece a escolha
-// provisoria de papel, e e por ela que entramos.
+// Abre o sistema num navegador e passa por todas as telas, com os tres
+// papeis. Quem entra e criado pelo servidor, e a troca de papel e feita
+// entrando com outra pessoa: papel nao e mais coisa que o navegador decide.
 import { chromium } from "playwright";
+import { spawnSync } from "node:child_process";
 const S = process.env.SAIDA || "/tmp";
 const B = "http://localhost:8787";
 
@@ -21,34 +22,57 @@ const t = (nome, cond, extra = "") => {
   console.log(`${cond ? "PASS" : "FALHOU"}  ${nome}${extra ? "   " + extra : ""}`);
 };
 
-await pg.goto(`${B}/sistema/`, { waitUntil: "networkidle" });
+// A casa comeca vazia: o primeiro acesso so responde sem ninguem
+// cadastrado, e as tres pessoas sao criadas por ele e pela rota da equipe.
+spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local",
+  "--command", "delete from sessoes; delete from pessoas; delete from freio;"],
+  { stdio: "ignore" });
 
-// 1. A porta, com o Access ligado mas sem cracha nenhum neste navegador
-//
-// Estas duas provavam o aviso de "ainda nao esta ligado", que vinha do 503
-// do /eu. O Access foi ligado em 01/09 e o /eu passou a responder 401, que
-// e o que a pessoa recebe quando o cracha dela vence. Provar o aviso antigo
-// seria provar um estado que nao existe mais.
+const SENHA = "senhadeteste1";
+const entrarComo = async (email) => {
+  await pg.evaluate(async ([e, s]) => {
+    await fetch("/sair", { method: "POST", headers: { accept: "application/json" } });
+    await fetch("/entrar", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ email: e, senha: s }),
+    });
+  }, [email, SENHA]);
+  await pg.reload({ waitUntil: "networkidle" });
+  await pg.waitForTimeout(900);
+};
+
+await pg.goto(`${B}/sistema/`, { waitUntil: "networkidle" });
+await pg.waitForTimeout(600);
+
+// 1. A porta, sem ninguem cadastrado
 const porta = await pg.textContent("#porta");
-t("sem cracha valido, a porta diz que o login protegido venceu", /venceu/.test(porta));
-t("e ainda assim deixa criar o primeiro acesso", /Este sistema é/.test(porta));
+t("com a casa vazia, a porta pede para criar a primeira gestora", /Este sistema é/.test(porta));
+t("e nao pede senha de ninguem antes de existir gente", !/Bem-vinda de/.test(porta));
 await pg.screenshot({ path: `${S}/sis-0-porta.png` });
 
-// 2. Semear as tres pessoas e entrar como gestor
-await pg.evaluate(async () => {
-  const fazer = async (id, nome, email, papel, senha) => ({
-    id, nome, email, papel, ativo: true, senha: await resumoSenha(senha, id),
+// 2. As tres pessoas, criadas pelo servidor, e entrar como gestora
+await pg.evaluate(async ([s]) => {
+  const mandar = (caminho, corpo) => fetch(caminho, {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify(corpo),
   });
-  const lista = [
-    await fazer("pg", "Carla Caroline", "carla@iqv.com.br", "gestor", "segredo123"),
-    await fazer("pc", "Beatriz", "bia@iqv.com.br", "colaborador", "segredo123"),
-    await fazer("pk", "Marina Alves", "marina@cliente.com", "cliente", "segredo123"),
-  ];
-  gravarPessoas(lista);
-  sessaoGuardar("pg");
-});
-await pg.reload({ waitUntil: "networkidle" });
-await pg.waitForTimeout(700);
+  await mandar("/primeiro-acesso", { nome: "Carla Caroline", email: "carla@iqv.com.br", senha: s });
+  await mandar("/pessoas", { nome: "Beatriz", email: "bia@iqv.com.br", papel: "colaborador", senha: s });
+  await mandar("/pessoas", { nome: "Marina Alves", email: "marina@cliente.com", papel: "cliente", senha: s });
+  // As duas cadastradas nascem com a marca de trocar a senha, que
+  // prenderia esta verificacao na tela de troca. Aqui elas ja trocaram:
+  // o que se quer provar sao as telas, e a troca tem verificacao propria.
+  for (const email of ["bia@iqv.com.br", "marina@cliente.com"]) {
+    await fetch("/sair", { method: "POST", headers: { accept: "application/json" } });
+    await mandar("/entrar", { email, senha: s });
+    await mandar("/minha-senha", { atual: s, nova: s + "x" });
+    await mandar("/minha-senha", { atual: s + "x", nova: s });
+  }
+}, [SENHA]);
+
+await entrarComo("carla@iqv.com.br");
 
 const telas = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x) => x.k));
 t("o gestor enxerga as dez telas", telas.length === 10, telas.join(", "));
@@ -87,18 +111,14 @@ for (const k of telas) {
 }
 
 // 4. Colaborador ve menos, cliente ve uma so
-await pg.evaluate(() => { sessaoGuardar("pc"); });
-await pg.reload({ waitUntil: "networkidle" });
-await pg.waitForTimeout(700);
+await entrarComo("bia@iqv.com.br");
 const doColab = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x) => x.k));
 t("colaborador não vê o dinheiro", !doColab.includes("dinheiro"), doColab.join(", "));
 t("colaborador não vê A casa", !doColab.includes("casa"));
 t("colaborador vê a mesa e as entregas", doColab.includes("ideias") && doColab.includes("entrega"));
 t("colaborador edita o formulário, cliente não", doColab.includes("formulario"));
 
-await pg.evaluate(() => { sessaoGuardar("pk"); });
-await pg.reload({ waitUntil: "networkidle" });
-await pg.waitForTimeout(700);
+await entrarComo("marina@cliente.com");
 const doCliente = await pg.evaluate(() => TELAS.filter((x) => EU.pode(x.k)).map((x) => x.k));
 t("cliente vê uma tela só, o próprio projeto", doCliente.length === 1 && doCliente[0] === "cliente", doCliente.join(", "));
 t("cliente entra sem barra lateral", await pg.evaluate(() => document.getElementById("app").classList.contains("sozinho")));
@@ -124,10 +144,8 @@ t("citar o nome dele é permitido: A casa precisa explicar as chaves af_",
 await pg.evaluate(() => {
   localStorage.setItem("af_usuarios", JSON.stringify([{ nome: "Equipe do outro negocio" }]));
   localStorage.setItem("af_fin", JSON.stringify({ saldo: 999999 }));
-  sessaoGuardar("pg");
 });
-await pg.reload({ waitUntil: "networkidle" });
-await pg.waitForTimeout(700);
+await entrarComo("carla@iqv.com.br");
 await pg.evaluate(() => {
   window.__lidas = [];
   const original = Storage.prototype.getItem;

@@ -1,8 +1,4 @@
 import crypto from "node:crypto";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-import https from "node:https";
 // Testes das rotas do formulário de aplicação.
 //
 // Sobe dois wrangler locais, bate nas seis rotas de verdade por HTTP e
@@ -31,8 +27,9 @@ import {
   FORMULARIO_FABRICA, podar, validarDefinicao, normalizarEventos,
 } from "./src/aplicar.js";
 
-// O segundo servidor guarda o banco dele num diretório próprio: dois
-// wrangler rodando juntos não podem disputar o mesmo estado local.
+// Este arquivo tem banco próprio, num diretório só dele: assim ele pode
+// esvaziar tudo antes de comecar sem apagar o que o teste.mjs deixou, e os
+// dois podem rodar um atrás do outro na mesma máquina.
 const ESTADO_PORTA = ".wrangler/estado-aplicar";
 
 const bancoLocal = (argumentos, onde = null) => spawnSync(
@@ -51,8 +48,8 @@ const bancoLocal = (argumentos, onde = null) => spawnSync(
 // da rota aberta vermelhas em toda rodada, acusando a poda de deixar
 // passar o que na verdade alguém pôs no ar de propósito. Com a tabela
 // limpa, a de fábrica volta a ser a que está no ar em toda rodada.
-for (const onde of [null, ESTADO_PORTA]) {
-  for (const arquivo of ["schema.sql", "schema-formulario.sql"]) {
+for (const onde of [ESTADO_PORTA]) {
+  for (const arquivo of ["schema.sql", "schema-formulario.sql", "schema-porta.sql"]) {
     if (bancoLocal([`--file=${arquivo}`], onde).status !== 0) {
       console.error(`não consegui criar as tabelas de ${arquivo} no banco local`);
       process.exit(1);
@@ -74,81 +71,34 @@ bancoLocal(["--command", [
   "delete from formulario_dia",
   "delete from webhook_log",
   "delete from leads",
+  // A casa também começa vazia: o primeiro acesso, logo abaixo, só
+  // funciona sem ninguém cadastrado.
+  "delete from sessoes",
+  "delete from pessoas",
+  "delete from freio",
 ].join("; ")], ESTADO_PORTA);
 
 /* --------------------------------------------------------------------
    O crachá da porta.
 
-   O Cloudflare Access assina um crachá e o Worker confere a assinatura
-   contra as chaves públicas que o time publica. Para exercitar o que
-   existe DEPOIS da porta, e não só a porta, o time daqui é um servidor de
-   chaves que sobe nesta mesma máquina: ele publica a chave pública do par
-   sorteado aqui, e o crachá é assinado com a privada.
+   Até 01/09 era o Cloudflare Access quem assinava, e este arquivo tinha
+   que fabricar um par de chaves, um certificado com o openssl e um
+   servidor de chaves de mentira só para o Worker ter o que conferir.
+   Nada disso existe mais: quem confere a senha é o próprio Worker, então
+   o crachá é obtido entrando de verdade, como a Carla entra.
 
-   O Worker vai buscar essas chaves por conexão segura, então o servidor
-   precisa de um certificado, e o wrangler precisa saber que esse
-   certificado vale. É só isso que NODE_EXTRA_CA_CERTS faz aqui, e ele
-   vale só para o processo que este arquivo levanta.
+   Sobrou uma linha no lugar de sessenta, e o openssl deixou de ser
+   necessário para rodar os testes.
    -------------------------------------------------------------------- */
-const PORTA_DAS_CHAVES = 8791;
-const TIME_DE_TESTE = `localhost:${PORTA_DAS_CHAVES}`;
-const ETIQUETA = "aud-de-teste";
 const QUEM_ENTRA = "carla@exemplo.com.br";
+const SENHA_DE_TESTE = "umasenhadeteste";
+let CRACHA = "";
+const comCracha = () => ({ cookie: CRACHA });
 
-const pastaDaPorta = fs.mkdtempSync(path.join(os.tmpdir(), "iqv-porta-"));
-const certificado = path.join(pastaDaPorta, "cert.pem");
-const chaveDoCertificado = path.join(pastaDaPorta, "chave.pem");
-const certificadoFeito = spawnSync("openssl", [
-  "req", "-x509", "-newkey", "rsa:2048", "-keyout", chaveDoCertificado,
-  "-out", certificado, "-days", "1", "-nodes", "-subj", "/CN=localhost",
-  "-addext", "subjectAltName=DNS:localhost",
-], { stdio: "ignore" }).status === 0;
-
-const parDeChaves = crypto.generateKeyPairSync("rsa", { modulusLength: 2048 });
-const chavesPublicadas = JSON.stringify({
-  keys: [{ ...parDeChaves.publicKey.export({ format: "jwk" }), kid: "porta", alg: "RS256", use: "sig" }],
-});
-
-let servidorDeChaves = null;
-if (certificadoFeito) {
-  servidorDeChaves = https.createServer(
-    { key: fs.readFileSync(chaveDoCertificado), cert: fs.readFileSync(certificado) },
-    (pedido, resposta) => {
-      resposta.writeHead(200, { "content-type": "application/json" });
-      resposta.end(chavesPublicadas);
-    },
-  );
-  await new Promise((pronto) => servidorDeChaves.listen(PORTA_DAS_CHAVES, pronto));
-}
-
-const emBase64 = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
-const cracha = (trocas = {}) => {
-  const cabeca = emBase64({ alg: "RS256", kid: "porta", typ: "JWT" });
-  const corpo = emBase64({
-    iss: `https://${TIME_DE_TESTE}`,
-    aud: [ETIQUETA],
-    email: QUEM_ENTRA,
-    exp: Math.floor(Date.now() / 1000) + 600,
-    ...trocas,
-  });
-  const assinatura = crypto
-    .sign("sha256", Buffer.from(`${cabeca}.${corpo}`), parDeChaves.privateKey)
-    .toString("base64url");
-  return `${cabeca}.${corpo}.${assinatura}`;
-};
-const comCracha = (trocas = {}) => ({ "cf-access-jwt-assertion": cracha(trocas) });
-
-// Portas próprias: assim este arquivo e o teste.mjs podem rodar um atrás
-// do outro sem esperar porta ser liberada.
-//
-// As duas variáveis do Access entram VAZIAS por escrito, e não por herança
-// do wrangler.toml: este servidor prova o estado "ainda não configurado", e
-// o arquivo deixou de estar nesse estado quando o Access foi ligado de
-// verdade. Mesmo motivo explicado no teste.mjs.
 const servidor = spawn(
   "npx",
   ["wrangler", "dev", "--port", "8789", "--local", "--inspector-port", "9239",
-   "--var", "TEAM_DOMAIN:", "--var", "ACCESS_AUD:"],
+   "--persist-to", ESTADO_PORTA],
   { stdio: ["ignore", "pipe", "pipe"], detached: true },
 );
 
@@ -159,41 +109,42 @@ const derrubar = () => { try { process.kill(-servidor.pid, "SIGKILL"); } catch {
 process.on("exit", derrubar);
 process.on("SIGINT", () => { derrubar(); process.exit(1); });
 
-// O mesmo Worker, com a porta de entrada configurada. Sem ele, o 401
-// nunca é exercitado: só o 503 de configuração faltando seria, e nada do
-// que as três rotas fazem depois de a porta abrir chegaria a rodar.
-const servidorPorta = spawn(
-  "npx",
-  ["wrangler", "dev", "--port", "8790", "--local", "--inspector-port", "9240",
-   "--persist-to", ESTADO_PORTA,
-   "--var", `TEAM_DOMAIN:${TIME_DE_TESTE}`, "--var", `ACCESS_AUD:${ETIQUETA}`],
-  {
-    stdio: ["ignore", "pipe", "pipe"], detached: true,
-    env: { ...process.env, NODE_EXTRA_CA_CERTS: certificado },
-  },
-);
-const derrubarPorta = () => { try { process.kill(-servidorPorta.pid, "SIGKILL"); } catch {} };
-process.on("exit", derrubarPorta);
-
 const pronto = (proc, nome) => new Promise((res, rej) => {
   const prazo = setTimeout(() => rej(new Error(`${nome} não subiu em 90s`)), 90_000);
   proc.stdout.on("data", (c) => {
     if (String(c).includes("Ready on")) { clearTimeout(prazo); res(); }
   });
 });
-await Promise.all([
-  pronto(servidor, "wrangler dev"),
-  pronto(servidorPorta, "wrangler dev (porta configurada)"),
-]);
+await pronto(servidor, "wrangler dev");
 await espera(500);
 
 const B = "http://localhost:8789";
-const BP = "http://localhost:8790";   // o mesmo Worker, com TEAM_DOMAIN e ACCESS_AUD preenchidos
+// Era um segundo Worker, com o Access configurado. Agora a porta é a mesma
+// para todo mundo, e as três rotas da mesa só pedem que a pessoa tenha
+// entrado. O nome fica porque ele diz o que a rota espera: BP é "com a
+// porta aberta".
+const BP = B;
 let ok = 0, bad = 0;
 const t = (nome, cond, extra = "") => {
   (cond ? ok++ : bad++);
   console.log(`${cond ? "PASS" : "FALHOU"}  ${nome}${extra ? "   " + extra : ""}`);
 };
+
+// A gestora deste arquivo, criada como a Carla cria a dela: pelo primeiro
+// acesso, que só responde com a casa vazia.
+{
+  const r = await fetch(`${B}/primeiro-acesso`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ nome: "Carla de Teste", email: QUEM_ENTRA, senha: SENHA_DE_TESTE }),
+  });
+  const posto = (r.headers.getSetCookie?.() || []).find((c) => c.startsWith("iqv_cracha="));
+  if (!posto) {
+    console.error("não consegui criar a gestora de teste: sem ela nada da mesa roda");
+    process.exit(1);
+  }
+  CRACHA = posto.split(";")[0];
+}
 
 /* --------------------------------------------------------------------
    A mesa lê as aplicações pela rota que fica atrás do Cloudflare Access.
@@ -217,7 +168,12 @@ const consultarEm = (sql, onde) => {
     return [];
   }
 };
-const consultar = (sql) => consultarEm(sql, null);
+// O banco que este arquivo consulta e o MESMO que o servidor dele usa.
+// Enquanto existiam dois servidores isto apontava para o de fabrica; com
+// um servidor so, apontar para la faria toda conferencia de conteudo ler
+// um banco onde nada foi gravado, e acusar sumico do que estava salvo no
+// outro.
+const consultar = (sql) => consultarEm(sql, ESTADO_PORTA);
 
 const aplicacaoDaMesa = (envio) => {
   const linhas = consultar(`
@@ -355,8 +311,7 @@ const definicaoBoa = JSON.stringify({
 
 r = await chamar(`${B}/api/mesa/formulario`, { method: "PUT", body: definicaoBoa });
 j = await lerJson(r);
-t("gravar formulário: sem a configuração da porta  503 dizendo o que falta",
-  r.status === 503 && /TEAM_DOMAIN/.test(j.erro) && /ACCESS_AUD/.test(j.erro), JSON.stringify(j));
+t("gravar formulário: sem entrar  401", r.status === 401, JSON.stringify(j));
 // A conferência olha só o que ESTE pedido gravaria. Contar a tabela
 // inteira acusaria a porta de ter deixado passar sempre que alguém
 // tivesse publicado alguma coisa pelo editor contra o servidor local.
@@ -368,13 +323,14 @@ j = await lerJson(r);
 t("gravar formulário: com a porta configurada e sem login  401",
   r.status === 401 && j.erro === "não autorizado", JSON.stringify(j));
 
-r = await chamar(`${BP}/api/mesa/formulario`, { method: "PUT", headers: { "cf-access-jwt-assertion": "token.forjado.aqui" }, body: definicaoBoa,
+r = await chamar(`${BP}/api/mesa/formulario`, {
+  method: "PUT", headers: { cookie: "iqv_cracha=" + "b".repeat(64) }, body: definicaoBoa,
 });
-t("gravar formulário: login forjado  401", r.status === 401, `status=${r.status}`);
+t("gravar formulário: crachá inventado  401", r.status === 401, `status=${r.status}`);
 
 r = await chamar(`${B}/api/mesa/formulario`);
 j = await lerJson(r);
-t("versões: sem a configuração da porta  503", r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
+t("versões: sem entrar  401", r.status === 401, JSON.stringify(j));
 
 r = await chamar(`${BP}/api/mesa/formulario`);
 t("versões: com a porta configurada e sem login  401", r.status === 401, `status=${r.status}`);
@@ -385,8 +341,7 @@ t("versões: método que não existe nesse caminho  405", r.status === 405, `sta
 // ---------- os números: só com login ----------
 r = await chamar(`${B}/api/mesa/metricas`);
 j = await lerJson(r);
-t("números: sem a configuração da porta  503 dizendo o que falta",
-  r.status === 503 && /TEAM_DOMAIN/.test(j.erro), JSON.stringify(j));
+t("números: sem entrar  401", r.status === 401, JSON.stringify(j));
 
 r = await chamar(`${BP}/api/mesa/metricas`);
 j = await lerJson(r);
@@ -418,11 +373,7 @@ t("números: quem é barrado não recebe nada além do motivo", corpoBarrado.len
 // nome em vez de virar dez linhas vermelhas acusando o Worker.
 r = await chamar(`${BP}/api/mesa/formulario`, { headers: comCracha() });
 const portaAbriu = r.status === 200;
-t("a porta abre para quem mostra um crachá bom",
-  portaAbriu,
-  portaAbriu ? "" : (certificadoFeito
-    ? `status=${r.status}. O Worker não conseguiu ler o servidor de chaves desta máquina, então nenhum crachá passa.`
-    : "não consegui criar o certificado do servidor de chaves. O openssl está instalado?"));
+t("a porta abre para quem entrou de verdade", portaAbriu, `status=${r.status}`);
 
 j = await lerJson(r);
 t("com a tabela vazia, o editor recebe a de fábrica inteira, com a fiação da mesa",
@@ -430,14 +381,29 @@ t("com a tabela vazia, o editor recebe a de fábrica inteira, com a fiação da 
   j.formulario?.perguntas?.some((p) => p.papel === "nome"),
   JSON.stringify({ atual: j.atual, versoes: j.versoes?.length, papeis: (j.formulario?.perguntas ?? []).filter((p) => p.papel).map((p) => p.papel) }));
 
-r = await chamar(`${BP}/api/mesa/metricas`, { headers: comCracha({ exp: 1 }) });
-t("crachá vencido não entra, mesmo com a assinatura boa", r.status === 401, `status=${r.status}`);
+r = await chamar(`${BP}/api/mesa/metricas`, { headers: { cookie: "iqv_cracha=" + "a".repeat(64) } });
+t("crachá inventado não entra", r.status === 401, `status=${r.status}`);
 
-r = await chamar(`${BP}/api/mesa/metricas`, { headers: comCracha({ aud: ["etiqueta-de-outra-aplicacao"] }) });
-t("crachá de outra aplicação do mesmo time não entra", r.status === 401, `status=${r.status}`);
+r = await chamar(`${BP}/api/mesa/metricas`, { headers: { cookie: "iqv_cracha=curto" } });
+t("crachá curto demais nem chega a consultar o banco", r.status === 401, `status=${r.status}`);
 
-r = await chamar(`${BP}/api/mesa/metricas`, { headers: comCracha({ iss: "https://outro-time.invalid" }) });
-t("crachá de outro time não entra", r.status === 401, `status=${r.status}`);
+// O papel é conferido no banco a cada pedido: quem é cliente não edita o
+// formulário nem lê as medidas, mesmo tendo entrado direitinho.
+{
+  await fetch(`${B}/pessoas`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: CRACHA },
+    body: JSON.stringify({ nome: "Marina", email: "marina@cliente.com", papel: "cliente", senha: "primeira123" }),
+  });
+  const entrada = await fetch(`${B}/entrar`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email: "marina@cliente.com", senha: "primeira123" }),
+  });
+  const posto = (entrada.headers.getSetCookie?.() || []).find((c) => c.startsWith("iqv_cracha="));
+  r = await chamar(`${BP}/api/mesa/metricas`, { headers: { cookie: posto.split(";")[0] } });
+  t("cliente entra no sistema mas não chega na mesa do formulário", r.status === 403, `status=${r.status}`);
+}
 
 // ---------- publicar, e o que a publicação muda ----------
 const publicar = (corpo) => chamar(`${BP}/api/mesa/formulario`, { method: "PUT",
@@ -831,7 +797,7 @@ t("passos: método que não existe nesse caminho  405", r.status === 405, `statu
 
 // ---------- a porta da mesa continua fechada ----------
 r = await chamar(`${B}/leads`);
-t("a mesa continua fechada para quem não entrou", r.status === 503, `status=${r.status}`);
+t("a mesa continua fechada para quem não entrou", r.status === 401, `status=${r.status}`);
 r = await chamar(`${BP}/leads`);
 t("e com a porta configurada ela exige login", r.status === 401, `status=${r.status}`);
 
@@ -868,8 +834,5 @@ t("passo com tempo absurdo vira zero em vez de recusar o lote",
   normalizarEventos([{ seq: 1, tipo: "abriu", ms: 99_999_999 }], new Set())[0]?.ms === 0);
 
 console.log(`\n${ok} passaram, ${bad} falharam`);
-if (servidorDeChaves) servidorDeChaves.close();
-fs.rmSync(pastaDaPorta, { recursive: true, force: true });
 derrubar();
-derrubarPorta();
 process.exit(bad ? 1 : 0);

@@ -3,10 +3,12 @@
 //   GET   /leads   devolve as aplicações recebidas
 //   PATCH /leads   muda o andamento de uma delas (status e observações)
 //
-// Só passa quem entrou pelo Cloudflare Access, e só quem entrou por ESTA
-// aplicação do Access. O cabeçalho sozinho não basta: o JWT é conferido
-// contra as chaves públicas do time.
-import { json, accessLiberou } from "./lib.js";
+// Só passa quem entrou pela porta, com e-mail e senha, e só quem tem papel
+// de gestor ou colaborador. Cliente não lê a mesa: até 01/09 o papel só
+// escondia tela, e quem passasse pela portaria lia tudo. Agora o papel é
+// conferido no banco, aqui, a cada pedido.
+import { json } from "./lib.js";
+import { exigirEntrada } from "./porta.js";
 
 // Andamento possível de um lead na mesa. Lista fechada de propósito: o
 // que vem do navegador não escolhe o que entra na coluna do banco.
@@ -28,19 +30,8 @@ const LIMITE_OBSERVACOES = 2000;
    Devolve uma Response quando é para barrar, e null quando pode seguir.
    -------------------------------------------------------------------- */
 async function portaria(request, env) {
-  // Sem essas duas não dá para conferir JWT nenhum, e liberar seria pior
-  // que fechar. A mensagem é específica de propósito: quem vê isso é quem
-  // configura, e um erro genérico custaria meia hora de caça ao nada.
-  const faltando = ["TEAM_DOMAIN", "ACCESS_AUD"].filter((v) => !env[v]);
-  if (faltando.length) {
-    return json({ erro: `falta configurar no Worker: ${faltando.join(", ")}` }, 503);
-  }
-
-  if (!(await accessLiberou(request, env.TEAM_DOMAIN, env.ACCESS_AUD))) {
-    return json({ erro: "não autorizado" }, 401);
-  }
-
-  return null;
+  const { barrado } = await exigirEntrada(request, env, ["gestor", "colaborador"]);
+  return barrado || null;
 }
 
 export async function listarLeads(request, env) {
