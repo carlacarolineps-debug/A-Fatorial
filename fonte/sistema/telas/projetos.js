@@ -437,7 +437,7 @@ function projetosHtmlFaixa(fichas) {
       (fase.n === 4 && prontos ? prontos + (prontos === 1 ? ' já entregue.' : ' já entregues.') : '');
     html += '<button class="numero' + (sel ? ' puxa' : '') + '" onclick="projetosFiltrarFase(' + (sel ? 0 : fase.n) + ')" ' +
       'style="width:100%;text-align:left;cursor:pointer;font-family:inherit" title="' + esc(fase.resumo) + '">' +
-      '<div class="v">' + (daFase.length + prontos) + '</div>' +
+      '<div class="v' + (daFase.length + prontos ? '' : ' zero') + '">' + (daFase.length + prontos) + '</div>' +
       '<div class="l">Fase 0' + fase.n + ', ' + esc(fase.nome) + '</div>' +
       '<div class="obs" style="' + (atrasados ? 'color:var(--alerta)' : '') + '">' + esc(obs.trim()) + '</div>' +
       '</button>';
@@ -650,7 +650,11 @@ function projetosHtmlCartao(f) {
     (f.tudoAprovado
       ? '<span class="eti eti-ok">Produto pronto, entregue em ' + esc(dataCurta(f.entregueEm)) + '</span>'
       : '<span class="eti ' + eti + '">' + (b.lado === 'cliente' ? 'Com o cliente ' : 'Com a gente ') + esc(projetosHtmlTempo(b.dias)) + '</span>') + ' ' +
-    '<h3 style="font-family:var(--display);font-weight:300;font-size:19px;color:var(--claro);margin-top:11px">' + esc(p.cliente || p.rotulo || 'sem nome') + '</h3>' +
+    // O nome do cliente e o titulo do cartao, e estava com peso 300, mais
+    // leve que a etiqueta acima dele: quem varria a tela lia primeiro a
+    // razao "5 de 8" e so depois de quem era o projeto. O h3 da casa ja
+    // tem o peso certo, entao aqui so o tamanho e dito.
+    '<h3 style="font-size:var(--t-titulo);color:var(--claro);margin-top:11px">' + esc(p.cliente || p.rotulo || 'sem nome') + '</h3>' +
     '<div class="dica">' + esc(p.rotulo || '') + (p.rotulo ? '. ' : '') +
       (data(p.inicio) ? 'Começou em ' + esc(dataCurta(p.inicio)) + '.' : 'Sem data de início.') +
     (b.divergente && !f.tudoAprovado ? ' O cartão guardado dizia que a bola estava com ' + (b.lado === 'cliente' ? 'a gente' : 'o cliente') + ', mas quem manda é o estado das oito entregas.' : '') +
@@ -696,8 +700,26 @@ function projetosHtmlCartao(f) {
       'Volte à Leitura do caso e diga qual nível foi de fato contratado.') + '</div>';
   }
 
-  if (f.alarmes.length) {
-    html += '<div style="margin-top:16px">' + f.alarmes.map(function (a) { return aviso(a.tom, esc(a.titulo), a.texto); }).join('') + '</div>';
+  // Um alarme sozinho fica a vista. De dois em diante eles se dobram, com a
+  // contagem e o mais grave escritos no resumo. Empilhados abertos, tres
+  // projetos com dois alarmes cada davam seis caixas coloridas na mesma
+  // rolagem, e caixa colorida repetida deixa de ser lida: some junto com
+  // ela o alarme que era mesmo para parar tudo.
+  if (f.alarmes.length === 1) {
+    const a = f.alarmes[0];
+    html += '<div style="margin-top:16px">' + aviso(a.tom, esc(a.titulo), a.texto) + '</div>';
+  } else if (f.alarmes.length > 1) {
+    const grave = f.alarmes.some(function (a) { return a.tom === 'alerta'; });
+    html += '<details class="dobra" style="margin-top:16px">' +
+      '<summary>' +
+        '<span class="eti ' + (grave ? 'eti-alerta' : 'eti-atencao') + '">' +
+          f.alarmes.length + ' coisas para resolver</span>' +
+        '<b>' + esc(f.alarmes[0].titulo) + '</b>' +
+      '</summary>' +
+      '<div class="dobra-corpo">' +
+        f.alarmes.map(function (a) { return aviso(a.tom, esc(a.titulo), a.texto); }).join('') +
+      '</div>' +
+    '</details>';
   }
 
   html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">' +

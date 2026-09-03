@@ -301,6 +301,20 @@ DESENHO.propostas = function () {
     ? (usuariosDaMesa().find(function (l) { return l.id === PROP_LEAD; }) || null)
     : null;
 
+  // A dobra abre sozinha quando se chegou aqui pelo botao da mesa, ou
+  // quando ja estava aberta: fechar no meio de um preenchimento seria pior
+  // que qualquer economia de altura.
+  const dobra = porId('propDobraNova');
+  if (dobra && PROP_LEAD) dobra.open = true;
+  if (dobra) {
+    const resumo = dobra.querySelector('summary b');
+    if (resumo) {
+      resumo.textContent = deQuem
+        ? 'Criar a proposta de ' + (deQuem.nome || deQuem.email || ('aplicação ' + PROP_LEAD))
+        : 'Criar uma proposta nova';
+    }
+  }
+
   escrever('propNova',
     (deQuem
       ? aviso('info', 'Proposta para ' + esc(deQuem.nome || deQuem.email || ('aplicação ' + PROP_LEAD)),

@@ -668,7 +668,12 @@ function semanaFrase(d) {
 
   if (partes.length) return partes.join(', ') + '.';
   if (!d.temProjeto) return 'Nenhum projeto em estruturação ainda, então a sua semana começa vazia.';
-  return 'Nada atrasou, nada vence até domingo, e ninguém está esperando você há mais de ' + SEMANA_ESPERA + ' dias.';
+  // A semana limpa se diz em tres palavras. A frase que enumerava os tres
+  // criterios ocupava tres linhas do maior tipo da tela para dizer que nao
+  // havia nada a fazer, e assim a unica coisa que precisava de atencao
+  // aparecia embaixo dela, menor. O que foi conferido continua escrito,
+  // item a item, na dobra logo abaixo.
+  return 'A sua semana está limpa.';
 }
 
 /* ---------------------------------------------------------------------
@@ -770,7 +775,9 @@ function semanaSeletor(d) {
     .concat(pessoas.filter(function (u) { return String(u.id) !== String(semanaMeuId()); })
       .map(function (u) { return { k: u.id, nome: u.nome || u.email }; }))
     .concat([{ k: 'todas', nome: 'A casa inteira' }]);
-  return '<div style="min-width:236px;margin-bottom:20px">' +
+  // max-width, e nao min-width: o .campo e width:100%, entao a caixa que
+  // guarda um nome de pessoa esticava os 1540px da tela inteira.
+  return '<div style="max-width:300px;margin-bottom:20px">' +
       '<label class="rotulo" for="semana-quem">Semana de quem</label>' +
       '<select class="campo campo-sm" id="semana-quem" onchange="semanaTrocarPessoa(this.value)">' +
       opcoes.map(function (o) {
@@ -793,14 +800,33 @@ function semanaRecados(d) {
   return html;
 }
 
+/* O que esta em dia.
+
+   Seis linhas verdes dizendo "nenhuma", "nenhum", "nada" e "ninguem"
+   ocupavam a tela inteira nas semanas boas, que sao a maioria: a tela que
+   existe para dizer o que fazer gastava toda a sua altura listando o que
+   nao precisa ser feito. A verificacao continua toda aqui, e quem quiser
+   conferir item a item abre. Fechada, ela e uma linha: esta tudo em dia.
+
+   Uma sobrando entre as seis fica a vista, porque ai a lista e curta e o
+   que ela diz e quase a noticia. */
 function semanaEmDia(faltando, d) {
   if (!faltando.length) return '';
-  return '<div class="cartao">' +
-    '<div class="cartao-t">O que está em dia</div>' +
-    faltando.map(function (t) {
-      return '<div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--fio-2)">' +
-        '<span class="eti eti-ok">em dia</span><span class="dica">' + esc(t) + '</span></div>';
-    }).join('') + '</div>';
+  const itens = faltando.map(function (t) {
+    return '<div style="display:flex;align-items:center;gap:11px;padding:7px 0;border-bottom:1px solid var(--fio-2)">' +
+      '<span class="eti eti-ok">em dia</span><span class="dica">' + esc(t) + '</span></div>';
+  }).join('');
+
+  if (faltando.length < 3) {
+    return '<div class="cartao"><div class="cartao-t">O que está em dia</div>' + itens + '</div>';
+  }
+  return '<details class="dobra" style="margin-bottom:var(--e4)">' +
+    '<summary>' +
+      '<span class="eti eti-ok">em dia</span>' +
+      '<b>' + faltando.length + ' conferências passaram</b>' +
+    '</summary>' +
+    '<div class="dobra-corpo">' + itens + '</div>' +
+  '</details>';
 }
 
 function semanaSemProjeto() {

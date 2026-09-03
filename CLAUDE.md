@@ -48,6 +48,25 @@ Carla e a equipe dela.
 Se o texto vale para todo estado da tela, ele é uma linha em `.dica`, ou
 não existe.
 
+**A manchete é para o que precisa de alguém hoje.** A landing é capa de
+revista e pode abrir com 46px. O sistema é ferramenta aberta quarenta vezes
+por dia: manchete grande anunciando que nada aconteceu empurra para baixo
+da dobra a única coisa que precisa ser feita. Quando não há notícia, a
+frase é curta.
+
+**A tira de números não repete a manchete.** Ela dá o que a manchete não
+deu e que muda a decisão do dia. Zero sai apagado, com a classe `.zero`:
+número que não aconteceu não grita do tamanho do que aconteceu.
+
+**Laranja é ação, e não "esta linha existe".** Se toda linha de uma lista
+tem a mesma cor, a cor parou de significar alguma coisa. Vale para o
+laranja da marca e para as etiquetas de sinal.
+
+**Tela de trabalho não abre com formulário.** O que se olha todo dia vem
+primeiro; o que se preenche de vez em quando mora numa `.dobra`, o
+`<details>` da casa, que abre no clique e no teclado sem JavaScript. Foi
+assim que "Roteiros e níveis" saiu de 13.322px de altura para 1.629.
+
 ## A landing não se edita direto
 
 `public/index.html` é **gerado**. As duas fontes, o logotipo e o favicon

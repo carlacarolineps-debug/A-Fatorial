@@ -104,27 +104,37 @@ DESENHO.dinheiro = function () {
     });
   });
 
+  // O ".zero" existe no estilo justamente para o numero que nao aconteceu
+  // parar de gritar do mesmo tamanho do que aconteceu, e nunca era emitido:
+  // numa casa que ainda nao lancou baixa, o maior numero da tela era R$ 0.
+  const z = function (v) { return Number(v) ? '' : ' zero'; };
   escrever('dinheiroNumeros',
-    '<div class="numero"><div class="v">' + moeda(esperando) + '</div>' +
+    '<div class="numero"><div class="v' + z(esperando) + '">' + moeda(esperando) + '</div>' +
       '<div class="l">Esperando resposta</div>' +
       '<div class="obs">' + esperandoN + ' devolutiva(s) enviada(s), sem aceite</div></div>' +
-    '<div class="numero"><div class="v">' + moeda(contratado) + '</div>' +
+    '<div class="numero"><div class="v' + z(contratado) + '">' + moeda(contratado) + '</div>' +
       '<div class="l">Contratado</div>' +
       '<div class="obs">' + projetos.length + ' projeto(s)</div></div>' +
-    '<div class="numero"><div class="v">' + moeda(recebido) + '</div>' +
+    '<div class="numero"><div class="v' + z(recebido) + '">' + moeda(recebido) + '</div>' +
       '<div class="l">Recebido de fato</div>' +
       '<div class="obs">lançado à mão, nunca pela TMB</div></div>' +
-    '<div class="numero' + (vencidoNaoPago ? ' puxa' : '') + '"><div class="v">' + moeda(aReceber) + '</div>' +
+    '<div class="numero' + (vencidoNaoPago ? ' puxa' : '') + '"><div class="v' + z(aReceber) + '">' + moeda(aReceber) + '</div>' +
       '<div class="l">Falta receber do que já foi vendido</div>' +
       '<div class="obs">' + (vencidoNaoPago ? moeda(vencidoNaoPago) + ' já venceu' : 'nada vencido') + '</div></div>');
 
   // O aviso de que a tela pode estar mentindo para baixo.
   const ultimo = dinheiroUltimoLancamento();
   const diasSemLancar = ultimo ? diasDesde(ultimo) : null;
+  // Isto vale para todo estado desta tela, entao nao e aviso: e legenda da
+  // tira de numeros, na linha logo abaixo dela. Caixa colorida que nunca
+  // some deixa de ser lida na segunda semana, e ainda ensina a pular as
+  // caixas coloridas que importam.
+  texto('dinheiroLegenda',
+    'Os três primeiros nunca se somam: são relógios diferentes, um é promessa, ' +
+    'um é contrato e um é caixa. O quarto, quanto falta receber, é o que costuma ' +
+    'pegar as pessoas de surpresa.');
+
   escrever('dinheiroAviso',
-    aviso('info', 'Estes três números nunca se somam.',
-      'São relógios diferentes: um é promessa, um é contrato e um é caixa. ' +
-      'O quarto número, quanto falta receber, é o que costuma pegar as pessoas de surpresa.') +
     (!ultimo
       ? aviso('atencao', 'Nenhuma baixa foi lançada ainda.',
           'Não existe conciliação com a TMB: enquanto ninguém der baixa aqui, a coluna "entrou" fica em zero mesmo que o dinheiro tenha caído.')

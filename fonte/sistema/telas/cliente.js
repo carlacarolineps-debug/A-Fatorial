@@ -163,7 +163,12 @@ DESENHO.cliente = function () {
     ENTREGAS.map(function (def) {
       const e = clienteEntrega(projeto, def.k);
       const dentro = e ? !!e.noEscopo : escopo.indexOf(def.k) >= 0;
-      const estado = CLIENTE_ESTADO[(e && e.estado) || 'nao_comecou'];
+      // O || 'nao_comecou' cobre a entrega que ainda nao existe. O ||
+      // CLIENTE_ESTADO.nao_comecou depois cobre outra coisa: um estado que
+      // esta gravado no navegador e nao esta neste mapa, de uma versao
+      // anterior do sistema. Sem ele, um unico valor estranho derruba a
+      // tela inteira, e quem ficaria olhando para o branco e o cliente.
+      const estado = CLIENTE_ESTADO[(e && e.estado) || 'nao_comecou'] || CLIENTE_ESTADO.nao_comecou;
 
       if (!dentro) {
         // Onde ela entra, e quanto custa a diferenca.
@@ -227,9 +232,13 @@ DESENHO.cliente = function () {
       '<div class="numero"><div class="v">' + esc(projeto.produtoProntoEm ? dataCurta(projeto.produtoProntoEm) : 'a definir') + '</div>' +
         '<div class="l">Produto pronto previsto</div></div>' +
     '</div>' +
-    aviso('info', 'Nós estruturamos a oferta.',
-      'A venda e a operação comercial continuam com você. Isso estava na proposta e vale a pena estar escrito aqui também, ' +
-      'para não virar conversa no quarto mês.'));
+    // Vale para todo projeto e todo estado, entao e legenda e nao aviso.
+    // Numa tela que o cliente abre para saber do projeto dele, uma caixa
+    // azul permanente parece recado novo toda vez, e nao e.
+    '<p class="dica" style="margin-top:var(--e3);max-width:70ch">' +
+      '<b>Nós estruturamos a oferta.</b> A venda e a operação comercial continuam ' +
+      'com você. Isso estava na proposta e vale a pena estar escrito aqui também, ' +
+      'para não virar conversa no quarto mês.</p>');
 
   // O carimbo. Sem ele, alguem confunde o retrato com o agora.
   const retrato = iqvLer(CHAVES.retratos, []).find(function (r) { return r.projetoId === projeto.id; });

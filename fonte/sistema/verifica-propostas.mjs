@@ -18,7 +18,12 @@ const B = "http://localhost:8787";
 // cadastrado. As propostas tambem, senao a lista cresce a cada rodada e
 // "ela entra na lista de enviadas" passaria por engano.
 spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local",
-  "--command", "delete from sessoes; delete from pessoas; delete from freio; delete from aceites; delete from propostas;"],
+  // O formulario publico tem freio proprio, por origem, na tabela dos
+  // baldes: cinco aplicacoes por hora do mesmo lugar. Sem esvaziar isso,
+  // a segunda rodada seguida desta verificacao semeia zero aplicacao e
+  // falha na primeira linha, dizendo 429.
+  "--command", "delete from sessoes; delete from pessoas; delete from freio; delete from aceites; " +
+    "delete from propostas; delete from formulario_baldes;"],
   { stdio: "ignore" });
 
 // Uma aplicacao de verdade, entrada pela porta da rua: a proposta tem que

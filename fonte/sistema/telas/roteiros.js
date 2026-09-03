@@ -108,19 +108,33 @@ function roteirosCartaoNivel(nivel, editavel) {
     '</div>';
 }
 
+/* As oito entregas, uma de cada vez.
+
+   Abertas todas ao mesmo tempo, com quatro campos cada, esta tela tinha
+   treze mil pixels de altura: para conferir a oitava era preciso rolar por
+   sete formularios que ninguem pediu para ver, e o que estava escrito em
+   cada uma so aparecia depois de passar pelas outras. Fechadas, as oito
+   cabem numa tela so, e o resumo de cada uma diz se ela ja tem definicao
+   de pronto, que e a unica coisa que se quer saber de relance.
+
+   O <details> e do proprio navegador: abre no clique e no teclado sem uma
+   linha de JavaScript, e salvar uma entrega nao redesenha a tela, entao o
+   que estiver aberto continua aberto. */
 function roteirosCartaoEntrega(entrega, roteiro, editavel) {
   const pronto = (roteiro.definicaoPronto || []).filter(function (x) { return String(x).trim(); });
   const escrita = pronto.length > 0;
 
   return '' +
-    '<div style="border:1px solid var(--fio);border-radius:var(--r);padding:20px;margin-bottom:14px;background:var(--fundo-3)">' +
-      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">' +
-        '<span style="font-family:var(--display);font-size:12px;color:var(--o);font-weight:700">' +
-          String(entrega.n).padStart(2, '0') + '</span>' +
-        '<b style="font-size:15px;color:var(--claro)">' + esc(entrega.nome) + '</b>' +
+    '<details class="dobra">' +
+      '<summary>' +
+        '<span class="dobra-n">' + String(entrega.n).padStart(2, '0') + '</span>' +
+        '<b>' + esc(entrega.nome) + '</b>' +
         '<span class="eti eti-neutra">' + esc(nomeFase(entrega.fase)) + '</span>' +
-        (escrita ? '' : '<span class="eti eti-atencao">sem definição de pronto</span>') +
-      '</div>' +
+        (escrita
+          ? '<span class="eti eti-ok">' + pronto.length + ' item(ns) de pronto</span>'
+          : '<span class="eti eti-atencao">sem definição de pronto</span>') +
+      '</summary>' +
+      '<div class="dobra-corpo">' +
       '<p class="dica" style="margin-bottom:16px">' + esc(entrega.resumo) + '</p>' +
 
       '<div class="rotulo">A pergunta que ela responde</div>' +
@@ -166,7 +180,24 @@ function roteirosCartaoEntrega(entrega, roteiro, editavel) {
           'Salvar esta entrega</button>' +
           '<span class="dica" style="margin-left:12px" id="roteirosOk-' + entrega.k + '"></span></div>'
         : '') +
-    '</div>';
+      '</div>' +
+    '</details>';
+}
+
+/* So os tres cartoes de nivel, sem tocar nas oito entregas.
+
+   Existe por um motivo pratico: mudar um preco ou marcar uma entrega no
+   escopo chamava DESENHO.roteiros(), que reescreve a tela inteira. Quem
+   estivesse com a definicao de pronto de uma entrega digitada e ainda nao
+   salva perdia o texto, sem nada dizer que perdeu. O proprio arquivo ja
+   tinha essa regra escrita em roteirosSalvarEntrega, e estas duas funcoes
+   eram as que a furavam. */
+function roteirosPintarNiveis(metodo, editavel) {
+  if (editavel === undefined) editavel = roteirosPodeEditar();
+  escrever('roteirosNiveis',
+    '<div class="grade-3">' +
+    metodo.niveis.map(function (n) { return roteirosCartaoNivel(n, editavel); }).join('') +
+    '</div>');
 }
 
 /* ------------------------------------------------------------------ */
@@ -178,7 +209,7 @@ function roteirosSalvarValor(k) {
   const nivel = metodo.niveis.find(function (n) { return n.k === k; });
   if (!nivel) return;
   nivel.valor = Math.max(0, Number(campo.value) || 0);
-  if (roteirosGravar(metodo)) DESENHO.roteiros();
+  if (roteirosGravar(metodo)) { roteirosPintarNiveis(metodo); roteirosPintarSelos(metodo); }
 }
 
 function roteirosAlternarEscopo(nivelK, entregaK) {
@@ -188,7 +219,7 @@ function roteirosAlternarEscopo(nivelK, entregaK) {
   nivel.escopo = nivel.escopo || [];
   const i = nivel.escopo.indexOf(entregaK);
   if (i >= 0) nivel.escopo.splice(i, 1); else nivel.escopo.push(entregaK);
-  if (roteirosGravar(metodo)) DESENHO.roteiros();
+  if (roteirosGravar(metodo)) { roteirosPintarNiveis(metodo); roteirosPintarSelos(metodo); }
 }
 
 function roteirosLinhas(id) {
@@ -249,17 +280,19 @@ DESENHO.roteiros = function () {
       fora.map(function (n) {
         return n.nome + ': aqui ' + moeda(n.valor) + ', na landing ' + moeda(porChave(NIVEIS_DEFAULT, n.k).valor);
       }).join('. ') + '.') : '') +
-    (editavel ? '' : aviso('info', 'Você está vendo em leitura.',
-      'Preço e escopo são decisão da gestão. Peça a mudança para quem tem esse acesso.')));
+    '');
+
+  // Nao e aviso: para quem e colaborador, isto vale em todo estado da tela,
+  // toda vez que ela abre. Vira uma linha ao lado da etiqueta "somente
+  // leitura", que ja diz a mesma coisa quatro linhas abaixo.
+  texto('roteirosLeitura', editavel ? ''
+    : 'Preço e escopo são decisão da gestão. Peça a mudança para quem tem esse acesso.');
 
   escrever('roteirosSeloNiveis', editavel
     ? '<span class="eti eti-marca">você pode editar</span>'
     : '<span class="eti eti-neutra">somente leitura</span>');
 
-  escrever('roteirosNiveis',
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">' +
-    metodo.niveis.map(function (n) { return roteirosCartaoNivel(n, editavel); }).join('') +
-    '</div>');
+  roteirosPintarNiveis(metodo, editavel);
 
   escrever('roteirosEtapas',
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">' +

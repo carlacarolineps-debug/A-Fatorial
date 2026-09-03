@@ -301,11 +301,17 @@ function ideiasEsperaCelula(l) {
   // A landing nao promete prazo por escrito, entao o corte e o combinado
   // da mesa: dois dias ainda e dentro, do terceiro em diante aperta, e do
   // sexto em diante a pessoa ja desistiu de esperar.
-  const cor = d >= 6 ? 'var(--alerta)' : d >= 3 ? 'var(--atencao)' : 'var(--o)';
+  // Dentro do combinado nao pinta. Enquanto os dois primeiros dias eram
+  // laranja, toda aplicacao recem-chegada gritava, e numa mesa em que a
+  // maioria chegou hoje o laranja passava a significar "esta linha existe"
+  // em vez de "olhe para esta". Cor aqui e so para o que ja passou do
+  // combinado, que e o mesmo criterio do resto da casa.
+  const cor = d >= 6 ? 'var(--sinal-alerta)' : d >= 3 ? 'var(--sinal-atencao)' : 'var(--tx)';
   const valor = d === 0 ? 'hoje' : String(d);
   const rotulo = d === 0 ? 'sem resposta ainda' : d === 1 ? 'dia esperando' : 'dias esperando';
-  return '<div style="font-family:var(--display);font-size:23px;font-weight:300;line-height:1;color:' + cor + '">' +
-         valor + '</div><div class="dica" style="margin-top:6px">' + rotulo + '</div>';
+  return '<div style="font-family:var(--display);font-size:var(--t-bloco);font-weight:600;' +
+         'letter-spacing:-.02em;line-height:1.15;color:' + cor + '">' +
+         valor + '</div><div class="dica" style="margin-top:3px">' + rotulo + '</div>';
 }
 
 function ideiasContatoCelula(l) {
@@ -428,14 +434,18 @@ function ideiasLinha(l, apoio) {
     return '<option value="' + a.k + '"' + (a.k === andamento ? ' selected' : '') + '>' + esc(a.nome) + '</option>';
   }).join('');
 
+  // Os data-r e o data-t so aparecem no telefone, onde a linha vira bloco:
+  // o data-t diz qual celula e o titulo do bloco (o nome de quem contou, e
+  // nao a espera, que e a primeira coluna), e o data-r da a cada valor o
+  // nome da coluna que ficou escondida junto com o cabecalho.
   return '<tr>' +
-    '<td>' + ideiasEsperaCelula(l) + '</td>' +
-    '<td><div style="font-weight:600;color:var(--claro)">' + esc(l.nome || 'não disse o nome') + '</div>' +
+    '<td data-r="espera">' + ideiasEsperaCelula(l) + '</td>' +
+    '<td data-t><div style="font-weight:600;color:var(--claro)">' + esc(l.nome || 'não disse o nome') + '</div>' +
       ideiasSituacaoLocal(l, apoio) + '</td>' +
-    '<td>' + ideiasContatoCelula(l) + '</td>' +
-    '<td>' + ideiasNivelCelula(l) + '</td>' +
-    '<td>' + ideiasOrigemCelula(l) + '</td>' +
-    '<td><select class="campo campo-sm" style="min-width:158px" onchange="ideiasMudarAndamento(' + l.id + ', this.value)"' +
+    '<td data-r="contato">' + ideiasContatoCelula(l) + '</td>' +
+    '<td data-r="nível">' + ideiasNivelCelula(l) + '</td>' +
+    '<td data-r="origem">' + ideiasOrigemCelula(l) + '</td>' +
+    '<td data-r="andamento"><select class="campo campo-sm" style="min-width:158px" onchange="ideiasMudarAndamento(' + l.id + ', this.value)"' +
       (salvando ? ' disabled' : '') + '>' + opcoes + '</select></td>' +
     '<td style="text-align:right;white-space:nowrap">' +
       '<button class="bt bt-linha bt-sm" onclick="ideiasAlternar(' + l.id + ')">' +
@@ -498,19 +508,21 @@ function ideiasNumerosHtml(esperando, respondidas) {
   }).length;
   const comNivel = IDEIAS.itens.filter(function (l) { return !!l.plano; }).length;
   const ganhos = IDEIAS.itens.filter(function (l) { return l.status === 'ganho'; }).length;
-  const dias = esperando.length ? ideiasDiasEspera(esperando[0]) : 0;
-
   const bloco = function (classe, valor, rotulo, obs) {
     return '<div class="numero' + classe + '"><div class="v">' + valor + '</div>' +
            '<div class="l">' + rotulo + '</div>' +
            (obs ? '<div class="obs">' + obs + '</div>' : '') + '</div>';
   };
 
-  return bloco(esperando.length ? ' puxa' : '', esperando.length, 'Esperando resposta',
-               'de ' + IDEIAS.itens.length + ' que chegaram') +
-    bloco('', esperando.length ? (dias === 0 ? 'hoje' : dias + (dias === 1 ? ' dia' : ' dias')) : 'ninguém',
-          'A mais antiga espera',
-          esperando.length ? esc(esperando[0].nome || 'sem nome') : 'a fila está limpa') +
+  // A tira nao repete a manchete. Quantas esperam e ha quanto tempo a mais
+  // antiga espera sao exatamente o que a manchete e a linha fina acabaram
+  // de dizer, em tipo maior: ditos de novo aqui, viravam a terceira e a
+  // quarta vez que a tela dava o mesmo numero antes da primeira linha da
+  // lista. Ficam os que mudam a decisao do dia e que a manchete nao da.
+  const apertando = esperando.filter(function (l) { return ideiasDiasEspera(l) >= 3; }).length;
+
+  return bloco(apertando ? ' puxa' : '', apertando, 'Esperando há 3 dias ou mais',
+               apertando ? 'estas primeiro' : 'nenhuma passou do combinado') +
     bloco('', recentes, 'Chegaram em 7 dias', comNivel + ' clicaram um nível na landing') +
     bloco('', respondidas.length, 'Já tiveram resposta',
           ganhos + (ganhos === 1 ? ' virou projeto' : ' viraram projeto'));

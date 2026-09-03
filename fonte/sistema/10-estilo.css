@@ -40,6 +40,9 @@
      arquivo: 9,5px, 10px, 10,5px, 11,5px, 13px e 13,5px. Dez tamanhos
      numa faixa de 4,5px nao sao escala, sao continuum. */
   --t-manchete:clamp(30px,3.4vw,46px);
+  /* O degrau da manchete DENTRO do sistema. A capa fica com o --t-manchete;
+     aqui o mesmo papel cabe em bem menos, porque a tela e de trabalho. */
+  --t-tela:clamp(23px,2.3vw,31px);
   --t-titulo:clamp(21px,2vw,27px);
   --t-bloco:17px;
   --t-corpo:14px;
@@ -137,6 +140,15 @@ body[data-mesa="papel"]{
   --o-tx:var(--o-ink); --veu-cor:rgba(246,244,239,.90); --claro:var(--ink);
   --sinal-ok:var(--ok-p); --sinal-atencao:var(--atencao-p);
   --sinal-alerta:var(--alerta-p); --sinal-info:var(--info-p);
+  /* Os nomes crus tambem viram, e nao so os --sinal-*.
+     Vinte e nove lugares das telas pintam texto com var(--alerta) e
+     var(--atencao) direto, escritos quando so existia o fundo preto. Sobre
+     o creme, o ambar claro do fundo escuro da menos de 2:1 de contraste:
+     justamente o prazo vencido e a entrega em branco viravam o texto menos
+     legivel da tela. A lateral nao usa cor de sinal, entao ela nao sofre
+     com isto, e nenhuma das vinte e nove precisa ser reescrita. */
+  --ok:var(--ok-p); --atencao:var(--atencao-p);
+  --alerta:var(--alerta-p); --info:var(--info-p);
 }
 
 /* ---------------------------------------------------------- moldura */
@@ -178,7 +190,13 @@ body[data-mesa="papel"] .app::before{content:none}
 
 /* O menu vira indice tipografico, com o gesto do .who-row da capa. */
 .menu{padding:0 0 var(--e3);overflow-y:auto;flex:1}
-.menu-grupo{padding:var(--e4) var(--e3) var(--e2) var(--e3);margin:0}
+/* 32px acima de cada rotulo de grupo somavam 160px de lateral em cinco
+   grupos. Esconder o rotulo dos grupos de um item so era a outra saida, e
+   foi descartada: "Roteiros e niveis" encostado em "Meu trabalho" passaria
+   a parecer parte dele, e a lateral perderia o unico lugar onde o sistema
+   diz para que serve cada tela. */
+.menu-grupo{padding:var(--e3) var(--e3) var(--e1) var(--e3);margin:0}
+.menu>.menu-grupo:first-child{padding-top:var(--e2)}
 .menu-item{
   position:relative; display:flex; align-items:center; gap:11px; width:100%;
   background:none; border:0; border-top:1px solid var(--linha-2);
@@ -274,7 +292,16 @@ body[data-mesa="papel"] .app::before{content:none}
 }
 .folha,.wrap{width:min(var(--wrap),100% - var(--gut)*2);margin-inline:auto}
 /* o fundo da mesa vive no corpo da pagina, atras da folha */
-body{background:var(--fundo);transition:background-color var(--t-superficie) var(--ease)}
+/* Sem transicao na virada de superficie.
+   O fundo levava 400ms e a tinta virava na hora, entao ir para a Mesa da
+   entrega deixava a tela com texto quase preto sobre preto no meio do
+   caminho, e quem dispara isso e o botao principal de cada cartao de
+   projeto. Fazer a cor acompanhar o fundo resolveria so os elementos que
+   herdam --tx: os que fixam a propria cor continuariam saltando. Duas
+   superficies que trocam de uma vez nao tem meio do caminho para dar
+   errado, e a troca acontece junto com a troca de tela, que ja e um corte
+   seco. */
+body{background:var(--fundo)}
 
 .tela{display:none}
 .tela.on{display:block}
@@ -285,19 +312,24 @@ body{background:var(--fundo);transition:background-color var(--t-superficie) var
    grande feito do numero de hoje, e UMA linha fina. */
 .abertura,.entrada{
   border:0; border-radius:0; background:none; box-shadow:none; overflow:visible;
-  padding:clamp(34px,4.4vw,58px) 0 var(--e4); margin:0;
+  padding:var(--e4) 0 var(--e3); margin:0;
 }
 .abertura::after{content:none}
+/* Na capa a manchete e a materia e pode ter 46px. Aqui ela e o cabeco de
+   uma ferramenta que a Carla abre quarenta vezes por dia, e o que ela diz
+   quase sempre e uma coisa que a pessoa ja sabe. Grande demais, ela empurra
+   o trabalho para baixo da dobra: em Ideias que chegaram a primeira linha
+   da lista comecava depois de 540px de preambulo. */
 .abertura h2,.manchete{
-  font-family:var(--display); font-weight:800; font-size:var(--t-manchete);
-  letter-spacing:-.045em; line-height:1; color:var(--tx);
-  max-width:22ch; text-wrap:balance; font-variant-numeric:tabular-nums;
+  font-family:var(--display); font-weight:800; font-size:var(--t-tela);
+  letter-spacing:-.04em; line-height:1.06; color:var(--tx);
+  max-width:26ch; text-wrap:balance; font-variant-numeric:tabular-nums;
 }
 /* o numero que e a noticia, e so ele, em laranja */
 .abertura h2 em,.manchete em{font-style:normal;color:var(--o-tx)}
 .abertura p,.linha-fina{
-  margin-top:var(--e3); font-size:15px; line-height:1.6; color:var(--tx-2);
-  max-width:52ch; text-wrap:pretty; font-variant-numeric:tabular-nums;
+  margin-top:var(--e2); font-size:14.5px; line-height:1.55; color:var(--tx-2);
+  max-width:60ch; text-wrap:pretty; font-variant-numeric:tabular-nums;
 }
 .linha-fina b{color:var(--tx);font-weight:600}
 
@@ -319,9 +351,12 @@ body{background:var(--fundo);transition:background-color var(--t-superficie) var
    O cartao morre como caixa: fio em cima, ar embaixo, que e como revista
    separa materia de materia sem desenhar nada. Sem sombra: a mesma
    sombra em 57 caixas nao eleva nada em relacao a nada, so suja. */
+/* O 52px do --e5 e o respiro de uma pagina que se le uma vez. Numa tela
+   com cinco secoes ele soma 260px de nada, e obriga a rolar para descobrir
+   que existe mais coisa embaixo. */
 .cartao,.secao{
   background:none; border:0; border-top:1px solid var(--fio); border-radius:0;
-  box-shadow:none; padding:var(--e3) 0 0; margin:0 0 var(--e5);
+  box-shadow:none; padding:var(--e3) 0 0; margin:0 0 var(--e4);
 }
 .cartao-t,.secao-t{
   display:flex; align-items:baseline; gap:var(--e2); flex-wrap:wrap;
@@ -346,20 +381,27 @@ body{background:var(--fundo);transition:background-color var(--t-superficie) var
 
 /* Numero sem caixa, separado por fio vertical. Vale para .numeros/.numero,
    que as telas ja emitem, e para a .tira nova. */
+/* Tantas colunas quantos forem os fatos, e nao quatro sempre. Fixo em
+   quatro, uma tela com tres numeros deixava um quarto da largura morto, e
+   uma com dois era obrigada a inventar mais dois para preencher: e assim
+   que a tira passou a repetir o numero que a manchete acabou de dar. */
 .numeros,.tira{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:0;
-  border-top:1px solid var(--fio); margin-bottom:var(--e4);
+  display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:0;
+  border-top:1px solid var(--fio); margin-bottom:var(--e3);
 }
 .numero,.tira>div{
   background:none; border:0; border-right:1px solid var(--fio-2); border-radius:0;
-  padding:var(--e3) var(--e3) var(--e3) 0;
+  padding:var(--e2) var(--e3) var(--e2) 0;
 }
 .numero:last-child,.tira>div:last-child{border-right:0;padding-right:0}
+/* Quatro numeros de 42px logo abaixo de uma manchete sao cinco manchetes
+   na mesma tela, e a tira costuma repetir o numero que a manchete acabou
+   de dar. Ela volta ao tamanho de dado: le-se de relance, nao se anuncia. */
 .numero .v,.tira .v{
-  font-family:var(--display); font-weight:800; font-size:clamp(30px,3.2vw,42px);
-  letter-spacing:-.045em; line-height:1; color:var(--tx);
+  font-family:var(--display); font-weight:800; font-size:clamp(22px,2vw,28px);
+  letter-spacing:-.04em; line-height:1.05; color:var(--tx);
 }
-.numero .l,.tira .l{margin-top:10px;display:block}
+.numero .l,.tira .l{margin-top:5px;display:block}
 .numero .obs{display:none}   /* nota de rodape por numero: sai */
 .numero.puxa,.tira .puxa{border-left:0}
 .numero.puxa .v,.tira .puxa .v{color:var(--o-tx)}
@@ -384,7 +426,7 @@ table.lista th{
   border-bottom:1px solid var(--fio);
 }
 table.lista td{
-  padding:8px var(--e2); padding-left:0; height:40px;
+  padding:7px var(--e2); padding-left:0; height:36px;
   border-bottom:1px solid var(--fio-2); vertical-align:middle;
 }
 table.lista th:last-child,table.lista td:last-child{padding-right:0}
@@ -399,12 +441,18 @@ table.lista .sob{font-size:var(--t-apoio);color:var(--tx-4);margin-top:2px}
 table.lista tbody tr[tabindex],tr.abre{cursor:pointer;
   transition:background var(--t-superficie) var(--ease)}
 tr[tabindex] td,tr.abre td{position:relative;z-index:2}
+/* left:0, e nao -10px: a tabela mora dentro de um .rolo-h com overflow, e
+   o que fica a esquerda do zero e recortado por ele. A barra existia e
+   nunca apareceu. */
 tr[tabindex] td:first-child::before,tr.abre td:first-child::before{
-  content:""; position:absolute; top:0; bottom:0; left:-10px; width:2px; background:var(--o);
+  content:""; position:absolute; top:0; bottom:0; left:0; width:2px; background:var(--o);
   transform:scaleY(0); transition:transform .3s var(--ease);
 }
+/* Sem outline:none. Ele apagava o anel de foco da casa inteira nas linhas
+   que abrem alguma coisa, e o que devia substitui-lo era a barra recortada
+   acima: quem anda de teclado nao via onde estava. */
 tr[tabindex]:hover,tr[tabindex]:focus-within,tr.abre:hover,tr.abre:focus-within{
-  background:linear-gradient(90deg,var(--o-10),transparent 64%); outline:none;
+  background:linear-gradient(90deg,var(--o-10),transparent 64%);
 }
 tr[tabindex]:hover td:first-child::before,tr[tabindex]:focus-within td:first-child::before,
 tr.abre:hover td:first-child::before,tr.abre:focus-within td:first-child::before{transform:scaleY(1)}
@@ -430,10 +478,48 @@ tr:hover .acao,tr:focus-within .acao{opacity:1}
   padding:var(--e3) 0; text-align:left; color:var(--tx-3);
   font-size:var(--t-corpo); line-height:1.5; border-bottom:1px solid var(--fio-2);
 }
+/* O height:40px de table.lista td e minimo numa celula comum, mas o
+   .vazio e display:flex, e ai 40px vira altura definida: a segunda linha
+   do texto de tela vazia ficava cortada no meio da letra. Toda tela vazia
+   explica o que fazer, e explicacao nao cabe em uma linha. */
+table.lista td.vazio{height:auto}
 .vazio svg,.vago svg{width:34px;height:34px;flex:none;color:var(--o);opacity:.34}
 .vazio b,.vago b{font-family:var(--display);font-weight:800;font-size:var(--t-bloco);
   letter-spacing:-.03em;color:var(--tx)}
 .vazio .bt,.vago .bt{margin-left:auto}
+
+/* ----------------------------------------------------------- dobra
+   Um bloco que abre. E o <details> do navegador, entao abre no clique e
+   no teclado, e o que estiver fechado nao entra na busca da pagina nem na
+   ordem do Tab: e a diferenca entre uma tela com oito formularios abertos
+   e uma tela com oito linhas. */
+.dobra{
+  border:1px solid var(--fio); border-radius:var(--r);
+  background:var(--fundo-3); margin-bottom:var(--e1);
+}
+.dobra>summary{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:13px var(--e3); cursor:pointer; list-style:none;
+  transition:background var(--t-controle) var(--ease);
+}
+.dobra>summary::-webkit-details-marker{display:none}
+/* A seta e desenhada, e nao o triangulo do sistema, que muda de forma em
+   cada navegador. */
+.dobra>summary::after{
+  content:""; margin-left:auto; flex:none; width:8px; height:8px;
+  border-right:1.6px solid var(--tx-4); border-bottom:1.6px solid var(--tx-4);
+  transform:rotate(45deg) translate(-2px,-2px);
+  transition:transform var(--t-controle) var(--ease);
+}
+.dobra[open]>summary::after{transform:rotate(225deg) translate(-2px,-2px)}
+.dobra>summary:hover{background:var(--o-05)}
+.dobra>summary b{font-size:15px;color:var(--claro);font-weight:600}
+.dobra-n{
+  font-family:var(--display); font-size:12px; font-weight:700; color:var(--o-tx);
+  font-variant-numeric:tabular-nums; flex:none;
+}
+.dobra[open]>summary{border-bottom:1px solid var(--fio-2)}
+.dobra-corpo{padding:var(--e3)}
 
 /* -------------------------------------------------------- etiquetas
    Canto seco e fio de 2px a esquerda. O balao colorido gritava junto com
@@ -449,6 +535,14 @@ tr:hover .acao,tr:focus-within .acao{opacity:1}
 .eti-atencao{color:var(--sinal-atencao)}
 .eti-alerta{color:var(--sinal-alerta)}
 .eti-info{color:var(--sinal-info)}
+/* O tom neutro e quase sempre a ausencia de noticia: "nao comecou", "sem
+   prazo", "fora do nivel". Com placa e caixa alta ele pesava igual ao que
+   ficou pronto, e numa lista em que a maioria ainda nao comecou a tela
+   inteira virava placa. Sem placa, o nao-fato recua e o fato aparece. */
+.eti-neutra{
+  background:none; border-left-color:transparent; padding-left:0;
+  text-transform:none; letter-spacing:.01em; font-size:var(--t-apoio);
+}
 .eti-neutra{color:var(--tx-4)}
 .eti-marca{color:var(--o-tx)}
 body[data-mesa="papel"] .eti{background:rgba(16,16,20,.05)}
@@ -831,13 +925,69 @@ kbd{
 }
 
 /* ---------------------------------------------------------- celular */
-@media (max-width:1080px){ .grade-4,.numeros,.tira{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:1080px){
+  .grade-4{grid-template-columns:repeat(2,1fr)}
+  .numeros,.tira{grid-auto-flow:row;grid-template-columns:repeat(2,1fr)}
+}
 /* A regra que ficava aqui, min-height de 42vh na capa, era da porta
    dividida em duas metades e sobreviveu a ela: em janela baixa e estreita
    abria um buraco de 230px entre a marca e o cartao, e empurrava o botao
    de entrar para baixo da dobra. */
 @media (max-width:760px){
   .grade-2,.grade-3,.grade-4{grid-template-columns:1fr;gap:var(--e3)}
+
+  /* A tabela deixa de ser tabela no telefone.
+     Antes ela rolava na horizontal dentro do .rolo-h, e as colunas do fim
+     ficavam fora da tela. Em Ideias que chegaram as do fim sao o andamento
+     e os botoes: quem abrisse o sistema no telefone via os nomes e nao
+     alcancava nenhuma acao, sem nada na tela dizendo que havia mais coisa
+     para o lado. Cada linha vira um bloco, e o que era coluna vira linha. */
+  .rolo-h{overflow-x:visible}
+  table.lista,table.lista tbody,table.lista tr,table.lista td{display:block;width:auto}
+  table.lista thead{display:none}
+  table.lista tr{
+    border-bottom:1px solid var(--fio); padding:var(--e2) 0 var(--e3);
+  }
+  table.lista tr:last-child{border-bottom:0}
+  table.lista td{
+    height:auto; padding:3px 0; border-bottom:0;
+    display:flex; align-items:baseline; gap:var(--e2);
+  }
+  table.lista td:empty{display:none}
+  /* O nome da coluna vem do proprio HTML, no data-r, porque CSS nao le o
+     texto do cabecalho. Onde nao houver data-r o valor se explica sozinho:
+     um nome, um e-mail, um botao. */
+  table.lista td[data-r]::before{
+    content:attr(data-r); flex:none; width:11ch;
+    font-family:var(--texto); font-size:var(--t-rotulo); font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--tx-4);
+    line-height:1.7;
+  }
+  /* O titulo do bloco e a celula marcada com data-t: em Ideias que chegaram
+     a primeira coluna e a espera, e "hoje" nao e nome de nada. Onde a tela
+     nao marcou nenhuma, a primeira serve, que e o caso das listas cuja
+     primeira coluna ja e o nome da coisa. */
+  table.lista td[data-t],
+  table.lista tr:not(:has(td[data-t])) td:first-child:not(.vazio){
+    font-family:var(--display); font-weight:800; font-size:var(--t-bloco);
+    letter-spacing:-.03em; color:var(--tx); padding-bottom:var(--e1);
+    display:block;
+  }
+  table.lista td[data-t]::before,
+  table.lista tr:not(:has(td[data-t])) td:first-child::before{content:none}
+  /* A celula de tela vazia e a unica primeira celula que nao nomeia uma
+     linha: ela explica o que fazer quando nao ha linha nenhuma. Como
+     titulo de bloco, ela virava a maior frase do telefone dizendo que
+     nao havia nada. */
+  table.lista td.vazio{display:block;font-size:var(--t-corpo);padding:var(--e2) 0}
+  /* Marcada a celula do titulo, ela sobe para o alto do bloco. */
+  table.lista tr:has(td[data-t]){display:flex;flex-direction:column}
+  table.lista td[data-t]{order:-1}
+  /* Botao dentro de linha vira largura cheia: no telefone o alvo do dedo
+     nao pode ter 90px espremido no canto. */
+  table.lista td{flex-wrap:wrap}
+  table.lista td .bt{flex:1 1 100%;width:auto;justify-content:center}
+  table.lista td .campo,table.lista td select{width:100%}
 }
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
@@ -849,8 +999,14 @@ kbd{
   .topo{padding:0 var(--e3)}
   .topo .sub{display:none}
   .rolo,.folha,.wrap{width:calc(100% - var(--e3)*2)}
-  .abertura h2,.manchete{font-size:clamp(27px,7.4vw,38px)}
-  .numeros,.tira{grid-template-columns:1fr}
-  .numero,.tira>div{border-right:0;border-bottom:1px solid var(--fio-2);padding-right:0}
+  .abertura h2,.manchete{font-size:clamp(22px,5.6vw,28px)}
+  /* Duas colunas, e nao uma. Empilhados, quatro numeros davam 380px de
+     altura antes de qualquer trabalho aparecer no telefone. */
+  .numeros,.tira{grid-auto-flow:row;grid-template-columns:repeat(2,1fr);column-gap:var(--e3)}
+  /* .2em de espaco entre letras quebrava "JA TIVERAM RESPOSTA" em duas
+     linhas na coluna estreita, e cada celula crescia 34px por causa disso. */
+  .numero .l,.tira .l{letter-spacing:.06em}
+  .numero,.tira>div{border-bottom:1px solid var(--fio-2)}
+  .numero:nth-child(2n),.tira>div:nth-child(2n){border-right:0;padding-right:0}
 }
 @media (min-width:901px){ .so-celular{display:none !important} }

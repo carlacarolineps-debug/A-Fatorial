@@ -450,7 +450,7 @@ function leituraHtmlNumeros() {
 
   return '<div class="numeros">' + n.map(function (x) {
     return '<div class="numero' + (x.puxa ? ' puxa' : '') + '">' +
-      '<div class="v">' + x.v + '</div><div class="l">' + esc(x.l) + '</div>' +
+      '<div class="v' + (Number(x.v) ? '' : ' zero') + '">' + x.v + '</div><div class="l">' + esc(x.l) + '</div>' +
       '<div class="obs">' + esc(x.obs) + '</div></div>';
   }).join('') + '</div>';
 }

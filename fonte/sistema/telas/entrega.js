@@ -1308,7 +1308,7 @@ function entregaHtmlVersoes(alvo) {
   const linhas = e.versoes.slice().reverse().map(function (v) {
     const aberta = ENTREGA_VERSAO_ABERTA === v.n;
     const pedido = v.pedido
-      ? '<div style="margin-top:10px;padding:12px 14px;border-left:3px solid var(--atencao);background:var(--atencao-bg);border-radius:var(--r-sm)">' +
+      ? '<div style="margin-top:10px;padding:12px 14px;border-left:3px solid var(--atencao);background:var(--o-05);border-radius:var(--r-sm)">' +
           '<span class="rotulo" style="color:var(--atencao)">O que o cliente pediu, em ' + esc(dataCurta(v.pedido.em)) + '</span>' +
           '<div style="font-size:13px;color:var(--tx-2)">' + entregaLinhas(v.pedido.texto) + '</div></div>'
       : '';
@@ -1434,14 +1434,35 @@ function entregaHtmlVazio() {
       'Escolha um projeto em Projetos em estruturação e clique em uma das oito. ' +
       'Se as oito estiverem apagadas, o projeto nasceu sem escopo: diga o nível contratado na leitura do caso.' +
     '</p>' +
+    // Os projetos como lista, e nao dentro de um menu suspenso.
+    // A tela existe para escolher em qual projeto escrever, e o que ela
+    // oferecia era uma caixa fechada com um "escolha um projeto" dentro:
+    // para saber quais existiam era preciso abrir, e para saber em que pe
+    // cada um estava era preciso sair da tela. A lista diz os dois de
+    // uma vez, e clicar na linha ja abre.
     (projetos.length
-      ? '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px">' +
-          '<span class="rotulo" style="margin:0">Abrir daqui mesmo</span>' +
-          entregaHtmlEscolha('', p ? p.id : '',
-            [{ v: '', nome: 'escolha um projeto' }].concat(projetos.map(function (x) { return { v: x.id, nome: x.rotulo || x.cliente || x.id }; })),
-            'entregaTrocarProjeto(this.value)', 'campo-sm') +
-          (EU.pode('projetos') ? '<button class="bt bt-linha bt-sm" onclick="irPara(\'projetos\')">Ver os projetos</button>' : '') +
-        '</div>'
+      ? '<div class="rolo-h" style="margin-top:var(--e3)">' +
+          '<table class="lista"><thead><tr>' +
+            '<th>Projeto</th><th>Nível</th><th>Fase</th><th>Produto pronto</th>' +
+          '</tr></thead><tbody>' +
+          projetos.map(function (x) {
+            const oito = entregaOito(x);
+            const noEscopo = oito.filter(function (e) { return e.dentro; });
+            const aprovadas = noEscopo.filter(function (e) { return e.estado === 'aprovada'; }).length;
+            return '<tr tabindex="0" onclick="entregaTrocarProjeto(' + entregaArg(x.id) + ')" ' +
+              'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();entregaTrocarProjeto(' + entregaArg(x.id) + ')}">' +
+              '<td data-t><b>' + esc(x.cliente || x.rotulo || x.id) + '</b>' +
+                '<div class="sob">' + esc(x.rotulo || '') + '</div></td>' +
+              '<td data-r="nível">' + esc((entregaNivel(x.nivelContratado) || {}).nome || x.nivelContratado || '') + '</td>' +
+              '<td data-r="fase">' + esc(nomeFase(x.fase)) +
+                '<div class="sob">' + aprovadas + ' de ' + noEscopo.length + ' aprovadas</div></td>' +
+              '<td data-r="pronto">' + (x.produtoProntoEm ? esc(dataCurta(x.produtoProntoEm)) : '<span class="dica">sem data</span>') + '</td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>' +
+          (EU.pode('projetos')
+            ? '<div style="margin-top:var(--e3)"><button class="bt bt-linha bt-sm" onclick="irPara(\'projetos\')">Ver os projetos</button></div>'
+            : '')
       : '<div style="margin-top:16px">' +
           (EU.pode('leitura')
             ? '<button class="bt bt-marca" onclick="irPara(\'leitura\')">Ir para a leitura do caso</button>'

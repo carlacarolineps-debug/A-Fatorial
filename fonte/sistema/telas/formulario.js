@@ -1418,10 +1418,11 @@ function formAvisosHtml() {
   if (FORM.falha) html += aviso(FORM.falha.tom, FORM.falha.titulo, FORM.falha.texto);
   if (FORM.recado) html += aviso(FORM.recado.tom, FORM.recado.titulo, FORM.recado.texto);
 
-  if (FORM.soLeitura && FORM.estado === 'ok' && !FORM.falha) {
-    html += aviso('info', 'Você está vendo em leitura.',
-      'As perguntas da aplicação são decisão da gestão. Peça a mudança para quem tem esse acesso.');
-  }
+  // Antes havia aqui uma caixa azul dizendo "Você está vendo em leitura".
+  // Para quem e colaborador ela aparecia sempre, em todo estado da tela, e
+  // aviso que nunca some deixa de ser lido junto com os que importam. A
+  // frase virou uma linha ao lado dos botoes apagados, em formBarraAcoesHtml,
+  // que e onde a pessoa descobre que nao pode publicar.
 
   if (FORM.conflito) {
     html += '<div class="aviso aviso-atencao">' +
@@ -1538,6 +1539,13 @@ function formBarraAcoesHtml() {
       ? '<span class="dica">O rascunho passa pela mesma conferência da publicação. Resolva o que está ' +
         'no aviso acima para guardar ele no servidor: o que você escreveu já está guardado neste ' +
         'navegador enquanto isso.</span>'
+      : '') +
+    // Ao lado dos dois botoes apagados, que e onde a pessoa descobre que
+    // nao pode publicar. Antes isto era uma caixa azul no alto, que para
+    // quem e colaborador aparecia em toda visita.
+    (FORM.soLeitura && FORM.estado === 'ok' && !FORM.falha
+      ? '<span class="dica">As perguntas da aplicação são decisão da gestão. ' +
+        'Peça a mudança para quem tem esse acesso.</span>'
       : '') +
     '</div>';
 }
