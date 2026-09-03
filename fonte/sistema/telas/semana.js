@@ -668,11 +668,22 @@ function semanaFrase(d) {
 
   if (partes.length) return partes.join(', ') + '.';
   if (!d.temProjeto) return 'Nenhum projeto em estruturação ainda, então a sua semana começa vazia.';
+
+  // Nada vence, nada atrasou e ninguem espera, mas ainda pode haver entrega
+  // sem dono, e entrega sem dono nao entra na semana de ninguem. Enquanto a
+  // manchete dizia "A sua semana esta limpa" e um aviso menor logo abaixo
+  // dizia "10 entregas em aberto estao sem responsavel", as duas frases se
+  // contradiziam na mesma dobra, e a que pedia providencia era a menor.
+  // Quem manda na manchete e o que precisa de alguem hoje.
+  if (d.orfas) {
+    return semanaNumero(d.orfas) +
+      (d.orfas === 1 ? ' entrega em aberto está sem responsável.' : ' entregas em aberto estão sem responsável.');
+  }
+
   // A semana limpa se diz em tres palavras. A frase que enumerava os tres
   // criterios ocupava tres linhas do maior tipo da tela para dizer que nao
-  // havia nada a fazer, e assim a unica coisa que precisava de atencao
-  // aparecia embaixo dela, menor. O que foi conferido continua escrito,
-  // item a item, na dobra logo abaixo.
+  // havia nada a fazer. O que foi conferido continua escrito, item a item,
+  // na dobra logo abaixo.
   return 'A sua semana está limpa.';
 }
 
@@ -793,9 +804,16 @@ function semanaRecados(d) {
     html += aviso('info', 'Nenhuma pessoa deste sistema está com o e-mail ' + esc(EU.email || 'que você usou para entrar') + '.',
       'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em "A casa".');
   }
+  // Quando as orfas ja subiram para a manchete, o aviso repetiria a mesma
+  // frase quatro linhas abaixo, em corpo menor. Fica so a providencia, que
+  // e o que a manchete nao cabe dizer.
   if (d.orfas) {
-    html += aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
-      'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.');
+    const naManchete = !d.vence.length && !d.atrasadas.length && !d.esperando.length
+      && !d.devolutivas.length && d.temProjeto;
+    html += naManchete
+      ? ''
+      : aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
+        'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.');
   }
   return html;
 }
@@ -846,6 +864,13 @@ DESENHO.semana = function () {
     ? 'Hoje, domingo ' + semanaDia(d.hoje)
     : 'Hoje ' + semanaDia(d.hoje) + ', até domingo ' + semanaDia(d.fim));
   escrever('semana-frase', semanaFrase(d));
+  // A linha de apoio so existe quando a manchete e um fato que pede
+  // providencia: dizer o que fazer e trabalho dela, nao da manchete.
+  const orfasNaManchete = d.orfas && !d.vence.length && !d.atrasadas.length
+    && !d.esperando.length && !d.devolutivas.length && d.temProjeto;
+  texto('semana-linha', orfasNaManchete
+    ? 'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.'
+    : '');
   escrever('semana-quem-caixa', semanaSeletor(d));
   escrever('semana-recado', semanaRecados(d));
 

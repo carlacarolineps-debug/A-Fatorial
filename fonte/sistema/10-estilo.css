@@ -1000,6 +1000,18 @@ kbd{
   .topo .sub{display:none}
   .rolo,.folha,.wrap{width:calc(100% - var(--e3)*2)}
   .abertura h2,.manchete{font-size:clamp(22px,5.6vw,28px)}
+  /* No telefone a tira desce para depois da lista.
+     Os numeros sao o retrato da mesa, e se leem uma vez por visita; a fila
+     e o trabalho. Em cima, eles empurravam o primeiro nome para 640px, com
+     os botoes daquela pessoa fora da tela. A tela vira coluna e a tira
+     ganha ordem 2, entao nenhum numero e escondido: so deixa de vir antes
+     do trabalho. */
+  /* .tela.on, e nao .tela: quem esconde as onze telas e o display:none da
+     linha 306, e um display:flex sem o .on o anula. Sem isto, o telefone
+     mostrava as onze telas empilhadas de uma vez. */
+  .tela.on{display:flex;flex-direction:column}
+  .tela.on>.numeros,.tela.on>.tira{order:2}
+
   /* Duas colunas, e nao uma. Empilhados, quatro numeros davam 380px de
      altura antes de qualquer trabalho aparecer no telefone. */
   .numeros,.tira{grid-auto-flow:row;grid-template-columns:repeat(2,1fr);column-gap:var(--e3)}

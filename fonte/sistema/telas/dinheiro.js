@@ -134,8 +134,11 @@ DESENHO.dinheiro = function () {
     'um é contrato e um é caixa. O quarto, quanto falta receber, é o que costuma ' +
     'pegar as pessoas de surpresa.');
 
+  // O "nenhuma baixa foi lancada" so e noticia quando ha o que baixar. Sem
+  // projeto contratado ele cobria cem por cento dos estados da tela, e o
+  // proprio estado vazio da tabela ja explica que nada foi contratado.
   escrever('dinheiroAviso',
-    (!ultimo
+    (!ultimo && projetos.length
       ? aviso('atencao', 'Nenhuma baixa foi lançada ainda.',
           'Não existe conciliação com a TMB: enquanto ninguém der baixa aqui, a coluna "entrou" fica em zero mesmo que o dinheiro tenha caído.')
       : diasSemLancar > 14

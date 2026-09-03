@@ -1018,6 +1018,18 @@ kbd{
   .topo .sub{display:none}
   .rolo,.folha,.wrap{width:calc(100% - var(--e3)*2)}
   .abertura h2,.manchete{font-size:clamp(22px,5.6vw,28px)}
+  /* No telefone a tira desce para depois da lista.
+     Os numeros sao o retrato da mesa, e se leem uma vez por visita; a fila
+     e o trabalho. Em cima, eles empurravam o primeiro nome para 640px, com
+     os botoes daquela pessoa fora da tela. A tela vira coluna e a tira
+     ganha ordem 2, entao nenhum numero e escondido: so deixa de vir antes
+     do trabalho. */
+  /* .tela.on, e nao .tela: quem esconde as onze telas e o display:none da
+     linha 306, e um display:flex sem o .on o anula. Sem isto, o telefone
+     mostrava as onze telas empilhadas de uma vez. */
+  .tela.on{display:flex;flex-direction:column}
+  .tela.on>.numeros,.tela.on>.tira{order:2}
+
   /* Duas colunas, e nao uma. Empilhados, quatro numeros davam 380px de
      altura antes de qualquer trabalho aparecer no telefone. */
   .numeros,.tira{grid-auto-flow:row;grid-template-columns:repeat(2,1fr);column-gap:var(--e3)}
@@ -1108,6 +1120,9 @@ kbd{
   <div class="abertura">
     <span class="selo" id="semana-periodo">Sua semana</span>
     <h2 style="margin-top:14px" id="semana-frase">O que vence, o que atrasou e quem está esperando.</h2>
+    <!-- A providência da manchete. Quando a manchete é o fato, esta linha
+         é o que fazer com ele. -->
+    <p id="semana-linha"></p>
   </div>
 
   <div id="semana-quem-caixa"></div>
@@ -2819,11 +2834,22 @@ function semanaFrase(d) {
 
   if (partes.length) return partes.join(', ') + '.';
   if (!d.temProjeto) return 'Nenhum projeto em estruturação ainda, então a sua semana começa vazia.';
+
+  // Nada vence, nada atrasou e ninguem espera, mas ainda pode haver entrega
+  // sem dono, e entrega sem dono nao entra na semana de ninguem. Enquanto a
+  // manchete dizia "A sua semana esta limpa" e um aviso menor logo abaixo
+  // dizia "10 entregas em aberto estao sem responsavel", as duas frases se
+  // contradiziam na mesma dobra, e a que pedia providencia era a menor.
+  // Quem manda na manchete e o que precisa de alguem hoje.
+  if (d.orfas) {
+    return semanaNumero(d.orfas) +
+      (d.orfas === 1 ? ' entrega em aberto está sem responsável.' : ' entregas em aberto estão sem responsável.');
+  }
+
   // A semana limpa se diz em tres palavras. A frase que enumerava os tres
   // criterios ocupava tres linhas do maior tipo da tela para dizer que nao
-  // havia nada a fazer, e assim a unica coisa que precisava de atencao
-  // aparecia embaixo dela, menor. O que foi conferido continua escrito,
-  // item a item, na dobra logo abaixo.
+  // havia nada a fazer. O que foi conferido continua escrito, item a item,
+  // na dobra logo abaixo.
   return 'A sua semana está limpa.';
 }
 
@@ -2944,9 +2970,16 @@ function semanaRecados(d) {
     html += aviso('info', 'Nenhuma pessoa deste sistema está com o e-mail ' + esc(EU.email || 'que você usou para entrar') + '.',
       'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em "A casa".');
   }
+  // Quando as orfas ja subiram para a manchete, o aviso repetiria a mesma
+  // frase quatro linhas abaixo, em corpo menor. Fica so a providencia, que
+  // e o que a manchete nao cabe dizer.
   if (d.orfas) {
-    html += aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
-      'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.');
+    const naManchete = !d.vence.length && !d.atrasadas.length && !d.esperando.length
+      && !d.devolutivas.length && d.temProjeto;
+    html += naManchete
+      ? ''
+      : aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
+        'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.');
   }
   return html;
 }
@@ -2997,6 +3030,13 @@ DESENHO.semana = function () {
     ? 'Hoje, domingo ' + semanaDia(d.hoje)
     : 'Hoje ' + semanaDia(d.hoje) + ', até domingo ' + semanaDia(d.fim));
   escrever('semana-frase', semanaFrase(d));
+  // A linha de apoio so existe quando a manchete e um fato que pede
+  // providencia: dizer o que fazer e trabalho dela, nao da manchete.
+  const orfasNaManchete = d.orfas && !d.vence.length && !d.atrasadas.length
+    && !d.esperando.length && !d.devolutivas.length && d.temProjeto;
+  texto('semana-linha', orfasNaManchete
+    ? 'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.'
+    : '');
   escrever('semana-quem-caixa', semanaSeletor(d));
   escrever('semana-recado', semanaRecados(d));
 
@@ -10892,8 +10932,11 @@ DESENHO.dinheiro = function () {
     'um é contrato e um é caixa. O quarto, quanto falta receber, é o que costuma ' +
     'pegar as pessoas de surpresa.');
 
+  // O "nenhuma baixa foi lancada" so e noticia quando ha o que baixar. Sem
+  // projeto contratado ele cobria cem por cento dos estados da tela, e o
+  // proprio estado vazio da tabela ja explica que nada foi contratado.
   escrever('dinheiroAviso',
-    (!ultimo
+    (!ultimo && projetos.length
       ? aviso('atencao', 'Nenhuma baixa foi lançada ainda.',
           'Não existe conciliação com a TMB: enquanto ninguém der baixa aqui, a coluna "entrou" fica em zero mesmo que o dinheiro tenha caído.')
       : diasSemLancar > 14
