@@ -91,6 +91,7 @@ section{padding-block:var(--sec)}
 /* shimmer (equivalente CSS do TextShimmer) */
 .shimmer{background:linear-gradient(90deg,var(--sh-base) 0 42%,var(--sh-hi) 50%,var(--sh-base) 58% 100%) 100% center/260% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 3.4s linear infinite}
 .band .shimmer{--sh-base:rgba(255,255,255,.42);--sh-hi:var(--gold-2)}
+.shimmer-light{--sh-base:var(--ink-3);--sh-hi:var(--gold)}
 @keyframes sh{to{background-position:0 center}}
 
 /* ============ BOTÕES ============ */
@@ -108,57 +109,85 @@ section{padding-block:var(--sec)}
 .band .arrow{color:#fff}
 
 /* ============ HEADER ============ */
-.hdr{position:fixed;inset:0 0 auto 0;height:var(--header);background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(10px);z-index:60;border-bottom:1px solid transparent;transition:border-color var(--t),background var(--t)}
-.hdr.on{border-bottom-color:var(--line)}
+.hdr{position:fixed;inset:0 0 auto 0;height:var(--header);z-index:60;background:transparent;border-bottom:1px solid transparent;transition:background var(--t),border-color var(--t)}
+.hdr.on{background:rgba(255,255,255,.94);backdrop-filter:saturate(180%) blur(10px);border-bottom-color:var(--line)}
+.nav-pill{display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px);transition:background var(--t),border-color var(--t)}
+.hdr.on .nav-pill{background:rgba(10,29,54,.05);border-color:var(--line-2)}
+.hdr .btn-nav{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 18px;border-radius:999px;background:var(--gold);color:var(--navy);font-family:var(--font-h);font-weight:600;font-size:14px;transition:background var(--t)}
+.hdr .btn-nav:hover{background:var(--gold-2)}
+.hdr .btn-nav svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .hdr .wrap{display:flex;align-items:center;height:100%;gap:34px}
-.nav{margin-left:auto;display:flex;align-items:center;gap:34px}
-.nav ul{list-style:none;margin:0;padding:0;display:flex;gap:28px}
-.nav a:not(.btn){font-size:15px;font-weight:500;color:var(--ink-2);border-bottom:1px solid transparent;padding-bottom:3px;transition:color var(--t),border-color var(--t)}
-.nav a:not(.btn):hover{color:var(--ink);border-color:var(--gold)}
+.nav{margin-left:auto;display:flex;align-items:center;gap:14px}
+.nav ul{list-style:none;margin:0;padding:0;display:flex;gap:2px}
+.nav a:not(.btn-nav){font-size:14.5px;font-weight:500;color:rgba(255,255,255,.82);padding:9px 14px;border-radius:999px;transition:color var(--t),background var(--t)}
+.nav a:not(.btn-nav):hover{color:#fff;background:rgba(255,255,255,.1)}
+.hdr.on .nav a:not(.btn-nav){color:var(--ink-2)}
+.hdr.on .nav a:not(.btn-nav):hover{color:var(--ink);background:rgba(10,29,54,.06)}
+.menu-btn{color:#fff;border-color:rgba(255,255,255,.5)!important}
+.hdr.on .menu-btn{color:var(--ink);border-color:var(--ink)!important}
 .menu-btn{display:none;margin-left:auto;font-family:var(--font-m);font-size:13px;letter-spacing:.12em;text-transform:uppercase;height:42px;padding:0 2px;border-bottom:1px solid var(--ink)}
+.nav .btn-line{display:none}
 @media (max-width:960px){
   .menu-btn{display:inline-flex;align-items:center}
   .nav{display:none;position:absolute;top:var(--header);left:0;right:0;background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px var(--pad) 28px;flex-direction:column;align-items:stretch;gap:0;max-height:calc(100dvh - var(--header));overflow-y:auto;overscroll-behavior:contain}
   .nav.open{display:flex}
   .nav ul{flex-direction:column;gap:0}
+  .nav-pill{flex-direction:column;align-items:stretch;gap:0;padding:0;border:0;border-radius:0;background:none;backdrop-filter:none}
   .nav ul li{border-bottom:1px solid var(--line-2)}
-  .nav ul a:not(.btn){display:block;padding:18px 0;font-size:20px;font-family:var(--font-h);font-weight:600;color:var(--ink);border:0}
-  .nav .btn{margin-top:24px;height:56px;font-size:16px}
+  .nav ul a:not(.btn-nav){display:block;padding:18px 0;font-size:20px;font-family:var(--font-h);font-weight:600;color:var(--ink)!important;border-radius:0}
+  .nav ul a:not(.btn-nav):hover{background:none}
+  .hdr .btn-nav{margin-top:22px;height:54px;font-size:16px;justify-content:center}
 }
 
 /* ============ HERO ============ */
-.hero{padding-top:calc(var(--header) + clamp(52px,6vw,104px));padding-bottom:0;position:relative}
-.hero .wrap{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gap);align-items:center}
-.hero-copy{grid-column:1 / span 6}
-.hero h1{font-size:clamp(44px,5.9vw,88px);font-weight:800;letter-spacing:-.038em;line-height:.99;margin:24px 0 28px;max-width:13ch}
-.hero .lead{max-width:34ch}
-.hero-cta{display:flex;align-items:center;gap:32px;margin-top:40px;flex-wrap:wrap}
-.hero-media{grid-column:8 / -1;position:relative}
-.plate{position:relative;padding:0 0 clamp(20px,2.2vw,34px);display:flex;align-items:center;justify-content:center;min-height:clamp(260px,30vw,440px)}
-.plate::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--gold)}
-.plate img{width:100%;height:auto;max-height:clamp(240px,28vw,400px);object-fit:contain}
-.plate button{width:100%}
-.hero-cap{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap;font-family:var(--font-m);font-size:12.5px;color:var(--ink-2);padding-top:14px}
-.hero-cap b{font-weight:500;color:var(--ink)}
-.hero-cap a{margin-left:auto;border-bottom:1px solid transparent}
-.hero-cap a:hover{border-color:var(--gold)}
-.hero-data{grid-column:1 / -1;margin-top:clamp(52px,6vw,96px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gap)}
-.datum{grid-column:span 6;padding:30px 0 34px;display:flex;align-items:baseline;gap:16px}
-.datum + .datum{border-left:1px solid var(--line);padding-left:var(--gap);margin-left:calc(-1 * var(--gap))}
-.datum b{font-family:var(--font-m);font-weight:500;font-size:clamp(30px,2.9vw,44px);letter-spacing:-.03em;color:var(--navy);line-height:1}
-.datum span{font-size:15px;color:var(--ink-2);max-width:20ch;line-height:1.35}
-@media (max-width:1080px){
-  .hero-copy{grid-column:1 / span 7}
-  .hero-media{grid-column:8 / -1}
+.hero{position:relative;isolation:isolate;overflow:hidden;background:var(--navy);color:#fff;
+  min-height:clamp(640px,100svh,920px);display:flex;flex-direction:column;justify-content:center;
+  padding:calc(var(--header) + clamp(56px,7vw,104px)) 0 clamp(56px,6vw,88px)}
+.hero-bg{position:absolute;inset:0;z-index:-1;overflow:hidden;
+  background:linear-gradient(180deg,#0C2340 0%,var(--navy) 46%,#071427 100%)}
+.hero-bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(7,20,39,.25) 0%,transparent 30%,rgba(7,20,39,.55) 100%)}
+.hero-pattern{position:absolute;right:-9%;top:50%;translate:0 -50%;width:min(1180px,96%);height:auto;
+  fill:none;stroke:var(--gold);stroke-width:2.2;opacity:.15}
+.hero-inner{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:12px;padding:7px 16px 7px 7px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(8px);
+  font-size:14px;color:rgba(255,255,255,.9);margin-bottom:clamp(26px,3vw,38px)}
+.badge b{font-family:var(--font-m);font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;color:var(--navy);background:var(--gold);border-radius:999px;padding:5px 11px}
+.hero h1{font-size:clamp(42px,6vw,86px);font-weight:800;letter-spacing:-.038em;line-height:1.02;
+  max-width:16ch;margin:0 auto;color:#fff}
+.hero .lead{max-width:56ch;margin:clamp(22px,2.4vw,32px) auto 0;color:rgba(255,255,255,.78);
+  font-size:clamp(17px,1.25vw,20px)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center;margin-top:clamp(34px,3.6vw,48px)}
+.pill{display:inline-flex;align-items:center;gap:10px;height:54px;padding:0 28px;border-radius:999px;
+  font-family:var(--font-h);font-weight:600;font-size:15px;transition:background var(--t),color var(--t),border-color var(--t)}
+.pill-gold{background:var(--gold);color:var(--navy);border:1px solid var(--gold)}
+.pill-gold:hover{background:var(--gold-2);border-color:var(--gold-2)}
+.pill-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px)}
+.pill-ghost:hover{background:rgba(255,255,255,.16)}
+.pill svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hero-strip{margin-top:clamp(56px,6vw,92px);width:100%;max-width:940px;border-top:1px solid rgba(255,255,255,.16);
+  display:grid;grid-template-columns:1fr 1fr;gap:0}
+.datum{padding:26px 0 0;display:flex;align-items:baseline;justify-content:center;gap:14px;text-align:left}
+.datum + .datum{border-left:1px solid rgba(255,255,255,.16)}
+.datum b{font-family:var(--font-m);font-weight:500;font-size:clamp(28px,2.8vw,42px);letter-spacing:-.03em;
+  color:var(--gold);line-height:1}
+.datum span{font-size:15px;color:rgba(255,255,255,.72);max-width:18ch;line-height:1.35}
+@media (max-width:640px){
+  .hero{text-align:center}
+  .hero-strip{grid-template-columns:1fr}
+  .datum{flex-direction:column;align-items:center;gap:6px;text-align:center;padding:24px 0}
+  .datum + .datum{border-left:0;border-top:1px solid rgba(255,255,255,.14)}
+  .badge{font-size:12.5px;gap:9px;padding:6px 14px 6px 6px}
+  .badge b{font-size:10.5px;letter-spacing:.08em;padding:4px 9px}
+  .pill{width:100%;justify-content:center}
 }
-@media (max-width:900px){
-  .hero .wrap{grid-template-columns:1fr}
-  .hero-copy,.hero-media{grid-column:1 / -1}
-  .hero-media{margin-top:44px}
-  .datum{grid-column:1 / -1;padding:22px 0}
-  .datum + .datum{border-left:0;border-top:1px solid var(--line-2);padding-left:0;margin-left:0}
-}
-@media (max-width:540px){.datum{flex-direction:column;gap:6px}}
+/* entrada suave, escalonada */
+@keyframes surge{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.surge{animation:surge .7s cubic-bezier(.22,.8,.3,1) both}
+.surge-1{animation-delay:.05s}.surge-2{animation-delay:.14s}.surge-3{animation-delay:.23s}
+.surge-4{animation-delay:.32s}.surge-5{animation-delay:.42s}
 
 /* ============ EMPRESA (faixa azul) ============ */
 .empresa .wrap{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gap);row-gap:clamp(36px,4vw,56px)}
@@ -166,11 +195,12 @@ section{padding-block:var(--sec)}
 .empresa-head .h2{font-size:clamp(64px,8vw,120px);letter-spacing:-.05em;line-height:.86}
 .empresa-txt{grid-column:6 / -1;columns:2;column-gap:clamp(32px,3.4vw,56px)}
 .empresa-txt p{break-inside:avoid;margin-bottom:1.15em}
-.empresa-txt p:first-child{font-size:clamp(18px,1.3vw,21px);line-height:1.5;color:#fff}
+.empresa-txt p{color:var(--ink-2)}
+.empresa-txt p:first-child{font-size:clamp(18px,1.3vw,21px);line-height:1.5;color:var(--ink)}
 .empresa-foto{grid-column:1 / -1;margin-top:clamp(20px,3vw,40px)}
-.ph{aspect-ratio:21/6;border:1px solid var(--rule-navy);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:13.5px;color:var(--on-navy-3);background:
-  repeating-linear-gradient(135deg,transparent 0 26px,rgba(255,255,255,.045) 26px 27px)}
-.ph span{border:1px solid var(--rule-navy);padding:11px 16px}
+.ph{aspect-ratio:21/6;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:13.5px;color:var(--ink-3);background:
+  repeating-linear-gradient(135deg,transparent 0 26px,rgba(10,29,54,.045) 26px 27px)}
+.ph span{border:1px solid var(--line);padding:11px 16px;background:var(--white)}
 @media (max-width:1000px){.empresa-head,.empresa-txt{grid-column:1 / -1}.empresa-txt{columns:1}.ph{aspect-ratio:16/9}}
 
 /* ============ O QUE PRODUZIMOS ============ */
@@ -327,6 +357,7 @@ html.lock{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
   .shimmer{color:var(--gold);background:none;-webkit-text-fill-color:currentColor}
+  .surge{opacity:1;transform:none}
   html{scroll-behavior:auto}
 }
 </style>
@@ -341,14 +372,17 @@ html.lock{overflow:hidden}
     <a class="logo" href="#topo" aria-label="EDR — início"><svg class="edr " viewBox="0 0 1000 200" role="img" aria-label="EDR"><g transform="matrix(1,0,-0.17,1,34,0)"><path fill="url(#au)" d="M0,0 H262 L224,52 H0 Z M0,74 H214 L176,126 H0 Z M0,148 H248 L210,200 H0 Z"/><path fill="url(#ag)" fill-rule="evenodd" d="M300,0 H466 A100,100 0 0 1 466,200 H300 Z M362,52 H462 A48,48 0 0 1 462,148 H362 Z"/><path fill="url(#au)" fill-rule="evenodd" d="M604,0 H800 C868,0 908,27 908,68 C908,101 884,125 850,133 L950,200 H838 L748,138 H672 V200 H604 Z M672,48 H792 C808,48 818,56 818,68 C818,81 808,89 792,89 H672 Z"/></g></svg></a>
     <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
     <nav class="nav" id="menu" aria-label="Principal">
-      <ul>
-        <li><a href="#empresa">Empresa</a></li>
-        <li><a href="#produzimos">O que produzimos</a></li>
-        <li><a href="#marcas">Marcas</a></li>
-        <li><a href="#catalogo">Catálogo</a></li>
-        <li><a href="#como-funciona">Como funciona</a></li>
-      </ul>
-      <a class="btn btn-line btn-sm" href="#orcamento">Pedir orçamento</a>
+      <div class="nav-pill">
+        <ul>
+          <li><a href="#empresa">Empresa</a></li>
+          <li><a href="#produzimos">O que produzimos</a></li>
+          <li><a href="#marcas">Marcas</a></li>
+          <li><a href="#catalogo">Catálogo</a></li>
+          <li><a href="#como-funciona">Como funciona</a></li>
+        </ul>
+        <a class="btn-nav" href="#orcamento">Pedir orçamento
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+      </div>
     </nav>
   </div>
 </header>
@@ -357,29 +391,18 @@ html.lock{overflow:hidden}
 
 <!-- 1. HERO -->
 <section class="hero" aria-labelledby="h1">
-  <div class="wrap">
-    <div class="hero-copy">
-      <p class="eyebrow">Indústria nacional · Produção própria</p>
-      <h1 id="h1">Produtos promocionais e brindes corporativos.</h1>
-      <p class="lead">Do desenvolvimento à entrega, sob medida com infinitas possibilidades de personalização.</p>
-      <div class="hero-cta">
-        <a class="btn btn-solid" href="#catalogo">Ver catálogo</a>
-        <a class="arrow" href="#orcamento">Falar com a equipe comercial</a>
-      </div>
+  <div class="hero-bg" aria-hidden="true"><svg class="hero-pattern" viewBox="0 0 1000 200" aria-hidden="true"><g transform="matrix(1,0,-0.17,1,34,0)"><path d="M0,0 H262 L224,52 H0 Z M0,74 H214 L176,126 H0 Z M0,148 H248 L210,200 H0 Z"/><path d="M300,0 H466 A100,100 0 0 1 466,200 H300 Z M362,52 H462 A48,48 0 0 1 462,148 H362 Z"/><path d="M604,0 H800 C868,0 908,27 908,68 C908,101 884,125 850,133 L950,200 H838 L748,138 H672 V200 H604 Z M672,48 H792 C808,48 818,56 818,68 C818,81 808,89 792,89 H672 Z"/></g></svg></div>
+  <div class="wrap hero-inner">
+    <p class="badge surge surge-1"><b>Indústria nacional</b>Produção própria, do molde ao produto final</p>
+    <h1 id="h1" class="surge surge-2">Produtos promocionais e brindes corporativos.</h1>
+    <p class="lead surge surge-3">Do desenvolvimento à entrega, sob medida com infinitas possibilidades de personalização.</p>
+    <div class="hero-cta surge surge-4">
+      <a class="pill pill-gold" href="#catalogo">Ver catálogo
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a class="pill pill-ghost" href="#orcamento">Falar com a equipe comercial
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
     </div>
-    <div class="hero-media">
-      <figure style="margin:0">
-        <div class="plate">
-          <button type="button" data-open="95" aria-label="Abrir ficha: Bolsa suspensa" style="width:100%">
-            <img src="img/hero-bolsa-suspensa.webp" width="544" height="318" alt="Bolsa suspensa personalizada, produto EDR" fetchpriority="high">
-          </button>
-        </div>
-        <figcaption class="hero-cap"><b>Bolsa suspensa</b><span>Tecidos &amp; bolsas</span><a href="#produto-95" data-open="95">Ver no catálogo</a></figcaption>
-      </figure>
-    </div>
-  </div>
-  <div class="wrap">
-    <div class="hero-data">
+    <div class="hero-strip surge surge-5">
       <div class="datum"><b>200+</b><span>produtos em linha</span></div>
       <div class="datum"><b>infinitas</b><span>possibilidades de desenvolvimento</span></div>
     </div>
@@ -387,10 +410,10 @@ html.lock{overflow:hidden}
 </section>
 
 <!-- 2. EMPRESA -->
-<section class="band empresa" id="empresa" aria-labelledby="t-empresa">
+<section class="empresa" id="empresa" aria-labelledby="t-empresa">
   <div class="wrap">
     <div class="empresa-head">
-      <p class="eyebrow"><span class="shimmer">Empresa</span></p>
+      <p class="eyebrow"><span class="shimmer shimmer-light">Empresa</span></p>
       <h2 class="h2" id="t-empresa">EDR</h2>
     </div>
     <div class="empresa-txt">
@@ -578,9 +601,14 @@ html.lock{overflow:hidden}
   if (CONTATO.email !== 'comercial@edr.com.br') { mailEl.href = 'mailto:' + CONTATO.email; } else { mailEl.removeAttribute('href'); }
   if (CONTATO.instagram !== 'edr') { igEl.href = 'https://instagram.com/' + CONTATO.instagram; } else { igEl.removeAttribute('href'); }
 
-  var hdr = $('.hdr');
-  var onScroll = function(){ hdr.classList.toggle('on', window.scrollY > 4); };
-  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+  var hdr = $('.hdr'), hero = $('.hero');
+  var onScroll = function(){
+    var limite = hero ? hero.offsetHeight - hdr.offsetHeight : 4;
+    hdr.classList.toggle('on', window.scrollY > limite);
+  };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
+  onScroll();
 
   var mbtn = $('#menu-btn'), menu = $('#menu');
   function fecharMenu(){ menu.classList.remove('open'); mbtn.setAttribute('aria-expanded','false'); mbtn.textContent = 'Menu'; }
