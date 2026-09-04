@@ -259,8 +259,14 @@ function formPorCento(parte, total) {
   return Math.round((Number(parte || 0) / Number(total)) * 100);
 }
 
-function formNumeroBloco(valor, rotulo, puxa, zero, antes) {
+/* O ladrilho de número, com ícone.
+
+   O ícone num quadrado com o tom da própria medida é o que faz a fileira
+   se ler de relance em vez de palavra por palavra: quem abre a tela toda
+   semana reconhece a forma antes de ler o rótulo. */
+function formNumeroBloco(valor, rotulo, puxa, zero, antes, icone, tom) {
   return '<div class="numero' + (puxa ? ' puxa' : '') + '">' +
+    (icone ? '<div class="numero-ic' + (tom ? ' ' + tom : '') + '">' + ic(icone) + '</div>' : '') +
     '<div class="v' + (zero ? ' zero' : '') + '">' + valor + '</div>' +
     '<div class="l">' + rotulo + '</div>' +
     (antes || '') + '</div>';
@@ -2192,16 +2198,19 @@ function formMedNumerosHtml() {
   const m = FORM.med, f = (m && m.funil) || {};
   const poucos = Number(f.abriu || 0) < FORM_MINIMO_PARA_CONTA;
   const fa = (FORM.medAntes && FORM.medAntes.funil) || null;
+  // Os três passos do funil, na ordem em que acontecem, cada um com o seu
+  // ícone: quem chegou, quem começou, quem terminou.
   let html =
     formNumeroBloco(Number(f.abriu || 0), 'vezes que a página foi aberta', false, !f.abriu,
-      fa ? formComparado(f.abriu, fa.abriu) : '') +
+      fa ? formComparado(f.abriu, fa.abriu) : '', 'i-search', 'tom-info') +
     formNumeroBloco(Number(f.comecou || 0), 'passaram da primeira pergunta', false, !f.comecou,
-      fa ? formComparado(f.comecou, fa.comecou) : '') +
+      fa ? formComparado(f.comecou, fa.comecou) : '', 'i-spark', 'tom-atencao') +
     formNumeroBloco(Number(f.enviou || 0), 'terminaram e enviaram', true, !f.enviou,
-      fa ? formComparado(f.enviou, fa.enviou) : '');
+      fa ? formComparado(f.enviou, fa.enviou) : '', 'i-check-c', 'tom-ok');
   const dez = formCadaDez(f.enviou, f.comecou);
   if (!poucos && dez !== null) {
-    html += formNumeroBloco(dez + ' de cada 10', 'de quem começa, termina', false, !dez);
+    html += formNumeroBloco(dez + ' de cada 10', 'de quem começa, termina', false, !dez,
+      '', 'i-trend', 'tom-marca');
   }
   return html;
 }
@@ -2439,39 +2448,192 @@ function formMedAparelhoHtml(poucos) {
     'letra e de botão vale primeiro lá.</p></div>';
 }
 
+/* ---------------------------------------------------------------------
+   Dia a dia, em linha.
+
+   Era um espeto de barras de cinco pixels: com trinta dias na tela ficava
+   um pente, e a unica forma de ler um dia era parar o mouse em cima e
+   esperar o balao do navegador. Linha com area embaixo mostra a FORMA do
+   periodo, que e o que se quer saber de um grafico de dias: se esta
+   subindo, se caiu numa semana, onde foi o pico.
+
+   Duas linhas: quem abriu, mais apagada, e quem terminou, no laranja da
+   casa. A distancia entre as duas E a taxa de conclusao, desenhada.
+
+   SVG escrito a mao, e nao biblioteca de grafico: o sistema e um arquivo
+   so, sem requisicao a terceiros, e uma biblioteca de grafico pesa mais
+   que a tela inteira. Sao trinta linhas.
+   --------------------------------------------------------------------- */
+
+/* O desenho ocupa a caixa inteira: os números do eixo e as datas moram
+   FORA do SVG, em HTML.
+
+   Dentro dele, não: o SVG estica na horizontal para caber na largura da
+   tela (preserveAspectRatio="none"), e o texto estica junto, uns 40% numa
+   tela de 1440. As linhas escapam disso com vector-effect; letra, não. */
+const FORM_GRAF = { l: 0, r: 0, t: 8, b: 8, alt: 200, larg: 900 };
+
+function formCaminho(dias, campo, topo, fechar) {
+  const g = FORM_GRAF;
+  const larguraUtil = g.larg - g.l - g.r;
+  const alturaUtil = g.alt - g.t - g.b;
+  const passo = dias.length > 1 ? larguraUtil / (dias.length - 1) : 0;
+  const pontos = dias.map(function (d, i) {
+    const v = Number(d[campo] || 0);
+    return [g.l + i * passo, g.t + alturaUtil - (v / topo) * alturaUtil];
+  });
+  let caminho = pontos.map(function (pt, i) {
+    return (i ? 'L' : 'M') + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1);
+  }).join(' ');
+  if (fechar) {
+    caminho += ' L' + (g.l + larguraUtil).toFixed(1) + ' ' + (g.t + alturaUtil) +
+               ' L' + g.l + ' ' + (g.t + alturaUtil) + ' Z';
+  }
+  return { d: caminho, pontos: pontos };
+}
+
 function formMedDiaHtml() {
   const dias = Array.isArray(FORM.med.por_dia) ? FORM.med.por_dia : [];
   if (dias.length < 2) return '';
-  const topo = Math.max.apply(null, dias.map(function (d) { return Number(d.abriu || 0); }).concat([1]));
+
+  const g = FORM_GRAF;
+  const alturaUtil = g.alt - g.t - g.b;
+  const topoBruto = Math.max.apply(null, dias.map(function (d) { return Number(d.abriu || 0); }).concat([1]));
+  // Um teto redondo: eixo que termina em 37 não se lê de relance.
+  const passoDaEscala = Math.max(1, Math.pow(10, Math.floor(Math.log10(topoBruto))) / 2);
+  const topo = Math.ceil(topoBruto / passoDaEscala) * passoDaEscala;
+
+  const abriu = formCaminho(dias, 'abriu', topo, false);
+  const enviouArea = formCaminho(dias, 'enviou', topo, true);
+  const enviou = formCaminho(dias, 'enviou', topo, false);
+
   const maior = dias.reduce(function (a, b) {
     return Number(b.enviou || 0) > Number(a.enviou || 0) ? b : a;
   }, dias[0]);
+  const iMaior = dias.indexOf(maior);
+
+  // Quatro linhas de grade. O número de cada uma fica em HTML, na coluna
+  // à esquerda do desenho.
+  let grade = '';
+  let escada = '';
+  for (let i = 0; i <= 3; i++) {
+    const y = g.t + (alturaUtil / 3) * i;
+    const valor = Math.round(topo - (topo / 3) * i);
+    grade += '<line x1="0" y1="' + y.toFixed(1) + '" x2="' + g.larg +
+      '" y2="' + y.toFixed(1) + '" stroke="var(--fio-2)" stroke-dasharray="3 6"/>';
+    escada += '<span style="top:' + ((y / g.alt) * 100).toFixed(2) + '%">' + valor + '</span>';
+  }
+
+  const meio = Math.floor(dias.length / 2);
+
+  const svg =
+    '<svg viewBox="0 0 ' + g.larg + ' ' + g.alt + '" preserveAspectRatio="none" ' +
+      'class="graf" id="form-graf" role="img" ' +
+      'aria-label="Quantas pessoas abriram e quantas terminaram, dia a dia">' +
+      '<defs><linearGradient id="grafArea" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="var(--o)" stop-opacity=".28"/>' +
+        '<stop offset="100%" stop-color="var(--o)" stop-opacity="0"/>' +
+      '</linearGradient></defs>' +
+      grade +
+      '<path d="' + enviouArea.d + '" fill="url(#grafArea)"/>' +
+      '<path d="' + abriu.d + '" fill="none" stroke="var(--tx-4)" stroke-width="1.5" ' +
+        'stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>' +
+      '<path d="' + enviou.d + '" fill="none" stroke="var(--o)" stroke-width="2.5" ' +
+        'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+      // O pico ganha ponto e fio, que e o unico dia que se aponta sozinho.
+      '<line x1="' + enviou.pontos[iMaior][0].toFixed(1) + '" y1="' + g.t +
+        '" x2="' + enviou.pontos[iMaior][0].toFixed(1) + '" y2="' + (g.t + alturaUtil) +
+        '" stroke="var(--o-35)" stroke-dasharray="3 3"/>' +
+      '<circle cx="' + enviou.pontos[iMaior][0].toFixed(1) + '" cy="' + enviou.pontos[iMaior][1].toFixed(1) +
+        '" r="4.5" fill="var(--o)" stroke="var(--fundo-2)" stroke-width="2"/>' +
+      // A linha que segue o mouse, e o ponto que ela acende.
+      '<line id="form-graf-fio" x1="0" y1="' + g.t + '" x2="0" y2="' + (g.t + alturaUtil) +
+        '" stroke="var(--tx-3)" stroke-dasharray="3 3" opacity="0"/>' +
+      '<circle id="form-graf-ponto" r="4.5" fill="var(--o)" stroke="var(--fundo-2)" ' +
+        'stroke-width="2" opacity="0"/>' +
+    '</svg>';
 
   return '<div class="cartao">' +
-    '<div class="cartao-t">Dia a dia</div>' +
-    '<div class="rolo-h"><div style="display:flex;align-items:flex-end;gap:3px;height:130px;min-width:280px">' +
-      dias.map(function (d) {
-        const alturaAbriu = Math.round((Number(d.abriu || 0) / topo) * 100);
-        const alturaEnviou = Math.round((Number(d.enviou || 0) / topo) * 100);
-        return '<div style="flex:1 1 0;min-width:5px;height:100%;display:flex;align-items:flex-end;' +
-          'position:relative" title="' + esc(dataCurta(d.dia)) + ': ' + Number(d.abriu || 0) +
-          ' abriram, ' + Number(d.enviou || 0) + ' terminaram">' +
-          '<div style="position:absolute;inset:auto 0 0 0;height:' + alturaAbriu + '%;background:var(--fio-2);' +
-            'border-radius:2px 2px 0 0"></div>' +
-          '<div style="position:relative;width:100%;height:' + alturaEnviou + '%;background:var(--o);' +
-            'border-radius:2px 2px 0 0"></div>' +
-        '</div>';
-      }).join('') +
-    '</div></div>' +
-    '<div style="display:flex;justify-content:space-between;margin-top:8px">' +
-      '<span class="dica">' + esc(dataCurta(dias[0].dia)) + '</span>' +
-      '<span class="dica">o dia mais cheio foi ' + esc(dataCurta(maior.dia)) + ', com ' +
-        Number(maior.enviou || 0) + '</span>' +
-      '<span class="dica">' + esc(dataCurta(dias[dias.length - 1].dia)) + '</span>' +
+    '<div class="cartao-t">Dia a dia' +
+      '<span class="graf-legenda">' +
+        '<span class="graf-chave"><i class="cheia"></i>terminaram</span>' +
+        '<span class="graf-chave"><i class="tracejada"></i>abriram</span>' +
+      '</span>' +
     '</div>' +
-    '<p class="dica" style="margin-top:12px">A barra cheia é quem terminou, e a sombra atrás é quem abriu. ' +
-    'A conta de cada 10 só aparece no total do período: em um dia só, duas pessoas mudam tudo.</p>' +
+    '<div class="graf-linha">' +
+      '<div class="graf-eixo">' + escada + '</div>' +
+      '<div class="graf-caixa" id="form-graf-caixa">' + svg +
+        '<div class="graf-balao" id="form-graf-balao" hidden></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="graf-datas">' +
+      '<span>' + esc(dataCurta(dias[0].dia)) + '</span>' +
+      '<span>' + esc(dataCurta(dias[meio].dia)) + '</span>' +
+      '<span>' + esc(dataCurta(dias[dias.length - 1].dia)) + '</span>' +
+    '</div>' +
+    '<p class="dica" style="margin-top:10px">O dia mais cheio foi ' +
+      esc(dataCurta(maior.dia)) + ', com ' + Number(maior.enviou || 0) + '. ' +
+      'Passe o mouse na linha para ver um dia. ' +
+      'A conta de cada 10 só aparece no total do período: em um dia só, duas pessoas mudam tudo.</p>' +
   '</div>';
+}
+
+/* O balão que segue o mouse.
+
+   Ligado depois de o SVG estar na tela. O x do mouse vira índice pela
+   regra de três do próprio desenho, e não por procurar o ponto mais
+   perto: com trinta dias os dois dão o mesmo resultado e a conta direta
+   é uma linha. */
+function formGrafLigar() {
+  const caixa = porId('form-graf-caixa');
+  const svg = porId('form-graf');
+  const balao = porId('form-graf-balao');
+  const fio = porId('form-graf-fio');
+  const ponto = porId('form-graf-ponto');
+  if (!caixa || !svg || !balao || caixa.dataset.ligado === '1') return;
+  caixa.dataset.ligado = '1';
+
+  const dias = Array.isArray(FORM.med.por_dia) ? FORM.med.por_dia : [];
+  if (dias.length < 2) return;
+  const g = FORM_GRAF;
+  const topoBruto = Math.max.apply(null, dias.map(function (d) { return Number(d.abriu || 0); }).concat([1]));
+  const passoDaEscala = Math.max(1, Math.pow(10, Math.floor(Math.log10(topoBruto))) / 2);
+  const topo = Math.ceil(topoBruto / passoDaEscala) * passoDaEscala;
+  const alturaUtil = g.alt - g.t - g.b;
+
+  const mover = function (ev) {
+    const r = caixa.getBoundingClientRect();
+    const dentro = (ev.clientX - r.left) / r.width;          // 0 a 1 na caixa
+    const util = (dentro * g.larg - g.l) / (g.larg - g.l - g.r);
+    const i = Math.max(0, Math.min(dias.length - 1, Math.round(util * (dias.length - 1))));
+    const d = dias[i];
+
+    const xSvg = g.l + (i / (dias.length - 1)) * (g.larg - g.l - g.r);
+    const ySvg = g.t + alturaUtil - (Number(d.enviou || 0) / topo) * alturaUtil;
+    if (fio) { fio.setAttribute('x1', xSvg); fio.setAttribute('x2', xSvg); fio.setAttribute('opacity', '1'); }
+    if (ponto) { ponto.setAttribute('cx', xSvg); ponto.setAttribute('cy', ySvg); ponto.setAttribute('opacity', '1'); }
+
+    balao.hidden = false;
+    balao.innerHTML = '<b>' + esc(dataCurta(d.dia)) + '</b>' +
+      '<span><i class="cheia"></i>' + Number(d.enviou || 0) + ' terminaram</span>' +
+      '<span><i class="tracejada"></i>' + Number(d.abriu || 0) + ' abriram</span>';
+    // O balão não sai da caixa: perto da borda direita ele vira para a esquerda.
+    const xTela = (xSvg / g.larg) * r.width;
+    balao.style.left = Math.max(4, Math.min(r.width - balao.offsetWidth - 4, xTela - balao.offsetWidth / 2)) + 'px';
+  };
+
+  const sair = function () {
+    balao.hidden = true;
+    if (fio) fio.setAttribute('opacity', '0');
+    if (ponto) ponto.setAttribute('opacity', '0');
+  };
+
+  caixa.addEventListener('mousemove', mover);
+  caixa.addEventListener('mouseleave', sair);
+  // No telefone não há mouse: o toque acende o dia e o próximo apaga.
+  caixa.addEventListener('touchstart', function (ev) {
+    if (ev.touches && ev.touches[0]) mover(ev.touches[0]);
+  }, { passive: true });
 }
 
 function formMedRecusasHtml(perguntas) {
@@ -2672,6 +2834,8 @@ function formDesenhar() {
     }
     escrever('form-avisos', '');
     escrever('form-corpo', formCorpoMedidas());
+    // O gráfico só existe depois de o corpo estar na tela.
+    formGrafLigar();
     contador('formulario', FORM.def ? formDiferencas(FORM.noAr, FORM.def).length : 0);
     return;
   }
