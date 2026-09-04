@@ -373,11 +373,11 @@ h2.grande{
         </div>
         <div>
           <label class="rotulo" for="a-doc">CPF ou CNPJ</label>
-          <input class="campo" id="a-doc" inputmode="numeric" autocomplete="off">
+          <input class="campo" id="a-doc" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="000.000.000-00">
         </div>
         <div>
           <label class="rotulo" for="a-tel">WhatsApp</label>
-          <input class="campo" id="a-tel" inputmode="tel" autocomplete="tel" placeholder="DDD + número">
+          <input class="campo" id="a-tel" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="(11) 99999-8888">
         </div>
         <div class="largo">
           <label class="rotulo" for="a-mail">E-mail</label>
@@ -450,6 +450,95 @@ h2.grande{
     return d;
   }
 
+  /* -------------------------------------------------------------------
+     As máscaras dos campos que viram contrato.
+
+     CPF, CNPJ e telefone entram num documento assinado, e um dígito a
+     mais ali não é erro de digitação: é contrato com a parte errada. O
+     campo aceita só dígito, para no comprimento certo e vai pondo ponto,
+     barra e parêntese sozinho. O servidor continua recebendo só dígitos,
+     porque ele limpa o que chega antes de guardar.
+     ------------------------------------------------------------------- */
+
+  function soDig(v) { return String(v === null || v === undefined ? '' : v).replace(/\D/g, ''); }
+
+  function mascCpf(d) {
+    var x = soDig(d).slice(0, 11);
+    if (x.length <= 3) return x;
+    if (x.length <= 6) return x.slice(0, 3) + '.' + x.slice(3);
+    if (x.length <= 9) return x.slice(0, 3) + '.' + x.slice(3, 6) + '.' + x.slice(6);
+    return x.slice(0, 3) + '.' + x.slice(3, 6) + '.' + x.slice(6, 9) + '-' + x.slice(9);
+  }
+
+  function mascCnpj(d) {
+    var x = soDig(d).slice(0, 14);
+    if (x.length <= 2) return x;
+    if (x.length <= 5) return x.slice(0, 2) + '.' + x.slice(2);
+    if (x.length <= 8) return x.slice(0, 2) + '.' + x.slice(2, 5) + '.' + x.slice(5);
+    if (x.length <= 12) return x.slice(0, 2) + '.' + x.slice(2, 5) + '.' + x.slice(5, 8) + '/' + x.slice(8);
+    return x.slice(0, 2) + '.' + x.slice(2, 5) + '.' + x.slice(5, 8) + '/' + x.slice(8, 12) + '-' + x.slice(12);
+  }
+
+  /* Quem decide se é CPF ou CNPJ é o próprio número, e não a pessoa. */
+  function mascDoc(d) {
+    var x = soDig(d).slice(0, 14);
+    return x.length <= 11 ? mascCpf(x) : mascCnpj(x);
+  }
+
+  function mascTel(d) {
+    var x = soDig(d).slice(0, 11);
+    if (!x.length) return '';
+    if (x.length <= 2) return '(' + x;
+    var meio = x.length <= 10 ? 6 : 7;
+    if (x.length <= meio) return '(' + x.slice(0, 2) + ') ' + x.slice(2);
+    return '(' + x.slice(0, 2) + ') ' + x.slice(2, meio) + '-' + x.slice(meio);
+  }
+
+  /* Prende a máscara guardando o lugar do cursor: sem essa conta, corrigir
+     um dígito no meio joga o cursor para o fim a cada tecla. */
+  function mascarar(el, formata) {
+    if (!el) return;
+    el.addEventListener('input', function () {
+      var posicao = el.selectionStart;
+      var antes = soDig(el.value.slice(0, posicao)).length;
+      el.value = formata(el.value);
+      var i = 0, vistos = 0;
+      while (i < el.value.length && vistos < antes) {
+        if (/\d/.test(el.value[i])) vistos++;
+        i++;
+      }
+      try { el.setSelectionRange(i, i); } catch (e) { /* campo sem seleção */ }
+    });
+    if (el.value) el.value = formata(el.value);
+  }
+
+  /* Os dois últimos dígitos são conta feita com os anteriores: trocar dois
+     de lugar, que é o erro mais comum, quase sempre cai aqui. */
+  function cpfOk(v) {
+    var d = soDig(v);
+    if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+    function conta(ate) {
+      var soma = 0;
+      for (var i = 0; i < ate; i++) soma += Number(d[i]) * (ate + 1 - i);
+      var r = (soma * 10) % 11;
+      return r === 10 ? 0 : r;
+    }
+    return conta(9) === Number(d[9]) && conta(10) === Number(d[10]);
+  }
+
+  function cnpjOk(v) {
+    var d = soDig(v);
+    if (d.length !== 14 || /^(\d)\1{13}$/.test(d)) return false;
+    function conta(ate) {
+      var pesos = ate === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+      var soma = 0;
+      for (var i = 0; i < ate; i++) soma += Number(d[i]) * pesos[i];
+      var r = soma % 11;
+      return r < 2 ? 0 : 11 - r;
+    }
+    return conta(12) === Number(d[12]) && conta(13) === Number(d[13]);
+  }
+
   function dadosDoCliente() {
     return {
       nome: $('a-nome').value.trim(),
@@ -499,6 +588,9 @@ h2.grande{
       onde.appendChild(p);
     });
   }
+
+  mascarar($('a-doc'), mascDoc);
+  mascarar($('a-tel'), mascTel);
 
   ['a-nome', 'a-doc', 'a-tel', 'a-mail', 'a-end'].forEach(function (id) {
     $(id).addEventListener('input', desenharContrato);
@@ -650,6 +742,12 @@ h2.grande{
     if (c.nome.length < 5 || c.nome.indexOf(' ') < 1) { erro.textContent = 'Escreva o seu nome completo.'; return; }
     if (c.documento.length !== 11 && c.documento.length !== 14) {
       erro.textContent = 'CPF tem 11 dígitos e CNPJ tem 14. Confira.'; return;
+    }
+    if (!(c.documento.length === 11 ? cpfOk(c.documento) : cnpjOk(c.documento))) {
+      erro.textContent = c.documento.length === 11
+        ? 'Este CPF não confere: os dois últimos dígitos não batem com o resto. Confira.'
+        : 'Este CNPJ não confere: os dois últimos dígitos não batem com o resto. Confira.';
+      return;
     }
     if (c.whatsapp.length < 10 || c.whatsapp.length > 13) { erro.textContent = 'Confira o WhatsApp, com DDD.'; return; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email)) { erro.textContent = 'Confira o e-mail.'; return; }

@@ -94,12 +94,55 @@ t("e ela já vem ligada àquela aplicação", await pg.evaluate(() => PROP_LEAD 
 const cliente = await pg.inputValue("#propCliente");
 t("com o nome de quem contou a ideia já preenchido", cliente.length > 0, cliente);
 
+// ---- as máscaras dos campos que viram contrato
+//
+// Digitado tecla a tecla, e não com fill: a máscara roda no evento de
+// digitação, e preencher de uma vez não provaria que ela funciona para
+// quem está digitando.
+await pg.click("#propCnpj");
+await pg.type("#propCnpj", "11222333000181", { delay: 5 });
+t("o CNPJ ganha ponto e barra sozinho", (await pg.inputValue("#propCnpj")) === "11.222.333/0001-81",
+  await pg.inputValue("#propCnpj"));
+
+await pg.fill("#propCnpj", "");
+await pg.type("#propCnpj", "ab11cd222", { delay: 5 });
+t("letra não entra no CNPJ", (await pg.inputValue("#propCnpj")) === "11.222", await pg.inputValue("#propCnpj"));
+
+await pg.fill("#propCnpj", "");
+await pg.type("#propCnpj", "112223330001819999", { delay: 4 });
+t("e ele para nos 14 dígitos", (await pg.inputValue("#propCnpj")) === "11.222.333/0001-81",
+  await pg.inputValue("#propCnpj"));
+
+// Corrigir um dígito no meio não pode jogar o cursor para o fim: sem a
+// conta do cursor, a pessoa digita o resto do número de trás para frente.
+await pg.evaluate(() => { const e = document.getElementById('propCnpj'); e.focus(); e.setSelectionRange(4, 4); });
+await pg.keyboard.press("Backspace");
+await pg.type("#propCnpj", "9", { delay: 10 });
+t("corrigir no meio mantém o cursor no lugar",
+  (await pg.inputValue("#propCnpj")) === "11.922.333/0001-81"
+  && (await pg.evaluate(() => document.getElementById('propCnpj').selectionStart)) === 4,
+  await pg.inputValue("#propCnpj"));
+
+await pg.click("#propZap");
+await pg.type("#propZap", "5511999998888", { delay: 5 });
+t("o WhatsApp ganha o código do país e os parênteses",
+  (await pg.inputValue("#propZap")) === "+55 (11) 99999-8888", await pg.inputValue("#propZap"));
+
 // ---- os dados do contrato
 await pg.fill("#propRs", "Ideia Que Vende LTDA");
-await pg.fill("#propCnpj", "00.000.000/0001-00");
 await pg.fill("#propEnd", "Av. Paulista, 1000, São Paulo/SP");
-await pg.fill("#propZap", "5511999998888");
 await pg.fill("#propDiag", "Tem método na cabeça e nada no papel. Falta virar produto.");
+
+// Um CNPJ com o dígito verificador errado não vira contrato.
+await pg.fill("#propCnpj", "");
+await pg.type("#propCnpj", "11222333000182", { delay: 4 });
+await pg.click("#propCriarBt");
+await esperar(800);
+t("CNPJ com dígito errado é recusado", /não confere/.test(await pg.textContent("#propErro")),
+  (await pg.textContent("#propErro")).slice(0, 40));
+
+await pg.fill("#propCnpj", "");
+await pg.type("#propCnpj", "11222333000181", { delay: 4 });
 await pg.screenshot({ path: `${S}/prop-2-nova.png`, fullPage: true });
 
 await pg.click("#propCriarBt");
@@ -146,8 +189,35 @@ t("escolher o plano escreve o nome dele dentro do contrato",
   !/\[o plano que você escolher acima\]/.test(contratoDepois) && contratoDepois.includes("R$"));
 
 await cli.fill("#a-nome", "Marina Alves Souza");
-await cli.fill("#a-doc", "12345678909");
-await cli.fill("#a-tel", "11988887777");
+// O CPF e o WhatsApp de quem assina, digitados tecla a tecla.
+await cli.click("#a-doc");
+await cli.type("#a-doc", "12345678909", { delay: 5 });
+t("o CPF de quem assina ganha ponto e traço", (await cli.inputValue("#a-doc")) === "123.456.789-09",
+  await cli.inputValue("#a-doc"));
+await cli.fill("#a-doc", "");
+await cli.type("#a-doc", "11222333000181", { delay: 4 });
+t("e vira CNPJ sozinho quando passa de 11 dígitos",
+  (await cli.inputValue("#a-doc")) === "11.222.333/0001-81", await cli.inputValue("#a-doc"));
+
+await cli.click("#a-tel");
+await cli.type("#a-tel", "11988887777", { delay: 5 });
+t("o WhatsApp de quem assina ganha parênteses", (await cli.inputValue("#a-tel")) === "(11) 98888-7777",
+  await cli.inputValue("#a-tel"));
+
+// Documento que não existe não vira assinatura.
+await cli.fill("#a-doc", "");
+await cli.type("#a-doc", "12345678900", { delay: 4 });
+await cli.fill("#a-nome", "Marina Alves Souza");
+await cli.fill("#a-mail", "marina@exemplo.com.br");
+await cli.check("#a-li");
+await cli.click("#a-btn");
+await esperar(700);
+t("CPF com dígito errado é recusado antes de assinar",
+  /não confere/.test(await cli.textContent("#a-err")), (await cli.textContent("#a-err")).slice(0, 40));
+await cli.uncheck("#a-li");
+
+await cli.fill("#a-doc", "");
+await cli.type("#a-doc", "12345678909", { delay: 4 });
 await cli.fill("#a-mail", "marina@exemplo.com.br");
 await cli.fill("#a-end", "Rua Exemplo, 100, São Paulo/SP");
 await esperar(400);

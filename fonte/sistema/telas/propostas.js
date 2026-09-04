@@ -161,6 +161,16 @@ async function propCriar() {
     irParaOsDados(!c.rs ? 'propRs' : !c.cnpj ? 'propCnpj' : 'propEnd');
     return;
   }
+  // Os dois últimos dígitos do CNPJ são conta feita com os anteriores.
+  // Conferir aqui pega a troca de dois dígitos de lugar, que é o erro de
+  // digitação mais comum, antes de ele virar contrato assinado.
+  if (!cnpjValido(c.cnpj)) {
+    escrever('propErro', aviso('alerta', 'Este CNPJ não confere.',
+      'Os dois últimos dígitos não batem com o resto do número. Confira em uma nota ou no cartão CNPJ: ' +
+      'ele entra no contrato como a parte contratada.'));
+    irParaOsDados('propCnpj');
+    return;
+  }
   if (zap.length < 12) {
     escrever('propErro', aviso('alerta', 'Falta o WhatsApp que recebe os aceites.',
       'Com o código do país e o DDD, por exemplo 5511999998888.'));
@@ -271,9 +281,15 @@ function propCopiar(botao) {
 function propCampo(id, rotulo, extras) {
   const e = extras || {};
   const tag = e.linhas ? 'textarea' : 'input';
+  // A mascara so precisa ser declarada; quem a prende e o escrever() da
+  // casa, logo depois de o campo nascer.
+  const mascara = e.mascara
+    ? ' data-mascara="' + e.mascara + '" inputmode="numeric"' +
+      (e.maximo ? ' maxlength="' + e.maximo + '"' : '')
+    : '';
   return '<div' + (e.largo ? ' class="largo"' : '') + '>' +
     '<label class="rotulo" for="' + id + '">' + esc(rotulo) + '</label>' +
-    '<' + tag + ' class="campo campo-sm" id="' + id + '"' +
+    '<' + tag + ' class="campo campo-sm" id="' + id + '"' + mascara +
       (e.tipo ? ' type="' + e.tipo + '"' : '') +
       (e.linhas ? ' rows="' + e.linhas + '"' : '') +
       (e.dica ? ' placeholder="' + esc(e.dica) + '"' : '') +
@@ -353,10 +369,12 @@ DESENHO.propostas = function () {
   escrever('propContratada',
     '<div class="grade-2" style="gap:12px">' +
       propCampo('propRs', 'Razão social', { valor: c.rs, dica: 'como está no CNPJ' }) +
-      propCampo('propCnpj', 'CNPJ', { valor: c.cnpj, dica: '00.000.000/0001-00' }) +
+      propCampo('propCnpj', 'CNPJ', { valor: c.cnpj, dica: '00.000.000/0001-00',
+        mascara: 'cnpj', maximo: 18 }) +
       propCampo('propEnd', 'Endereço', { valor: c.end, dica: 'rua, número, cidade e estado' }) +
       propCampo('propForo', 'Foro', { valor: c.foro, dica: 'a comarca do contrato' }) +
-      propCampo('propZap', 'WhatsApp que recebe os aceites', { valor: c.zap, dica: '5511999998888' }) +
+      propCampo('propZap', 'WhatsApp que recebe os aceites', { valor: c.zap,
+        dica: '+55 (11) 99999-8888', mascara: 'zap', maximo: 19 }) +
     '</div>');
 
   // A dobra dos dados da casa abre sozinha enquanto faltar alguma coisa, e

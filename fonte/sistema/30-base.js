@@ -301,7 +301,17 @@ function perguntar(p) {
 
 function porId(id) { return document.getElementById(id); }
 
-function escrever(id, html) { const e = porId(id); if (e) e.innerHTML = html; }
+/* Escrever num pedaço da tela.
+   Depois de escrever, prende as máscaras do que acabou de nascer: campo
+   com data-mascara passa a formatar sozinho sem cada tela precisar
+   lembrar de ligar isso. O dataset dentro de mascarar() impede prender
+   duas vezes no mesmo campo. */
+function escrever(id, html) {
+  const e = porId(id);
+  if (!e) return;
+  e.innerHTML = html;
+  if (typeof mascararTudo === 'function') mascararTudo(e);
+}
 
 function texto(id, v) { const e = porId(id); if (e) e.textContent = v; }
 
@@ -448,6 +458,149 @@ const EU = {
 // "e-mail ou senha nao conferem" vira "E-mail ou senha nao conferem". O
 // servidor escreve em minuscula porque as mesmas frases aparecem no meio
 // de outras; na tela elas comecam a frase.
+/* ---------------------------------------------------------------------
+   Máscaras dos campos que viram contrato.
+
+   CNPJ, CPF e telefone entram em documento assinado, e um dígito a mais ou
+   a menos ali não é erro de digitação: é contrato com a parte errada. Em
+   vez de conferir depois, o campo não deixa escrever errado: aceita só
+   dígito, para no comprimento certo e vai pondo ponto, barra e parêntese
+   sozinho enquanto a pessoa digita.
+
+   O que o servidor recebe não muda: ele já limpa tudo que não é dígito
+   antes de guardar, então a máscara é só o que se vê.
+   --------------------------------------------------------------------- */
+
+function soDigitos(v) { return String(v === null || v === undefined ? '' : v).replace(/\D/g, ''); }
+
+/* CNPJ: 00.000.000/0001-00 */
+function mascaraCnpj(d) {
+  const x = soDigitos(d).slice(0, 14);
+  if (x.length <= 2) return x;
+  if (x.length <= 5) return x.slice(0, 2) + '.' + x.slice(2);
+  if (x.length <= 8) return x.slice(0, 2) + '.' + x.slice(2, 5) + '.' + x.slice(5);
+  if (x.length <= 12) return x.slice(0, 2) + '.' + x.slice(2, 5) + '.' + x.slice(5, 8) + '/' + x.slice(8);
+  return x.slice(0, 2) + '.' + x.slice(2, 5) + '.' + x.slice(5, 8) + '/' + x.slice(8, 12) + '-' + x.slice(12);
+}
+
+/* CPF: 000.000.000-00 */
+function mascaraCpf(d) {
+  const x = soDigitos(d).slice(0, 11);
+  if (x.length <= 3) return x;
+  if (x.length <= 6) return x.slice(0, 3) + '.' + x.slice(3);
+  if (x.length <= 9) return x.slice(0, 3) + '.' + x.slice(3, 6) + '.' + x.slice(6);
+  return x.slice(0, 3) + '.' + x.slice(3, 6) + '.' + x.slice(6, 9) + '-' + x.slice(9);
+}
+
+/* CPF ate 11 digitos, CNPJ do 12o em diante. A pessoa nao escolhe qual e:
+   o proprio numero diz. */
+function mascaraDocumento(d) {
+  const x = soDigitos(d).slice(0, 14);
+  return x.length <= 11 ? mascaraCpf(x) : mascaraCnpj(x);
+}
+
+/* Telefone do Brasil, sem o codigo do pais: (11) 99999-9999 */
+function mascaraTelefone(d) {
+  const x = soDigitos(d).slice(0, 11);
+  if (!x.length) return '';
+  if (x.length <= 2) return '(' + x;
+  const meio = x.length <= 10 ? 6 : 7;
+  if (x.length <= meio) return '(' + x.slice(0, 2) + ') ' + x.slice(2);
+  return '(' + x.slice(0, 2) + ') ' + x.slice(2, meio) + '-' + x.slice(meio);
+}
+
+/* Com o codigo do pais na frente: +55 (11) 99999-9999. E este o formato
+   que o WhatsApp precisa, e por isso o 55 aparece escrito em vez de ser
+   uma regra que so quem programou conhece. */
+function mascaraZapCompleto(d) {
+  const x = soDigitos(d).slice(0, 13);
+  if (x.length <= 2) return x ? '+' + x : '';
+  return '+' + x.slice(0, 2) + ' ' + mascaraTelefone(x.slice(2));
+}
+
+/* Prende a mascara num campo, guardando o lugar do cursor.
+
+   Sem a conta do cursor, corrigir um dígito no meio do CNPJ joga o cursor
+   para o fim a cada tecla, e a pessoa digita o resto de tras para frente.
+   A conta é: quantos dígitos havia antes do cursor continuam antes dele. */
+function mascarar(el, formata) {
+  if (!el || el.dataset.mascarado === '1') return;
+  el.dataset.mascarado = '1';
+  const aplicar = function () {
+    const posicao = el.selectionStart;
+    const digitosAntes = soDigitos(el.value.slice(0, posicao)).length;
+    el.value = formata(el.value);
+    let i = 0, vistos = 0;
+    while (i < el.value.length && vistos < digitosAntes) {
+      if (/\d/.test(el.value[i])) vistos++;
+      i++;
+    }
+    try { el.setSelectionRange(i, i); } catch (e) { /* campo sem seleção */ }
+  };
+  el.addEventListener('input', aplicar);
+  if (el.value) el.value = formata(el.value);
+}
+
+/* Prende todas as mascaras declaradas no proprio HTML, com data-mascara.
+   Chamado depois de cada desenho: campo que acabou de nascer ja entra
+   mascarado, e o dataset impede prender duas vezes no mesmo. */
+const MASCARAS = {
+  cnpj: mascaraCnpj,
+  cpf: mascaraCpf,
+  documento: mascaraDocumento,
+  telefone: mascaraTelefone,
+  zap: mascaraZapCompleto,
+};
+
+function mascararTudo(raiz) {
+  const onde = raiz || document;
+  onde.querySelectorAll('[data-mascara]').forEach(function (el) {
+    const f = MASCARAS[el.dataset.mascara];
+    if (f) mascarar(el, f);
+  });
+}
+
+/* ---------------------------------------------------------------------
+   Conferir CPF e CNPJ pelos digitos verificadores.
+
+   A mascara impede escrever um numero com tamanho errado. Isto impede
+   escrever um numero que nao existe: os dois ultimos digitos sao contas
+   feitas com os anteriores, entao trocar dois digitos de lugar, que e o
+   erro de digitacao mais comum, quase sempre cai aqui.
+   --------------------------------------------------------------------- */
+
+function cpfValido(v) {
+  const d = soDigitos(v);
+  if (d.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(d)) return false;   // 111.111.111-11 e parentes
+  const conta = function (ate) {
+    let soma = 0;
+    for (let i = 0; i < ate; i++) soma += Number(d[i]) * (ate + 1 - i);
+    const r = (soma * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return conta(9) === Number(d[9]) && conta(10) === Number(d[10]);
+}
+
+function cnpjValido(v) {
+  const d = soDigitos(v);
+  if (d.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(d)) return false;
+  const conta = function (ate) {
+    const pesos = ate === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+    let soma = 0;
+    for (let i = 0; i < ate; i++) soma += Number(d[i]) * pesos[i];
+    const r = soma % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return conta(12) === Number(d[12]) && conta(13) === Number(d[13]);
+}
+
+function documentoValido(v) {
+  const d = soDigitos(v);
+  return d.length === 11 ? cpfValido(d) : d.length === 14 ? cnpjValido(d) : false;
+}
+
 function primeiraMaiuscula(s) {
   const v = String(s || '');
   return v.charAt(0).toUpperCase() + v.slice(1);

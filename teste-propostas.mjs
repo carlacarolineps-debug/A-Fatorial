@@ -136,7 +136,7 @@ const corpoProposta = {
   diagnostico: "Tem método na cabeça e nada no papel. Falta virar produto.",
   fundacao: false, lead_id: lead.id, valida_ate: "2099-12-31",
   whatsapp_destino: "5511999998888",
-  contratada: { rs: "Ideia Que Vende LTDA", cnpj: "00.000.000/0001-00", end: "Av. Paulista, São Paulo/SP", foro: "São Paulo/SP" },
+  contratada: { rs: "Ideia Que Vende LTDA", cnpj: "11.222.333/0001-81", end: "Av. Paulista, São Paulo/SP", foro: "São Paulo/SP" },
   planos: [
     { t: "Projeto ID, construímos junto (90 dias)", selo: "Recomendado",
       esc: ["As 6 etapas do Método ID aplicadas com você"], val: 19900, cond: "12x no cartão" },

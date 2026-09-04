@@ -58,6 +58,15 @@ frase é curta.
 deu e que muda a decisão do dia. Zero sai apagado, com a classe `.zero`:
 número que não aconteceu não grita do tamanho do que aconteceu.
 
+**Número que vira contrato tem máscara, e não confiança.** CNPJ, CPF e
+telefone entram em documento assinado, então o campo não deixa escrever
+errado: aceita só dígito, para no comprimento certo e vai pondo ponto,
+barra e parêntese enquanto a pessoa digita. Os dígitos verificadores são
+conferidos antes de criar a proposta e antes de assinar. O motor está em
+`30-base.js` (`mascararTudo`, ligado dentro do `escrever`) e repetido em
+`fonte/proposta/30-motor.js`, que é outro pacote. O servidor continua
+limpando o que chega, então a máscara é só o que se vê.
+
 **Laranja é ação, e não "esta linha existe".** Se toda linha de uma lista
 tem a mesma cor, a cor parou de significar alguma coisa. Vale para o
 laranja da marca e para as etiquetas de sinal.
@@ -359,11 +368,11 @@ As telas têm verificação própria, num navegador de verdade. Com um
 ```sh
 node fonte/sistema/verifica.mjs           # 42: as onze telas, os três papéis
 node fonte/sistema/verifica-login.mjs     # 42: a porta, do primeiro dia em diante
-node fonte/sistema/verifica-propostas.mjs # 28: o ciclo da proposta, nas duas pontas
+node fonte/sistema/verifica-propostas.mjs # 38: o ciclo da proposta, nas duas pontas
 node verifica-aplicar.mjs                 # 95: o formulário, nas duas larguras
 ```
 
-São 420 verificações no total: 213 de rota e 207 de navegador.
+São 430 verificações no total: 213 de rota e 217 de navegador.
 
 `verifica-login.mjs` e `verifica-propostas.mjs` esvaziam a casa no banco
 local antes de começar, porque o primeiro acesso só responde sem ninguém
