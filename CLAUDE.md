@@ -121,6 +121,15 @@ extraídos do `page.tpl.html` da landing na hora do build: os dois produtos
 usam o mesmo desenho para a mesma coisa, e não há um segundo conjunto para
 manter em dia. Regra em `fonte/sistema/CONTRATO.md`.
 
+**O logotipo é o desenho, e não o nome escrito.** Até 04/09 a lombada e a
+porta traziam o símbolo mais "IDEIA QUE VENDE" escrito com a fonte da casa
+e espaço entre as letras, que é uma imitação do logotipo: o desenho de
+verdade tem o triângulo dentro do A, o branco e o laranja se revezando e
+os dois fios em volta do QUE. Agora entra o `fonte/logo_h_660.png`, o
+mesmo arquivo que a landing embute, em base64 dentro do
+`10-estilo.css`, uma vez só, como fundo de `.marca-h`. A altura fixa o
+tamanho e o `aspect-ratio` dá a largura: 20px na lombada, 22px na porta.
+
 ### As onze telas e os três papéis
 
 `semana`, `ideias`, `formulario`, `leitura`, `projetos`, `entrega`,
@@ -374,12 +383,13 @@ Direito olhou ainda.
 npm test
 ```
 
-Roda três suítes: as 84 rotas de sempre, as 114 do formulário e as 25 da
+Roda três suítes: as 87 rotas de sempre, as 114 do formulário e as 25 da
 proposta. Sobe wrangler local, bate nas rotas por HTTP e derruba tudo no
 fim. Roda no banco local; não encosta em produção.
 
-São 84 verificações nas rotas de sempre: o site estático com os cabeçalhos
-certos, o `robots.txt` e o `sitemap.xml`, e a porta inteira, do primeiro
+São 87 verificações nas rotas de sempre: o site estático com os cabeçalhos
+certos, o `robots.txt`, o `sitemap.xml`, a prova de dono do Google, e a
+porta inteira, do primeiro
 acesso ao freio de força bruta, passando por errar e-mail e errar senha
 respondendo a mesma frase, pelo cliente que não lê a mesa e por desligar
 alguém e ver a sessão dela cair na hora.
@@ -408,18 +418,32 @@ As telas têm verificação própria, num navegador de verdade. Com um
 `npx wrangler dev` de pé na porta 8787:
 
 ```sh
-node fonte/sistema/verifica.mjs           # 58: as onze telas, os papéis, o ao vivo, o eixo
+node fonte/sistema/verifica.mjs           # 72: as onze telas, as matrizes, o ao vivo, o eixo
 node fonte/sistema/verifica-login.mjs     # 42: a porta, do primeiro dia em diante
 node fonte/sistema/verifica-propostas.mjs # 38: o ciclo da proposta, nas duas pontas
 node verifica-aplicar.mjs                 # 95: o formulário, nas duas larguras
 ```
 
-São 456 verificações no total: 223 de rota e 233 de navegador.
+São 473 verificações no total: 226 de rota e 247 de navegador.
 
 `verifica-login.mjs` e `verifica-propostas.mjs` esvaziam a casa no banco
 local antes de começar, porque o primeiro acesso só responde sem ninguém
 cadastrado. Rodar qualquer uma das duas apaga as pessoas do seu banco de
 desenvolvimento, e nunca o de produção.
+
+## A prova de dono do Google
+
+`public/google54f449901e81080f.html` é o arquivo que o Search Console pede
+para confirmar que o site é da casa. Ele tem uma linha só e é servido em
+`/google54f449901e81080f.html`, direto da borda.
+
+**Ele não pode sair do lugar, mudar de nome nem mudar de conteúdo.** Se
+isso acontecer, o Google desverifica o domínio e os relatórios de busca
+somem sem aviso nenhum. Por isso ele é conferido no `npm test`, junto do
+`robots.txt` e do `sitemap.xml`.
+
+O `robots.txt` continua liberando o caminho dele: só `/sistema/` e
+`/proposta/` ficam de fora da busca.
 
 ## Cuidados no que já está de pé
 

@@ -124,6 +124,24 @@ t("sitemap: namespace certo", txt.includes("http://www.sitemaps.org/schemas/site
 t("sitemap: loc com o host pedido", txt.includes("<loc>http://localhost:8787/</loc>"));
 t("sitemap: content-type xml", (r.headers.get("content-type") || "").includes("xml"), r.headers.get("content-type"));
 
+/* ---------- a prova de dono do Google ----------
+
+   O Search Console confere que o site e da Carla pedindo UM arquivo, num
+   caminho exato, com um conteudo exato. Se ele sair do lugar, mudar de
+   nome ou passar a responder outra coisa, o Google desverifica o dominio e
+   os relatorios de busca somem sem avisar. Por isso ele e conferido aqui,
+   como o robots e o sitemap: e um arquivo que nao pode se mexer. */
+r = await fetch(`${B}/google54f449901e81080f.html`);
+txt = await r.text();
+t("GET a prova de dono do Google  200", r.status === 200, `status=${r.status}`);
+t("e com o conteudo exato que o Google espera",
+  txt.trim() === "google-site-verification: google54f449901e81080f.html", JSON.stringify(txt.trim()));
+
+r = await fetch(`${B}/robots.txt`);
+txt = await r.text();
+t("e o robots nao bloqueia o caminho dela",
+  !/Disallow: \/$/m.test(txt) && !txt.includes("Disallow: /google"), txt.trim().replace(/\n/g, " | "));
+
 // ---------- a porta: e-mail e senha ----------
 //
 // Guardar o cookie na mao: fetch do node nao tem pote de biscoitos.

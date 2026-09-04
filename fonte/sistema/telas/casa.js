@@ -301,6 +301,66 @@ async function casaAdicionar() {
     'Passe as duas coisas para ela agora: esta é a única vez que a senha aparece. Na primeira entrada ela escolhe a dela.'));
 }
 
+/* A matriz de quem enxerga o que.
+
+   Uma linha por tela, uma coluna por papel. Os grupos do menu viram
+   faixas, e nao uma coluna repetida: o nome do grupo apareceria onze
+   vezes para dizer cinco coisas.
+
+   O rodape conta quantas telas cada papel alcanca, que e a resposta de
+   "este acesso e amplo ou estreito" sem contar marcas de olho. */
+function casaMatrizHtml(editavel) {
+  const conta = function (papel) {
+    return TELAS.filter(function (t) { return (PERMISSOES[papel] || []).indexOf(t.k) >= 0; }).length;
+  };
+
+  let corpo = '';
+  GRUPOS.forEach(function (g) {
+    const doGrupo = TELAS.filter(function (t) { return t.grupo === g; });
+    if (!doGrupo.length) return;
+    corpo += '<tr class="grupo"><td colspan="' + (PAPEIS.length + 1) + '">' + esc(g) + '</td></tr>';
+    doGrupo.forEach(function (t) {
+      corpo += '<tr><td data-t><b>' + esc(t.nome) + '</b></td>' +
+        PAPEIS.map(function (p) {
+          const marcada = (PERMISSOES[p.k] || []).indexOf(t.k) >= 0;
+          // A gestora nao consegue se trancar para fora do configurador.
+          const travada = (p.k === 'gestor' && t.k === 'casa');
+          return '<td class="marca" data-r="' + esc(p.nome.toLowerCase()) + '">' +
+            '<label title="' + esc(p.nome + ' ' + (marcada ? 'enxerga' : 'não enxerga') + ' ' + t.nome) +
+              (travada ? '. Esta não se remove: sem ela a casa ficaria sem quem cadastra gente.' : '') + '">' +
+            '<input type="checkbox"' + (marcada ? ' checked' : '') +
+              (editavel && !travada ? '' : ' disabled') +
+              ' onchange="casaAlternarTela(\'' + p.k + '\',\'' + t.k + '\')">' +
+            '</label></td>';
+        }).join('') +
+      '</tr>';
+    });
+  });
+
+  return '' +
+    // No telefone o cabecalho da tabela some, e com ele a conta de quantas
+    // telas cada papel alcanca. A legenda repoe isso uma vez.
+    '<div class="matriz-legenda">' +
+      PAPEIS.map(function (p) {
+        return '<div><b>' + esc(p.nome) + '</b>' +
+          '<span>' + conta(p.k) + ' de ' + TELAS.length + ' telas</span></div>';
+      }).join('') +
+    '</div>' +
+    '<div class="rolo-h"><table class="lista matriz">' +
+    '<thead><tr><th>Tela</th>' +
+      PAPEIS.map(function (p) {
+        return '<th class="col"><span class="col-t">' + esc(p.nome) + '</span>' +
+          '<span class="col-sub">' + conta(p.k) + ' de ' + TELAS.length + '</span></th>';
+      }).join('') +
+    '</tr></thead>' +
+    '<tbody>' + corpo + '</tbody>' +
+    // Sem rodape de totais: o cabecalho de cada coluna ja diz "9 de 11", e
+    // repetir a mesma conta no fim da tabela e dizer duas vezes.
+    '</table></div>' +
+    '<p class="dica" style="margin-top:12px">Configurações não se tira do gestor: sem ela a casa ' +
+    'ficaria sem quem cadastra gente.</p>';
+}
+
 /* ------------------------------------------------------------------ */
 
 function casaAlternarTela(papel, tela) {
@@ -405,25 +465,17 @@ DESENHO.casa = function () {
     if (editavel) casaExplicarPapel();
   }
 
-  // 2. telas por papel
-  escrever('casaPermissoes',
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">' +
-    PAPEIS.map(function (p) {
-      return '<div style="border:1px solid var(--fio);border-radius:var(--r-sm);padding:16px">' +
-        '<b style="color:var(--claro);font-size:14px">' + esc(p.nome) + '</b>' +
-        '<p class="dica" style="margin:4px 0 12px">' + esc(p.resumo) + '</p>' +
-        TELAS.map(function (t) {
-          const marcada = (PERMISSOES[p.k] || []).indexOf(t.k) >= 0;
-          const travada = (p.k === 'gestor' && t.k === 'casa');
-          return '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;color:' +
-            (marcada ? 'var(--tx)' : 'var(--tx-4)') + '">' +
-            '<input type="checkbox"' + (marcada ? ' checked' : '') +
-              (editavel && !travada ? '' : ' disabled') +
-              ' onchange="casaAlternarTela(\'' + p.k + '\',\'' + t.k + '\')" style="accent-color:var(--o)">' +
-            esc(t.nome) + (travada ? ' <span class="dica">(não se remove)</span>' : '') + '</label>';
-        }).join('') +
-      '</div>';
-    }).join('') + '</div>');
+  // 2. telas por papel, em matriz
+  //
+  // Eram tres cartoes com as mesmas onze telas dentro: trinta e tres
+  // rotulos onde ha onze coisas, e "Minha semana" escrito tres vezes. A
+  // pergunta que se faz de verdade e "quem enxerga Propostas?", e ela
+  // obrigava a passar o olho por tres listas e comparar de cabeca.
+  //
+  // Uma linha por tela, uma coluna por papel: o nome aparece uma vez e a
+  // resposta e uma linha. As telas vem na ordem e nos grupos do menu, que
+  // e a ordem que a pessoa ja tem na cabeca.
+  escrever('casaPermissoes', casaMatrizHtml(editavel));
 
   // 3. armazenamento
   const uso = iqvOcupacao();

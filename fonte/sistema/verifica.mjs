@@ -247,6 +247,97 @@ spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local", "--
   "delete from leads where typeform_response_id = 'aovivo:1'"], { stdio: "ignore" });
 
 /* =====================================================================
+   As duas matrizes, e a cor que voltou a apontar alguma coisa.
+
+   "O que cada papel enxerga" e "os tres niveis" desenhavam tres cartoes
+   com a mesma lista dentro: trinta e tres rotulos para onze telas, vinte
+   e quatro para oito entregas. O que se confere aqui e que o rotulo
+   aparece UMA vez e que a marca de cada caso continua clicavel, porque
+   uma matriz bonita que nao deixa mais mudar permissao seria uma piora.
+   ===================================================================== */
+await entrarComo("carla@iqv.com.br");
+await pg.evaluate(() => irPara("casa"));
+await pg.waitForTimeout(900);
+
+const matrizPapeis = await pg.evaluate(() => {
+  const t = document.querySelector("#casaPermissoes table.matriz");
+  if (!t) return null;
+  const titulos = Array.from(t.querySelectorAll("tbody td[data-t]")).map((c) => c.textContent.trim());
+  return {
+    linhas: titulos.length,
+    colunas: t.querySelectorAll("thead th.col").length,
+    marcas: t.querySelectorAll("td.marca input[type=checkbox]").length,
+    // "Minha semana" escrito uma vez, e nao uma por papel.
+    vezesQueUmNomeAparece: titulos.filter((x) => x === "Minha semana").length,
+    editaveis: t.querySelectorAll("td.marca input:not(:disabled)").length,
+    travadas: t.querySelectorAll("td.marca input:disabled").length,
+  };
+});
+t("os papéis viram uma matriz, e não três listas", !!matrizPapeis, JSON.stringify(matrizPapeis));
+t("uma linha por tela e uma coluna por papel",
+  matrizPapeis.linhas === 11 && matrizPapeis.colunas === 3 && matrizPapeis.marcas === 33,
+  JSON.stringify(matrizPapeis));
+t("o nome de cada tela aparece uma vez, e não uma por papel",
+  matrizPapeis.vezesQueUmNomeAparece === 1, String(matrizPapeis.vezesQueUmNomeAparece));
+t("a gestora não consegue tirar Configurações de si mesma",
+  matrizPapeis.travadas === 1 && matrizPapeis.editaveis === 32, JSON.stringify(matrizPapeis));
+
+// Clicar continua mudando a permissão de verdade, e o menu junto.
+const antesDoClique = await pg.evaluate(() => (PERMISSOES.cliente || []).indexOf("propostas") >= 0);
+await pg.evaluate(() => casaAlternarTela("cliente", "propostas"));
+await pg.waitForTimeout(400);
+const depoisDoClique = await pg.evaluate(() => (PERMISSOES.cliente || []).indexOf("propostas") >= 0);
+t("marcar na matriz muda a permissão de verdade", antesDoClique !== depoisDoClique,
+  `${antesDoClique} -> ${depoisDoClique}`);
+await pg.evaluate(() => casaAlternarTela("cliente", "propostas"));   // devolve como estava
+
+/* Os níveis: a matriz, e o que ela deixou aparecer. */
+await pg.evaluate(() => irPara("roteiros"));
+await pg.waitForTimeout(900);
+const matrizNiveis = await pg.evaluate(() => {
+  const t = document.querySelector("#roteirosNiveis table.matriz");
+  const titulos = t ? Array.from(t.querySelectorAll("tbody td[data-t] b")).map((c) => c.textContent.trim()) : [];
+  return {
+    linhas: titulos.length,
+    colunas: t ? t.querySelectorAll("thead th.col").length : 0,
+    vezesQueUmNomeAparece: titulos.filter((x) => x === "Precificação").length,
+    // As oito vêm agrupadas pelas quatro fases do método.
+    faixas: t ? t.querySelectorAll("tbody tr.grupo").length : 0,
+    achado: (document.querySelector("#roteirosNiveis > p.dica") || {}).textContent || "",
+    dobraDeValores: !!document.querySelector("#roteirosNiveis details"),
+  };
+});
+t("os níveis viram uma matriz de oito linhas por três colunas",
+  matrizNiveis.linhas === 8 && matrizNiveis.colunas === 3, JSON.stringify(matrizNiveis));
+t("o nome de cada entrega aparece uma vez, e não uma por nível",
+  matrizNiveis.vezesQueUmNomeAparece === 1, String(matrizNiveis.vezesQueUmNomeAparece));
+t("as oito vêm agrupadas pelas quatro fases do método", matrizNiveis.faixas === 4,
+  String(matrizNiveis.faixas));
+t("dois níveis com o mesmo escopo passam a ser ditos em voz alta",
+  /entregam exatamente a mesma coisa/.test(matrizNiveis.achado), matrizNiveis.achado.slice(0, 80));
+t("e os valores saem da leitura para uma dobra", matrizNiveis.dobraDeValores);
+
+/* As oito entregas: cor só na minoria. */
+const cores = await pg.evaluate(() => {
+  const conta = () => document.querySelectorAll("#roteirosEntregas > details .eti").length;
+  const escrever = (quantas) => {
+    const m = roteirosLer();
+    ENTREGAS.forEach((e, i) => {
+      m.roteiros[e.k] = Object.assign({}, m.roteiros[e.k],
+        { definicaoPronto: i < quantas ? ["um critério"] : [] });
+    });
+    iqvGravar(CHAVES.metodo, m);
+    DESENHO.roteiros();
+    return conta();
+  };
+  return { zero: escrever(0), duas: escrever(2), seis: escrever(6), oito: escrever(8) };
+});
+t("com nenhuma escrita, nenhuma das oito ganha etiqueta", cores.zero === 0, String(cores.zero));
+t("com duas escritas, a cor marca as duas, e não as seis", cores.duas === 2, String(cores.duas));
+t("com seis escritas, a cor marca as duas que faltam", cores.seis === 2, String(cores.seis));
+t("com as oito escritas, nenhuma etiqueta de novo", cores.oito === 0, String(cores.oito));
+
+/* =====================================================================
    O eixo do "Dia a dia".
 
    Ele mentia: quatro linhas igualmente espacadas com o numero de cada uma

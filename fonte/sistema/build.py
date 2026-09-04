@@ -61,6 +61,15 @@ fontes_css = "\n".join(faces)
 svg = ler('../mark_geo.svg')
 mark_paths = ''.join(re.findall(r'<path[^>]*/>', svg))
 
+# O logotipo por extenso, o mesmo arquivo que a landing embute. Ate agora o
+# sistema escrevia "Ideia Que Vende" com a fonte da casa e espaco entre as
+# letras, que e uma imitacao do logotipo, e nao o logotipo: o desenho da
+# marca tem o triangulo dentro do A, as duas cores e os dois fios em volta
+# do QUE, e nada disso se faz com letra solta. Entra em base64, como tudo
+# aqui, para o arquivo continuar nao pedindo nada a ninguem.
+logo_h = base64.b64encode(open('../logo_h_660.png', 'rb').read()).decode()
+logo_h_uri = 'data:image/png;base64,' + logo_h
+
 # ---------------------------------------------------------------- icones
 # Os mesmos 35 simbolos desenhados da landing. Antes o sistema usava glifo
 # solto do teclado, que muda de desenho conforme o sistema operacional de
@@ -93,7 +102,7 @@ saida = (ler('00-cabeca.html')
          .replace('__FAVICON__', fav_uri)
          .replace('__MARK_PATHS__', mark_paths)
          .replace('<!--__ICONES__-->', simbolos)
-         + ler('10-estilo.css')
+         + ler('10-estilo.css').replace('__LOGO_H__', logo_h_uri)
          + '\n</style>\n</head>\n<body>\n'
          + ler('20-moldura.html')
          + '\n'.join(marcacao)

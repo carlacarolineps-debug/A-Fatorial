@@ -65,47 +65,138 @@ function roteirosPodeEditar() { return EU.papel === 'gestor'; }
 
 /* ------------------------------------------------------------------ */
 
-function roteirosCartaoNivel(nivel, editavel) {
-  const noEscopo = ENTREGAS.filter(function (e) { return (nivel.escopo || []).indexOf(e.k) >= 0; });
-  const fora = ENTREGAS.filter(function (e) { return (nivel.escopo || []).indexOf(e.k) < 0; });
+/* A matriz dos niveis: uma entrega por linha, um nivel por coluna.
 
-  return '' +
-    '<div style="border:1px solid var(--fio);border-radius:var(--r);padding:20px;background:var(--fundo-3)">' +
-      '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">' +
-        '<b style="font-family:var(--display);font-size:17px;color:var(--claro)">' + esc(nivel.nome) + '</b>' +
-        '<span class="eti eti-marca">' + esc(moeda(nivel.valor)) + '</span>' +
-      '</div>' +
-      '<p class="dica" style="margin:8px 0 14px">' + esc(nivel.resumo) + '</p>' +
+   Eram tres cartoes com as mesmas oito entregas dentro: vinte e quatro
+   rotulos onde ha oito coisas, e "Precificacao" escrito tres vezes. A
+   pergunta que se faz de verdade e "o Pro inclui Precificacao?", e ela
+   obrigava a achar a terceira linha do cartao do meio e comparar de
+   cabeca com a do cartao da esquerda.
 
-      (editavel
-        ? '<label class="rotulo">Valor à vista</label>' +
-          '<div style="display:flex;gap:8px;margin-bottom:14px">' +
-            '<input class="campo campo-sm" type="number" min="0" step="10" id="roteirosValor-' + nivel.k + '" value="' + Number(nivel.valor || 0) + '">' +
-            '<button class="bt bt-marca bt-sm" onclick="roteirosSalvarValor(\'' + nivel.k + '\')">Salvar</button>' +
-          '</div>'
-        : '') +
+   Numa matriz, a diferenca entre dois niveis, que e o que decide preco, e
+   uma coluna que se le de cima a baixo. E quando dois niveis entregam
+   exatamente a mesma coisa, isso aparece; nos tres cartoes, nao aparecia.
 
-      '<div class="rotulo">Entra neste nível</div>' +
-      '<div style="display:flex;flex-direction:column;gap:6px">' +
-        ENTREGAS.map(function (e) {
-          const dentro = (nivel.escopo || []).indexOf(e.k) >= 0;
-          const marca = editavel
-            ? '<input type="checkbox" ' + (dentro ? 'checked ' : '') +
-              'onchange="roteirosAlternarEscopo(\'' + nivel.k + '\',\'' + e.k + '\')" ' +
-              'style="accent-color:var(--o);margin-right:8px">'
-            : '<span style="color:' + (dentro ? 'var(--o)' : 'var(--tx-4)') + ';margin-right:8px">' +
-              (dentro ? '✓' : '·') + '</span>';
-          return '<label style="display:flex;align-items:center;font-size:12.5px;color:' +
-                 (dentro ? 'var(--tx)' : 'var(--tx-4)') + ';cursor:' + (editavel ? 'pointer' : 'default') + '">' +
-                 marca + esc(e.nome) + '</label>';
+   Os campos de valor sairam da leitura e foram para uma dobra: preco se
+   muda de vez em quando, e escopo se olha toda semana. E a regra da casa,
+   a mesma que tirou os treze mil pixels das oito entregas. */
+function roteirosMatrizHtml(metodo, editavel) {
+  const niveis = metodo.niveis;
+  const dentro = function (nivel, entregaK) {
+    return (nivel.escopo || []).indexOf(entregaK) >= 0;
+  };
+  const quantas = function (nivel) {
+    return ENTREGAS.filter(function (e) { return dentro(nivel, e.k); }).length;
+  };
+
+  // As oito vem agrupadas pelas quatro fases, que e a ordem do metodo. O
+  // nome da fase virava etiqueta repetida em cada linha; aqui e uma faixa.
+  let corpo = '';
+  FASES.forEach(function (f) {
+    const daFase = ENTREGAS.filter(function (e) { return e.fase === f.n; });
+    if (!daFase.length) return;
+    corpo += '<tr class="grupo"><td colspan="' + (niveis.length + 1) + '">' + esc(f.nome) + '</td></tr>';
+    daFase.forEach(function (e) {
+      corpo += '<tr><td data-t><b>' + esc(e.nome) + '</b>' +
+        '<div class="sob">' + esc(e.resumo) + '</div></td>' +
+        niveis.map(function (n) {
+          const marcada = dentro(n, e.k);
+          return '<td class="marca" data-r="' + esc(n.nome.toLowerCase()) + '">' +
+            '<label title="' + esc(e.nome + (marcada ? ' entra no ' : ' não entra no ') + n.nome) + '">' +
+            '<input type="checkbox"' + (marcada ? ' checked' : '') + (editavel ? '' : ' disabled') +
+              ' onchange="roteirosAlternarEscopo(\'' + n.k + '\',\'' + e.k + '\')">' +
+            '</label></td>';
         }).join('') +
-      '</div>' +
+      '</tr>';
+    });
+  });
 
-      '<div class="dica" style="margin-top:12px">' +
-        noEscopo.length + ' de ' + ENTREGAS.length + ' entregas' +
-        (fora.length ? '. Fora: ' + esc(fora.map(function (e) { return e.nome; }).join(', ')) : '') +
-      '</div>' +
-    '</div>';
+  // O '' na mesma linha do return nao e enfeite: return sozinho no fim da
+  // linha ganha ponto e virgula do proprio JavaScript, e a funcao passaria
+  // a devolver nada com a tabela inteira escrita logo abaixo.
+  return '' +
+    // No telefone o cabecalho da tabela some, e com ele o preco de cada
+    // nivel. A legenda repoe isso uma vez, e nao em cada uma das oito
+    // linhas.
+    '<div class="matriz-legenda">' +
+      niveis.map(function (n) {
+        return '<div><b>' + esc(n.nome) + '</b>' +
+          '<span class="eti eti-marca">' + esc(moeda(n.valor)) + '</span>' +
+          '<span>' + quantas(n) + ' de ' + ENTREGAS.length + ' entregas</span></div>';
+      }).join('') +
+    '</div>' +
+    '<div class="rolo-h"><table class="lista matriz">' +
+    '<thead><tr><th>Entrega</th>' +
+      niveis.map(function (n) {
+        return '<th class="col"><span class="col-t">' + esc(n.nome) + '</span>' +
+          '<span class="col-preco"><span class="eti eti-marca">' + esc(moeda(n.valor)) + '</span></span>' +
+          '<span class="col-sub">' + quantas(n) + ' de ' + ENTREGAS.length + ' entregas</span></th>';
+      }).join('') +
+    '</tr></thead><tbody>' + corpo + '</tbody></table></div>';
+}
+
+/* O que a matriz deixou aparecer.
+
+   Dois niveis com o mesmo escopo e uma pergunta de negocio, nao um
+   defeito de tela: se o Pro entrega o que o Premium entrega, o que separa
+   os dois precos nao esta escrito em lugar nenhum do sistema. Nos tres
+   cartoes isso ficava escondido, porque comparar oito marcas de olho e
+   trabalho que ninguem faz. Aqui e uma linha. */
+function roteirosAchadoDoEscopo(metodo) {
+  const niveis = metodo.niveis;
+  const chave = function (n) { return (n.escopo || []).slice().sort().join(','); };
+
+  for (let a = 0; a < niveis.length; a++) {
+    for (let b = a + 1; b < niveis.length; b++) {
+      if (!(niveis[a].escopo || []).length) continue;
+      if (chave(niveis[a]) === chave(niveis[b])) {
+        return '<p class="dica" style="margin-top:14px"><b style="color:var(--tx)">' +
+          esc(niveis[a].nome) + ' e ' + esc(niveis[b].nome) + ' entregam exatamente a mesma coisa.</b> ' +
+          'A diferença entre ' + esc(moeda(niveis[a].valor)) + ' e ' + esc(moeda(niveis[b].valor)) +
+          ' não está escrita aqui: ou ela mora fora da lista de entregas, e vale dizer onde, ' +
+          'ou um dos dois níveis está sobrando.</p>';
+      }
+    }
+  }
+
+  const vazios = niveis.filter(function (n) { return !(n.escopo || []).length; });
+  if (vazios.length) {
+    return '<p class="dica" style="margin-top:14px">' +
+      esc(vazios.map(function (n) { return n.nome; }).join(', ')) +
+      (vazios.length === 1 ? ' não entrega nada ainda.' : ' não entregam nada ainda.') +
+      ' Marque na coluna o que entra.</p>';
+  }
+  return '';
+}
+
+/* Os campos de valor, dentro de uma dobra.
+
+   O <details> guarda o proprio estado no HTML, e trocar uma marca de
+   escopo redesenha esta parte inteira: sem guardar aqui se ela estava
+   aberta, a dobra fechava sozinha na cara de quem tinha acabado de
+   abri-la para mexer nos precos. */
+let ROTEIROS_VALORES_ABERTA = false;
+
+function roteirosValoresHtml(metodo) {
+  return '<details class="dobra"' + (ROTEIROS_VALORES_ABERTA ? ' open' : '') +
+      ' ontoggle="ROTEIROS_VALORES_ABERTA = this.open">' +
+    '<summary><b>Mudar os valores</b>' +
+      '<span class="eti eti-neutra">' +
+        metodo.niveis.map(function (n) { return moeda(n.valor); }).join(' · ') + '</span>' +
+    '</summary>' +
+    '<div class="dobra-corpo"><div class="grade-3">' +
+      metodo.niveis.map(function (n) {
+        return '<div>' +
+          '<label class="rotulo" for="roteirosValor-' + n.k + '">' + esc(n.nome) + ', à vista</label>' +
+          '<div style="display:flex;gap:8px">' +
+            '<input class="campo campo-sm" type="number" min="0" step="10" ' +
+              'id="roteirosValor-' + n.k + '" value="' + Number(n.valor || 0) + '">' +
+            '<button class="bt bt-marca bt-sm" onclick="roteirosSalvarValor(\'' + n.k + '\')">Salvar</button>' +
+          '</div>' +
+          '<p class="dica" style="margin-top:6px">' + esc(n.resumo) + '</p>' +
+        '</div>';
+      }).join('') +
+    '</div></div></details>';
 }
 
 /* As oito entregas, uma de cada vez.
@@ -120,7 +211,33 @@ function roteirosCartaoNivel(nivel, editavel) {
    O <details> e do proprio navegador: abre no clique e no teclado sem uma
    linha de JavaScript, e salvar uma entrega nao redesenha a tela, entao o
    que estiver aberto continua aberto. */
-function roteirosCartaoEntrega(entrega, roteiro, editavel) {
+/* Uma entrega.
+
+   Duas etiquetas sairam do resumo, e as duas pelo mesmo motivo: elas
+   apareciam em toda linha, e etiqueta que aparece em toda linha nao
+   informa, so pinta.
+
+   a. A fase. "Estruturacao" estava escrito em tres das oito linhas e
+      "Validacao" em outras tres. Virou a faixa que agrupa as oito, e ai
+      diz a mesma coisa uma vez em vez de oito, e de quebra mostra o
+      formato do metodo: uma entrega de diagnostico, tres de estruturacao,
+      tres de validacao, uma de produto pronto.
+
+   b. "Sem definicao de pronto", em ambar em todas as oito. Cor que aparece
+      em toda linha nao diz "olhe esta", diz "esta linha existe".
+
+      A regra agora e uma so: COR SO NA MINORIA. Se poucas estao escritas,
+      as escritas ganham o verde, porque sao elas a novidade. Se poucas
+      faltam, as que faltam ganham o ambar, porque sao elas o trabalho. Se
+      todas estao de um lado, ninguem ganha etiqueta nenhuma, e quem conta
+      e o selo do titulo, que ja diz "2 de 8 escritas".
+
+      Assim a cor volta a apontar alguma coisa em qualquer estado da tela,
+      e nunca pinta oito linhas iguais.
+
+   `marca` vem de fora porque e uma conta sobre as oito, e nao sobre esta:
+   'escritas', 'faltantes' ou '' quando nao ha minoria a marcar. */
+function roteirosCartaoEntrega(entrega, roteiro, editavel, marca) {
   const pronto = (roteiro.definicaoPronto || []).filter(function (x) { return String(x).trim(); });
   const escrita = pronto.length > 0;
 
@@ -129,10 +246,13 @@ function roteirosCartaoEntrega(entrega, roteiro, editavel) {
       '<summary>' +
         '<span class="dobra-n">' + String(entrega.n).padStart(2, '0') + '</span>' +
         '<b>' + esc(entrega.nome) + '</b>' +
-        '<span class="eti eti-neutra">' + esc(nomeFase(entrega.fase)) + '</span>' +
-        (escrita
-          ? '<span class="eti eti-ok">' + pronto.length + ' item(ns) de pronto</span>'
-          : '<span class="eti eti-atencao">sem definição de pronto</span>') +
+        (escrita && marca === 'escritas'
+          ? '<span class="eti eti-ok">' + pronto.length +
+            (pronto.length === 1 ? ' critério de pronto' : ' critérios de pronto') + '</span>'
+          : '') +
+        (!escrita && marca === 'faltantes'
+          ? '<span class="eti eti-atencao">falta a definição de pronto</span>'
+          : '') +
       '</summary>' +
       '<div class="dobra-corpo">' +
       '<p class="dica" style="margin-bottom:16px">' + esc(entrega.resumo) + '</p>' +
@@ -195,9 +315,9 @@ function roteirosCartaoEntrega(entrega, roteiro, editavel) {
 function roteirosPintarNiveis(metodo, editavel) {
   if (editavel === undefined) editavel = roteirosPodeEditar();
   escrever('roteirosNiveis',
-    '<div class="grade-3">' +
-    metodo.niveis.map(function (n) { return roteirosCartaoNivel(n, editavel); }).join('') +
-    '</div>');
+    roteirosMatrizHtml(metodo, editavel) +
+    roteirosAchadoDoEscopo(metodo) +
+    (editavel ? roteirosValoresHtml(metodo) : ''));
 }
 
 /* ------------------------------------------------------------------ */
@@ -255,6 +375,15 @@ function roteirosPintarSelos(metodo) {
   escrever('roteirosSeloProntas', escritas === ENTREGAS.length
     ? '<span class="eti eti-ok">as oito escritas</span>'
     : '<span class="eti eti-atencao">' + escritas + ' de ' + ENTREGAS.length + ' escritas</span>');
+
+  // Com nenhuma escrita, as oito linhas nao trazem etiqueta nenhuma, e sem
+  // esta frase a tela nao diz o que esta faltando nem por que importa. Ela
+  // some assim que a primeira for escrita, entao nao e um aviso que
+  // aparece sempre: e o estado de quem ainda nao comecou.
+  escrever('roteirosSemPronto', escritas ? '' :
+    '<p class="dica" style="margin:-8px 0 16px">Nenhuma entrega tem definição de pronto ainda. ' +
+    'Ela é a lista do que precisa estar feito para a entrega poder ir ao cliente, e é ela que ' +
+    'vira o checklist na Mesa da entrega. Abra a primeira e escreva uma linha por item.</p>');
 }
 
 /* ------------------------------------------------------------------ */
@@ -304,8 +433,28 @@ DESENHO.roteiros = function () {
         '<p class="dica" style="margin-top:5px">' + esc(e.resumo) + '</p></div>';
     }).join('') + '</div>');
 
-  escrever('roteirosEntregas', ENTREGAS.map(function (e) {
-    return roteirosCartaoEntrega(e, metodo.roteiros[e.k] || {}, editavel);
+  // As oito agrupadas pelas quatro fases do metodo: o nome da fase deixa
+  // de ser uma etiqueta repetida em cada linha e vira a faixa que separa
+  // os grupos. Junto com isso, o formato do metodo aparece.
+  const escritas = ENTREGAS.filter(function (e) {
+    return ((metodo.roteiros[e.k] || {}).definicaoPronto || [])
+      .filter(function (x) { return String(x).trim(); }).length > 0;
+  }).length;
+  const faltam = ENTREGAS.length - escritas;
+
+  // Cor so na minoria: quem e excecao ganha etiqueta, quem e o estado
+  // geral fica quieto, e o selo do titulo conta os dois lados.
+  const marca = (!escritas || !faltam) ? ''
+    : (escritas <= faltam ? 'escritas' : 'faltantes');
+
+  escrever('roteirosEntregas', FASES.map(function (f) {
+    const daFase = ENTREGAS.filter(function (e) { return e.fase === f.n; });
+    if (!daFase.length) return '';
+    return '<div class="fase-t">' + esc(f.nome) +
+      '<span>' + daFase.length + (daFase.length === 1 ? ' entrega' : ' entregas') + '</span></div>' +
+      daFase.map(function (e) {
+        return roteirosCartaoEntrega(e, metodo.roteiros[e.k] || {}, editavel, marca);
+      }).join('');
   }).join(''));
 
   roteirosPintarSelos(metodo);

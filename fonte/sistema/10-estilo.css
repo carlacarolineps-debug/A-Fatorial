@@ -206,12 +206,36 @@ body[data-mesa="papel"] .app::before{content:none}
   --fio:var(--linha); --fio-2:var(--linha-2); --o-tx:var(--o); --claro:var(--branco);
 }
 .lateral-marca{display:flex;align-items:center;gap:11px;padding:var(--e3) var(--e3) var(--e2)}
-.lateral-marca svg{width:24px;height:20px;fill:var(--o);stroke:none;flex:none}
-.lateral-marca b{
-  font-family:var(--display); font-weight:800; font-size:var(--t-rotulo);
-  letter-spacing:.2em; text-transform:uppercase; color:var(--branco); display:block;
+/* A regra que escondia todo span dentro da lombada saiu daqui.
+
+   Ela existia para o texto de capa da marca antiga, que nao mora na
+   lombada, e nao havia mais nenhum span ali dentro para ela pegar. Ao o
+   logotipo virar um span com o desenho no fundo, ela passou a esconder a
+   propria marca: a lombada abria sem nada no alto. */
+
+/* O logotipo por extenso.
+
+   Ate agora a lombada trazia o simbolo mais "IDEIA QUE VENDE" escrito com
+   a fonte da casa e .2em entre as letras. Aquilo era uma imitacao do
+   logotipo: o desenho de verdade tem o triangulo dentro do A, o branco e o
+   laranja se revezando e os dois fios em volta do QUE, e nada disso se faz
+   com letra solta.
+
+   A altura e o que fixa o tamanho, e nao a largura: o arquivo e 660 por
+   67, entao 20px de altura dao 197px de largura, que e o mesmo espaco que
+   o simbolo mais o texto ocupavam na lombada de 248px. */
+/* O arquivo entra UMA vez, aqui, e nao uma em cada lugar que mostra a
+   marca: como <img>, a lombada e a porta carregavam a mesma imagem em
+   base64 e o sistema engordava 86 kb para mostrar o mesmo desenho duas
+   vezes. Como fundo, ele mora numa regra so.
+
+   aspect-ratio da a largura a partir da altura, entao mudar o tamanho e
+   mudar um numero. */
+.marca-h{
+  display:block; height:20px; aspect-ratio:660/67; max-width:100%; flex:none;
+  background:url(__LOGO_H__) left center / contain no-repeat;
 }
-.lateral-marca span{display:none}   /* texto de capa nao mora na lombada */
+.porta-marca .marca-h{height:22px}
 
 /* O menu vira indice tipografico, com o gesto do .who-row da capa. */
 .menu{padding:0 0 var(--e3);overflow-y:auto;flex:1}
@@ -799,6 +823,132 @@ table.lista td.vazio{height:auto}
 .insight.tom-info{--tom:var(--sinal-info)}
 .insight.tom-ok{--tom:var(--sinal-ok)}
 
+/* --------------------------------------------------------- faixa de fase
+   O nome do grupo, uma vez, em vez de uma etiqueta por linha.
+
+   Nas oito entregas, "Estruturacao" estava escrito em tres linhas e
+   "Validacao" em outras tres. Como faixa, o nome aparece uma vez, e o
+   formato do metodo aparece junto: uma de diagnostico, tres de
+   estruturacao, tres de validacao, uma de produto pronto. */
+.fase-t{
+  display:flex; align-items:baseline; gap:var(--e2);
+  margin:var(--e4) 0 var(--e2);
+  font-family:var(--texto); font-size:var(--t-rotulo); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--tx-4);
+}
+.fase-t:first-child{margin-top:0}
+.fase-t span{
+  letter-spacing:0; text-transform:none; font-weight:400; color:var(--tx-4);
+  opacity:.75;
+}
+
+/* ------------------------------------------------------------ matriz
+   Uma coisa por linha, um caso por coluna.
+
+   Dois lugares desta casa faziam a mesma coisa errada: "o que cada papel
+   enxerga" desenhava tres cartoes com as mesmas onze telas dentro, e "os
+   tres niveis" desenhava tres cartoes com as mesmas oito entregas dentro.
+   Trinta e tres rotulos onde havia onze coisas, vinte e quatro onde havia
+   oito, e a pergunta que se faz de verdade ("quem enxerga Propostas?",
+   "o Pro inclui Precificacao?") obrigava a passar o olho por tres listas
+   e comparar de cabeca.
+
+   Numa matriz o rotulo aparece uma vez e a resposta e uma linha. E a
+   diferenca entre duas colunas, que era o que estava mais escondido, fica
+   visivel de relance.
+
+   A folha nao tem componente novo: e a table.lista da casa com uma marca
+   a mais, entao o telefone continua transformando cada linha num bloco,
+   como faz com todas as outras. */
+table.matriz th.col{text-align:center;padding:9px var(--e2);vertical-align:bottom}
+table.matriz td.marca{text-align:center;padding:0}
+/* O fio vertical entre as colunas. Sem ele, os olhos perdem a coluna no
+   meio de onze linhas e a marca de "Cliente" e lida como a de
+   "Colaborador". */
+table.matriz th.col,table.matriz td.marca{border-left:1px solid var(--fio-2)}
+table.matriz th.col:first-of-type,table.matriz td.marca:first-of-type{border-left:0}
+/* A coluna inteira acende junto com a celula, para o olho descer reto. */
+table.matriz td.marca:hover{background:var(--o-05)}
+
+.col-t{
+  display:block; font-family:var(--display); font-weight:800; font-size:15px;
+  letter-spacing:-.03em; color:var(--tx); line-height:1.2;
+}
+.col-sub{
+  display:block; margin-top:4px; font-family:var(--texto); font-weight:400;
+  font-size:var(--t-rotulo); letter-spacing:.06em; text-transform:uppercase;
+  color:var(--tx-4); white-space:nowrap;
+}
+.col-preco{display:block;margin-top:6px}
+
+/* A celula clicavel inteira, e nao so o quadradinho de 16px: com onze
+   linhas por tres colunas, acertar o quadrado com o dedo e o que fazia a
+   pessoa marcar a linha errada. */
+.marca label{
+  display:flex; align-items:center; justify-content:center;
+  min-height:40px; width:100%; cursor:pointer;
+}
+.marca label:has(input:disabled){cursor:default}
+/* Marca que nao se pode tirar: continua marcada, e o cinza diz por que
+   sem precisar de uma frase em cada linha. */
+.marca input:disabled{opacity:.5}
+
+/* O rodape da matriz: quantos de quantos, por coluna. Ele responde
+   "quanto este caso entrega" sem contar as marcas de olho. */
+table.matriz tfoot td{
+  border-bottom:0; border-top:1px solid var(--fio); padding-top:var(--e2);
+  font-size:var(--t-apoio); color:var(--tx-3);
+}
+table.matriz tfoot td.marca{text-align:center;font-weight:700;color:var(--tx)}
+table.matriz tfoot td.marca b{
+  font-family:var(--display); font-size:16px; letter-spacing:-.02em; color:var(--tx);
+}
+table.matriz tfoot td.marca span{display:block;font-weight:400;color:var(--tx-4);font-size:var(--t-rotulo)}
+
+/* O grupo dentro da matriz: uma faixa fina com o nome do grupo, no lugar
+   de repetir o nome do grupo em cada linha. */
+table.matriz tr.grupo td{
+  border-bottom:0; padding:var(--e3) 0 5px;
+  font-family:var(--texto); font-size:var(--t-rotulo); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--tx-4);
+  height:auto;
+}
+table.matriz tr.grupo:first-child td{padding-top:0}
+
+/* No telefone a matriz vira bloco, como as outras listas: o fio vertical
+   entre colunas nao existe mais, e cada marca ganha o nome da coluna. */
+/* A legenda das colunas, so no telefone.
+
+   La a matriz vira bloco e o cabecalho da tabela some, e com ele some o
+   que o cabecalho carrega: o preco de cada nivel e quantas entregas ele
+   tem. Sem isso, quem le o escopo no telefone nao sabe qual coluna custa
+   quanto. Ela vem uma vez, no alto, e nao repetida em cada linha. */
+.matriz-legenda{display:none}
+@media (max-width:760px){
+  .matriz-legenda{
+    display:flex; flex-wrap:wrap; gap:var(--e2); margin-bottom:var(--e3);
+    padding-bottom:var(--e3); border-bottom:1px solid var(--fio);
+  }
+  .matriz-legenda>div{flex:1 1 auto;min-width:0}
+  .matriz-legenda b{
+    display:block; font-family:var(--display); font-weight:800; font-size:14px;
+    letter-spacing:-.03em; color:var(--tx); line-height:1.2;
+  }
+  .matriz-legenda span{
+    display:block; margin-top:3px; font-size:var(--t-rotulo); color:var(--tx-4);
+    letter-spacing:.06em; text-transform:uppercase;
+  }
+  .matriz-legenda .eti{margin-top:4px}
+
+  table.matriz td.marca{border-left:0;padding:3px 0;align-items:center}
+  /* width:auto, e nao 100%: no bloco do telefone o rotulo da coluna e um
+     ::before de 13,5ch na mesma linha, e um alvo de largura cheia
+     empurrava a caixa de marcar para a linha de baixo. Cada papel virava
+     duas linhas, e onze telas viravam sessenta e seis. */
+  table.matriz .marca label{width:auto;flex:0 0 auto;justify-content:flex-start;min-height:34px}
+  table.matriz tr.grupo td{padding:var(--e3) 0 0}
+}
+
 /* ---------------------------------------------------------- ao vivo
    O selo que diz que a tela esta viva.
 
@@ -1298,9 +1448,6 @@ kbd{
   text-transform:uppercase; color:var(--tinta-4);
 }
 .porta-marca{display:flex;align-items:center;gap:12px;justify-content:flex-start;margin:0}
-.porta-marca svg{width:26px;height:22px;fill:var(--o);stroke:none}
-.porta-marca b{font-family:var(--display);font-weight:800;font-size:var(--t-rotulo);
-  letter-spacing:.2em;text-transform:uppercase;color:var(--branco)}
 .porta-frase{
   font-family:var(--display); font-weight:800; line-height:1.0;
   font-size:clamp(30px,4.3vw,84px); letter-spacing:-.045em; color:var(--branco);
