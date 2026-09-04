@@ -77,6 +77,15 @@ vazias: o texto estava lá, apagado demais para o olho registrar como
 conteúdo. O terceiro degrau subiu junto, para a escala não perder um
 degrau. Ao criar cor de texto, meça.
 
+**A fonte de título do sistema é Archivo; a da landing continua Sora.**
+A Carla pediu para tirar a "cara de inteligência artificial", e era a Sora:
+geométrica, de bola perfeita, e fonte de marca de metade das empresas de
+tecnologia dos últimos anos. Archivo é grotesca de origem editorial,
+aguenta o mesmo aperto de 3% entre as letras e tem número com desenho
+próprio, que é o que estas telas mais mostram. A troca é só no sistema, por
+escolha dela. **O logotipo não depende disso**: ele é um desenho num
+arquivo, e não o nome escrito com a fonte da casa.
+
 **A fonte declara o peso que ela tem.** O `@font-face` dizia que
 `Sora-800.woff2` cobria de 100 a 800 e `Inter-400.woff2` de 100 a 900, e
 os dois são arquivos de um peso só. Agora cada arquivo se declara com o

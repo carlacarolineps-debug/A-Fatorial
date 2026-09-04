@@ -55,8 +55,18 @@ def ler(caminho):
 # Agora cada arquivo se declara com o peso que ele tem de verdade, e os
 # dois pesos que faltavam entram como arquivo. Sao os recortes latinos, que
 # cobrem o portugues inteiro e pesam metade do arquivo antigo.
+# A fonte de titulo do SISTEMA e Archivo, e a da landing continua Sora.
+#
+# A Sora e geometrica, de bola perfeita, e e a fonte de marca de metade das
+# empresas de tecnologia dos ultimos anos: e ela que se le como "cara de
+# inteligencia artificial". Archivo e grotesca de origem editorial, aguenta
+# o mesmo aperto de -3% entre as letras e tem numero com desenho proprio,
+# que e o que esta tela mais mostra. A Carla escolheu trocar so aqui.
+#
+# O logotipo NAO depende disto: ele e um desenho, num arquivo, e nao o nome
+# escrito com a fonte da casa.
 FONTES = [
-    ('Sora',  '../fonts/Sora-800.woff2',  '800'),
+    ('Archivo', '../fonts/Archivo-800.woff2', '800'),
     ('Inter', '../fonts/Inter-400.woff2', '400'),
     ('Inter', '../fonts/Inter-600.woff2', '600'),
     ('Inter', '../fonts/Inter-700.woff2', '700'),
