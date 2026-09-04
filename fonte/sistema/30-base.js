@@ -334,8 +334,11 @@ const TELAS = [
     titulo: ['Meu <b>projeto</b>', 'O que o cliente vê do próprio projeto'] },
   { k: 'propostas', nome: 'Propostas',           ic: 'i-doc', grupo: 'A mesa',
     titulo: ['<b>Propostas</b>', 'O que foi enviado, quem abriu e quem já assinou'] },
-  { k: 'casa',     nome: 'A casa',                 ic: 'i-shield', grupo: 'A casa',
-    titulo: ['A <b>casa</b>', 'Quem entra, o que cada um enxerga, e onde o dado pode se perder'] },
+  // A chave continua 'casa'. Ela esta gravada nas permissoes do navegador
+  // de quem ja usou o sistema, e trocar a chave apagaria a tela para essas
+  // pessoas. O que muda e o nome na tela, que a Carla pediu.
+  { k: 'casa',     nome: 'Configurações',          ic: 'i-shield', grupo: 'A casa',
+    titulo: ['<b>Configurações</b>', 'Quem entra, o que cada um enxerga, e onde o dado pode se perder'] },
 ];
 
 const GRUPOS = ['A mesa', 'Meu trabalho', 'O método', 'O cliente', 'A casa'];

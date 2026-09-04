@@ -307,7 +307,7 @@ function entregaSalvar(mudar) {
 
   if (!iqvGravar(CHAVES.projetos, lista)) {
     ENTREGA_RECADO = { tom: 'alerta', titulo: 'O que você acabou de escrever não coube neste navegador.',
-      texto: 'O armazenamento recusou a gravação, então o texto está na tela mas não está guardado. Não feche esta aba: abra A casa em outra, veja o espaço ocupado e tente de novo.' };
+      texto: 'O armazenamento recusou a gravação, então o texto está na tela mas não está guardado. Não feche esta aba: abra Configurações em outra, veja o espaço ocupado e tente de novo.' };
     return false;
   }
   return true;
@@ -856,7 +856,7 @@ function entregaEnviar() {
     ? { tom: 'ok', titulo: esc(alvo.e.nome) + ' foi para validação, na versão ' + numero + '.',
         texto: 'A bola passou para o cliente hoje. O retrato dele foi publicado no mesmo gesto, e a tela Meu projeto já mostra esta entrega com a data de agora. Quando ele responder, registre aqui embaixo o que ele pediu ou a aprovação.' }
     : { tom: 'atencao', titulo: esc(alvo.e.nome) + ' foi enviada, e o retrato do cliente não coube.',
-        texto: 'A versão ' + numero + ' ficou guardada e a entrega está com o cliente, mas a tela Meu projeto continua mostrando o retrato anterior. Abra A casa para ver o espaço ocupado e envie de novo depois.' };
+        texto: 'A versão ' + numero + ' ficou guardada e a entrega está com o cliente, mas a tela Meu projeto continua mostrando o retrato anterior. Abra Configurações para ver o espaço ocupado e envie de novo depois.' };
   DESENHO.entrega();
 }
 
@@ -1201,7 +1201,7 @@ function entregaHtmlAplicacao(p) {
   }
   if (a.estado === 'sem_papel') {
     return aviso('atencao', 'O seu acesso não alcança as aplicações.',
-      'Escreva a entrega com a leitura do caso, que é deste navegador. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".') + botao;
+      'Escreva a entrega com a leitura do caso, que é deste navegador. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.') + botao;
   }
   if (a.estado === 'sumiu') {
     return aviso('atencao', 'A aplicação deste projeto não está mais na lista do servidor.',

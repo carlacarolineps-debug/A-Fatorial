@@ -22,7 +22,13 @@
   --ok:#1c7a45; --alerta:#b8362a;
   --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
   --texto:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  --r:4px; --r-sm:3px; --r-lg:10px;
+  /* O canto da marca. Estava em 4px e 3px, que e o desenho de formulario
+     antigo: numa proposta de quarenta mil reais, e a primeira coisa que
+     diz que a casa nao caprichou. Os valores sao os da landing. */
+  --r:10px; --r-sm:8px; --r-lg:16px; --r-pilula:999px;
+  --o-grad:linear-gradient(135deg,#ffa53d 0%,#ff8309 46%,#ef6a00 100%);
+  --sombra-1:0 1px 2px rgba(40,34,22,.10), 0 6px 16px -10px rgba(40,34,22,.30);
+  --sombra-2:0 2px 6px rgba(40,34,22,.10), 0 22px 44px -22px rgba(40,34,22,.34);
   --e1:6px; --e2:12px; --e3:20px; --e4:32px; --e5:52px;
   --ease:cubic-bezier(.2,.7,.25,1);
 }
@@ -32,7 +38,13 @@ body{
   background:var(--papel); color:var(--ink);
   font:400 15px/1.6 var(--texto); -webkit-font-smoothing:antialiased;
 }
-.env{width:min(760px,100% - 40px);margin-inline:auto;padding:clamp(28px,6vw,64px) 0 var(--e5)}
+/* A folha.
+   760px numa janela de 1440 deixava a proposta espremida no meio, com
+   trezentos pixels de creme vazio de cada lado: parece pagina de telefone
+   esticada, e nao documento. 1040 dá lugar para os planos ficarem lado a
+   lado e ainda mantem o contrato numa medida confortavel de leitura, que e
+   o que .contrato e .diag limitam por conta propria. */
+.env{width:min(1040px,100% - 48px);margin-inline:auto;padding:clamp(28px,5vw,56px) 0 var(--e5)}
 [hidden]{display:none !important}
 
 /* ---------------------------------------------------------- a capa */
@@ -96,14 +108,50 @@ h2.grande{
 
 /* ---------------------------------------------------------- planos */
 .opts{display:grid;gap:var(--e2);margin-top:var(--e3)}
+/* Os planos lado a lado quando cabem: escolher e comparar, e comparar em
+   pilha obriga a rolar entre um e outro. */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--e3)}
+
 .opt{
-  position:relative; display:block; cursor:pointer; padding:var(--e3);
+  position:relative; display:flex; flex-direction:column; cursor:pointer;
+  padding:var(--e3) var(--e3) var(--e3) calc(var(--e3) + 30px);
   background:var(--papel-2); border:1px solid var(--linha-l); border-radius:var(--r-lg);
-  transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
+  box-shadow:var(--sombra-1);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease),transform .2s var(--ease);
 }
-.opt:hover{border-color:var(--o-35)}
-.opt.sel{border-color:var(--o);box-shadow:0 0 0 1px var(--o),0 12px 30px -20px rgba(255,131,9,.6)}
+.opt:hover{border-color:var(--o-35);transform:translateY(-2px);box-shadow:var(--sombra-2)}
+.opt.sel{
+  border-color:var(--o);
+  box-shadow:0 0 0 2px var(--o), 0 18px 36px -22px rgba(255,131,9,.55);
+}
 .opt input{position:absolute;opacity:0;width:0;height:0}
+
+/* A marca de escolha.
+   Antes o cartao inteiro era clicavel e nada dizia isso: o titulo prometia
+   "voce escolhe uma" e a tela nao mostrava onde escolher. Este circulo e o
+   que qualquer pessoa reconhece como opcao. */
+.opt::before{
+  content:""; position:absolute; left:var(--e3); top:calc(var(--e3) + 3px);
+  width:20px; height:20px; border-radius:50%;
+  border:2px solid var(--linha-l); background:var(--papel-2);
+  transition:border-color .2s var(--ease),background .2s var(--ease);
+}
+.opt:hover::before{border-color:var(--o-35)}
+.opt.sel::before{border-color:var(--o);background:var(--o-grad)}
+.opt::after{
+  content:""; position:absolute; left:calc(var(--e3) + 6px); top:calc(var(--e3) + 9px);
+  width:8px; height:8px; border-radius:50%; background:#fff;
+  opacity:0; transform:scale(.4); transition:opacity .2s var(--ease),transform .2s var(--ease);
+}
+.opt.sel::after{opacity:1;transform:scale(1)}
+/* O foco do teclado no cartao, que o input escondido levava embora. */
+.opt:focus-within{outline:2px solid var(--o);outline-offset:3px}
+/* Quando escolhido, o cartao diz isso por escrito, e nao so por cor. */
+.opt .escolhido{
+  display:none; margin-top:var(--e2); font-size:12.5px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--o-ink);
+}
+.opt.sel .escolhido{display:block}
 .opt .selo{
   display:inline-block; margin-bottom:var(--e1); padding:3px 9px; border-radius:999px;
   background:var(--o-10); color:var(--o-ink); font-size:10.5px; font-weight:700;
@@ -117,13 +165,23 @@ h2.grande{
 .opt ul{list-style:none;display:grid;gap:6px}
 .opt li{position:relative;padding-left:20px;font-size:14px;color:var(--ink-2)}
 .opt li::before{content:"";position:absolute;left:4px;top:9px;width:7px;height:7px;border-radius:50%;background:var(--o)}
-.opt .cond{margin-top:var(--e2);font-size:13px;color:var(--ink-3);border-top:1px solid var(--linha-l2);padding-top:var(--e2)}
+.opt .cond{margin-top:auto;padding-top:var(--e2);font-size:13px;color:var(--ink-3);border-top:1px solid var(--linha-l2)}
 
 /* -------------------------------------------------------- contrato */
+/* O contrato inteiro, numa caixa que rola.
+   Ela cortava a frase no meio sem nada dizer que havia mais texto, e quem
+   assina um contrato precisa ver que ele continua. O esmaecido no pe marca
+   que a leitura segue. */
+.contrato-caixa{position:relative}
+.contrato-caixa::after{
+  content:""; position:absolute; left:1px; right:1px; bottom:1px; height:56px;
+  border-radius:0 0 var(--r-lg) var(--r-lg); pointer-events:none;
+  background:linear-gradient(180deg,transparent,var(--papel-2));
+}
 .contrato{
-  max-height:390px; overflow-y:auto; padding:var(--e3);
+  max-height:440px; overflow-y:auto; padding:var(--e3) var(--e3) var(--e4);
   background:var(--papel-2); border:1px solid var(--linha-l); border-radius:var(--r-lg);
-  font-size:14px; line-height:1.65;
+  font-size:14px; line-height:1.65; scrollbar-width:thin;
 }
 .contrato h4{
   font-family:var(--display); font-weight:800; font-size:14px; letter-spacing:-.02em;
@@ -141,27 +199,44 @@ h2.grande{
   text-transform:uppercase; color:var(--ink-3); margin-bottom:5px;
 }
 .campo{
-  width:100%; padding:11px 13px; font:400 15px var(--texto); color:var(--ink);
+  width:100%; padding:13px 15px; font:400 15px var(--texto); color:var(--ink);
   background:var(--papel-2); border:1px solid var(--linha-l); border-radius:var(--r-sm);
-  outline:0; transition:border-color .2s var(--ease);
+  outline:0; box-shadow:inset 0 1px 2px rgba(40,34,22,.05);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
 }
-.campo:focus{border-color:var(--o)}
+/* Anel de foco de verdade: quem preenche um contrato precisa ver onde
+   esta, e a borda de um pixel sozinha nao dava. */
+.campo:focus{border-color:var(--o);box-shadow:0 0 0 3px var(--o-18)}
 .campo::placeholder{color:var(--ink-4)}
 
 .li{display:flex;gap:10px;align-items:flex-start;margin-top:var(--e3);font-size:14px;color:var(--ink-2)}
 .li input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--o)}
 
 /* --------------------------------------------------------- botoes */
+/* A pilula da landing, com os cinco brilhos dela. O botao de assinar e o
+   ultimo gesto de uma proposta paga: retangulo laranja chapado nao e o
+   desenho desta casa. */
 .bt{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  padding:13px 22px; border:0; border-radius:var(--r-sm); cursor:pointer;
-  font:600 15px var(--texto); background:var(--o); color:#241300;
-  transition:background-color .2s var(--ease),opacity .2s var(--ease);
+  padding:15px 26px; border:0; border-radius:var(--r-pilula); cursor:pointer;
+  font:700 15px var(--texto); background:var(--o-grad); color:#1b1204;
+  box-shadow:
+    inset 0 .26rem .7rem rgba(255,255,255,.6),
+    inset 0 -.1rem .3rem rgba(122,52,0,.5),
+    inset 0 -.36rem .8rem rgba(255,214,158,.55),
+    0 1.1rem 1.7rem -.9rem rgba(255,131,9,.5),
+    0 .4rem .7rem -.4rem rgba(40,34,22,.3);
+  transition:filter .2s var(--ease),transform .2s var(--ease),opacity .2s var(--ease);
 }
-.bt:hover{background:var(--o-lt)}
-.bt[disabled]{opacity:.55;cursor:default}
-.bt-linha{background:none;color:var(--ink);border:1px solid var(--linha-l)}
-.bt-linha:hover{background:var(--papel-2);border-color:var(--ink-4)}
+.bt:hover{filter:brightness(1.06)}
+.bt:active{transform:translateY(1px)}
+.bt[disabled]{opacity:.5;cursor:default;box-shadow:none;filter:grayscale(.4)}
+.bt-linha{
+  background:linear-gradient(180deg,#fff,#f3f0e9); color:var(--ink);
+  border:1px solid var(--linha-l); font-weight:600;
+  box-shadow:inset 0 1px 0 #fff, var(--sombra-1);
+}
+.bt-linha:hover{border-color:var(--ink-4);filter:none}
 .largura{width:100%}
 
 .erro{margin-top:var(--e2);font-size:14px;color:var(--alerta);min-height:1.2em}

@@ -370,9 +370,11 @@ DESENHO.casa = function () {
     escrever('casaPessoas', vazio('Não consegui ler a lista.', 5));
     escrever('casaNova', '');
   } else {
-    escrever('casaAvisoAccess',
-      '<p class="dica" style="margin:-8px 0 16px">Cada pessoa entra com o próprio e-mail e a própria senha. ' +
-      'Esta lista vale em qualquer computador, e o papel decide o que cada uma vê.</p>');
+    // Esta frase mora no HTML da tela, porque vale sempre. O
+    // casaAvisoAccess fica reservado para o que acontece AGORA: a senha
+    // sorteada, que aparece uma vez so, e os recados de erro. Limpar aqui
+    // e o que apaga o recado velho quando a lista e lida de novo.
+    escrever('casaAvisoAccess', '');
 
     escrever('casaPessoas', CASA_PESSOAS.length
       ? CASA_PESSOAS.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
@@ -460,14 +462,26 @@ DESENHO.casa = function () {
     : '');
 
   // 5. marca
+  //
+  // O codigo hexadecimal saiu da tela. Ele nao ajuda quem abre o sistema, e
+  // e justamente o tipo de coisa que a casa combinou de manter no
+  // comentario: #08080a, #ff8309 e #f6f4ef, para quem for mexer no
+  // repositorio. Na tela ficam o nome e a cor, que e o que se reconhece.
+  const CORES = [
+    { n: 'Preto da marca', c: 'var(--preto)' },
+    { n: 'Laranja da marca', c: 'var(--o)' },
+    { n: 'Papel', c: 'var(--papel)' },
+  ];
   escrever('casaMarca',
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">' +
-      ['#08080a', '#ff8309', '#f6f4ef'].map(function (c) {
-        return '<span style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--fio);' +
-          'border-radius:var(--r-sm);padding:8px 12px;font-size:12px">' +
-          '<span style="width:16px;height:16px;border-radius:4px;background:' + c + ';border:1px solid var(--fio)"></span>' +
-          c + '</span>';
+    '<div style="display:flex;gap:var(--e2);flex-wrap:wrap;align-items:center">' +
+      CORES.map(function (x) {
+        return '<span style="display:inline-flex;align-items:center;gap:9px;border:1px solid var(--fio);' +
+          'border-radius:var(--r-pilula);padding:7px 14px 7px 8px;font-size:var(--t-apoio)">' +
+          '<span style="width:20px;height:20px;border-radius:50%;background:' + x.c +
+          ';border:1px solid var(--fio);flex:none"></span>' + esc(x.n) + '</span>';
       }).join('') +
-      '<span class="dica" style="margin-left:6px">Sora nos títulos, Inter no texto. Os mesmos da landing.</span>' +
-    '</div>');
+    '</div>' +
+    '<p class="dica" style="margin-top:var(--e2)">' +
+      'Sora nos títulos, Inter no texto. São os mesmos da página de vendas: ' +
+      'quem sai de uma e entra na outra não sente que trocou de empresa.</p>');
 };

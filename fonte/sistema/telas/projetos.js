@@ -371,7 +371,7 @@ function projetosVerComoCliente(id) {
 function projetosLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   PROJETOS.recado = { titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a gestão, em Configurações.' };
   DESENHO.projetos();
   window.scrollTo(0, 0);
   return false;
@@ -382,7 +382,7 @@ function projetosGravar(lista, oQue) {
   PROJETOS.recado = { titulo: 'Não consegui gravar ' + oQue + '.',
     texto: 'O armazenamento deste navegador recusou a escrita, normalmente porque encheu. ' +
       'A tela continua mostrando o que estava gravado antes, e não o que você acabou de mudar. ' +
-      'Veja o espaço em A casa antes de mexer em mais alguma coisa.' };
+      'Veja o espaço em Configurações antes de mexer em mais alguma coisa.' };
   return false;
 }
 
@@ -487,7 +487,7 @@ function projetosHtmlCarga(fichas) {
       '<td>0</td><td>0</td><td class="dica">Não aparece na semana de ninguém. Defina em Leitura do caso.</td></tr>';
   }
   if (!corpo) {
-    corpo = vazio('Ninguém está cadastrado em A casa ainda, então não há carga para somar. Cadastre a equipe em A casa para saber de quem é cada entrega.', 6);
+    corpo = vazio('Ninguém está cadastrado em Configurações ainda, então não há carga para somar. Cadastre a equipe em Configurações para saber de quem é cada entrega.', 6);
   }
 
   return '<div class="cartao"><div class="cartao-t"><span>Carga de quem executa</span>' +
@@ -786,9 +786,9 @@ DESENHO.projetos = function () {
     escrever('projetos-ferramentas', '');
     escrever('projetos-corpo', meuId
       ? projetosHtmlNada('Nenhum projeto com você como responsável.',
-          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a gestão, em A casa.')
+          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a gestão, em Configurações.')
       : projetosHtmlNada('Não sei quais projetos são seus.',
-          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em A casa. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a gestão cadastrar o seu e-mail em A casa.'));
+          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em Configurações. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a gestão cadastrar o seu e-mail em Configurações.'));
     return;
   }
 

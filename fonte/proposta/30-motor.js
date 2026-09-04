@@ -118,6 +118,18 @@
       $('p-accept-sec').hidden = true;
     }
 
+    // O titulo dizia "Tres formas de fazer" com dois planos na tela. Quem
+    // recebe uma proposta de quarenta mil reais nota, e o que ela nota e
+    // que a casa mandou um modelo sem conferir.
+    var quantos = d.planos.length;
+    var porExtenso = ['Nenhuma', 'Uma', 'Duas', 'Três', 'Quatro', 'Cinco'][quantos] || String(quantos);
+    var tituloPlanos = $('p-opts-titulo');
+    if (tituloPlanos) {
+      tituloPlanos.textContent = quantos === 1
+        ? 'Uma forma de fazer.'
+        : porExtenso + ' formas de fazer. Você escolhe uma.';
+    }
+
     var caixa = $('p-opts');
     caixa.textContent = '';
     d.planos.forEach(function (o, i) {
@@ -144,6 +156,9 @@
         ul.appendChild(li);
       });
       lab.appendChild(ul);
+      var esc = document.createElement('div');
+      esc.className = 'escolhido'; esc.textContent = 'Este é o seu plano';
+      lab.appendChild(esc);
       if (o.cond) {
         var cond = document.createElement('div');
         cond.className = 'cond'; cond.textContent = o.cond;

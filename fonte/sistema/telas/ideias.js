@@ -173,7 +173,7 @@ async function ideiasCarregar() {
   if (r.status === 403) {
     // O papel e conferido no servidor a cada pedido, e nao so no menu.
     ideiasParar('atencao', 'O seu acesso não alcança as aplicações.',
-      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".');
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.');
     return;
   }
 

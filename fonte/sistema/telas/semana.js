@@ -699,7 +699,7 @@ function semanaTrocarPessoa(v) { SEMANA.pessoa = String(v || 'eu'); SEMANA.recad
 function semanaLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   SEMANA.recado = { tom: 'atencao', titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a gestão, em Configurações.' };
   DESENHO.semana();
   window.scrollTo(0, 0);
   return false;
@@ -766,7 +766,7 @@ function semanaColher(projetoId, campo, valor) {
   p.colheita.por = String(EU.nome || EU.email || 'sem nome');
   if (!iqvGravar(CHAVES.projetos, lista)) {
     SEMANA.recado = { tom: 'alerta', titulo: 'Não consegui gravar a resposta da colheita.',
-      texto: 'O armazenamento deste navegador recusou a escrita, normalmente porque encheu. A tela continua mostrando o que estava gravado antes, e não o que você acabou de marcar. Veja o espaço em A casa antes de mexer em mais alguma coisa.' };
+      texto: 'O armazenamento deste navegador recusou a escrita, normalmente porque encheu. A tela continua mostrando o que estava gravado antes, e não o que você acabou de marcar. Veja o espaço em Configurações antes de mexer em mais alguma coisa.' };
   } else {
     SEMANA.recado = null;
   }
@@ -802,7 +802,7 @@ function semanaRecados(d) {
   if (SEMANA.recado) html += aviso(SEMANA.recado.tom, esc(SEMANA.recado.titulo), esc(SEMANA.recado.texto));
   if (d.alvo.semFicha) {
     html += aviso('info', 'Nenhuma pessoa deste sistema está com o e-mail ' + esc(EU.email || 'que você usou para entrar') + '.',
-      'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em "A casa".');
+      'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em Configurações.');
   }
   // Quando as orfas ja subiram para a manchete, o aviso repetiria a mesma
   // frase quatro linhas abaixo, em corpo menor. Fica so a providencia, que

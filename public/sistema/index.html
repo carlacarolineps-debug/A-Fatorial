@@ -707,22 +707,41 @@ body[data-mesa="papel"] .bt-linha{
 
 /* Campo de revista: fio embaixo, sem caixa. So o que recebe texto longo
    mantem caixa, porque texto longo precisa de limite visivel. */
+/* Uma linguagem de campo so.
+   O input era sublinhado e o textarea era caixa, lado a lado no mesmo
+   formulario: metade dos campos nao mostrava onde clicar, e a tela parecia
+   duas telas coladas. A caixa ganha, porque a tela das propostas e quase
+   toda campo, e porque e o desenho que a propria porta ja usa. */
 .campo{
-  width:100%; background:none; border:0; border-bottom:1px solid var(--fio);
-  border-radius:0; padding:9px 0; font-size:var(--t-corpo); color:var(--tx);
-  outline:0; transition:border-color var(--t-controle) var(--ease);
+  width:100%; color:var(--tx); font-size:var(--t-corpo);
+  background:var(--fundo-2); border:1px solid var(--fio); border-radius:var(--r-sm);
+  padding:10px 12px; outline:0;
+  transition:border-color var(--t-controle) var(--ease),
+             box-shadow var(--t-controle) var(--ease),
+             background-color var(--t-controle) var(--ease);
 }
-.campo:focus{border-color:var(--o);box-shadow:none}
+.campo:hover{border-color:var(--tx-4)}
+/* Anel de foco, e nao so a borda: quem preenche contrato precisa ver onde
+   esta sem procurar. */
+.campo:focus{border-color:var(--o);background:var(--fundo-3);box-shadow:0 0 0 3px var(--o-18)}
 .campo::placeholder{color:var(--tx-4)}
-textarea.campo,select.campo{
-  border:1px solid var(--fio); border-radius:var(--r-sm); padding:10px 12px;
-  background:var(--fundo-2);
-}
 textarea.campo{resize:vertical;min-height:88px;line-height:1.6}
 select.campo{cursor:pointer}
-.campo-sm{font-size:var(--t-apoio);padding:7px 0}
-select.campo-sm,textarea.campo-sm{padding:7px 10px}
-input[type=checkbox]{accent-color:var(--o);width:15px;height:15px}
+.campo-sm{font-size:var(--t-apoio);padding:8px 11px}
+select.campo-sm,textarea.campo-sm{padding:8px 11px}
+input[type=checkbox]{accent-color:var(--o);width:16px;height:16px;flex:none;cursor:pointer}
+
+/* A linha de marcar. A classe .li era emitida por quatro telas e nunca
+   existiu no estilo: o quadrado ficava colado no texto, sem respiro e sem
+   alvo de clique. */
+.li{
+  display:flex; align-items:flex-start; gap:10px; cursor:pointer;
+  font-size:var(--t-corpo); color:var(--tx-2); line-height:1.5;
+  padding:7px 0;
+}
+.li input[type=checkbox]{margin-top:1px}
+.li:hover{color:var(--tx)}
+.li input:focus-visible{outline:2px solid var(--o);outline-offset:2px}
 
 /* ------------------------------------------------------------- aviso
    Reservado para o que mudou AGORA. Aviso que aparece em todo desenho
@@ -1382,6 +1401,25 @@ kbd{
     </div>
   </details>
 
+  <!-- Os dados da casa vêm antes da lista, e não depois dela.
+
+       Eles entram em toda proposta e são obrigatórios, mas moravam no pé
+       da tela, embaixo das propostas enviadas. Na primeira vez a pessoa
+       preenchia o formulário inteiro lá em cima, clicava em criar e era
+       recusada por causa de campos que ela ainda não tinha visto. Numa
+       dobra: fechada quando já estão guardados, aberta quando faltam. -->
+  <details class="dobra" id="propDobraCasa" style="margin-bottom:var(--e4)">
+    <summary><b id="propCasaResumo">Os dados da sua empresa no contrato</b><span id="propCasaSelo"></span></summary>
+    <div class="dobra-corpo">
+      <p class="dica" style="margin-bottom:16px">
+        Entram no contrato de toda proposta, e ficam guardados neste navegador
+        depois da primeira vez. O WhatsApp é para onde o cliente manda a
+        confirmação depois de assinar.
+      </p>
+      <div id="propContratada"></div>
+    </div>
+  </details>
+
   <div class="secao">
     <div class="secao-t">
       <h3>Propostas enviadas</h3>
@@ -1397,16 +1435,6 @@ kbd{
         <tbody id="propLista"></tbody>
       </table>
     </div>
-  </div>
-
-  <div class="secao">
-    <div class="secao-t"><h3>Dados do contrato</h3></div>
-    <p class="dica" style="margin:-8px 0 16px">
-      Entram no contrato de toda proposta, e ficam guardados neste navegador
-      depois da primeira vez. O WhatsApp é para onde o cliente manda a
-      confirmação depois de assinar.
-    </p>
-    <div id="propContratada"></div>
   </div>
 
 </section>
@@ -1575,10 +1603,24 @@ kbd{
   <p class="dica" id="clienteRetrato" style="text-align:center;margin-top:24px"></p>
 </section>
 
+<!-- =====================================================================
+     Configurações.
+
+     Chamava-se "A casa" ate 04/09. A chave continua sendo 'casa', porque
+     ela esta gravada nas permissoes do navegador de quem ja usou o
+     sistema, e trocar a chave apagaria a tela dessas pessoas.
+
+     Quatro decisoes, nesta ordem: quem entra, o que cada um enxerga,
+     quanto espaco o navegador esta usando, e a marca.
+     ===================================================================== -->
 <section class="tela" id="tela-casa">
 
-  <div class="cartao">
-    <div class="cartao-t">Pessoas e papéis</div>
+  <div class="secao">
+    <div class="secao-t"><h3>Quem entra</h3></div>
+    <p class="dica" style="margin:-8px 0 16px">
+      Cada pessoa entra com o próprio e-mail e a própria senha. Esta lista
+      vale em qualquer computador, e o papel decide o que cada uma vê.
+    </p>
     <div id="casaAvisoAccess"></div>
     <div class="rolo-h">
       <table class="lista">
@@ -1586,24 +1628,41 @@ kbd{
         <tbody id="casaPessoas"></tbody>
       </table>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px" id="casaNova"></div>
+    <div class="cartao" style="margin-top:var(--e3)">
+      <!-- "Nova pessoa", e nao "Acrescentar alguem": o botao dentro deste
+           bloco se chama Acrescentar, e dois "Acrescentar" na mesma caixa
+           fazem quem le, e quem automatiza, clicar no titulo. -->
+      <div class="cartao-t">Nova pessoa</div>
+      <p class="dica" style="margin:-8px 0 14px">
+        A senha é sorteada aqui e aparece uma vez só. A pessoa troca por uma
+        própria antes de ver qualquer tela.
+      </p>
+      <div style="display:flex;gap:var(--e2);flex-wrap:wrap;align-items:flex-end" id="casaNova"></div>
+    </div>
   </div>
 
-  <div class="cartao">
-    <div class="cartao-t">Telas por papel</div>
-    <p class="dica" style="margin:-8px 0 16px">Quem entra e com que senha fica na lista acima. O que cada papel enxerga depois de entrar é decidido aqui.</p>
+  <div class="secao">
+    <div class="secao-t"><h3>O que cada papel enxerga</h3></div>
+    <p class="dica" style="margin:-8px 0 16px">
+      Quem entra e com que senha fica na lista acima. O que cada papel
+      enxerga depois de entrar é decidido aqui.
+    </p>
     <div id="casaPermissoes"></div>
   </div>
 
-  <div class="cartao">
-    <div class="cartao-t">Só neste navegador</div>
+  <div class="secao">
+    <div class="secao-t"><h3>Este navegador</h3></div>
+    <p class="dica" style="margin:-8px 0 16px">
+      Projetos, entregas e roteiros ficam guardados no computador de quem
+      escreve, e não no servidor. Por isso o espaço daqui importa.
+    </p>
     <div id="casaArmazenamento"></div>
   </div>
 
   <div id="casaResiduo"></div>
 
-  <div class="cartao">
-    <div class="cartao-t">A marca</div>
+  <div class="secao">
+    <div class="secao-t"><h3>A marca</h3></div>
     <div id="casaMarca"></div>
   </div>
 </section>
@@ -1947,8 +2006,11 @@ const TELAS = [
     titulo: ['Meu <b>projeto</b>', 'O que o cliente vê do próprio projeto'] },
   { k: 'propostas', nome: 'Propostas',           ic: 'i-doc', grupo: 'A mesa',
     titulo: ['<b>Propostas</b>', 'O que foi enviado, quem abriu e quem já assinou'] },
-  { k: 'casa',     nome: 'A casa',                 ic: 'i-shield', grupo: 'A casa',
-    titulo: ['A <b>casa</b>', 'Quem entra, o que cada um enxerga, e onde o dado pode se perder'] },
+  // A chave continua 'casa'. Ela esta gravada nas permissoes do navegador
+  // de quem ja usou o sistema, e trocar a chave apagaria a tela para essas
+  // pessoas. O que muda e o nome na tela, que a Carla pediu.
+  { k: 'casa',     nome: 'Configurações',          ic: 'i-shield', grupo: 'A casa',
+    titulo: ['<b>Configurações</b>', 'Quem entra, o que cada um enxerga, e onde o dado pode se perder'] },
 ];
 
 const GRUPOS = ['A mesa', 'Meu trabalho', 'O método', 'O cliente', 'A casa'];
@@ -2981,7 +3043,7 @@ function semanaTrocarPessoa(v) { SEMANA.pessoa = String(v || 'eu'); SEMANA.recad
 function semanaLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   SEMANA.recado = { tom: 'atencao', titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a gestão, em Configurações.' };
   DESENHO.semana();
   window.scrollTo(0, 0);
   return false;
@@ -3048,7 +3110,7 @@ function semanaColher(projetoId, campo, valor) {
   p.colheita.por = String(EU.nome || EU.email || 'sem nome');
   if (!iqvGravar(CHAVES.projetos, lista)) {
     SEMANA.recado = { tom: 'alerta', titulo: 'Não consegui gravar a resposta da colheita.',
-      texto: 'O armazenamento deste navegador recusou a escrita, normalmente porque encheu. A tela continua mostrando o que estava gravado antes, e não o que você acabou de marcar. Veja o espaço em A casa antes de mexer em mais alguma coisa.' };
+      texto: 'O armazenamento deste navegador recusou a escrita, normalmente porque encheu. A tela continua mostrando o que estava gravado antes, e não o que você acabou de marcar. Veja o espaço em Configurações antes de mexer em mais alguma coisa.' };
   } else {
     SEMANA.recado = null;
   }
@@ -3084,7 +3146,7 @@ function semanaRecados(d) {
   if (SEMANA.recado) html += aviso(SEMANA.recado.tom, esc(SEMANA.recado.titulo), esc(SEMANA.recado.texto));
   if (d.alvo.semFicha) {
     html += aviso('info', 'Nenhuma pessoa deste sistema está com o e-mail ' + esc(EU.email || 'que você usou para entrar') + '.',
-      'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em "A casa".');
+      'Sem isso não dá para separar o que é seu, então você está vendo a casa inteira. Quem é gestor acerta isso em Configurações.');
   }
   // Quando as orfas ja subiram para a manchete, o aviso repetiria a mesma
   // frase quatro linhas abaixo, em corpo menor. Fica so a providencia, que
@@ -3373,7 +3435,7 @@ async function ideiasCarregar() {
   if (r.status === 403) {
     // O papel e conferido no servidor a cada pedido, e nao so no menu.
     ideiasParar('atencao', 'O seu acesso não alcança as aplicações.',
-      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".');
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.');
     return;
   }
 
@@ -6610,14 +6672,27 @@ async function propCriar() {
       'É o nome que aparece no contrato como contratante.'));
     return;
   }
+  // Recusar apontando para um campo fechado numa dobra e mandar a pessoa
+  // procurar. Abre a dobra, leva o olho ate ela e poe o cursor no primeiro
+  // campo que falta.
+  const irParaOsDados = function (campo) {
+    const dobra = porId('propDobraCasa');
+    if (dobra) dobra.open = true;
+    const alvo = porId(campo);
+    if (alvo) { alvo.scrollIntoView({ block: 'center', behavior: 'smooth' }); alvo.focus(); }
+  };
+
   if (!c.rs || !c.cnpj || !c.end) {
-    escrever('propErro', aviso('alerta', 'Faltam os dados do contrato.',
-      'Preencha a razão social, o CNPJ e o endereço lá embaixo. Eles ficam guardados e você não digita de novo.'));
+    escrever('propErro', aviso('alerta', 'Faltam os dados da sua empresa.',
+      'A razão social, o CNPJ e o endereço entram no contrato. Abri o bloco para você: ' +
+      'preencha uma vez e eles ficam guardados.'));
+    irParaOsDados(!c.rs ? 'propRs' : !c.cnpj ? 'propCnpj' : 'propEnd');
     return;
   }
   if (zap.length < 12) {
     escrever('propErro', aviso('alerta', 'Falta o WhatsApp que recebe os aceites.',
       'Com o código do país e o DDD, por exemplo 5511999998888.'));
+    irParaOsDados('propZap');
     return;
   }
 
@@ -6805,12 +6880,31 @@ DESENHO.propostas = function () {
   // ---- dados do contrato
   escrever('propContratada',
     '<div class="grade-2" style="gap:12px">' +
-      propCampo('propRs', 'Razão social', { valor: c.rs }) +
-      propCampo('propCnpj', 'CNPJ', { valor: c.cnpj }) +
-      propCampo('propEnd', 'Endereço', { valor: c.end }) +
-      propCampo('propForo', 'Foro', { valor: c.foro }) +
+      propCampo('propRs', 'Razão social', { valor: c.rs, dica: 'como está no CNPJ' }) +
+      propCampo('propCnpj', 'CNPJ', { valor: c.cnpj, dica: '00.000.000/0001-00' }) +
+      propCampo('propEnd', 'Endereço', { valor: c.end, dica: 'rua, número, cidade e estado' }) +
+      propCampo('propForo', 'Foro', { valor: c.foro, dica: 'a comarca do contrato' }) +
       propCampo('propZap', 'WhatsApp que recebe os aceites', { valor: c.zap, dica: '5511999998888' }) +
     '</div>');
+
+  // A dobra dos dados da casa abre sozinha enquanto faltar alguma coisa, e
+  // o resumo dela diz o que falta. Sem isso a pessoa preenchia a proposta
+  // inteira, clicava em criar e era recusada por um campo que ela nem
+  // tinha visto, no pé da tela.
+  const faltam = [];
+  if (!String(c.rs || '').trim()) faltam.push('razão social');
+  if (!String(c.cnpj || '').trim()) faltam.push('CNPJ');
+  if (!String(c.end || '').trim()) faltam.push('endereço');
+  if (!String(c.zap || '').trim()) faltam.push('WhatsApp');
+
+  const dobraCasa = porId('propDobraCasa');
+  if (dobraCasa && faltam.length) dobraCasa.open = true;
+  escrever('propCasaSelo', faltam.length
+    ? '<span class="eti eti-atencao">falta ' + esc(faltam.join(', ')) + '</span>'
+    : '<span class="eti eti-ok">guardados</span>');
+  texto('propCasaResumo', faltam.length
+    ? 'Preencha os dados da sua empresa'
+    : 'Os dados da sua empresa no contrato');
 
   // ---- a lista
   if (PROP_ESTADO === 'carregando') {
@@ -7003,7 +7097,7 @@ function leituraSalvar(l) {
   lista.push(l);
   if (!iqvGravar(CHAVES.leituras, lista)) {
     LEITURA_RECADO = { tom: 'alerta', titulo: 'Não consegui guardar a leitura neste navegador',
-      texto: 'O armazenamento do navegador recusou a gravação, e o que você acabou de escrever não está seguro. Abra a tela A casa para ver quanto espaço está ocupado antes de continuar.' };
+      texto: 'O armazenamento do navegador recusou a gravação, e o que você acabou de escrever não está seguro. Abra Configurações para ver quanto espaço está ocupado antes de continuar.' };
     return false;
   }
   return true;
@@ -7241,7 +7335,7 @@ function leituraRecadoDeRede(r) {
   }
   if (r.estado === 'sem_papel') {
     return { tom: 'atencao', titulo: 'O seu acesso não alcança as aplicações',
-      texto: 'Nada foi gravado. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' };
+      texto: 'Nada foi gravado. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.' };
   }
   return { tom: 'alerta', titulo: 'O servidor recusou a gravação',
     texto: 'O que ele respondeu foi: ' + esc(r.mensagem || 'sem explicação') + '. O andamento continua como estava.' };
@@ -7275,7 +7369,7 @@ function leituraHtmlRede() {
   }
   if (LEITURA_ESTADO === 'sem_papel') {
     return aviso('atencao', 'O seu acesso não alcança as aplicações.',
-      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' + orfas);
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.' + orfas);
   }
   return aviso('alerta', 'O servidor recusou o pedido.',
     'O que ele respondeu foi: ' + esc(LEITURA_ERRO || 'sem explicação') + '.' + orfas);
@@ -7772,7 +7866,7 @@ function leituraHtmlProjeto(lead) {
   prazo.setDate(prazo.getDate() + 90);
 
   const semPessoa = pessoas.length ? '' :
-    '<p class="dica" style="margin-top:6px">Ninguém está cadastrado em A casa ainda. Sem responsável, este projeto não aparece na semana de ninguém.</p>';
+    '<p class="dica" style="margin-top:6px">Ninguém está cadastrado em Configurações ainda. Sem responsável, este projeto não aparece na semana de ninguém.</p>';
 
   return '<div class="cartao">' +
     '<div class="cartao-t">Abrir o projeto</div>' +
@@ -8228,7 +8322,7 @@ async function leituraCriarProjeto() {
   projetos.push(projeto);
   if (!iqvGravar(CHAVES.projetos, projetos)) {
     LEITURA_RECADO = { tom: 'alerta', titulo: 'O andamento foi para ganho, mas o projeto não coube neste navegador.',
-      texto: 'O servidor já registrou o aceite e o armazenamento local recusou a gravação. Abra a tela A casa para ver o espaço ocupado e tente de novo, antes de escrever qualquer entrega.' };
+      texto: 'O servidor já registrou o aceite e o armazenamento local recusou a gravação. Abra Configurações para ver o espaço ocupado e tente de novo, antes de escrever qualquer entrega.' };
     leituraPintar(); return;
   }
 
@@ -8644,7 +8738,7 @@ function projetosVerComoCliente(id) {
 function projetosLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
   PROJETOS.recado = { titulo: 'Você não tem acesso a ' + comoSeChama + '.',
-    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a gestão, em A casa.' };
+    texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a gestão, em Configurações.' };
   DESENHO.projetos();
   window.scrollTo(0, 0);
   return false;
@@ -8655,7 +8749,7 @@ function projetosGravar(lista, oQue) {
   PROJETOS.recado = { titulo: 'Não consegui gravar ' + oQue + '.',
     texto: 'O armazenamento deste navegador recusou a escrita, normalmente porque encheu. ' +
       'A tela continua mostrando o que estava gravado antes, e não o que você acabou de mudar. ' +
-      'Veja o espaço em A casa antes de mexer em mais alguma coisa.' };
+      'Veja o espaço em Configurações antes de mexer em mais alguma coisa.' };
   return false;
 }
 
@@ -8760,7 +8854,7 @@ function projetosHtmlCarga(fichas) {
       '<td>0</td><td>0</td><td class="dica">Não aparece na semana de ninguém. Defina em Leitura do caso.</td></tr>';
   }
   if (!corpo) {
-    corpo = vazio('Ninguém está cadastrado em A casa ainda, então não há carga para somar. Cadastre a equipe em A casa para saber de quem é cada entrega.', 6);
+    corpo = vazio('Ninguém está cadastrado em Configurações ainda, então não há carga para somar. Cadastre a equipe em Configurações para saber de quem é cada entrega.', 6);
   }
 
   return '<div class="cartao"><div class="cartao-t"><span>Carga de quem executa</span>' +
@@ -9059,9 +9153,9 @@ DESENHO.projetos = function () {
     escrever('projetos-ferramentas', '');
     escrever('projetos-corpo', meuId
       ? projetosHtmlNada('Nenhum projeto com você como responsável.',
-          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a gestão, em A casa.')
+          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a gestão, em Configurações.')
       : projetosHtmlNada('Não sei quais projetos são seus.',
-          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em A casa. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a gestão cadastrar o seu e-mail em A casa.'));
+          'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em Configurações. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a gestão cadastrar o seu e-mail em Configurações.'));
     return;
   }
 
@@ -9402,7 +9496,7 @@ function entregaSalvar(mudar) {
 
   if (!iqvGravar(CHAVES.projetos, lista)) {
     ENTREGA_RECADO = { tom: 'alerta', titulo: 'O que você acabou de escrever não coube neste navegador.',
-      texto: 'O armazenamento recusou a gravação, então o texto está na tela mas não está guardado. Não feche esta aba: abra A casa em outra, veja o espaço ocupado e tente de novo.' };
+      texto: 'O armazenamento recusou a gravação, então o texto está na tela mas não está guardado. Não feche esta aba: abra Configurações em outra, veja o espaço ocupado e tente de novo.' };
     return false;
   }
   return true;
@@ -9951,7 +10045,7 @@ function entregaEnviar() {
     ? { tom: 'ok', titulo: esc(alvo.e.nome) + ' foi para validação, na versão ' + numero + '.',
         texto: 'A bola passou para o cliente hoje. O retrato dele foi publicado no mesmo gesto, e a tela Meu projeto já mostra esta entrega com a data de agora. Quando ele responder, registre aqui embaixo o que ele pediu ou a aprovação.' }
     : { tom: 'atencao', titulo: esc(alvo.e.nome) + ' foi enviada, e o retrato do cliente não coube.',
-        texto: 'A versão ' + numero + ' ficou guardada e a entrega está com o cliente, mas a tela Meu projeto continua mostrando o retrato anterior. Abra A casa para ver o espaço ocupado e envie de novo depois.' };
+        texto: 'A versão ' + numero + ' ficou guardada e a entrega está com o cliente, mas a tela Meu projeto continua mostrando o retrato anterior. Abra Configurações para ver o espaço ocupado e envie de novo depois.' };
   DESENHO.entrega();
 }
 
@@ -10296,7 +10390,7 @@ function entregaHtmlAplicacao(p) {
   }
   if (a.estado === 'sem_papel') {
     return aviso('atencao', 'O seu acesso não alcança as aplicações.',
-      'Escreva a entrega com a leitura do caso, que é deste navegador. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".') + botao;
+      'Escreva a entrega com a leitura do caso, que é deste navegador. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.') + botao;
   }
   if (a.estado === 'sumiu') {
     return aviso('atencao', 'A aplicação deste projeto não está mais na lista do servidor.',
@@ -11777,9 +11871,11 @@ DESENHO.casa = function () {
     escrever('casaPessoas', vazio('Não consegui ler a lista.', 5));
     escrever('casaNova', '');
   } else {
-    escrever('casaAvisoAccess',
-      '<p class="dica" style="margin:-8px 0 16px">Cada pessoa entra com o próprio e-mail e a própria senha. ' +
-      'Esta lista vale em qualquer computador, e o papel decide o que cada uma vê.</p>');
+    // Esta frase mora no HTML da tela, porque vale sempre. O
+    // casaAvisoAccess fica reservado para o que acontece AGORA: a senha
+    // sorteada, que aparece uma vez so, e os recados de erro. Limpar aqui
+    // e o que apaga o recado velho quando a lista e lida de novo.
+    escrever('casaAvisoAccess', '');
 
     escrever('casaPessoas', CASA_PESSOAS.length
       ? CASA_PESSOAS.map(function (u) { return casaLinhaPessoa(u, editavel); }).join('')
@@ -11867,16 +11963,28 @@ DESENHO.casa = function () {
     : '');
 
   // 5. marca
+  //
+  // O codigo hexadecimal saiu da tela. Ele nao ajuda quem abre o sistema, e
+  // e justamente o tipo de coisa que a casa combinou de manter no
+  // comentario: #08080a, #ff8309 e #f6f4ef, para quem for mexer no
+  // repositorio. Na tela ficam o nome e a cor, que e o que se reconhece.
+  const CORES = [
+    { n: 'Preto da marca', c: 'var(--preto)' },
+    { n: 'Laranja da marca', c: 'var(--o)' },
+    { n: 'Papel', c: 'var(--papel)' },
+  ];
   escrever('casaMarca',
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">' +
-      ['#08080a', '#ff8309', '#f6f4ef'].map(function (c) {
-        return '<span style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--fio);' +
-          'border-radius:var(--r-sm);padding:8px 12px;font-size:12px">' +
-          '<span style="width:16px;height:16px;border-radius:4px;background:' + c + ';border:1px solid var(--fio)"></span>' +
-          c + '</span>';
+    '<div style="display:flex;gap:var(--e2);flex-wrap:wrap;align-items:center">' +
+      CORES.map(function (x) {
+        return '<span style="display:inline-flex;align-items:center;gap:9px;border:1px solid var(--fio);' +
+          'border-radius:var(--r-pilula);padding:7px 14px 7px 8px;font-size:var(--t-apoio)">' +
+          '<span style="width:20px;height:20px;border-radius:50%;background:' + x.c +
+          ';border:1px solid var(--fio);flex:none"></span>' + esc(x.n) + '</span>';
       }).join('') +
-      '<span class="dica" style="margin-left:6px">Sora nos títulos, Inter no texto. Os mesmos da landing.</span>' +
-    '</div>');
+    '</div>' +
+    '<p class="dica" style="margin-top:var(--e2)">' +
+      'Sora nos títulos, Inter no texto. São os mesmos da página de vendas: ' +
+      'quem sai de uma e entra na outra não sente que trocou de empresa.</p>');
 };
 /* =====================================================================
    A entrada: e-mail e senha.

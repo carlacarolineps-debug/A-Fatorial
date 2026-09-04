@@ -689,22 +689,41 @@ body[data-mesa="papel"] .bt-linha{
 
 /* Campo de revista: fio embaixo, sem caixa. So o que recebe texto longo
    mantem caixa, porque texto longo precisa de limite visivel. */
+/* Uma linguagem de campo so.
+   O input era sublinhado e o textarea era caixa, lado a lado no mesmo
+   formulario: metade dos campos nao mostrava onde clicar, e a tela parecia
+   duas telas coladas. A caixa ganha, porque a tela das propostas e quase
+   toda campo, e porque e o desenho que a propria porta ja usa. */
 .campo{
-  width:100%; background:none; border:0; border-bottom:1px solid var(--fio);
-  border-radius:0; padding:9px 0; font-size:var(--t-corpo); color:var(--tx);
-  outline:0; transition:border-color var(--t-controle) var(--ease);
+  width:100%; color:var(--tx); font-size:var(--t-corpo);
+  background:var(--fundo-2); border:1px solid var(--fio); border-radius:var(--r-sm);
+  padding:10px 12px; outline:0;
+  transition:border-color var(--t-controle) var(--ease),
+             box-shadow var(--t-controle) var(--ease),
+             background-color var(--t-controle) var(--ease);
 }
-.campo:focus{border-color:var(--o);box-shadow:none}
+.campo:hover{border-color:var(--tx-4)}
+/* Anel de foco, e nao so a borda: quem preenche contrato precisa ver onde
+   esta sem procurar. */
+.campo:focus{border-color:var(--o);background:var(--fundo-3);box-shadow:0 0 0 3px var(--o-18)}
 .campo::placeholder{color:var(--tx-4)}
-textarea.campo,select.campo{
-  border:1px solid var(--fio); border-radius:var(--r-sm); padding:10px 12px;
-  background:var(--fundo-2);
-}
 textarea.campo{resize:vertical;min-height:88px;line-height:1.6}
 select.campo{cursor:pointer}
-.campo-sm{font-size:var(--t-apoio);padding:7px 0}
-select.campo-sm,textarea.campo-sm{padding:7px 10px}
-input[type=checkbox]{accent-color:var(--o);width:15px;height:15px}
+.campo-sm{font-size:var(--t-apoio);padding:8px 11px}
+select.campo-sm,textarea.campo-sm{padding:8px 11px}
+input[type=checkbox]{accent-color:var(--o);width:16px;height:16px;flex:none;cursor:pointer}
+
+/* A linha de marcar. A classe .li era emitida por quatro telas e nunca
+   existiu no estilo: o quadrado ficava colado no texto, sem respiro e sem
+   alvo de clique. */
+.li{
+  display:flex; align-items:flex-start; gap:10px; cursor:pointer;
+  font-size:var(--t-corpo); color:var(--tx-2); line-height:1.5;
+  padding:7px 0;
+}
+.li input[type=checkbox]{margin-top:1px}
+.li:hover{color:var(--tx)}
+.li input:focus-visible{outline:2px solid var(--o);outline-offset:2px}
 
 /* ------------------------------------------------------------- aviso
    Reservado para o que mudou AGORA. Aviso que aparece em todo desenho

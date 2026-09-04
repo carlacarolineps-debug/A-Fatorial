@@ -144,14 +144,27 @@ async function propCriar() {
       'É o nome que aparece no contrato como contratante.'));
     return;
   }
+  // Recusar apontando para um campo fechado numa dobra e mandar a pessoa
+  // procurar. Abre a dobra, leva o olho ate ela e poe o cursor no primeiro
+  // campo que falta.
+  const irParaOsDados = function (campo) {
+    const dobra = porId('propDobraCasa');
+    if (dobra) dobra.open = true;
+    const alvo = porId(campo);
+    if (alvo) { alvo.scrollIntoView({ block: 'center', behavior: 'smooth' }); alvo.focus(); }
+  };
+
   if (!c.rs || !c.cnpj || !c.end) {
-    escrever('propErro', aviso('alerta', 'Faltam os dados do contrato.',
-      'Preencha a razão social, o CNPJ e o endereço lá embaixo. Eles ficam guardados e você não digita de novo.'));
+    escrever('propErro', aviso('alerta', 'Faltam os dados da sua empresa.',
+      'A razão social, o CNPJ e o endereço entram no contrato. Abri o bloco para você: ' +
+      'preencha uma vez e eles ficam guardados.'));
+    irParaOsDados(!c.rs ? 'propRs' : !c.cnpj ? 'propCnpj' : 'propEnd');
     return;
   }
   if (zap.length < 12) {
     escrever('propErro', aviso('alerta', 'Falta o WhatsApp que recebe os aceites.',
       'Com o código do país e o DDD, por exemplo 5511999998888.'));
+    irParaOsDados('propZap');
     return;
   }
 
@@ -339,12 +352,31 @@ DESENHO.propostas = function () {
   // ---- dados do contrato
   escrever('propContratada',
     '<div class="grade-2" style="gap:12px">' +
-      propCampo('propRs', 'Razão social', { valor: c.rs }) +
-      propCampo('propCnpj', 'CNPJ', { valor: c.cnpj }) +
-      propCampo('propEnd', 'Endereço', { valor: c.end }) +
-      propCampo('propForo', 'Foro', { valor: c.foro }) +
+      propCampo('propRs', 'Razão social', { valor: c.rs, dica: 'como está no CNPJ' }) +
+      propCampo('propCnpj', 'CNPJ', { valor: c.cnpj, dica: '00.000.000/0001-00' }) +
+      propCampo('propEnd', 'Endereço', { valor: c.end, dica: 'rua, número, cidade e estado' }) +
+      propCampo('propForo', 'Foro', { valor: c.foro, dica: 'a comarca do contrato' }) +
       propCampo('propZap', 'WhatsApp que recebe os aceites', { valor: c.zap, dica: '5511999998888' }) +
     '</div>');
+
+  // A dobra dos dados da casa abre sozinha enquanto faltar alguma coisa, e
+  // o resumo dela diz o que falta. Sem isso a pessoa preenchia a proposta
+  // inteira, clicava em criar e era recusada por um campo que ela nem
+  // tinha visto, no pé da tela.
+  const faltam = [];
+  if (!String(c.rs || '').trim()) faltam.push('razão social');
+  if (!String(c.cnpj || '').trim()) faltam.push('CNPJ');
+  if (!String(c.end || '').trim()) faltam.push('endereço');
+  if (!String(c.zap || '').trim()) faltam.push('WhatsApp');
+
+  const dobraCasa = porId('propDobraCasa');
+  if (dobraCasa && faltam.length) dobraCasa.open = true;
+  escrever('propCasaSelo', faltam.length
+    ? '<span class="eti eti-atencao">falta ' + esc(faltam.join(', ')) + '</span>'
+    : '<span class="eti eti-ok">guardados</span>');
+  texto('propCasaResumo', faltam.length
+    ? 'Preencha os dados da sua empresa'
+    : 'Os dados da sua empresa no contrato');
 
   // ---- a lista
   if (PROP_ESTADO === 'carregando') {

@@ -139,7 +139,7 @@ function leituraSalvar(l) {
   lista.push(l);
   if (!iqvGravar(CHAVES.leituras, lista)) {
     LEITURA_RECADO = { tom: 'alerta', titulo: 'Não consegui guardar a leitura neste navegador',
-      texto: 'O armazenamento do navegador recusou a gravação, e o que você acabou de escrever não está seguro. Abra a tela A casa para ver quanto espaço está ocupado antes de continuar.' };
+      texto: 'O armazenamento do navegador recusou a gravação, e o que você acabou de escrever não está seguro. Abra Configurações para ver quanto espaço está ocupado antes de continuar.' };
     return false;
   }
   return true;
@@ -377,7 +377,7 @@ function leituraRecadoDeRede(r) {
   }
   if (r.estado === 'sem_papel') {
     return { tom: 'atencao', titulo: 'O seu acesso não alcança as aplicações',
-      texto: 'Nada foi gravado. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' };
+      texto: 'Nada foi gravado. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.' };
   }
   return { tom: 'alerta', titulo: 'O servidor recusou a gravação',
     texto: 'O que ele respondeu foi: ' + esc(r.mensagem || 'sem explicação') + '. O andamento continua como estava.' };
@@ -411,7 +411,7 @@ function leituraHtmlRede() {
   }
   if (LEITURA_ESTADO === 'sem_papel') {
     return aviso('atencao', 'O seu acesso não alcança as aplicações.',
-      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em "A casa".' + orfas);
+      'Esta tela é de quem toca o negócio. Se isso mudou, quem é gestor ajusta o seu papel em Configurações.' + orfas);
   }
   return aviso('alerta', 'O servidor recusou o pedido.',
     'O que ele respondeu foi: ' + esc(LEITURA_ERRO || 'sem explicação') + '.' + orfas);
@@ -908,7 +908,7 @@ function leituraHtmlProjeto(lead) {
   prazo.setDate(prazo.getDate() + 90);
 
   const semPessoa = pessoas.length ? '' :
-    '<p class="dica" style="margin-top:6px">Ninguém está cadastrado em A casa ainda. Sem responsável, este projeto não aparece na semana de ninguém.</p>';
+    '<p class="dica" style="margin-top:6px">Ninguém está cadastrado em Configurações ainda. Sem responsável, este projeto não aparece na semana de ninguém.</p>';
 
   return '<div class="cartao">' +
     '<div class="cartao-t">Abrir o projeto</div>' +
@@ -1364,7 +1364,7 @@ async function leituraCriarProjeto() {
   projetos.push(projeto);
   if (!iqvGravar(CHAVES.projetos, projetos)) {
     LEITURA_RECADO = { tom: 'alerta', titulo: 'O andamento foi para ganho, mas o projeto não coube neste navegador.',
-      texto: 'O servidor já registrou o aceite e o armazenamento local recusou a gravação. Abra a tela A casa para ver o espaço ocupado e tente de novo, antes de escrever qualquer entrega.' };
+      texto: 'O servidor já registrou o aceite e o armazenamento local recusou a gravação. Abra Configurações para ver o espaço ocupado e tente de novo, antes de escrever qualquer entrega.' };
     leituraPintar(); return;
   }
 

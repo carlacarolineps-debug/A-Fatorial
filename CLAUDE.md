@@ -115,7 +115,11 @@ manter em dia. Regra em `fonte/sistema/CONTRATO.md`.
 ### As onze telas e os três papéis
 
 `semana`, `ideias`, `formulario`, `leitura`, `projetos`, `entrega`,
-`roteiros`, `dinheiro`, `cliente`, `propostas`, `casa`. Cada uma é um par
+`roteiros`, `dinheiro`, `cliente`, `propostas`, `casa`.
+
+A chave `casa` aparece na tela como **Configurações** desde 04/09. A chave
+não mudou de propósito: ela está gravada nas permissões do navegador de
+quem já usou o sistema, e trocá-la apagaria a tela para essas pessoas. Cada uma é um par
 `telas/<chave>.html` mais `telas/<chave>.js`, e registra o próprio desenho
 em `DESENHO[<chave>]`.
 
@@ -251,7 +255,7 @@ Consequência prática: **os dados são por navegador**. Duas pessoas
 abrindo o sistema veem coisas diferentes.
 
 Nunca use o prefixo `af_`, nem para ler. É do outro negócio, na mesma
-origem. "A casa" oferece apagar essas chaves, com confirmação escrita, e
+origem. "Configurações" oferece apagar essas chaves, com confirmação escrita, e
 esse é o único lugar que encosta nelas.
 
 É por isso que aplicação não mora no navegador. As respostas caem no banco
