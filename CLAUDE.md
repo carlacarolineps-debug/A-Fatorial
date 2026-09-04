@@ -228,7 +228,7 @@ num lugar só, senão as duas divergem sem ninguém notar.
 Fonte, marca e os 35 ícones entram embutidos, e o build **recusa a
 montagem** se sobrar qualquer requisição a terceiros.
 
-### As seis rotas do formulário
+### As sete rotas do formulário
 
 Todas sob `/api/`, resolvidas por `rotasAplicar()` em `src/aplicar.js`:
 
@@ -238,6 +238,7 @@ Todas sob `/api/`, resolvidas por `rotasAplicar()` em `src/aplicar.js`:
     GET  /api/mesa/formulario      a definição inteira, com login
     PUT  /api/mesa/formulario      publica uma versão nova, com login
     GET  /api/mesa/metricas        os números, com login
+    GET  /api/mesa/pulso           mudou alguma coisa?, com login
 
 **O prefixo `/api/mesa/` continua valendo, mesmo sem o Access.** Ele
 nasceu porque o Access protegia por caminho e não por método, e cobrir
@@ -248,13 +249,53 @@ diferença aparecer no roteador em vez de ficar escondida numa função.
 
 As três públicas são as que qualquer um na internet alcança: elas têm
 limite de tamanho, limite por sessão e freio por origem, e recusam o resto
-com 400. As três da mesa respondem 401 para quem não entrou e 403 para
+com 400. As quatro da mesa respondem 401 para quem não entrou e 403 para
 quem entrou como cliente, igual `/leads`.
 
 A submissão grava na **mesma tabela `leads`**, com o título de cada
 pergunta como chave do objeto `respostas`, e com `typeform_response_id`
 valendo `aplicar:<envio>`: a coluna passou a significar "id da resposta na
 origem". A tela "Ideias que chegaram" desenha isso sem saber de nada.
+
+### A mesa é ao vivo
+
+Desde 04/09, "Ideias que chegaram" e as medidas do formulário se
+atualizam sozinhas, sem ninguém clicar em "buscar de novo". Uma aplicação
+que chega às onze e meia aparece na tela em cerca de três segundos.
+
+Como: o navegador pergunta ao servidor "mudou alguma coisa?" de três em
+três segundos, pela `GET /api/mesa/pulso`, e só refaz a leitura cara
+quando a resposta muda. A rota do pulso não devolve dado nenhum, devolve a
+**assinatura** do que existe: três leituras de ponta de índice, que o
+SQLite responde sem abrir tabela. Ler as medidas custa quinze consultas
+com janela e mediana, e é isso que a batida evita repetir.
+
+Avisar de verdade, com o servidor empurrando, pediria uma conexão aberta
+por pessoa o dia inteiro, e é justamente o que o plano grátis não dá.
+
+Três regras fazem isso caber, e valem mais que o intervalo:
+
+- **Só bate com a aba na frente.** Aba escondida não pergunta nada, e
+  volta perguntando na hora em que reaparece.
+- **Só bate com uma tela ao vivo aberta.** As telas que moram no navegador
+  não têm o que atualizar, e a aba das perguntas do formulário está fora
+  de propósito: redesenhar um formulário debaixo dos dedos de quem está
+  escrevendo é pior que número velho.
+- **Falhou, recua.** Cada falha seguida dobra a espera, até um minuto, e o
+  primeiro acerto volta para três segundos.
+
+A tela não pisca: quem atualiza busca em silêncio, sem passar por
+"carregando", e o que a pessoa está fazendo sobrevive à troca (nota sendo
+digitada, linha aberta, busca e filtro). O que muda de valor sozinho
+pisca uma vez, e só o que mudou.
+
+O motor mora em `30-base.js` (`aoVivoRegistrar`, `aoVivoBater`,
+`aoVivoSelo`, `aoVivoPiscar`). Tela nova que fale com o servidor entra com
+uma linha: `aoVivoRegistrar('<chave>', <atualizar>, <quer?>)`.
+
+As propostas ficaram **de fora** da assinatura de propósito: nenhuma das
+duas telas ao vivo depende delas, e somar aquela tabela faria a batida do
+coração depender de um arquivo de tabelas que ela não usa.
 
 ### Onde a informação mora
 
@@ -333,7 +374,7 @@ Direito olhou ainda.
 npm test
 ```
 
-Roda três suítes: as 84 rotas de sempre, as 104 do formulário e as 25 da
+Roda três suítes: as 84 rotas de sempre, as 114 do formulário e as 25 da
 proposta. Sobe wrangler local, bate nas rotas por HTTP e derruba tudo no
 fim. Roda no banco local; não encosta em produção.
 
@@ -343,9 +384,10 @@ acesso ao freio de força bruta, passando por errar e-mail e errar senha
 respondendo a mesma frase, pelo cliente que não lê a mesa e por desligar
 alguém e ver a sessão dela cair na hora.
 
-As outras 104 são do formulário: a definição, a publicação, a submissão
-virando lead, os passos que alimentam as medidas, e os limites das duas
-rotas abertas.
+As outras 114 são do formulário: a definição, a publicação, a submissão
+virando lead, os passos que alimentam as medidas, os limites das duas
+rotas abertas, e o pulso, que precisa mudar de assinatura quando chega
+aplicação e ficar igual quando não acontece nada.
 
 As 25 da proposta fazem o ciclo inteiro por HTTP: uma aplicação entra pelo
 formulário público, vira proposta com código sorteado, o cliente abre só
@@ -366,13 +408,13 @@ As telas têm verificação própria, num navegador de verdade. Com um
 `npx wrangler dev` de pé na porta 8787:
 
 ```sh
-node fonte/sistema/verifica.mjs           # 42: as onze telas, os três papéis
+node fonte/sistema/verifica.mjs           # 49: as onze telas, os três papéis, o ao vivo
 node fonte/sistema/verifica-login.mjs     # 42: a porta, do primeiro dia em diante
 node fonte/sistema/verifica-propostas.mjs # 38: o ciclo da proposta, nas duas pontas
 node verifica-aplicar.mjs                 # 95: o formulário, nas duas larguras
 ```
 
-São 430 verificações no total: 213 de rota e 217 de navegador.
+São 447 verificações no total: 223 de rota e 224 de navegador.
 
 `verifica-login.mjs` e `verifica-propostas.mjs` esvaziam a casa no banco
 local antes de começar, porque o primeiro acesso só responde sem ninguém

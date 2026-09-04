@@ -153,6 +153,11 @@ function entrar(pessoa) {
   // para escrever nomes em telas de trabalho, e esperar por ela atrasaria
   // a abertura por nada.
   if (pessoa.papel !== 'cliente') carregarEquipe();
+
+  // A batida do coracao. Ela so faz pedido com a aba na frente e com uma
+  // tela ao vivo aberta, entao ligar aqui nao custa nada para quem entra
+  // numa tela que mora no navegador.
+  if (pessoa.papel !== 'cliente') aoVivoComecar();
 }
 
 /* ---------------------------------------------------------------- entrar */

@@ -6,12 +6,13 @@
 //   POST /api/resposta             aberta     recebe a aplicação
 //   POST /api/evento               aberta     recebe os passos do preenchimento
 //   GET  /api/mesa/metricas        com login  os números que a tela desenha
+//   GET  /api/mesa/pulso           com login  mudou alguma coisa? (para o ao vivo)
 //
 // Duas ficam abertas para a internet inteira. Tudo que entra por elas é
 // medido, contado e conferido antes de virar escrita, e toda escrita
 // passa por prepare().bind(): nada aqui monta SQL com texto de fora.
 //
-// As três com login usam a mesma portaria do /leads: 401 para quem não
+// As quatro com login usam a mesma portaria do /leads: 401 para quem não
 // entrou, 403 para quem entrou como cliente. Até 02/09 elas também
 // respondiam 503 quando faltava configurar o Cloudflare Access. Aquilo
 // acabou junto com o Access: a porta é da casa e não depende de nada
@@ -2348,7 +2349,80 @@ export async function lerMetricas(request, env, url = new URL(request.url)) {
 }
 
 /* --------------------------------------------------------------------
-   O roteador das seis.
+   GET /api/mesa/pulso  ·  com login
+
+   A batida do coração. Ela existe para a mesa poder ficar ao vivo sem
+   refazer as contas inteiras a cada três segundos.
+
+   Ler as medidas custa quinze consultas com janela, agrupamento e
+   mediana. Perguntar "mudou alguma coisa?" custa três leituras de
+   ponta de índice, que o SQLite responde sem abrir tabela nenhuma: o
+   maior número de uma coluna que só cresce. Então o navegador pergunta a
+   coisa barata de três em três segundos, e só refaz a conta cara quando a
+   resposta muda.
+
+   O que ela devolve não é dado: é a assinatura do que existe. Nenhum
+   nome, nenhuma resposta, nenhum número de negócio sai por aqui. O
+   navegador compara a assinatura com a de antes e, se mudou, pede o que
+   já pedia antes, pelas rotas de sempre.
+
+   Quanto isso custa em pedido: uma aba aberta o dia inteiro bate umas
+   mil e duzentas vezes por hora, e ela só bate com a aba na frente e com
+   uma tela ao vivo aberta. Meia dúzia de abas cabe folgado no plano
+   grátis.
+
+   As propostas NÃO entram na assinatura, de propósito. Nenhuma das duas
+   telas ao vivo depende delas: aceitar uma proposta vira a aplicação em
+   'ganho', e isso já mexe no 'atualizado_em' da aplicação, que está
+   aqui. Somando a tabela das propostas, a batida do coração passaria a
+   depender de uma tabela que ela não usa, e uma casa que ainda não
+   aplicou aquele arquivo de tabelas perderia o ao vivo das medidas por
+   causa de uma coisa que não tem nada a ver com medida. Quando a tela
+   das propostas também quiser bater, ela entra.
+   -------------------------------------------------------------------- */
+export async function lerPulso(request, env) {
+  const porta = await portaria(request, env);
+  if (porta.barrado) return porta.barrado;
+
+  try {
+    const [rEvento, rVersao, rLeads] = await env.DB.batch([
+      // max() de coluna indexada e crescente: o SQLite le a ponta do
+      // indice e para. Nao ha contagem, nao ha varredura.
+      env.DB.prepare("select max(id) as n from formulario_eventos"),
+      env.DB.prepare("select max(versao) as n from formulario_versoes"),
+      // Esta e uma tabela de dezenas ou centenas de linhas, e precisa do
+      // maior 'atualizado_em' porque mudar o andamento de uma aplicacao
+      // nao cria linha nova: reescreve a que existe.
+      env.DB.prepare("select count(*) as n, max(id) as ultimo, max(atualizado_em) as em from leads"),
+    ]);
+
+    const uma = (r) => (r && r.results && r.results[0]) || {};
+    const ev = uma(rEvento).n ?? 0;
+    const ve = uma(rVersao).n ?? 0;
+    const le = uma(rLeads);
+
+    return json({
+      ok: true,
+      agora: new Date().toISOString(),
+      // A assinatura inteira numa linha: o navegador compara texto com
+      // texto e nao precisa saber o que cada pedaco significa.
+      sinal: [ev, ve, le.n ?? 0, le.em || ""].join("|"),
+      // E os pedacos separados, para a tela poder dizer O QUE mudou em vez
+      // de so piscar: "chegou uma aplicacao nova" e melhor que "mudou".
+      evento: ev,
+      versao: ve,
+      leads: { quantos: le.n ?? 0, ultimo: le.ultimo ?? 0, mexido_em: le.em || null },
+    });
+  } catch {
+    // A batida que falha nao vira tela de erro: quem pergunta ja tem o
+    // que desenhar, e a proxima batida resolve. 503 diz "tente de novo",
+    // e e assim que o navegador le.
+    return json({ ok: false, erro: "não consegui sentir o pulso agora", pode_repetir: true }, 503);
+  }
+}
+
+/* --------------------------------------------------------------------
+   O roteador das sete.
    Método errado no caminho certo responde 405, como o resto do Worker.
    -------------------------------------------------------------------- */
 const metodoErrado = () => json({ ok: false, erro: "método" }, 405);
@@ -2382,6 +2456,10 @@ export async function rotasAplicar(request, env, url = new URL(request.url)) {
 
     case "/api/mesa/metricas":
       return request.method === "GET" ? lerMetricas(request, env, url) : metodoErrado();
+
+    // A batida do coracao, para a mesa ficar ao vivo sem refazer as contas.
+    case "/api/mesa/pulso":
+      return request.method === "GET" ? lerPulso(request, env) : metodoErrado();
   }
 
   return json({ ok: false, erro: "este caminho não existe" }, 404);

@@ -744,6 +744,209 @@ table.lista td.vazio{height:auto}
 .insight.tom-info{--tom:var(--sinal-info)}
 .insight.tom-ok{--tom:var(--sinal-ok)}
 
+/* ---------------------------------------------------------- ao vivo
+   O selo que diz que a tela esta viva.
+
+   Ele nao e aviso e nao e etiqueta de estado: e um relogio. Por isso nao
+   usa nenhuma das cores de sinal, que sao para "olhe isto". Um ponto que
+   respira, a palavra, e ha quanto tempo, no cinza do resto da linha. */
+.ao-vivo{
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--texto); font-size:var(--t-apoio); font-weight:400;
+  letter-spacing:0; text-transform:none; color:var(--tx-3);
+  padding:5px 11px 5px 9px; border-radius:var(--r-pilula);
+  border:1px solid var(--fio); background:var(--fundo-2);
+  white-space:nowrap;
+}
+.ao-vivo b{font-weight:600;color:var(--tx-2)}
+.ao-vivo span{color:var(--tx-4);font-variant-numeric:tabular-nums}
+.ao-vivo i{
+  width:7px; height:7px; border-radius:50%; flex:none;
+  background:var(--ok); box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent);
+  animation:aoVivoPulso 2.4s var(--ease) infinite;
+}
+@keyframes aoVivoPulso{
+  0%  {box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}
+  70% {box-shadow:0 0 0 7px color-mix(in srgb,var(--ok) 0%,transparent)}
+  100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 0%,transparent)}
+}
+/* Sem sinal nao e vermelho de erro: a tela continua servindo, so nao esta
+   mais recebendo. Ambar, e o ponto para de respirar. */
+.ao-vivo.sem-sinal i{background:var(--sinal-atencao);animation:none;box-shadow:none}
+.ao-vivo.sem-sinal b{color:var(--sinal-atencao)}
+
+/* A piscada de quem mudou sozinho.
+
+   Numero que troca sem ninguem clicar em nada passa despercebido: a
+   pessoa estava olhando outra parte da tela. Um halo quente que acende e
+   se apaga em um segundo e meio e o suficiente para o canto do olho
+   pegar, e curto demais para incomodar quem esta lendo outra coisa. */
+.mudou{animation:aoVivoMudou 1.4s var(--ease) 1}
+@keyframes aoVivoMudou{
+  0%  {box-shadow:var(--luz-topo), 0 0 0 0 var(--o-35)}
+  18% {box-shadow:var(--luz-topo), 0 0 0 4px var(--o-18)}
+  100%{box-shadow:var(--luz-topo), 0 0 0 0 rgba(255,131,9,0)}
+}
+
+/* ---------------------------------------------------------- abertura
+   A primeira coisa que se ve nas medidas.
+
+   Antes era um numero grande dentro de um cartao igual aos outros doze.
+   Ela e a unica linha da tela que se le quarenta vezes por semana, e
+   precisa entregar quatro coisas de relance: quantas vieram, se e mais
+   ou menos que antes, que forma o periodo teve, e onde se perde gente.
+   O resto do cartao continua sendo cartao. */
+.heroi{overflow:hidden;padding:var(--e4) var(--e3) var(--e3)}
+/* A luz quente no canto, a mesma da capa. Ela e o que faz a abertura
+   parecer o comeco de uma revista e nao o topo de uma planilha. */
+.heroi-luz{
+  position:absolute; inset:-46% 24% auto -14%; height:420px;
+  background:
+    radial-gradient(closest-side,rgba(255,131,9,.20),rgba(255,131,9,.05) 58%,transparent 76%);
+  pointer-events:none; z-index:0;
+}
+/* Um fio quente no alto do cartao, o mesmo recurso da capa: e ele que faz
+   a abertura ter uma borda de cima diferente das outras doze. */
+.heroi::before{
+  content:""; position:absolute; inset:0 auto auto 0; height:2px; width:44%;
+  background:var(--o-grad); z-index:1;
+}
+/* :not(.heroi-luz), e nao > * : a luz e filha direta tambem, e um
+   position:relative nela a tirava do absoluto e punha 320px de altura
+   vazia no alto do cartao, empurrando o numero para a metade de baixo. */
+.heroi>*:not(.heroi-luz){position:relative;z-index:1}
+.heroi-linha{
+  display:flex; gap:var(--e4); align-items:flex-end; flex-wrap:wrap;
+  margin-bottom:var(--e4);
+}
+.heroi-conta{flex:1 1 240px;min-width:0}
+/* O numero no degrade da marca, recortado na letra. A cor cheia fica de
+   base: navegador que nao recorta em texto mostra o laranja legivel em
+   vez de um numero invisivel. */
+.heroi-n{
+  font-family:var(--display); font-weight:800; letter-spacing:-.045em;
+  line-height:.92; font-size:clamp(52px,8vw,88px);
+  color:var(--o-tx);
+  background:var(--o-grad); -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-variant-numeric:tabular-nums;
+}
+/* Zero nao ganha degrade: sem noticia, sem brilho. */
+.heroi-n.zero{background:none;-webkit-text-fill-color:currentColor;color:var(--tx-4)}
+.heroi-r{
+  font-size:16px; color:var(--tx); line-height:1.35; margin-top:var(--e2);
+  max-width:26ch;
+}
+.heroi-conta .comparado{margin-top:10px}
+.heroi-faisca{flex:0 1 260px;min-width:180px;display:grid;gap:6px}
+.heroi-faisca .dica{text-align:right}
+.faisca{display:block;width:100%;height:62px;overflow:visible}
+.heroi-pe{
+  display:flex; gap:var(--e3); align-items:center; flex-wrap:wrap;
+  padding-top:var(--e3); border-top:1px solid var(--fio-2);
+}
+.heroi-pe .bt{margin-left:auto}
+
+/* ------------------------------------------------------------ barra
+   A barra deitada da escada, das respostas, das origens e dos aparelhos.
+
+   Ela era canto de 2px e altura fixa em estilo na linha, repetida em
+   quatro lugares. Aqui ela e uma coisa so, com o canto de pilula do
+   resto da casa e com a largura deslizando: quando a batida do coracao
+   troca o numero, a faixa anda ate o tamanho novo em vez de pular, e e
+   esse movimento que mostra a mudanca acontecendo. */
+.barra{
+  height:9px; border-radius:var(--r-pilula); background:var(--fio-2);
+  overflow:hidden;
+}
+.barra i{
+  display:block; height:100%; border-radius:var(--r-pilula);
+  transition:width .7s var(--ease);
+}
+
+/* -------------------------------------------------------- aparelhos
+   Celular contra computador, desenhado.
+
+   Eram duas frases seguidas com quatro numeros dentro, e a comparacao
+   entre os dois e a coisa toda do cartao. Comparacao se ve, nao se le. */
+.aparelhos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--e3)}
+.aparelho{
+  border:1px solid var(--fio); border-radius:var(--r); padding:var(--e3);
+  background:radial-gradient(circle 200px at 0% 0%,var(--fundo-3),var(--fundo-2));
+  box-shadow:var(--luz-topo);
+}
+.aparelho-t{
+  font-family:var(--display); font-weight:800; font-size:var(--t-bloco);
+  letter-spacing:-.03em; color:var(--tx); margin-bottom:var(--e2);
+}
+.aparelho-n{
+  display:flex; align-items:baseline; gap:8px; margin-bottom:7px;
+  font-family:var(--display); font-weight:800; font-size:26px;
+  letter-spacing:-.03em; color:var(--tx); line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.aparelho-n i{
+  font-style:normal; font-family:var(--texto); font-weight:400;
+  font-size:var(--t-apoio); letter-spacing:0; color:var(--tx-3);
+}
+.aparelho-fim{margin-top:var(--e3)}
+.aparelho-fim,.aparelho-fim i{color:var(--o-tx)}
+.aparelho-fim i{color:var(--tx-3)}
+
+/* ------------------------------------------------------------- fita
+   O caminho inteiro numa barra so.
+
+   Os tres numeros ja estao nos ladrilhos acima, e ali se leem um a um. O
+   que ladrilho nao mostra e a PROPORCAO entre eles, que e a coisa toda:
+   a faixa do "terminaram" ocupando um quinto da faixa do "abriram" diz
+   em meio segundo o que tres numeros dizem em cinco. */
+.fita{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:var(--e3);
+  margin-bottom:var(--e4);
+}
+.fita-cima{display:flex;align-items:baseline;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+/* O icone do passo, no tamanho do rotulo e no cinza dele: ele nomeia a
+   coluna de relance, e nao compete com o numero. */
+.fita-cima svg{width:14px;height:14px;color:var(--tx-4);align-self:center;flex:none}
+.fita-cima b{
+  font-family:var(--display); font-weight:800; font-size:22px;
+  letter-spacing:-.03em; color:var(--tx); line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.fita-cima span{font-size:var(--t-apoio);color:var(--tx-3)}
+.fita-trilho{
+  height:8px; border-radius:var(--r-pilula); background:var(--fio-2);
+  overflow:hidden;
+}
+/* A largura anda: quando a batida troca o numero, a faixa desliza para o
+   tamanho novo em vez de pular. E o unico lugar da tela onde movimento
+   carrega informacao, porque e ele que mostra a mudanca acontecendo. */
+.fita-trilho i{
+  display:block; height:100%; border-radius:var(--r-pilula);
+  transition:width .7s var(--ease);
+}
+.fita-abriu{background:var(--tx-4)}
+.fita-comecou{background:var(--o-35)}
+.fita-enviou{background:var(--o-grad)}
+.fita-baixo{
+  margin-top:6px; font-size:var(--t-rotulo); color:var(--tx-4);
+  letter-spacing:.06em; text-transform:uppercase; font-weight:600;
+}
+.fita-passo .comparado{margin-top:5px;font-size:var(--t-rotulo)}
+/* O passo pisca inteiro quando o numero dele muda sozinho: e o bloco que
+   a pessoa reconhece, e nao o digito. */
+.fita-passo{border-radius:var(--r-sm);margin:-4px;padding:4px}
+
+/* A conversao, no pe da abertura. Era o quarto ladrilho, e ali ela
+   competia em tamanho com os tres numeros do caminho sem ser da mesma
+   natureza: os tres sao contagem, ela e razao. Aqui ela e uma frase. */
+.heroi-conversao{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:14px; color:var(--tx-2);
+}
+.heroi-conversao svg{width:16px;height:16px;color:var(--o-tx);flex:none}
+.heroi-conversao b{color:var(--tx);font-weight:700}
+
 /* ------------------------------------------------------------- abas
    Onde se esta nao e o que se faz.
 
@@ -1327,12 +1530,21 @@ kbd{
   table.lista td{flex-wrap:wrap}
   table.lista td .bt{flex:1 1 100%;width:auto;justify-content:center}
   table.lista td .campo,table.lista td select{width:100%}
-  /* A coluna da barra vira duas linhas: o rotulo em cima e a barra na
-     largura toda. Espremida ao lado de um rotulo de 11ch ela media uns
-     40px, e barra de 40px nao mostra perda nenhuma. */
-  table.lista td[data-r="quanto perde"]{flex-wrap:wrap;align-items:stretch}
-  table.lista td[data-r="quanto perde"]::before{width:100%;line-height:1.4}
-  table.lista td[data-r="quanto perde"]>*{flex:1 1 100%}
+  /* Toda celula que tem barra dentro vira duas linhas: o rotulo em cima,
+     na largura toda, e a barra embaixo, tambem na largura toda.
+
+     A regra olha o CONTEUDO da celula (:has), e nao o nome da coluna: com
+     o nome, cada tabela nova que ganhasse uma barra teria de ser
+     lembrada aqui, e a de "De onde as pessoas vieram" nao foi. Espremida
+     ao lado de um rotulo de 13,5ch, a barra media uns 40px e nao mostrava
+     proporcao nenhuma. */
+  table.lista td:has(.barra),table.lista td:has(.barra-perda){
+    flex-wrap:wrap; align-items:stretch;
+  }
+  table.lista td:has(.barra)::before,table.lista td:has(.barra-perda)::before{
+    width:100%; line-height:1.4;
+  }
+  table.lista td:has(.barra)>*,table.lista td:has(.barra-perda)>*{flex:1 1 100%}
 }
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
@@ -1367,3 +1579,31 @@ kbd{
   .numero:nth-child(2n),.tira>div:nth-child(2n){border-right:0;padding-right:0}
 }
 @media (min-width:901px){ .so-celular{display:none !important} }
+
+/* No telefone a fita empilha. Tres colunas de 110px espremiam "abriram"
+   embaixo do numero e a proporcao sumia junto: empilhadas, as tres barras
+   dividem a mesma largura cheia, que e onde a comparacao fica melhor. */
+@media (max-width:640px){
+  .fita{grid-template-columns:1fr;gap:var(--e2)}
+  .heroi{padding:var(--e3)}
+  .heroi-linha{gap:var(--e3);margin-bottom:var(--e3)}
+  .heroi-faisca{flex:1 1 100%}
+  .heroi-faisca .dica{text-align:left}
+  .heroi-pe .bt{margin-left:0;width:100%;justify-content:center}
+}
+
+/* Quem pediu ao sistema para nao mexer a tela nao pediu meio movimento.
+
+   Vale para as tres coisas que se mexem sozinhas nesta folha: o ponto que
+   respira no selo, a piscada de quem mudou e as barras que deslizam. O
+   dado continua inteiro, a informacao continua chegando; o que sai e so
+   o movimento, e nada aqui depende dele para ser lido. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+  /* Sem a animacao, o ponto do selo continua verde e parado, que e o que
+     ele precisa dizer. */
+  .ao-vivo i{box-shadow:none}
+}

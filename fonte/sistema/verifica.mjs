@@ -189,6 +189,63 @@ await pg.waitForTimeout(250);
 dica = await pg.textContent("#casaPapelDica");
 t("ao escolher Cliente, ela diz que é uma tela só", /1 das 11 telas/.test(dica), dica);
 
+/* =====================================================================
+   O ao vivo.
+
+   Nao basta o selo aparecer: o que precisa ser verdade e que a tela troque
+   sozinha quando o banco muda, sem ninguem clicar em nada. Entao aqui uma
+   aplicacao e escrita direto no banco com a tela aberta, e a conferencia
+   espera a tela reagir por conta propria.
+
+   As duas outras metades da regra tambem sao conferidas, porque sao elas
+   que fazem isso caber no plano gratis: aba escondida nao pergunta nada, e
+   tela que nao esta ao vivo nao pergunta nada.
+   ===================================================================== */
+await entrarComo("carla@iqv.com.br");
+
+const batidas = [];
+pg.on("request", (r) => { if (r.url().includes("/api/mesa/pulso")) batidas.push(1); });
+
+await pg.evaluate(() => irPara("semana"));
+await pg.waitForTimeout(4000);
+t("numa tela que mora no navegador, o ao vivo nao pergunta nada ao servidor",
+  batidas.length === 0, `${batidas.length} batidas`);
+t("e o selo do ao vivo fica escondido",
+  (await pg.locator("[data-ao-vivo]:visible").count()) === 0);
+
+await pg.evaluate(() => irPara("ideias"));
+await pg.waitForTimeout(3500);
+t("na mesa das aplicacoes o selo aparece e diz que esta ao vivo",
+  /ao vivo/.test(await pg.locator("[data-ao-vivo]:visible").first().innerText().catch(() => "")),
+  (await pg.locator("[data-ao-vivo]:visible").first().innerText().catch(() => "")).replace(/\n/g, " "));
+t("e ela passa a perguntar ao servidor sozinha", batidas.length > 0, `${batidas.length} batidas`);
+
+const quantasAntes = await pg.evaluate(() => IDEIAS.itens.length);
+spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local", "--command",
+  "insert into leads (typeform_response_id, nome, email, whatsapp, respostas, origem) " +
+  "values ('aovivo:1', 'Chegou Sozinha', 'sozinha@exemplo.com.br', '11999990000', '{}', 'landing')"],
+  { stdio: "ignore" });
+
+let virou = false;
+for (let i = 0; i < 30; i++) {
+  await pg.waitForTimeout(400);
+  if ((await pg.evaluate(() => IDEIAS.itens.length)) === quantasAntes + 1) { virou = true; break; }
+}
+t("uma aplicacao escrita no banco aparece na tela sem ninguem clicar em nada",
+  virou, `${quantasAntes} -> ` + (await pg.evaluate(() => IDEIAS.itens.length)));
+t("e ela aparece com o nome de quem chegou",
+  /Chegou Sozinha/.test(await pg.textContent("#ideias-corpo")));
+
+const antesDeEsconder = batidas.length;
+await pg.evaluate(() => Object.defineProperty(document, "hidden", { value: true, configurable: true }));
+await pg.waitForTimeout(6000);
+t("com a aba escondida, o ao vivo para de perguntar",
+  batidas.length - antesDeEsconder <= 1, `${batidas.length - antesDeEsconder} batidas`);
+await pg.evaluate(() => Object.defineProperty(document, "hidden", { value: false, configurable: true }));
+
+spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local", "--command",
+  "delete from leads where typeform_response_id = 'aovivo:1'"], { stdio: "ignore" });
+
 t("nenhum erro de JavaScript em todo o caminho", erros.length === 0, erros.slice(0, 4).join(" | "));
 
 console.log(`\n${ok} passaram, ${bad} falharam`);

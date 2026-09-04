@@ -768,6 +768,11 @@ function irPara(chave) {
   window.scrollTo(0, 0);
 
   if (typeof DESENHO[chave] === 'function') DESENHO[chave]();
+
+  // Trocar de tela e voltar de aba valem a mesma coisa: quem chega numa
+  // tela ao vivo ve o de agora, e nao o de tres segundos atras.
+  if (typeof aoVivoQuemQuer === 'function' && aoVivoQuemQuer()) aoVivoAcordar();
+  else if (typeof aoVivoPintarSelo === 'function') aoVivoPintarSelo();
 }
 
 function montarMenu() {
@@ -822,4 +827,233 @@ async function sair() {
     // a pessoa da tela, e a porta vai dizer o que houve.
   }
   location.reload();
+}
+
+/* =====================================================================
+   8. Ao vivo.
+
+   A mesa deixa de esperar alguem clicar em "buscar de novo".
+
+   Como funciona, em uma frase: o navegador pergunta ao servidor "mudou
+   alguma coisa?" de tres em tres segundos, e so refaz a conta cara
+   quando a resposta muda.
+
+   Por que assim, e nao com o servidor avisando: avisar de verdade pede
+   uma conexao aberta por pessoa, o dia inteiro, e isso e justamente o
+   que o plano gratis nao da. A pergunta barata custa quatro leituras de
+   ponta de indice, que o banco responde sem abrir tabela nenhuma. Tres
+   segundos e menos do que o tempo de olhar de uma aba para a outra:
+   quem esta na frente da tela ve a aplicacao chegar.
+
+   Tres regras que fazem isso caber no plano gratis, e que valem mais que
+   o intervalo:
+
+     · so bate com a aba na frente. Aba escondida nao pergunta nada, e
+       volta perguntando na hora em que reaparece, para quem volta do
+       almoco nao encarar numero velho por tres segundos.
+     · so bate com uma tela ao vivo aberta. As telas que moram no
+       navegador nao tem o que atualizar.
+     · falhou, recua. Cada falha seguida dobra a espera, ate um minuto, e
+       o primeiro acerto volta para tres segundos. Servidor com problema
+       nao leva mil pedidos por hora de brinde.
+
+   A tela nao pisca: quem atualiza busca em silencio e so redesenha
+   quando o que chegou e diferente do que ja estava.
+   ===================================================================== */
+
+const AO_VIVO_PASSO = 3000;      // a batida normal
+const AO_VIVO_TETO = 60000;      // o teto do recuo depois de falhar
+const AO_VIVO = {
+  telas: {},        // chave da tela  ->  funcao que atualiza em silencio
+  sinal: null,      // a assinatura da ultima batida que respondeu
+  pulso: null,      // os pedacos, para a tela poder dizer O QUE mudou
+  lidoEm: null,     // quando o servidor respondeu pela ultima vez
+  estado: 'parado', // parado | ligado | sem-sinal
+  falhas: 0,
+  relogio: null,
+  batendo: false,
+};
+
+/* Uma tela se apresenta uma vez, quando o arquivo dela carrega.
+
+   O segundo argumento e quem atualiza em silencio. O terceiro, quando
+   existe, e a pergunta "agora?": a tela do formulario so quer a batida
+   nas medidas, e nao enquanto alguem edita pergunta, porque redesenhar
+   um formulario debaixo dos dedos de quem digita e pior que numero
+   velho. Sem o terceiro, a tela quer sempre que estiver aberta. */
+function aoVivoRegistrar(chave, atualizar, quer) {
+  AO_VIVO.telas[chave] = { atualizar: atualizar, quer: quer || null };
+}
+
+// A tela aberta quer a batida agora?
+function aoVivoQuemQuer() {
+  const t = TELA_ATUAL && AO_VIVO.telas[TELA_ATUAL];
+  if (!t || typeof t.atualizar !== 'function') return null;
+  if (t.quer) { try { if (!t.quer()) return null; } catch (e) { return null; } }
+  return t.atualizar;
+}
+
+async function aoVivoBater(forcado) {
+  if (AO_VIVO.batendo) return;
+  if (!forcado && document.hidden) return;
+  const atualizar = aoVivoQuemQuer();
+  if (!atualizar) return;
+
+  AO_VIVO.batendo = true;
+  try {
+    const r = await fetch('/api/mesa/pulso', { headers: cabecalhos(), cache: 'no-store' });
+    const corpo = await r.json().catch(function () { return null; });
+
+    if (!r.ok || !corpo || !corpo.ok) {
+      // Login vencido e o unico caso em que insistir nao adianta: a tela
+      // que estiver aberta ja diz isso quando tentar buscar de verdade.
+      AO_VIVO.falhas += 1;
+      AO_VIVO.estado = 'sem-sinal';
+      aoVivoPintarSelo();
+      return;
+    }
+
+    AO_VIVO.falhas = 0;
+    AO_VIVO.estado = 'ligado';
+    AO_VIVO.lidoEm = Date.now();
+
+    const antes = AO_VIVO.pulso;
+    const mudou = AO_VIVO.sinal !== null && AO_VIVO.sinal !== corpo.sinal;
+    AO_VIVO.sinal = corpo.sinal;
+    AO_VIVO.pulso = corpo;
+
+    aoVivoPintarSelo();
+    if (mudou) {
+      try { atualizar(corpo, antes); } catch (e) { /* tela quebrada nao derruba a batida */ }
+    }
+  } catch (e) {
+    AO_VIVO.falhas += 1;
+    AO_VIVO.estado = 'sem-sinal';
+    aoVivoPintarSelo();
+  } finally {
+    AO_VIVO.batendo = false;
+  }
+}
+
+// Cada falha seguida dobra a espera: 3s, 6s, 12s, 24s, 48s, e para em 60.
+function aoVivoEspera() {
+  if (!AO_VIVO.falhas) return AO_VIVO_PASSO;
+  return Math.min(AO_VIVO_TETO, AO_VIVO_PASSO * Math.pow(2, AO_VIVO.falhas));
+}
+
+function aoVivoAgendar() {
+  if (AO_VIVO.relogio) clearTimeout(AO_VIVO.relogio);
+  AO_VIVO.relogio = setTimeout(function () {
+    aoVivoBater().finally(aoVivoAgendar);
+  }, aoVivoEspera());
+}
+
+function aoVivoComecar() {
+  if (AO_VIVO.relogio) return;
+  aoVivoBater(true).finally(aoVivoAgendar);
+
+  // De volta para a aba: bate na hora, e nao daqui a tres segundos.
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) aoVivoAcordar();
+  });
+  window.addEventListener('online', aoVivoAcordar);
+
+  // O selo diz "ha quanto tempo", e isso muda sozinho mesmo sem batida.
+  setInterval(aoVivoPintarSelo, 1000);
+}
+
+/* Bater agora, sem esperar a vez. Serve para quem volta para a aba, para
+   quem reconecta e para quem acabou de trocar de tela. */
+function aoVivoAcordar() {
+  AO_VIVO.falhas = 0;
+  if (AO_VIVO.relogio) clearTimeout(AO_VIVO.relogio);
+  AO_VIVO.relogio = null;
+  aoVivoBater(true).finally(aoVivoAgendar);
+}
+
+/* O selo.
+
+   Ele nao e um aviso: e um relogio. Diz que a tela esta viva e de quando
+   e o que se esta lendo, e a unica coisa que muda nele sozinho e o
+   tempo. Fica escondido nas telas que nao pedem batida. */
+function aoVivoSelo() {
+  return '<span class="ao-vivo" data-ao-vivo hidden></span>';
+}
+
+function aoVivoQuandoFrase() {
+  if (!AO_VIVO.lidoEm) return 'buscando';
+  const s = Math.round((Date.now() - AO_VIVO.lidoEm) / 1000);
+  if (s < 5) return 'agora';
+  if (s < 60) return 'há ' + s + 's';
+  const m = Math.round(s / 60);
+  return 'há ' + m + (m === 1 ? ' minuto' : ' minutos');
+}
+
+/* Marca, e nao identificador: cada tela ao vivo tem o selo dela, e as
+   onze telas moram todas no mesmo documento ao mesmo tempo. Com um id, o
+   primeiro selo do arquivo respondia por todos e o das medidas nunca era
+   pintado. Pintar todos custa nada e nao tem como escolher errado. */
+function aoVivoPintarSelo() {
+  const selos = document.querySelectorAll('[data-ao-vivo]');
+  if (!selos.length) return;
+  const parado = !aoVivoQuemQuer();
+  const semSinal = AO_VIVO.estado === 'sem-sinal';
+  const html = '<i></i>' +
+    (semSinal
+      ? '<b>sem sinal</b><span>tentando de novo</span>'
+      : '<b>ao vivo</b><span>' + esc(aoVivoQuandoFrase()) + '</span>');
+
+  Array.prototype.forEach.call(selos, function (selo) {
+    selo.hidden = parado;
+    if (parado) return;
+    selo.classList.toggle('sem-sinal', semSinal);
+    selo.innerHTML = html;
+  });
+}
+
+/* Piscar so o ladrilho cujo numero mudou.
+
+   Comparar campo a campo do que veio do servidor daria o mesmo resultado
+   e amarraria esta funcao a forma de cada resposta. O que a pessoa ve e
+   o texto do ladrilho, entao e o texto do ladrilho que decide: le antes,
+   redesenha, le depois, e pisca onde os dois diferem. Ladrilho novo ou
+   ladrilho que sumiu nao pisca, porque nao mudou de valor: mudou de
+   existencia, e isso a tela ja mostra sozinha. */
+// Por padrao le a fileira de ladrilhos da casa. As telas que desenham o
+// numero de outro jeito passam os dois seletores: o do bloco que pisca e
+// o do numero dentro dele.
+function aoVivoValores(caixaId, bloco, dentro) {
+  const caixa = porId(caixaId);
+  if (!caixa) return [];
+  return Array.prototype.map.call(caixa.querySelectorAll(bloco || '.numero'), function (n) {
+    const v = n.querySelector(dentro || '.v');
+    return v ? v.textContent : '';
+  });
+}
+
+function aoVivoPiscarLadrilhos(caixaId, antes, bloco, dentro) {
+  const caixa = porId(caixaId);
+  if (!caixa || !antes || !antes.length) return;
+  const blocos = caixa.querySelectorAll(bloco || '.numero');
+  // Quantidade diferente nao e valor diferente: e outra tela. Piscar tudo
+  // ali seria dizer "mudou" sobre coisas que nem existiam antes.
+  if (blocos.length !== antes.length) return;
+  Array.prototype.forEach.call(blocos, function (n, i) {
+    const v = n.querySelector(dentro || '.v');
+    if (v && v.textContent !== antes[i]) aoVivoPiscar(n);
+  });
+}
+
+/* A piscada de quem mudou.
+
+   Numero que troca sozinho, sem ninguem clicar em nada, passa
+   despercebido: a pessoa estava olhando outra parte da tela. A classe
+   sai sozinha depois da animacao, senao a segunda mudanca nao piscaria. */
+function aoVivoPiscar(elemento) {
+  if (!elemento || !elemento.classList) return;
+  elemento.classList.remove('mudou');
+  // Ler o layout no meio forca o navegador a reiniciar a animacao.
+  void elemento.offsetWidth;
+  elemento.classList.add('mudou');
+  setTimeout(function () { elemento.classList.remove('mudou'); }, 1400);
 }

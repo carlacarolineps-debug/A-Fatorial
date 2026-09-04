@@ -373,6 +373,12 @@ t("números: login forjado  401", r.status === 401, `status=${r.status}`);
 r = await chamar(`${B}/api/mesa/metricas`, { method: "POST" });
 t("números: método que não existe nesse caminho  405", r.status === 405, `status=${r.status}`);
 
+r = await chamar(`${B}/api/mesa/pulso`);
+t("pulso: sem entrar  401", r.status === 401, `status=${r.status}`);
+
+r = await chamar(`${B}/api/mesa/pulso`, { method: "POST" });
+t("pulso: método que não existe nesse caminho  405", r.status === 405, `status=${r.status}`);
+
 r = await chamar(`${BP}/api/mesa/metricas`);
 const corpoBarrado = await r.text();
 t("números: quem é barrado não recebe nada além do motivo", corpoBarrado.length < 120, `${corpoBarrado.length} bytes`);
@@ -851,6 +857,42 @@ t("a poda tira a pergunta desligada e a fiação, e nada mais",
 
 t("passo com tempo absurdo vira zero em vez de recusar o lote",
   normalizarEventos([{ seq: 1, tipo: "abriu", ms: 99_999_999 }], new Set())[0]?.ms === 0);
+
+/* ---------- o pulso, que é o que deixa a mesa ao vivo ----------
+
+   Ele não devolve dado nenhum: devolve a assinatura do que existe. O que
+   precisa ser verdade é que a assinatura MUDE quando chega aplicação e
+   FIQUE IGUAL quando nada acontece. Se ela mudasse sozinha, o navegador
+   refaria as quinze consultas dos números de três em três segundos; se
+   não mudasse nunca, o ao vivo seria uma tela parada com um selo verde. */
+r = await chamar(`${BP}/api/mesa/pulso`, { headers: comCracha() });
+const pulso1 = await lerJson(r);
+t("o pulso responde para quem entrou", r.status === 200 && pulso1.ok === true, `status=${r.status}`);
+t("e devolve uma assinatura, e não os dados",
+  typeof pulso1.sinal === "string" && pulso1.sinal.length > 0 &&
+  !("perguntas" in pulso1) && !("funil" in pulso1) && !("nome" in pulso1),
+  JSON.stringify(Object.keys(pulso1)));
+t("a assinatura junta eventos, versão e aplicações",
+  typeof pulso1.sinal === "string" && pulso1.sinal.split("|").length === 4, pulso1.sinal);
+t("e não depende da tabela das propostas, que nenhuma tela ao vivo usa",
+  !("propostas" in pulso1), JSON.stringify(Object.keys(pulso1)));
+
+r = await chamar(`${BP}/api/mesa/pulso`, { headers: comCracha() });
+const pulso2 = await lerJson(r);
+t("sem nada acontecer, ela não muda", pulso2.sinal === pulso1.sinal,
+  `${pulso1.sinal} -> ${pulso2.sinal}`);
+
+r = await enviarPara(BP, aplicacao({ versao: 1 }), outroLugar());
+t("chega uma aplicação nova", r.status === 200, `status=${r.status}`);
+
+r = await chamar(`${BP}/api/mesa/pulso`, { headers: comCracha() });
+const pulso3 = await lerJson(r);
+t("e a assinatura muda, que é o que acorda a tela", pulso3.sinal !== pulso2.sinal,
+  `${pulso2.sinal} -> ${pulso3.sinal}`);
+t("a contagem de aplicações subiu junto",
+  pulso3.leads?.quantos === (pulso2.leads?.quantos ?? 0) + 1,
+  `${pulso2.leads?.quantos} -> ${pulso3.leads?.quantos}`);
+
 
 console.log(`\n${ok} passaram, ${bad} falharam`);
 derrubar();

@@ -190,6 +190,42 @@ async function ideiasCarregar() {
   ideiasDesenhar();
 }
 
+/* A mesma leitura, sem piscar.
+
+   ideiasCarregar poe a tela em "carregando" e redesenha antes de pedir,
+   porque quem clicou em "buscar de novo" precisa ver que o clique pegou.
+   A batida do coracao nao pode fazer isso: de tres em tres segundos a
+   lista viraria "Buscando" e o ao vivo seria uma tela piscando.
+
+   Aqui nao ha estado nenhum antes do pedido. Se o servidor responder, a
+   lista troca; se nao responder, a tela fica exatamente como estava e a
+   batida seguinte tenta de novo. Falha de batida nunca vira tela de
+   erro, porque quem esta olhando ja tem o que ler.
+
+   O que a pessoa esta fazendo sobrevive: ideiasDesenhar guarda as notas
+   que estao sendo digitadas antes de redesenhar, e a linha aberta, a
+   busca e o filtro moram no estado, e nao no HTML. */
+async function ideiasAtualizar() {
+  let corpo = null;
+  try {
+    const r = await fetch('/leads', { headers: cabecalhos(), cache: 'no-store' });
+    if (!r.ok) return;
+    corpo = await r.json();
+  } catch (e) { return; }
+  if (!corpo || !corpo.ok) return;
+
+  // O que os ladrilhos diziam ANTES de a lista trocar. Depois de
+  // redesenhar, quem mudou de texto pisca, e so quem mudou.
+  const antes = aoVivoValores('ideias-numeros');
+
+  IDEIAS.itens = lerLeads(corpo);
+  IDEIAS.lidoEm = new Date().toISOString();
+  IDEIAS.estado = 'ok';
+  ideiasDesenhar();
+
+  aoVivoPiscarLadrilhos('ideias-numeros', antes);
+}
+
 // Grava no servidor e mostra na hora. Esperar a resposta para so entao
 // mexer na tela deixa a lista com cara de travada, e quem esta na mesa
 // clica de novo achando que nao pegou. Se o servidor recusar, a tela volta
@@ -626,7 +662,7 @@ function ideiasDesenhar() {
     IDEIAS.estado === 'carregando' ? '<span class="eti eti-info">Buscando</span>' :
     IDEIAS.estado === 'ok'         ? '<span class="eti eti-ok">No ar</span>' :
     IDEIAS.estado === 'erro'       ? '<span class="eti eti-alerta">Sem dados</span>' : '');
-  texto('ideias-carimbo', IDEIAS.lidoEm ? 'lido do servidor em ' + dataLonga(IDEIAS.lidoEm) : '');
+  aoVivoPintarSelo();
   const botao = porId('ideias-bt-buscar');
   if (botao) botao.disabled = (IDEIAS.estado === 'carregando');
 
@@ -709,3 +745,18 @@ DESENHO.ideias = function () {
   ideiasDesenhar();
   if (IDEIAS.estado === 'ocioso') ideiasCarregar();
 };
+
+/* ---------------------------------------------------------------------
+   Ao vivo.
+
+   Esta e a tela onde "sem delay" vale dinheiro: uma aplicacao que chega
+   as onze e meia e alguem que esta esperando resposta. Ate aqui ela so
+   aparecia se alguem lembrasse de clicar em "buscar de novo".
+
+   A batida so troca a lista quando o servidor diz que mudou alguma
+   coisa, e a troca preserva o que a pessoa esta fazendo: nota sendo
+   digitada, linha aberta, busca e filtro continuam onde estavam.
+   --------------------------------------------------------------------- */
+aoVivoRegistrar('ideias', ideiasAtualizar, function () {
+  return IDEIAS.estado === 'ok';
+});

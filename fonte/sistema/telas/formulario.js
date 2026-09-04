@@ -324,12 +324,13 @@ function formBarraPerda(viu, parou) {
   '</div>';
 }
 
-// A barra deitada da escada e das respostas. Largura em estilo na linha,
-// como a tela vizinha ja faz: barra nao e classe nova na folha do sistema.
+// A barra deitada, usada na escada, nas respostas, nas origens e nos
+// aparelhos. So a largura e a cor vao em estilo na linha, porque as duas
+// mudam por linha; a forma mora na folha, e e la que ela ganhou o canto
+// de pilula e o deslizar de quando a batida troca o numero.
 function formBarra(porcento, cor) {
   const p = Math.max(0, Math.min(100, Number(porcento) || 0));
-  return '<div style="height:9px;border-radius:2px;background:var(--fio-2);overflow:hidden">' +
-    '<div style="height:100%;width:' + p + '%;border-radius:2px;background:' + (cor || 'var(--o)') + '"></div></div>';
+  return '<div class="barra"><i style="width:' + p + '%;background:' + (cor || 'var(--o)') + '"></i></div>';
 }
 
 /* ---------------------------------------------------------------------
@@ -2208,6 +2209,45 @@ async function formMedidasCarregar() {
   formDesenhar();
 }
 
+/* A mesma leitura, sem piscar.
+
+   formMedidasCarregar poe a tela em "carregando" e redesenha antes de
+   pedir, porque quem clicou em "buscar de novo" precisa ver que o clique
+   pegou. A batida do coracao nao pode fazer isso: a cada tres segundos a
+   tela apagaria os numeros e escreveria "buscando" no lugar deles, e o
+   ao vivo viraria uma tela piscando.
+
+   Aqui nao ha estado nenhum antes do pedido: se o servidor responder, a
+   tela troca de conteudo; se nao responder, ela fica exatamente como
+   estava e a batida seguinte tenta de novo. Falha de batida nunca vira
+   tela de erro, porque quem esta olhando ja tem o que ler.
+
+   O periodo anterior nao e pedido de novo: ele e passado, e passado nao
+   muda. So o periodo de agora vem outra vez, o que corta o custo pela
+   metade a cada batida. */
+async function formMedidasAtualizar() {
+  if (FORM.aba !== 'medidas') return;
+  const i = formIntervalo();
+  const r = await formPedir('/api/mesa/metricas?de=' + i.de + '&ate=' + i.ate);
+  if (r.erro || !r.corpo || !r.corpo.ok) return;
+
+  // O que os tres passos da fita diziam ANTES da troca, e o numero
+  // grande junto.
+  const antes = aoVivoValores('form-med-heroi', '.fita-passo', 'b');
+  const heroiAntes = Number((FORM.med && FORM.med.funil && FORM.med.funil.enviou) || 0);
+
+  FORM.med = r.corpo;
+  FORM.medEstado = 'ok';
+  FORM.medLidoEm = new Date().toISOString();
+  formDesenhar();
+
+  aoVivoPiscarLadrilhos('form-med-heroi', antes, '.fita-passo', 'b');
+  // O numero grande e o que a pessoa esta olhando quando chega aplicacao.
+  if (Number((r.corpo.funil && r.corpo.funil.enviou) || 0) !== heroiAntes) {
+    aoVivoPiscar(porId('form-med-heroi'));
+  }
+}
+
 function formMedPeriodo(v) {
   FORM.periodo = v;
   formMedidasCarregar();
@@ -2223,25 +2263,120 @@ function formVerPergunta(chave) {
   if (campo) campo.focus();
 }
 
-function formMedNumerosHtml() {
-  const m = FORM.med, f = (m && m.funil) || {};
-  const poucos = Number(f.abriu || 0) < FORM_MINIMO_PARA_CONTA;
+/* A faisca: o desenho pequeno, sem eixo e sem numero.
+
+   Ela nao substitui o grafico do "Dia a dia": e o mesmo dado com outra
+   pergunta. O grafico responde "quanto, em que dia"; a faisca responde
+   "esta subindo ou descendo", que e o que se quer saber no meio segundo
+   em que se olha a abertura da tela. Por isso ela nao tem escala escrita:
+   numero sem eixo mente, e forma sem numero nao promete nada. */
+function formFaisca(dias, campo) {
+  const pontos = dias.map(function (d) { return Number(d[campo] || 0); });
+  if (pontos.length < 2) return '';
+  const larg = 260, alt = 62, base = 4;
+  const topo = Math.max.apply(null, pontos.concat([1]));
+  const x = function (i) { return (i / (pontos.length - 1)) * larg; };
+  const y = function (v) { return base + (1 - v / topo) * (alt - base * 2); };
+
+  let linha = '';
+  pontos.forEach(function (v, i) {
+    linha += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1);
+  });
+  const area = linha + 'L' + larg + ' ' + alt + 'L0 ' + alt + 'Z';
+  const ultimo = pontos.length - 1;
+
+  return '<svg class="faisca" viewBox="0 0 ' + larg + ' ' + alt + '" preserveAspectRatio="none" ' +
+      'aria-hidden="true" focusable="false">' +
+      '<defs><linearGradient id="faiscaArea" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="var(--o)" stop-opacity=".34"/>' +
+        '<stop offset="100%" stop-color="var(--o)" stop-opacity="0"/>' +
+      '</linearGradient></defs>' +
+      '<path d="' + area + '" fill="url(#faiscaArea)"/>' +
+      '<path d="' + linha + '" fill="none" stroke="var(--o)" stroke-width="2" ' +
+        'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+      '<circle cx="' + x(ultimo).toFixed(1) + '" cy="' + y(pontos[ultimo]).toFixed(1) + '" r="3.2" ' +
+        'fill="var(--o)" vector-effect="non-scaling-stroke"/>' +
+    '</svg>';
+}
+
+/* A fita do caminho: abriu, comecou, terminou, numa barra so.
+
+   Ela e a fileira de ladrilhos que morava acima da abertura, com o que
+   ladrilho nao dava: a PROPORCAO entre os tres. Ver a faixa do
+   "terminaram" ocupando um quinto da faixa do "abriram" diz em meio
+   segundo o que tres numeros soltos dizem em cinco, e a comparacao com o
+   periodo anterior continua em cada passo, que era a parte dos ladrilhos
+   que valia a pena guardar. */
+function formMedFitaHtml(f) {
+  const abriu = Number(f.abriu || 0);
+  if (!abriu) return '';
   const fa = (FORM.medAntes && FORM.medAntes.funil) || null;
-  // Os três passos do funil, na ordem em que acontecem, cada um com o seu
-  // ícone: quem chegou, quem começou, quem terminou.
-  let html =
-    formNumeroBloco(Number(f.abriu || 0), 'vezes que a página foi aberta', false, !f.abriu,
-      fa ? formComparado(f.abriu, fa.abriu) : '', 'i-search', 'tom-info') +
-    formNumeroBloco(Number(f.comecou || 0), 'passaram da primeira pergunta', false, !f.comecou,
-      fa ? formComparado(f.comecou, fa.comecou) : '', 'i-spark', 'tom-atencao') +
-    formNumeroBloco(Number(f.enviou || 0), 'terminaram e enviaram', true, !f.enviou,
-      fa ? formComparado(f.enviou, fa.enviou) : '', 'i-check-c', 'tom-ok');
-  const dez = formCadaDez(f.enviou, f.comecou);
-  if (!poucos && dez !== null) {
-    html += formNumeroBloco(dez + ' de cada 10', 'de quem começa, termina', false, !dez,
-      '', 'i-trend', 'tom-marca');
-  }
-  return html;
+  const passos = [
+    { k: 'abriu', n: abriu, t: 'abriram', ic: 'i-search' },
+    { k: 'comecou', n: Number(f.comecou || 0), t: 'começaram', ic: 'i-spark' },
+    { k: 'enviou', n: Number(f.enviou || 0), t: 'terminaram', ic: 'i-check-c' },
+  ];
+  return '<div class="fita">' +
+    passos.map(function (p) {
+      const pc = formPorCento(p.n, abriu);
+      return '<div class="fita-passo">' +
+        '<div class="fita-cima">' + ic(p.ic) + '<b>' + p.n + '</b>' +
+          '<span>' + esc(p.t) + '</span></div>' +
+        '<div class="fita-trilho"><i class="fita-' + p.k + '" style="width:' + pc + '%"></i></div>' +
+        '<div class="fita-baixo">' + pc + ' de cada 100</div>' +
+        (fa ? formComparado(p.n, fa[p.k]) : '') +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+
+/* A abertura das medidas.
+
+   Antes eram tres coisas empilhadas dizendo a mesma: uma fileira de
+   quatro ladrilhos, um numero grande dentro de um cartao comum, e uma
+   linha de apoio. Quem abria a tela lia o funil duas vezes antes de
+   chegar em qualquer coisa nova.
+
+   Virou uma peca so, e ela e a unica linha da tela que se le quarenta
+   vezes por semana. O que precisa entregar de relance: quantas
+   aplicacoes vieram, se isso e mais ou menos que antes, que forma o
+   periodo teve, onde se perde gente, e se a tela esta viva. Os cinco
+   cabem lado a lado. */
+function formMedHeroiHtml(f, nome) {
+  const dias = Array.isArray(FORM.med.por_dia) ? FORM.med.por_dia : [];
+  const fa = (FORM.medAntes && FORM.medAntes.funil) || null;
+  const enviou = Number(f.enviou || 0);
+  const poucos = Number(f.abriu || 0) < FORM_MINIMO_PARA_CONTA;
+  const dez = poucos ? null : formCadaDez(f.enviou, f.comecou);
+  // Catorze dias, e nao o periodo inteiro: a faisca responde "e agora?",
+  // e um ano espremido em 260px nao responde nada.
+  const recentes = dias.slice(-14);
+
+  return '<div class="cartao heroi" id="form-med-heroi">' +
+    '<div class="heroi-luz" aria-hidden="true"></div>' +
+    '<div class="heroi-linha">' +
+      '<div class="heroi-conta">' +
+        '<div class="heroi-n' + (enviou ? '' : ' zero') + '">' + enviou + '</div>' +
+        '<div class="heroi-r">' +
+          (enviou === 1 ? 'aplicação completa ' : 'aplicações completas ') + esc(nome) +
+        '</div>' +
+        (fa ? formComparado(enviou, fa.enviou) : '') +
+      '</div>' +
+      (recentes.length > 1
+        ? '<div class="heroi-faisca">' + formFaisca(recentes, 'enviou') +
+          '<span class="dica">' + (recentes.length === 14 ? 'os últimos 14 dias' : 'o período') + '</span></div>'
+        : '') +
+    '</div>' +
+    formMedFitaHtml(f) +
+    '<div class="heroi-pe">' +
+      (dez !== null
+        ? '<p class="heroi-conversao">' + ic('i-trend') + '<b>' + dez + ' de cada 10</b> ' +
+          'que começam, terminam. <span class="dica">Contado nas ' + Number(f.comecou || 0) +
+          ' que começaram.</span></p>'
+        : '<p class="dica">Elas estão em Ideias que chegaram.</p>') +
+      '<button class="bt bt-linha bt-sm" onclick="irPara(\'ideias\')">Abrir Ideias que chegaram</button>' +
+    '</div>' +
+  '</div>';
 }
 
 function formMedCorpo() {
@@ -2261,27 +2396,19 @@ function formMedCorpo() {
       'O link dele está na landing, no botão Quero aplicar.</p></div>';
   }
 
-  // 1. O numero que paga a conta.
+  // 1. A abertura: o numero que paga a conta, e o caminho inteiro nele.
   const nome = FORM.periodo === '7' ? 'nos últimos 7 dias'
     : FORM.periodo === 'mes' ? 'neste mês'
     : FORM.periodo === 'tudo' ? 'desde o começo' : 'nos últimos 30 dias';
-  html += '<div class="cartao">' +
-    '<div style="font-family:var(--display);font-weight:800;letter-spacing:-.035em;line-height:1;' +
-    'font-size:clamp(38px,6vw,58px);color:var(--o-tx)">' + Number(f.enviou || 0) + '</div>' +
-    '<div style="font-size:15px;color:var(--tx);margin-top:10px">' +
-      (Number(f.enviou) === 1 ? 'aplicação completa ' : 'aplicações completas ') + esc(nome) + '</div>' +
-    '<p class="dica" style="margin-top:8px">Elas estão em Ideias que chegaram.</p>' +
-    '<button class="bt bt-linha bt-sm" style="margin-top:12px" onclick="irPara(\'ideias\')">' +
-      'Abrir Ideias que chegaram</button>' +
-    '</div>';
+  html += formMedHeroiHtml(f, nome);
 
   if (poucos) {
     html += '<div class="cartao"><p class="dica">Com menos de ' + FORM_MINIMO_PARA_CONTA +
       ' visitas, as contas de cada 10 ainda balançam muito. Elas aparecem quando passar disso.</p></div>';
-  } else {
-    html += '<p class="dica" style="margin:-6px 0 22px">A conta de cada 10 olha as ' +
-      Number(f.comecou || 0) + ' pessoas que começaram.</p>';
   }
+  // A linha "a conta de cada 10 olha as N que comecaram" saiu daqui: ela
+  // agora vem colada na propria conta, no pe da abertura. Solta, ela era
+  // um rodape explicando um numero que estava dez pixels acima.
 
   // 3. Quanto tempo leva.
   if (tempo.amostra) {
@@ -2338,7 +2465,9 @@ function formMedCorpo() {
             (parou
               ? '<span class="' + (alto ? 'perde-alto' : '') + '">' + parou + '</span>'
               : '<span class="dica">nenhuma</span>') + '</td>' +
-          '<td data-r="quanto perde">' + formBarraPerda(viu, parou) +
+          // Sem data-r: a frase logo abaixo da barra ja diz "23 de cada 100
+          // param aqui", e o rotulo da coluna repetia isso em maiuscula.
+          '<td>' + formBarraPerda(viu, parou) +
             '<div class="dica" style="margin-top:4px">' +
               (viu ? pc + ' de cada 100 param aqui' : 'ninguém chegou') + '</div>' +
           '</td>' +
@@ -2486,14 +2615,26 @@ function formMedOrigemHtml(poucos) {
   const ordenar = function (a, b) { return Number(b.enviou || 0) - Number(a.enviou || 0); };
   origem.sort(ordenar); referencia.sort(ordenar); plano.sort(ordenar);
 
+  // A coluna que faltava e a barra. Sete linhas de "4 de cada 10
+  // terminam", "6 de cada 10 terminam", "3 de cada 10 terminam" se leem
+  // uma a uma; desenhadas lado a lado, a que converte melhor se aponta
+  // sozinha, que e a decisao que esta tabela existe para servir.
   const linha = function (nome, visitas, enviou) {
-    const conta = (!poucos && Number(visitas) >= FORM_MINIMO_PARA_CONTA)
-      ? formCadaDez(enviou, visitas) + ' de cada 10 terminam'
-      : 'ainda são poucos para dizer';
-    return '<tr><td><b>' + esc(nome) + '</b></td>' +
-      '<td class="num">' + Number(visitas || 0) + '</td>' +
-      '<td class="num">' + Number(enviou || 0) + '</td>' +
-      '<td class="dica">' + esc(conta) + '</td></tr>';
+    const bastante = !poucos && Number(visitas) >= FORM_MINIMO_PARA_CONTA;
+    const pc = formPorCento(enviou, visitas);
+    return '<tr><td data-t><b>' + esc(nome) + '</b></td>' +
+      '<td class="num" data-r="abriram">' + Number(visitas || 0) + '</td>' +
+      '<td class="num" data-r="terminaram">' + Number(enviou || 0) + '</td>' +
+      // Sem data-r e sem largura na celula: no telefone o rotulo da coluna
+      // viraria "QUANTOS TERMINAM" em duas linhas em cima de uma frase que
+      // ja diz "44 de cada 100 terminam", e a largura de 32% valia como
+      // bloco e espremia a barra a um terco da tela.
+      '<td>' +
+        (bastante
+          ? formBarra(pc, 'var(--o-grad)') +
+            '<div class="dica" style="margin-top:4px">' + pc + ' de cada 100 terminam</div>'
+          : '<span class="dica">ainda são poucos para dizer</span>') +
+      '</td></tr>';
   };
 
   let corpo = origem.map(function (o) {
@@ -2510,7 +2651,8 @@ function formMedOrigemHtml(poucos) {
     'visita. Uma pessoa pode aparecer em mais de uma linha: uma diz por onde ela chegou, outra diz o ' +
     'site que a trouxe, e outra o nível que ela clicou na landing.</p>' +
     '<div class="rolo-h"><table class="lista">' +
-      '<thead><tr><th>De onde</th><th class="num">Abriram</th><th class="num">Terminaram</th><th></th></tr></thead>' +
+      '<thead><tr><th>De onde</th><th class="num">Abriram</th><th class="num">Terminaram</th>' +
+      '<th style="width:32%">Quantos terminam</th></tr></thead>' +
       '<tbody>' + (corpo || vazio('Ninguém chegou por um caminho conhecido ainda.', 4)) + '</tbody>' +
     '</table></div></div>';
 }
@@ -2523,27 +2665,41 @@ function formMedAparelhoHtml(poucos) {
   const computador = lista.find(function (a) { return a.aparelho === 'computador'; });
   if (!total) return '';
 
-  let frases = '';
-  if (celular && !poucos) {
-    frases += '<p style="font-size:15px;color:var(--tx);line-height:1.6">' +
-      formCadaDez(celular.visitas, total) + ' de cada 10 abrem no celular.</p>';
-  }
-  if (celular && computador && !poucos) {
-    frases += '<p style="font-size:15px;color:var(--tx);line-height:1.6;margin-top:6px">No celular, ' +
+  // Duas frases seguidas com quatro numeros dentro. A comparacao entre
+  // aparelhos e a coisa toda deste cartao, e comparacao se ve, nao se le:
+  // cada aparelho vira um bloco com quantos abrem nele e quantos de cada
+  // 100 terminam, os dois desenhados.
+  const ordenada = lista.slice().sort(function (a, b) {
+    return Number(b.visitas || 0) - Number(a.visitas || 0);
+  });
+  const blocos = '<div class="aparelhos">' +
+    ordenada.map(function (a) {
+      const visitas = Number(a.visitas || 0);
+      const pcAbre = formPorCento(visitas, total);
+      const pcTermina = formPorCento(a.enviou, visitas);
+      const bastante = !poucos && visitas >= FORM_MINIMO_PARA_CONTA;
+      return '<div class="aparelho">' +
+        '<div class="aparelho-t">' + esc(primeiraMaiuscula(a.aparelho)) + '</div>' +
+        '<div class="aparelho-n">' + pcAbre + '<i>de cada 100 abrem aqui</i></div>' +
+        formBarra(pcAbre, 'var(--o-35)') +
+        (bastante
+          ? '<div class="aparelho-n aparelho-fim">' + pcTermina + '<i>de cada 100 terminam</i></div>' +
+            formBarra(pcTermina, 'var(--o-grad)')
+          : '<div class="dica" style="margin-top:10px">ainda são poucos para dizer quantos terminam</div>') +
+      '</div>';
+    }).join('') +
+  '</div>';
+
+  const frase = (celular && computador && !poucos)
+    ? '<p class="dica" style="margin-top:14px">No celular, ' +
       formPorCento(celular.enviou, celular.visitas) + ' de cada 100 terminam. No computador, ' +
-      formPorCento(computador.enviou, computador.visitas) + '.</p>';
-  }
-  if (!frases) {
-    frases = lista.map(function (a) {
-      return '<p style="font-size:14px;color:var(--tx);line-height:1.6">' + esc(a.aparelho) + ': ' +
-        Number(a.visitas || 0) + ' abriram, ' + Number(a.enviou || 0) + ' terminaram.</p>';
-    }).join('');
-  }
+      formPorCento(computador.enviou, computador.visitas) + '. ' +
+      'O formulário é lido no celular: toda decisão de tamanho de letra e de botão vale primeiro lá.</p>'
+    : '<p class="dica" style="margin-top:14px">O formulário é lido no celular. Toda decisão de tamanho ' +
+      'de letra e de botão vale primeiro lá.</p>';
 
   return '<div class="cartao">' +
-    '<div class="cartao-t">Celular ou computador</div>' + frases +
-    '<p class="dica" style="margin-top:12px">O formulário é lido no celular. Toda decisão de tamanho de ' +
-    'letra e de botão vale primeiro lá.</p></div>';
+    '<div class="cartao-t">Celular ou computador</div>' + blocos + frase + '</div>';
 }
 
 /* ---------------------------------------------------------------------
@@ -2780,14 +2936,26 @@ function formMedDiaHtml() {
     '<svg viewBox="0 0 ' + g.larg + ' ' + g.alt + '" preserveAspectRatio="none" ' +
       'class="graf" id="form-graf" role="img" ' +
       'aria-label="Quantas pessoas abriram e quantas terminaram, dia a dia">' +
-      '<defs><linearGradient id="grafArea" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0%" stop-color="var(--o)" stop-opacity=".28"/>' +
-        '<stop offset="100%" stop-color="var(--o)" stop-opacity="0"/>' +
-      '</linearGradient></defs>' +
+      '<defs>' +
+        '<linearGradient id="grafArea" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="var(--o-lt)" stop-opacity=".38"/>' +
+          '<stop offset="52%" stop-color="var(--o)" stop-opacity=".14"/>' +
+          '<stop offset="100%" stop-color="var(--o)" stop-opacity="0"/>' +
+        '</linearGradient>' +
+        // A linha da casa desenhada duas vezes: a de baixo borrada, que e
+        // o brilho, e a de cima nitida. E o mesmo recurso da capa, e e o
+        // que tira do desenho a cara de grafico de planilha.
+        '<filter id="grafBrilho" x="-20%" y="-40%" width="140%" height="180%">' +
+          '<feGaussianBlur stdDeviation="5"/>' +
+        '</filter>' +
+      '</defs>' +
       grade +
       '<path d="' + enviouArea.d + '" fill="url(#grafArea)"/>' +
       '<path d="' + abriu.d + '" fill="none" stroke="var(--tx-4)" stroke-width="1.5" ' +
         'stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>' +
+      '<path d="' + enviou.d + '" fill="none" stroke="var(--o)" stroke-width="6" ' +
+        'stroke-linejoin="round" stroke-linecap="round" opacity=".45" ' +
+        'filter="url(#grafBrilho)" vector-effect="non-scaling-stroke"/>' +
       '<path d="' + enviou.d + '" fill="none" stroke="var(--o)" stroke-width="2.5" ' +
         'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
       // O pico ganha ponto e fio, que e o unico dia que se aponta sozinho.
@@ -3008,6 +3176,11 @@ function formCorpoMedidas() {
     (FORM.med && FORM.medEstado === 'ok'
       ? '<button class="bt bt-linha bt-sm" id="form-bt-baixar" onclick="formBaixarNumeros()">Baixar em planilha</button>'
       : '') +
+    // O selo do ao vivo mora na mesma linha dos botoes, e nao num aviso
+    // proprio: ele nao pede nada de ninguem, so diz de quando e o que
+    // esta na tela. "Buscar de novo" continua ali porque quem quer agora
+    // nao tem que esperar a batida.
+    aoVivoSelo() +
     '</div>';
 
   if (FORM.medEstado === 'carregando' && !FORM.med) {
@@ -3073,19 +3246,29 @@ function formDesenhar() {
 
   if (FORM.aba === 'medidas') {
     const m = FORM.med || {};
-    const carimbo = FORM.medLidoEm ? ' Lido do servidor às ' + formHoraCurta(FORM.medLidoEm) + '.' : '';
+    // O selo ao lado dos botoes ja diz de quando e o que esta na tela, e
+    // diz melhor, porque se atualiza sozinho. Repetir a hora aqui era
+    // escrever duas vezes a mesma coisa em dois lugares diferentes.
+    const carimbo = '';
     escrever('form-frase', 'Como está indo o <b>formulário</b>.');
     escrever('form-obs', esc((m.de ? formPeriodoFrase(m.de, m.ate) : '') + carimbo));
 
+    // A fileira de ladrilhos saiu daqui.
+    //
+    // Ela dava 250, 189, 111 e "6 de cada 10", e a abertura logo abaixo
+    // dava os mesmos quatro numeros de novo, a trezentos pixels de
+    // distancia: quem abria a tela lia o funil duas vezes antes de chegar
+    // em qualquer coisa nova. A abertura ficou com os quatro, porque ela
+    // da o que os ladrilhos nao davam: a proporcao entre eles, a forma dos
+    // ultimos catorze dias e a comparacao com o periodo anterior em cada
+    // passo. Nas perguntas os ladrilhos continuam.
     const caixa = porId('form-numeros');
-    if (caixa) {
-      caixa.hidden = !(FORM.medEstado === 'ok' && FORM.med && FORM.med.funil && FORM.med.funil.abriu);
-      if (!caixa.hidden) caixa.innerHTML = formMedNumerosHtml();
-    }
+    if (caixa) { caixa.hidden = true; caixa.innerHTML = ''; }
     escrever('form-avisos', '');
     escrever('form-corpo', formCorpoMedidas());
-    // O gráfico só existe depois de o corpo estar na tela.
+    // O gráfico e o selo só existem depois de o corpo estar na tela.
     formGrafLigar();
+    aoVivoPintarSelo();
     contador('formulario', FORM.def ? formDiferencas(FORM.noAr, FORM.def).length : 0);
     return;
   }
@@ -3116,6 +3299,18 @@ DESENHO.formulario = function () {
   formDesenhar();
   if (FORM.estado === 'ocioso') formCarregar();
 };
+
+/* ---------------------------------------------------------------------
+   Ao vivo, e so nas medidas.
+
+   A aba das perguntas NAO quer a batida: redesenhar um formulario
+   debaixo dos dedos de quem esta escrevendo uma pergunta e pior que
+   numero de tres segundos atras. As medidas so se leem, entao la nao ha
+   nada para atrapalhar.
+   --------------------------------------------------------------------- */
+aoVivoRegistrar('formulario', formMedidasAtualizar, function () {
+  return FORM.aba === 'medidas' && FORM.medEstado === 'ok';
+});
 
 /* =====================================================================
    PARA O ORQUESTRADOR REGISTRAR
