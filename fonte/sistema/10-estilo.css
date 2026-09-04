@@ -639,6 +639,111 @@ table.lista td.vazio{height:auto}
 .graf-balao i{display:block;width:14px;height:0;border-top:2.5px solid var(--o);border-radius:2px;flex:none}
 .graf-balao i.tracejada{border-top:1.5px dashed var(--tx-4)}
 
+/* A chave quadrada da legenda, para as barras divididas: a linha fina de
+   .graf-chave i e para grafico de linha, e quadrado de barra lido como
+   risquinho nao diz que aquilo e uma area cheia. */
+.graf-chave i.bloco{
+  width:11px; height:11px; border:0; border-radius:3px; background:var(--o);
+}
+.graf-chave i.bloco.perdeu{background:var(--sinal-alerta);opacity:.85}
+
+/* ------------------------------------------------------- barra da perda
+   Uma barra por pergunta, com as duas partes na mesma linha: a cheia e
+   quem seguiu, a marcada e quem parou ali.
+
+   Duas barras separadas obrigariam a comparar comprimento de olho, que e
+   exatamente a conta que a tela existe para poupar. */
+.barra-perda{
+  display:flex; height:10px; border-radius:var(--r-pilula); overflow:hidden;
+  background:var(--fio-2);
+}
+.barra-perda i{display:block;height:100%}
+.barra-perda i.seguiu{background:var(--o-grad)}
+.barra-perda i.perdeu{background:var(--sinal-alerta);opacity:.85}
+/* Ninguem chegou nesta pergunta: a barra continua ocupando o lugar dela,
+   apagada, para a coluna nao pular de altura de uma linha para a outra. */
+.barra-perda i.vazia{width:100%;background:var(--fio-2)}
+
+/* O numero de quem parou so fica vermelho quando passa do corte que vale
+   a pena mexer. Toda linha vermelha e nenhuma linha vermelha. */
+.perde-alto{
+  color:var(--sinal-alerta); font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+
+/* --------------------------------------------------- respostas por bloco
+   Uma pergunta por bloco, a mais escolhida em cima. */
+.respostas{display:grid;gap:var(--e3)}
+.resposta-bloco{
+  padding-top:var(--e3); border-top:1px solid var(--fio-2);
+}
+.resposta-bloco:first-child{padding-top:0;border-top:0}
+.resposta-t{
+  display:flex; gap:var(--e2); align-items:baseline; flex-wrap:wrap;
+  margin-bottom:var(--e1);
+}
+.resposta-t b{
+  font-family:var(--display); font-weight:800; font-size:var(--t-bloco);
+  letter-spacing:-.03em; color:var(--tx); line-height:1.25;
+}
+.resposta-t .dica{margin-left:auto;white-space:nowrap}
+/* A frase que diz de uma vez qual opcao ganhou e por quanto. Sem ela, a
+   pessoa le a lista inteira para descobrir o que a primeira linha ja
+   sabia. */
+.resposta-lider{
+  font-size:var(--t-corpo); color:var(--tx-2); line-height:1.5;
+  margin-bottom:var(--e2);
+}
+.resposta-lider b{color:var(--tx);font-weight:700}
+/* Nome a esquerda, conta a direita, barra por baixo das duas: grade de
+   duas colunas, e nao um float, senao a opcao de nome comprido empurra a
+   conta para a linha de baixo em metade das perguntas. */
+.resposta-linha{
+  display:grid; grid-template-columns:1fr auto; gap:5px var(--e2);
+  margin-bottom:10px;
+}
+.resposta-linha:last-child{margin-bottom:0}
+.resposta-linha>span{font-size:13px;color:var(--tx-2);line-height:1.4}
+.resposta-linha>div{grid-column:1/-1}
+.resposta-conta{
+  text-align:right; color:var(--tx-3); white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.resposta-linha.lider .resposta-nome{color:var(--tx);font-weight:600}
+.resposta-linha.lider .resposta-conta{color:var(--o-tx);font-weight:700}
+
+/* ----------------------------------------------------------- os achados
+   O bloco que le o dado e diz o que fazer com ele.
+
+   Nao e .aviso: aviso e para o estado da tela, e some quando o estado
+   passa. Isto e conteudo, e cada linha so nasce quando ha o que dizer. */
+.insights{display:grid;gap:var(--e2)}
+.insight{
+  display:flex; gap:var(--e2); align-items:flex-start;
+  padding:var(--e2) var(--e3) var(--e2) var(--e2);
+  border:1px solid var(--fio); border-left:3px solid var(--tom,var(--fio));
+  border-radius:var(--r); background:var(--fundo-2);
+}
+.insight-ic{
+  width:30px; height:30px; flex:none; border-radius:var(--r-sm);
+  display:grid; place-items:center; color:var(--tom,var(--tx-3));
+  background:color-mix(in srgb,var(--tom,var(--tx-4)) 12%,transparent);
+}
+.insight-ic svg{width:16px;height:16px}
+.insight-txt{min-width:0;flex:1 1 auto}
+.insight-txt b{
+  display:block; font-family:var(--display); font-weight:800;
+  font-size:15px; letter-spacing:-.02em; color:var(--tx); line-height:1.3;
+}
+.insight-txt p{
+  margin-top:5px; font-size:13.5px; color:var(--tx-2); line-height:1.55;
+}
+.insight-txt .bt{margin-top:10px}
+.insight.tom-alerta{--tom:var(--sinal-alerta)}
+.insight.tom-atencao{--tom:var(--sinal-atencao)}
+.insight.tom-info{--tom:var(--sinal-info)}
+.insight.tom-ok{--tom:var(--sinal-ok)}
+
 /* ------------------------------------------------------------- abas
    Onde se esta nao e o que se faz.
 
@@ -1190,7 +1295,9 @@ kbd{
      texto do cabecalho. Onde nao houver data-r o valor se explica sozinho:
      um nome, um e-mail, um botao. */
   table.lista td[data-r]::before{
-    content:attr(data-r); flex:none; width:11ch;
+    /* 13,5ch, e nao 11: o rotulo tem .14em entre as letras, entao
+       "RESPONDERAM" media mais que 11ch e encostava no numero. */
+    content:attr(data-r); flex:none; width:13.5ch;
     font-family:var(--texto); font-size:var(--t-rotulo); font-weight:600;
     letter-spacing:.14em; text-transform:uppercase; color:var(--tx-4);
     line-height:1.7;
@@ -1220,6 +1327,12 @@ kbd{
   table.lista td{flex-wrap:wrap}
   table.lista td .bt{flex:1 1 100%;width:auto;justify-content:center}
   table.lista td .campo,table.lista td select{width:100%}
+  /* A coluna da barra vira duas linhas: o rotulo em cima e a barra na
+     largura toda. Espremida ao lado de um rotulo de 11ch ela media uns
+     40px, e barra de 40px nao mostra perda nenhuma. */
+  table.lista td[data-r="quanto perde"]{flex-wrap:wrap;align-items:stretch}
+  table.lista td[data-r="quanto perde"]::before{width:100%;line-height:1.4}
+  table.lista td[data-r="quanto perde"]>*{flex:1 1 100%}
 }
 @media (max-width:900px){
   .app{grid-template-columns:1fr}

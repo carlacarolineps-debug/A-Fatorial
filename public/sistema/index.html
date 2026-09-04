@@ -657,6 +657,111 @@ table.lista td.vazio{height:auto}
 .graf-balao i{display:block;width:14px;height:0;border-top:2.5px solid var(--o);border-radius:2px;flex:none}
 .graf-balao i.tracejada{border-top:1.5px dashed var(--tx-4)}
 
+/* A chave quadrada da legenda, para as barras divididas: a linha fina de
+   .graf-chave i e para grafico de linha, e quadrado de barra lido como
+   risquinho nao diz que aquilo e uma area cheia. */
+.graf-chave i.bloco{
+  width:11px; height:11px; border:0; border-radius:3px; background:var(--o);
+}
+.graf-chave i.bloco.perdeu{background:var(--sinal-alerta);opacity:.85}
+
+/* ------------------------------------------------------- barra da perda
+   Uma barra por pergunta, com as duas partes na mesma linha: a cheia e
+   quem seguiu, a marcada e quem parou ali.
+
+   Duas barras separadas obrigariam a comparar comprimento de olho, que e
+   exatamente a conta que a tela existe para poupar. */
+.barra-perda{
+  display:flex; height:10px; border-radius:var(--r-pilula); overflow:hidden;
+  background:var(--fio-2);
+}
+.barra-perda i{display:block;height:100%}
+.barra-perda i.seguiu{background:var(--o-grad)}
+.barra-perda i.perdeu{background:var(--sinal-alerta);opacity:.85}
+/* Ninguem chegou nesta pergunta: a barra continua ocupando o lugar dela,
+   apagada, para a coluna nao pular de altura de uma linha para a outra. */
+.barra-perda i.vazia{width:100%;background:var(--fio-2)}
+
+/* O numero de quem parou so fica vermelho quando passa do corte que vale
+   a pena mexer. Toda linha vermelha e nenhuma linha vermelha. */
+.perde-alto{
+  color:var(--sinal-alerta); font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+
+/* --------------------------------------------------- respostas por bloco
+   Uma pergunta por bloco, a mais escolhida em cima. */
+.respostas{display:grid;gap:var(--e3)}
+.resposta-bloco{
+  padding-top:var(--e3); border-top:1px solid var(--fio-2);
+}
+.resposta-bloco:first-child{padding-top:0;border-top:0}
+.resposta-t{
+  display:flex; gap:var(--e2); align-items:baseline; flex-wrap:wrap;
+  margin-bottom:var(--e1);
+}
+.resposta-t b{
+  font-family:var(--display); font-weight:800; font-size:var(--t-bloco);
+  letter-spacing:-.03em; color:var(--tx); line-height:1.25;
+}
+.resposta-t .dica{margin-left:auto;white-space:nowrap}
+/* A frase que diz de uma vez qual opcao ganhou e por quanto. Sem ela, a
+   pessoa le a lista inteira para descobrir o que a primeira linha ja
+   sabia. */
+.resposta-lider{
+  font-size:var(--t-corpo); color:var(--tx-2); line-height:1.5;
+  margin-bottom:var(--e2);
+}
+.resposta-lider b{color:var(--tx);font-weight:700}
+/* Nome a esquerda, conta a direita, barra por baixo das duas: grade de
+   duas colunas, e nao um float, senao a opcao de nome comprido empurra a
+   conta para a linha de baixo em metade das perguntas. */
+.resposta-linha{
+  display:grid; grid-template-columns:1fr auto; gap:5px var(--e2);
+  margin-bottom:10px;
+}
+.resposta-linha:last-child{margin-bottom:0}
+.resposta-linha>span{font-size:13px;color:var(--tx-2);line-height:1.4}
+.resposta-linha>div{grid-column:1/-1}
+.resposta-conta{
+  text-align:right; color:var(--tx-3); white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.resposta-linha.lider .resposta-nome{color:var(--tx);font-weight:600}
+.resposta-linha.lider .resposta-conta{color:var(--o-tx);font-weight:700}
+
+/* ----------------------------------------------------------- os achados
+   O bloco que le o dado e diz o que fazer com ele.
+
+   Nao e .aviso: aviso e para o estado da tela, e some quando o estado
+   passa. Isto e conteudo, e cada linha so nasce quando ha o que dizer. */
+.insights{display:grid;gap:var(--e2)}
+.insight{
+  display:flex; gap:var(--e2); align-items:flex-start;
+  padding:var(--e2) var(--e3) var(--e2) var(--e2);
+  border:1px solid var(--fio); border-left:3px solid var(--tom,var(--fio));
+  border-radius:var(--r); background:var(--fundo-2);
+}
+.insight-ic{
+  width:30px; height:30px; flex:none; border-radius:var(--r-sm);
+  display:grid; place-items:center; color:var(--tom,var(--tx-3));
+  background:color-mix(in srgb,var(--tom,var(--tx-4)) 12%,transparent);
+}
+.insight-ic svg{width:16px;height:16px}
+.insight-txt{min-width:0;flex:1 1 auto}
+.insight-txt b{
+  display:block; font-family:var(--display); font-weight:800;
+  font-size:15px; letter-spacing:-.02em; color:var(--tx); line-height:1.3;
+}
+.insight-txt p{
+  margin-top:5px; font-size:13.5px; color:var(--tx-2); line-height:1.55;
+}
+.insight-txt .bt{margin-top:10px}
+.insight.tom-alerta{--tom:var(--sinal-alerta)}
+.insight.tom-atencao{--tom:var(--sinal-atencao)}
+.insight.tom-info{--tom:var(--sinal-info)}
+.insight.tom-ok{--tom:var(--sinal-ok)}
+
 /* ------------------------------------------------------------- abas
    Onde se esta nao e o que se faz.
 
@@ -1208,7 +1313,9 @@ kbd{
      texto do cabecalho. Onde nao houver data-r o valor se explica sozinho:
      um nome, um e-mail, um botao. */
   table.lista td[data-r]::before{
-    content:attr(data-r); flex:none; width:11ch;
+    /* 13,5ch, e nao 11: o rotulo tem .14em entre as letras, entao
+       "RESPONDERAM" media mais que 11ch e encostava no numero. */
+    content:attr(data-r); flex:none; width:13.5ch;
     font-family:var(--texto); font-size:var(--t-rotulo); font-weight:600;
     letter-spacing:.14em; text-transform:uppercase; color:var(--tx-4);
     line-height:1.7;
@@ -1238,6 +1345,12 @@ kbd{
   table.lista td{flex-wrap:wrap}
   table.lista td .bt{flex:1 1 100%;width:auto;justify-content:center}
   table.lista td .campo,table.lista td select{width:100%}
+  /* A coluna da barra vira duas linhas: o rotulo em cima e a barra na
+     largura toda. Espremida ao lado de um rotulo de 11ch ela media uns
+     40px, e barra de 40px nao mostra perda nenhuma. */
+  table.lista td[data-r="quanto perde"]{flex-wrap:wrap;align-items:stretch}
+  table.lista td[data-r="quanto perde"]::before{width:100%;line-height:1.4}
+  table.lista td[data-r="quanto perde"]>*{flex:1 1 100%}
 }
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
@@ -4516,6 +4629,35 @@ function formComparado(agora, antes) {
     (dif > 0 ? '+' : '−') + pct + '% sobre os ' + b + ' anteriores</div>';
 }
 
+/* A porcentagem escrita por extenso nas pontas.
+
+   Arredondar sozinho mente nos dois extremos: uma resposta em 326 vira
+   "0%", e 325 em 326 vira "100%", que diz que ninguem escolheu a outra e
+   que todas escolheram esta. Nas pontas a tela escreve a palavra. */
+function formPcTexto(quantas, total) {
+  const q = Number(quantas || 0);
+  const t = Number(total || 0);
+  const pc = formPorCento(q, t);
+  if (q > 0 && pc === 0) return 'menos de 1%';
+  if (q < t && pc === 100) return 'quase 100%';
+  return pc + '%';
+}
+
+/* A barra da perda: a parte cheia e quem seguiu, a marcada e quem parou.
+
+   Uma barra so, com as duas partes na mesma linha, diz de relance o que
+   duas barras separadas obrigariam a comparar de olho. */
+function formBarraPerda(viu, parou) {
+  const v = Number(viu || 0);
+  const p = Math.max(0, Math.min(v, Number(parou || 0)));
+  if (!v) return '<div class="barra-perda"><i class="vazia"></i></div>';
+  const pctPerda = (p / v) * 100;
+  return '<div class="barra-perda" title="' + (v - p) + ' seguiram, ' + p + ' pararam">' +
+    '<i class="seguiu" style="width:' + (100 - pctPerda).toFixed(1) + '%"></i>' +
+    '<i class="perdeu" style="width:' + pctPerda.toFixed(1) + '%"></i>' +
+  '</div>';
+}
+
 // A barra deitada da escada e das respostas. Largura em estilo na linha,
 // como a tela vizinha ja faz: barra nao e classe nova na folha do sistema.
 function formBarra(porcento, cor) {
@@ -6490,36 +6632,59 @@ function formMedCorpo() {
       '</div>';
   }
 
-  // 4. Onde as pessoas param.
+  // 3b. O que os números estão dizendo.
+  html += formMedInsightsHtml(perguntas, poucos);
+
+  // 4. A escada do abandono, pergunta a pergunta.
+  //
+  // Antes a barra media quantos CHEGARAM em cada pergunta, e a taxa de
+  // abandono so aparecia nas duas piores. Quem abre a tela quer saber
+  // exatamente onde perde gente, e isso e um numero em toda linha, nao um
+  // comprimento de barra para comparar de olho. Agora cada pergunta mostra
+  // a barra dividida: a parte cheia e quem seguiu, a parte marcada e quem
+  // parou ali, e a taxa vem escrita ao lado.
   if (perguntas.length) {
-    const topo = Math.max.apply(null, perguntas.map(function (p) { return Number(p.viu || 0); }).concat([1]));
     html += '<div class="cartao">' +
-      '<div class="cartao-t">Onde as pessoas param</div>' +
-      '<p class="dica" style="margin:-8px 0 18px">As barras encurtam de cima para baixo. Quanto mais uma ' +
-      'barra encurta em relação à de cima, mais gente desistiu naquela pergunta.</p>' +
-      perguntas.map(function (p) {
-        const pc = formPorCento(p.abandonou, p.viu);
-        return '<div style="margin-bottom:14px">' +
-          '<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px">' +
-            '<span style="font-size:13px;color:var(--tx)' + (p.ativa === false ? ';opacity:.7' : '') + '">' +
-              esc(p.titulo || p.chave) + '</span>' +
-            (p.ativa === false ? '<span class="eti eti-neutra">saiu do formulário</span>' : '') +
-            '<span class="dica" style="margin-left:auto">' + Number(p.viu || 0) + ' chegaram, ' +
-              Number(p.respondeu || 0) + ' responderam</span>' +
-            (!poucos && pc > FORM_ABANDONO_ALTO
-              ? '<span class="eti eti-alerta">' + pc + ' de cada 100 param aqui</span>' : '') +
-          '</div>' +
-          formBarra(formPorCento(p.viu, topo)) +
-          '</div>';
+      '<div class="cartao-t">Onde as pessoas param' +
+        '<span class="graf-legenda">' +
+          '<span class="graf-chave"><i class="bloco"></i>seguiu</span>' +
+          '<span class="graf-chave"><i class="bloco perdeu"></i>parou aqui</span>' +
+        '</span>' +
+      '</div>' +
+      '<p class="dica" style="margin:-8px 0 18px">De cada 100 que chegam na pergunta, quantas param ' +
+      'ali sem responder. A pergunta que mais derruba é a primeira coisa a mexer.</p>' +
+      '<div class="rolo-h"><table class="lista"><thead><tr>' +
+        '<th>Pergunta</th><th class="num">Chegaram</th><th class="num">Responderam</th>' +
+        '<th class="num">Pararam</th><th style="width:34%">Quanto perde</th>' +
+      '</tr></thead><tbody>' +
+      perguntas.map(function (p, i) {
+        const viu = Number(p.viu || 0);
+        const parou = Number(p.abandonou || 0);
+        const pc = formPorCento(parou, viu);
+        const alto = !poucos && pc > FORM_ABANDONO_ALTO;
+        return '<tr>' +
+          '<td data-t><b' + (p.ativa === false ? ' style="opacity:.65"' : '') + '>' +
+            (i + 1) + '. ' + esc(p.titulo || p.chave) + '</b>' +
+            (p.ativa === false ? ' <span class="eti eti-neutra">saiu do formulário</span>' : '') + '</td>' +
+          '<td class="num" data-r="chegaram">' + viu + '</td>' +
+          '<td class="num" data-r="responderam">' + Number(p.respondeu || 0) + '</td>' +
+          '<td class="num" data-r="pararam">' +
+            (parou
+              ? '<span class="' + (alto ? 'perde-alto' : '') + '">' + parou + '</span>'
+              : '<span class="dica">nenhuma</span>') + '</td>' +
+          '<td data-r="quanto perde">' + formBarraPerda(viu, parou) +
+            '<div class="dica" style="margin-top:4px">' +
+              (viu ? pc + ' de cada 100 param aqui' : 'ninguém chegou') + '</div>' +
+          '</td>' +
+        '</tr>';
       }).join('') +
+      '</tbody></table></div>' +
       (m.pior_pergunta && !poucos
-        ? '<p style="font-size:14px;color:var(--tx-2);margin-top:18px">A pergunta que mais faz gente ' +
-          'desistir é "' + esc(formTituloDaChave(m.pior_pergunta.chave, perguntas)) + '". De cada 100 que ' +
+        ? '<p style="font-size:14px;color:var(--tx-2);margin-top:18px">A que mais derruba é ' +
+          '<b>"' + esc(formTituloDaChave(m.pior_pergunta.chave, perguntas)) + '"</b>: de cada 100 que ' +
           'chegam nela, ' + Math.round(Number(m.pior_pergunta.abandono_pct || 0)) + ' param ali.</p>' +
           '<button class="bt bt-linha bt-sm" style="margin-top:10px" onclick="formVerPergunta(\'' +
-          esc(m.pior_pergunta.chave) + '\')">Ver essa pergunta</button>' +
-          '<p class="dica" style="margin-top:10px">Uma pergunta que custa caro e vale pouco pode virar a ' +
-          'última, ou pode sair.</p>'
+          esc(m.pior_pergunta.chave) + '\')">Ver essa pergunta</button>'
         : '') +
       '</div>';
 
@@ -6546,29 +6711,75 @@ function formMedCorpo() {
         '</div>';
     }
 
-    // 6. As respostas ate agora.
+    // 6. As respostas ate agora, uma pergunta por bloco.
+    //
+    // Antes era uma lista corrida de TODA opcao de TODA pergunta, na ordem
+    // em que foram escritas, com as que ninguem marcou ocupando o mesmo
+    // espaco das outras: vinte e cinco linhas em que vinte diziam "0
+    // pessoas, 0 de cada 100". Quem olha isso quer saber duas coisas, e as
+    // duas ficavam escondidas: qual opcao ganhou, e o quanto ela ganhou.
+    //
+    // Agora cada pergunta e um bloco: a mais marcada em cima, escrita por
+    // extenso, as outras em ordem, e as que ninguem marcou recolhidas numa
+    // linha so, que continua dizendo quais sao.
     const comOpcoes = perguntas.filter(function (p) { return Array.isArray(p.opcoes) && p.opcoes.length; });
     if (comOpcoes.length) {
       html += '<div class="cartao">' +
         '<div class="cartao-t">As respostas até agora</div>' +
         '<p class="dica" style="margin:-8px 0 18px">Conta quem enviou a aplicação, com a opção que ela ' +
-        'marcou.</p>' +
+        'marcou. Em cada pergunta, a mais escolhida vem primeiro.</p>' +
+        '<div class="respostas">' +
         comOpcoes.map(function (p) {
           const total = p.opcoes.reduce(function (t, o) { return t + Number(o.quantas || 0); }, 0);
-          return '<div style="margin-bottom:22px">' +
-            '<div class="rotulo">' + esc(p.titulo || p.chave) + '</div>' +
-            p.opcoes.map(function (o) {
-              const quantas = Number(o.quantas || 0);
-              return '<div style="margin-bottom:10px">' +
-                '<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:5px">' +
-                  '<span style="font-size:13px;color:var(--tx)">' + esc(o.texto) + '</span>' +
-                  '<span class="dica" style="margin-left:auto">' + quantas +
-                    (quantas === 1 ? ' pessoa' : ' pessoas') +
-                    (total && !poucos ? ', ' + formPorCento(o.quantas, total) + ' de cada 100' : '') + '</span>' +
-                '</div>' + formBarra(formPorCento(o.quantas, total)) + '</div>';
-            }).join('') + '</div>';
+          const ordenadas = p.opcoes.slice().sort(function (a, b) {
+            return Number(b.quantas || 0) - Number(a.quantas || 0);
+          });
+          const marcadas = ordenadas.filter(function (o) { return Number(o.quantas || 0) > 0; });
+          const zeradas = ordenadas.filter(function (o) { return !Number(o.quantas || 0); });
+          const lider = marcadas[0];
+
+          return '<div class="resposta-bloco">' +
+            '<div class="resposta-t">' +
+              '<b>' + esc(p.titulo || p.chave) + '</b>' +
+              '<span class="dica">' + total + (total === 1 ? ' resposta' : ' respostas') + '</span>' +
+            '</div>' +
+
+            (!total
+              ? '<p class="dica">Ninguém respondeu esta pergunta ainda.</p>'
+              /* A frase so nasce quando ha o que comparar. Com uma opcao
+                 marcada so, ela repetia a unica linha da lista logo abaixo,
+                 e "100 de cada 100 escolheram" e frase que ninguem escreve. */
+              : (lider && !poucos && marcadas.length > 1
+                  ? '<p class="resposta-lider">' +
+                      (formPorCento(lider.quantas, total) >= 99
+                        ? '<b>Quase todas</b> escolheram '
+                        : '<b>' + formPorCento(lider.quantas, total) + ' de cada 100</b> escolheram ') +
+                      '"' + esc(lider.texto) + '".</p>'
+                  : '') +
+                marcadas.map(function (o) {
+                  const quantas = Number(o.quantas || 0);
+                  const pc = formPorCento(quantas, total);
+                  return '<div class="resposta-linha' + (o === lider ? ' lider' : '') + '">' +
+                    '<span class="resposta-nome">' + esc(o.texto) + '</span>' +
+                    /* Uma resposta em 326 arredonda para 0%, e "1 · 0%" na
+                       mesma linha se le como erro de conta. Abaixo de 1 a
+                       tela escreve que e menos de 1, e nao zero. */
+                    '<span class="resposta-conta">' + quantas +
+                      (!poucos ? ' · ' + formPcTexto(quantas, total) : '') + '</span>' +
+                    formBarra(pc, o === lider ? 'var(--o)' : 'var(--o-35)') +
+                  '</div>';
+                }).join('') +
+                (zeradas.length
+                  ? '<p class="dica" style="margin-top:10px">' +
+                      (zeradas.length === 1
+                        ? 'Ninguém escolheu '
+                        : 'Ninguém escolheu ' + (marcadas.length ? 'as outras ' : 'as ') +
+                          zeradas.length + ': ') +
+                      esc(zeradas.map(function (o) { return o.texto; }).join(', ')) + '.</p>'
+                  : '')) +
+          '</div>';
         }).join('') +
-        '</div>';
+        '</div></div>';
     }
   }
 
@@ -6711,6 +6922,158 @@ function formCaminho(dias, campo, topo, fechar) {
                ' L' + g.l + ' ' + (g.t + alturaUtil) + ' Z';
   }
   return { d: caminho, pontos: pontos };
+}
+
+/* ---------------------------------------------------------------------
+   O que os números estão dizendo.
+
+   O resto da tela mostra o dado; este bloco lê o dado e diz o que fazer
+   com ele. É a diferença entre um relatório e um painel: sozinha, a
+   pessoa que abre isso uma vez por semana tem que comparar sete blocos de
+   cabeça para chegar em "a pergunta 5 está derrubando um quarto da fila".
+
+   Cada linha só nasce quando é verdade E quando passa de um corte que
+   valha a pena mexer. Nada aqui aparece sempre: bloco que aparece sempre
+   deixa de ser lido na segunda semana, que é a regra da casa.
+   --------------------------------------------------------------------- */
+
+const FORM_INSIGHT_MIN = 20;   // abaixo disso, dois envios mudam qualquer conta
+
+function formMedInsightsHtml(perguntas, poucos) {
+  const m = FORM.med || {};
+  const f = m.funil || {};
+  const abriu = Number(f.abriu || 0);
+  if (poucos || abriu < FORM_INSIGHT_MIN) return '';
+
+  const achados = [];
+  const somar = function (tom, icone, titulo, texto, acao) {
+    achados.push({ tom: tom, ic: icone, t: titulo, x: texto, acao: acao || '' });
+  };
+
+  // 1. A pergunta que mais derruba.
+  const comViu = perguntas.filter(function (p) { return Number(p.viu || 0) >= 10; });
+  const pior = comViu.slice().sort(function (a, b) {
+    return formPorCento(b.abandonou, b.viu) - formPorCento(a.abandonou, a.viu);
+  })[0];
+  if (pior && formPorCento(pior.abandonou, pior.viu) > FORM_ABANDONO_ALTO) {
+    const pc = formPorCento(pior.abandonou, pior.viu);
+    const custo = Number(pior.mediana_ms || 0);
+    somar('alerta', 'i-target', 'A pergunta que mais derruba é "' + (pior.titulo || pior.chave) + '".',
+      'De cada 100 que chegam nela, ' + pc + ' param ali' +
+      (custo ? ', e ela leva ' + formTempo(custo) + ' para responder' : '') + '. ' +
+      'Encurtar o texto, virar opcional ou mandar para o fim são as três saídas.',
+      '<button class="bt bt-linha bt-sm" onclick="formVerPergunta(\'' + esc(pior.chave) + '\')">Ver essa pergunta</button>');
+  }
+
+  // 2. A pergunta que custa caro perto das outras.
+  const comTempo = perguntas.filter(function (p) { return Number(p.mediana_ms || 0) > 0; });
+  if (comTempo.length > 2) {
+    const cara = comTempo.slice().sort(function (a, b) { return b.mediana_ms - a.mediana_ms; })[0];
+    const resto = comTempo.filter(function (p) { return p !== cara; });
+    const somaResto = resto.reduce(function (t, p) { return t + Number(p.mediana_ms); }, 0);
+    if (Number(cara.mediana_ms) > somaResto * 0.5) {
+      somar('atencao', 'i-clock', '"' + (cara.titulo || cara.chave) + '" leva ' + formTempo(cara.mediana_ms) + '.',
+        'As outras ' + resto.length + ' juntas levam ' + formTempo(somaResto) + '. Uma pergunta sozinha ' +
+        'custando quase o que todas as outras custam é a que mais pesa na desistência de quem tem pressa.');
+    }
+  }
+
+  // 3. Onde a conversao muda: aparelho.
+  const ap = (m.por_aparelho || []).filter(function (a) { return Number(a.visitas || 0) >= 15; });
+  if (ap.length > 1) {
+    const ordenado = ap.slice().sort(function (a, b) {
+      return formPorCento(b.enviou, b.visitas) - formPorCento(a.enviou, a.visitas);
+    });
+    const melhor = ordenado[0], piorAp = ordenado[ordenado.length - 1];
+    const dif = formPorCento(melhor.enviou, melhor.visitas) - formPorCento(piorAp.enviou, piorAp.visitas);
+    if (dif >= 12) {
+      somar('atencao', 'i-grid', 'No ' + esc(piorAp.aparelho) + ' termina bem menos gente.',
+        'No ' + esc(melhor.aparelho) + ', ' + formPorCento(melhor.enviou, melhor.visitas) +
+        ' de cada 100 terminam; no ' + esc(piorAp.aparelho) + ', ' +
+        formPorCento(piorAp.enviou, piorAp.visitas) + '. Diferença dessa altura costuma ser tamanho de ' +
+        'letra, de botão ou campo que o teclado cobre.');
+    }
+  }
+
+  // 4. Onde a conversao muda: origem.
+  const og = (m.por_origem || []).filter(function (o) { return Number(o.visitas || 0) >= 15; });
+  if (og.length > 1) {
+    const ordenado = og.slice().sort(function (a, b) {
+      return formPorCento(b.enviou, b.visitas) - formPorCento(a.enviou, a.visitas);
+    });
+    const melhor = ordenado[0], piorOg = ordenado[ordenado.length - 1];
+    const difOg = formPorCento(melhor.enviou, melhor.visitas) - formPorCento(piorOg.enviou, piorOg.visitas);
+    if (difOg >= 15) {
+      somar('info', 'i-compass', 'Quem vem de ' + esc(melhor.origem) + ' termina mais.',
+        formPorCento(melhor.enviou, melhor.visitas) + ' de cada 100 de ' + esc(melhor.origem) +
+        ' terminam, contra ' + formPorCento(piorOg.enviou, piorOg.visitas) + ' de ' + esc(piorOg.origem) +
+        '. Vale saber para onde mandar o esforço.');
+    }
+  }
+
+  // 5. Quem abre e nem comeca.
+  const comecou = Number(f.comecou || 0);
+  const pcComeca = formPorCento(comecou, abriu);
+  if (abriu >= 30 && pcComeca < 70) {
+    somar('atencao', 'i-flag', (100 - pcComeca) + ' de cada 100 abrem e nem começam.',
+      'Elas não passam da capa. Isso é texto de capa ou promessa que não bateu com o que o botão da ' +
+      'landing prometeu, e não é o formulário: quem desiste ali não viu pergunta nenhuma.');
+  }
+
+  // 6. O periodo comparado com o anterior.
+  const fa = (FORM.medAntes && FORM.medAntes.funil) || null;
+  if (fa && Number(fa.enviou || 0) >= 10) {
+    const antes = Number(fa.enviou), agora = Number(f.enviou || 0);
+    const pct = Math.round(Math.abs(agora - antes) / antes * 100);
+    if (pct >= 20) {
+      somar(agora > antes ? 'ok' : 'alerta', 'i-trend',
+        (agora > antes ? 'As aplicações subiram ' : 'As aplicações caíram ') + pct + '%.',
+        'Foram ' + agora + ' neste período, contra ' + antes + ' no anterior, do mesmo tamanho.' +
+        (agora < antes ? ' Vale olhar se alguma origem parou de trazer gente.' : ''));
+    }
+  }
+
+  // 7. Campo que recusa o que a pessoa escreve.
+  const comErro = perguntas.filter(function (p) { return Number(p.erro_campo || 0) > 0 && Number(p.viu || 0) >= 15; })
+    .sort(function (a, b) { return formPorCento(b.erro_campo, b.viu) - formPorCento(a.erro_campo, a.viu); })[0];
+  if (comErro && formPorCento(comErro.erro_campo, comErro.viu) >= 10) {
+    somar('atencao', 'i-x', 'O campo de "' + (comErro.titulo || comErro.chave) + '" recusa muita gente.',
+      formPorCento(comErro.erro_campo, comErro.viu) + ' de cada 100 que chegam nele têm a resposta ' +
+      'recusada antes de conseguir passar. Ou a regra está apertada demais, ou o campo não explica o ' +
+      'que espera.');
+  }
+
+  // 8. Quando esta tudo bem, isso tambem e informacao, mas em UMA linha.
+  if (!achados.length) {
+    const dez = formCadaDez(f.enviou, f.comecou);
+    return '<div class="cartao">' +
+      '<div class="cartao-t">O que os números estão dizendo</div>' +
+      '<p style="font-size:14px;color:var(--tx-2)">Nada fora do lugar neste período. ' +
+      (dez !== null ? 'De cada 10 que começam, ' + dez + ' terminam, e nenhuma pergunta está derrubando ' +
+        'mais que ' + FORM_ABANDONO_ALTO + ' de cada 100.' : '') + '</p>' +
+    '</div>';
+  }
+
+  const ordem = { alerta: 0, atencao: 1, info: 2, ok: 3 };
+  achados.sort(function (a, b) { return ordem[a.tom] - ordem[b.tom]; });
+
+  return '<div class="cartao">' +
+    '<div class="cartao-t">O que os números estão dizendo' +
+      '<span class="conta-t">' + achados.length + (achados.length === 1 ? ' achado' : ' achados') + '</span>' +
+    '</div>' +
+    '<div class="insights">' +
+      achados.map(function (a) {
+        return '<div class="insight tom-' + a.tom + '">' +
+          '<div class="insight-ic">' + ic(a.ic) + '</div>' +
+          '<div class="insight-txt">' +
+            '<b>' + esc(a.t) + '</b>' +
+            '<p>' + esc(a.x) + '</p>' +
+            (a.acao || '') +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+  '</div>';
 }
 
 function formMedDiaHtml() {
