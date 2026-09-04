@@ -408,13 +408,13 @@ As telas têm verificação própria, num navegador de verdade. Com um
 `npx wrangler dev` de pé na porta 8787:
 
 ```sh
-node fonte/sistema/verifica.mjs           # 49: as onze telas, os três papéis, o ao vivo
+node fonte/sistema/verifica.mjs           # 58: as onze telas, os papéis, o ao vivo, o eixo
 node fonte/sistema/verifica-login.mjs     # 42: a porta, do primeiro dia em diante
 node fonte/sistema/verifica-propostas.mjs # 38: o ciclo da proposta, nas duas pontas
 node verifica-aplicar.mjs                 # 95: o formulário, nas duas larguras
 ```
 
-São 447 verificações no total: 223 de rota e 224 de navegador.
+São 456 verificações no total: 223 de rota e 233 de navegador.
 
 `verifica-login.mjs` e `verifica-propostas.mjs` esvaziam a casa no banco
 local antes de começar, porque o primeiro acesso só responde sem ninguém

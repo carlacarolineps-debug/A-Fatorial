@@ -617,17 +617,55 @@ table.lista td.vazio{height:auto}
    estica sai esticada junto. */
 .graf-linha{display:flex;gap:var(--e2);align-items:stretch}
 .graf-eixo{
-  position:relative; width:3ch; flex:none; height:220px;
+  position:relative; width:4ch; flex:none; height:260px;
   font-size:var(--t-rotulo); color:var(--tx-4); font-variant-numeric:tabular-nums;
 }
 .graf-eixo span{position:absolute;right:0;transform:translateY(-50%);line-height:1}
 .graf-datas{
   display:flex; justify-content:space-between; margin-top:6px;
-  padding-left:calc(3ch + var(--e2));
+  padding-left:calc(4ch + var(--e2));
   font-size:var(--t-rotulo); color:var(--tx-4); font-variant-numeric:tabular-nums;
 }
 .graf-caixa{position:relative;flex:1 1 auto;min-width:0}
-.graf{display:block;width:100%;height:220px;overflow:visible}
+.graf{display:block;width:100%;height:260px;overflow:visible}
+
+/* Os pontos do desenho, em HTML e nao em SVG.
+
+   Pelo mesmo motivo dos numeros do eixo: o SVG estica na horizontal para
+   caber na largura da tela, e circulo dentro dele estica junto. No
+   computador saiam levemente ovais; no telefone, onde 900 unidades de
+   desenho entram em 250 pixels, viravam tracinhos deitados. Posicionados
+   em porcentagem da caixa, ficam redondos em qualquer largura. */
+.graf-ponto{
+  position:absolute; transform:translate(-50%,-50%); border-radius:50%;
+  pointer-events:none; z-index:2;
+}
+/* O ponto de cada dia: o cheio e um dia com envio, o apagado e um dia
+   medido que deu zero. Sem eles, uma linha rente ao zero se le como
+   desenho quebrado em vez de mes sem aplicacao. */
+.graf-ponto.dia{width:6px;height:6px;background:var(--o)}
+.graf-ponto.dia.zero{width:4px;height:4px;opacity:.42}
+/* O pico, que e o unico dia que se aponta sozinho. */
+.graf-ponto.pico{
+  width:10px; height:10px; background:var(--o);
+  box-shadow:0 0 0 2px var(--fundo-2), 0 0 14px 2px var(--o-35);
+}
+/* Os dois que o mouse acende: o cheio na linha da casa, o vazado na
+   tracejada. */
+.graf-ponto.agora{
+  width:11px; height:11px; background:var(--o);
+  box-shadow:0 0 0 2px var(--fundo-2), 0 0 16px 3px var(--o-35);
+}
+.graf-ponto.abriu{
+  width:9px; height:9px; background:var(--fundo);
+  border:2px solid var(--tx-3);
+}
+/* Trinta pontos numa caixa de 250px se encostam. No telefone eles ficam
+   so quando o periodo e curto, que e quando cada ponto tem espaco e nome
+   proprio no eixo das datas. */
+@media (max-width:700px){
+  .graf-caixa:not(.poucos) .graf-ponto.dia{display:none}
+}
 
 /* A legenda vive no título do cartão, e não em cima do desenho. */
 .graf-legenda{display:flex;gap:var(--e3);margin-left:auto;flex-wrap:wrap}
@@ -637,7 +675,16 @@ table.lista td.vazio{height:auto}
   font-family:var(--texto); letter-spacing:0; text-transform:none;
 }
 .graf-chave i{display:block;width:16px;height:0;border-top:2.5px solid var(--o);border-radius:2px}
-.graf-chave i.tracejada{border-top:1.5px dashed var(--tx-4)}
+.graf-chave i.tracejada{border-top:1.75px dashed var(--tx-3)}
+/* A faixa do fim de semana: quadrado, e nao risco, porque no desenho ela
+   e uma area pintada por tras e nao uma linha. */
+.graf-chave i.banda{
+  width:12px; height:12px; border:0; border-radius:3px;
+  background:var(--fio-2); opacity:.85;
+}
+/* O total de cada serie na propria legenda: ele responde "quanto no
+   periodo" sem a pessoa ter que somar trinta pontos de olho. */
+.graf-chave b{color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums}
 
 /* O balão que segue o mouse. */
 .graf-balao{
@@ -647,8 +694,16 @@ table.lista td.vazio{height:auto}
   display:grid; gap:3px;
 }
 .graf-balao b{
+  display:flex; align-items:baseline; gap:7px; flex-wrap:wrap;
   font-family:var(--display); font-size:var(--t-apoio); font-weight:800;
   letter-spacing:-.02em; color:var(--tx); margin-bottom:2px;
+}
+/* Sabado e domingo escritos no balao. A faixa por tras ja diz, mas quem
+   parou o mouse num vale quer a explicacao na frase, e nao na cor. */
+.graf-balao b em{
+  font-family:var(--texto); font-style:normal; font-weight:400;
+  font-size:var(--t-rotulo); color:var(--tx-4);
+  letter-spacing:.06em; text-transform:uppercase;
 }
 .graf-balao span{
   display:flex; align-items:center; gap:7px;
@@ -7759,18 +7814,85 @@ function formMedInsightsHtml(perguntas, poucos) {
   '</div>';
 }
 
+/* =====================================================================
+   Dia a dia.
+
+   O que estava errado, e nao era so feio:
+
+   a. O eixo mentia. Quatro linhas de grade a topo/3 de distancia, com o
+      numero de cada uma arredondado: com teto 4, o eixo escrevia 4, 3, 1
+      e 0 em linhas igualmente espacadas. O 3 estava desenhado onde mora o
+      2,67 e o 1 onde mora o 1,33. Quem lesse a altura de um ponto pelo
+      eixo leria errado.
+
+   b. A conta da escala estava escrita duas vezes, aqui e no balao que
+      segue o mouse. Duas copias da mesma regra e uma promessa de que um
+      dia o ponto do balao vai parar num lugar e a linha em outro.
+
+   c. Com nenhum envio no periodo, a tela dizia "o dia mais cheio foi
+      05/08, com 0" e desenhava o fio do pico apontando para o zero.
+
+   O que ela ganhou junto: sabado e domingo pintados por tras, que e o que
+   explica metade dos vales de um grafico de dias; area embaixo das duas
+   linhas, e nao so da de baixo; e um ponto por dia quando o periodo cabe
+   num mes, para uma linha rente ao zero se ler como "foi medido e deu
+   zero" em vez de "isto esta quebrado".
+   ===================================================================== */
+
+/* A escala do eixo: teto redondo e degraus INTEIROS e iguais.
+
+   Devolve o teto, o tamanho do degrau e quantos degraus. A regra e a de
+   sempre: o degrau e 1, 2 ou 5 vezes uma potencia de dez, e o eixo tem
+   entre dois e cinco degraus. Abaixo de seis, o degrau e 1 e o eixo conta
+   de um em um, porque nao existe meia aplicacao. */
+function formEscala(maiorValor) {
+  const bruto = Math.max(1, Math.ceil(Number(maiorValor) || 0));
+  if (bruto <= 5) {
+    const n = Math.max(2, bruto);
+    return { topo: n, passo: 1, divisoes: n };
+  }
+  for (let mag = 0; mag < 9; mag++) {
+    const dez = Math.pow(10, mag);
+    const candidatos = [1 * dez, 2 * dez, 5 * dez];
+    for (let k = 0; k < candidatos.length; k++) {
+      const passo = candidatos[k];
+      const n = Math.ceil(bruto / passo);
+      if (n >= 2 && n <= 5) return { topo: passo * n, passo: passo, divisoes: n };
+    }
+  }
+  return { topo: bruto, passo: bruto, divisoes: 1 };
+}
+
+// Um lugar so para a escala do "Dia a dia": o desenho e o balao leem
+// daqui, e por isso nao tem como discordarem.
+function formEscalaDoDia(dias) {
+  return formEscala(Math.max.apply(null,
+    dias.map(function (d) { return Number(d.abriu || 0); }).concat([1])));
+}
+
+// Sabado e domingo, para pintar por tras. Sem fuso: a data vem do
+// servidor como AAAA-MM-DD, e ler isso com new Date() joga o dia para
+// tras em quem esta a oeste de Londres.
+function formFimDeSemana(dia) {
+  const p = String(dia || '').split('-');
+  if (p.length !== 3) return false;
+  const d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  const s = d.getDay();
+  return s === 0 || s === 6;
+}
+
 function formMedDiaHtml() {
   const dias = Array.isArray(FORM.med.por_dia) ? FORM.med.por_dia : [];
   if (dias.length < 2) return '';
 
   const g = FORM_GRAF;
   const alturaUtil = g.alt - g.t - g.b;
-  const topoBruto = Math.max.apply(null, dias.map(function (d) { return Number(d.abriu || 0); }).concat([1]));
-  // Um teto redondo: eixo que termina em 37 não se lê de relance.
-  const passoDaEscala = Math.max(1, Math.pow(10, Math.floor(Math.log10(topoBruto))) / 2);
-  const topo = Math.ceil(topoBruto / passoDaEscala) * passoDaEscala;
+  const larguraUtil = g.larg - g.l - g.r;
+  const esc_ = formEscalaDoDia(dias);
+  const topo = esc_.topo;
 
   const abriu = formCaminho(dias, 'abriu', topo, false);
+  const abriuArea = formCaminho(dias, 'abriu', topo, true);
   const enviouArea = formCaminho(dias, 'enviou', topo, true);
   const enviou = formCaminho(dias, 'enviou', topo, false);
 
@@ -7778,20 +7900,65 @@ function formMedDiaHtml() {
     return Number(b.enviou || 0) > Number(a.enviou || 0) ? b : a;
   }, dias[0]);
   const iMaior = dias.indexOf(maior);
+  const temPico = Number(maior.enviou || 0) > 0;
 
-  // Quatro linhas de grade. O número de cada uma fica em HTML, na coluna
-  // à esquerda do desenho.
+  // As linhas da grade e os numeros do eixo, agora nos mesmos lugares.
   let grade = '';
   let escada = '';
-  for (let i = 0; i <= 3; i++) {
-    const y = g.t + (alturaUtil / 3) * i;
-    const valor = Math.round(topo - (topo / 3) * i);
+  for (let i = 0; i <= esc_.divisoes; i++) {
+    const y = g.t + (alturaUtil / esc_.divisoes) * i;
+    const valor = topo - esc_.passo * i;
     grade += '<line x1="0" y1="' + y.toFixed(1) + '" x2="' + g.larg +
-      '" y2="' + y.toFixed(1) + '" stroke="var(--fio-2)" stroke-dasharray="3 6"/>';
+      '" y2="' + y.toFixed(1) + '" stroke="var(--fio-2)"' +
+      (i === esc_.divisoes ? '' : ' stroke-dasharray="3 6"') + '/>';
     escada += '<span style="top:' + ((y / g.alt) * 100).toFixed(2) + '%">' + valor + '</span>';
   }
 
-  const meio = Math.floor(dias.length / 2);
+  // Sabado e domingo por tras de tudo. Metade dos vales de um grafico de
+  // dias e fim de semana, e sem isso a pessoa procura explicacao para uma
+  // queda que so quer dizer que era domingo.
+  const passoX = larguraUtil / (dias.length - 1);
+  let fimDeSemana = '';
+  dias.forEach(function (d, i) {
+    if (!formFimDeSemana(d.dia)) return;
+    // A faixa vai de meio passo antes ate meio passo depois do ponto, e e
+    // aparada nas bordas: no primeiro e no ultimo dia, metade dela cairia
+    // fora do desenho e a faixa apareceria deslocada para dentro.
+    const centro = g.l + i * passoX;
+    const x0 = Math.max(0, centro - passoX / 2);
+    const x1 = Math.min(g.larg, centro + passoX / 2);
+    if (x1 <= x0) return;
+    fimDeSemana += '<rect x="' + x0.toFixed(1) + '" y="' + g.t +
+      '" width="' + (x1 - x0).toFixed(1) + '" height="' + alturaUtil +
+      '" fill="var(--fio-2)" opacity=".55"/>';
+  });
+
+  /* Um ponto por dia quando o periodo cabe num mes. Numa linha rente ao
+     zero, os pontos sao a diferenca entre "foi medido e deu zero" e "isto
+     esta quebrado".
+
+     Eles moram FORA do SVG, como os numeros do eixo e pela mesma razao: o
+     desenho estica na horizontal para caber na largura da tela, e circulo
+     dentro dele estica junto. No computador isso ja deixava os pontos
+     levemente ovais; no telefone, onde 900 unidades entram em 250 pixels,
+     eles viravam tracinhos deitados. Em HTML, posicionados em
+     porcentagem, ficam redondos em qualquer largura. */
+  const emPorCento = function (pt) {
+    return 'left:' + ((pt[0] / g.larg) * 100).toFixed(3) + '%;' +
+           'top:' + ((pt[1] / g.alt) * 100).toFixed(3) + '%';
+  };
+  let pontos = '';
+  if (dias.length <= 31) {
+    pontos = enviou.pontos.map(function (pt, i) {
+      const v = Number(dias[i].enviou || 0);
+      return '<i class="graf-ponto dia' + (v ? '' : ' zero') + '" style="' + emPorCento(pt) + '"></i>';
+    }).join('');
+  }
+  // O pico so ganha fio e ponto quando existe pico. Apontar para o zero
+  // era dizer que o dia mais cheio do mes teve nenhuma.
+  const marcaDoPico = temPico
+    ? '<i class="graf-ponto pico" style="' + emPorCento(enviou.pontos[iMaior]) + '"></i>'
+    : '';
 
   const svg =
     '<svg viewBox="0 0 ' + g.larg + ' ' + g.alt + '" preserveAspectRatio="none" ' +
@@ -7803,57 +7970,89 @@ function formMedDiaHtml() {
           '<stop offset="52%" stop-color="var(--o)" stop-opacity=".14"/>' +
           '<stop offset="100%" stop-color="var(--o)" stop-opacity="0"/>' +
         '</linearGradient>' +
+        '<linearGradient id="grafAreaAbriu" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="var(--tx-3)" stop-opacity=".16"/>' +
+          '<stop offset="100%" stop-color="var(--tx-3)" stop-opacity="0"/>' +
+        '</linearGradient>' +
         // A linha da casa desenhada duas vezes: a de baixo borrada, que e
-        // o brilho, e a de cima nitida. E o mesmo recurso da capa, e e o
-        // que tira do desenho a cara de grafico de planilha.
+        // o brilho, e a de cima nitida.
         '<filter id="grafBrilho" x="-20%" y="-40%" width="140%" height="180%">' +
           '<feGaussianBlur stdDeviation="5"/>' +
         '</filter>' +
       '</defs>' +
+      fimDeSemana +
       grade +
+      '<path d="' + abriuArea.d + '" fill="url(#grafAreaAbriu)"/>' +
       '<path d="' + enviouArea.d + '" fill="url(#grafArea)"/>' +
-      '<path d="' + abriu.d + '" fill="none" stroke="var(--tx-4)" stroke-width="1.5" ' +
-        'stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>' +
+      '<path d="' + abriu.d + '" fill="none" stroke="var(--tx-3)" stroke-width="1.75" ' +
+        'stroke-dasharray="5 4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
       '<path d="' + enviou.d + '" fill="none" stroke="var(--o)" stroke-width="6" ' +
         'stroke-linejoin="round" stroke-linecap="round" opacity=".45" ' +
         'filter="url(#grafBrilho)" vector-effect="non-scaling-stroke"/>' +
       '<path d="' + enviou.d + '" fill="none" stroke="var(--o)" stroke-width="2.5" ' +
         'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
-      // O pico ganha ponto e fio, que e o unico dia que se aponta sozinho.
-      '<line x1="' + enviou.pontos[iMaior][0].toFixed(1) + '" y1="' + g.t +
-        '" x2="' + enviou.pontos[iMaior][0].toFixed(1) + '" y2="' + (g.t + alturaUtil) +
-        '" stroke="var(--o-35)" stroke-dasharray="3 3"/>' +
-      '<circle cx="' + enviou.pontos[iMaior][0].toFixed(1) + '" cy="' + enviou.pontos[iMaior][1].toFixed(1) +
-        '" r="4.5" fill="var(--o)" stroke="var(--fundo-2)" stroke-width="2"/>' +
-      // A linha que segue o mouse, e o ponto que ela acende.
+      // O fio do pico, e o fio que segue o mouse. Linha vertical nao sofre
+      // com o esticao horizontal: ela continua sendo uma linha vertical.
+      (temPico
+        ? '<line x1="' + enviou.pontos[iMaior][0].toFixed(1) + '" y1="' + g.t +
+            '" x2="' + enviou.pontos[iMaior][0].toFixed(1) + '" y2="' + (g.t + alturaUtil) +
+            '" stroke="var(--o-35)" stroke-dasharray="3 3"/>'
+        : '') +
       '<line id="form-graf-fio" x1="0" y1="' + g.t + '" x2="0" y2="' + (g.t + alturaUtil) +
         '" stroke="var(--tx-3)" stroke-dasharray="3 3" opacity="0"/>' +
-      '<circle id="form-graf-ponto" r="4.5" fill="var(--o)" stroke="var(--fundo-2)" ' +
-        'stroke-width="2" opacity="0"/>' +
-    '</svg>';
+    '</svg>' +
+    pontos + marcaDoPico +
+    // Os dois pontos que o mouse acende, tambem em HTML.
+    '<i class="graf-ponto abriu" id="form-graf-ponto-abriu" hidden></i>' +
+    '<i class="graf-ponto agora" id="form-graf-ponto" hidden></i>';
+
+  // As datas. Ate dez dias cabem todas, e ai cada ponto tem nome: numa
+  // semana, "primeira, meio e ultima" obrigava a contar nos dedos para
+  // saber que dia era o terceiro pico. Acima disso sao quatro, que e o
+  // que cabe sem uma encostar na outra.
+  let marcas;
+  if (dias.length <= 10) {
+    marcas = dias.map(function (d, i) { return i; });
+  } else if (dias.length <= 20) {
+    marcas = [0, Math.floor(dias.length / 2), dias.length - 1];
+  } else {
+    marcas = [0, Math.floor(dias.length / 3), Math.floor((dias.length * 2) / 3), dias.length - 1];
+  }
+
+  const totalEnviou = dias.reduce(function (t, d) { return t + Number(d.enviou || 0); }, 0);
+  const totalAbriu = dias.reduce(function (t, d) { return t + Number(d.abriu || 0); }, 0);
+  const frase = temPico
+    ? 'O dia mais cheio foi ' + esc(dataCurta(maior.dia)) + ', com ' + Number(maior.enviou) +
+      (Number(maior.enviou) === 1 ? ' aplicação.' : ' aplicações.') +
+      ' Toque na linha, ou passe o mouse, para ver um dia. A conta de cada 10 só aparece no ' +
+      'total do período: em um dia só, duas pessoas mudam tudo.'
+    : (totalAbriu
+        ? 'Ninguém terminou o formulário neste período. A linha cheia fica no zero e a tracejada ' +
+          'mostra quem abriu: é entre as duas que está o que se perde. Toque na linha, ou passe o ' +
+          'mouse, para ver um dia.'
+        : 'Ninguém abriu o formulário neste período.');
 
   return '<div class="cartao">' +
     '<div class="cartao-t">Dia a dia' +
       '<span class="graf-legenda">' +
-        '<span class="graf-chave"><i class="cheia"></i>terminaram</span>' +
-        '<span class="graf-chave"><i class="tracejada"></i>abriram</span>' +
+        '<span class="graf-chave"><i class="cheia"></i>terminaram' +
+          (totalEnviou ? ' <b>' + totalEnviou + '</b>' : '') + '</span>' +
+        '<span class="graf-chave"><i class="tracejada"></i>abriram' +
+          (totalAbriu ? ' <b>' + totalAbriu + '</b>' : '') + '</span>' +
+        '<span class="graf-chave"><i class="banda"></i>fim de semana</span>' +
       '</span>' +
     '</div>' +
     '<div class="graf-linha">' +
       '<div class="graf-eixo">' + escada + '</div>' +
-      '<div class="graf-caixa" id="form-graf-caixa">' + svg +
+      '<div class="graf-caixa' + (dias.length <= 10 ? ' poucos' : '') +
+        '" id="form-graf-caixa">' + svg +
         '<div class="graf-balao" id="form-graf-balao" hidden></div>' +
       '</div>' +
     '</div>' +
     '<div class="graf-datas">' +
-      '<span>' + esc(dataCurta(dias[0].dia)) + '</span>' +
-      '<span>' + esc(dataCurta(dias[meio].dia)) + '</span>' +
-      '<span>' + esc(dataCurta(dias[dias.length - 1].dia)) + '</span>' +
+      marcas.map(function (i) { return '<span>' + esc(dataCurta(dias[i].dia)) + '</span>'; }).join('') +
     '</div>' +
-    '<p class="dica" style="margin-top:10px">O dia mais cheio foi ' +
-      esc(dataCurta(maior.dia)) + ', com ' + Number(maior.enviou || 0) + '. ' +
-      'Passe o mouse na linha para ver um dia. ' +
-      'A conta de cada 10 só aparece no total do período: em um dia só, duas pessoas mudam tudo.</p>' +
+    '<p class="dica" style="margin-top:10px">' + frase + '</p>' +
   '</div>';
 }
 
@@ -7862,23 +8061,27 @@ function formMedDiaHtml() {
    Ligado depois de o SVG estar na tela. O x do mouse vira índice pela
    regra de três do próprio desenho, e não por procurar o ponto mais
    perto: com trinta dias os dois dão o mesmo resultado e a conta direta
-   é uma linha. */
+   é uma linha.
+
+   A escala vem de formEscalaDoDia, a mesma que desenhou as linhas. Antes
+   ela estava copiada aqui, e uma cópia de regra é a promessa de que um
+   dia o ponto do balão vai parar num lugar e a linha em outro. */
 function formGrafLigar() {
   const caixa = porId('form-graf-caixa');
   const svg = porId('form-graf');
   const balao = porId('form-graf-balao');
   const fio = porId('form-graf-fio');
   const ponto = porId('form-graf-ponto');
+  const pontoAbriu = porId('form-graf-ponto-abriu');
   if (!caixa || !svg || !balao || caixa.dataset.ligado === '1') return;
   caixa.dataset.ligado = '1';
 
   const dias = Array.isArray(FORM.med.por_dia) ? FORM.med.por_dia : [];
   if (dias.length < 2) return;
   const g = FORM_GRAF;
-  const topoBruto = Math.max.apply(null, dias.map(function (d) { return Number(d.abriu || 0); }).concat([1]));
-  const passoDaEscala = Math.max(1, Math.pow(10, Math.floor(Math.log10(topoBruto))) / 2);
-  const topo = Math.ceil(topoBruto / passoDaEscala) * passoDaEscala;
+  const topo = formEscalaDoDia(dias).topo;
   const alturaUtil = g.alt - g.t - g.b;
+  const y = function (v) { return g.t + alturaUtil - (Number(v || 0) / topo) * alturaUtil; };
 
   const mover = function (ev) {
     const r = caixa.getBoundingClientRect();
@@ -7888,12 +8091,27 @@ function formGrafLigar() {
     const d = dias[i];
 
     const xSvg = g.l + (i / (dias.length - 1)) * (g.larg - g.l - g.r);
-    const ySvg = g.t + alturaUtil - (Number(d.enviou || 0) / topo) * alturaUtil;
     if (fio) { fio.setAttribute('x1', xSvg); fio.setAttribute('x2', xSvg); fio.setAttribute('opacity', '1'); }
-    if (ponto) { ponto.setAttribute('cx', xSvg); ponto.setAttribute('cy', ySvg); ponto.setAttribute('opacity', '1'); }
+    // Os pontos sao HTML, e por isso ficam redondos em qualquer largura:
+    // a posicao deles e em porcentagem da caixa, igual a dos numeros do
+    // eixo.
+    const por = ((xSvg / g.larg) * 100).toFixed(3) + '%';
+    if (ponto) {
+      ponto.hidden = false;
+      ponto.style.left = por;
+      ponto.style.top = ((y(d.enviou) / g.alt) * 100).toFixed(3) + '%';
+    }
+    // O segundo ponto e o da linha tracejada. Sem ele, o balao dizia dois
+    // numeros e o desenho so confirmava um.
+    if (pontoAbriu) {
+      pontoAbriu.hidden = false;
+      pontoAbriu.style.left = por;
+      pontoAbriu.style.top = ((y(d.abriu) / g.alt) * 100).toFixed(3) + '%';
+    }
 
     balao.hidden = false;
-    balao.innerHTML = '<b>' + esc(dataCurta(d.dia)) + '</b>' +
+    balao.innerHTML = '<b>' + esc(dataCurta(d.dia)) +
+        (formFimDeSemana(d.dia) ? '<em>fim de semana</em>' : '') + '</b>' +
       '<span><i class="cheia"></i>' + Number(d.enviou || 0) + ' terminaram</span>' +
       '<span><i class="tracejada"></i>' + Number(d.abriu || 0) + ' abriram</span>';
     // O balão não sai da caixa: perto da borda direita ele vira para a esquerda.
@@ -7904,7 +8122,8 @@ function formGrafLigar() {
   const sair = function () {
     balao.hidden = true;
     if (fio) fio.setAttribute('opacity', '0');
-    if (ponto) ponto.setAttribute('opacity', '0');
+    if (ponto) ponto.hidden = true;
+    if (pontoAbriu) pontoAbriu.hidden = true;
   };
 
   caixa.addEventListener('mousemove', mover);

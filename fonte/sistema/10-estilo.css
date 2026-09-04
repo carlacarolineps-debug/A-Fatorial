@@ -599,17 +599,55 @@ table.lista td.vazio{height:auto}
    estica sai esticada junto. */
 .graf-linha{display:flex;gap:var(--e2);align-items:stretch}
 .graf-eixo{
-  position:relative; width:3ch; flex:none; height:220px;
+  position:relative; width:4ch; flex:none; height:260px;
   font-size:var(--t-rotulo); color:var(--tx-4); font-variant-numeric:tabular-nums;
 }
 .graf-eixo span{position:absolute;right:0;transform:translateY(-50%);line-height:1}
 .graf-datas{
   display:flex; justify-content:space-between; margin-top:6px;
-  padding-left:calc(3ch + var(--e2));
+  padding-left:calc(4ch + var(--e2));
   font-size:var(--t-rotulo); color:var(--tx-4); font-variant-numeric:tabular-nums;
 }
 .graf-caixa{position:relative;flex:1 1 auto;min-width:0}
-.graf{display:block;width:100%;height:220px;overflow:visible}
+.graf{display:block;width:100%;height:260px;overflow:visible}
+
+/* Os pontos do desenho, em HTML e nao em SVG.
+
+   Pelo mesmo motivo dos numeros do eixo: o SVG estica na horizontal para
+   caber na largura da tela, e circulo dentro dele estica junto. No
+   computador saiam levemente ovais; no telefone, onde 900 unidades de
+   desenho entram em 250 pixels, viravam tracinhos deitados. Posicionados
+   em porcentagem da caixa, ficam redondos em qualquer largura. */
+.graf-ponto{
+  position:absolute; transform:translate(-50%,-50%); border-radius:50%;
+  pointer-events:none; z-index:2;
+}
+/* O ponto de cada dia: o cheio e um dia com envio, o apagado e um dia
+   medido que deu zero. Sem eles, uma linha rente ao zero se le como
+   desenho quebrado em vez de mes sem aplicacao. */
+.graf-ponto.dia{width:6px;height:6px;background:var(--o)}
+.graf-ponto.dia.zero{width:4px;height:4px;opacity:.42}
+/* O pico, que e o unico dia que se aponta sozinho. */
+.graf-ponto.pico{
+  width:10px; height:10px; background:var(--o);
+  box-shadow:0 0 0 2px var(--fundo-2), 0 0 14px 2px var(--o-35);
+}
+/* Os dois que o mouse acende: o cheio na linha da casa, o vazado na
+   tracejada. */
+.graf-ponto.agora{
+  width:11px; height:11px; background:var(--o);
+  box-shadow:0 0 0 2px var(--fundo-2), 0 0 16px 3px var(--o-35);
+}
+.graf-ponto.abriu{
+  width:9px; height:9px; background:var(--fundo);
+  border:2px solid var(--tx-3);
+}
+/* Trinta pontos numa caixa de 250px se encostam. No telefone eles ficam
+   so quando o periodo e curto, que e quando cada ponto tem espaco e nome
+   proprio no eixo das datas. */
+@media (max-width:700px){
+  .graf-caixa:not(.poucos) .graf-ponto.dia{display:none}
+}
 
 /* A legenda vive no título do cartão, e não em cima do desenho. */
 .graf-legenda{display:flex;gap:var(--e3);margin-left:auto;flex-wrap:wrap}
@@ -619,7 +657,16 @@ table.lista td.vazio{height:auto}
   font-family:var(--texto); letter-spacing:0; text-transform:none;
 }
 .graf-chave i{display:block;width:16px;height:0;border-top:2.5px solid var(--o);border-radius:2px}
-.graf-chave i.tracejada{border-top:1.5px dashed var(--tx-4)}
+.graf-chave i.tracejada{border-top:1.75px dashed var(--tx-3)}
+/* A faixa do fim de semana: quadrado, e nao risco, porque no desenho ela
+   e uma area pintada por tras e nao uma linha. */
+.graf-chave i.banda{
+  width:12px; height:12px; border:0; border-radius:3px;
+  background:var(--fio-2); opacity:.85;
+}
+/* O total de cada serie na propria legenda: ele responde "quanto no
+   periodo" sem a pessoa ter que somar trinta pontos de olho. */
+.graf-chave b{color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums}
 
 /* O balão que segue o mouse. */
 .graf-balao{
@@ -629,8 +676,16 @@ table.lista td.vazio{height:auto}
   display:grid; gap:3px;
 }
 .graf-balao b{
+  display:flex; align-items:baseline; gap:7px; flex-wrap:wrap;
   font-family:var(--display); font-size:var(--t-apoio); font-weight:800;
   letter-spacing:-.02em; color:var(--tx); margin-bottom:2px;
+}
+/* Sabado e domingo escritos no balao. A faixa por tras ja diz, mas quem
+   parou o mouse num vale quer a explicacao na frase, e nao na cor. */
+.graf-balao b em{
+  font-family:var(--texto); font-style:normal; font-weight:400;
+  font-size:var(--t-rotulo); color:var(--tx-4);
+  letter-spacing:.06em; text-transform:uppercase;
 }
 .graf-balao span{
   display:flex; align-items:center; gap:7px;

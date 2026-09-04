@@ -246,6 +246,84 @@ await pg.evaluate(() => Object.defineProperty(document, "hidden", { value: false
 spawnSync("npx", ["wrangler", "d1", "execute", "ideia-que-vende", "--local", "--command",
   "delete from leads where typeform_response_id = 'aovivo:1'"], { stdio: "ignore" });
 
+/* =====================================================================
+   O eixo do "Dia a dia".
+
+   Ele mentia: quatro linhas igualmente espacadas com o numero de cada uma
+   arredondado. Com teto 4, escrevia 4, 3, 1, 0, e o 3 estava desenhado
+   onde mora o 2,67. Isto confere a regra, e nao um retrato: degraus
+   inteiros, iguais, e cobrindo o maior valor.
+   ===================================================================== */
+const eixos = await pg.evaluate(() => {
+  const casos = [1, 2, 3, 4, 5, 6, 9, 12, 17, 37, 51, 99, 137, 250, 1234];
+  return casos.map((c) => {
+    const e = formEscala(c);
+    const degraus = [];
+    for (let k = 0; k <= e.divisoes; k++) degraus.push(e.topo - e.passo * k);
+    return {
+      valor: c,
+      degraus: degraus,
+      inteiros: degraus.every((v) => Number.isInteger(v)),
+      iguais: degraus.every((v, k) => k === 0 || degraus[k - 1] - v === e.passo),
+      cobre: e.topo >= c,
+      fecha: degraus[degraus.length - 1] === 0,
+    };
+  });
+});
+t("o eixo tem degraus inteiros", eixos.every((e) => e.inteiros),
+  JSON.stringify(eixos.filter((e) => !e.inteiros)));
+t("e igualmente espacados, que era o defeito", eixos.every((e) => e.iguais),
+  JSON.stringify(eixos.filter((e) => !e.iguais)));
+t("o teto cobre o maior valor, e o eixo termina no zero",
+  eixos.every((e) => e.cobre && e.fecha), JSON.stringify(eixos.filter((e) => !(e.cobre && e.fecha))));
+t("com teto 4 ele conta de um em um, e nao 4, 3, 1",
+  String(eixos.find((e) => e.valor === 4).degraus) === "4,3,2,1,0",
+  String(eixos.find((e) => e.valor === 4).degraus));
+
+/* Um periodo sem nenhum envio. Ate agora a tela dizia "o dia mais cheio
+   foi 05/08, com 0" e desenhava o fio do pico apontando para o zero. */
+await pg.evaluate(() => irPara("formulario"));
+await pg.waitForTimeout(800);
+const semEnvio = await pg.evaluate(() => {
+  AO_VIVO.telas = {};                       // a batida repoe o dado de verdade
+  FORM.aba = "medidas";
+  FORM.medEstado = "ok";
+  const dias = [];
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(2026, 7, 5 + i);
+    dias.push({
+      dia: d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" +
+           String(d.getDate()).padStart(2, "0"),
+      abriu: i === 25 ? 4 : 0, enviou: 0,
+    });
+  }
+  FORM.med = { funil: { abriu: 4, comecou: 0, enviou: 0 }, tempo: {}, perguntas: [],
+               por_dia: dias, por_aparelho: [], por_origem: [], por_referencia: [],
+               por_plano: [], recusadas: {} };
+  formDesenhar();
+  const cartao = Array.from(document.querySelectorAll(".cartao"))
+    .find((c) => (c.querySelector(".cartao-t") || {}).textContent?.indexOf("Dia a dia") === 0);
+  const ponto = cartao && cartao.querySelector(".graf-ponto");
+  return {
+    frase: cartao ? (cartao.querySelector("p.dica") || {}).textContent || "" : "(sem cartão)",
+    eixo: cartao ? Array.from(cartao.querySelectorAll(".graf-eixo span")).map((e) => e.textContent).join(" ") : "",
+    temPico: !!(cartao && cartao.querySelector(".graf-ponto.pico")),
+    larguraDoPonto: ponto ? ponto.offsetWidth : 0,
+    alturaDoPonto: ponto ? ponto.offsetHeight : 0,
+  };
+});
+t("sem nenhum envio, a tela nao anuncia um dia mais cheio com zero",
+  !/dia mais cheio/.test(semEnvio.frase), semEnvio.frase.slice(0, 90));
+t("ela diz que ninguem terminou, e o que olhar no lugar",
+  /Ninguém terminou/.test(semEnvio.frase), semEnvio.frase.slice(0, 90));
+t("e nao desenha o ponto do pico apontando para o zero", !semEnvio.temPico);
+t("o eixo desse periodo conta de um em um", semEnvio.eixo === "4 3 2 1 0", semEnvio.eixo);
+// O ponto e HTML, e nao um circulo dentro do SVG que estica: dentro dele
+// ele saia oval no computador e virava tracinho no telefone.
+t("os pontos do desenho sao redondos em qualquer largura",
+  semEnvio.larguraDoPonto > 0 && semEnvio.larguraDoPonto === semEnvio.alturaDoPonto,
+  `${semEnvio.larguraDoPonto} por ${semEnvio.alturaDoPonto}`);
+
 t("nenhum erro de JavaScript em todo o caminho", erros.length === 0, erros.slice(0, 4).join(" | "));
 
 console.log(`\n${ok} passaram, ${bad} falharam`);
