@@ -267,6 +267,78 @@ function ideiasAnotar(id) {
    Comandos da tela.
    --------------------------------------------------------------------- */
 
+/* Baixar as aplicacoes em planilha.
+
+   E o que se exporta de um formulario pago: a tabela das respostas, para
+   cruzar com o que a casa quiser fora daqui. Leva o que esta na tela, com
+   a busca e o filtro ja aplicados, porque baixar 200 linhas quando se esta
+   olhando 6 nao e o que quem clica espera.
+
+   Ponto e virgula separa, e nao virgula: o Excel em portugues le virgula
+   como separador decimal e joga tudo numa coluna so. */
+function ideiasCsvCampo(v) {
+  const t = String(v === null || v === undefined ? '' : v);
+  return /[";\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+
+function ideiasBaixar() {
+  const lista = ideiasFiltradas();
+  if (!lista.length) return;
+
+  // Toda pergunta que apareceu em qualquer aplicacao vira coluna, na ordem
+  // em que aparece: formulario que mudou no meio do periodo tem aplicacao
+  // com pergunta que a outra nao tem, e nenhuma resposta pode sumir.
+  const colunas = [];
+  lista.forEach(function (l) {
+    Object.keys(l.respostas || {}).forEach(function (k) {
+      if (colunas.indexOf(k) < 0) colunas.push(k);
+    });
+  });
+
+  const cabecalho = ['quando chegou', 'nome', 'e-mail', 'whatsapp', 'nível clicado',
+    'origem', 'andamento', 'observações'].concat(colunas);
+  const linhas = [cabecalho].concat(lista.map(function (l) {
+    const a = porChave(ANDAMENTOS, l.status || 'novo');
+    return [
+      l.criado_em || '', l.nome || '', l.email || '', l.whatsapp || '',
+      l.plano || '', l.origem || '', (a && a.nome) || l.status || '',
+      l.observacoes || '',
+    ].concat(colunas.map(function (k) { return (l.respostas || {})[k] || ''; }));
+  }));
+
+  const texto = linhas.map(function (l) {
+    return l.map(ideiasCsvCampo).join(';');
+  }).join('\r\n');
+
+  // O \ufeff da frente e o BOM: sem ele o Excel abre em latin-1 e
+  // "aplicações" vira "aplicaÃ§Ãµes".
+  const blob = new Blob(['\ufeff' + texto], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const el = document.createElement('a');
+  el.href = url;
+  el.download = 'aplicacoes-' + hoje() + '.csv';
+  document.body.appendChild(el);
+  el.click();
+  document.body.removeChild(el);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+}
+
+/* A lista como ela esta na tela: ordenada, buscada e filtrada.
+
+   Existe porque duas coisas precisam da MESMA lista, e nao de duas contas
+   parecidas: o desenho e o "Baixar em planilha". Quem esta olhando seis
+   linhas filtradas e clica em baixar espera as seis, e nao as duzentas. */
+function ideiasFiltradas() {
+  const procurado = IDEIAS.busca.trim().toLowerCase();
+  return ideiasOrdenar(IDEIAS.itens).filter(function (l) {
+    const st = l.status || 'novo';
+    if (IDEIAS.filtro === 'esperando' && !ideiasEsperando(l)) return false;
+    if (IDEIAS.filtro && IDEIAS.filtro !== 'esperando' && st !== IDEIAS.filtro) return false;
+    if (!procurado) return true;
+    return ideiasPalheiro(l).indexOf(procurado) >= 0;
+  });
+}
+
 function ideiasBuscar(v) { IDEIAS.busca = String(v || ''); ideiasDesenhar(); }
 function ideiasFiltrar(v) { IDEIAS.filtro = String(v || ''); ideiasDesenhar(); }
 
@@ -599,16 +671,11 @@ function ideiasDesenhar() {
   }
 
   // A fila: quem espera primeiro, do mais antigo para o mais novo.
-  const procurado = IDEIAS.busca.trim().toLowerCase();
-  const lista = ideiasOrdenar(IDEIAS.itens).filter(function (l) {
-    const st = l.status || 'novo';
-    if (IDEIAS.filtro === 'esperando' && !ideiasEsperando(l)) return false;
-    if (IDEIAS.filtro && IDEIAS.filtro !== 'esperando' && st !== IDEIAS.filtro) return false;
-    if (!procurado) return true;
-    return ideiasPalheiro(l).indexOf(procurado) >= 0;
-  });
+  const lista = ideiasFiltradas();
 
   contador('ideias', esperando.length);
+  const btBaixar = porId('ideias-bt-baixar');
+  if (btBaixar) btBaixar.hidden = !lista.length;
 
   if (!IDEIAS.itens.length) {
     if (IDEIAS.estado === 'carregando') {

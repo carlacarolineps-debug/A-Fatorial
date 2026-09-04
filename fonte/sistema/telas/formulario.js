@@ -259,10 +259,34 @@ function formPorCento(parte, total) {
   return Math.round((Number(parte || 0) / Number(total)) * 100);
 }
 
-function formNumeroBloco(valor, rotulo, puxa, zero) {
+function formNumeroBloco(valor, rotulo, puxa, zero, antes) {
   return '<div class="numero' + (puxa ? ' puxa' : '') + '">' +
     '<div class="v' + (zero ? ' zero' : '') + '">' + valor + '</div>' +
-    '<div class="l">' + rotulo + '</div></div>';
+    '<div class="l">' + rotulo + '</div>' +
+    (antes || '') + '</div>';
+}
+
+/* A comparacao com o periodo anterior.
+
+   Numero sozinho nao diz se esta bom: 110 aplicacoes num mes so viram
+   noticia ao lado das 84 do mes passado, e essa e a conta que faltava
+   aqui. Devolve vazio quando nao ha com o que comparar, e quando o
+   periodo anterior teve zero: dividir por zero nao vira "cresceu
+   infinito", vira frase sem sentido. */
+function formComparado(agora, antes) {
+  if (antes === null || antes === undefined) return '';
+  const a = Number(agora) || 0;
+  const b = Number(antes) || 0;
+  if (!b) {
+    return a
+      ? '<div class="comparado sobe">' + a + ' a mais que no período anterior</div>'
+      : '';
+  }
+  const dif = a - b;
+  if (!dif) return '<div class="comparado igual">igual ao período anterior</div>';
+  const pct = Math.round(Math.abs(dif) / b * 100);
+  return '<div class="comparado ' + (dif > 0 ? 'sobe' : 'desce') + '">' +
+    (dif > 0 ? '+' : '−') + pct + '% sobre os ' + b + ' anteriores</div>';
 }
 
 // A barra deitada da escada e das respostas. Largura em estilo na linha,
@@ -1349,10 +1373,11 @@ function formAbasHtml() {
     { k: 'perguntas', nome: 'As perguntas' },
     { k: 'medidas', nome: 'Como está indo' },
   ];
-  return abas.map(function (a) {
-    return '<button class="bt bt-sm ' + (FORM.aba === a.k ? 'bt-marca' : 'bt-linha') +
-      '" onclick="formIrAba(\'' + a.k + '\')">' + esc(a.nome) + '</button>';
-  }).join('');
+  return '<div class="abas" role="tablist">' + abas.map(function (a) {
+    const aberta = FORM.aba === a.k;
+    return '<button class="aba" role="tab" aria-selected="' + (aberta ? 'true' : 'false') + '"' +
+      ' onclick="formIrAba(\'' + a.k + '\')">' + esc(a.nome) + '</button>';
+  }).join('') + '</div>';
 }
 
 function formFrase() {
@@ -1563,10 +1588,15 @@ function formBuscarDeNovoHtml() {
 function formEtiquetasDaPergunta(p) {
   const eti = [];
   eti.push('<span class="eti eti-neutra">' + esc(formNomeTipo(p.tipo)) + '</span>');
-  if (p.tipo !== 'recado') {
-    eti.push(p.obrigatoria
-      ? '<span class="eti eti-info">obrigatória</span>'
-      : '<span class="eti eti-neutra">pode pular</span>');
+  // So a excecao ganha etiqueta.
+  //
+  // Como quase toda pergunta e obrigatoria, a etiqueta "obrigatoria"
+  // aparecia em nove das nove linhas: nessa altura ela deixa de informar e
+  // vira parte da moldura, e ainda gasta a cor azul que devia servir para
+  // outra coisa. O que muda a leitura da lista e descobrir qual pergunta
+  // da para pular, e essa e a que fica marcada.
+  if (p.tipo !== 'recado' && !p.obrigatoria) {
+    eti.push('<span class="eti eti-neutra">pode pular</span>');
   }
   const papel = FORM_PAPEIS.find(function (x) { return x.k === (p.papel || ''); });
   if (papel && papel.eti) eti.push('<span class="eti eti-marca">' + esc(papel.eti) + '</span>');
@@ -1607,11 +1637,14 @@ function formCabecalhoHtml(p) {
         : '') +
     '</div>' +
 
+    // Só "Abrir" fica na linha fechada.
+    //
+    // Antes havia Subir, Descer e Abrir em cada uma das nove, o que dava
+    // vinte e sete botões do mesmo peso numa coluna. E Subir e Descer
+    // faziam o que o seletor de posição, quatro centímetros à esquerda, já
+    // fazia melhor: com ele dá para ir da nona para a segunda de uma vez,
+    // e com os botões são sete cliques. A ordem se muda num lugar só.
     '<div style="display:flex;gap:6px;flex:none">' +
-      '<button class="bt bt-linha bt-sm" id="form-sobe-' + esc(p.chave) + '"' +
-        (i === 0 ? ' disabled' : trava) + ' onclick="formMover(\'' + esc(p.chave) + '\', -1)">Subir</button>' +
-      '<button class="bt bt-linha bt-sm" id="form-desce-' + esc(p.chave) + '"' +
-        (i === lista.length - 1 ? ' disabled' : trava) + ' onclick="formMover(\'' + esc(p.chave) + '\', 1)">Descer</button>' +
       '<button class="bt bt-linha bt-sm" onclick="formAlternar(\'' + esc(p.chave) + '\')">' +
         (aberta ? 'Fechar' : 'Abrir') + '</button>' +
     '</div>' +
@@ -2073,6 +2106,20 @@ function formIntervalo() {
   return { de: formDiaRelativo(-29), ate: formDiaRelativo(0) };
 }
 
+/* O periodo imediatamente anterior, do mesmo tamanho. Trinta dias sao
+   comparados com os trinta de antes; "este mes" com o mes passado inteiro
+   ate o mesmo dia, que e a comparacao justa no meio do mes. */
+function formIntervaloAnterior(i) {
+  const dia = 864e5;
+  const de = new Date(i.de + 'T00:00:00');
+  const ate = new Date(i.ate + 'T00:00:00');
+  const quantos = Math.round((ate - de) / dia) + 1;
+  const anteriorAte = new Date(de.getTime() - dia);
+  const anteriorDe = new Date(anteriorAte.getTime() - (quantos - 1) * dia);
+  const iso = function (d) { return d.toISOString().slice(0, 10); };
+  return { de: iso(anteriorDe), ate: iso(anteriorAte), dias: quantos };
+}
+
 async function formMedidasCarregar() {
   FORM.medEstado = 'carregando';
   FORM.medFalha = null;
@@ -2080,6 +2127,21 @@ async function formMedidasCarregar() {
 
   const i = formIntervalo();
   const r = await formPedir('/api/mesa/metricas?de=' + i.de + '&ate=' + i.ate);
+
+  // O periodo anterior, do mesmo tamanho e colado neste.
+  //
+  // Numero sozinho nao diz se esta bom: 110 aplicacoes num mes so vira
+  // noticia ao lado das 84 do mes passado. E a conta que o painel do
+  // Typeform faz e que faltava aqui. Vai num segundo pedido, e nao numa
+  // consulta nova no servidor, porque a rota ja aceita as duas datas: se
+  // este falhar, a tela desenha igual, so sem a comparacao.
+  FORM.medAntes = null;
+  if (!r.erro) {
+    const antes = formIntervaloAnterior(i);
+    const ra = await formPedir('/api/mesa/metricas?de=' + antes.de + '&ate=' + antes.ate);
+    if (!ra.erro && ra.corpo && ra.corpo.ok) FORM.medAntes = ra.corpo;
+  }
+
   if (r.erro) {
     FORM.medEstado = 'erro';
     FORM.medFalha = formFalhaDe(r.erro, r.corpo, 'leitura');
@@ -2129,10 +2191,14 @@ function formVerPergunta(chave) {
 function formMedNumerosHtml() {
   const m = FORM.med, f = (m && m.funil) || {};
   const poucos = Number(f.abriu || 0) < FORM_MINIMO_PARA_CONTA;
+  const fa = (FORM.medAntes && FORM.medAntes.funil) || null;
   let html =
-    formNumeroBloco(Number(f.abriu || 0), 'vezes que a página foi aberta', false, !f.abriu) +
-    formNumeroBloco(Number(f.comecou || 0), 'passaram da primeira pergunta', false, !f.comecou) +
-    formNumeroBloco(Number(f.enviou || 0), 'terminaram e enviaram', true, !f.enviou);
+    formNumeroBloco(Number(f.abriu || 0), 'vezes que a página foi aberta', false, !f.abriu,
+      fa ? formComparado(f.abriu, fa.abriu) : '') +
+    formNumeroBloco(Number(f.comecou || 0), 'passaram da primeira pergunta', false, !f.comecou,
+      fa ? formComparado(f.comecou, fa.comecou) : '') +
+    formNumeroBloco(Number(f.enviou || 0), 'terminaram e enviaram', true, !f.enviou,
+      fa ? formComparado(f.enviou, fa.enviou) : '');
   const dez = formCadaDez(f.enviou, f.comecou);
   if (!poucos && dez !== null) {
     html += formNumeroBloco(dez + ' de cada 10', 'de quem começa, termina', false, !dez);
@@ -2437,6 +2503,88 @@ function formMedRecusasHtml(perguntas) {
   '</div>';
 }
 
+/* Baixar os numeros em planilha.
+
+   E a unica coisa que o painel pago do Typeform faz e que aqui nao dava
+   para fazer: levar o periodo inteiro para uma planilha e cruzar com o que
+   a casa quiser. Sai um arquivo de texto separado por ponto e virgula, que
+   o Excel e o Google Planilhas abrem em portugues sem perguntar nada.
+
+   Ponto e virgula, e nao virgula: o Excel em portugues le a virgula como
+   separador decimal, e um arquivo com virgula chega com tudo numa coluna
+   so. O BOM no comeco e o que faz acento aparecer certo no Excel. */
+function formCsvCampo(v) {
+  const t = String(v === null || v === undefined ? '' : v);
+  return /[";\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+
+function formCsvLinhas(linhas) {
+  return linhas.map(function (l) { return l.map(formCsvCampo).join(';'); }).join('\r\n');
+}
+
+function formBaixarNumeros() {
+  const m = FORM.med;
+  if (!m) return;
+  const f = m.funil || {};
+  const l = [];
+
+  l.push(['O formulário, de ' + m.de + ' a ' + m.ate]);
+  l.push([]);
+  l.push(['O funil']);
+  l.push(['medida', 'quantas']);
+  l.push(['abriram a página', f.abriu || 0]);
+  l.push(['passaram da primeira pergunta', f.comecou || 0]);
+  l.push(['chegaram a conferir', f.revisou === null ? 'não medido neste período' : f.revisou]);
+  l.push(['terminaram e enviaram', f.enviou || 0]);
+  l.push([]);
+
+  if ((m.perguntas || []).length) {
+    l.push(['Pergunta a pergunta']);
+    l.push(['pergunta', 'chegaram', 'responderam', 'pararam aqui', 'segundos, mediana']);
+    m.perguntas.forEach(function (p) {
+      l.push([p.titulo || p.chave, p.viu || 0, p.respondeu || 0,
+        Number(p.viu || 0) - Number(p.respondeu || 0),
+        p.mediana_ms ? Math.round(p.mediana_ms / 1000) : '']);
+    });
+    l.push([]);
+  }
+
+  if ((m.por_dia || []).length) {
+    l.push(['Dia a dia']);
+    l.push(['dia', 'abriram', 'começaram', 'terminaram']);
+    m.por_dia.forEach(function (d) { l.push([d.dia, d.abriu || 0, d.comecou || 0, d.enviou || 0]); });
+    l.push([]);
+  }
+
+  if ((m.por_origem || []).length) {
+    l.push(['De onde vieram']);
+    l.push(['origem', 'abriram', 'terminaram']);
+    m.por_origem.forEach(function (o) { l.push([o.origem || 'sem origem', o.visitas || 0, o.enviou || 0]); });
+    l.push([]);
+  }
+
+  if ((m.por_aparelho || []).length) {
+    l.push(['Aparelho']);
+    l.push(['aparelho', 'abriram', 'terminaram']);
+    m.por_aparelho.forEach(function (a) { l.push([a.aparelho || 'desconhecido', a.visitas || 0, a.enviou || 0]); });
+  }
+
+  formBaixarArquivo('formulario-' + m.de + '-a-' + m.ate + '.csv', formCsvLinhas(l));
+}
+
+/* O download em si. O \ufeff da frente e o BOM: sem ele o Excel abre o
+   arquivo em latin-1 e "aplicações" vira "aplicaÃ§Ãµes". */
+function formBaixarArquivo(nome, texto) {
+  const blob = new Blob(['\ufeff' + texto], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+}
+
 function formCorpoMedidas() {
   const botoes = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">' +
     FORM_PERIODOS.map(function (p) {
@@ -2445,6 +2593,9 @@ function formCorpoMedidas() {
     }).join('') +
     '<button class="bt bt-linha bt-sm" onclick="formMedidasCarregar()"' +
       (FORM.medEstado === 'carregando' ? ' disabled' : '') + '>Buscar de novo</button>' +
+    (FORM.med && FORM.medEstado === 'ok'
+      ? '<button class="bt bt-linha bt-sm" id="form-bt-baixar" onclick="formBaixarNumeros()">Baixar em planilha</button>'
+      : '') +
     '</div>';
 
   if (FORM.medEstado === 'carregando' && !FORM.med) {

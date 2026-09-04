@@ -465,6 +465,15 @@ body{background:var(--fundo)}
 }
 /* O numero que puxa a decisao ganha a faixa inteira, no degrade da marca. */
 .numero.puxa::after,.tira .puxa::after{background:var(--o-grad);width:60%}
+/* A comparacao com o periodo anterior, dentro do ladrilho. */
+.comparado{
+  margin-top:6px; font-size:var(--t-apoio); font-weight:600;
+  display:flex; align-items:center; gap:5px;
+}
+.comparado.sobe{color:var(--sinal-ok)}
+.comparado.desce{color:var(--sinal-atencao)}
+.comparado.igual{color:var(--tx-4);font-weight:400}
+
 /* Zero nao acende: sem noticia, sem faixa nenhuma. A .28 de opacidade ela
    ainda aparecia, e quatro ladrilhos acesos com tres zeros dentro e o
    mesmo erro de antes, so que agora em forma de luz. */
@@ -563,6 +572,28 @@ table.lista td.vazio{height:auto}
 .vazio b,.vago b{font-family:var(--display);font-weight:800;font-size:var(--t-bloco);
   letter-spacing:-.03em;color:var(--tx)}
 .vazio .bt,.vago .bt{margin-left:auto}
+
+/* ------------------------------------------------------------- abas
+   Onde se esta nao e o que se faz.
+
+   As abas usavam .bt-marca quando abertas, que e o laranja cheio do botao
+   de acao: na mesma dobra ficavam "Como esta indo" e "Publicar" com o
+   mesmo desenho, um dizendo onde a pessoa esta e o outro oferecendo a
+   coisa irreversivel. Aba aberta agora e um fio embaixo, que e como toda
+   aba do mundo se apresenta. */
+.abas{display:flex;gap:var(--e3);border-bottom:1px solid var(--fio);margin-bottom:var(--e3)}
+.aba{
+  background:none; border:0; border-bottom:2px solid transparent;
+  color:var(--tx-3); cursor:pointer; padding:11px 2px;
+  font-size:var(--t-corpo); font-weight:600; line-height:1.2;
+  /* 44px de alvo com o padding acima, para o dedo alcancar no telefone */
+  min-height:44px;
+  transition:color var(--t-controle) var(--ease),border-color var(--t-controle) var(--ease);
+}
+.aba:hover{color:var(--tx)}
+.aba[aria-selected="true"]{color:var(--tx);border-bottom-color:var(--o)}
+/* Tirar o fundo tirou junto a unica pista de foco que o botao tinha. */
+.aba:focus-visible{outline:2px solid var(--o);outline-offset:2px;border-radius:var(--r-sm)}
 
 /* ----------------------------------------------------------- dobra
    Um bloco que abre. E o <details> do navegador, entao abre no clique e
