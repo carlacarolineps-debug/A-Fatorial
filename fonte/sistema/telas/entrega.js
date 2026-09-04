@@ -1,5 +1,5 @@
 /* =====================================================================
-   Mesa da entrega
+   Entregas
 
    E aqui que a entrega e escrita. A tela existe por uma pergunta so:
    o que falta para esta entrega poder ir para o cliente.
@@ -287,7 +287,7 @@ function entregaSalvar(mudar) {
   const p = lista.find(function (x) { return x && String(x.id) === String(aberta.projetoId); });
   if (!p) {
     ENTREGA_RECADO = { tom: 'alerta', titulo: 'Este projeto não está mais neste navegador.',
-      texto: 'Ele foi apagado ou o armazenamento foi limpo enquanto a entrega estava aberta. O que estava na tela não foi gravado. Abra Projetos em estruturação para ver o que restou.' };
+      texto: 'Ele foi apagado ou o armazenamento foi limpo enquanto a entrega estava aberta. O que estava na tela não foi gravado. Abra Projetos para ver o que restou.' };
     return false;
   }
   if (!Array.isArray(p.entregas)) p.entregas = [];
@@ -1431,7 +1431,7 @@ function entregaHtmlVazio() {
   const dito = '<div class="cartao">' +
     '<div class="cartao-t"><span>A mesa está livre</span></div>' +
     '<p style="font-size:13.5px;color:var(--tx-2);max-width:74ch;line-height:1.7">' +
-      'Escolha um projeto em Projetos em estruturação e clique em uma das oito. ' +
+      'Escolha um projeto em Projetos e clique em uma das oito. ' +
       'Se as oito estiverem apagadas, o projeto nasceu sem escopo: diga o nível contratado na leitura do caso.' +
     '</p>' +
     // Os projetos como lista, e nao dentro de um menu suspenso.

@@ -1,5 +1,5 @@
 /* =====================================================================
-   Projetos em estruturação  ·  em que fase está cada projeto
+   Projetos  ·  em que fase está cada projeto
 
    Três decisões explicam quase tudo neste arquivo:
 
@@ -62,7 +62,7 @@ const PROJETOS = {
 
 function projetosTodos() { return iqvLer(CHAVES.projetos, []) || []; }
 
-// Os níveis podem ter sido editados em Roteiros e níveis. O que vale para
+// Os níveis podem ter sido editados em Método e preços. O que vale para
 // a mesa é o valor de lá, não o que o código trouxe de fábrica.
 function projetosNiveis() {
   const m = iqvLer(CHAVES.metodo, null);
@@ -202,7 +202,7 @@ function projetosEntrada(p) {
   };
 }
 
-// O retrato é publicado pela Mesa da entrega, e o formato é de lá. Aqui só
+// O retrato é publicado pela tela de Entregas, e o formato é de lá. Aqui só
 // interessa a data, então a leitura aceita lista ou objeto e procura a
 // data por mais de um nome. Retrato sem data conta como não publicado: é
 // melhor dizer que o cliente não vê nada do que fingir que ele vê.
@@ -281,18 +281,18 @@ function projetosAlarmes(f) {
     fora.push({ tom: 'alerta', titulo: 'Contrato aceito e entrada não paga.',
       texto: 'O projeto começou em ' + esc(dataCurta(p.inicio)) + ', há ' + dias + ' dias, e a primeira parcela de ' +
         esc(moeda(parcela.valor)) + ', com vencimento em ' + esc(dataCurta(parcela.vencimento)) +
-        ', continua sem baixa. A baixa é manual, em Contratado e recebido: nenhum valor entra sozinho vindo da TMB.' });
+        ', continua sem baixa. A baixa é manual, em Financeiro: nenhum valor entra sozinho vindo da TMB.' });
   } else if (f.entrada.estado === 'sem_plano') {
     fora.push({ tom: 'atencao', titulo: 'Nenhuma parcela lançada para este projeto.',
       texto: 'Ele aparece como contratado e nunca vai aparecer como recebido, porque não existe parcela para dar baixa. ' +
-        'As parcelas nascem no aceite, em Contratado e recebido.' });
+        'As parcelas nascem no aceite, em Financeiro.' });
   }
 
   const jaSaiu = f.escopo.some(function (e) { return e.enviadaEm || e.aprovadaEm; });
   if (!f.retrato && jaSaiu) {
     fora.push({ tom: 'atencao', titulo: 'O cliente ainda não vê nada deste projeto.',
       texto: 'Nenhum retrato foi publicado, então a tela Meu projeto dele continua vazia mesmo com entrega já em andamento aqui dentro. ' +
-        'O retrato sai junto com o envio para validação, na Mesa da entrega.' });
+        'O retrato sai junto com o envio para validação, em Entregas.' });
   } else if (f.retrato && f.retrato.dias > PROJETOS_RETRATO_VELHO && !f.tudoAprovado) {
     fora.push({ tom: 'atencao', titulo: 'O cliente está vendo um retrato de ' + dataCurta(f.retrato.quando) + '.',
       texto: 'São ' + f.retrato.dias + ' dias de notícia velha do lado dele: quem abre Meu projeto hoje vê este projeto como ele estava naquele dia, não como está agora. ' +
@@ -348,19 +348,19 @@ function projetosOrdenarPor(v) { PROJETOS.ordem = v; DESENHO.projetos(); }
 
 function projetosArg(v) { return "'" + String(v === null || v === undefined ? '' : v).replace(/[\\']/g, '') + "'"; }
 
-// A Mesa da entrega é outro arquivo, e as duas telas viram um script só no
+// A Entregas é outro arquivo, e as duas telas viram um script só no
 // final: declarar a mesma variável nos dois arquivos derrubaria a página
 // inteira. Por isso o recado de qual entrega abrir vai no window, sem
 // declaração, e não numa chave de armazenamento que ninguém limparia.
 function projetosAbrirEntrega(id, k) {
-  if (!projetosLiberado('entrega', 'a Mesa da entrega')) return;
+  if (!projetosLiberado('entrega', 'às Entregas')) return;
   window.ENTREGA_ABERTA = { projetoId: id, entrega: k };
   window.PROJETO_ABERTO = id;
   irPara('entrega');
 }
 
 function projetosVerComoCliente(id) {
-  if (!projetosLiberado('cliente', 'a tela Meu projeto')) return;
+  if (!projetosLiberado('cliente', 'à tela Meu projeto')) return;
   window.PROJETO_ABERTO = id;
   irPara('cliente');
 }
@@ -370,7 +370,7 @@ function projetosVerComoCliente(id) {
 // que nao sair. Entao a recusa vira recado, no lugar do salto.
 function projetosLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
-  PROJETOS.recado = { titulo: 'Você não tem acesso a ' + comoSeChama + '.',
+  PROJETOS.recado = { titulo: 'Você não tem acesso ' + comoSeChama + '.',
     texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o botão não leva a lugar nenhum. Quem libera é a gestão, em Configurações.' };
   DESENHO.projetos();
   window.scrollTo(0, 0);
@@ -450,7 +450,7 @@ function projetosHtmlFaixa(fichas) {
 }
 
 // A linha de carga existe para uma decisão só: cabe mais um projeto antes
-// de assinar o próximo veredito em Leitura do caso.
+// de assinar o próximo veredito em Diagnóstico.
 function projetosHtmlCarga(fichas) {
   const pessoas = projetosPessoas();
   const linha = function (nome, id) {
@@ -484,7 +484,7 @@ function projetosHtmlCarga(fichas) {
   if (orfaos.length) {
     corpo += '<tr><td><b style="color:var(--atencao)">Sem responsável</b></td>' +
       '<td>' + orfaos.length + '</td><td>' + orfaos.reduce(function (s, f) { return s + f.escopo.filter(function (e) { return e.estado !== 'aprovada'; }).length; }, 0) + '</td>' +
-      '<td>0</td><td>0</td><td class="dica">Não aparece na semana de ninguém. Defina em Leitura do caso.</td></tr>';
+      '<td>0</td><td>0</td><td class="dica">Não aparece na semana de ninguém. Defina em Diagnóstico.</td></tr>';
   }
   if (!corpo) {
     corpo = vazio('Ninguém está cadastrado em Configurações ainda, então não há carga para somar. Cadastre a equipe em Configurações para saber de quem é cada entrega.', 6);
@@ -623,8 +623,8 @@ function projetosHtmlDaVez(f) {
       ? '<div style="margin-top:10px"><span class="dica">Definição de pronto: ' + def.feitos + ' de ' + def.total + ' itens marcados</span>' +
         projetosHtmlBarra(def.parte, def.parte === 100) +
         (def.parte === 100 && e.estado !== 'com_cliente' ? '<span class="dica" style="color:var(--ok);display:block;margin-top:6px">Pronta para ir para validação.</span>' : '') + '</div>'
-      : '<p class="dica" style="margin-top:10px">Esta entrega nasceu sem definição de pronto, então não dá para dizer o quanto falta. Escreva o checklist em Roteiros e níveis para os próximos projetos nascerem com ele.</p>') +
-    '<button class="bt bt-marca bt-sm" style="margin-top:12px" onclick="projetosAbrirEntrega(' + projetosArg(f.p.id) + ',' + projetosArg(e.k) + ')">Abrir na Mesa da entrega</button>' +
+      : '<p class="dica" style="margin-top:10px">Esta entrega nasceu sem definição de pronto, então não dá para dizer o quanto falta. Escreva o checklist em Método e preços para os próximos projetos nascerem com ele.</p>') +
+    '<button class="bt bt-marca bt-sm" style="margin-top:12px" onclick="projetosAbrirEntrega(' + projetosArg(f.p.id) + ',' + projetosArg(e.k) + ')">Abrir em Entregas</button>' +
     '</div>';
 }
 
@@ -697,7 +697,7 @@ function projetosHtmlCartao(f) {
   if (!f.escopo.length) {
     html += '<div style="margin-top:14px">' + aviso('alerta', 'Este projeto nasceu sem escopo.',
       'Nenhuma das oito está marcada como contratada, então não há o que escrever nem o que o cliente aprovar, e a fase nunca vai virar. ' +
-      'Volte à Leitura do caso e diga qual nível foi de fato contratado.') + '</div>';
+      'Volte ao Diagnóstico e diga qual nível foi de fato contratado.') + '</div>';
   }
 
   // Um alarme sozinho fica a vista. De dois em diante eles se dobram, com a
@@ -786,7 +786,7 @@ DESENHO.projetos = function () {
     escrever('projetos-ferramentas', '');
     escrever('projetos-corpo', meuId
       ? projetosHtmlNada('Nenhum projeto com você como responsável.',
-          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Leitura do caso, e quem amplia o seu escopo de leitura é a gestão, em Configurações.')
+          'Existem ' + todos.length + ' projetos em estruturação nesta casa, e nenhum deles está no seu nome. Quem define o responsável é quem abre o projeto, em Diagnóstico, e quem amplia o seu escopo de leitura é a gestão, em Configurações.')
       : projetosHtmlNada('Não sei quais projetos são seus.',
           'Você entrou como ' + (EU.email || 'alguém sem e-mail identificado') + ', e não existe ninguém com esse e-mail cadastrado em Configurações. Sem esse cadastro o sistema não tem como saber de quem é cada projeto. Peça para a gestão cadastrar o seu e-mail em Configurações.'));
     return;

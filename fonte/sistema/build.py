@@ -38,11 +38,28 @@ def ler(caminho):
         return f.read()
 
 # ---------------------------------------------------------------- fontes
-# As mesmas duas da landing, embutidas: o sistema fica atras de login, e
-# buscar fonte de terceiro dali vazaria para fora quem esta usando.
+# Embutidas: o sistema fica atras de login, e buscar fonte de terceiro
+# dali vazaria para fora quem esta usando.
+#
+# O negrito era falso, e era ele o "ar de coisa antiga" da tela.
+#
+# Ate 04/09 havia DOIS arquivos, e cada um se declarava com um intervalo
+# de peso que ele nao cobria: o Sora dizia cobrir de 100 a 800, o Inter de
+# 100 a 900. So que Sora-800 e um arquivo de UM peso, e Inter-400 tambem.
+# Toda vez que a folha pedia 600 ou 700 no corpo do texto, o navegador nao
+# tinha o desenho e engordava a letra sozinho. Medido: um negrito de
+# verdade e 12,3% mais largo que o normal; o que a tela mostrava era 2,6%.
+# E essa borrada de meio ponto, sem desenho por tras, que faz um texto
+# parecer velho e chapado.
+#
+# Agora cada arquivo se declara com o peso que ele tem de verdade, e os
+# dois pesos que faltavam entram como arquivo. Sao os recortes latinos, que
+# cobrem o portugues inteiro e pesam metade do arquivo antigo.
 FONTES = [
-    ('Sora',  '../fonts/Sora-800.woff2',  '100 800'),
-    ('Inter', '../fonts/Inter-400.woff2', '100 900'),
+    ('Sora',  '../fonts/Sora-800.woff2',  '800'),
+    ('Inter', '../fonts/Inter-400.woff2', '400'),
+    ('Inter', '../fonts/Inter-600.woff2', '600'),
+    ('Inter', '../fonts/Inter-700.woff2', '700'),
 ]
 faces = []
 for familia, caminho, peso in FONTES:

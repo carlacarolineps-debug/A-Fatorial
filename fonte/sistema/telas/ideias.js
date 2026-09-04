@@ -1,5 +1,5 @@
 /* =====================================================================
-   Ideias que chegaram  ·  a fila de quem ainda nao teve resposta
+   Aplicações  ·  a fila de quem ainda nao teve resposta
 
    Esta e a unica tela que conversa com a rede: GET /leads para ler as
    aplicacoes e PATCH /leads para gravar o andamento. Nome, contato e

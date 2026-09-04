@@ -20,15 +20,30 @@
      usado zero vez: e dele que vem o ritmo que falta. */
   --papel:#f6f4ef; --papel-2:#fffefb; --branco:#fff;
   /* tinta sobre claro, que nao existia */
-  --ink:#101014; --ink-2:#3a3a42; --ink-3:#5f5f69; --ink-4:#8d8d97;
+  /* O mesmo conserto do outro lado: sobre o creme, o quarto degrau era
+     #8d8d97 e dava 3,0. Aqui ele escurece em vez de clarear. */
+  --ink:#101014; --ink-2:#3a3a42; --ink-3:#50505a; --ink-4:#6c6c76;
   --linha-l:#e5e1d8; --linha-l2:#efece5;
   /* marca. --o-ink e o laranja legivel em texto pequeno sobre papel:
      laranja cheio sobre creme da 2,2:1, e a capa ja tinha resolvido. */
   --o:#ff8309; --o-lt:#ffa53d; --o-dp:#e56600; --o-ink:#b84f00;
   --o-05:rgba(255,131,9,.05); --o-10:rgba(255,131,9,.10);
   --o-18:rgba(255,131,9,.18); --o-35:rgba(255,131,9,.35);
-  /* tinta sobre escuro */
-  --tinta:#f2efe8; --tinta-2:#b9b9c2; --tinta-3:#8d8d97; --tinta-4:#5f5f69;
+  /* tinta sobre escuro.
+
+     Os dois degraus de baixo foram medidos e trocados em 04/09. O quarto
+     era #5f5f69 e dava 2,7 a 3,2 de contraste sobre os fundos da casa,
+     onde texto de 11 a 12,5px precisa de 4,5. Ele nao pinta enfeite: e a
+     cor de .dica, .rotulo, do nome de cada grupo do menu, do cabecalho de
+     toda tabela e da etiqueta do papel de quem entrou. Trezentos e noventa
+     lugares do sistema estavam escritos numa tinta que quase nao se le, e
+     e por isso que as telas mais quietas pareciam vazias: o texto estava
+     la, apagado demais para o olho registrar como conteudo.
+
+     O terceiro subiu junto, senao os dois ficariam a doze pontos de
+     distancia e a escala perderia um degrau. O primeiro e o segundo nao
+     mudaram: eles ja passavam, e o creme quente do primeiro e da marca. */
+  --tinta:#f2efe8; --tinta-2:#b9b9c2; --tinta-3:#a0a0aa; --tinta-4:#85858f;
   --linha:rgba(255,255,255,.10); --linha-2:rgba(255,255,255,.055);
   /* sinais. O par -p e a versao que aguenta fundo de papel. */
   --ok:#4ac97e; --atencao:#ffc14d; --alerta:#ff6b5a; --info:#7ab8ff;
@@ -842,6 +857,111 @@ table.lista td.vazio{height:auto}
   opacity:.75;
 }
 
+/* ----------------------------------------------------------- colunas
+   O ano do caixa, em colunas.
+
+   Doze linhas de tabela dizem quanto em cada mes; doze colunas lado a
+   lado dizem a FORMA do ano, que e a pergunta que se faz de pe: o caixa
+   esta subindo ou caindo, e onde estao os buracos.
+
+   HTML, e nao SVG: aqui nao ha curva, so retangulo com altura em
+   porcentagem, e HTML nao estica a letra quando a tela muda de largura. */
+.colunas{display:flex;gap:var(--e2);align-items:stretch}
+.colunas-eixo{
+  position:relative; width:6ch; flex:none; height:220px;
+  font-size:var(--t-rotulo); color:var(--tx-4); font-variant-numeric:tabular-nums;
+}
+.colunas-eixo span{position:absolute;right:0;transform:translateY(50%);line-height:1}
+.colunas-campo{
+  flex:1 1 auto; min-width:0; display:grid; grid-auto-flow:column;
+  grid-auto-columns:1fr; gap:6px; align-items:end;
+}
+.coluna{display:flex;flex-direction:column;justify-content:flex-end;min-width:0}
+/* A pilha de um mes: vencido embaixo, a vencer no meio, entrou em cima.
+   Entrou fica no alto porque e o que se procura primeiro. */
+.col-pilha{
+  height:220px; display:flex; flex-direction:column; justify-content:flex-end;
+  border-radius:var(--r-sm) var(--r-sm) 0 0; overflow:hidden;
+  background:linear-gradient(180deg,transparent,var(--fio-2));
+  transition:filter var(--t-controle) var(--ease);
+}
+.col-pilha:hover{filter:brightness(1.25)}
+.col-pilha i{display:block;width:100%;transition:height .6s var(--ease)}
+.col-pilha i.entrou{background:var(--o-grad)}
+/* Um laranja apagado, e nao 35% de laranja por cima do preto: a
+   transparencia sobre o fundo escuro virava marrom, e oito colunas de
+   marrom nao se leem como dinheiro a receber. */
+.col-pilha i.avencer{background:linear-gradient(180deg,#b35c06,#8a4705)}
+.col-pilha i.vencido{background:var(--sinal-alerta);opacity:.85}
+.coluna-r{
+  display:block; margin-top:7px; text-align:center; font-size:var(--t-rotulo);
+  color:var(--tx-4); text-transform:uppercase; letter-spacing:.06em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* O mes de agora ganha o rotulo aceso: sem ele, doze meses iguais nao
+   dizem onde comeca o ano que se esta olhando. */
+.coluna.agora .coluna-r{color:var(--o-tx);font-weight:700}
+.graf-chave i.bloco.avencer{background:#b35c06}
+
+/* --------------------------------------------------- niveis, no dinheiro
+   Quanto de cada nivel ja virou caixa.
+
+   Eram tres cartoes com "Contratado / Recebido / Falta" escritos um
+   embaixo do outro: nove numeros para comparar de cabeca. A barra faz a
+   comparacao: o comprimento e o contratado, e o pedaco aceso dentro dela
+   e o que ja entrou. */
+.niveis-dinheiro{display:grid;gap:var(--e3)}
+.nivel-d-t{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.nivel-d-t b{
+  font-family:var(--display); font-weight:800; font-size:var(--t-bloco);
+  letter-spacing:-.03em; color:var(--tx);
+}
+.nivel-d-t span{font-size:var(--t-apoio);color:var(--tx-3)}
+.nivel-d-t em{
+  margin-left:auto; font-style:normal; font-family:var(--display);
+  font-weight:800; font-size:15px; letter-spacing:-.02em; color:var(--tx);
+  font-variant-numeric:tabular-nums;
+}
+/* A barra desta tela e mais alta: ela guarda outra barra dentro. */
+.niveis-dinheiro .barra{height:14px}
+.niveis-dinheiro .barra i{position:relative;overflow:hidden}
+.niveis-dinheiro .barra u{
+  position:absolute; inset:0 auto 0 0; display:block;
+  background:var(--o-grad); text-decoration:none;
+  transition:width .7s var(--ease);
+}
+.nivel-d-pe{
+  display:flex; gap:var(--e2); flex-wrap:wrap; margin-top:6px;
+  font-size:var(--t-rotulo); color:var(--tx-4);
+  letter-spacing:.06em; text-transform:uppercase; font-weight:600;
+}
+.nivel-d-pe span:last-child{margin-left:auto}
+
+/* ------------------------------------------------------------- idades
+   O que falta receber, separado por prazo.
+
+   "Falta receber R$ 40 mil" nao diz se e cobranca de hoje ou caixa de
+   setembro. Vencido e trabalho agora, este mes e atencao, depois e
+   previsao: tres coisas diferentes que viravam um numero so. */
+.idades{display:grid;gap:var(--e3)}
+.idade-t{display:flex;align-items:baseline;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.idade-t b{
+  font-family:var(--display); font-weight:800; font-size:20px;
+  letter-spacing:-.03em; color:var(--tx); line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.idade-t span{font-size:var(--t-apoio);color:var(--tx-3)}
+.idade-vencido{background:var(--sinal-alerta)}
+.idade-agora{background:var(--o-grad)}
+.idade-depois{background:var(--o-35)}
+
+@media (max-width:640px){
+  .colunas-eixo{width:5ch;height:170px}
+  .col-pilha{height:170px}
+  .colunas-campo{gap:3px}
+  .coluna-r{font-size:9px;letter-spacing:0}
+}
+
 /* ------------------------------------------------------------ matriz
    Uma coisa por linha, um caso por coluna.
 
@@ -1201,7 +1321,9 @@ table.matriz tr.grupo:first-child td{padding-top:0}
 .dobra>summary:hover{background:var(--o-05)}
 .dobra>summary b{font-size:15px;color:var(--claro);font-weight:600}
 .dobra-n{
-  font-family:var(--display); font-size:12px; font-weight:700; color:var(--o-tx);
+  /* 800, e nao 700: do Sora so o 800 esta embutido, e pedir 700 fazia o
+     navegador engordar o 800 sozinho, o que sai borrado. */
+  font-family:var(--display); font-size:12px; font-weight:800; color:var(--o-tx);
   font-variant-numeric:tabular-nums; flex:none;
 }
 .dobra[open]>summary{border-bottom:1px solid var(--fio-2)}

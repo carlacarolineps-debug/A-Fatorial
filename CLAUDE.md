@@ -67,6 +67,22 @@ conferidos antes de criar a proposta e antes de assinar. O motor está em
 `fonte/proposta/30-motor.js`, que é outro pacote. O servidor continua
 limpando o que chega, então a máscara é só o que se vê.
 
+**Texto quieto ainda é texto, e precisa de 4,5 de contraste.** Em 04/09 o
+quarto degrau da tinta (`--tinta-4` no escuro, `--ink-4` no papel) media
+2,7 a 3,3 sobre os fundos da casa, onde letra de 11 a 12,5px precisa de
+4,5. Ele não pinta enfeite: é a cor de `.dica`, `.rotulo`, do nome de cada
+grupo do menu, do cabeçalho de toda tabela e da etiqueta do papel de quem
+entrou. Eram 390 lugares. É por isso que as telas mais quietas pareciam
+vazias: o texto estava lá, apagado demais para o olho registrar como
+conteúdo. O terceiro degrau subiu junto, para a escala não perder um
+degrau. Ao criar cor de texto, meça.
+
+**A fonte declara o peso que ela tem.** O `@font-face` dizia que
+`Sora-800.woff2` cobria de 100 a 800 e `Inter-400.woff2` de 100 a 900, e
+os dois são arquivos de um peso só. Agora cada arquivo se declara com o
+peso real, e o 600 e o 700 do Inter entram como arquivo. Pedir um peso que
+não está embutido faz o navegador engordar a letra sozinho.
+
 **Laranja é ação, e não "esta linha existe".** Se toda linha de uma lista
 tem a mesma cor, a cor parou de significar alguma coisa. Vale para o
 laranja da marca e para as etiquetas de sinal.
@@ -135,11 +151,35 @@ tamanho e o `aspect-ratio` dá a largura: 20px na lombada, 22px na porta.
 `semana`, `ideias`, `formulario`, `leitura`, `projetos`, `entrega`,
 `roteiros`, `dinheiro`, `cliente`, `propostas`, `casa`.
 
-A chave `casa` aparece na tela como **Configurações** desde 04/09. A chave
-não mudou de propósito: ela está gravada nas permissões do navegador de
-quem já usou o sistema, e trocá-la apagaria a tela para essas pessoas. Cada uma é um par
-`telas/<chave>.html` mais `telas/<chave>.js`, e registra o próprio desenho
-em `DESENHO[<chave>]`.
+Cada uma é um par `telas/<chave>.html` mais `telas/<chave>.js`, e registra
+o próprio desenho em `DESENHO[<chave>]`.
+
+**A chave nunca muda; o nome na tela muda.** As chaves estão gravadas nas
+permissões dentro do navegador de quem já usou o sistema, e trocar uma
+chave apaga aquela tela para essas pessoas. Em 04/09 os nomes viraram os
+nomes das coisas, e as chaves ficaram onde estavam:
+
+    ideias      Aplicações        era "Ideias que chegaram"
+    formulario  Formulário
+    leitura     Diagnóstico       era "Leitura do caso"
+    propostas   Propostas
+    semana      Minha semana
+    projetos    Projetos          era "Projetos em estruturação"
+    entrega     Entregas          era "Mesa da entrega"
+    roteiros    Método e preços   era "Roteiros e níveis"
+    cliente     Meu projeto
+    dinheiro    Financeiro        era "Contratado e recebido"
+    casa        Configurações     era "A casa"
+
+Os grupos também: `Vendas`, `Meu trabalho`, `O que vendemos`,
+`Área do cliente`, `Administração`. Eram "A mesa", "O método" e "A casa",
+que é a língua de dentro: quem chega não sabe que "a mesa" é o funil de
+vendas. Nome de grupo não fica gravado em lugar nenhum.
+
+Os apelidos não se perderam: viraram a linha fina de cada tela, que é onde
+explicação mora. **Ao renomear uma tela, procure o nome antigo nas outras**:
+elas se citam ("as parcelas nascem em Financeiro"), e o gênero e o número
+mudam junto ("na Mesa da entrega" virou "em Entregas").
 
 Os papéis são `gestor`, `colaborador` e `cliente`.
 

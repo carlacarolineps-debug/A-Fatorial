@@ -1,5 +1,5 @@
 /* =====================================================================
-   Leitura do caso.
+   Diagnóstico.
 
    A landing diz, com todas as letras, que cada projeto passa por uma
    avaliacao antes de qualquer proposta. Esta tela e essa avaliacao. Ela
@@ -466,7 +466,7 @@ function leituraHtmlFila() {
 
   let linhas = '';
   if (!mostradas.length) {
-    linhas = vazio('Nenhuma leitura começou. Escolha uma aplicação em Ideias que chegaram e abra aqui: perfil, estágio, o que falta das oito entregas e o nível indicado. ' +
+    linhas = vazio('Nenhuma leitura começou. Escolha uma aplicação em Aplicações e abra aqui: perfil, estágio, o que falta das oito entregas e o nível indicado. ' +
       'Enquanto ninguém assinar um veredito, nada nesta tela conta como resposta dada à pessoa, e ela continua esperando do outro lado.', 6);
   } else {
     linhas = mostradas.map(function (lead) {
@@ -490,7 +490,7 @@ function leituraHtmlFila() {
   const sobra = ordenadas.length - mostradas.length;
   const rodape = sobra > 0
     ? '<p class="dica" style="margin-top:12px">Mostrando ' + mostradas.length + ' das ' + ordenadas.length +
-      ' aplicações, as que pedem leitura primeiro. A lista inteira está em Ideias que chegaram.</p>'
+      ' aplicações, as que pedem leitura primeiro. A lista inteira está em Aplicações.</p>'
     : '';
 
   return '<div class="cartao">' +
@@ -620,7 +620,7 @@ function leituraHtmlLeitura(lead) {
       '<span class="rotulo">A leitura indica</span>' +
       '<select class="campo campo-sm"' + trava + ' onchange="leituraCampo(\'nivelIndicado\', this.value)">' +
         opcoes(leituraNiveis(), l.nivelIndicado, 'ainda não indiquei') + '</select>' +
-      (nivelIndicado ? '<div class="dica" style="margin-top:6px">' + esc(moeda(nivelIndicado.valor)) + ', valor de Roteiros e níveis.</div>' : '') +
+      (nivelIndicado ? '<div class="dica" style="margin-top:6px">' + esc(moeda(nivelIndicado.valor)) + ', valor de Método e preços.</div>' : '') +
     '</div></div>';
 
   let divergencia = '';
@@ -866,7 +866,7 @@ function leituraHtmlProjeto(lead) {
       aviso('ok', 'Projeto aberto, com o rótulo ' + esc(projeto.rotulo || 'sem rótulo') + '.',
         'Nível contratado ' + esc(leituraNomeNivel(projeto.nivelContratado) || projeto.nivelContratado) + ', ' + esc(moeda(projeto.valor)) +
         ', produto pronto prometido para ' + esc(dataCurta(projeto.produtoProntoEm)) + '. As oito entregas nasceram com o escopo congelado e o checklist copiado do roteiro daquele dia.') +
-      '<button class="bt bt-linha" onclick="irPara(\'projetos\')">Ver em Projetos em estruturação</button>' +
+      '<button class="bt bt-linha" onclick="irPara(\'projetos\')">Ver em Projetos</button>' +
       '</div>';
   }
 
@@ -939,7 +939,7 @@ function leituraHtmlProjeto(lead) {
           LEITURA_FORMAS.map(function (f) { return '<option value="' + esc(f.k) + '">' + esc(f.nome) + '</option>'; }).join('') +
           '</select>' +
         '</div>' +
-        '<p class="dica" style="margin-top:6px">As parcelas nascem com data e valor, e a baixa de cada uma é manual em Contratado e recebido.</p></div>' +
+        '<p class="dica" style="margin-top:6px">As parcelas nascem com data e valor, e a baixa de cada uma é manual em Financeiro.</p></div>' +
     '</div>' +
     '<button class="bt bt-marca" onclick="leituraCriarProjeto()"' + (LEITURA_GRAVANDO ? ' disabled' : '') + '>' +
       (LEITURA_GRAVANDO ? 'Gravando no servidor' : 'Abrir projeto') + '</button> ' +
@@ -1031,7 +1031,7 @@ function leituraHtmlNenhuma() {
   if (leituraTodas().length) {
     return '<div class="cartao"><p class="dica">Escolha uma linha da fila para abrir a ficha.</p></div>';
   }
-  return '<div class="cartao"><p class="dica">Nenhuma leitura começou. Escolha uma aplicação em Ideias que chegaram.</p></div>';
+  return '<div class="cartao"><p class="dica">Nenhuma leitura começou. Escolha uma aplicação em Aplicações.</p></div>';
 }
 
 function leituraHtmlFicha() {
@@ -1054,7 +1054,7 @@ function leituraHtmlFicha() {
 
 function leituraIrAba(k) { LEITURA_ABA = k; LEITURA_RECADO = null; leituraPintar(); }
 
-// Porta de entrada desta tela, e tambem o que a tela Ideias que chegaram
+// Porta de entrada desta tela, e tambem o que a tela Aplicações
 // chama no botao "Abrir leitura do caso".
 function leituraAbrir(id) {
   LEITURA_ALVO = Number(id);
@@ -1304,7 +1304,7 @@ async function leituraCriarProjeto() {
     leituraPintar(); return;
   }
   if (leituraTemProjeto(lead.id)) {
-    LEITURA_RECADO = { tom: 'atencao', titulo: 'Esta aplicação já virou projeto.', texto: 'Ele está em Projetos em estruturação, e abrir de novo criaria dois projetos para o mesmo cliente.' };
+    LEITURA_RECADO = { tom: 'atencao', titulo: 'Esta aplicação já virou projeto.', texto: 'Ele está em Projetos, e abrir de novo criaria dois projetos para o mesmo cliente.' };
     leituraPintar(); return;
   }
 
@@ -1375,7 +1375,7 @@ async function leituraCriarProjeto() {
   LEITURA_ABRIR_PROJETO = false;
   LEITURA_RECADO = { tom: 'ok', titulo: 'Projeto aberto, com o rótulo ' + esc(projeto.rotulo) + '.',
     texto: 'As oito entregas nasceram com o escopo do ' + esc(nivel.nome) + ' congelado e o checklist copiado dos roteiros de hoje. ' +
-      (gravouDinheiro ? quantas + ' parcelas já esperam baixa em Contratado e recebido.' : 'As parcelas não couberam no armazenamento e precisam ser lançadas à mão.') };
+      (gravouDinheiro ? quantas + ' parcelas já esperam baixa em Financeiro.' : 'As parcelas não couberam no armazenamento e precisam ser lançadas à mão.') };
   leituraPintar();
 }
 

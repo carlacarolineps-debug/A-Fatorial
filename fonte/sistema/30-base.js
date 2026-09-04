@@ -210,6 +210,25 @@ function moeda(n) {
   return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
+/* Moeda curta, para eixo de grafico.
+
+   "R$ 12.500" num eixo de seis degraus vira seis numeros longos empilhados
+   e a coluna do eixo come um terco da largura do desenho. Aqui e "12,5 mil"
+   e "1,2 mi", que e como se le numero grande em voz alta. */
+function moedaCurta(n) {
+  const v = Math.round(Number(n) || 0);
+  if (!v) return '0';
+  if (Math.abs(v) >= 1000000) {
+    const m = v / 1000000;
+    return (m % 1 ? m.toFixed(1).replace('.', ',') : String(m)) + ' mi';
+  }
+  if (Math.abs(v) >= 1000) {
+    const m = v / 1000;
+    return (m % 1 && Math.abs(m) < 100 ? m.toFixed(1).replace('.', ',') : String(Math.round(m))) + ' mil';
+  }
+  return String(v);
+}
+
 function hoje() { return new Date().toISOString().slice(0, 10); }
 
 function porChave(lista, k) { return lista.find(function (x) { return x.k === k; }) || null; }
@@ -323,35 +342,56 @@ function texto(id, v) { const e = porId(id); if (e) e.textContent = v; }
    --------------------------------------------------------------------- */
 const DESENHO = {};
 
+/* Os nomes das telas.
+
+   NENHUMA CHAVE MUDA, nunca. Elas estao gravadas nas permissoes dentro do
+   navegador de quem ja usou o sistema, e trocar uma chave apaga aquela
+   tela para essas pessoas. O que muda e o nome que aparece.
+
+   Em 04/09 os nomes viraram os nomes das coisas. Antes eram apelidos da
+   casa: "Ideias que chegaram" para as aplicacoes, "Leitura do caso" para
+   o diagnostico, "Mesa da entrega" para as entregas, "Contratado e
+   recebido" para o financeiro. Quem trabalha aqui aprende o apelido em
+   uma semana; quem chega, nao, e ate aprender nao sabe onde clicar.
+
+   Os apelidos nao se perderam: eles viraram a linha fina de cada tela, que
+   e onde explicacao mora. */
 const TELAS = [
+  { k: 'ideias',   nome: 'Aplicações',             ic: 'i-spark', grupo: 'Vendas',
+    titulo: ['<b>Aplicações</b>', 'Quem contou a ideia pelo formulário e ainda não teve resposta'] },
+  { k: 'formulario', nome: 'Formulário',           ic: 'i-flag', grupo: 'Vendas',
+    titulo: ['<b>Formulário</b>', 'As perguntas que a pessoa responde antes de chegar até você'] },
+  { k: 'leitura',  nome: 'Diagnóstico',            ic: 'i-search', grupo: 'Vendas',
+    titulo: ['<b>Diagnóstico</b>', 'A leitura do caso: cabe no método, em que nível, e o que a pessoa recebe de volta'], mesa: 'papel' },
+  { k: 'propostas', nome: 'Propostas',             ic: 'i-doc', grupo: 'Vendas',
+    titulo: ['<b>Propostas</b>', 'O que foi enviado, quem abriu e quem já assinou'] },
+
   { k: 'semana',   nome: 'Minha semana',           ic: 'i-clock', grupo: 'Meu trabalho',
     titulo: ['Minha <b>semana</b>', 'O que vence, o que atrasou e quem está esperando'] },
-  { k: 'ideias',   nome: 'Ideias que chegaram',    ic: 'i-spark', grupo: 'A mesa',
-    titulo: ['Ideias que <b>chegaram</b>', 'Quem contou a ideia e ainda não teve resposta nossa'] },
-  { k: 'formulario', nome: 'O formulário',         ic: 'i-flag', grupo: 'A mesa',
-    titulo: ['O <b>formulário</b>', 'As perguntas que a pessoa responde antes de chegar na sua mesa'] },
-  { k: 'leitura',  nome: 'Leitura do caso',        ic: 'i-search', grupo: 'A mesa',
-    titulo: ['Leitura do <b>caso</b>', 'Cabe no método, em que nível, e o que a pessoa recebe de volta'], mesa: 'papel' },
-  { k: 'projetos', nome: 'Projetos em estruturação',ic: 'i-layers', grupo: 'Meu trabalho',
-    titulo: ['Projetos em <b>estruturação</b>', 'Em que fase está cada projeto e de quem é a bola'] },
-  { k: 'entrega',  nome: 'Mesa da entrega',        ic: 'i-doc', grupo: 'Meu trabalho',
-    titulo: ['Mesa da <b>entrega</b>', 'Onde a entrega é escrita'], mesa: 'papel' },
-  { k: 'roteiros', nome: 'Roteiros e níveis',      ic: 'i-route', grupo: 'O método',
-    titulo: ['Roteiros e <b>níveis</b>', 'Para a entrega não depender de improviso a cada cliente'] },
-  { k: 'dinheiro', nome: 'Contratado e recebido',  ic: 'i-chart', grupo: 'A casa',
-    titulo: ['Contratado e <b>recebido</b>', 'Quanto foi vendido e quanto entrou de fato'] },
-  { k: 'cliente',  nome: 'Meu projeto',            ic: 'i-case', grupo: 'O cliente',
+  { k: 'projetos', nome: 'Projetos',               ic: 'i-layers', grupo: 'Meu trabalho',
+    titulo: ['<b>Projetos</b>', 'Em que fase está cada projeto em estruturação e de quem é a bola'] },
+  { k: 'entrega',  nome: 'Entregas',               ic: 'i-doc', grupo: 'Meu trabalho',
+    titulo: ['<b>Entregas</b>', 'A mesa onde cada entrega é escrita e vai para o cliente'], mesa: 'papel' },
+
+  { k: 'roteiros', nome: 'Método e preços',        ic: 'i-route', grupo: 'O que vendemos',
+    titulo: ['Método e <b>preços</b>', 'O que cada nível custa, o que entra nele, e o roteiro de cada entrega'] },
+
+  { k: 'cliente',  nome: 'Meu projeto',            ic: 'i-case', grupo: 'Área do cliente',
     titulo: ['Meu <b>projeto</b>', 'O que o cliente vê do próprio projeto'] },
-  { k: 'propostas', nome: 'Propostas',           ic: 'i-doc', grupo: 'A mesa',
-    titulo: ['<b>Propostas</b>', 'O que foi enviado, quem abriu e quem já assinou'] },
-  // A chave continua 'casa'. Ela esta gravada nas permissoes do navegador
-  // de quem ja usou o sistema, e trocar a chave apagaria a tela para essas
-  // pessoas. O que muda e o nome na tela, que a Carla pediu.
-  { k: 'casa',     nome: 'Configurações',          ic: 'i-shield', grupo: 'A casa',
+
+  { k: 'dinheiro', nome: 'Financeiro',             ic: 'i-chart', grupo: 'Administração',
+    titulo: ['<b>Financeiro</b>', 'Quanto foi contratado, quanto entrou de fato e o que ainda falta receber'] },
+  { k: 'casa',     nome: 'Configurações',          ic: 'i-shield', grupo: 'Administração',
     titulo: ['<b>Configurações</b>', 'Quem entra, o que cada um enxerga, e onde o dado pode se perder'] },
 ];
 
-const GRUPOS = ['A mesa', 'Meu trabalho', 'O método', 'O cliente', 'A casa'];
+/* Os grupos tambem viraram nomes de coisa.
+
+   "A mesa", "A casa" e "O metodo" sao a lingua de dentro: quem chega nao
+   sabe que "a mesa" e o funil de vendas nem que "a casa" e a
+   administracao. Nome de grupo nao fica gravado em lugar nenhum, entao
+   trocar nao apaga nada de ninguem. */
+const GRUPOS = ['Vendas', 'Meu trabalho', 'O que vendemos', 'Área do cliente', 'Administração'];
 
 /* ---------------------------------------------------------------------
    5. Quem pode ver o que.

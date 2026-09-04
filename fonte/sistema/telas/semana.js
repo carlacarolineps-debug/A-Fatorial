@@ -19,7 +19,7 @@
 
    3. Aqui não entra gráfico. Gráfico responde "como estamos"; esta tela
       responde "o que eu faço agora", e isso é linha com nome de cliente,
-      quanto falta de checklist e um clique que abre a Mesa da entrega.
+      quanto falta de checklist e um clique que abre a tela de Entregas.
    ===================================================================== */
 
 // Três dias é onde "estou esperando o cliente" deixa de ser espera e vira
@@ -436,7 +436,7 @@ function semanaColunasEntrega(extras) {
 
 function semanaLinhaEntrega(f, e, extras) {
   const p = f.p;
-  return '<tr style="cursor:pointer" title="Abrir na Mesa da entrega" ' +
+  return '<tr style="cursor:pointer" title="Abrir em Entregas" ' +
     'onclick="semanaAbrir(' + semanaArg(p.id) + ',' + semanaArg(e.k) + ')">' +
     '<td><b style="color:var(--o-lt)">' + esc(e.nome) + '</b>' +
       '<div class="dica">entrega ' + e.n + ' de 8, ' + esc(etiquetaEstadoTexto(e.estado)) + '</div></td>' +
@@ -597,7 +597,7 @@ function semanaBlocoProntas(d) {
         semanaArg(it.f.p.id) + ',' + semanaArg(it.e.k) + ')">Abrir para enviar</button></td>');
   }).join('');
   return semanaCartaoBloco('Pronto para enviar', d.prontas.length, 'eti-ok',
-    'Definição de pronto inteira marcada e a entrega ainda não foi para validação. O envio é na Mesa da entrega.',
+    'Definição de pronto inteira marcada e a entrega ainda não foi para validação. O envio é feito em Entregas.',
     semanaTabela(cols, linhas));
 }
 
@@ -618,7 +618,7 @@ function semanaBlocoColher(d) {
   }).join('');
   const rodape = '<p class="dica" style="margin-top:14px">As três respostas preenchidas tiram o projeto desta lista.' +
     (d.indicaram ? ' ' + d.indicaram + (d.indicaram === 1 ? ' pessoa já disse' : ' pessoas já disseram') +
-      ' que indicaria alguém: a aplicação que chegar com origem indicação aparece em Ideias que chegaram.' : '') + '</p>';
+      ' que indicaria alguém: a aplicação que chegar com origem indicação aparece em Aplicações.' : '') + '</p>';
   return semanaCartaoBloco('Colher em ' + SEMANA_COLHEITA + ' dias', d.colher.length, 'eti-marca',
     'Produto pronto há mais de ' + SEMANA_COLHEITA + ' dias, com as oito entregas do escopo aprovadas.',
     semanaTabela(cols, linhas) + rodape);
@@ -698,31 +698,31 @@ function semanaTrocarPessoa(v) { SEMANA.pessoa = String(v || 'eu'); SEMANA.recad
 // que não sair. Então a recusa vira recado, no lugar do salto.
 function semanaLiberado(chave, comoSeChama) {
   if (EU.pode(chave)) return true;
-  SEMANA.recado = { tom: 'atencao', titulo: 'Você não tem acesso a ' + comoSeChama + '.',
+  SEMANA.recado = { tom: 'atencao', titulo: 'Você não tem acesso ' + comoSeChama + '.',
     texto: 'O seu papel neste sistema não enxerga essa tela, e por isso o clique não leva a lugar nenhum. Quem libera é a gestão, em Configurações.' };
   DESENHO.semana();
   window.scrollTo(0, 0);
   return false;
 }
 
-// A Mesa da entrega é outro arquivo, e as duas telas viram um script só no
+// A Entregas é outro arquivo, e as duas telas viram um script só no
 // final: o recado de qual entrega abrir vai no window, sem declaração,
-// que é a mesma combinação usada por Projetos em estruturação.
+// que é a mesma combinação usada por Projetos.
 function semanaAbrir(projetoId, entregaK) {
-  if (!semanaLiberado('entrega', 'a Mesa da entrega')) return;
+  if (!semanaLiberado('entrega', 'às Entregas')) return;
   window.ENTREGA_ABERTA = { projetoId: projetoId, entrega: entregaK };
   window.PROJETO_ABERTO = projetoId;
   irPara('entrega');
 }
 
 function semanaAbrirLeitura(leadId) {
-  if (!semanaLiberado('leitura', 'a Leitura do caso')) return;
+  if (!semanaLiberado('leitura', 'ao Diagnóstico')) return;
   if (typeof leituraAbrir === 'function') { leituraAbrir(Number(leadId)); return; }
   irPara('leitura');
 }
 
 function semanaVerCliente(projetoId) {
-  if (!semanaLiberado('cliente', 'a tela Meu projeto')) return;
+  if (!semanaLiberado('cliente', 'à tela Meu projeto')) return;
   window.PROJETO_ABERTO = projetoId;
   irPara('cliente');
 }
@@ -813,7 +813,7 @@ function semanaRecados(d) {
     html += naManchete
       ? ''
       : aviso('atencao', d.orfas === 1 ? '1 entrega em aberto está sem responsável.' : d.orfas + ' entregas em aberto estão sem responsável.',
-        'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.');
+        'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos.');
   }
   return html;
 }
@@ -854,10 +854,10 @@ function semanaEmDia(faltando, d) {
 function semanaSemProjeto() {
   return '<div class="cartao">' +
     '<div class="cartao-t">Nenhum projeto ainda</div>' +
-    '<p class="dica">Ideias que chegaram enche sozinha quando alguém responde o formulário da landing.</p>' +
+    '<p class="dica">Aplicações enche sozinha quando alguém responde o formulário da landing.</p>' +
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">' +
-      '<button class="bt bt-marca bt-sm" onclick="semanaIr(' + semanaArg('ideias') + ', ' + semanaArg('Ideias que chegaram') + ')">Ideias que chegaram</button>' +
-      '<button class="bt bt-linha bt-sm" onclick="semanaIr(' + semanaArg('roteiros') + ', ' + semanaArg('Roteiros e níveis') + ')">Roteiros e níveis</button>' +
+      '<button class="bt bt-marca bt-sm" onclick="semanaIr(' + semanaArg('ideias') + ', ' + semanaArg('às Aplicações') + ')">Aplicações</button>' +
+      '<button class="bt bt-linha bt-sm" onclick="semanaIr(' + semanaArg('roteiros') + ', ' + semanaArg('a Método e preços') + ')">Método e preços</button>' +
     '</div></div>';
 }
 
@@ -873,7 +873,7 @@ DESENHO.semana = function () {
   const orfasNaManchete = d.orfas && !d.vence.length && !d.atrasadas.length
     && !d.esperando.length && !d.devolutivas.length && d.temProjeto;
   texto('semana-linha', orfasNaManchete
-    ? 'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos em estruturação.'
+    ? 'Sem responsável ela não entra na semana de ninguém. Diga de quem é cada uma em Projetos.'
     : '');
   escrever('semana-quem-caixa', semanaSeletor(d));
   escrever('semana-recado', semanaRecados(d));

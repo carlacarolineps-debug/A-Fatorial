@@ -48,7 +48,7 @@ const FORM_TIPOS = [
 ];
 
 // O que a resposta vira na lista da mesa. Nome, e-mail e WhatsApp ganham
-// coluna propria em "Ideias que chegaram"; o resto aparece dentro da
+// coluna propria em "Aplicações"; o resto aparece dentro da
 // aplicacao, na ordem daqui.
 const FORM_PAPEIS = [
   { k: '',         nome: 'nada em coluna própria', eti: '' },
@@ -928,7 +928,7 @@ function formImpedimentos() {
   const comZap = formPapelDe('whatsapp');
   const emailDesligado = formPerguntas().find(function (p) { return p.papel === 'email' && p.ativa === false; });
 
-  // Os tres campos da mesa. Sem o nome, a lista de Ideias que chegaram
+  // Os tres campos da mesa. Sem o nome, a lista de Aplicações
   // vira uma fila de gente sem nome e a busca por nome nao acha ninguem,
   // mesmo com a pessoa tendo escrito o nome dela. O servidor cobra os
   // tres, e a tela cobrava so dois: o formulario passava daqui e voltava
@@ -1274,8 +1274,8 @@ async function formApagar(chave) {
   const sim = await perguntar({
     titulo: 'Apagar a pergunta ' + (p.titulo || 'sem texto'),
     texto: 'Ela sai do formulário na próxima publicação.' + (recebidas
-      ? ' As ' + recebidas + ' respostas que já chegaram continuam guardadas e continuam aparecendo em Ideias que chegaram.'
-      : ' As respostas que já chegaram continuam guardadas e continuam aparecendo em Ideias que chegaram.'),
+      ? ' As ' + recebidas + ' respostas que já chegaram continuam guardadas e continuam aparecendo em Aplicações.'
+      : ' As respostas que já chegaram continuam guardadas e continuam aparecendo em Aplicações.'),
     detalhe: 'Se você só quer parar de perguntar por um tempo, feche esta caixa e tire a pergunta do ar.',
     confirmar: 'Apagar',
   });
@@ -1562,7 +1562,7 @@ function formBarraAcoesHtml() {
     if (mexidas) {
       p += ' Você mudou o texto de ' + mexidas + (mexidas === 1 ? ' pergunta' : ' perguntas') +
         '. As respostas que já chegaram continuam guardadas com o texto antigo, e as novas chegam com o ' +
-        'texto novo. As duas aparecem em Ideias que chegaram, uma embaixo da outra.';
+        'texto novo. As duas aparecem em Aplicações, uma embaixo da outra.';
     }
     if (saiu.length) {
       p += ' ' + saiu.length + (saiu.length === 1 ? ' pergunta sai' : ' perguntas saem') + ' do formulário. ' +
@@ -1926,7 +1926,7 @@ function formAbertaHtml(p) {
         ? '<span class="dica" style="flex:1 1 260px">Esta pergunta não se apaga: é por este e-mail que vocês ' +
           'respondem. Para apagar, marque outra pergunta como o e-mail antes.</span>'
         : unica
-          ? '<span class="dica" style="flex:1 1 260px">Esta é a única pergunta que restou. Formulário sem ' +
+          ? '<span class="dica" style="flex:1 1 260px">Esta é a única pergunta que restou. Um formulário sem ' +
             'pergunta nenhuma não recebe ninguém.</span>'
           : '<button class="bt bt-linha bt-sm"' + trava + ' onclick="formApagar(\'' + chave + '\')">' +
             'Apagar esta pergunta</button>') +
@@ -2373,8 +2373,8 @@ function formMedHeroiHtml(f, nome) {
         ? '<p class="heroi-conversao">' + ic('i-trend') + '<b>' + dez + ' de cada 10</b> ' +
           'que começam, terminam. <span class="dica">Contado nas ' + Number(f.comecou || 0) +
           ' que começaram.</span></p>'
-        : '<p class="dica">Elas estão em Ideias que chegaram.</p>') +
-      '<button class="bt bt-linha bt-sm" onclick="irPara(\'ideias\')">Abrir Ideias que chegaram</button>' +
+        : '<p class="dica">Elas estão em Aplicações.</p>') +
+      '<button class="bt bt-linha bt-sm" onclick="irPara(\'ideias\')">Abrir Aplicações</button>' +
     '</div>' +
   '</div>';
 }
@@ -3488,7 +3488,7 @@ aoVivoRegistrar('formulario', formMedidasAtualizar, function () {
 
    2. fonte/sistema/30-base.js, na constante TELAS, logo depois de ideias:
 
-        { k: 'formulario', nome: 'O formulário', ic: 'i-flag', grupo: 'A mesa',
+        { k: 'formulario', nome: 'Formulário', ic: 'i-flag', grupo: 'A mesa',
           titulo: ['O <b>formulário</b>',
                    'As perguntas que a pessoa responde antes de chegar na sua mesa'] },
 

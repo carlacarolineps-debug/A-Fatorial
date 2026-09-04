@@ -264,7 +264,7 @@ function roteirosCartaoEntrega(entrega, roteiro, editavel, marca) {
       '<div class="rotulo">Definição de pronto</div>' +
       (editavel
         ? '<textarea class="campo" id="roteirosPronto-' + entrega.k + '" ' +
-          'placeholder="Uma linha por item. É isto que vira checklist na Mesa da entrega.">' +
+          'placeholder="Uma linha por item. É isto que vira checklist em Entregas.">' +
           esc(pronto.join('\n')) + '</textarea>'
         : '<ul style="margin:0 0 4px 18px;font-size:13px;color:var(--tx-2);line-height:1.8">' +
           pronto.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>') +
@@ -272,7 +272,7 @@ function roteirosCartaoEntrega(entrega, roteiro, editavel, marca) {
       '<div class="rotulo" style="margin-top:16px">Perguntas a fazer ao cliente</div>' +
       (editavel
         ? '<textarea class="campo" id="roteirosPerguntas-' + entrega.k + '" ' +
-          'placeholder="Uma por linha. Aparecem na Mesa da entrega, para não perguntar de novo o que já foi respondido.">' +
+          'placeholder="Uma por linha. Aparecem em Entregas, para não perguntar de novo o que já foi respondido.">' +
           esc((roteiro.perguntas || []).join('\n')) + '</textarea>'
         : '<ul style="margin:0 0 4px 18px;font-size:13px;color:var(--tx-2);line-height:1.8">' +
           (roteiro.perguntas || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') +
@@ -383,7 +383,7 @@ function roteirosPintarSelos(metodo) {
   escrever('roteirosSemPronto', escritas ? '' :
     '<p class="dica" style="margin:-8px 0 16px">Nenhuma entrega tem definição de pronto ainda. ' +
     'Ela é a lista do que precisa estar feito para a entrega poder ir ao cliente, e é ela que ' +
-    'vira o checklist na Mesa da entrega. Abra a primeira e escreva uma linha por item.</p>');
+    'vira o checklist em Entregas. Abra a primeira e escreva uma linha por item.</p>');
 }
 
 /* ------------------------------------------------------------------ */

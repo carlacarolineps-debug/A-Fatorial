@@ -182,7 +182,11 @@ await pg.selectOption("#casaPapel", "colaborador");
 await pg.waitForTimeout(250);
 dica = await pg.textContent("#casaPapelDica");
 t("ao escolher Colaborador, ela diz quantas e quais", /9 das 11 telas/.test(dica) && /Minha semana/.test(dica), dica);
-t("e não promete o que o colaborador não vê", !/Contratado e recebido/.test(dica), dica);
+// "Financeiro" e o nome de hoje. Este teste conferia "Contratado e
+// recebido", que depois do renomeio nao existia mais em lugar nenhum: ele
+// passava sempre, dissesse a tela o que dissesse. Teste que nao pode
+// falhar e pior que teste nenhum, porque da a impressao de cobrir.
+t("e não promete o que o colaborador não vê", !/Financeiro/.test(dica), dica);
 
 await pg.selectOption("#casaPapel", "cliente");
 await pg.waitForTimeout(250);
