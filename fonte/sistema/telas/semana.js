@@ -838,7 +838,11 @@ function semanaEmDia(faltando, d) {
   if (faltando.length < 3) {
     return '<div class="cartao"><div class="cartao-t">O que está em dia</div>' + itens + '</div>';
   }
-  return '<details class="dobra" style="margin-bottom:var(--e4)">' +
+  // Semana sem nada pendente: a dobra e a unica coisa na tela, e fechada
+  // ela deixa oitocentos pixels de preto embaixo. Aberta, ela mostra o que
+  // foi conferido, que e informacao de verdade e da corpo a tela.
+  const soElaNaTela = faltando.length === 6;
+  return '<details class="dobra"' + (soElaNaTela ? ' open' : '') + ' style="margin-bottom:var(--e4)">' +
     '<summary>' +
       '<span class="eti eti-ok">em dia</span>' +
       '<b>' + faltando.length + ' conferências passaram</b>' +

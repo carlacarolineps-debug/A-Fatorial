@@ -62,6 +62,19 @@ número que não aconteceu não grita do tamanho do que aconteceu.
 tem a mesma cor, a cor parou de significar alguma coisa. Vale para o
 laranja da marca e para as etiquetas de sinal.
 
+**O sistema é o miolo da mesma revista que a capa, e tem que parecer.**
+A landing tem pílula com brilho, degradê laranja, cartão de canto redondo
+com preenchimento radial e luz quente no fundo. O sistema tinha ficado com
+canto de 4px, nenhuma sombra, botão de contorno chapado e preto liso, que
+é o desenho de painel antigo. Os valores estão em `10-estilo.css`, tirados
+de `fonte/page.tpl.html`: `--o-grad`, `--r-pilula`, `--sombra-1` e
+`--luz-topo`. Ao criar componente novo, use esses, e não valores soltos.
+
+**O que é objeto ganha caixa; o que é assunto ganha fio.** `.cartao` é um
+projeto, um nível, uma pessoa: tem borda, canto e sombra curta. `.secao` é
+uma divisão de assunto: é só um fio em cima e ar embaixo. Caixa dentro de
+caixa some sozinha, pela regra do `:has` no fim do arquivo.
+
 **Tela de trabalho não abre com formulário.** O que se olha todo dia vem
 primeiro; o que se preenche de vez em quando mora numa `.dobra`, o
 `<details>` da casa, que abre no clique e no teclado sem JavaScript. Foi

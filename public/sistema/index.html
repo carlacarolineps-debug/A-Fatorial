@@ -66,8 +66,22 @@
   --t-corpo:14px;
   --t-apoio:12.5px;
   --t-rotulo:11px;
-  /* canto seco: os valores da capa (4 e 10), nao os 14 e 20 do painel */
-  --r:4px; --r-sm:3px; --r-lg:10px;
+  /* O canto.
+     Estava em 4px, com a nota de que era "o valor da capa". Não era: na
+     capa, 4px aparece em três detalhes, e o que se vê são os cartões de
+     11px, os blocos de 14 a 20 e as pílulas de 999. O sistema tinha ficado
+     com o menor valor da capa aplicado em tudo, que é justamente o que dá
+     cara de painel antigo. */
+  --r:10px; --r-sm:7px; --r-lg:16px; --r-pilula:999px;
+
+  /* O degradê da marca, o mesmo da capa, valor por valor. */
+  --o-grad:linear-gradient(135deg,#ffa53d 0%,#ff8309 46%,#ef6a00 100%);
+
+  /* Elevação. A capa levanta o que se pode tocar e deixa deitado o que só
+     se lê, e era isso que faltava: tudo aqui estava no mesmo plano. */
+  --sombra-1:0 1px 2px rgba(0,0,0,.34), 0 4px 12px -6px rgba(0,0,0,.5);
+  --sombra-2:0 2px 4px rgba(0,0,0,.3), 0 14px 28px -14px rgba(0,0,0,.62);
+  --luz-topo:inset 0 1px 0 rgba(255,255,255,.055);
   /* uma escala de espaco so. Numero solto em estilo em linha acaba aqui. */
   --e1:6px; --e2:12px; --e3:20px; --e4:32px; --e5:52px;
   --lateral:248px; --topo-h:56px;
@@ -114,9 +128,12 @@ b,strong{font-weight:600}
 
 /* Um rotulo so. Substitui as nove variacoes de maiuscula que existiam,
    com .08 / .09 / .12 / .12 / .13 / .14 / .16 / .16 / .2 de tracking. */
+/* .2em de espaco entre letras em maiuscula de 11px e o rotulo de painel de
+   2014, e ele aparece dezenas de vezes por tela. .1em ainda separa e para
+   de soletrar. */
 .rotulo,.menu-grupo,table.lista th,.numero .l,.tira .l{
   font-family:var(--texto); font-size:var(--t-rotulo); font-weight:600;
-  letter-spacing:.2em; text-transform:uppercase; color:var(--tx-4,var(--tinta-4));
+  letter-spacing:.1em; text-transform:uppercase; color:var(--tx-4,var(--tinta-4));
 }
 .rotulo{display:block;margin-bottom:var(--e1)}
 /* O kicker da capa, texto puro. E o que o .selo passa a ser. */
@@ -178,10 +195,18 @@ body[data-mesa="papel"]{
    nao os arrasta. Preto chapado em tela grande vira faixa e parece
    apagado; isto e o que faz a porta e o miolo serem a mesma casa. So no
    preto: sobre papel o halo viraria mancha. */
+/* A luz da casa.
+   Ela existia a 13% e 7%, tao fraca que a tela lia como preto chapado, e
+   preto chapado numa tela de 1440 e o que faz o sistema parecer apagado do
+   lado da capa. Agora sao tres focos, como na capa: o quente no alto a
+   esquerda, um segundo no pe a direita, e uma banda fria no meio que
+   impede o preto de fechar. */
 .app::before{
   content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
-  background:radial-gradient(58% 48% at 16% -8%,rgba(255,131,9,.13),transparent 62%),
-             radial-gradient(42% 40% at 102% 104%,rgba(255,131,9,.07),transparent 62%);
+  background:
+    radial-gradient(64% 52% at 12% -10%,rgba(255,131,9,.20),transparent 64%),
+    radial-gradient(46% 44% at 104% 106%,rgba(255,131,9,.11),transparent 62%),
+    radial-gradient(80% 60% at 50% 42%,rgba(120,120,160,.055),transparent 70%);
 }
 body[data-mesa="papel"] .app::before{content:none}
 /* min-width:0 na coluna do conteudo. Sem isto o minimo automatico do grid
@@ -227,7 +252,14 @@ body[data-mesa="papel"] .app::before{content:none}
   background:linear-gradient(90deg,var(--o-18),var(--o-05) 58%,transparent 84%);
   transform:scaleX(0); transform-origin:0 50%;
   transition:transform var(--t-superficie) var(--ease);
+  border-radius:var(--r);
 }
+/* O item aberto deixa de ser so um fio de 2px e vira uma pilula levantada,
+   com o degrade da marca na borda esquerda. Numa lateral de onze linhas
+   iguais, saber onde se esta e a primeira coisa que o desenho deve. */
+.menu{padding-inline:var(--e2)}
+.menu-item{border-radius:var(--r);border-top:0;margin-bottom:2px}
+.menu-grupo{padding-inline:var(--e2)}
 .menu-item>*{position:relative;z-index:2}
 .menu-item:hover{color:var(--branco)}
 .menu-item:hover::before{transform:scaleX(1)}
@@ -366,21 +398,46 @@ body{background:var(--fundo)}
 .chamada .bt:hover{background:rgba(0,0,0,.10);border-color:#12100c}
 
 /* ------------------------------------------------------------ secao
-   O cartao morre como caixa: fio em cima, ar embaixo, que e como revista
-   separa materia de materia sem desenhar nada. Sem sombra: a mesma
-   sombra em 57 caixas nao eleva nada em relacao a nada, so suja. */
-/* O 52px do --e5 e o respiro de uma pagina que se le uma vez. Numa tela
-   com cinco secoes ele soma 260px de nada, e obriga a rolar para descobrir
-   que existe mais coisa embaixo. */
-.cartao,.secao{
+   Duas coisas diferentes que estavam com o mesmo desenho.
+
+   A .secao separa ASSUNTO, e para isso o fio em cima e o ar embaixo
+   bastam: e como revista separa materia de materia sem desenhar nada. O
+   52px do --e5 era respiro de pagina que se le uma vez; numa tela com
+   cinco secoes ele somava 260px de nada.
+
+   O .cartao e um OBJETO: um projeto, um nivel, uma pessoa, um recado. Ele
+   tinha perdido a caixa junto com a secao, e a tela virou texto solto
+   sobre preto chapado, sem nada para o olho pousar. Dai a queixa de "sem
+   graca". A capa levanta o que se pode tocar, e e dela que vem este
+   cartao, valor por valor: canto de 10px, borda de um pixel e
+   preenchimento radial que clareia num canto so. A sombra e curta de
+   proposito: a mesma sombra em 57 caixas continua nao elevando nada, e
+   quem faz o trabalho aqui e a borda. */
+.secao{
   background:none; border:0; border-top:1px solid var(--fio); border-radius:0;
   box-shadow:none; padding:var(--e3) 0 0; margin:0 0 var(--e4);
+}
+.cartao{
+  position:relative; border:1px solid var(--fio); border-radius:var(--r);
+  background:radial-gradient(circle 420px at 0% 0%,var(--fundo-3),var(--fundo-2));
+  box-shadow:var(--luz-topo), var(--sombra-1);
+  padding:var(--e3); margin:0 0 var(--e3);
+}
+/* Cartao que so guarda outros cartoes deixa de ser cartao: caixa dentro de
+   caixa e o desenho que a Carla chamou de confuso, e agora que a caixa tem
+   borda e sombra ela apareceria duas vezes. */
+.cartao:has(>.dobra),.cartao:has(>.numeros),.cartao:has(>.cartao){
+  border:0; border-top:1px solid var(--fio); border-radius:0;
+  background:none; box-shadow:none; padding:var(--e3) 0 0;
 }
 .cartao-t,.secao-t{
   display:flex; align-items:baseline; gap:var(--e2); flex-wrap:wrap;
   margin-bottom:var(--e3);
 }
-.cartao-t,.secao-t h3{
+/* .secao-t entra aqui junto com .cartao-t: metade das telas escreve o
+   titulo como texto solto dentro da div, sem h3, e sem esta linha esses
+   titulos saiam em corpo de paragrafo. */
+.cartao-t,.secao-t,.secao-t h3{
   font-family:var(--display); font-weight:800; font-size:var(--t-bloco);
   letter-spacing:-.03em; line-height:1.2; color:var(--tx);
   text-transform:none;
@@ -404,14 +461,33 @@ body{background:var(--fundo)}
    uma com dois era obrigada a inventar mais dois para preencher: e assim
    que a tira passou a repetir o numero que a manchete acabou de dar. */
 .numeros,.tira{
-  display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:0;
-  border-top:1px solid var(--fio); margin-bottom:var(--e3);
+  display:grid; grid-auto-flow:column; grid-auto-columns:1fr;
+  gap:var(--e2); border-top:0; margin-bottom:var(--e3);
 }
+/* O ladrilho da capa, na escala do sistema.
+   Antes eram numeros nus separados por fio vertical, que e o desenho de
+   planilha, e planilha e o que da cara de sistema antigo. O cartao da capa
+   e canto de 11px, borda de um pixel e preenchimento radial que clareia
+   num canto so; e isso, mais a faixa quente no alto que ela usa nas oito
+   entregas. */
 .numero,.tira>div{
-  background:none; border:0; border-right:1px solid var(--fio-2); border-radius:0;
-  padding:var(--e2) var(--e3) var(--e2) 0;
+  position:relative; overflow:hidden; border-radius:var(--r);
+  border:1px solid var(--fio);
+  background:radial-gradient(circle 240px at 0% 0%,var(--fundo-3),var(--fundo-2));
+  box-shadow:var(--luz-topo);
+  padding:var(--e3);
 }
-.numero:last-child,.tira>div:last-child{border-right:0;padding-right:0}
+.numero::after,.tira>div::after{
+  content:""; position:absolute; inset:0 auto auto 0; height:2px; width:38%;
+  background:linear-gradient(90deg,var(--o-35),transparent);
+}
+/* O numero que puxa a decisao ganha a faixa inteira, no degrade da marca. */
+.numero.puxa::after,.tira .puxa::after{background:var(--o-grad);width:60%}
+/* Zero nao acende: sem noticia, sem faixa nenhuma. A .28 de opacidade ela
+   ainda aparecia, e quatro ladrilhos acesos com tres zeros dentro e o
+   mesmo erro de antes, so que agora em forma de luz. */
+.numero:has(.v.zero)::after,.tira>div:has(.v.zero)::after{display:none}
+.numero:has(.v.zero),.tira>div:has(.v.zero){background:var(--fundo-2)}
 /* Quatro numeros de 42px logo abaixo de uma manchete sao cinco manchetes
    na mesma tela, e a tira costuma repetir o numero que a manchete acabou
    de dar. Ela volta ao tamanho de dado: le-se de relance, nao se anuncia. */
@@ -542,11 +618,17 @@ table.lista td.vazio{height:auto}
 /* -------------------------------------------------------- etiquetas
    Canto seco e fio de 2px a esquerda. O balao colorido gritava junto com
    o laranja da marca, e com quatro cores empilhadas nenhuma valia nada. */
+/* A etiqueta vira pilula, tingida do proprio tom.
+   O fio de 2px a esquerda sobre cinza servia para qualquer coisa e por
+   isso nao dizia nada: verde, ambar e vermelho ficavam com a mesma
+   silhueta. Agora a cor entra no fundo e na borda, em oito e vinte por
+   cento, e a forma e a mesma pilula dos botoes da capa. */
 .eti{
   display:inline-flex; align-items:center; gap:6px;
-  font-size:var(--t-rotulo); font-weight:600; letter-spacing:.1em; text-transform:uppercase;
-  padding:3px 8px; border-radius:var(--r-sm); white-space:nowrap;
-  border-left:2px solid currentColor; background:rgba(255,255,255,.06);
+  font-size:var(--t-rotulo); font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 10px; border-radius:var(--r-pilula); white-space:nowrap;
+  border:1px solid color-mix(in srgb, currentColor 22%, transparent);
+  background:color-mix(in srgb, currentColor 7%, transparent);
 }
 .eti svg{width:12px;height:12px}
 .eti-ok{color:var(--sinal-ok)}
@@ -566,19 +648,53 @@ table.lista td.vazio{height:auto}
 body[data-mesa="papel"] .eti{background:rgba(16,16,20,.05)}
 
 /* --------------------------------------------------------- controles */
+/* O botão é a pílula da página de vendas, na escala de ferramenta.
+   Lá ela tem 16px de altura interna e 28 de lado, porque é um alvo de
+   página de venda; aqui vive dentro de linha de lista, então encolhe. O
+   que não encolhe é o desenho: canto redondo inteiro, o mesmo degradê e o
+   mesmo brilho por dentro. Era isto que a Carla queria dizer com "o botão
+   pode ser igual os da página de vendas". */
 .bt{
-  display:inline-flex; align-items:center; gap:8px; border:1px solid transparent;
-  border-radius:var(--r); padding:9px 16px; font-size:13px; font-weight:600;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:1px solid transparent; border-radius:var(--r-pilula);
+  padding:9px 18px; font-size:13px; font-weight:600;
   cursor:pointer; background:none; color:var(--tx-2);
+  position:relative; isolation:isolate;
   transition:background-color var(--t-controle) var(--ease),
              border-color var(--t-controle) var(--ease),
-             color var(--t-controle) var(--ease);
+             color var(--t-controle) var(--ease),
+             transform var(--t-controle) var(--ease),
+             box-shadow var(--t-controle) var(--ease);
 }
 .bt svg{width:15px;height:15px;flex:none}
-.bt-marca{background:var(--o);color:#1b1204;border-color:var(--o)}
-.bt-marca:hover{background:var(--o-lt);border-color:var(--o-lt)}
-.bt-linha{border-color:var(--fio);color:var(--tx-2)}
-.bt-linha:hover{border-color:var(--tx-3);color:var(--tx)}
+.bt:active{transform:translateY(1px)}
+
+/* O laranja da casa, com os cinco brilhos da capa: dois por dentro em
+   cima, um por dentro embaixo, e dois de sombra por fora. Sem eles o
+   laranja fica chapado, que é o que dava cara de botão de formulário. */
+.bt-marca{
+  background:var(--o-grad); color:#1b1204; border-color:transparent;
+  box-shadow:
+    inset 0 .22rem .6rem rgba(255,255,255,.55),
+    inset 0 -.08rem .26rem rgba(122,52,0,.45),
+    inset 0 -.3rem .7rem rgba(255,214,158,.45),
+    0 .7rem 1.1rem -.6rem rgba(255,131,9,.5),
+    0 .3rem .5rem -.3rem rgba(0,0,0,.5);
+}
+.bt-marca:hover{filter:brightness(1.06)}
+.bt-marca:active{filter:brightness(.97)}
+
+/* A pílula escura levantada, a irmã do "Ver o método" da capa. */
+.bt-linha{
+  background:linear-gradient(180deg,var(--fundo-3),var(--fundo-2));
+  border-color:var(--fio); color:var(--tx);
+  box-shadow:var(--luz-topo), var(--sombra-1);
+}
+.bt-linha:hover{border-color:var(--o-35);color:var(--tx)}
+body[data-mesa="papel"] .bt-linha{
+  background:linear-gradient(180deg,#fff,#f3f0e9);
+  box-shadow:inset 0 1px 0 #fff, var(--sombra-1);
+}
 /* acao secundaria em revista e link sublinhado, nao um terceiro botao */
 .bt-texto{padding:0;color:var(--tx);text-decoration:underline;text-underline-offset:4px;
   text-decoration-thickness:1px;text-decoration-color:var(--fio)}
@@ -1358,8 +1474,8 @@ kbd{
 
   <div id="roteirosAviso"></div>
 
-  <div class="cartao">
-    <div class="cartao-t">
+  <div class="secao">
+    <div class="secao-t">
       Os três níveis
       <span id="roteirosSeloNiveis"></span>
     </div>
@@ -1370,13 +1486,13 @@ kbd{
     <div id="roteirosNiveis"></div>
   </div>
 
-  <div class="cartao">
-    <div class="cartao-t">As seis etapas do método</div>
+  <div class="secao">
+    <div class="secao-t">As seis etapas do método</div>
     <div id="roteirosEtapas"></div>
   </div>
 
-  <div class="cartao">
-    <div class="cartao-t">
+  <div class="secao">
+    <div class="secao-t">
       As oito entregas
       <span id="roteirosSeloProntas"></span>
     </div>
@@ -3004,7 +3120,11 @@ function semanaEmDia(faltando, d) {
   if (faltando.length < 3) {
     return '<div class="cartao"><div class="cartao-t">O que está em dia</div>' + itens + '</div>';
   }
-  return '<details class="dobra" style="margin-bottom:var(--e4)">' +
+  // Semana sem nada pendente: a dobra e a unica coisa na tela, e fechada
+  // ela deixa oitocentos pixels de preto embaixo. Aberta, ela mostra o que
+  // foi conferido, que e informacao de verdade e da corpo a tela.
+  const soElaNaTela = faltando.length === 6;
+  return '<details class="dobra"' + (soElaNaTela ? ' open' : '') + ' style="margin-bottom:var(--e4)">' +
     '<summary>' +
       '<span class="eti eti-ok">em dia</span>' +
       '<b>' + faltando.length + ' conferências passaram</b>' +
